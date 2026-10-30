@@ -309,8 +309,7 @@ void JournalScreen::ShowToast(const std::string& text) { toast.Show(text, GameCl
 
 void JournalScreen::OpenIntro() {
 	turn = {};
-	hovered = {};
-	pressed = {};
+	pointer.Clear();
 	section = Section::Diary;
 	spread[static_cast<size_t>(section)] = 0;
 	intro = true;
@@ -350,7 +349,7 @@ void JournalScreen::StartTurn(Opening to, bool dragged) {
 	turn.dragging = dragged;
 	turn.target = static_cast<float>(M_PI);
 	turn.lastMs = GameClock::now();
-	hovered = {};
+	pointer.Move({});
 	Game().assets.sounds.pageTurn.Play();
 }
 
@@ -425,7 +424,13 @@ void JournalScreen::Activate(const Hit& hit) {
 	}
 }
 
-void JournalScreen::SpecialKeyPressed(int key) {
+void JournalScreen::KeyPressed(unsigned char key) { Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls)); }
+
+void JournalScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
+
+// Left / Right turn the page, Up / Down go to the next section with pages. On a riddles spread Enter focuses its first
+// Answer button, then answers; with an Answer focused, Left / Right go to the other one before they turn the page.
+void JournalScreen::Navigate(NavKey key) {
 	auto other = [this](int by) { // the next section with a ribbon
 		for (int step = 1; step < SECTION_COUNT; step++) {
 			int s = (static_cast<int>(section) + SECTION_COUNT + by * step) % SECTION_COUNT;
@@ -435,14 +440,39 @@ void JournalScreen::SpecialKeyPressed(int key) {
 			}
 		}
 	};
-	if (key == SPECIAL_MOVE_LEFT)
-		Turn(-1);
-	else if (key == SPECIAL_MOVE_RIGHT)
-		Turn(1);
-	else if (key == SPECIAL_MOVE_UP)
+	const Target focus = turn.active ? Target::None : pointer.hovered.target;
+	switch (key) {
+	case NavKey::Left:
+		if (focus == Target::AnswerRight && CanAnswer(0))
+			pointer.Move({Target::AnswerLeft, 0});
+		else
+			Turn(-1);
+		return;
+	case NavKey::Right:
+		if (focus == Target::AnswerLeft && CanAnswer(1))
+			pointer.Move({Target::AnswerRight, 0});
+		else
+			Turn(1);
+		return;
+	case NavKey::Up:
 		other(-1);
-	else if (key == SPECIAL_MOVE_DOWN)
+		return;
+	case NavKey::Down:
 		other(1);
+		return;
+	case NavKey::Activate:
+		if (focus == Target::AnswerLeft || focus == Target::AnswerRight) {
+			const Hit answer = pointer.hovered;
+			pointer.Move({});
+			Activate(answer);
+		} else if (!turn.active && CanAnswer(0))
+			pointer.Move({Target::AnswerLeft, 0});
+		else if (!turn.active && CanAnswer(1))
+			pointer.Move({Target::AnswerRight, 0});
+		return;
+	case NavKey::None:
+		return;
+	}
 }
 
 void JournalScreen::MouseMotion(int x, int y) {
@@ -455,7 +485,7 @@ void JournalScreen::MouseMotion(int x, int y) {
 		turn.cornerY = cy - turn.pressY;
 		return;
 	}
-	hovered = HitAt(cx, cy);
+	pointer.Move(HitAt(cx, cy));
 }
 
 void JournalScreen::MouseFunction(int button, int state, int x, int y) {
@@ -471,17 +501,18 @@ void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 	float cy = 0.f;
 	toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
 	if (state == GLUT_DOWN) {
-		pressed = hovered;
-		bool corner = hovered.target == Target::PrevPage || hovered.target == Target::NextPage;
-		if (corner && !pagesFailed) { // grab the page by its corner
+		const Hit at = pointer.hovered;
+		bool corner = at.target == Target::PrevPage || at.target == Target::NextPage;
+		if (corner && !pagesFailed) { // grab the page by its corner: the turn follows the drag
 			Opening to = Open();
-			to.spread += hovered.target == Target::NextPage ? 1 : -1;
+			to.spread += at.target == Target::NextPage ? 1 : -1;
 			StartTurn(to, true);
 			turn.pressX = cx;
 			turn.pressY = cy;
 			turn.cornerX = RIGHT_PAGE.w;
-			pressed = {};
-		}
+			pointer.Down({}, button);
+		} else
+			pointer.Down(at, button);
 		return;
 	}
 	if (turn.dragging) {
@@ -500,11 +531,9 @@ void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 		}
 		return;
 	}
-	Hit was = pressed;
-	pressed = {};
-	if (was.target != Target::None && was == hovered) {
-		Activate(was);
-		hovered = {}; // the riddle screen, or the new page, has its own targets
+	if (const Hit fired = pointer.Up(pointer.hovered, button); fired.target != Target::None) {
+		Activate(fired);
+		pointer.Move({}); // the riddle screen, or the new page, has its own targets
 	}
 }
 
@@ -538,6 +567,7 @@ void JournalScreen::Draw() {
 
 	// The pages a turn shows; a hovered corner lifts a little, showing the page behind.
 	const Opening open = Open();
+	const Hit& hovered = pointer.hovered;
 	bool peek = !turn.active && (hovered.target == Target::PrevPage || hovered.target == Target::NextPage);
 	bool turning = turn.active || peek;
 	bool forward = turn.active ? turn.forward : hovered.target == Target::NextPage;
@@ -732,8 +762,8 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		break;
 	case Section::Riddles: {
 		Target answer = side == 0 ? Target::AnswerLeft : Target::AnswerRight;
-		bool over = live && hovered.target == answer;
-		DrawRiddle(p, page, over, over && pressed.target == answer);
+		bool over = live && pointer.hovered.target == answer;
+		DrawRiddle(p, page, over, over && pointer.pressed.target == answer);
 		break;
 	}
 	}
@@ -831,10 +861,11 @@ void JournalScreen::DrawRibbons(bool top) {
 		}
 		if (place.top != top)
 			continue;
-		bool isHovered = hovered.target == Target::Ribbon && hovered.ribbon == i;
+		bool isHovered = pointer.hovered.target == Target::Ribbon && pointer.hovered.ribbon == i;
 		DrawRibbon(i, place.left, place.depth, static_cast<int>(shown) == i, isHovered);
 	}
 	// The hovered ribbon's name, on a small dark label next to it on the page.
+	const Hit& hovered = pointer.hovered;
 	if (!top || hovered.target != Target::Ribbon)
 		return;
 	const char* name = SECTIONS[static_cast<size_t>(hovered.ribbon)].name;
@@ -1252,21 +1283,24 @@ void JournalScreen::DrawCorners() {
 	beginShapes();
 	int open = spread[static_cast<size_t>(section)];
 	if (open > 0)
-		cornerArrow(cornerRect(0), true, hovered.target == Target::PrevPage ? INK_RED : PENCIL);
+		cornerArrow(cornerRect(0), true, pointer.hovered.target == Target::PrevPage ? INK_RED : PENCIL);
 	if (open < SpreadCount(section) - 1)
-		cornerArrow(cornerRect(1), false, hovered.target == Target::NextPage ? INK_RED : PENCIL);
+		cornerArrow(cornerRect(1), false, pointer.hovered.target == Target::NextPage ? INK_RED : PENCIL);
 }
 
 void JournalScreen::DrawFooter() {
 	beginText();
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
 		textCentered(body, CANVAS_W / 2, 6.2f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
+	const bool answers = CanAnswer(0) || CanAnswer(1);
 	textCentered(
 		small,
 		CANVAS_W / 2,
 		2.2f,
-		"Ribbons, Up / Down: section    Corners (click or drag), Left / Right, wheel: turn the page    "
-		"J / Esc: close",
+		answers ? "Ribbons, Up / Down: section    Corners, Left / Right, wheel: turn the page    Enter: answer    "
+				  "J / Esc: close"
+				: "Ribbons, Up / Down: section    Corners (click or drag), Left / Right, wheel: turn the page    "
+				  "J / Esc: close",
 		{0.55f, 0.45f, 0.30f}
 	);
 	beginShapes();

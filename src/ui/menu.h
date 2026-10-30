@@ -2,9 +2,11 @@
 #define MENU_H
 #include <memory>
 #include <string>
+#include <vector>
 #include "../graphics/font.h"
 #include "../graphics/textures.h"
 #include "../input/bindings.h"
+#include "pointer.h"
 #include "records_view.h"
 #include "ui_draw.h"
 
@@ -22,8 +24,7 @@ class MainMenu {
 	static constexpr int BIND_BASE = 400; // Options > Controls: action * BINDING_SLOTS + slot
 	static constexpr int RECORDS_BASE = 600; // Hall of Records: its own targets (RecordsView)
 
-	int hovered = NONE;
-	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same target
+	ui::Pointer<int> pointer{NONE};
 
 	bool assetsLoaded = false;
 	Font title, heading, body, small;
@@ -46,7 +47,8 @@ class MainMenu {
 	void DrawControlCell(int target, const ui::Rect& r);
 	void DrawRows();
 	void DrawFooterHint();
-	void ActivateOption(int row);
+	void ActivateOption(int row, int step = 1); // a switch flips, a choice steps on (1) or back (-1)
+	void StepOption(int row, int step); // Left / Right on a row: also a slider, by 5
 	void SetSlider(int row, int x);
 	void StartCapture(int target);
 	void Bind(const InputKey& key);
@@ -54,6 +56,15 @@ class MainMenu {
 	void DrawBackButton();
 	void DrawFooter(const char* hint);
 	int TargetAt(int x, int y);
+	// The open sub-screen's targets and their canvas rects, in TargetAt's order (not the Hall of Records'):
+	// the keyboard moves the focus between them (plan keyboard-menus).
+	struct Placed {
+		int target;
+		ui::Rect rect;
+	};
+	[[nodiscard]] std::vector<Placed> Targets() const;
+	[[nodiscard]] int SubScreen() const; // which screen is open, to tell when an action opened another
+	void Navigate(NavKey key);
 	void Activate(int target);
 	void ShowToast(const std::string& text);
 
@@ -79,8 +90,11 @@ class MainMenu {
 	// The Hall of Records, with the run just recorded marked (an index into the board's records, or
 	// RecordsView::NONE).
 	void OpenRecords(int marked);
-	void KeyPressed(unsigned char key); // a sub-screen's keys (the Hall of Records: Enter)
-	void SpecialKeyPressed(int key); // the Hall of Records: Up / Down
+	// The arrows (and the bound move keys) move the focus, Enter activates, Left / Right on an Options row change it,
+	// on the tabs switch them; the Hall of Records has its own keys. Esc is input.cpp's (BackOut).
+	void KeyPressed(unsigned char key);
+	void SpecialKeyPressed(int key);
+	bool openedJournal = false; // the in-game menu opened the journal: Esc there comes back here
 };
 
 #endif

@@ -5,6 +5,8 @@
 #include "../graphics/render_target.h"
 #include "../graphics/textures.h"
 #include "../world/level.h"
+#include "../input/bindings.h"
+#include "pointer.h"
 #include "ui_draw.h"
 #include <array>
 #include <cstdint>
@@ -24,6 +26,9 @@ class JournalScreen {
 	// until the game runs again (EndIntro).
 	void OpenIntro();
 	void EndIntro() { intro = false; }
+	// The arrows and the bound move keys turn pages and switch sections; Enter / Space / Interact focus and press the
+	// riddle Answer buttons (Navigate).
+	void KeyPressed(unsigned char key);
 	void SpecialKeyPressed(int key);
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
@@ -69,8 +74,7 @@ class JournalScreen {
 	Section section = Section::Creatures;
 	std::array<int, SECTION_COUNT> spread{}; // the spread open in each section
 	PageTurn turn;
-	Hit hovered;
-	Hit pressed;
+	ui::Pointer<Hit> pointer;
 	ui::Toast toast;
 	std::array<Texture, MONSTER_TYPE_MAX + 1> photoTextures; // monster textures in black and white, by type, on demand
 	std::array<RenderTarget, PAGE_SLOTS> pages; // drawn each frame, then laid on the book or bent
@@ -113,6 +117,7 @@ class JournalScreen {
 	[[nodiscard]] int EntryOnPage(int side) const;
 	[[nodiscard]] bool CanAnswer(int side) const;
 	void Activate(const Hit& hit);
+	void Navigate(NavKey key);
 	[[nodiscard]] Hit HitAt(float x, float y) const;
 
 	// A page into its slot's texture (or straight onto the book, see pagesFailed); `live` for the open spread's

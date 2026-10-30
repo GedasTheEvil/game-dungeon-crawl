@@ -2,6 +2,8 @@
 #define SKILLS_VIEW_H
 
 #include "../graphics/font.h"
+#include "../input/bindings.h"
+#include "pointer.h"
 #include "ui_draw.h"
 
 // The Heka screen ([K], plan skills): a card per skill and the heka left to spend; the papyrus on the right tells the
@@ -17,12 +19,14 @@ class SkillsScreen {
 
   private:
 	enum class Target : unsigned char { None, Card, LearnButton };
+	struct Pick {
+		Target target = Target::None;
+		int card = -1;
+		bool operator==(const Pick&) const = default;
+	};
 
 	int selected = 0; // a SkillId
-	int hoveredCard = -1;
-	bool hoveredButton = false;
-	Target pressed = Target::None;
-	int pressedCard = -1;
+	ui::Pointer<Pick> pointer;
 	bool confirming = false; // the first press of Learn: the next one learns
 	ui::Toast toast;
 	Font title, heading, body, small;
@@ -30,6 +34,7 @@ class SkillsScreen {
 
 	void Select(int card);
 	void MoveSelection(int dx, int dy);
+	void Navigate(NavKey key); // the arrows and the bound move keys pick a card, Enter / Space / Interact learn
 	void PressLearn();
 	void UpdateHover(float x, float y);
 

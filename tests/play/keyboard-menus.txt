@@ -1,0 +1,11 @@
+# Plan keyboard-menus, for `bin/game --play tests/play/keyboard-menus.txt`: tests/levels/riddle with its journal riddle
+# (walk right to the first gate, Esc away from it). Esc opens the menu: the arrows / WASD move the focus, Enter picks;
+# Options: Left / Right on the tabs and the rows. Menu > Journal, Esc: back in the menu. J, Up / Down to the riddles,
+# Enter twice answers. I and K: WASD, the arrows, Enter / E.
+seed 1
+god
+level tests/levels/riddle
+riddles tests/riddles/journal.txt
+give melee 1
+give potion 0 2
+heka 1

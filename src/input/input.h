@@ -8,14 +8,6 @@ const unsigned char KEY_SPACE = 32;
 const unsigned char KEY_TAB = 9;
 const unsigned char KEY_DELETE = 127;
 const unsigned char KEY_BACKSPACE = 8;
-const unsigned char KEY_MOVE_LEFT = 'a';
-const unsigned char KEY_MOVE_RIGHT = 'd';
-const unsigned char KEY_MOVE_DOWN = 's';
-const unsigned char KEY_MOVE_UP = 'w';
-const unsigned char KEY_MOVE_LEFT_UPPER = 'A';
-const unsigned char KEY_MOVE_RIGHT_UPPER = 'D';
-const unsigned char KEY_MOVE_DOWN_UPPER = 'S';
-const unsigned char KEY_MOVE_UP_UPPER = 'W';
 
 // Key codes the screens read directly and the fixed keys; the gameplay keys are bindings (bindings.h, with GLUT's
 // special key codes).

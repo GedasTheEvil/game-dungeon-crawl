@@ -367,12 +367,14 @@ void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock:
 
 void Inventory::UpdateHover(float x, float y) {
 	const Hit hit = hitAt(bag, tab, Sort(), Scroll(), TwoButtons(), x, y);
-	hoveredSlot = hit.slot;
-	hoveredTab = hit.tab;
-	hoveredSort = hit.sort;
-	hoveredButton = hit.button == Button::Use		? Target::UseButton
-					: hit.button == Button::Upgrade ? Target::UpgradeButton
-													: Target::None;
+	pointer.Move(
+		hit.slot != NO_HIT				? Pick{Target::Slot, hit.slot}
+		: hit.tab != NO_HIT				? Pick{Target::Tab, hit.tab}
+		: hit.sort != NO_HIT			? Pick{Target::SortButton, hit.sort}
+		: hit.button == Button::Use		? Pick{Target::UseButton}
+		: hit.button == Button::Upgrade ? Pick{Target::UpgradeButton}
+										: Pick{}
+	);
 }
 
 void Inventory::MouseMotion(int x, int y) {
@@ -397,82 +399,78 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 		return;
 	}
 
+	const Pick at = pointer.hovered;
 	if (state == GLUT_DOWN) {
-		pressedMouseButton = button;
-		pressed = Target::None;
-		if (hoveredSlot != NO_SLOT) {
-			pressed = Target::Slot;
-			pressedSlot = hoveredSlot;
-			Select(hoveredSlot);
-		} else if (hoveredTab != NO_TAB && button == MOUSE_LEFT_BUTTON) {
-			if (TabEnabled(groupAt(hoveredTab))) {
-				pressed = Target::Tab;
-				pressedSlot = hoveredTab;
-			}
-		} else if (hoveredSort != NO_SORT && button == MOUSE_LEFT_BUTTON) {
-			pressed = Target::SortButton;
-			pressedSlot = hoveredSort;
-		} else if (button == MOUSE_LEFT_BUTTON) {
-			pressed = hoveredButton;
-		}
+		// Any button on a slot; only the left one on the rest, a dimmed tab takes none.
+		const bool takes = at.target == Target::Slot ||
+						   (button == MOUSE_LEFT_BUTTON && (at.target != Target::Tab || TabEnabled(groupAt(at.index))));
+		pointer.Down(takes ? at : Pick{}, button);
+		if (at.target == Target::Slot)
+			Select(at.index);
 		return;
 	}
-
-	if (state != GLUT_UP || button != pressedMouseButton)
+	if (state != GLUT_UP)
 		return;
 
-	if (pressed == Target::UseButton && hoveredButton == pressed) {
+	const Pick fired = pointer.Up(at, button);
+	switch (fired.target) {
+	case Target::UseButton:
 		if (isRing(selectedSlot))
 			WearOnHand(selectedSlot, Hand::Left);
 		else
 			Use(selectedSlot);
-	} else if (pressed == Target::UpgradeButton && hoveredButton == pressed) {
+		return;
+	case Target::UpgradeButton:
 		if (isRing(selectedSlot))
 			WearOnHand(selectedSlot, Hand::Right);
 		else
 			Upgrade(selectedSlot);
-	} else if (pressed == Target::Tab && hoveredTab == pressedSlot)
-		SwitchTab(groupAt(pressedSlot));
-	else if (pressed == Target::SortButton && hoveredSort == pressedSlot)
-		ToggleSort(static_cast<SortOrder>(pressedSlot));
-	else if (pressed == Target::Slot && button == MOUSE_RIGHT_BUTTON && hoveredSlot == pressedSlot)
-		Use(pressedSlot);
-	pressed = Target::None;
-	pressedSlot = NO_SLOT;
+		return;
+	case Target::Tab:
+		SwitchTab(groupAt(fired.index));
+		return;
+	case Target::SortButton:
+		ToggleSort(static_cast<SortOrder>(fired.index));
+		return;
+	case Target::Slot:
+		if (button == MOUSE_RIGHT_BUTTON)
+			Use(fired.index);
+		return;
+	case Target::None:
+		return;
+	}
 }
 
 void Inventory::KeyPressed(unsigned char key) {
+	if (const NavKey nav = navKeyOf(InputKey::Char(key), Game().settings.controls); nav != NavKey::None) {
+		Navigate(nav);
+		return;
+	}
+	if (key == 'u' || key == 'U')
+		Upgrade(selectedSlot);
+	else if (key == KEY_TAB)
+		NextTab();
+	// the number keys do nothing here: picking is by mouse and the move keys
+}
+
+void Inventory::Navigate(NavKey key) {
 	switch (key) {
-	case KEY_ENTER:
-	case KEY_SPACE:
-	case 'e':
-	case 'E':
+	case NavKey::Activate:
 		Use(selectedSlot);
 		return;
-	case 'u':
-	case 'U':
-		Upgrade(selectedSlot);
-		return;
-	case KEY_MOVE_LEFT:
-	case KEY_MOVE_LEFT_UPPER:
+	case NavKey::Left:
 		MoveSelection(-1, 0);
 		return;
-	case KEY_MOVE_RIGHT:
-	case KEY_MOVE_RIGHT_UPPER:
+	case NavKey::Right:
 		MoveSelection(1, 0);
 		return;
-	case KEY_MOVE_UP:
-	case KEY_MOVE_UP_UPPER:
+	case NavKey::Up:
 		MoveSelection(0, 1);
 		return;
-	case KEY_MOVE_DOWN:
-	case KEY_MOVE_DOWN_UPPER:
+	case NavKey::Down:
 		MoveSelection(0, -1);
 		return;
-	case KEY_TAB:
-		NextTab();
-		return;
-	default: // the number keys do nothing here: picking is by mouse and the move keys
+	case NavKey::None:
 		return;
 	}
 }
@@ -521,30 +519,9 @@ void Inventory::EquipNext(bool ranged) {
 	}
 }
 
-void Inventory::SpecialKeyPressed(int key) {
-	switch (key) {
-	case SPECIAL_MOVE_LEFT:
-		MoveSelection(-1, 0);
-		return;
-	case SPECIAL_MOVE_RIGHT:
-		MoveSelection(1, 0);
-		return;
-	case SPECIAL_MOVE_UP:
-		MoveSelection(0, 1);
-		return;
-	case SPECIAL_MOVE_DOWN:
-		MoveSelection(0, -1);
-		return;
-	default:
-		return;
-	}
-}
+void Inventory::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
 
 // ---- drawing ---------------------------------------------------------------
-
-bool Inventory::SlotHeld(int slot) const {
-	return pressed == Target::Slot && pressedSlot == slot && slot == hoveredSlot;
-}
 
 void Inventory::Draw() {
 	int now = GameClock::now();
@@ -553,7 +530,7 @@ void Inventory::Draw() {
 	if (elapsed < 0 || elapsed > 100)
 		elapsed = 0;
 	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
-		if (slot == selectedSlot || slot == hoveredSlot)
+		if (slot == selectedSlot || SlotHovered(slot))
 			slotAngle[slot] = std::fmod(slotAngle[slot] + SPIN_DEG_PER_MS * static_cast<float>(elapsed), 360.f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -655,8 +632,8 @@ void Inventory::DrawTabs() {
 	for (int group = 0; group < ITEM_GROUP_COUNT; group++) {
 		const bool enabled = TabEnabled(groupAt(group));
 		const bool active = groupAt(group) == tab;
-		const bool hovered = enabled && !active && hoveredTab == group;
-		const bool held = hovered && pressed == Target::Tab && pressedSlot == group;
+		const bool hovered = enabled && !active && HoveredAt(Target::Tab) == group;
+		const bool held = hovered && pointer.Held({Target::Tab, group});
 		TileStyle style = !enabled ? TileStyle::Disabled : (active ? TileStyle::Lapis : TileStyle::Stone);
 		Rect r = tile(tabRect(group), style, hovered, held);
 
@@ -675,8 +652,8 @@ void Inventory::DrawTabs() {
 void Inventory::DrawSortButtons() {
 	for (int order = 1; order < SORT_ORDER_COUNT; order++) {
 		const bool active = static_cast<int>(Sort()) == order;
-		const bool hovered = hoveredSort == order;
-		const bool held = hovered && pressed == Target::SortButton && pressedSlot == order;
+		const bool hovered = HoveredAt(Target::SortButton) == order;
+		const bool held = hovered && pointer.Held({Target::SortButton, order});
 		const Rect r = tile(sortRect(order), active ? TileStyle::Lapis : TileStyle::Stone, hovered, held);
 		if (static_cast<SortOrder>(order) == SortOrder::Strength) { // the fonts' '*' is a mere dot
 			diamond(r.cx(), r.cy(), 0.9f, hovered ? TEXT_HOVER : GOLD, 1.f);
@@ -692,6 +669,8 @@ void Inventory::DrawSortButtons() {
 void Inventory::DrawHints() {
 	char hint[40] = "";
 	Rect anchor{};
+	const int hoveredTab = HoveredAt(Target::Tab);
+	const int hoveredSort = HoveredAt(Target::SortButton);
 	if (hoveredTab != NO_TAB && !TabEnabled(groupAt(hoveredTab))) {
 		snprintf(hint, sizeof(hint), "%s: none yet", GROUP_NAMES[hoveredTab]);
 		anchor = tabRect(hoveredTab);
@@ -713,7 +692,7 @@ void Inventory::DrawHints() {
 
 void Inventory::DrawSlot(int slot) {
 	Rect r = slotRect(bag, Sort(), slot, Scroll());
-	bool hovered = slot == hoveredSlot;
+	bool hovered = SlotHovered(slot);
 	bool selected = slot == selectedSlot;
 	bool held = SlotHeld(slot);
 	bool owned = bag.Count(kindOf(slot)) > 0;
@@ -792,7 +771,7 @@ void Inventory::DrawSlotModel(int slot) {
 	Color tint = {1, 1, 1};
 	if (bag.Count(kindOf(slot)) <= 0)
 		tint = {0.07f, 0.055f, 0.04f};
-	else if (slot != selectedSlot && slot != hoveredSlot)
+	else if (slot != selectedSlot && !SlotHovered(slot))
 		tint = {tint.r * 0.8f, tint.g * 0.8f, tint.b * 0.8f};
 
 	float savedScale = model->scale;
@@ -814,7 +793,7 @@ void Inventory::DrawSlotLabels(int slot) {
 	if (SlotHeld(slot))
 		r.y -= TILE_SINK;
 	bool owned = bag.Count(kindOf(slot)) > 0;
-	bool lit = slot == selectedSlot || slot == hoveredSlot;
+	bool lit = slot == selectedSlot || SlotHovered(slot);
 
 	Color nameColor = lit ? GOLD : Color{0.78f, 0.64f, 0.40f};
 	if (!owned)
@@ -1035,8 +1014,8 @@ void Inventory::DrawButtons() {
 }
 
 void Inventory::DrawButton(Target which, const char* label, bool enabled) {
-	bool hovered = enabled && hoveredButton == which;
-	bool held = hovered && pressed == which;
+	bool hovered = enabled && pointer.hovered.target == which;
+	bool held = hovered && pointer.Held({which});
 	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (TwoButtons() ? EQUIP_BUTTON : WIDE_BUTTON);
 	r = tile(r, enabled ? TileStyle::Lapis : TileStyle::PapyrusDisabled, hovered, held);
 

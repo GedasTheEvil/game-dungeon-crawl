@@ -489,7 +489,7 @@ void MainMenu::Draw() {
 	BeginCanvas();
 	if (recordsD) {
 		DrawBackground(records.Caption().c_str());
-		records.Draw(heading, body, small, hovered - RECORDS_BASE, pressed - RECORDS_BASE);
+		records.Draw(heading, body, small, pointer.hovered - RECORDS_BASE, pointer.pressed - RECORDS_BASE);
 		DrawBackButton();
 		DrawFooter(records.Hint().c_str());
 	} else if (creditsD) {
@@ -506,11 +506,11 @@ void MainMenu::Draw() {
 		DrawBackground(saveD ? "Save Game" : "Load Game");
 		DrawSlots();
 		DrawBackButton();
-		DrawFooter(saveD ? "Click a slot to save    Esc: back" : "Click a slot to load    Esc: back");
+		DrawFooter(saveD ? "Click or Enter: save to a slot    Esc: back" : "Click or Enter: load a slot    Esc: back");
 	} else {
 		DrawBackground("Dungeon Crawl");
 		DrawButtons();
-		DrawFooter(inGame ? "Esc: return to game" : "");
+		DrawFooter(inGame ? "Arrows: move    Enter: pick    Esc: return to game" : "Arrows: move    Enter: pick");
 	}
 	EndFrame();
 }
@@ -552,8 +552,8 @@ void MainMenu::DrawButtons() {
 	ButtonList buttons = menuButtons(inGame);
 	for (int i = 0; i < buttons.count; i++) {
 		const MenuButton& b = buttons[i];
-		bool isHovered = hovered == i;
-		bool held = isHovered && pressed == i;
+		bool isHovered = pointer.hovered == i;
+		bool held = pointer.Held(i);
 		Rect r = tile(buttonRect(i, buttons.count), b.primary ? TileStyle::Lapis : TileStyle::Stone, isHovered, held);
 
 		Rect well = iconWell(r, 1.3f);
@@ -586,8 +586,8 @@ void MainMenu::DrawSlot(int slot) {
 						   : quicksave			   ? SaveSlots::DescribeFile(Game().QuicksavePath())
 												   : Game().saves.Describe(slot);
 	bool enabled = saveD || info.used;
-	bool isHovered = enabled && hovered == slot;
-	bool held = isHovered && pressed == slot;
+	bool isHovered = enabled && pointer.hovered == slot;
+	bool held = isHovered && pointer.Held(slot);
 	TileStyle style = !enabled ? TileStyle::Disabled : TileStyle::Stone;
 	Rect r = tile(slotRect(slot, loadD), style, isHovered, held);
 	const float k = r.h / SLOT_H;
@@ -658,7 +658,7 @@ void MainMenu::DrawOptions() {
 	// Tab strip along the top of the panel; the active tab is lapis and sits on the rule.
 	for (int tab = 0; tab < static_cast<int>(TABS.size()); tab++) {
 		bool active = tab == optionsTab;
-		bool isHovered = hovered == TAB_BASE + tab;
+		bool isHovered = pointer.hovered == TAB_BASE + tab;
 		Rect r = tile(tabRect(tab), active ? TileStyle::Lapis : TileStyle::Stone, isHovered && !active, false);
 		beginText();
 		textCenteredIn(heading, r, TABS[static_cast<size_t>(tab)], active ? GOLD : LABEL);
@@ -680,7 +680,7 @@ void MainMenu::DrawRows() {
 	for (int i = 0; i < rows.count; i++) {
 		const OptionRow& row = rows[i];
 		const int target = OPTION_BASE + i;
-		const bool isHovered = hovered == target || dragging == target;
+		const bool isHovered = pointer.hovered == target || dragging == target;
 		Rect band = optionBand(i);
 		Rect control = optionControl(i, row.kind);
 		if (i % 2 == 0)
@@ -691,7 +691,7 @@ void MainMenu::DrawRows() {
 		bool enabled = true;
 		if (row.kind == OptionKind::Switch) {
 			on = switchOf(row.id);
-			Rect r = tile(control, on ? TileStyle::Lapis : TileStyle::Stone, isHovered, isHovered && pressed == target);
+			Rect r = tile(control, on ? TileStyle::Lapis : TileStyle::Stone, isHovered, pointer.Held(target));
 			std::snprintf(value, sizeof(value), "%s", on ? "On" : "Off");
 			control = r;
 		} else if (row.kind == OptionKind::Choice) {
@@ -701,7 +701,7 @@ void MainMenu::DrawRows() {
 				control,
 				enabled ? TileStyle::Stone : TileStyle::Disabled,
 				enabled && isHovered,
-				enabled && isHovered && pressed == target
+				enabled && pointer.Held(target)
 			);
 			if (windowSize)
 				std::snprintf(value, sizeof(value), "%d x %d", settings.display.width, settings.display.height);
@@ -754,7 +754,7 @@ void MainMenu::DrawControlCell(int target, const Rect& r) {
 	const int slot = (target - BIND_BASE) % BINDING_SLOTS;
 	const InputKey& key = Game().settings.controls.Of(static_cast<BindAction>(action)).Slot(slot);
 	const bool waiting = capturing == target;
-	const bool isHovered = hovered == target;
+	const bool isHovered = pointer.hovered == target;
 
 	fillRect({r.x, r.y - 0.25f, r.w, r.h}, BLACK, BLACK, 0.5f);
 	if (waiting) {
@@ -806,8 +806,8 @@ void MainMenu::DrawControls(float left, float right) {
 			DrawControlCell(BIND_BASE + i * BINDING_SLOTS + slot, controlCell(i, slot));
 	}
 
-	bool isHovered = hovered == RESET_CONTROLS;
-	Rect reset = tile(resetButton(), TileStyle::Stone, isHovered, isHovered && pressed == RESET_CONTROLS);
+	bool isHovered = pointer.hovered == RESET_CONTROLS;
+	Rect reset = tile(resetButton(), TileStyle::Stone, isHovered, pointer.Held(RESET_CONTROLS));
 	beginText();
 	textCenteredIn(small, reset, "Reset to defaults", isHovered ? GOLD_BRIGHT : LABEL);
 	textCentered(
@@ -828,8 +828,8 @@ void MainMenu::DrawCredits() {
 }
 
 void MainMenu::DrawBackButton() {
-	bool isHovered = hovered == BACK;
-	Rect r = tile(BACK_BUTTON, TileStyle::Stone, isHovered, isHovered && pressed == BACK);
+	bool isHovered = pointer.hovered == BACK;
+	Rect r = tile(BACK_BUTTON, TileStyle::Stone, isHovered, pointer.Held(BACK));
 	Color c = isHovered ? GOLD_BRIGHT : LABEL;
 	float labelW = heading.TextWidth("Back");
 	float x0 = r.cx() - (labelW + 6.f) / 2;
@@ -848,7 +848,10 @@ void MainMenu::DrawFooter(const char* hint) {
 
 void MainMenu::DrawFooterHint() {
 	if (capturing == NONE) {
-		DrawFooter(optionsTab == CONTROLS_TAB ? "Click a key to change it    Esc: back" : "Esc: back");
+		DrawFooter(
+			optionsTab == CONTROLS_TAB ? "Click or Enter: change a key    Esc: back"
+									   : "Arrows: move    Left / Right: change    Esc: back"
+		);
 		return;
 	}
 	auto action = static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS);
@@ -860,55 +863,119 @@ void MainMenu::DrawFooterHint() {
 
 // ---- input -----------------------------------------------------------------
 
-int MainMenu::TargetAt(int x, int y) {
-	float cx = 0.f;
-	float cy = 0.f;
-	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
-
-	if (recordsD) {
-		if (const int target = records.TargetAt(cx, cy); target != RecordsView::NONE)
-			return RECORDS_BASE + target;
-		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
+std::vector<MainMenu::Placed> MainMenu::Targets() const {
+	std::vector<Placed> targets;
+	if (recordsD || creditsD) {
+		targets.push_back({BACK, BACK_BUTTON});
+		return targets;
 	}
-	if (creditsD)
-		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
 	if (optionsD) {
 		for (int tab = 0; tab < static_cast<int>(TABS.size()); tab++)
-			if (tabRect(tab).contains(cx, cy))
-				return TAB_BASE + tab;
+			targets.push_back({TAB_BASE + tab, tabRect(tab)});
 		if (optionsTab == CONTROLS_TAB) {
 			for (int action = 0; action < BIND_ACTION_COUNT; action++)
 				for (int slot = 0; slot < BINDING_SLOTS; slot++)
-					if (controlCell(action, slot).contains(cx, cy))
-						return BIND_BASE + action * BINDING_SLOTS + slot;
-			if (resetButton().contains(cx, cy))
-				return RESET_CONTROLS;
+					targets.push_back({BIND_BASE + action * BINDING_SLOTS + slot, controlCell(action, slot)});
+			targets.push_back({RESET_CONTROLS, resetButton()});
 		}
 		OptionRows rows = optionRows(optionsTab);
 		for (int i = 0; i < rows.count; i++) {
 			Rect r = optionControl(i, rows[i].kind);
 			if (rows[i].kind == OptionKind::Slider) // the knob reaches past the ends
 				r = {r.x - 1.5f, r.y, r.w + 3.f, r.h};
-			if (r.contains(cx, cy))
-				return OPTION_BASE + i;
+			targets.push_back({OPTION_BASE + i, r});
 		}
-		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
+		targets.push_back({BACK, BACK_BUTTON});
+		return targets;
 	}
 	if (saveD || loadD) {
 		for (int slot = 0; slot < SaveSlots::COUNT; slot++)
-			if (slotRect(slot, loadD).contains(cx, cy))
-				return saveD || Game().saves.Describe(slot).used ? slot : NONE;
-		if (loadD && slotRect(AUTOSAVE_TARGET, true).contains(cx, cy))
-			return Game().HasAutosave() ? AUTOSAVE_TARGET : NONE;
-		if (loadD && slotRect(QUICKSAVE_TARGET, true).contains(cx, cy))
-			return Game().HasQuicksave() ? QUICKSAVE_TARGET : NONE;
-		return BACK_BUTTON.contains(cx, cy) ? BACK : NONE;
+			if (saveD || Game().saves.Describe(slot).used)
+				targets.push_back({slot, slotRect(slot, loadD)});
+		if (loadD && Game().HasAutosave())
+			targets.push_back({AUTOSAVE_TARGET, slotRect(AUTOSAVE_TARGET, true)});
+		if (loadD && Game().HasQuicksave())
+			targets.push_back({QUICKSAVE_TARGET, slotRect(QUICKSAVE_TARGET, true)});
+		targets.push_back({BACK, BACK_BUTTON});
+		return targets;
 	}
 	int count = menuButtons(inGame).count;
 	for (int i = 0; i < count; i++)
-		if (buttonRect(i, count).contains(cx, cy))
-			return i;
+		targets.push_back({i, buttonRect(i, count)});
+	return targets;
+}
+
+int MainMenu::TargetAt(int x, int y) {
+	float cx = 0.f;
+	float cy = 0.f;
+	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+	if (recordsD)
+		if (const int target = records.TargetAt(cx, cy); target != RecordsView::NONE)
+			return RECORDS_BASE + target;
+	for (const Placed& p : Targets())
+		if (p.rect.contains(cx, cy))
+			return p.target;
 	return NONE;
+}
+
+int MainMenu::SubScreen() const {
+	return (inGame ? 1 : 0) | (saveD ? 2 : 0) | (loadD ? 4 : 0) | (optionsD ? 8 : 0) | (creditsD ? 16 : 0) |
+		   (recordsD ? 32 : 0);
+}
+
+// A key moves the focus (pointer.hovered) to the next target that way, or picks it like a click. With no focus yet,
+// any direction focuses the first target.
+void MainMenu::Navigate(NavKey key) {
+	const std::vector<Placed> targets = Targets();
+	if (key == NavKey::None || targets.empty())
+		return;
+	const auto at = std::ranges::find(targets, pointer.hovered, &Placed::target);
+	if (at == targets.end()) {
+		if (key != NavKey::Activate)
+			pointer.Move(targets.front().target);
+		return;
+	}
+	const int target = pointer.hovered;
+	if (key == NavKey::Activate) {
+		const int screen = SubScreen();
+		pointer.Move(NONE);
+		Activate(target);
+		// The same screen keeps the focus; another one starts on its first target.
+		const std::vector<Placed> now = Targets();
+		if (SubScreen() == screen)
+			pointer.Move(target);
+		else if (!now.empty())
+			pointer.Move(now.front().target);
+		return;
+	}
+	const bool sideways = key == NavKey::Left || key == NavKey::Right;
+	const int step = key == NavKey::Right ? 1 : -1;
+	const bool onTab = optionsD && target >= TAB_BASE && target < OPTION_BASE;
+	if (onTab && sideways) {
+		optionsTab = std::clamp(optionsTab + step, 0, static_cast<int>(TABS.size()) - 1);
+		pointer.Move(TAB_BASE + optionsTab);
+		return;
+	}
+	if (optionsD && sideways && target >= OPTION_BASE && target < RESET_CONTROLS) {
+		StepOption(target - OPTION_BASE, step);
+		return;
+	}
+	if (onTab && key == NavKey::Down) { // the tab's first row or key cell, under the tabs
+		pointer.Move(targets[TABS.size()].target);
+		return;
+	}
+	std::vector<Rect> rects;
+	rects.reserve(targets.size());
+	for (const Placed& p : targets)
+		rects.push_back(p.rect);
+	const int dx = key == NavKey::Left ? -1 : key == NavKey::Right ? 1 : 0;
+	const int dy = key == NavKey::Up ? 1 : key == NavKey::Down ? -1 : 0;
+	const int next = nearestRect(rects, static_cast<int>(at - targets.begin()), dx, dy);
+	if (next < 0)
+		return;
+	const int to = targets[static_cast<size_t>(next)].target;
+	const bool toTab = optionsD && to >= TAB_BASE && to < OPTION_BASE;
+	pointer.Move(toTab && !onTab ? TAB_BASE + optionsTab : to); // up onto the tabs: the open one
 }
 
 void MainMenu::Activate(int target) {
@@ -969,6 +1036,7 @@ void MainMenu::Activate(int target) {
 		break;
 	case MenuAction::Journal:
 		Game().ui.screen = Screen::Journal;
+		openedJournal = true;
 		break;
 	case MenuAction::Save:
 		saveD = true;
@@ -993,7 +1061,7 @@ void MainMenu::Activate(int target) {
 	}
 }
 
-void MainMenu::ActivateOption(int row) {
+void MainMenu::ActivateOption(int row, int step) {
 	const OptionRow option = optionRows(optionsTab)[row];
 	Settings::Display& display = Game().settings.display;
 	if (option.id == OptionId::WindowSize) {
@@ -1001,24 +1069,41 @@ void MainMenu::ActivateOption(int row) {
 			ShowToast("Leave fullscreen to pick a window size");
 			return;
 		}
-		// The next larger size, after the largest the smallest.
-		WindowSize next = WINDOW_SIZES[0];
-		for (const WindowSize& size : WINDOW_SIZES)
-			if (size.w > display.width || (size.w == display.width && size.h > display.height)) {
-				next = size;
-				break;
-			}
+		// The next larger size, after the largest the smallest; stepping back the other way round.
+		auto larger = [&](const WindowSize& size) {
+			return size.w > display.width || (size.w == display.width && size.h > display.height);
+		};
+		auto smaller = [&](const WindowSize& size) {
+			return size.w < display.width || (size.w == display.width && size.h < display.height);
+		};
+		WindowSize next = step > 0 ? WINDOW_SIZES.front() : WINDOW_SIZES.back();
+		if (step > 0) {
+			if (const auto it = std::ranges::find_if(WINDOW_SIZES, larger); it != WINDOW_SIZES.end())
+				next = *it;
+		} else if (const auto it = std::ranges::find_if(WINDOW_SIZES.rbegin(), WINDOW_SIZES.rend(), smaller);
+				   it != WINDOW_SIZES.rend())
+			next = *it;
 		display.width = next.w;
 		display.height = next.h;
 		glutReshapeWindow(next.w, next.h);
 	} else if (option.id == OptionId::AnimationRate) {
-		// The next higher rate, after the highest the key frames.
-		const auto higher = std::ranges::find_if(ANIMATION_RATES, [&](int r) { return r > display.animationRate; });
-		display.animationRate = higher == ANIMATION_RATES.end() ? ANIMATION_RATES[0] : *higher;
+		// The next higher rate, after the highest the key frames; stepping back the other way round.
+		if (step > 0) {
+			const auto higher = std::ranges::find_if(ANIMATION_RATES, [&](int r) { return r > display.animationRate; });
+			display.animationRate = higher == ANIMATION_RATES.end() ? ANIMATION_RATES.front() : *higher;
+		} else {
+			const auto lower = std::ranges::find_if(ANIMATION_RATES.rbegin(), ANIMATION_RATES.rend(), [&](int r) {
+				return r < display.animationRate;
+			});
+			display.animationRate = lower == ANIMATION_RATES.rend() ? ANIMATION_RATES.back() : *lower;
+		}
 	} else if (option.id == OptionId::FrameRate) {
 		// The next choice, after Unlimited the monitor's; a hand-edited rate goes to the first.
 		const auto at = std::ranges::find(FRAME_RATES, display.frameRate);
-		display.frameRate = at == FRAME_RATES.end() || at + 1 == FRAME_RATES.end() ? FRAME_RATES[0] : *(at + 1);
+		if (step > 0)
+			display.frameRate = at == FRAME_RATES.end() || at + 1 == FRAME_RATES.end() ? FRAME_RATES[0] : *(at + 1);
+		else
+			display.frameRate = at == FRAME_RATES.end() || at == FRAME_RATES.begin() ? FRAME_RATES.back() : *(at - 1);
 	} else if (option.kind == OptionKind::Switch) {
 		bool& on = switchOf(option.id);
 		on = !on;
@@ -1030,6 +1115,19 @@ void MainMenu::ActivateOption(int row) {
 		}
 	}
 	Game().ApplySettings(true);
+}
+
+void MainMenu::StepOption(int row, int step) {
+	const OptionRow option = optionRows(optionsTab)[row];
+	if (option.kind != OptionKind::Slider) {
+		ActivateOption(row, step);
+		return;
+	}
+	int& level = sliderOf(option.id);
+	level = std::clamp(level + 5 * step, 0, 100);
+	Game().ApplySettings(true);
+	if (option.id == OptionId::Effects)
+		Game().assets.sounds.lever.Play(); // a sample at the new volume
 }
 
 void MainMenu::SetSlider(int row, int x) {
@@ -1079,7 +1177,7 @@ void MainMenu::Bind(const InputKey& key) {
 
 void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	int target = TargetAt(x, y);
-	hovered = target;
+	pointer.Move(target);
 
 	// Waiting for a binding: a mouse button binds the mouse cell; on a key cell a click cancels.
 	if (capturing != NONE) {
@@ -1091,7 +1189,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 			else
 				capturing = NONE;
 		}
-		pressed = NONE;
+		pointer.Down(NONE, button);
 		return;
 	}
 
@@ -1108,7 +1206,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	}
 	if (recordsD && state == GLUT_DOWN && (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN)) {
 		records.Scroll(button == MOUSE_WHEEL_UP ? -1 : 1);
-		hovered = TargetAt(x, y);
+		pointer.Move(TargetAt(x, y));
 		return;
 	}
 	if (button != MOUSE_LEFT_BUTTON)
@@ -1121,30 +1219,28 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	}
 
 	if (state != GLUT_UP) {
-		pressed = target;
+		pointer.Down(target, button);
 		return;
 	}
-	bool clicked = target != NONE && target == pressed;
-	pressed = NONE;
-	if (clicked) {
-		hovered = NONE; // the next screen has its own targets
-		Activate(target);
+	if (const int fired = pointer.Up(target, button); fired != NONE) {
+		pointer.Move(NONE); // the next screen has its own targets
+		Activate(fired);
 	}
 }
 
-void MainMenu::MousePassiveMotion(int x, int y) { hovered = TargetAt(x, y); }
+void MainMenu::MousePassiveMotion(int x, int y) { pointer.Move(TargetAt(x, y)); }
 
 void MainMenu::MouseDrag(int x, int y) {
 	if (dragging != NONE)
 		SetSlider(dragging - OPTION_BASE, x);
 	else
-		hovered = TargetAt(x, y);
+		pointer.Move(TargetAt(x, y));
 }
 
 void MainMenu::BackOut() {
 	if (recordsD && records.InDetail()) {
 		records.CloseDetail();
-		hovered = NONE;
+		pointer.Move(NONE);
 		return;
 	}
 	ResetSubScreens();
@@ -1159,11 +1255,15 @@ void MainMenu::OpenRecords(int marked) {
 void MainMenu::KeyPressed(unsigned char key) {
 	if (recordsD)
 		records.Key(key);
+	else
+		Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
 }
 
 void MainMenu::SpecialKeyPressed(int key) {
 	if (recordsD)
 		records.SpecialKey(key);
+	else
+		Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls));
 }
 
 void MainMenu::ResetSubScreens() {
@@ -1172,8 +1272,7 @@ void MainMenu::ResetSubScreens() {
 	saveD = false;
 	loadD = false;
 	optionsD = false;
-	hovered = NONE;
-	pressed = NONE;
+	pointer.Clear();
 	capturing = NONE;
 	dragging = NONE;
 }

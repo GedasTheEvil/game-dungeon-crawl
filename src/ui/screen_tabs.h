@@ -1,14 +1,14 @@
 #ifndef SCREEN_TABS_H
 #define SCREEN_TABS_H
 
+#include "pointer.h"
 #include "screen.h"
 
 // The tab strip of the inventory, the draft map, the journal and the Heka screen (ui::screenTabs): a click on a tab, or
 // its key (I, M, J, K by default, input.cpp), switches straight to that screen. The open screen's own key still closes
 // it to the game.
 struct ScreenTabsState {
-	int hovered = -1;
-	int pressed = -1; // the mouse went down on this tab; the switch happens when it comes up on the same one
+	ui::Pointer<int> pointer{-1}; // a tab's index
 };
 
 namespace ScreenTabs {

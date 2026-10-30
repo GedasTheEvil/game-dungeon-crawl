@@ -18,6 +18,7 @@ constexpr int END = 107;
 constexpr int SHIFT_LEFT = 112;
 constexpr int SHIFT_RIGHT = 113;
 constexpr unsigned char ESCAPE = 27;
+constexpr unsigned char ENTER = 13;
 
 struct NamedKey {
 	const char* name;
@@ -154,6 +155,33 @@ std::optional<BindAction> Bindings::ActionFor(const InputKey& key) const {
 		if (table[i].Has(key))
 			return static_cast<BindAction>(i);
 	return std::nullopt;
+}
+
+NavKey navKeyOf(const InputKey& key, const Bindings& bindings) {
+	if (key == InputKey::Special(UP))
+		return NavKey::Up;
+	if (key == InputKey::Special(DOWN))
+		return NavKey::Down;
+	if (key == InputKey::Special(LEFT))
+		return NavKey::Left;
+	if (key == InputKey::Special(RIGHT))
+		return NavKey::Right;
+	if (key == InputKey::Char(ENTER) || key == InputKey::Char(' '))
+		return NavKey::Activate;
+	switch (bindings.ActionFor(key).value_or(BindAction::Skills)) {
+	case BindAction::ClimbUp:
+		return NavKey::Up;
+	case BindAction::ClimbDown:
+		return NavKey::Down;
+	case BindAction::MoveLeft:
+		return NavKey::Left;
+	case BindAction::MoveRight:
+		return NavKey::Right;
+	case BindAction::Interact:
+		return NavKey::Activate;
+	default:
+		return NavKey::None;
+	}
 }
 
 std::optional<BindAction> Bindings::Bind(BindAction action, int slot, const InputKey& key) {

@@ -4,6 +4,8 @@
 #include "../graphics/font.h"
 #include "../entities/item.h"
 #include "../world/item_bag.h"
+#include "../input/bindings.h"
+#include "pointer.h"
 #include "ui_draw.h"
 #include <iosfwd>
 #include <optional>
@@ -24,13 +26,13 @@ class Inventory {
 	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
 	int scrollRow[ITEM_GROUP_COUNT] = {}; // rows each tab is scrolled down
 	SortOrder sortOrder[ITEM_GROUP_COUNT] = {}; // per tab, not saved: found first at the start
-	int hoveredSlot = NO_SLOT;
-	int hoveredTab = NO_TAB;
-	int hoveredSort = NO_SORT; // a SortOrder past Found, by its button
-	Target hoveredButton = Target::None;
-	Target pressed = Target::None;
-	int pressedSlot = NO_SLOT; // or the tab, when pressed is Target::Tab, or the order, when Target::SortButton
-	int pressedMouseButton = 0;
+	// A target and which one: the slot, the tab, or the SortOrder past Found of a sort button.
+	struct Pick {
+		Target target = Target::None;
+		int index = -1;
+		bool operator==(const Pick&) const = default;
+	};
+	ui::Pointer<Pick> pointer;
 
 	float slotAngle[ITEM_KIND_COUNT] = {}; // model turntable angle per slot
 	int lastFrameMs = 0;
@@ -49,7 +51,12 @@ class Inventory {
 	[[nodiscard]] bool CanUse(int slot, const char** reason) const;
 	[[nodiscard]] bool CanUpgrade(int slot) const;
 	// Mouse button down on the slot and still over it: the slot tile is pushed in.
-	[[nodiscard]] bool SlotHeld(int slot) const;
+	[[nodiscard]] bool SlotHeld(int slot) const { return pointer.Held({Target::Slot, slot}); }
+	[[nodiscard]] bool SlotHovered(int slot) const { return pointer.hovered == Pick{Target::Slot, slot}; }
+	// The slot, tab or sort order under the mouse, if it is over that kind of target; else -1.
+	[[nodiscard]] int HoveredAt(Target target) const {
+		return pointer.hovered.target == target ? pointer.hovered.index : -1;
+	}
 	void Use(int slot);
 	void Upgrade(int slot);
 	// The ring card's hand buttons (the Use and Upgrade buttons' places): on that hand, or off it.
@@ -70,6 +77,7 @@ class Inventory {
 	void ScrollBy(int rows); // the open tab, within its rows
 	void DrawScrollBar();
 	void MoveSelection(int dx, int dy);
+	void Navigate(NavKey key); // the arrows and the bound move keys walk the grid, Enter / Space / Interact use
 	void ShowToast(const std::string& text);
 	void UpdateHover(float x, float y);
 

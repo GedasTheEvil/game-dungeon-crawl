@@ -1,0 +1,99 @@
+# Keyboard menus (plan keyboard-menus), kept while the plan waits for a play-test: the in-game menu, Options and
+# Save Game by the keys, a journal the menu opened goes back to it on Esc, a riddle answered from the journal by Enter.
+# Hover only on the save slots, no Enter there: that would write the real saves/; scenarios never write
+# saves/settings.ini.
+seed 1
+god
+level tests/levels/riddle
+riddles tests/riddles/journal.txt
+wait 30
+# First gate: walked away, so the journal has a riddle to answer.
+walk right 3
+interact
+wait 5
+key esc
+wait 5
+expect journal == 1
+expect journal_solved == 0
+# The in-game menu: the first arrow focuses Resume, S (bound to climb down) moves on like Down.
+key esc
+wait 2
+key down
+wait 2
+screenshot menu_resume
+key s
+key down
+wait 2
+screenshot menu_save
+key enter
+wait 2
+screenshot save_first_slot
+key right
+key down
+wait 2
+screenshot save_slot5
+key down
+key down
+wait 2
+screenshot save_back
+key enter
+wait 2
+screenshot menu_after_back
+# Options (Back left the focus on Return to Game): Enter opens it on the Controls tab, Right switches to Display, Down
+# to its first row, two more to the animation rate, Right steps it on, Left back.
+key down
+key down
+key down
+key down
+key enter
+wait 2
+screenshot options_tab
+key right
+wait 2
+screenshot display_tab
+key down
+wait 2
+screenshot display_first_row
+key down
+key down
+key right
+wait 2
+screenshot animation_rate_changed
+key left
+key esc
+wait 2
+# The journal from the menu: Esc comes back to the menu.
+key down
+key down
+key enter
+wait 5
+dump
+key esc
+wait 2
+dump
+screenshot menu_after_journal
+key esc
+wait 2
+dump
+# The journal by its key opens on the riddles, where it was left; Down goes on to the field notes, Up back. Enter
+# focuses the Answer button, Enter again answers.
+key j
+wait 5
+key down
+wait 45
+screenshot field_notes
+key up
+wait 45
+screenshot riddles
+key enter
+wait 2
+screenshot answer_focus
+key enter
+wait 5
+expect riddle == 1
+key esc
+wait 5
+expect riddle == 0
+key esc
+wait 2
+dump

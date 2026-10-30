@@ -30,7 +30,7 @@ namespace ScreenTabs {
 bool Has(Screen s) { return tabOf(s) >= 0; }
 
 void Draw() {
-	const ScreenTabsState& tabs = Game().ui.tabs;
+	const ui::Pointer<int>& tabs = Game().ui.tabs.pointer;
 	const int open = tabOf(Game().ui.screen);
 	if (open < 0)
 		return;
@@ -49,25 +49,24 @@ void Draw() {
 }
 
 bool Mouse(int button, int state, int x, int y) {
-	ScreenTabsState& tabs = Game().ui.tabs;
+	ui::Pointer<int>& tabs = Game().ui.tabs.pointer;
 	if (button != MOUSE_LEFT_BUTTON)
 		return false;
-	tabs.hovered = tabAt(x, y);
+	tabs.Move(tabAt(x, y));
 	if (state == GLUT_DOWN) {
-		tabs.pressed = tabs.hovered;
-		return tabs.pressed >= 0;
+		tabs.Down(tabs.hovered, button);
+		return tabs.Pressing();
 	}
-	const int was = tabs.pressed;
-	tabs.pressed = -1;
-	if (was < 0)
+	if (!tabs.Pressing())
 		return false;
-	if (was == tabs.hovered) {
-		Game().ui.screen = TAB_SCREENS[was];
-		tabs.hovered = -1; // the new screen's strip has it under the mouse, but not hovered until it moves
+	if (const int fired = tabs.Up(tabs.hovered, button); fired >= 0) {
+		Game().ui.screen = TAB_SCREENS[fired];
+		Game().ui.menu.openedJournal = false;
+		tabs.Clear(); // the new screen's strip has it under the mouse, but not hovered until it moves
 	}
 	return true;
 }
 
-void Motion(int x, int y) { Game().ui.tabs.hovered = tabAt(x, y); }
+void Motion(int x, int y) { Game().ui.tabs.pointer.Move(tabAt(x, y)); }
 
 } // namespace ScreenTabs

@@ -52,6 +52,11 @@ struct Toast {
 	}
 };
 
+// Keyboard focus (plan keyboard-menus): the rect a direction key moves to from rects[from], the nearest one whose
+// centre lies that way (dx, dy: -1, 0 or 1, y up), by the distance between the centres along it plus twice the gap
+// between the rects across it. -1 if none, or if from is out of range.
+[[nodiscard]] int nearestRect(const std::vector<Rect>& rects, int from, int dx, int dy);
+
 // Part of a `canvasW` x `canvasH` layout (y up) seen in a resX x resY window: the canvas keeps its aspect ratio and
 // is centred, the margins of a wider or taller window are added around it.
 Rect visibleArea(float canvasW, float canvasH, int resX, int resY);

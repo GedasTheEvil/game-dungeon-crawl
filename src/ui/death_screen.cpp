@@ -39,8 +39,8 @@ void DeathScreen::Follow() {
 	const auto latest = game.LatestSave();
 	retryEnabled = latest.has_value();
 	retryLabel = latest ? "Retry from " + latest->Label() : "Retry";
-	focus = retryEnabled ? RETRY : MAIN_MENU;
-	pressed = NONE;
+	pointer.Clear();
+	pointer.Move(retryEnabled ? RETRY : MAIN_MENU);
 }
 
 void DeathScreen::activate(int button) {
@@ -59,15 +59,17 @@ void DeathScreen::activate(int button) {
 void DeathScreen::KeyPressed(unsigned char key) {
 	if (key == KEY_ESCAPE)
 		activate(MAIN_MENU);
-	else if (key == KEY_ENTER)
-		activate(focus);
+	else
+		Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
 }
 
-void DeathScreen::SpecialKeyPressed(int key) {
-	if (key != SPECIAL_MOVE_UP && key != SPECIAL_MOVE_DOWN && key != SPECIAL_MOVE_LEFT && key != SPECIAL_MOVE_RIGHT)
-		return;
-	if (retryEnabled) // two buttons: any arrow goes to the other one
-		focus = focus == RETRY ? MAIN_MENU : RETRY;
+void DeathScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
+
+void DeathScreen::Navigate(NavKey key) {
+	if (key == NavKey::Activate)
+		activate(pointer.hovered);
+	else if (key != NavKey::None && retryEnabled) // two buttons: any direction goes to the other one
+		pointer.Move(pointer.hovered == RETRY ? MAIN_MENU : RETRY);
 }
 
 int DeathScreen::buttonAt(int x, int y) const {
@@ -82,23 +84,21 @@ int DeathScreen::buttonAt(int x, int y) const {
 
 void DeathScreen::MouseMotion(int x, int y) {
 	if (const int at = buttonAt(x, y); at != NONE)
-		focus = at;
+		pointer.Move(at);
 }
 
 void DeathScreen::MouseFunction(int button, int state, int x, int y) {
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
 	const int at = buttonAt(x, y);
+	if (at != NONE)
+		pointer.Move(at);
 	if (state != GLUT_UP) {
-		pressed = at;
-		if (at != NONE)
-			focus = at;
+		pointer.Down(at, button);
 		return;
 	}
-	const bool clicked = at != NONE && at == pressed;
-	pressed = NONE;
-	if (clicked)
-		activate(at);
+	if (const int fired = pointer.Up(at, button); fired != NONE)
+		activate(fired);
 }
 
 void DeathScreen::Draw(int resX, int resY) {
@@ -120,10 +120,10 @@ void DeathScreen::Draw(int resX, int resY) {
 	panel(PANEL, 0.94f);
 	for (int i = 0; i < static_cast<int>(BUTTONS.size()); i++) {
 		const bool enabled = i != RETRY || retryEnabled;
-		const bool focused = enabled && focus == i;
+		const bool focused = enabled && pointer.hovered == i;
 		const bool primary = i == RETRY ? retryEnabled : !retryEnabled;
 		const TileStyle style = !enabled ? TileStyle::Disabled : primary ? TileStyle::Lapis : TileStyle::Stone;
-		const Rect r = tile(BUTTONS[static_cast<size_t>(i)], style, focused, focused && pressed == i);
+		const Rect r = tile(BUTTONS[static_cast<size_t>(i)], style, focused, focused && pointer.Held(i));
 		beginText();
 		const Color c = !enabled ? LABEL_DIM : focused ? TEXT_HOVER : primary ? GOLD : LABEL;
 		textCenteredIn(heading, r, i == RETRY ? retryLabel.c_str() : "Main Menu", c);

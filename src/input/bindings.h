@@ -82,6 +82,11 @@ class Bindings {
 	std::array<Binding, BIND_ACTION_COUNT> table;
 };
 
+// What a key does on a menu screen (plan keyboard-menus): the arrows, Enter and Space, and the keys bound to the move
+// and climb actions (a direction) and to Interact (activate). Esc stays with the screen.
+enum class NavKey : std::uint8_t { None, Up, Down, Left, Right, Activate };
+[[nodiscard]] NavKey navKeyOf(const InputKey& key, const Bindings& bindings);
+
 // "move_left": the key in [controls].
 [[nodiscard]] const char* bindActionName(BindAction action);
 // "Move left": the Controls tab row.

@@ -414,6 +414,7 @@ bool pressBinding(BindAction action) {
 			return true;
 		}
 		screen = screen == target ? Screen::Gameplay : target;
+		Game().ui.menu.openedJournal = false;
 		return true;
 	}
 	if (action == BindAction::Sprint) { // also on the other screens, so it is down when the game comes back
@@ -480,9 +481,11 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (key == KEY_ESCAPE) // esc
 	{
-		// Esc backs out of the inventory or the map to the game; only from the game it opens the menu.
+		// Esc backs out of the inventory or the map to the game, of a journal the in-game menu opened back to the menu;
+		// only from the game it opens the menu.
 		if (ScreenTabs::Has(screen)) {
-			screen = Screen::Gameplay;
+			screen = screen == Screen::Journal && menu.openedJournal ? Screen::Menu : Screen::Gameplay;
+			menu.openedJournal = false;
 			return;
 		}
 
@@ -510,6 +513,8 @@ void keyPressed(unsigned char key, int x, int y) {
 		Game().ui.inventory->KeyPressed(key);
 	if (screen == Screen::Skills)
 		Game().ui.skills.KeyPressed(key);
+	if (screen == Screen::Journal)
+		Game().ui.journal.KeyPressed(key);
 }
 
 void specialKeyPressed(int key, int x, int y) {

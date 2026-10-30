@@ -2,6 +2,8 @@
 #define DEATH_SCREEN_H
 
 #include "../graphics/font.h"
+#include "../input/bindings.h"
+#include "pointer.h"
 #include <cstdint>
 
 /// @file death_screen.h
@@ -15,7 +17,7 @@ class DeathScreen {
 	// the game, not over a menu), resets when the player lives again (a load, a new game).
 	void Follow();
 	void KeyPressed(unsigned char key); // Enter picks, Esc = Main Menu
-	void SpecialKeyPressed(int key); // the arrows move the focus
+	void SpecialKeyPressed(int key); // the arrows (and the bound move keys) move the focus
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
 	void Draw(int resX, int resY); // over the game, drawn just before
@@ -29,13 +31,13 @@ class DeathScreen {
 	int diedMs = 0;
 	bool retryEnabled = false; // a save was there when the screen opened
 	std::string retryLabel; // "Retry from Slot 3": the newest save then (plan retry-latest-save)
-	int focus = MAIN_MENU; // the keys' and the mouse's button
-	int pressed = NONE; // mouse went down here; the action runs when it comes up on the same button
+	ui::Pointer<int> pointer{NONE}; // hovered: the keys' and the mouse's button, kept when the mouse leaves it
 	bool fontsLoaded = false;
 	Font title, heading, body, small;
 
 	[[nodiscard]] int buttonAt(int x, int y) const;
 	void activate(int button);
+	void Navigate(NavKey key);
 };
 
 #endif

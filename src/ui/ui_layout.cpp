@@ -45,6 +45,29 @@ int screenTabAt(float x, float y) {
 	return -1;
 }
 
+int nearestRect(const std::vector<Rect>& rects, int from, int dx, int dy) {
+	if (from < 0 || from >= static_cast<int>(rects.size()))
+		return -1;
+	const Rect& at = rects[static_cast<size_t>(from)];
+	int best = -1;
+	float bestScore = 0.f;
+	for (int i = 0; i < static_cast<int>(rects.size()); i++) {
+		const Rect& r = rects[static_cast<size_t>(i)];
+		const float along = (r.cx() - at.cx()) * static_cast<float>(dx) + (r.cy() - at.cy()) * static_cast<float>(dy);
+		if (i == from || along <= 0.01f)
+			continue;
+		// The gap between the two across the move, 0 where they overlap (a row's narrower control under a wider one).
+		const float across = dx != 0 ? std::max({0.f, r.y - (at.y + at.h), at.y - (r.y + r.h)})
+									 : std::max({0.f, r.x - (at.x + at.w), at.x - (r.x + r.w)});
+		const float score = along + 2.f * across;
+		if (best < 0 || score < bestScore) {
+			best = i;
+			bestScore = score;
+		}
+	}
+	return best;
+}
+
 } // namespace ui
 
 namespace StatusBox {

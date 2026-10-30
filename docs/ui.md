@@ -131,7 +131,7 @@ Styles:
 One lapis button per group. Menu buttons are 56 x 9, 11.5 apart, centred in the panel; the in-game menu's six are
 10.2 apart. Back is `{63, 9.5, 34, 8}`.
 Label colour: `GOLD` (lapis) or `LABEL` (stone), `TEXT_HOVER` when hovered.
-An action fires on mouse **up** over the same target it went down on (`pressed` / `hovered`).
+An action fires on mouse **up** over the same target it went down on ([Clicks](#clicks)).
 
 Content that covers the tile edges (the inventory slots' name band) is followed by `ui::tileFrame()` to draw the
 frame again on top. Things drawn in a later pass (the slot models and labels) move down `TILE_SINK` too while held.
@@ -177,7 +177,7 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 ### Footer and toast
 
 * Key hint: `textCentered(small, 80, 2.2, hint, LABEL_DIM)`, keys and actions separated by 4 spaces
-  (`"Click a slot to load    Esc: back"`).
+  (`"Click or Enter: load a slot    Esc: back"`).
 * Toast: `body` font, `{1, 0.9, 0.6}`, above the footer, shown 2200 ms and faded out over the last 600 ms.
 * Over the game, "Autosaved" ([autosave](plan/solved/autosave.md)) is such a toast too: `hudBody` `GOLD` with a black
   shadow, top left on the HUD's canvas (`drawAutosaved`, `graphics/draw.cpp`).
@@ -326,6 +326,35 @@ stamina-skill key, default Q, has the skills on, stone while off) sits right of 
 skill refused for lack of stamina blinks it red. Flashes and pulses are additive
 rings (`ring` with `GL_SRC_ALPHA, GL_ONE`). Details: [plan/solved/hud-redesign.md](plan/solved/hud-redesign.md),
 icons: [plan/solved/hud-icons.md](plan/solved/hud-icons.md).
+
+## Clicks
+
+Every screen handles its mouse through one `ui::Pointer<Target>` (`src/ui/pointer.h`,
+[shared-click-handling](plan/solved/shared-click-handling.md)), over its own target type: an `int` with a `NONE`
+(menu, death screen, screen tabs) or a small struct with `==` (inventory and Heka `Pick`, journal `Hit`).
+
+* Mouse motion: `Move(targetAt(x, y))`. `hovered` is what the tile draws lit.
+* Button down: `Down(target, button)`, after `Move`. A screen that selects on press (inventory slots, Heka cards)
+  selects there too; one that takes no press there passes none.
+* Button up: `Up(target, button)` returns the target to fire, none when the mouse left it or another button comes up.
+* Drawing: `tile(r, style, hovered == t, Held(t))`; `Held` is pressed and still under the mouse.
+* `Clear()` when the page or screen changes under the mouse; `Move(none)` after a click that opens another screen.
+
+The wheel, the menu's slider drag and the journal's page drag stay with the screen, before the pointer.
+
+Keys ([keyboard-menus](plan/keyboard-menus.md)): `navKeyOf` (`src/input/bindings.h`) turns a key into a
+`NavKey`: the arrows, Enter and Space, and the keys bound to move left / right, climb up / down and interact. `hovered`
+is the focus, so a focused tile looks hovered; the mouse moves it too.
+
+* Menu (`MainMenu::Navigate`): `Targets()` lists the open sub-screen's targets and rects (`TargetAt` hit-tests the same
+  list); a direction moves the focus to `ui::nearestRect` that way, the first key focuses the first target. Enter
+  activates like a click; a sub-screen it opens starts on its first target. Options: Left / Right on the tabs switch
+  them, on a row change it (a switch flips, a choice steps, a slider moves 5), Down from the tabs goes to the first row.
+* Inventory and Heka: the keys walk the selection; Enter uses / learns.
+* Journal: Left / Right turn the page, Up / Down change section; on a riddles spread Enter focuses the first Answer
+  button, Left / Right move between the two, Enter answers.
+* Death screen: any direction goes to the other button.
+* Esc backs out one level; a journal the in-game menu opened goes back to the menu (`MainMenu::openedJournal`).
 
 ## Colours
 

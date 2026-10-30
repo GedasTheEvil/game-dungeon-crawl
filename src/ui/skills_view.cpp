@@ -114,8 +114,12 @@ void SkillsScreen::PressLearn() {
 }
 
 void SkillsScreen::UpdateHover(float x, float y) {
-	hoveredCard = cardAt(x, y);
-	hoveredButton = LEARN_BUTTON.contains(x, y);
+	const int card = cardAt(x, y);
+	pointer.Move(
+		card >= 0					  ? Pick{Target::Card, card}
+		: LEARN_BUTTON.contains(x, y) ? Pick{Target::LearnButton}
+									  : Pick{}
+	);
 }
 
 void SkillsScreen::MouseMotion(int x, int y) {
@@ -133,67 +137,41 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 	float cy = 0.f;
 	toCanvas(x, y, cx, cy);
 	UpdateHover(cx, cy);
+	const Pick at = pointer.hovered;
 	if (state == GLUT_DOWN) {
-		pressed = Target::None;
-		if (hoveredCard >= 0) {
-			pressed = Target::Card;
-			pressedCard = hoveredCard;
-			Select(hoveredCard);
-		} else if (hoveredButton)
-			pressed = Target::LearnButton;
-		else
+		pointer.Down(at, button);
+		if (at.target == Target::Card)
+			Select(at.card);
+		else if (at.target == Target::None)
 			confirming = false;
 		return;
 	}
-	const Target was = pressed;
-	pressed = Target::None;
-	pressedCard = -1;
-	if (was == Target::LearnButton && hoveredButton)
+	if (pointer.Up(at, button).target == Target::LearnButton)
 		PressLearn();
 }
 
-void SkillsScreen::KeyPressed(unsigned char key) {
+void SkillsScreen::KeyPressed(unsigned char key) { Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls)); }
+
+void SkillsScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
+
+void SkillsScreen::Navigate(NavKey key) {
 	switch (key) {
-	case KEY_ENTER:
-	case KEY_SPACE:
+	case NavKey::Activate:
 		PressLearn();
 		return;
-	case KEY_MOVE_LEFT:
-	case KEY_MOVE_LEFT_UPPER:
+	case NavKey::Left:
 		MoveSelection(-1, 0);
 		return;
-	case KEY_MOVE_RIGHT:
-	case KEY_MOVE_RIGHT_UPPER:
+	case NavKey::Right:
 		MoveSelection(1, 0);
 		return;
-	case KEY_MOVE_UP:
-	case KEY_MOVE_UP_UPPER:
+	case NavKey::Up:
 		MoveSelection(0, 1);
 		return;
-	case KEY_MOVE_DOWN:
-	case KEY_MOVE_DOWN_UPPER:
+	case NavKey::Down:
 		MoveSelection(0, -1);
 		return;
-	default:
-		return;
-	}
-}
-
-void SkillsScreen::SpecialKeyPressed(int key) {
-	switch (key) {
-	case SPECIAL_MOVE_LEFT:
-		MoveSelection(-1, 0);
-		return;
-	case SPECIAL_MOVE_RIGHT:
-		MoveSelection(1, 0);
-		return;
-	case SPECIAL_MOVE_UP:
-		MoveSelection(0, 1);
-		return;
-	case SPECIAL_MOVE_DOWN:
-		MoveSelection(0, -1);
-		return;
-	default:
+	case NavKey::None:
 		return;
 	}
 }
@@ -252,8 +230,9 @@ void SkillsScreen::DrawCard(int card) {
 	const bool learnt = heka().Has(id);
 	const bool sealed = def.sealed && !learnt; // a scenario's `learn` can learn a sealed one
 	const bool isSelected = card == selected;
-	const bool hovered = !sealed && card == hoveredCard;
-	const bool held = hovered && pressed == Target::Card && pressedCard == card;
+	const Pick pick = {Target::Card, card};
+	const bool hovered = !sealed && pointer.hovered == pick;
+	const bool held = hovered && pointer.Held(pick);
 	const TileStyle style = learnt ? TileStyle::Lapis : (sealed ? TileStyle::Disabled : TileStyle::Stone);
 
 	if (isSelected) {
@@ -324,8 +303,8 @@ void SkillsScreen::DrawDetails() {
 	if (learnt)
 		return;
 
-	const bool hovered = canLearn && hoveredButton;
-	const bool held = hovered && pressed == Target::LearnButton;
+	const bool hovered = canLearn && pointer.hovered.target == Target::LearnButton;
+	const bool held = hovered && pointer.Held({Target::LearnButton});
 	const Rect b = tile(LEARN_BUTTON, canLearn ? TileStyle::Lapis : TileStyle::PapyrusDisabled, hovered, held);
 	if (confirming) {
 		const float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(GameClock::now()) * PULSE_RATE * 2.f);

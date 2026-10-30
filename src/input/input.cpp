@@ -177,6 +177,15 @@ class PlayerActionController {
 			attackRefusalTold = true; // no shot, no ammo, no cooldown
 			return;
 		}
+		// No shot left, or a monster too close (plan ranged-weaker-than-melee): no draw, nothing spent.
+		const Dungeon::ShotRefusal refused = Game().dungeon.ShotRefused(
+			Game().ui.inventory->EquippedKind(),
+			Game().camera.Facing()
+		);
+		if (refused != Dungeon::ShotRefusal::None) {
+			Game().dungeon.RefuseShot(refused);
+			return;
+		}
 		player.swingPower = 0;
 		swing(false);
 	}

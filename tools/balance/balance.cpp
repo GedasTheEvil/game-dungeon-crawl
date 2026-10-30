@@ -376,6 +376,7 @@ Outcome fight(const MonsterKind& kind, const Stats& s, Tactic tactic, uint64_t s
 	if (mon == nullptr)
 		return out;
 	const float reach = weaponReach(bestMelee(kind, s.difficulty, s.might));
+	const float keep = std::max(1.2f, weaponMinRange(out.weapon) + 0.3f); // kite: backs off when closer
 	bool cornered = false;
 	const int limit = tactic == Tactic::RunPast ? RUN_MS : FIGHT_MS;
 	for (int t = 0; t < limit; t += UPDATE_TICK_MS) {
@@ -403,13 +404,16 @@ Outcome fight(const MonsterKind& kind, const Stats& s, Tactic tactic, uint64_t s
 			if (gap <= reach || (mon->flies() && gap < 1.f)) // a swoop is quick: swinging as it comes
 				world.Attack();
 			break;
-		case Tactic::Kite: // up to it until it wakes (a coffin, a coil, a chest), then backing off and shooting
+		// Up to it until it wakes (a coffin, a coil, a chest), then backing off out of the bow's minimum range and
+		// shooting; out of shots it waits for them there (plan ranged-weaker-than-melee). At the wall it fights with
+		// the melee weapon.
+		case Tactic::Kite:
 			if (!mon->Alerted() && !cornered) {
 				world.facing = dir;
 				world.Step(dir);
 				if (gap <= 0.f)
 					world.Attack();
-			} else if (!cornered && gap < 1.2f && mon->Alive()) {
+			} else if (!cornered && gap < keep && mon->Alive()) {
 				const float before = world.X();
 				world.Step(-dir);
 				if (world.X() == before) { // the wall: it fights

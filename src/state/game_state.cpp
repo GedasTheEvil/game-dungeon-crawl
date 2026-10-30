@@ -195,6 +195,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.pageTurn;
 	case WorldSound::DungThud:
 		return sounds.dungThud;
+	case WorldSound::ShotDry:
+		return sounds.shotDry;
+	case WorldSound::ShotTooClose:
+		return sounds.shotTooClose;
 	}
 	return sounds.arrowHit;
 }

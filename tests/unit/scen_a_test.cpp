@@ -90,7 +90,7 @@ TEST_CASE("a scorpion walks up and stings (weak poison); the club kills it, it i
 	CHECK(swings < (monsterKind(MonsterScorpion)->maxHealth + 9) / 10);
 }
 
-TEST_CASE("the bow's arrow lands on the floor ahead; facing the plant it hits, ten arrows kill it") {
+TEST_CASE("the bow's arrow lands on the floor ahead; facing the plant it hits, arrows kill it") {
 	SimWorld world; // tests/levels/archery: the plant at col 13, the player at col 1
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/archery"));
@@ -106,10 +106,9 @@ TEST_CASE("the bow's arrow lands on the floor ahead; facing the plant it hits, t
 	REQUIRE(world.Walk(0.2f)); // turned round: the plant 2.5 tiles ahead
 	world.WaitTicks(70);
 	const int xp = world.Xp();
-	for (int i = 0; i < 12 && world.Xp() == xp; i++) {
-		world.Attack();
-		world.WaitTicks(70);
-	}
+	// Tough on pierce, 2 an arrow; out of shots, it waits for one to come back (plan ranged-weaker-than-melee).
+	for (int i = 0; i < 60 && world.Xp() == xp; i++)
+		world.Wait(world.Attack() ? 1400 : SHOT_RECOVERY_MS);
 	CHECK(world.Nearest() < plant);
 	CHECK(world.Xp() > xp);
 }
@@ -122,8 +121,8 @@ TEST_CASE("each ranged weapon hits the plant from inside its range") {
 	for (const Shot& s :
 		 {Shot{ItemKind::CompositeBow, 10.f},
 		  {ItemKind::Sling, 11.f},
-		  {ItemKind::ThrowingStick, 11.6f},
-		  {ItemKind::Javelin, 11.4f}}) {
+		  {ItemKind::ThrowingStick, 11.3f}, // past its minimum range (plan ranged-weaker-than-melee)
+		  {ItemKind::Javelin, 11.f}}) {
 		CAPTURE(std::string(itemText(s.weapon).name));
 		SimWorld world;
 		world.player.god = true;

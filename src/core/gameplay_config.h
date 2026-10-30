@@ -184,6 +184,13 @@ constexpr int FIRE_ARROW_PERCENT = 60;
 // share of its damage on top as fire, for this share of max stamina. A brazier-lit arrow gets neither.
 constexpr int FLAMING_ARROW_BONUS_PERCENT = 40;
 constexpr int FLAMING_ARROW_STAMINA_PERCENT = 10;
+// Shots (plan ranged-weaker-than-melee): a ranged weapon holds WeaponDef::shots. They come back one every
+// SHOT_RECOVERY_MS, the first SHOT_RECOVERY_DELAY_MS after that weapon's last shot (each shot restarts the wait); all
+// weapons in the bag at once. A refused shot (none left, a monster too close) tells it at most every
+// SHOT_REFUSAL_REPEAT_MS while the key repeats.
+constexpr int SHOT_RECOVERY_DELAY_MS = 2000;
+constexpr int SHOT_RECOVERY_MS = 2500;
+constexpr int SHOT_REFUSAL_REPEAT_MS = 400;
 // Power hit (plan skill-power-hit): with the skill and the stamina-skill toggle on, a melee attack held down charges.
 // It drains POWER_DRAIN_PERCENT of max stamina a second, up to POWER_CAP_PERCENT a hit (then it holds); the swing at
 // the release deals powerHitBonusPercent of the points spent on top. A hold under POWER_TAP_MS is a plain attack, free.

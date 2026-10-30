@@ -58,6 +58,14 @@ struct Slot {
 	std::string badge; // badge text instead of the count (the amulet's tier, I .. IV)
 	std::string key; // the key cap under the slot (from the bindings); empty: no cap (the amulet)
 	int flashAgeMs = 1000000; // since the last use (a quick drink), for the flash
+	// The weapon slot, a ranged weapon (plan ranged-weaker-than-melee): its shots, as pips once one is spent (full:
+	// none), the next one filling up as it comes back (shotRecovery 0..1). A refused shot blinks the slot red (too
+	// close) or the pips (none left).
+	int shots = 0;
+	int shotsLeft = 0;
+	float shotRecovery = 0.f;
+	int shotRefusedAgeMs = 1000000;
+	bool shotTooClose = false;
 };
 
 struct View {

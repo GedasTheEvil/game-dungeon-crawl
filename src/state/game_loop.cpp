@@ -29,14 +29,17 @@ void updateAttack() {
 		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
 		const float aimRange = player.stats.WeaponReach(kind);
 		if (isRanged(kind)) {
-			Game().dungeon.Shoot(
-				missileOf(kind),
-				damage,
-				def.mix,
-				Game().camera.Facing(),
-				Game().playerView.Fist(player, Game().camera.Facing())[1] / RenderConfig::TILE_SIZE,
-				aimRange
-			);
+			// A monster come too close during the draw stops the shot (plan ranged-weaker-than-melee): the swing ends.
+			if (!Game().dungeon.ShootWeapon(
+					kind,
+					damage,
+					Game().camera.Facing(),
+					Game().playerView.Fist(player, Game().camera.Facing())[1] / RenderConfig::TILE_SIZE,
+					aimRange
+				)) {
+				player.attackStartMs = -1;
+				return;
+			}
 			weapon->strikeSound.Play();
 		} else if (Game().dungeon.AttackNearest( // with a power hit's bonus (plan skill-power-hit)
 					   player.PowerDamage(damage),

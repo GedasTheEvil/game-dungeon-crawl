@@ -7,6 +7,7 @@
 #include "decor_scatter.h"
 #include "dungeon_darts.h"
 #include "interaction.h"
+#include "items.h"
 #include "journal.h"
 #include "level.h"
 #include "climb_path.h"
@@ -16,6 +17,7 @@
 #include "sun_beam.h"
 #include "zone_look.h"
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -725,6 +727,17 @@ class Dungeon {
 	// A ranged weapon shoots: the missile leaves the hand, height above the player's feet in tiles, facing dir
 	// (-1 / +1), aimed at a monster up to aimRange tiles ahead.
 	void Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange);
+	// Why the ranged weapon's shot facing dir would not leave (plan ranged-weaker-than-melee): Empty, none of its shots
+	// left (ItemBag::ShotsLeft); TooClose, a monster the bow would aim at is nearer than its minimum range (between
+	// the hitboxes, weaponMinRange; a wall, a lever or a target never blocks). None for a melee weapon.
+	enum class ShotRefusal : std::uint8_t { None, Empty, TooClose };
+	[[nodiscard]] ShotRefusal ShotRefused(ItemKind weapon, int dir) const;
+	// Tells a refused shot, at most every SHOT_REFUSAL_REPEAT_MS: the dry click (Empty), or the dull knock and "Too
+	// close to shoot" (TooClose); the HUD's weapon slot blinks (Player::shotRefusedMs).
+	void RefuseShot(ShotRefusal why);
+	// The ranged weapon's shot at the draw's end: Shoot, one of its shots spent. A monster that came too close during
+	// the draw stops it (RefuseShot, nothing spent): false.
+	bool ShootWeapon(ItemKind weapon, int damage, int dir, float height, float aimRange);
 	// The interact key: does what InteractVerb says, nothing on None.
 	void Interact();
 	// What the interact key does in the player's cell, in this order (plan wall-layer, interact-prompt): the chest or a

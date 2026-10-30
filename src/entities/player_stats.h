@@ -1,6 +1,7 @@
 #ifndef PLAYER_STATS_H
 #define PLAYER_STATS_H
 
+#include "../core/gameplay_config.h"
 #include "../core/timer.h"
 #include "../world/curses.h"
 #include "../world/damage.h"
@@ -153,6 +154,10 @@ class PlayerStats {
 	[[nodiscard]] float WeaponReach(ItemKind weapon) const {
 		return weaponReach(weapon, heka) * static_cast<float>(100 + rings.reachPercent) / 100.f;
 	}
+	// A ranged weapon's shots and how they come back (plan ranged-weaker-than-melee): WeaponDef::shots,
+	// SHOT_RECOVERY_DELAY_MS and SHOT_RECOVERY_MS. The one place to scale them.
+	[[nodiscard]] static int Shots(ItemKind weapon) { return weaponDef(weapon).shots; }
+	[[nodiscard]] static ShotPace ShotRecoveryPace() { return {SHOT_RECOVERY_DELAY_MS, SHOT_RECOVERY_MS}; }
 	// Lays a curse (plan curses): its status line, the field note the first time. Disease keeps the HP's share of the
 	// max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true.
 	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events);

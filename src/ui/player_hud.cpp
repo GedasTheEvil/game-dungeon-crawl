@@ -30,6 +30,8 @@ constexpr float RING_X = SOCKET_X; // the left hand's gem, the right one's a ste
 constexpr float RING_STEP = 3.4f;
 constexpr float RING_Y = 7.6f;
 constexpr float RING_SIZE = 1.25f;
+constexpr float SHOT_PIP_STEP = 1.25f; // a ranged weapon's shots over its slot
+constexpr float SHOT_PIP_SIZE = 0.52f;
 constexpr Rect XP_LINE = {4.f, 2.9f, 52.f, 0.7f};
 constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // the poison tiles, above the panel
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
@@ -381,6 +383,33 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 	strokeRect(cap, GOLD_DIM, 1.f, 1.f);
 }
 
+// A ranged weapon's shots (plan ranged-weaker-than-melee), once one is spent: a row of pips along the slot's top, the
+// ones left gold, the spent ones dark, the next one back filling up. A refused shot blinks red: the slot's ring when a
+// monster is too close, the pips when none is left.
+void drawShots(const PlayerHud::Slot& s, const Rect& r) {
+	const float refused = fade(s.shotRefusedAgeMs, REFUSED_FLASH_MS);
+	const float blink = refused * (0.5f + 0.5f * std::cos(static_cast<float>(s.shotRefusedAgeMs) * 0.03f));
+	if (refused > 0.f && s.shotTooClose)
+		additiveRing(r, 2.2f, BLOOD_TOP, blink);
+	if (s.shots <= 0 || s.shotsLeft >= s.shots)
+		return;
+	const float step = std::min(SHOT_PIP_STEP, (r.w - 1.f) / static_cast<float>(s.shots));
+	const float y = r.y + r.h - 1.1f;
+	for (int i = 0; i < s.shots; i++) {
+		const float x = r.cx() + (static_cast<float>(i) - static_cast<float>(s.shots - 1) / 2.f) * step;
+		diamond(x, y, SHOT_PIP_SIZE + 0.25f, BLACK, 0.8f);
+		if (i < s.shotsLeft)
+			diamond(x, y, SHOT_PIP_SIZE, GOLD_BRIGHT, 1.f);
+		else {
+			diamond(x, y, SHOT_PIP_SIZE, TROUGH, 1.f);
+			if (i == s.shotsLeft && s.shotRecovery > 0.f) // the next one back, growing and brightening
+				diamond(x, y, SHOT_PIP_SIZE * s.shotRecovery, GOLD_BRIGHT, 0.35f + 0.4f * s.shotRecovery);
+		}
+		if (refused > 0.f && !s.shotTooClose)
+			diamond(x, y, SHOT_PIP_SIZE, BLOOD_TOP, blink);
+	}
+}
+
 void drawSlotIcon(const PlayerHud::Slot& s, const Rect& r, int icons) {
 	if (s.icon != PlayerHud::Icon::None)
 		PlayerHud::drawIcon(s.icon, r.inset(ICON_INSET), icons, s.tint);
@@ -472,6 +501,8 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlotIcon(view.slots[i], slotRect(i), icons);
+	beginShapes();
+	drawShots(view.slots[0], slotRect(0));
 
 	beginText();
 	char hp[24];

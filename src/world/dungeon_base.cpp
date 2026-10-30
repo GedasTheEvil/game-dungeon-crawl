@@ -143,6 +143,8 @@ void Dungeon::Update() {
 	updateMissiles();
 	updateWebs();
 	updateShots();
+	if (sim.items != nullptr && sim.player != nullptr) // the player's ranged weapons (plan ranged-weaker-than-melee)
+		sim.items->RecoverShots(UPDATE_TICK_MS, PlayerStats::ShotRecoveryPace());
 	updateBlazes();
 	updateBalls();
 	updateDarts();

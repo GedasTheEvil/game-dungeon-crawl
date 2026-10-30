@@ -139,7 +139,7 @@ constexpr bool isRing(ItemKind kind) { return itemIndex(kind) >= FIRST_RING; }
 constexpr bool isRanged(ItemKind kind) { return itemIndex(kind) >= itemIndex(ItemKind::SelfBow) && isWeapon(kind); }
 
 // What a ranged weapon shoots (Dungeon::Shoot): the bows an arrow, the sling a stone; the throwing stick and the
-// javelin fly themselves. Endless, like the arrows: no ammunition.
+// javelin fly themselves. No ammunition: a few shots that come back (WeaponDef::shots).
 enum class MissileKind : std::uint8_t { Arrow, Stone, Stick, Javelin };
 constexpr int MISSILE_KIND_COUNT = 4;
 
@@ -243,8 +243,15 @@ struct ItemText {
 struct WeaponDef {
 	const char* model = ""; // media/models/items/<model>.md3, media/textures/items/<model>.png
 	float scale = 1.f;
-	int damage = 0; // at weapon level 1; the loot grades go by it (loot.cpp)
+	int damage = 0; // at weapon level 1; the loot grades go by it (loot.cpp), unless gradeDamage is set
 	int range = 0; // tenths of a tile (a ranged weapon's: how far it aims)
+	// Ranged weapons (plan ranged-weaker-than-melee): the shots it holds (ItemBag::ShotsLeft), and no shot at a
+	// monster closer than minRange, tenths of a tile measured as range is (Dungeon::ShotRefused).
+	int shots = 0;
+	int minRange = 0;
+	// The loot grades sort by this instead of damage (0: by damage): a ranged weapon keeps the grade of its damage
+	// before it was made weaker than its melee twin, so chests keep their order.
+	int gradeDamage = 0;
 	DamageMix mix{}; // blunt, slash, pierce, fire percent. Its main type (mainType) is the journal's.
 	// Each weapon level adds this share of the base damage: the club grows most, the sword least (it starts
 	// strongest).
@@ -298,6 +305,13 @@ constexpr int SHARP_EYE_RANGE_PERCENT = 130;
 	const float reach = weaponReach(weapon);
 	return isRanged(weapon) && heka.Has(SkillId::SharpEye) ? reach * static_cast<float>(SHARP_EYE_RANGE_PERCENT) / 100.f
 														   : reach;
+}
+// A ranged weapon deals at most this share of its melee twin's damage per second (plan ranged-weaker-than-melee; the
+// rule at ITEMS, items.cpp).
+constexpr int RANGED_TWIN_DPS_PERCENT = 70;
+// Tiles: a ranged weapon's minimum range (WeaponDef::minRange), 0 for melee.
+[[nodiscard]] inline float weaponMinRange(ItemKind weapon) {
+	return 0.1f * static_cast<float>(weaponDef(weapon).minRange);
 }
 [[nodiscard]] inline MissileKind missileOf(ItemKind weapon) { return weaponDef(weapon).missile; }
 [[nodiscard]] inline bool isThrown(ItemKind weapon) { return isWeapon(weapon) && weaponDef(weapon).thrown; }

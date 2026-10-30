@@ -10,14 +10,17 @@ constexpr int LOWER_WEAPON_CHANCE = 5; // weapon chests: one weapon of a lower g
 constexpr int SAME_POTION_CHANCE = 5; // potion chests: a second one of the same potion
 constexpr int SMALL_HEALTH_CHANCE = 10; // large health chests only
 
-// Weapons from the weakest up, by base damage (WeaponDef::damage); equal ones in ItemKind order.
+// Weapons from the weakest up, by base damage (WeaponDef::damage, or gradeDamage where set: the ranged weapons keep
+// their grade, plan ranged-weaker-than-melee); equal ones in ItemKind order.
 const std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = [] {
 	std::array<ItemKind, WEAPON_KIND_COUNT> grades{};
 	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
 		grades[static_cast<size_t>(i)] = itemAt(i);
-	std::stable_sort(grades.begin(), grades.end(), [](ItemKind a, ItemKind b) {
-		return weaponDef(a).damage < weaponDef(b).damage;
-	});
+	auto grade = [](ItemKind kind) {
+		const WeaponDef& def = weaponDef(kind);
+		return def.gradeDamage > 0 ? def.gradeDamage : def.damage;
+	};
+	std::stable_sort(grades.begin(), grades.end(), [&](ItemKind a, ItemKind b) { return grade(a) < grade(b); });
 	return grades;
 }();
 

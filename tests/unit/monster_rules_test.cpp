@@ -282,17 +282,17 @@ TEST_CASE("fire arrows from a brazier: the mummy takes double from fire and burn
 	world.Attack();
 	world.WaitTicks(40);
 	world.WaitTicks(40);
-	// The bow's 12: 40% pierce (tough, 25%) and 60% fire (weak, 200%): 12 * 1.3 = 16.
-	CHECK(world.Nearest() == hp - 16);
+	// The bow's 7: 40% pierce (tough, 25%) and 60% fire (weak, 200%): 7 * 1.3 = 9.
+	CHECK(world.Nearest() == hp - 9);
 	CHECK(world.dungeon.NearestMonsterBurns());
 	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS - 1);
 	CHECK(world.Told("Mummy catches fire"));
 	CHECK(world.Told("weak to fire"));
 	CHECK(world.Creature(MonsterMummy)->Tried(DamageType::Fire));
-	// It burns a fifth of its fire share (14.4) a second for 3 s: 8.
+	// It burns a fifth of its fire share (8.4) a second for 3 s: 5.
 	world.Wait(3500);
 	CHECK_FALSE(world.dungeon.NearestMonsterBurns());
-	CHECK(world.Nearest() == hp - 24);
+	CHECK(world.Nearest() == hp - 14);
 	CHECK(std::any_of(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
 		return e.kind == WorldEvent::Kind::Note && e.note == FieldNote::Fire;
 	}));
@@ -349,7 +349,7 @@ int shotDamage(SimWorld& world) {
 TEST_CASE("flaming arrows: with the skill on, a bow hit deals 40% more as fire, costs 10% stamina, and ignites") {
 	SimWorld plain;
 	readyFlamingArrows(plain, true, false);
-	CHECK(shotDamage(plain) == 3); // toggle off: a normal arrow, the mummy's pierce is tough
+	CHECK(shotDamage(plain) == 2); // toggle off: a normal arrow, the mummy's pierce is tough
 	CHECK_FALSE(plain.dungeon.NearestMonsterBurns());
 	CHECK(plain.player.stats.Stamina() == plain.player.stats.MaxStamina());
 
@@ -357,8 +357,8 @@ TEST_CASE("flaming arrows: with the skill on, a bow hit deals 40% more as fire, 
 	readyFlamingArrows(lit, true, true);
 	const int stamina = lit.player.stats.Stamina();
 	const int cost = lit.player.stats.MaxStamina() * FLAMING_ARROW_STAMINA_PERCENT / 100;
-	// The bow's 12 becomes 16 (+40%), 71% pierce (tough, 25%) and 29% fire (the mummy takes double): 12.
-	CHECK(shotDamage(lit) == 12);
+	// The bow's 7 becomes 9.8 (+40%), 71% pierce (tough, 25%) and 29% fire (the mummy takes double): 7.
+	CHECK(shotDamage(lit) == 7);
 	CHECK(lit.dungeon.NearestMonsterBurns());
 	CHECK(lit.player.stats.Stamina() >= stamina - cost); // and a little back, regenerating while the arrow flew
 	CHECK(lit.player.stats.Stamina() <= stamina - cost + 10);
@@ -372,7 +372,7 @@ TEST_CASE("flaming arrows: not enough stamina is a normal arrow at no cost, and 
 	const int low = world.player.stats.MaxStamina() * FLAMING_ARROW_STAMINA_PERCENT / 100 - 1;
 	world.player.stats.SetStamina(low);
 	CHECK_FALSE(world.player.staminaSkillRefusedMs.has_value());
-	CHECK(shotDamage(world) == 3);
+	CHECK(shotDamage(world) == 2);
 	CHECK_FALSE(world.dungeon.NearestMonsterBurns());
 	CHECK(world.player.stats.Stamina() >= low); // no cost (it only regenerates)
 	CHECK(world.player.staminaSkillRefusedMs.has_value());
@@ -382,7 +382,7 @@ TEST_CASE("flaming arrows: no skill, no flames, even with the toggle on") {
 	SimWorld world;
 	readyFlamingArrows(world, false, true);
 	const int stamina = world.player.stats.Stamina();
-	CHECK(shotDamage(world) == 3);
+	CHECK(shotDamage(world) == 2);
 	CHECK(world.player.stats.Stamina() >= stamina);
 }
 
@@ -391,8 +391,8 @@ TEST_CASE("flaming arrows: a brazier-lit arrow gets no bonus and costs no stamin
 	readyFlamingArrows(world, true, true);
 	world.player.fireArrows = FIRE_ARROW_SHOTS;
 	const int stamina = world.player.stats.Stamina();
-	// The brazier's 60% fire: 12 * (0.4 * 0.25 + 0.6 * 2) = 16, as without the skill.
-	CHECK(shotDamage(world) == 16);
+	// The brazier's 60% fire: 7 * (0.4 * 0.25 + 0.6 * 2) = 9, as without the skill.
+	CHECK(shotDamage(world) == 9);
 	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS - 1);
 	CHECK(world.player.stats.Stamina() >= stamina);
 }

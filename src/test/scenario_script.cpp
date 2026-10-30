@@ -549,6 +549,7 @@ const std::vector<FieldDef>& fieldDefs() {
 		{"boss", Field::Boss},
 		{"minions", Field::Minions},
 		{"attacking", Field::Attacking},
+		{"shots", Field::Shots},
 		{"decor_tier", Field::DecorTier},
 		{"nearest", Field::Nearest},
 		{"nearest_poison", Field::NearestPoison},

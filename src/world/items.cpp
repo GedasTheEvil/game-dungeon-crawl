@@ -11,6 +11,13 @@ namespace {
 // The weapons, then the potions, in ItemKind order. A weapon's motion: grip, rest / windup / strike tilt, thrust, hit
 // (frame delay) / swing / recovery ms. Levelgen: weapons by depth like in the campaign (the deeper, the more kinds),
 // potions by weight; no antidote, as generated levels have no poisoners.
+//
+// Ranged weaker than melee (plan ranged-weaker-than-melee): a ranged weapon hits softer than its twin, the melee weapon
+// of the same type: below the twin's base damage per hit, and at most RANGED_TWIN_DPS_PERCENT of the twin's damage per
+// second (damage / WeaponMotion::AttackMs()). A cap, never a raise. It takes the twin's growth, so the caps hold at
+// every weapon level. The twins: the throwing stick and the sling the club (blunt), the javelin the spear (the same
+// pole), the self-bow the knife (pierce, from the start), the composite bow the duckbill axe (pierce, from depth 7).
+// Ranged is the opener, melee the finish: a few shots (shots, coming back slowly) and none at point blank (minRange).
 constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	// The club is slow and heavy, and grows most.
 	{.file = {ItemType::MELEE_WEAPON, 0},
@@ -118,9 +125,13 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .weapon =
 		 {.model = "bow",
 		  .scale = 12,
-		  .damage = 12,
+		  .damage = 7,
 		  .range = 30,
+		  .shots = 5,
+		  .minRange = 15,
+		  .gradeDamage = 12,
 		  .mix = {0, 0, 100},
+		  .growthPercent = 30,
 		  .motion = {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
 		  .swingSound = "bow_draw",
 		  .strikeSound = "bow_release"}},
@@ -131,6 +142,8 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 		  .scale = 11,
 		  .damage = 22,
 		  .range = 40,
+		  .shots = 6,
+		  .minRange = 15,
 		  .mix = {0, 0, 100},
 		  .motion = {0.5f, 0, 0, 0, 0, 650, 750, 650},
 		  .swingSound = "bow_draw",
@@ -142,9 +155,13 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .weapon =
 		 {.model = "sling",
 		  .scale = 5,
-		  .damage = 10,
+		  .damage = 6,
 		  .range = 20,
+		  .shots = 6,
+		  .minRange = 10,
+		  .gradeDamage = 10,
 		  .mix = {100, 0, 0},
+		  .growthPercent = 40,
 		  .motion = {0.05f, 160, -150, 45, 0, 350, 600, 450},
 		  .swingSound = "sling_swing",
 		  .strikeSound = "sling_release",
@@ -154,9 +171,13 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .weapon =
 		 {.model = "throwing_stick",
 		  .scale = 5,
-		  .damage = 14,
+		  .damage = 5,
 		  .range = 12,
+		  .shots = 3,
+		  .minRange = 7, // the plan's 10 left it 0.2 tiles to throw from: too tight to use
+		  .gradeDamage = 14,
 		  .mix = {90, 10, 0},
+		  .growthPercent = 40,
 		  .motion = {0.08f, 40, -60, 100, 0, 300, 500, 400},
 		  .swingSound = "club_swing",
 		  .strikeSound = "throw",
@@ -168,8 +189,11 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 	 .weapon =
 		 {.model = "javelin",
 		  .scale = 11,
-		  .damage = 30,
+		  .damage = 20,
 		  .range = 15,
+		  .shots = 2,
+		  .minRange = 10,
+		  .gradeDamage = 30,
 		  .mix = {0, 10, 90},
 		  .motion = {0.45f, 60, 20, 80, 0, 500, 700, 700},
 		  .swingSound = "spear_swing",
@@ -302,11 +326,19 @@ constexpr bool validItems() {
 			return false;
 		if (!weapon && def.file.type != ItemType::POTION)
 			return false;
+		// A ranged weapon holds shots and its minimum range is inside its range; a melee one has neither.
+		const bool ranged = def.file.type == ItemType::RANGED_WEAPON;
+		if (weapon && (ranged ? def.weapon.shots < 1 || def.weapon.minRange >= def.weapon.range
+							  : def.weapon.shots != 0 || def.weapon.minRange != 0))
+			return false;
 		weights += weapon ? 0 : def.potion.generatedWeight;
 	}
 	return weights == 100;
 }
-static_assert(validItems(), "ITEMS: weapons then potions, unique file ids, damage mixes and potion weights of 100%");
+static_assert(
+	validItems(),
+	"ITEMS: weapons then potions, unique file ids, damage mixes and potion weights of 100%, shots for the ranged"
+);
 
 // The amulets in ItemKind order.
 constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {

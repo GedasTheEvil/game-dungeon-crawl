@@ -115,6 +115,10 @@ TEST_CASE("power hit: toggle off or no skill, holding does not charge; a bow dra
 	readyPowerHit(bow, true, true, ItemKind::SelfBow);
 	CHECK(bow.player.CanCharge(false));
 	CHECK_FALSE(bow.player.CanCharge(true));
+	// Back off from the mummy: closer it is too close to shoot (plan ranged-weaker-than-melee).
+	REQUIRE(bow.WalkTo(bow.X() - 3.f));
+	bow.facing = 1;
+	REQUIRE(bow.dungeon.ShotRefused(ItemKind::SelfBow, 1) == Dungeon::ShotRefusal::None);
 	REQUIRE(bow.HoldAttack(1000)); // a plain bow shot at the press
 	CHECK_FALSE(bow.player.Charging());
 	CHECK(bow.player.swingPower == 0);

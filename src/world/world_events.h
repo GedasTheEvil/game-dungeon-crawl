@@ -51,6 +51,8 @@ enum class WorldSound : unsigned char {
 	ChevronLock, // the Stargate's inner ring turns and a chevron locks (plan stargate-chamber)
 	ChevronFail, // the seventh will not lock: the ring grinds to a halt, the power dies
 	DialPress, // the dial device's red dome pressed: a dull clunk, nothing
+	ShotDry, // a ranged weapon with no shot left: a dry click (plan ranged-weaker-than-melee)
+	ShotTooClose, // a monster too close to shoot: a short dull knock
 };
 
 // A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged,roar}.wav).

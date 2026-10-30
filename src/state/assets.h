@@ -37,6 +37,8 @@ struct SoundBank {
 	Sound wade, splash; // a step in half water, landing in it
 	Sound pageTurn; // the journal's paper rustle
 	Sound dungThud; // a dung ball breaks (plan scarab-dung-ball)
+	Sound shotDry,
+		shotTooClose; // a ranged shot refused: none left, a monster too close (plan ranged-weaker-than-melee)
 	Sound ringsDown, ringsUp; // a ring platform's rings drop and flash, rise at the partner (plan ring-transporter)
 	Sound chevronLock, chevronFail,
 		dialPress; // the Stargate dialled, the seventh failing, its dial device (plan stargate-chamber)

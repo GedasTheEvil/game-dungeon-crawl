@@ -144,6 +144,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Holds (a bite that grabs: the tell, the lunge, the death roll, the sting), the player held | `entities/monster_grab.{h,cpp}` (`Grab`), rules `HoldRules` in `world/monster_kinds.*`, `Dungeon::PlayerHeldBy` (`world/dungeon_monsters.cpp`), the locks in `world/dungeon_base.cpp` and `input/input.cpp` |
 | Bite reach: the cone, the wind-up, a jump over a low monster dodges | `Monster::Reaches` / `UpdateBite` (`entities/monster_reach.cpp`), the bite in `world/dungeon_monsters.cpp` |
 | Monster shots (ranged attack, spit) and arrow traps | `world/dungeon_arrows.cpp` |
+| The player's ranged weapons: shots and their recovery, the minimum range, the HUD's pips | `WeaponDef::shots`, `minRange` (`world/items.*`), `ItemBag::ShotsLeft` / `RecoverShots` (`world/item_bag.*`, ticked in `Dungeon::Update`), `Dungeon::ShotRefused` / `ShootWeapon` (`world/dungeon_arrows.cpp`), `drawShots` (`ui/player_hud.cpp`); numbers `SHOT_*` (`core/gameplay_config.h`) |
 | Dung balls (the giant scarab's and Khepri's roll): the windup, the kick, the roll, the fall, the hit | `entities/monster_roll.{h,cpp}` (`Roll`), `world/dungeon_balls.cpp` (`Dungeon::DungBall`), drawn by `Dungeon::drawBalls` (`world/dungeon_render_effects.cpp`); rules `RollRules` in `world/monster_kinds.*` |
 | Boss fight (appear, summon, boss gates) | `world/dungeon_boss.cpp` |
 | Player movement, jump, wading, ladders, traps underfoot | `world/dungeon_base.cpp`, `world/movement.h`, `entities/trap_hurt.h` |

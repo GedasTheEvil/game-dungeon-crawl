@@ -1,6 +1,6 @@
 # Amulet: more shots
 
-Status: draft 2026-10-30 (user). Needs [ranged-weaker-than-melee](ranged-weaker-than-melee.draft.opus.md) first (the
+Status: draft 2026-10-30 (user). Needs [ranged-weaker-than-melee](ranged-weaker-than-melee.md) first (the
 shots).
 
 ## Idea

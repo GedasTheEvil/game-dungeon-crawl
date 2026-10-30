@@ -9,7 +9,8 @@ bow_release.wav (string twang and snap, the arrow's whoosh), arrow_hit.wav (thun
 arrow_wall.wav (tock into stone and the shaft buzzing), sling_swing.wav (the sling whirled round, faster each turn),
 sling_release.wav (the cord's snap, the stone whizzing off), throw.wav (an arm's throw: the throwing stick, the
 javelin), stone_hit.wav (a blunt missile on a body), stone_wall.wav (a stone or stick clacking off stone),
-axe_hit.wav (a heavy chop: the blade bites in), mace_hit.wav (stone on bone: a deep crunch).
+axe_hit.wav (a heavy chop: the blade bites in), mace_hit.wav (stone on bone: a deep crunch), shot_dry.wav (no shot
+left: a dry click), shot_too_close.wav (a monster too close to shoot: a dull knock).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like mechanism_sounds.py.
 """
@@ -224,6 +225,22 @@ def mace_hit():
     return normalize(out, -3)
 
 
+def shot_dry():
+    """A ranged weapon with no shot left: a dry click, the string or the empty hand."""
+    out = np.zeros(int(0.12 * SR))
+    place(out, burst(0.02, 2500, 7000, 0.003), 0.0, 1.0)
+    place(out, thud(900, 700, 0.03, 0.008), 0.0, 0.3)
+    return normalize(out, -10)
+
+
+def shot_too_close():
+    """A monster too close to shoot: a short dull knock, wood on leather."""
+    out = np.zeros(int(0.2 * SR))
+    place(out, thud(220, 120, 0.15, 0.035), 0.0, 1.0)
+    place(out, burst(0.04, 300, 1000, 0.008), 0.0, 0.4)
+    return normalize(out, -8)
+
+
 # Paths under media/sounds/.
 SOUNDS = {
     "items/club_swing": club_swing, "items/club_hit": club_hit, "items/sword_swing": sword_swing,
@@ -231,7 +248,7 @@ SOUNDS = {
     "items/bow_draw": bow_draw, "items/bow_release": bow_release, "items/arrow_hit": arrow_hit,
     "items/arrow_wall": arrow_wall, "items/sling_swing": sling_swing, "items/sling_release": sling_release,
     "items/throw": throw, "items/stone_hit": stone_hit, "items/stone_wall": stone_wall, "items/axe_hit": axe_hit,
-    "items/mace_hit": mace_hit,
+    "items/mace_hit": mace_hit, "items/shot_dry": shot_dry, "items/shot_too_close": shot_too_close,
 }
 
 

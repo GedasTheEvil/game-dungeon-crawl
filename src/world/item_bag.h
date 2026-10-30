@@ -6,6 +6,7 @@
 
 #include "items.h"
 #include "quick_potion.h"
+#include <algorithm>
 #include <cstdint>
 #include <iosfwd>
 #include <optional>
@@ -34,6 +35,13 @@ struct Vitals {
 	int resistPercent = 0; // a resistance potion's still running, 0: none
 };
 
+// How the shots of a ranged weapon come back (plan ranged-weaker-than-melee; PlayerStats::ShotPace): one every
+// everyMs, the first delayMs after the weapon's last shot.
+struct ShotPace {
+	int delayMs = 0;
+	int everyMs = 1;
+};
+
 // Why an item cannot be used (equipped or drunk) now.
 enum class UseBlock : std::uint8_t {
 	None,
@@ -58,6 +66,10 @@ class ItemBag {
 	std::optional<ItemKind> worn; // the amulet on, one of those counted
 	WornRings rings; // the rings on, left and right hand (plan ring-accessories), each one of those counted
 	Hand olderHand = Hand::Left; // the ring worn longer, when both hands wear one
+	// Per ranged weapon (plan ranged-weaker-than-melee): the shots spent and not back yet, and the time since its last
+	// shot (the recovery's clock). Not saved: a load starts full.
+	int shotsSpent[WEAPON_KIND_COUNT] = {};
+	int sinceShotMs[WEAPON_KIND_COUNT] = {};
 
 	[[nodiscard]] int HandsWearing(ItemKind ring) const; // 0, 1 or 2
 	void PutOnHand(ItemKind ring, Hand hand);
@@ -87,6 +99,19 @@ class ItemBag {
 	// on the other hand with no second copy held moves over. False if the ring is not held or the player is dead.
 	bool WearOn(ItemKind ring, Hand hand, bool alive);
 	[[nodiscard]] OwnedWeapons Owned() const; // the weapons held (count > 0)
+
+	// Shots (plan ranged-weaker-than-melee). shots: the weapon's full set (PlayerStats::Shots). Spending one restarts
+	// its recovery wait; RecoverShots runs the clock of every weapon at once (the ones not in hand too), each brings
+	// back one shot a pace.everyMs once pace.delayMs have passed since its last shot.
+	[[nodiscard]] int ShotsLeft(ItemKind weapon, int shots) const {
+		return std::max(0, shots - shotsSpent[itemIndex(weapon)]);
+	}
+	void SpendShot(ItemKind weapon);
+	void RecoverShots(int ms, const ShotPace& pace);
+	// 0..1: how far the next shot of the weapon is back (0 while the wait after its last shot runs, or when it is
+	// full).
+	[[nodiscard]] float ShotRecovery(ItemKind weapon, const ShotPace& pace) const;
+	void RefillShots(); // all shots back (a new game, a load)
 
 	[[nodiscard]] UseBlock Block(ItemKind kind, const Vitals& player) const;
 	// Equips a weapon, takes a potion out of the bag (the caller applies its potionGain), or puts an amulet on (takes

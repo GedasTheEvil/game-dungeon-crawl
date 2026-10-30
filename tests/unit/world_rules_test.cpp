@@ -141,13 +141,21 @@ TEST_CASE("an arrow into a monster in half water hits for half, on dry floor in 
 	CHECK(world.Nearest() == hp);
 	world.Attack();
 	world.Wait(2000);
-	CHECK(world.Nearest() == hp - 12);
+	CHECK(world.Nearest() == hp - 6); // the bow's 7 halved in water (3), weak to pierce: 6
 	REQUIRE(world.WalkTo(1.5f));
 	world.HoldWalk(1, 2 * UPDATE_TICK_MS);
-	world.Wait(30000); // out of the water (its centre past col 4), still three tiles off
-	world.Attack();
+	world.Wait(30000); // out of the water (its centre past col 4), up to the player
+	// Too close for the bow's minimum range (plan ranged-weaker-than-melee): the arrow shot straight from the bow.
+	world.dungeon.Shoot(
+		MissileKind::Arrow,
+		world.player.stats.Damage(weaponDef(ItemKind::SelfBow).damage),
+		weaponMix(ItemKind::SelfBow),
+		world.facing,
+		0.65f * world.player.Height(),
+		weaponReach(ItemKind::SelfBow)
+	);
 	world.Wait(1000);
-	CHECK(world.Nearest() == hp - 36);
+	CHECK(world.Nearest() == hp - 20); // 7, weak to pierce: 14
 }
 
 TEST_CASE("the boss fight: summons, the sealed gate, its chest, and it stays dead after a save and load") {

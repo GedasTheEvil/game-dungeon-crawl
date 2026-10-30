@@ -98,6 +98,7 @@ enum class Field : unsigned char {
 	Boss,
 	Minions,
 	Attacking,
+	Shots, // the equipped ranged weapon's shots left, -1 for a melee one (plan ranged-weaker-than-melee)
 	DecorTier,
 	Nearest,
 	NearestPoison,

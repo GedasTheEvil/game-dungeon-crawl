@@ -1,0 +1,32 @@
+# Plan ranged-weaker-than-melee: the shots on the HUD's weapon slot and a shot refused up close, at the plant of
+# tests/levels/archery (col 13; the player starts at col 1). Full: no pips. Two spent: three gold pips, two dark. One
+# coming back: its pip filling up. Up to the plant: no shot, "Too close to shoot", the slot blinks red, nothing spent.
+seed 1
+god
+level tests/levels/archery
+wait 30
+give ranged 0
+equip self-bow
+walk right 9.5
+wait 30
+expect shots == 5
+screenshot full
+attack
+wait 1100ms
+attack
+wait 1100ms
+expect shots == 3
+screenshot two_spent
+wait 3300ms
+expect shots == 3
+screenshot recovering
+wait 1500ms
+expect shots == 4
+walk right 1.5
+wait 10
+expect shots == 5
+attack
+wait 3
+expect attacking == 0
+expect shots == 5
+screenshot too_close

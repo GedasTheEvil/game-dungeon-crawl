@@ -46,6 +46,61 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 	return found;
 }
 //======================================================================================
+Dungeon::ShotRefusal Dungeon::ShotRefused(ItemKind weapon, int dir) const {
+	if (!isRanged(weapon))
+		return ShotRefusal::None;
+	if (sim.items->ShotsLeft(weapon, PlayerStats::Shots(weapon)) == 0)
+		return ShotRefusal::Empty;
+	// Only a monster the shot would aim at (aimTarget: on the row, not hidden, no wall between), or one already past
+	// the launch point but not behind the player. Measured as the aim's range: from the launch point to its near edge.
+	const float minRange = weaponMinRange(weapon);
+	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
+	const auto row = static_cast<int>(std::floor(mapY));
+	for (const Monster& mon : monsters) {
+		if (!mon.Active() || !mon.Alive() || mon.lurking() || mon.Hidden() || mon.Row() != row)
+			continue;
+		if ((mon.NearEdge(dir) - x0) * static_cast<float>(dir) >= minRange ||
+			(mon.FarEdge(dir) - mapX) * static_cast<float>(dir) < 0.f)
+			continue;
+		bool clear = true;
+		for (auto col = static_cast<int>(std::floor(mapX)); col != static_cast<int>(std::floor(mon.NearEdge(dir)));
+			 col += dir)
+			if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row))) {
+				clear = false;
+				break;
+			}
+		if (clear)
+			return ShotRefusal::TooClose;
+	}
+	return ShotRefusal::None;
+}
+//======================================================================================
+void Dungeon::RefuseShot(ShotRefusal why) {
+	Player& player = *sim.player;
+	const int now = GameClock::now();
+	if (why == ShotRefusal::None || (player.shotRefusedMs && now - *player.shotRefusedMs < SHOT_REFUSAL_REPEAT_MS &&
+									 player.shotTooClose == (why == ShotRefusal::TooClose)))
+		return;
+	player.shotRefusedMs = now;
+	player.shotTooClose = why == ShotRefusal::TooClose;
+	if (player.shotTooClose) {
+		sim.events->Play(WorldSound::ShotTooClose);
+		sim.events->Status("Too close to shoot");
+	} else {
+		sim.events->Play(WorldSound::ShotDry);
+	}
+}
+//======================================================================================
+bool Dungeon::ShootWeapon(ItemKind weapon, int damage, int dir, float height, float aimRange) {
+	if (const ShotRefusal why = ShotRefused(weapon, dir); why != ShotRefusal::None) {
+		RefuseShot(why);
+		return false;
+	}
+	sim.items->SpendShot(weapon);
+	Shoot(missileOf(weapon), damage, weaponMix(weapon), dir, height, aimRange);
+	return true;
+}
+//======================================================================================
 void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange) {
 	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
 	const float y0 = mapY + height - PlayerSink() / RenderConfig::TILE_SIZE; // wading, the bow is down in the water

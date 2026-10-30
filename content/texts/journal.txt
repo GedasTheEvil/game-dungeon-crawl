@@ -34,6 +34,9 @@ title: Weapons
 text: Copies of my weapons are in chests, and now and then a creature leaves one; with enough copies a weapon can be
 	upgraded in the inventory (U). The old club gains the most from it. 1 takes up the next hand weapon, 2 the next one
 	to shoot or throw. Every creature takes each kind of blow differently: I note it down.
+	A bow, a sling or a throw has only a few shots ready, the gold marks on its tile; they come back one by one once I
+	stop shooting with it for a while. It hits softer than a hand weapon and needs room: a creature too close, and
+	there is no shot. I open with it and finish up close.
 
 [note.blunt]
 title: Smash

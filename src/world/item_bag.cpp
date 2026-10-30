@@ -70,6 +70,36 @@ int weaponDamage(ItemKind weapon, int baseDamage, int level) {
 	return static_cast<int>(std::lround(static_cast<double>(baseDamage) * percent / 100.0));
 }
 
+void ItemBag::SpendShot(ItemKind weapon) {
+	shotsSpent[itemIndex(weapon)]++;
+	sinceShotMs[itemIndex(weapon)] = 0;
+}
+
+void ItemBag::RecoverShots(int ms, const ShotPace& pace) {
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++) {
+		if (shotsSpent[i] == 0)
+			continue;
+		sinceShotMs[i] += ms;
+		// The first shot back at delay + every, then one every `every`: the clock keeps the time past the last one.
+		while (shotsSpent[i] > 0 && sinceShotMs[i] >= pace.delayMs + pace.everyMs) {
+			shotsSpent[i]--;
+			sinceShotMs[i] -= pace.everyMs;
+		}
+	}
+}
+
+float ItemBag::ShotRecovery(ItemKind weapon, const ShotPace& pace) const {
+	const int i = itemIndex(weapon);
+	if (shotsSpent[i] == 0)
+		return 0.f;
+	return std::clamp(static_cast<float>(sinceShotMs[i] - pace.delayMs) / static_cast<float>(pace.everyMs), 0.f, 1.f);
+}
+
+void ItemBag::RefillShots() {
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+		shotsSpent[i] = sinceShotMs[i] = 0;
+}
+
 int amuletWorth(AmuletTier tier) { return 1 << static_cast<int>(tier); }
 
 std::optional<ItemKind> nextTier(ItemKind amulet) {
@@ -92,6 +122,7 @@ void ItemBag::Reset() {
 		level = 1;
 	equipped = ItemKind::Club;
 	worn.reset();
+	RefillShots();
 	rings = {};
 	olderHand = Hand::Left;
 }
@@ -310,6 +341,7 @@ void ItemBag::Save(std::ostream& out) const {
 }
 
 void ItemBag::Load(std::istream& in) {
+	RefillShots();
 	for (int& count : counts)
 		count = 0;
 	for (int& level : levels)

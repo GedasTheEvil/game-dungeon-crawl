@@ -179,6 +179,12 @@ class SimWorld {
 	bool Attack() {
 		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed() || !dungeon.AttackAllowed(true))
 			return false;
+		// No shot left, or a monster too close (plan ranged-weaker-than-melee): no draw.
+		if (const Dungeon::ShotRefusal why = dungeon.ShotRefused(items.Equipped(), facing);
+			why != Dungeon::ShotRefusal::None) {
+			dungeon.RefuseShot(why);
+			return false;
+		}
 		player.swingPower = 0;
 		swing(false);
 		return true;
@@ -335,16 +341,12 @@ class SimWorld {
 		if (!player.attackLanded && t >= def.motion.hitMs) {
 			player.attackLanded = true;
 			const int damage = player.stats.Damage(weaponDamage(kind, def.damage, items.Level(kind)));
-			if (isRanged(kind))
-				dungeon.Shoot(
-					missileOf(kind),
-					damage,
-					def.mix,
-					facing,
-					0.65f * player.Height(),
-					player.stats.WeaponReach(kind)
-				);
-			else
+			if (isRanged(kind)) {
+				if (!dungeon.ShootWeapon(kind, damage, facing, 0.65f * player.Height(), player.stats.WeaponReach(kind))) {
+					player.attackStartMs = -1;
+					return;
+				}
+			} else
 				dungeon.AttackNearest(
 					player.PowerDamage(damage),
 					def.mix,

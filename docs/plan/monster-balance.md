@@ -248,6 +248,23 @@ Left open, for the user and [denser-levels](denser-levels.md):
 * The checker's `threat` values are unchanged (levelgen's difficulty target rests on them).
 * Might adds to each hit: late the flint knife has the most damage a second (a tenth of a tile's reach). Not changed.
 
+## The kite after ranged-weaker-than-melee (2026-10-30)
+
+The tables above were tuned with the old kite: endless arrows, at any range. Plan
+[ranged-weaker-than-melee](ranged-weaker-than-melee.md) gave the ranged weapons a few shots (back one
+every 2.5 s), a minimum range and softer hits (the self-bow 12 -> 7). The sim's kite now backs off to the bow's
+minimum range plus 0.3 tiles, shoots while it has shots, waits for them out of reach, and fights in melee at the
+wall. `bin/balance table` before -> after (kite only; tank and run past did not change):
+
+* Bow-only kills (`b`) got rare and slow: plant 14 -> 60 s, worm 14 -> 83 s, mummy 71 -> 82 s (no longer bow
+  only), the giant scarab 7 -> 18 s and the cobras, crocodiles and baboons now need the melee finish.
+* Worse: the hippo 15% -> 102% (cisterns) and 7% -> 67% (Seth's desert): it charges through the minimum range. Seth
+  "no kill" (was 145% in 110 s). The Anubis boss 198% -> 264%, the scorpion queen 92% -> 115%, the baboon 0% in
+  2 s -> 20-26% in 48 s.
+* Better: Sobek in his pool 150% -> 107%, Babi 175% -> 141% (the kite keeps out of their reach while it waits).
+* Unchanged: the flyers the kite never killed (bats), and every tank fight. No monster only the bow can reach
+  became unkillable: Sobek's pool fight is shorter, the plants in the campaign all have floor beside them.
+
 ## Monster strength
 
 * Go through every type in `KINDS`: speed, HP, damage, attack interval, XP. Compare against the player's level

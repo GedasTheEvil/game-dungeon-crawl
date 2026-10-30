@@ -116,3 +116,15 @@ Write the rule as a comment at `ITEMS` (`src/world/items.cpp`) and in the glossa
 
 `tests/play/ranged-weaker-than-melee.txt`: every weapon, a few mid-campaign monsters (giant rat, crocodile, a flyer),
 so the user can compare: open with the bow, finish with the club or spear; kite with only the bow.
+
+## Implemented (2026-10-30)
+
+* Shots, recovery, the HUD pips, the journal line, the twin caps and the numbers as above. Loot grades: a new
+  `WeaponDef::gradeDamage` keeps today's order. No faster recovery while standing still (the optional bonus).
+* Minimum range measured as the aim's range is (from the launch point, just ahead of the player, to the monster's
+  near edge). The throwing stick's is 7, not 10: with its 1.2 range, 10 left a 0.2-tile window to throw from.
+* There is no aim mark in the game: "too close" shows as the status line "Too close to shoot", the weapon slot's red
+  blink and a dull knock (`shot_too_close.wav`); no shot left is a dry click (`shot_dry.wav`) and the pips blink.
+  A monster that comes too close during the draw stops the shot too, nothing spent.
+* The weapon keys switch at once (only not during a swing): no change needed.
+* Balance before / after: [monster-balance](monster-balance.md#the-kite-after-ranged-weaker-than-melee-2026-10-30).

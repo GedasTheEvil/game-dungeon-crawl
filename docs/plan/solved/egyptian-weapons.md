@@ -26,7 +26,7 @@ except the war chariot. 13 weapons, 9 of them new: the weapons group fills two t
 ## Roles
 
 Today's numbers (`ITEM_DEFS`, `src/state/assets.cpp`) for the kept weapons; the new ones are starting points beside
-them, tuned with [monster-balance.draft.opus.md](../monster-balance.md).
+them, tuned with [monster-balance.draft.opus.md](monster-balance.md).
 
 | Weapon | Status | Class | Mix blunt/slash/pierce | Damage | Reach (tenths) | Attack ms | Role |
 |---|---|---|---|---|---|---|---|
@@ -86,14 +86,14 @@ Each stage is committed and tested on its own.
    (model, arc, spin, the stick's return look). The weapons tab gets its second page here.
 3. **Melee family**: dagger, khopesh, epsilon axe, duckbill axe, mace.
 4. **Campaign**: chest placement by depth, levelcheck on all levels, balance pass with
-   [monster-balance.draft.opus.md](../monster-balance.md).
+   [monster-balance.draft.opus.md](monster-balance.md).
 
 Per new weapon: a Blender model ([../remodeling.md](../../remodeling.md)), a `WEAPON_DEFS` row (mix, damage, reach,
 motion, sounds), `ItemKind` and `ItemText` entries, a file id, sounds.
 
 ## Open
 
-* Stamina cost per attack: none today; decide with [monster-balance.draft.opus.md](../monster-balance.md).
+* Stamina cost per attack: none today; decide with [monster-balance.draft.opus.md](monster-balance.md).
 * ~~The hand-made levels 1-5: which existing weapon chests swap to dagger or sling.~~ Lvl2 dagger, lvl3 sling
   (see Done).
 
@@ -136,5 +136,5 @@ Decided on the way (the user was away; easy to change):
 Tests: `ranged_weapons.txt`, `melee_weapons.txt`, `weapons_held.txt` (every weapon in the fist), unit tests for the
 file ids, the old save and the loot.
 
-Still open: the balance pass with [monster-balance.draft.opus.md](../monster-balance.md) (the new weapons only have the
+Still open: the balance pass with [monster-balance.draft.opus.md](monster-balance.md) (the new weapons only have the
 starting numbers above), and the stamina cost per attack.

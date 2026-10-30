@@ -26,7 +26,7 @@ that sit at its corners. Baboons were sacred to Thoth, and they greet the rising
 * **Journal note**, in the archaeologist's voice: "Thoth's baboons, the priests said. Thoth was a scribe. These
   throw things."
 * **Levels:** the Lake of Fire zone, three to five a level; a few in the Necropolis after it. levelgen: the zone's
-  monster set ([campaign-levelgen](../campaign-levelgen.md)); until then, from difficulty 9.
+  monster set ([campaign-levelgen](campaign-levelgen.md)); until then, from difficulty 9.
 * **Glyph:** pick a free one. **Model:** procedural ([modeling.md](../../modeling.md)): a hamadryas baboon, mane on the
   shoulders, a long dog-like muzzle, a crouching walk on all fours. Clips: idle (sitting, hands raised), walk, climb,
   bite, ranged (throw), die. Sounds: screech, bark, throw, die (`tools/audio/`).
@@ -52,7 +52,7 @@ that sit at its corners. Baboons were sacred to Thoth, and they greet the rising
 * Kiting changes (in [monster-kiting](monster-kiting.md#done)): it breaks off its throw clip after the release to back
   off; cornered nearer than its band it closes in and bites; a journal move "Keeps its distance".
 * Journal: the note, and its own line for the ranged move ("Screeches, lifts a burning coal over its head ...").
-* Levels: the Lake of Fire zone has no levels yet (the rebuild, [campaign-levelgen](../campaign-levelgen.md)),
+* Levels: the Lake of Fire zone has no levels yet (the rebuild, [campaign-levelgen](campaign-levelgen.md)),
   so they sit in the necropolis: three in 31, two each in 32 and 33, on long open rows. Levelgen from difficulty 9.
   Not in the zone table's monster sets (the necropolis row is full; the Lake's comes with the rebuild).
 * Model `tools/blender/models/baboon.py` (walk, bite, throw, die, idle sitting with the hands raised, climb), sounds

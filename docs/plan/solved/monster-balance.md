@@ -7,44 +7,44 @@ from three drafts: monster strength (2026-10-01), monster XP tuning, and weapon 
 review is done and verified in play 2026-09-30 (see [Reach](#reach-done)). Refined 2026-10-09: see
 [Decided](#decided-2026-10-09).
 
-Needs first: [desert-chapter](solved/desert-chapter.md) and [campaign-zones](solved/campaign-zones.md) (balance
+Needs first: [desert-chapter](desert-chapter.md) and [campaign-zones](campaign-zones.md) (balance
 against the final zones, their monster sets and the 40-60 level count), and every monster and boss draft (user, 2026-10-20: balance comes
-after all monsters and bosses are in): [giant-bat-screech](solved/giant-bat-screech.md),
-[giant-cobra-blinding-spit](solved/giant-cobra-blinding-spit.md),
-[giant-rat-pack-call](solved/giant-rat-pack-call.md), [scarab-dung-ball](solved/scarab-dung-ball.md),
-[camel-spider-boss](solved/camel-spider-boss.md), [worm-boss](solved/worm-boss.md),
-[baboon](solved/baboon.md), [babi-boss](solved/babi-boss.md). A new monster or boss
+after all monsters and bosses are in): [giant-bat-screech](giant-bat-screech.md),
+[giant-cobra-blinding-spit](giant-cobra-blinding-spit.md),
+[giant-rat-pack-call](giant-rat-pack-call.md), [scarab-dung-ball](scarab-dung-ball.md),
+[camel-spider-boss](camel-spider-boss.md), [worm-boss](worm-boss.md),
+[baboon](baboon.md), [babi-boss](babi-boss.md). A new monster or boss
 draft joins this list.
 
-Zones ([campaign-zones](solved/campaign-zones.md#zones-decided-2026-10-21)): about 54 levels; the High Priest moves from
+Zones ([campaign-zones](campaign-zones.md#zones-decided-2026-10-21)): about 54 levels; the High Priest moves from
 lvl34 to about lvl18, crocodiles from 7-9 to 28 on, Sobek before Seth. Balance against that table.
 
-Levels: [desert-chapter](solved/desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the
+Levels: [desert-chapter](desert-chapter.md) put five desert levels at 21-25 (Seth's oasis at 25); the
 levels named 21-30 below (play-test entries before 2026-10-20) are 26-35 now: Sobek on lvl30, the Anubis boss on lvl35.
 
-Names: the game now shows Egyptian names ([egyptian-names](solved/egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
+Names: the game now shows Egyptian names ([egyptian-names](egyptian-names.md)): Anubis guard = Anubis living statue, Anubis boss = Anubis, boss scarab = Khepri, vampire bat = Bat of Shezmu, mimic = Chest of Set, worm = Sand worm, plant = Thorn acacia. Code ids stay.
 
 ## Idea
 
 * Some monsters are too weak for their place in the campaign, others too strong. Review every monster type's threat
   and readjust its stats so each one is a real fight at the levels it appears on.
-* Now that monsters and the player have real hitboxes ([monster hitboxes](solved/monster-hitboxes.md)), fights may be
+* Now that monsters and the player have real hitboxes ([monster hitboxes](monster-hitboxes.md)), fights may be
   easier than before (big monsters are hit at their near edge, not their centre). The weapon reach is reviewed; monster
   HP is not yet.
 * Some monsters give too much XP for how hard they are to kill. Nerf them, so XP follows the real danger.
 
-The walk speed change ([fixed-timestep.md](solved/fixed-timestep.md), 1.0 tiles/s) is done, so monster speeds can now
+The walk speed change ([fixed-timestep.md](fixed-timestep.md), 1.0 tiles/s) is done, so monster speeds can now
 be tuned against the final player speed.
 
 ## Decided (2026-10-09)
 
 Order of work:
 
-1. **The sim cut** ([sim-library](solved/sim-library.md), done 2026-10-09), so the leap AI below is
+1. **The sim cut** ([sim-library](sim-library.md), done 2026-10-09), so the leap AI below is
    unit tested.
 2. **Close the gap:** the giant scarab walks at 3 (from 2). It and the giant rat leap (`Locomotion::WalkJump`) at the
    player when 2-3 tiles away on the same row with a clear way, 3 s between leaps. The giant scarab's
-   dung ball ([scarab-dung-ball](solved/scarab-dung-ball.md)) takes 0.6-1 tile between the boxes (Khepri's up to
+   dung ball ([scarab-dung-ball](scarab-dung-ball.md)) takes 0.6-1 tile between the boxes (Khepri's up to
    1.1; cut from the draft's 4-6 to the view, about 1.8 tiles either side of the player): the leap keeps out of that
    band, from farther (it closes in to the ball's range). HP and damage only if that is not enough. The ball adds to
    the giant scarab's and Khepri's threat (`MonsterKind::threat`, left as it was).
@@ -90,7 +90,7 @@ From `KINDS` (`src/world/monster_kinds.cpp`). Speed, HP, damage, ms between atta
 | Scorpion queen | 5 | 700 | 45 | 1100 | 15000 | boss lvl15, strong poison |
 | Apep | 6 | 1100 | 60 | 1200 | 20000 | boss lvl20, burrows |
 | Sobek | 6 | 1600 | 70 | 1300 | 25000 | boss lvl30 (was lvl25), charges (x2) |
-| Seth | 5 | 2000 | 80 | 1500 | 30000 | boss lvl25 ([hippo-boss](solved/hippo-boss.md)), charges, storm roar |
+| Seth | 5 | 2000 | 80 | 1500 | 30000 | boss lvl25 ([hippo-boss](hippo-boss.md)), charges, storm roar |
 | Anubis boss | 4.5 | 2400 | 140 | 1300 | 30000 | boss lvl35 (was lvl30), buffed 2026-10-06 |
 
 Boss minions get their XP from `Dungeon::MinionXP`.
@@ -142,7 +142,7 @@ Against the model (2026-10-10 entry):
 
 ## Sim pass (2026-10-26)
 
-`bin/balance table --gear play` ([development.md](../development.md)): every zone's monsters and its boss against the
+`bin/balance table --gear play` ([development.md](../../development.md)): every zone's monsters and its boss against the
 player halfway through the zone (the boss: at its level), in the real sim, three seeds. The player: the level at
 today's pace (the same share of the way through as on today's 35 levels, whose XP sum, riddles counted, matches the
 playthrough: 42 on lvl18, 49 on lvl23), the gear of the playthrough (by player level), the weapon with the hardest hit
@@ -251,7 +251,7 @@ Left open, for the user and [denser-levels](denser-levels.md):
 ## The kite after ranged-weaker-than-melee (2026-10-30)
 
 The tables above were tuned with the old kite: endless arrows, at any range. Plan
-[ranged-weaker-than-melee](solved/ranged-weaker-than-melee.md) gave the ranged weapons a few shots (back one
+[ranged-weaker-than-melee](ranged-weaker-than-melee.md) gave the ranged weapons a few shots (back one
 every 2.5 s), a minimum range and softer hits (the self-bow 12 -> 7). The sim's kite now backs off to the bow's
 minimum range plus 0.3 tiles, shoots while it has shots, waits for them out of reach, and fights in melee at the
 wall. `bin/balance table` before -> after (kite only; tank and run past did not change):
@@ -275,7 +275,7 @@ wall. `bin/balance table` before -> after (kite only; tank and run past did not 
 
 Example: the **giant scarab** (levels 5-10) is slow (speed 2) and easy to kite: the player backs off, shoots it with
 the bow and it never reaches them. Easy to tank in melee too. The **giant rat** had the same problem and is now faster
-than the walk ([giant-rat-speed.md](solved/giant-rat-speed.md)). The fix for both: step 2 of
+than the walk ([giant-rat-speed.md](giant-rat-speed.md)). The fix for both: step 2 of
 [Decided](#decided-2026-10-09).
 
 ## HP balance
@@ -284,7 +284,7 @@ Not changed: needs a playthrough with the new reach. Retune monster HP (`KINDS` 
 `src/world/monster_kinds.cpp`): replay lvl5 (boss scarab, 320 HP) and a giant rat level with each weapon.
 
 Old numbers, at weapon level 1, no Might, from before
-[damage types](solved/damage-types-and-resistances.md). Since then the club deals 10 and the spear 20 (26 planned,
+[damage types](damage-types-and-resistances.md). Since then the club deals 10 and the spear 20 (26 planned,
 step 3), weapons grow per level at their own rate, and each monster takes each damage type at its own rate:
 
 | Weapon | Damage | ms per attack | Damage per s |
@@ -303,23 +303,23 @@ step 3), weapons grow per level at their own rate, and each monster takes each d
 XP follows the new threat.
 
 * Found in play: the mummy gave too much at 4500 and was cut to 2500 (lvl11, beaten with a sword,
-  [solved/mummy-minion-monster.md](solved/mummy-minion-monster.md)). Others are likely off too.
+  [solved/mummy-minion-monster.md](mummy-minion-monster.md)). Others are likely off too.
 * Not taken (2026-10-09, hand-tuned instead): score each monster from HP, damage per second and mobility (the
   checker's `monsterThreat` is a start), and set its XP
   from that score.
 * Suspects: the plant and the mimic (they never move, so the player picks the fight): cut in step 4. The Anubis keeps
   10000 (600 HP since the buff).
 * Check the effect on the level curve: the player level when reaching lvl5 / lvl10 bosses is used in the boss tuning
-  ([solved/boss-rooms.md](solved/boss-rooms.md)). Rerun a full playthrough or a scenario that sums the XP per level.
+  ([solved/boss-rooms.md](boss-rooms.md)). Rerun a full playthrough or a scenario that sums the XP per level.
 
 ## Boss resistances
 
-Split off to [boss-resistances](solved/boss-resistances.md) (done): no boss has a weakness. Boss HP is left as it is for now.
+Split off to [boss-resistances](boss-resistances.md) (done): no boss has a weakness. Boss HP is left as it is for now.
 
 ## Open questions
 
 * Which monsters to nerf, by how much: the sim pass (step 5).
-* The attack damage mix per monster group ([monster-attack-damage-types.md](solved/monster-attack-damage-types.md)),
+* The attack damage mix per monster group ([monster-attack-damage-types.md](monster-attack-damage-types.md)),
   if it plays wrong.
 
 Settled on the way:
@@ -355,14 +355,14 @@ scarab) while the hit counts. Tilt it down if it looks wrong in play.
 
 ## Related
 
-* [solved/trap-walking-monsters.md](solved/trap-walking-monsters.md), [solved/boss-rooms.md](solved/boss-rooms.md).
-* Changes that move the sim pass (step 5): [anubis-speed](solved/anubis-speed.md),
-  [anubis-ranged-attack](solved/anubis-ranged-attack.md), [monster-climbers](solved/monster-climbers.md) (threat
-  x1.05), [coward-flee-ranged](solved/coward-flee-ranged.md), [crocodile-hold-bite](solved/crocodile-hold-bite.md) (in,
+* [solved/trap-walking-monsters.md](trap-walking-monsters.md), [solved/boss-rooms.md](boss-rooms.md).
+* Changes that move the sim pass (step 5): [anubis-speed](anubis-speed.md),
+  [anubis-ranged-attack](anubis-ranged-attack.md), [monster-climbers](monster-climbers.md) (threat
+  x1.05), [coward-flee-ranged](coward-flee-ranged.md), [crocodile-hold-bite](crocodile-hold-bite.md) (in,
   threat unchanged: short, only in water; the crocodile's half-water weight may want it), the cobra spit cut to 1.2 /
   1.5 tiles (2026-10-09).
-* New monsters and bosses to fit in: [scorpion-queen-boss.md](solved/scorpion-queen-boss.md) (the Anubis boss
-  must stay stronger), [apep-serpent-boss.md](solved/apep-serpent-boss.md),
-  [longer-campaign.md](solved/longer-campaign.md).
+* New monsters and bosses to fit in: [scorpion-queen-boss.md](scorpion-queen-boss.md) (the Anubis boss
+  must stay stronger), [apep-serpent-boss.md](apep-serpent-boss.md),
+  [longer-campaign.md](longer-campaign.md).
 * Traps still check the player's point (`Trap::Hurt`), not the player box: left out on purpose in
-  [trap-and-font-bugs.md](solved/trap-and-font-bugs.md). Revisit only if trap hits feel off.
+  [trap-and-font-bugs.md](trap-and-font-bugs.md). Revisit only if trap hits feel off.

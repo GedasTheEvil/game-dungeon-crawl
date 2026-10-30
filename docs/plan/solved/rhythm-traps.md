@@ -85,7 +85,7 @@ What went in:
 
 Not done:
 
-* No campaign level has them yet ([denser-levels](../denser-levels.md) or a level pass can place them).
+* No campaign level has them yet ([denser-levels](denser-levels.md) or a level pass can place them).
 * No journal field note for them (the journal texts were being rewritten in parallel, plan simple-damage-words).
 * Per-trap poison tier: all weak.
 * Flyers are not stabbed (they are blocked while the spikes are out).

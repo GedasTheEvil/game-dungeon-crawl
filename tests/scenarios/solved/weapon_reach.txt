@@ -1,5 +1,4 @@
-# Kept (docs/testing.md): plan monster-balance (draft) not solved; hit boxes against the model are pictures. Weapon
-# reach against the model (plan monster-balance): each melee weapon at its hit frame, with the debug boxes, next to a
+# Weapon reach against the model (plan monster-balance): each melee weapon at its hit frame, with the debug boxes, next to a
 # giant rat stopped where it bites. The reach (yellow) should end near the weapon's tip. That every weapon hits every
 # size of walker there, also in toon mode: tests/unit/reach_test.cpp.
 seed 1

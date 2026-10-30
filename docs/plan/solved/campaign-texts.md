@@ -2,7 +2,7 @@
 
 Status: implemented (commit 5fb4b84), waiting for the user's play-test, which comes with
 [denser-levels](denser-levels.md) (user, 2026-10-26: testable only on the rebuilt campaign). Draft
-2026-10-21, from the user. Needed first: [campaign-zones](solved/campaign-zones.md) (the level count
+2026-10-21, from the user. Needed first: [campaign-zones](campaign-zones.md) (the level count
 and the zone themes the texts follow).
 
 ## Idea
@@ -19,10 +19,10 @@ levels, inscriptions from level 1 on, and several forks. Write the texts first, 
   `docs/levels.md`. New entries in `content/inscriptions/*.txt` with `G:` glyphs, 2-3 per level (1-2 on the first
   zone's levels), then rebuild the atlas (`tools/textures/inscriptions.py`). Real texts (Pyramid Texts, Coffin Texts,
   the Shipwrecked Sailor, Sinuhe, Wenamun, workmen's ostraca from Deir el-Medina, the Amarna hymn to the Aten) and
-  hints that suit the zone. Keep the boon share of [inscription-boons](solved/inscription-boons.md).
+  hints that suit the zone. Keep the boon share of [inscription-boons](inscription-boons.md).
 * **Atlas capacity:** ids stop at 64 (`INSCRIPTION_ATLAS_GRID` 8). 100-180 inscriptions need a larger grid (for
   example 16 x 16 at 128 px in 2048 px); keep the id = cell rule.
-* **Expedition pages:** 18 today ([expedition-notes](solved/expedition-notes.md)). One page every two or three levels
+* **Expedition pages:** 18 today ([expedition-notes](expedition-notes.md)). One page every two or three levels
   over the new count, written in order of depth. Some pages hint at a fork ahead; the last one stays the last
   fork's warning ("take the left gate. I took the right").
 * **Fork hints:** for each fork the zone plan places, a page text, an inscription text, or both (see
@@ -32,7 +32,7 @@ levels, inscriptions from level 1 on, and several forks. Write the texts first, 
 * **Level titles** (from the duat-hours draft): each level gets a title in its zone's hour (e.g. "The Fourth Hour:
   the Gate of Sand" for the zone, "The Hall of Drifts" for a level). Titles live in the level files (a new header
   field, `docs/levels.md`), so `levelcheck` warns about a campaign level without one. Shown in the level-start
-  banner ([zone-looks](solved/zone-looks.md)), the map and the save slots. Write them here, the rebuild keeps
+  banner ([zone-looks](zone-looks.md)), the map and the save slots. Write them here, the rebuild keeps
   them.
 * **Hour notes:** a journal field note on entering each zone (hour), in the archaeologist's voice ("The Seventh Hour.
   Apep waits here, says the wall. I wish the wall were wrong.").

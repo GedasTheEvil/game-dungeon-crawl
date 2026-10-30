@@ -51,7 +51,7 @@ three.
 * A plain bite, no hold. A bite with a hold is a separate idea:
   [crocodile-hold-bite.md](crocodile-hold-bite.md).
 * Strength: between the giant rat and the mummy, with higher damage than both (numbers when the work starts, against
-  [monster-balance.draft.opus.md](../monster-balance.md)). First crocodiles around lvl 7-9; those levels get water.
+  [monster-balance.draft.opus.md](monster-balance.md)). First crocodiles around lvl 7-9; those levels get water.
 * Model built in Blender ([../remodeling.md](../../remodeling.md)). A Sobek boss could follow later
   ([more-bosses.draft.md](../old/more-bosses.draft.md)).
 
@@ -80,7 +80,7 @@ their wading kind ([Monsters in water](#monsters-in-water)); the player wades li
   ladder goes down into water.
 * `levelcheck`: crocodiles only spawn in or next to water.
 * `levelcheck` treats a crocodile as a wall the path cannot swim past: dropped (killing it opens the way, as with any
-  monster). Its harder fight in the water moved to [monster balance](../monster-balance.md).
+  monster). Its harder fight in the water moved to [monster balance](monster-balance.md).
 * Scenario test: player speed in and out of water, crocodile speed in and out of water.
 
 ## Implemented

@@ -73,8 +73,8 @@ v3 file's cells are all unset, a v4 file has no zone); `levelcheck` warns about 
 zones, most of them ending with a boss. Each exit loads the next level. `content/levels/lvl54` holds the ankh that wins
 the game behind the Anubis boss's gate; he is always the last boss.
 
-The campaign was generated zone by zone ([denser-levels](plan/denser-levels.md),
-[campaign-levelgen](plan/campaign-levelgen.md)) and then polished by hand. Its sizes ramp from the way in to the whole
+The campaign was generated zone by zone ([denser-levels](plan/solved/denser-levels.md),
+[campaign-levelgen](plan/solved/campaign-levelgen.md)) and then polished by hand. Its sizes ramp from the way in to the whole
 grid (`ZONE_SIZE`, campaign.h): 124 open cells on lvl1, 300 on Khepri's level, the whole 40 x 47 grid from the web
 halls on. Each level's levelgen arguments (seed, difficulty, size, texts, lore, page, fork, title) are in the seed
 table `tools/level/rebuild.txt`; `tools/level/rebuild.py LEVEL` generates it again (and drops its polish).
@@ -211,7 +211,7 @@ each a level or so before what it hints at, on a skeleton at a wing's end off th
 the way to their fork on the floor: page 8 on lvl12 (the first fork), page 24 on lvl49 (the last fork, on the exit
 path); pages 19 and 22 tell of the forks of lvl39 and lvl43.
 
-Route forks ([denser-levels](plan/denser-levels.md#route-fork-left-or-right), levelgen `--fork`): lvl12,
+Route forks ([denser-levels](plan/solved/denser-levels.md#route-fork-left-or-right), levelgen `--fork`): lvl12,
 lvl39, lvl43 and the last one on lvl49, the warning (`FORK_TEXT`) between its drops. The Stargate chamber
 ([stargate-chamber](plan/solved/stargate-chamber.md), levelgen `--stargate`) on lvl48, polished by hand: the room
 a cell longer, the ring's text over the rare chest at its far end, the dial device, the ring, a torch beside it and the
@@ -349,7 +349,7 @@ bin/levelgen --seed 3 --difficulty 6 --zone cisterns_of_sobek --boss /tmp/zone  
 ```
 
 With `--zone SLUG` (a zone's slug, [Zones](#zones)) levelgen builds a level in the campaign's shape
-([campaign-levelgen](plan/campaign-levelgen.md), all 9 steps: the shape, the terrain, the monsters,
+([campaign-levelgen](plan/solved/campaign-levelgen.md), all 9 steps: the shape, the terrain, the monsters,
 the traps, the gates, the boss levels, the supplies, the carried content and the decor) and names the zone in the file,
 so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`. With `--boss` (scenarios:
 `gen:SEED:DIFFICULTY:ZONE:boss`) it builds the zone's boss level (step 6, see Boss levels below).
@@ -479,7 +479,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   quicksand, sand falls, dark halls, torches, braziers, light shafts, sun discs turned on the path) and its monsters
   come from its set (camel spiders mostly in the dark, worms in the sand, decoy coffins, decor ushabti); the same seed
   gives the same level; the `gen:` specs. Scenario
-  `tests/scenarios/campaign_levelgen.txt`: one zone level per zone (screenshots).
+  `tests/scenarios/solved/campaign_levelgen.txt`: one zone level per zone (screenshots).
 - `tests/unit/sun_mirrors_test.cpp` (plan sunlight-mirrors): the beam's way through a mirror (turned, edge-on,
   catching it), the search over the mirrors the player can turn, the checker (the turn on the path, a mirror out of
   reach, a disc lit at the start, the warnings), the mirror turned in the game lighting the disc and opening its gate,
@@ -526,7 +526,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   aimed at the plant (`tests/levels/archery`) and hits it, the shots kill it.
 - `tests/scenarios/solved/ranged_weapons.txt`: composite bow, sling, throwing stick and javelin each hit the archery plant
   from inside their range; screenshots of the draw, the whirl and the missiles in flight (the stick flying back).
-- `tests/scenarios/weapon_reach.txt`: every melee weapon at its hit frame next to a giant rat at bite distance, with the
+- `tests/scenarios/solved/weapon_reach.txt`: every melee weapon at its hit frame next to a giant rat at bite distance, with the
   debug boxes: the reach should end near the weapon's tip.
 - `tests/unit/scen_u_test.cpp` ("moving or sprinting does not cancel an attack recovery"): sprinting through a recovery does not cut it short.
 - `tests/scenarios/solved/weapons_held.txt`: every weapon in the fist, standing and at its strike, both facings: screenshots.

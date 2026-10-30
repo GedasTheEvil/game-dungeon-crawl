@@ -2,7 +2,7 @@
 
 Status: draft 2026-10-21, from the user ("analyze current in-code texts, perhaps it would make sense to move some of it
 outside into content/ as text files"). Needs nothing first. An analysis first, then a move where it pays: the
-implementer decides what moves (see [Analysis](#analysis)). Overlaps [campaign-texts](../campaign-texts.md)
+implementer decides what moves (see [Analysis](#analysis)). Overlaps [campaign-texts](campaign-texts.md)
 (zone titles and notes): do that one first or agree on where its texts live.
 
 ## Idea

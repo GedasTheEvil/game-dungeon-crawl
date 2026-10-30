@@ -42,7 +42,7 @@ Used by:
 * Poison can kill, as on the player. The kill is the player's (XP, journal, kill drop) when any running tier came from
   them (`byPlayer`); a trap's poison (the dart trap) gives nothing, as a trap's kill.
 * The tier numbers stay the player's: small next to a boss's HP (strong: 150 HP of Sobek's 1600). Retune with
-  [monster-balance](../monster-balance.md) if needed.
+  [monster-balance](monster-balance.md) if needed.
 * Shown: the monster's health bar has a lime outline and its fill pulses venom green to lime; the boss bar is green,
   like the player's (`PlayerHud::POISON_TOP`, shared).
 * A respawn or a death clears the poison. Monsters are not saved, so neither is their poison.

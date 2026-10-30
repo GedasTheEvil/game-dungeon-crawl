@@ -5,10 +5,10 @@ play-tested); the bosses and the XP are retuned from the sim afterwards (user). 
 turned into the full rebuild 2026-10-21 (user: "levels re-generated completely, adjusting to the new bosses", 40-60
 levels in zones). Slug kept from the first version.
 
-Needs first: [campaign-zones](solved/campaign-zones.md) (the zones and level count),
+Needs first: [campaign-zones](campaign-zones.md) (the zones and level count),
 [monster-balance](monster-balance.md) (user, 2026-10-21: the levels are built on the balanced values),
-[zone-looks](solved/zone-looks.md), and the new traps, so the rebuild places them:
-[fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](solved/poison-drip-trap.md).
+[zone-looks](zone-looks.md), and the new traps, so the rebuild places them:
+[fire-jet-trap](fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.md).
 Built on [campaign-levelgen](campaign-levelgen.md) (the generator) and [campaign-texts](campaign-texts.md) (the texts
 to place): both implemented, their play-test comes with this rebuild (user, 2026-10-26), so they don't block it.
 Monster-balance already waits for every monster and boss draft, so they are all in before this.
@@ -94,7 +94,7 @@ User, 2026-10-26: the bosses are retuned from the sim once all levels are done (
   god-mode script, as in campaign-levelgen step 6); with them many stall on grabs, the finale plays to the ankh.
 * **Left open:** no fork in the priests' quarter (the zone table's plan; the pages placed them in the web halls,
   Sokar and the Lake of Fire instead), no inscription hints at the early forks (their pages only), the ring
-  transporter's place waits for [ring-transporter](solved/ring-transporter.md), the level gem still changes every
+  transporter's place waits for [ring-transporter](ring-transporter.md), the level gem still changes every
   five levels (not by zone), `bin/balance`'s paced player now follows the rebuilt campaign (it followed the old one).
 * **XP (open, for the sim pass at the end):** the whole campaign (`bin/balance today`, 2026-10-26): the player comes to
   Khepri (4) at level 6, Shezmu (9) at 26, the Mother of Webs (13) 36, the High Priest (18) 44, the queen (22) 48, Apep
@@ -109,7 +109,7 @@ User, 2026-10-26: the bosses are retuned from the sim once all levels are done (
 ## Idea
 
 Every campaign level is generated again ([campaign-levelgen](campaign-levelgen.md)) from the zone table
-([campaign-zones](solved/campaign-zones.md)): 40-60 levels in zones, each with its bosses, monsters, looks and
+([campaign-zones](campaign-zones.md)): 40-60 levels in zones, each with its bosses, monsters, looks and
 mechanics, using the whole 40 x 47 grid. Today's 35 levels are the reference for what a level carries, not a layout
 to keep.
 
@@ -125,12 +125,12 @@ to keep.
   `docs/levels.md` gets a line per level again.
 * **Carry over the content that is not layout:** inscriptions from level 1 on (2-3 a level, 1-2 in the first zone;
   the texts come from [campaign-texts](campaign-texts.md), the rules are in
-  [hieroglyph-cartouches](solved/hieroglyph-cartouches.md): a reachable floor cell, mostly on or near the path, hints
+  [hieroglyph-cartouches](hieroglyph-cartouches.md): a reachable floor cell, mostly on or near the path, hints
   only), expedition pages, level titles ([campaign-texts](campaign-texts.md)), Hapi potions
-  ([water-blessing-potion](solved/water-blessing-potion.md)), antidotes, mirror puzzles, ring transporters, the
+  ([water-blessing-potion](water-blessing-potion.md)), antidotes, mirror puzzles, ring transporters, the
   Stargate chamber, trapped chests, riddle and name gates. Same density per level or more; the spots may move.
-* **Place every trap type:** [rhythm-traps](solved/rhythm-traps.md), dart plates, rock and sand falls,
-  [fire-jet-trap](solved/fire-jet-trap.md), [poison-drip-trap](solved/poison-drip-trap.md).
+* **Place every trap type:** [rhythm-traps](rhythm-traps.md), dart plates, rock and sand falls,
+  [fire-jet-trap](fire-jet-trap.md), [poison-drip-trap](poison-drip-trap.md).
 * **Batches by zone:** one zone (or two short ones) per task, play-tested in between. The level files are written
   by the generator and then polished by hand or in the editor; they stay the source of truth.
 * **Switching over:** the new levels replace `content/levels/lvl*` all at once, or zone by zone from the start, so
@@ -173,7 +173,7 @@ Known before the choice, both hints on the way to the fork:
   path".
 * **An inscription at the fork** (for readers): on the back wall between the shafts, a warning in the priests' words
   ("To the left, the long road of the living. To the right, the short road of the dead."). Without the
-  [Words of Thoth](solved/skill-hieroglyphs.md) skill it is copied as unread, as today.
+  [Words of Thoth](skill-hieroglyphs.md) skill it is copied as unread, as today.
 
 Placement (user, 2026-10-21): forks come sooner too, several in the campaign. The last one on the level of the
 expedition's last page (lvl34 today, `docs/levels.md`); earlier ones from the denser levels on, each hinted on the

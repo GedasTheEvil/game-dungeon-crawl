@@ -25,7 +25,7 @@ The baboon, stronger in every way (AGENTS.md, Boss abilities):
 * **Arena:** the sealed boss room is the lake: a pool of fire in the middle (fire on the floor, not water: the burning
   oil of the lake), ledges and ladders round it, water basins at the sides as the player's refuge.
 * **Resistances:** `bossResist` of the baboon's (no weakness); fire immune is too much, resists fire.
-* **XP, HP, damage:** between Seth and the Anubis boss, tuned by [monster-balance](../monster-balance.md).
+* **XP, HP, damage:** between Seth and the Anubis boss, tuned by [monster-balance](monster-balance.md).
 * **Journal note:** "The heart-eater. I keep mine, thank you."
 
 ## Tests
@@ -62,7 +62,7 @@ The baboon, stronger in every way (AGENTS.md, Boss abilities):
   leaps them, the player jumps them), the lake of fire a row below, ladders up out of it, water basins at both ends,
   the boss gate and the exit. **Change from the draft: the lake's fire is fire vents** (pairs at alternate phases
   under each gap), not a burning floor: there is no such tile. No campaign slot: the Lake of Fire's levels (42-45)
-  come with [campaign-levelgen](../campaign-levelgen.md); placed there by the rebuild.
+  come with [campaign-levelgen](campaign-levelgen.md); placed there by the rebuild.
 * Journal: the note; the volley's line for his throw, moves `Blaze` and `LeapAway`, his summon "His baboons climb up
   out of the lake at his call" (they dig out, as the draft's "climb out over the lake's edge" has no summon of its own).
 * Tests: `tests/unit/babi_test.cpp` (the kind's rules; volleys and every third throw the big coal; the big coal sets

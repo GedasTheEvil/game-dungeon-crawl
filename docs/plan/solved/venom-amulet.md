@@ -42,4 +42,4 @@ An amulet, tiered like the others, that gives the player's weapon hits a chance 
 ## To test
 
 * The chances and tiers in play: grand strong poison on 30% of hits may be too much against mid-size monsters (150 HP
-  over 30 s), or too little against bosses (Sobek 1600). With [monster-balance](../monster-balance.md).
+  over 30 s), or too little against bosses (Sobek 1600). With [monster-balance](monster-balance.md).

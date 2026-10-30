@@ -17,7 +17,7 @@ own or inside Field notes: implementer's choice).
 * Placement: a new object or a treasure with a "page" item; picked up on touch, no inventory slot. Save game keeps
   which pages were found.
 * `levelcheck`: pages are optional, not on the exit path. Exception: the last page lies on the path before
-  [route-fork](../denser-levels.md#route-fork-left-or-right)'s fork, so the player knows the routes before choosing.
+  [route-fork](denser-levels.md#route-fork-left-or-right)'s fork, so the player knows the routes before choosing.
 
 ## Tests
 

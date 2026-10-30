@@ -33,7 +33,7 @@ cisterns that follow.
 
 ## The chapter
 
-Full 40 x 47 grids from the start ([denser-levels](../denser-levels.md)). Sandstone, not the tomb's
+Full 40 x 47 grids from the start ([denser-levels](denser-levels.md)). Sandstone, not the tomb's
 limestone: own wall and floor textures, warm light, light shafts from cracks above.
 
 * **Sand** (new structure, beside `HalfWater`): drifted sand on the floor. The player walks through it at 3/4 speed

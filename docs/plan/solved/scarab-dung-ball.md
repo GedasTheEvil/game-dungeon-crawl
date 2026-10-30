@@ -11,7 +11,7 @@ sun across the sky, rolls a bigger one.
   pushes off a ball (wind-up ~0.8 s). The ball rolls along the floor (default 4 tiles/s), blunt damage on contact,
   then breaks. It falls into pits, stops at walls, rolls over traps. The player jumps over it.
 * Cooldown: default 4 s.
-* Closer than 4 tiles the leap of [monster-balance](../monster-balance.md) step 2 (2-3 tiles) wins: the
+* Closer than 4 tiles the leap of [monster-balance](monster-balance.md) step 2 (2-3 tiles) wins: the
   ball for range, the leap to close in. Whichever plan lands second keeps the bands apart.
 * Khepri (the boss scarab): a bigger, faster ball, farther range, more damage (boss rule; its `kin` is the scarab,
   but the user wants Khepri to have it). Optional: a burning sun ball with [fire-damage](fire-damage.md).
@@ -38,7 +38,7 @@ Point by point:
   either side of the player, and the roller with its back turned must stand in it with its head. Giant scarab: 0.6-1
   tile between the boxes, 2.2 tiles/s, radius 0.1, 10 damage. The windup is the tell; a jump at the kick clears it.
 * Cooldown 4 s (Khepri 3.5 s).
-* The leap band of [monster-balance](../monster-balance.md) step 2 is not in yet: that draft now says to keep
+* The leap band of [monster-balance](monster-balance.md) step 2 is not in yet: that draft now says to keep
   its leap out of the ball's band.
 * Khepri: bigger (radius 0.13), faster (2.8 tiles/s), from a little farther (1.1), more damage (28), and it burns
   (60 blunt : 40 fire, the player burns for 2 s; flames on the ball once half shaped and on its way, `Fire::SUN_BALL`,

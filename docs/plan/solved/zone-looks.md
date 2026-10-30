@@ -20,7 +20,7 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
   today there is one soundtrack (`media/sounds/music/soundtrack.ogg`, not tracked by git).
 * **Zone banner:** on entering a new zone, the hour and its gate, and its guardian on a boss zone
   ([campaign-zones](campaign-zones.md#the-twelve-hours-of-the-duat)), `docs/ui.md` look. On every other
-  level start a smaller banner with the level's title ([campaign-texts](../campaign-texts.md)).
+  level start a smaller banner with the level's title ([campaign-texts](campaign-texts.md)).
 
 ## Tests
 
@@ -37,7 +37,7 @@ A zone should be recognisable at a glance. Today there are two looks: the tombs'
 * Sound: `tools/audio/zone_ambience.py`, 10 s loops in `media/sounds/ambience/`, on a reserved channel at the effects
   volume (`Ambience`). No music per zone (optional).
 * Banner: `ZoneBanner` with `levelBanner`: the hour and gate, the zone, the guardian on a zone's first level; "Level N"
-  and the zone on the others, until [campaign-texts](../campaign-texts.md) gives the levels titles.
+  and the zone on the others, until [campaign-texts](campaign-texts.md) gives the levels titles.
 * Not in today's campaign, so not seen in the game yet: the web halls' darkness, the Lake of Fire's basalt and red
   light, the priests' quarter, Sokar. No new props (egg sacs): the web halls lean on the web and skeleton.
 * Tests: `tests/unit/zone_looks_test.cpp`, `tests/scenarios/solved/zone_looks.txt` (a hall per zone, the banners).

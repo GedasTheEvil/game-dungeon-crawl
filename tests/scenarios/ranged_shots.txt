@@ -22,7 +22,7 @@ expect shots == 3
 screenshot recovering
 wait 1500ms
 expect shots == 4
-walk right 1.5
+walk right 2.1
 wait 10
 expect shots == 5
 attack

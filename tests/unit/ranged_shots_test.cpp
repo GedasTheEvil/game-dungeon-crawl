@@ -115,7 +115,7 @@ TEST_CASE("a monster too close: no shot, nothing spent; from farther the shot fl
 	REQUIRE(world.Load("tests/levels/archery"));
 	world.Equip(ItemKind::SelfBow);
 	world.WaitTicks(30);
-	REQUIRE(world.Walk(11.f)); // the plant's near edge under the bow's 1.5 tiles ahead
+	REQUIRE(world.Walk(11.6f)); // the plant's near edge under the bow's 0.8 tiles ahead
 	world.WaitTicks(10);
 	const int plant = world.Nearest();
 	CHECK(world.dungeon.ShotRefused(ItemKind::SelfBow, 1) == Dungeon::ShotRefusal::TooClose);
@@ -127,7 +127,7 @@ TEST_CASE("a monster too close: no shot, nothing spent; from farther the shot fl
 	CHECK(world.items.ShotsLeft(ItemKind::SelfBow, 5) == 5);
 	// Facing away from it, nothing is too close.
 	CHECK(world.dungeon.ShotRefused(ItemKind::SelfBow, -1) == Dungeon::ShotRefusal::None);
-	REQUIRE(world.Walk(-1.5f));
+	REQUIRE(world.Walk(-2.1f));
 	REQUIRE(world.Walk(0.2f)); // facing it again, 2.6 tiles off
 	world.WaitTicks(10);
 	CHECK(world.Attack());

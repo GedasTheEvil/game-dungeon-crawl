@@ -1,8 +1,8 @@
 # Plan ranged-weaker-than-melee, for `bin/game --play tests/play/ranged-weaker-than-melee.txt`: lvl7 (bat galleries:
 # giant rats, giant bats, a crocodile) with every weapon, about the player of the zone (armour 5, might 7). Ranged
 # weapons hold a few shots (the pips on the weapon slot once one is spent: bow 5, composite 6, sling 6, stick 3,
-# javelin 2), back one every 2.5 s, 2 s after the weapon's last shot; none at a monster closer than 1.5 tiles (bows)
-# or 1 (sling, javelin; the stick 0.7): "Too close to shoot". Open with the bow (2) and finish with the club or the
+# javelin 2), back one every 2.5 s, 2 s after the weapon's last shot; none at a monster closer than 0.8 tiles (bows)
+# or 0.5 (sling, javelin, stick): "Too close to shoot". Open with the bow (2) and finish with the club or the
 # spear (1), then try to kite a giant rat with only the bow.
 seed 1
 level 7

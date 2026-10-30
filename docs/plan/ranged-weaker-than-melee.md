@@ -42,7 +42,7 @@ They come back one at a time while the player does not shoot that weapon.
 ## 2. Minimum range
 
 A ranged weapon does not shoot at a monster closer than its minimum range, measured like `WeaponDef::range` (between
-the hitboxes, tenths of a tile, a new `WeaponDef::minRange`): bows 15, sling, throwing stick and javelin 10.
+the hitboxes, tenths of a tile, a new `WeaponDef::minRange`): bows 8, sling, throwing stick and javelin 5 (halved after the first play-test, 2026-10-30: 15 and 10 felt too large).
 
 * Too close: the shot does not leave (no shot spent), the aim mark turns red / shows "too close", a short dull sound.
   No weaker shot: a clear no reads better.

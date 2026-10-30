@@ -352,8 +352,8 @@ constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {
 	return amulets;
 }();
 static_assert(
-	AMULETS.back().type == AmuletType::Piercing && AMULETS.back().tier == AmuletTier::Grand,
-	"AMULETS ends with grand piercing, the last amulet"
+	AMULETS.back().type == AmuletType::QuickShots && AMULETS.back().tier == AmuletTier::Grand,
+	"AMULETS ends with grand quick shots, the last amulet"
 );
 
 // Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share (the
@@ -403,6 +403,15 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Piercing",
 	 "Stab Power",
 	 "Stab power: you deal %d%% more"},
+	// The ranged weapons' shots (plan ranged-weaker-than-melee): more of them (plan amulet-more-shots), back sooner
+	// (plan amulet-quick-shots).
+	{"amulet_shots", {25, 50, 75, 100}, "Satet's Quiver", "Shots", "Shots", "Ranged weapons hold %d%% more shots"},
+	{"amulet_quick_shots",
+	 {25, 50, 75, 100},
+	 "Bastet's Cat",
+	 "Quick Shots",
+	 "Quick Shots",
+	 "Shots come back %d%% faster"},
 }};
 // The venom amulet's poison, by tier: the stronger amulets poison more often and worse.
 constexpr std::array<PoisonTier, AMULET_TIER_COUNT> VENOM_TIERS =
@@ -656,6 +665,12 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 		break;
 	case AmuletType::Piercing:
 		bonus.typeMightPercent[static_cast<size_t>(DamageType::Pierce)] = n;
+		break;
+	case AmuletType::Shots:
+		bonus.shotsPercent = n;
+		break;
+	case AmuletType::QuickShots:
+		bonus.shotRecoveryPercent = n;
 		break;
 	}
 	return bonus;

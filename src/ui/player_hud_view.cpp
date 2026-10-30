@@ -39,9 +39,9 @@ PlayerHud::View playerHudView() {
 	view.slots[0].key = equipKeysCap();
 	if (const ItemKind weapon = Game().ui.inventory->EquippedKind(); isRanged(weapon)) {
 		const ItemBag& bag = Game().ui.inventory->Bag();
-		view.slots[0].shots = PlayerStats::Shots(weapon);
+		view.slots[0].shots = stats.Shots(weapon);
 		view.slots[0].shotsLeft = bag.ShotsLeft(weapon, view.slots[0].shots);
-		view.slots[0].shotRecovery = bag.ShotRecovery(weapon, PlayerStats::ShotRecoveryPace());
+		view.slots[0].shotRecovery = bag.ShotRecovery(weapon, stats.ShotRecoveryPace());
 	}
 	if (const std::optional<int> refused = Game().player->shotRefusedMs) {
 		view.slots[0].shotRefusedAgeMs = GameClock::now() - *refused;

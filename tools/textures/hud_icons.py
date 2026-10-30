@@ -4,7 +4,7 @@
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
 src/ui/player_hud.h: the potion, amulet, ring and daze, then from cell 8 on the weapons in ItemKind order, then from cell
-21 on the amulets by AmuletType, from cell 35 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
+21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
 
@@ -504,9 +504,41 @@ def arrowhead(d, cx, cy):
         d.line([(cx - 20, cy + y), (cx + 20, cy + y)], fill=STRING, width=10)
 
 
+def quiver(d, cx, cy):
+    """Satet's quiver, tilted: a leather tube with gold bands, three fletched arrows out of its mouth (items.py
+    build_amulet_shots)."""
+    def turned(pts, a=math.radians(18)):
+        return [(cx + x * math.cos(a) - y * math.sin(a), cy + x * math.sin(a) + y * math.cos(a)) for x, y in pts]
+    for dx in (-38, 0, 38):  # the shafts, then the fletching above the mouth
+        d.line(turned([(dx * 0.6, -60), (dx, -150)]), fill=INK, width=18)
+        d.line(turned([(dx * 0.6, -60), (dx, -150)]), fill=WOOD, width=8)
+        d.polygon(turned([(dx - 20, -175), (dx + 20, -175), (dx + 14, -120), (dx - 14, -120)]), fill=RED, outline=INK,
+                  width=LINE)
+    d.polygon(turned([(-62, -95), (62, -95), (52, 170), (-52, 170)]), fill=LEATHER, outline=INK, width=LINE)
+    for y, h in ((-95, 26), (40, 20), (140, 20)):
+        d.polygon(turned([(-64, y), (64, y), (62, y + h), (-62, y + h)]), fill=GOLD, outline=INK, width=LINE)
+
+
+def cat(d, cx, cy):
+    """Bastet's cat sitting up, from the front: pricked ears, gold eyes, its tail round its paws on a gold plinth
+    (items.py build_amulet_quick_shots)."""
+    cy -= 25  # the plinth inside the cell
+    for side in (-1, 1):
+        d.polygon([(cx + side * 20, cy - 110), (cx + side * 62, cy - 175), (cx + side * 68, cy - 95)], fill=BRONZE,
+                  outline=INK, width=LINE)
+    d.ellipse([cx - 80, cy - 40, cx + 80, cy + 160], fill=BRONZE, outline=INK, width=LINE)  # the body
+    d.ellipse([cx - 68, cy - 150, cx + 68, cy - 20], fill=BRONZE, outline=INK, width=LINE)  # the head
+    for side in (-1, 1):
+        d.ellipse([cx + side * 30 - 13, cy - 100, cx + side * 30 + 13, cy - 78], fill=GOLD, outline=INK, width=LINE)
+        d.line([(cx + side * 26, cy + 10), (cx + side * 26, cy + 150)], fill=INK, width=LINE)  # the forelegs
+    d.line([(cx + 75, cy + 120), (cx + 40, cy + 160), (cx - 50, cy + 160)], fill=INK, width=22, joint="curve")
+    d.line([(cx + 75, cy + 120), (cx + 40, cy + 160), (cx - 50, cy + 160)], fill=BRONZE, width=10, joint="curve")
+    d.rectangle([cx - 100, cy + 160, cx + 100, cy + 190], fill=GOLD, outline=INK, width=LINE)
+
+
 # By AmuletType (src/world/items.h).
 AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus, uraeus,
-                                     sun_disc, mace_head, khopesh_blade, arrowhead)]
+                                     sun_disc, mace_head, khopesh_blade, arrowhead, quiver, cat)]
 
 # ---- the curses, one per Curse (src/world/curses.h): what the curse takes from the player, with a purple taint ----
 CURSE = (128, 58, 160, 255)
@@ -627,7 +659,7 @@ def daze():
 CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
-# curses from cell 35 on (Icon::FirstCurse).
+# curses from cell 37 on (Icon::FirstCurse).
 ICONS = [potion, amulet, ring, daze, None, None, None, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
          bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS

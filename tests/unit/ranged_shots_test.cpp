@@ -24,7 +24,7 @@ void shootAndRecover(SimWorld& world) {
 
 TEST_CASE("shots spend, run out and come back one by one after the wait") {
 	ItemBag bag;
-	const int shots = PlayerStats::Shots(ItemKind::SelfBow);
+	const int shots = weaponDef(ItemKind::SelfBow).shots;
 	REQUIRE(shots == 5);
 	CHECK(bag.ShotsLeft(ItemKind::SelfBow, shots) == shots);
 	for (int i = 0; i < shots; i++)
@@ -48,7 +48,7 @@ TEST_CASE("shots spend, run out and come back one by one after the wait") {
 
 TEST_CASE("a shot restarts the wait before the shots come back") {
 	ItemBag bag;
-	const int shots = PlayerStats::Shots(ItemKind::SelfBow);
+	const int shots = weaponDef(ItemKind::SelfBow).shots;
 	bag.SpendShot(ItemKind::SelfBow);
 	bag.RecoverShots(SHOT_RECOVERY_DELAY_MS + SHOT_RECOVERY_MS - 100, PACE);
 	bag.SpendShot(ItemKind::SelfBow);
@@ -62,7 +62,7 @@ TEST_CASE("each weapon keeps its own shots: a switch does not refill, all of the
 	ItemBag bag;
 	bag.Add(ItemKind::SelfBow);
 	bag.Add(ItemKind::Sling);
-	const int bow = PlayerStats::Shots(ItemKind::SelfBow), sling = PlayerStats::Shots(ItemKind::Sling);
+	const int bow = weaponDef(ItemKind::SelfBow).shots, sling = weaponDef(ItemKind::Sling).shots;
 	REQUIRE(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
 	bag.SpendShot(ItemKind::SelfBow);
 	bag.SpendShot(ItemKind::SelfBow);
@@ -83,7 +83,7 @@ TEST_CASE("a load starts with every shot back") {
 	std::stringstream file;
 	bag.Save(file);
 	bag.Load(file);
-	CHECK(bag.ShotsLeft(ItemKind::Javelin, PlayerStats::Shots(ItemKind::Javelin)) == 2);
+	CHECK(bag.ShotsLeft(ItemKind::Javelin, weaponDef(ItemKind::Javelin).shots) == 2);
 }
 
 TEST_CASE("with no shot left the attack draws nothing, a dry click; the recovered shot flies") {
@@ -94,7 +94,7 @@ TEST_CASE("with no shot left the attack draws nothing, a dry click; the recovere
 	world.WaitTicks(30);
 	REQUIRE(world.Walk(3.f));
 	REQUIRE(world.Walk(-0.2f)); // facing away from the plant: the throws land on the floor
-	for (int i = 0; i < PlayerStats::Shots(ItemKind::Javelin); i++)
+	for (int i = 0; i < weaponDef(ItemKind::Javelin).shots; i++)
 		shootAndRecover(world);
 	CHECK(world.items.ShotsLeft(ItemKind::Javelin, 2) == 0);
 	CHECK_FALSE(heard(world, WorldSound::ShotDry));

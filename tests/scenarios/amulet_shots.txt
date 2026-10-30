@@ -1,0 +1,41 @@
+# The shots amulet (plan amulet-more-shots) and the quick shots amulet (plan amulet-quick-shots): their cards and models
+# in the Amulets tab after the piercing ones, their HUD icons, and the bow's pips. With the grand quiver the self-bow
+# holds 10 (two spent: eight gold pips, two dark); with the grand cat it holds 5 again and a shot is back in 1 + 1.25 s.
+# The numbers per tier: tests/unit/amulet_shots_test.cpp.
+seed 1
+god
+level tests/levels/archery
+wait 30
+give ranged 0
+give amulet 57
+give amulet 60
+key i
+wait 5
+select grand_amulet_of_shots
+wait 5
+screenshot quiver_card
+select amulet_of_quick_shots
+wait 5
+screenshot cat_card
+key i
+wait 5
+equip self-bow
+wear grand_amulet_of_shots
+expect worn == 57
+walk right 9.5
+wait 30
+expect shots == 10
+attack
+wait 1100ms
+attack
+wait 1100ms
+expect shots == 8
+screenshot quiver_pips
+give amulet 61
+wear grand_amulet_of_quick_shots
+expect worn == 61
+wait 10
+expect shots == 3
+wait 1500ms
+expect shots == 4
+screenshot cat_pips

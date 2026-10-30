@@ -1,0 +1,22 @@
+# Plan amulet-more-shots, for `bin/game --play tests/play/amulet-more-shots.txt`: lvl24 (serpent temple: giant cobras)
+# with the self-bow, the composite bow, the sling, the stick and the javelin, the grand Satet's Quiver worn, about the
+# player of the zone. Every ranged weapon holds twice its shots: self-bow 10, composite and sling 12 (pips in two rows
+# on the weapon slot once one is spent), stick 6, javelin 4. The lesser, minor and normal quivers are in the pack
+# (I, Amulets: 7, 8, 9 bow shots). The level's own quiver (lesser) lies in a chest at col 9, row 28.
+seed 1
+level 24
+xp 367053
+gear 14 18 46
+give melee 4
+give ranged 0
+give ranged 1
+give ranged 2
+give ranged 3
+give ranged 4
+give amulet 54
+give amulet 55
+give amulet 56
+give amulet 57
+give potion 1 4
+wear grand_amulet_of_shots
+equip self-bow

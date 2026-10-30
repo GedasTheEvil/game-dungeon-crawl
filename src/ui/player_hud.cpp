@@ -32,6 +32,7 @@ constexpr float RING_Y = 7.6f;
 constexpr float RING_SIZE = 1.25f;
 constexpr float SHOT_PIP_STEP = 1.25f; // a ranged weapon's shots over its slot
 constexpr float SHOT_PIP_SIZE = 0.52f;
+constexpr int SHOT_PIP_ROW = 6; // pips in one row, more go in two
 constexpr Rect XP_LINE = {4.f, 2.9f, 52.f, 0.7f};
 constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // the poison tiles, above the panel
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
@@ -384,8 +385,9 @@ void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
 }
 
 // A ranged weapon's shots (plan ranged-weaker-than-melee), once one is spent: a row of pips along the slot's top, the
-// ones left gold, the spent ones dark, the next one back filling up. A refused shot blinks red: the slot's ring when a
-// monster is too close, the pips when none is left.
+// ones left gold, the spent ones dark, the next one back filling up; more than SHOT_PIP_ROW (the shots amulet, plan
+// amulet-more-shots): two rows, the first one full first. A refused shot blinks red: the slot's ring when a monster
+// is too close, the pips when none is left.
 void drawShots(const PlayerHud::Slot& s, const Rect& r) {
 	const float refused = fade(s.shotRefusedAgeMs, REFUSED_FLASH_MS);
 	const float blink = refused * (0.5f + 0.5f * std::cos(static_cast<float>(s.shotRefusedAgeMs) * 0.03f));
@@ -393,10 +395,13 @@ void drawShots(const PlayerHud::Slot& s, const Rect& r) {
 		additiveRing(r, 2.2f, BLOOD_TOP, blink);
 	if (s.shots <= 0 || s.shotsLeft >= s.shots)
 		return;
-	const float step = std::min(SHOT_PIP_STEP, (r.w - 1.f) / static_cast<float>(s.shots));
-	const float y = r.y + r.h - 1.1f;
+	const int perRow = s.shots > SHOT_PIP_ROW ? (s.shots + 1) / 2 : s.shots;
+	const float step = std::min(SHOT_PIP_STEP, (r.w - 1.f) / static_cast<float>(perRow));
 	for (int i = 0; i < s.shots; i++) {
-		const float x = r.cx() + (static_cast<float>(i) - static_cast<float>(s.shots - 1) / 2.f) * step;
+		const int row = i / perRow;
+		const int inRow = row == 0 ? perRow : s.shots - perRow;
+		const float x = r.cx() + (static_cast<float>(i % perRow) - static_cast<float>(inRow - 1) / 2.f) * step;
+		const float y = r.y + r.h - 1.1f - static_cast<float>(row) * SHOT_PIP_STEP;
 		diamond(x, y, SHOT_PIP_SIZE + 0.25f, BLACK, 0.8f);
 		if (i < s.shotsLeft)
 			diamond(x, y, SHOT_PIP_SIZE, GOLD_BRIGHT, 1.f);

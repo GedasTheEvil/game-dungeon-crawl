@@ -1,7 +1,7 @@
 """Procedural items: the weapons (club, dagger, short sword, khopesh, epsilon and duckbill axes, mace, spear, the
 bows, sling, throwing stick, javelin), the missiles in
 flight (arrow, sling stone, and the giant scarab's dung ball, plan scarab-dung-ball), the potion vessels (POTION_MODELS), the treasure chest and the amulets (one per AmuletType, its tiers
-share it: amulet_strength, ..., amulet_regeneration, amulet_venom, amulet_fire, amulet_crushing, amulet_cleaving, amulet_piercing).
+share it: amulet_strength, ..., amulet_regeneration, amulet_venom, amulet_fire, amulet_crushing, amulet_cleaving, amulet_piercing, amulet_shots, amulet_quick_shots).
 
     MCP:  p = ".../tools/blender/models/items.py"; g = {"__file__": p, "__name__": "items"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -50,7 +50,7 @@ from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 COLL = "items_new"
 ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "mace", "spear", "bow", "composite_bow", "sling", "throwing_stick", "javelin", "arrow", "sling_stone", "dung_ball",
          "potion_flask", "potion_lotus", "potion_pilgrim", "potion_canopic", "potion_cobra", "potion_ankh", "chest"] + ["amulet_" + t for t in ("strength", "armor", "health", "poison", "traps", "blunt", "slash",
-                                                          "pierce", "regeneration", "venom", "fire", "crushing", "cleaving", "piercing")]
+                                                          "pierce", "regeneration", "venom", "fire", "crushing", "cleaving", "piercing", "shots", "quick_shots")]
 # Exported with frames, one shape key each on the baked object: the bows' draw, the chest's opening. Item: (keyword of
 # its builder, frames); the builder's default is the last frame.
 BOW_FRAMES = 8  # the draw, frame 0 at rest
@@ -963,6 +963,58 @@ def build_amulet_piercing(b, M):
         band(b, M["leather"], z, 0.0042, 0.0022, n=8)
 
 
+def build_amulet_shots(b, M):
+    """Satet's quiver (plan amulet-more-shots): a leather tube with gold bands, tilted, three fletched arrows out of its
+    mouth beside the bail."""
+    amulet_cord(b, M)
+    tilt = math.radians(18)
+    axis = V((math.sin(tilt), 0, -math.cos(tilt)))  # from the mouth down to the foot
+    mouth = V((-0.008, 0, -0.016))
+    keys = [(mouth + axis * (0.054 * t), r, r * 0.85) for t, r in ((0.0, 0.0085), (0.5, 0.0082), (0.92, 0.0068),
+                                                                   (1.0, 0.004))]
+    b.add(tube(keys, sub=2, n=12, ref=V((0, 1, 0))), M["leather"], "root")
+    for t in (0.06, 0.55, 0.88):
+        c = mouth + axis * (0.054 * t)
+        r = 0.0092 - 0.0024 * t
+        b.add(tube([(c - axis * 0.0016, r, r * 0.85), (c + axis * 0.0016, r, r * 0.85)], sub=1, n=12, ref=V((0, 1, 0))),
+              M["gold"], "root")
+    b.add(rod(mouth, mouth + V((0.008, 0, 0.0045)), 0.002, n=6), M["gold"], "root")  # the strap to the bail
+    for k, dx in enumerate((-0.0045, 0.0, 0.0045)):
+        base = mouth + axis * 0.02 + V((dx, -0.001 * k, 0))
+        tip = mouth - axis * (0.015 + 0.002 * (k % 2)) + V((dx * 1.6, -0.001 * k, 0))
+        b.add(rod(base, tip, 0.0011, n=5), M["wood"], "root")
+        d = (tip - base).normalized()
+        side = V((d.z, 0, -d.x))
+        f0, f1 = tip - d * 0.0085, tip - d * 0.0005
+        vane = [(f0.x + side.x * 0.003, f0.z + side.z * 0.003), (f1.x + side.x * 0.0014, f1.z + side.z * 0.0014),
+                (f1.x - side.x * 0.0014, f1.z - side.z * 0.0014), (f0.x - side.x * 0.003, f0.z - side.z * 0.003)]
+        b.add(slab(vane, 0.0009, (0, -0.001 * k, 0)), M["fletch"], "root")
+
+
+def build_amulet_quick_shots(b, M):
+    """Bastet's cat (plan amulet-quick-shots): a bronze cat sitting up, from the front, ears pricked, gold eyes and a
+    gold earring, its tail curled round its feet on a small plinth."""
+    amulet_cord(b, M)
+    bronze = M["bronze_dark"]
+    b.add(rod((0, 0.002, -0.004), (0, 0.002, -0.013), 0.0022, n=6), M["gold"], "root")  # the loop on its back
+    b.add(ellipsoid((0, 0, -0.021), (0.0078, 0.0068, 0.0072), n=12, rings=6), bronze, "root")  # the head
+    b.add(ellipsoid((0, -0.0058, -0.0235), (0.0034, 0.0026, 0.0026), n=8, rings=4), bronze, "root")  # the muzzle
+    for side in (-1, 1):
+        b.add(slab([(side * 0.0018, -0.0165), (side * 0.0068, -0.0035), (side * 0.0074, -0.0175)][::side], 0.0028),
+              bronze, "root")
+        b.add(ellipsoid((side * 0.0031, -0.0062, -0.0195), (0.0016, 0.001, 0.0011), n=6, rings=3), M["gold"], "root")
+    b.add(ellipsoid((0.0076, -0.001, -0.0262), (0.0013, 0.0013, 0.0013), n=6, rings=3), M["gold"], "root")  # earring
+    b.add(ellipsoid((0, 0, -0.046), (0.0098, 0.0078, 0.0175), n=12, rings=6), bronze, "root")  # chest and haunches
+    b.add(ellipsoid((0, 0.001, -0.056), (0.0125, 0.0082, 0.0095), n=12, rings=6), bronze, "root")
+    for side in (-1, 1):  # the forelegs, straight down to the paws
+        b.add(rod((side * 0.0036, -0.0055, -0.036), (side * 0.0036, -0.0062, -0.064), 0.0022, n=6), bronze, "root")
+        b.add(ellipsoid((side * 0.0038, -0.0078, -0.0645), (0.0024, 0.0028, 0.0015), n=6, rings=3), bronze, "root")
+    tail = [(0.011, 0.002, -0.06), (0.0105, -0.004, -0.0655), (0.004, -0.0095, -0.067), (-0.004, -0.0095, -0.067)]
+    b.add(tube([(V(p), 0.0016, 0.0016) for p in tail], sub=2, n=6, ref=V((0, 0, 1))), bronze, "root")
+    b.add(slab([(-0.0135, -0.0715), (0.0135, -0.0715), (0.0135, -0.0665), (-0.0135, -0.0665)][::-1], 0.0165),
+          M["gold"], "root")  # the plinth
+
+
 CHEST_W, CHEST_D, CHEST_H = 0.8, 0.46, 0.36  # box outside (without legs and lid)
 CHEST_LEG = 0.05
 CHEST_WALL = 0.025
@@ -1118,6 +1170,8 @@ BUILDERS = {
     "amulet_crushing": build_amulet_crushing,
     "amulet_cleaving": build_amulet_cleaving,
     "amulet_piercing": build_amulet_piercing,
+    "amulet_shots": build_amulet_shots,
+    "amulet_quick_shots": build_amulet_quick_shots,
 }
 
 

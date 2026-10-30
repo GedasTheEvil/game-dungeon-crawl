@@ -34,8 +34,9 @@ read their file arguments from the current directory.
   gen|play]` (every zone's monsters and boss against its player), `bin/balance curve` (the target campaign generated:
   XP and gear per level), `bin/balance today` (the same for `content/levels/`), `bin/balance tune` (each monster's
   HP and damage for its class's target in its first zone), `bin/balance home "giant rat" [--monster-hp HP]
-  [--monster-damage D] [--minions N]` (one monster against the player of its first zone, with stats to try). The
-  fights run in the unit tests'
+  [--monster-damage D] [--minions N]` (one monster against the player of its first zone, with stats to try); any of
+  them with `--amulet ID` (its place among the amulets) wears that amulet in every fight. The fights run in the unit
+  tests'
   sim (`tests/unit/sim_world.h`) on an arena hall; `BALANCE_TRACE=1` prints each fight once a second.
 
 ## Project layout

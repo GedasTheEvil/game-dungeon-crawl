@@ -1,0 +1,23 @@
+# Plan amulet-quick-shots, for `bin/game --play tests/play/amulet-quick-shots.txt`: lvl24 (serpent temple: giant
+# cobras) with the bows, the sling, the stick and the javelin, the grand Bastet's Cat worn, about the player of the
+# zone. A spent shot is back every 1.25 s, the first 1 s after the last shot (without it: 2.5 s and 2 s); watch the
+# pips on the weapon slot fill. The lesser, minor and normal cats are in the pack (I, Amulets: +25, 50, 75%), the grand
+# quiver too, to weigh one against the other. Kiting must still not beat melee: try a giant cobra both ways.
+seed 1
+level 24
+xp 367053
+gear 14 18 46
+give melee 4
+give ranged 0
+give ranged 1
+give ranged 2
+give ranged 3
+give ranged 4
+give amulet 58
+give amulet 59
+give amulet 60
+give amulet 61
+give amulet 57
+give potion 1 4
+wear grand_amulet_of_quick_shots
+equip self-bow

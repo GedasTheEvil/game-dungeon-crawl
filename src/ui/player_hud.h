@@ -41,7 +41,7 @@ enum class Icon : std::uint8_t {
 	Daze,
 	FirstWeapon = 8,
 	FirstAmulet = 21,
-	FirstCurse = 35,
+	FirstCurse = 37,
 	None = 0xff
 };
 constexpr Icon weaponIcon(ItemKind weapon) {

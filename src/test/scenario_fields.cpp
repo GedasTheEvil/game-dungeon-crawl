@@ -61,9 +61,10 @@ float Scenario::fieldValue(const Command& cmd) {
 		return Game().player->attackStartMs >= 0 ? 1.f : 0.f;
 	case Field::Shots: {
 		const ItemKind weapon = Game().ui.inventory->EquippedKind();
-		return isRanged(weapon)
-				   ? static_cast<float>(Game().ui.inventory->Bag().ShotsLeft(weapon, PlayerStats::Shots(weapon)))
-				   : -1.f;
+		return isRanged(weapon) ? static_cast<float>(
+									  Game().ui.inventory->Bag().ShotsLeft(weapon, Game().player->stats.Shots(weapon))
+								  )
+								: -1.f;
 	}
 	case Field::Nearest:
 		return static_cast<float>(Game().dungeon.NearestMonsterHealth());

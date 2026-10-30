@@ -10,6 +10,7 @@
 //   balance table [--gear G]       every zone's monsters and boss against its player (G: gen, the default, or play)
 //   balance fight MONSTER LEVEL [--armor A] [--might M] [--hp P]
 //                                  one monster (its label: "giant rat") against a player of that level
+//   ... --amulet ID                every fight with that amulet worn (its place among the amulets)
 //
 // Gear "gen": the might, armour and life potions on the generated levels, the level's own gains, an amulet of the
 // depth's tier; "play": the user's playthrough (plan monster-balance, Playthrough reference data), as a share of the
@@ -21,6 +22,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <map>
+#include <optional>
+#include <vector>
 
 namespace {
 // The target campaign (plan campaign-zones, Zones decided 2026-10-21): the levels of each ZoneId.
@@ -342,12 +345,18 @@ const Monster* theMonster(const SimWorld& world, MonsterTypeId id) {
 	return nullptr;
 }
 
+// --amulet ID (any mode): the amulet worn in every fight, its place among the amulets (tools/editor/readme.md), on top
+// of the gear's own (gear "gen" counts an armour amulet).
+std::optional<ItemKind> wornAmulet;
+
 void setUp(SimWorld& world, const Stats& s) {
 	world.player.stats.AddXP(static_cast<int>(std::ceil(levelXP(s.level))), world.events);
 	world.player.stats.AddArmor(s.armor);
 	world.player.stats.AddMight(s.might);
 	if (s.hpPercent > 0)
 		world.player.stats.AddMaxHP(s.hpPercent);
+	if (wornAmulet)
+		world.Wear(*wornAmulet);
 	world.player.Reanimate();
 }
 
@@ -721,13 +730,23 @@ int usage() {
 		stderr,
 		"usage: balance curve | today | tune | table [--gear gen|play] | fight MONSTER LEVEL | home MONSTER [--armor "
 		"A] [--might M] "
-		"[--hp P] [--difficulty D] [--monster-hp HP] [--monster-damage D] [--minions N]\n"
+		"[--hp P] [--difficulty D] [--monster-hp HP] [--monster-damage D] [--minions N]; any: [--amulet ID]\n"
 	);
 	return 2;
 }
 } // namespace
 
 int main(int argc, char** argv) {
+	std::vector<char*> args; // without --amulet ID
+	for (int i = 0; i < argc; i++)
+		if (std::strcmp(argv[i], "--amulet") == 0 && i + 1 < argc) {
+			wornAmulet = itemFromFile(ItemType::AMULET, std::atoi(argv[++i]));
+			if (!wornAmulet)
+				return usage();
+		} else
+			args.push_back(argv[i]);
+	argc = static_cast<int>(args.size());
+	argv = args.data();
 	if (argc < 2)
 		return usage();
 	const std::string mode = argv[1];

@@ -341,6 +341,18 @@ title: Neith's arrowhead
 text: The arrowhead of Neith finds the gap. Worn, my stabbing blows deal 10, 20, 30 or 50 percent more, lesser to
 	grand. Only the stabbing part counts: every arrow gains all of it.
 
+[note.amulet-shots]
+title: Satet's quiver
+text: Satet, the archer of the cataracts, shoots the flood into the land each year. Her little quiver on my chest
+	holds more than it should: every bow, sling, throwing stick and javelin I carry holds a quarter, a half, three
+	quarters or twice its shots, lesser to grand. My self-bow goes from five to seven, eight, nine, ten.
+
+[note.amulet-quick-shots]
+title: Bastet's cat
+text: A sitting cat of bronze, Bastet's, and a cat is ready again before the mouse has landed. Worn, my spent
+	shots come back a quarter, a half, three quarters or twice as fast, lesser to grand, the wait after the last
+	shot too. With the grand cat a bow is ready every second and a quarter.
+
 [note.stun]
 title: Stun
 text: A good knock on the head and the beast forgets what it was doing: it stands there for a moment and a half,

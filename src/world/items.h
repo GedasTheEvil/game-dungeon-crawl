@@ -95,6 +95,14 @@ enum class ItemKind : std::uint8_t {
 	PiercingMinor,
 	PiercingNormal,
 	PiercingGrand,
+	ShotsLesser, // plan amulet-more-shots: a ranged weapon holds more shots
+	ShotsMinor,
+	ShotsNormal,
+	ShotsGrand,
+	QuickShotsLesser, // plan amulet-quick-shots: the shots come back faster
+	QuickShotsMinor,
+	QuickShotsNormal,
+	QuickShotsGrand,
 	// The rings (plan ring-accessories), one inventory row per gem: copper, silver, gold.
 	RubyCopper, // the first ring
 	RubySilver,
@@ -350,8 +358,10 @@ enum class AmuletType : std::uint8_t {
 	Crushing, // plan amulet-extras: the matching share of the weapon's damage grows (blunt)
 	Cleaving, // slash
 	Piercing, // pierce
+	Shots, // plan amulet-more-shots: more shots in every ranged weapon
+	QuickShots, // plan amulet-quick-shots: the shots come back faster
 };
-constexpr int AMULET_TYPE_COUNT = 14;
+constexpr int AMULET_TYPE_COUNT = 16;
 enum class AmuletTier : std::uint8_t { Lesser, Minor, Normal, Grand };
 constexpr int AMULET_TIER_COUNT = 4;
 
@@ -378,6 +388,8 @@ struct AmuletBonus {
 	// Percent more damage of each type in a weapon hit (plan amulet-extras): only the type's share of the weapon's
 	// damage mix grows (a sword, 85% slash, with +50% Cleaving: +42%).
 	std::array<int, DAMAGE_TYPE_COUNT> typeMightPercent{};
+	int shotsPercent = 0; // more shots in every ranged weapon (PlayerStats::Shots)
+	int shotRecoveryPercent = 0; // the shots come back this much faster (PlayerStats::ShotRecoveryPace)
 	Resistances resist = NO_RESISTANCES;
 };
 [[nodiscard]] AmuletBonus amuletBonus(std::optional<ItemKind> worn);

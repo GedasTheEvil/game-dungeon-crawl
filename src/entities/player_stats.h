@@ -155,9 +155,11 @@ class PlayerStats {
 		return weaponReach(weapon, heka) * static_cast<float>(100 + rings.reachPercent) / 100.f;
 	}
 	// A ranged weapon's shots and how they come back (plan ranged-weaker-than-melee): WeaponDef::shots,
-	// SHOT_RECOVERY_DELAY_MS and SHOT_RECOVERY_MS. The one place to scale them.
-	[[nodiscard]] static int Shots(ItemKind weapon) { return weaponDef(weapon).shots; }
-	[[nodiscard]] static ShotPace ShotRecoveryPace() { return {SHOT_RECOVERY_DELAY_MS, SHOT_RECOVERY_MS}; }
+	// SHOT_RECOVERY_DELAY_MS and SHOT_RECOVERY_MS. The one place to scale them: the shots amulet adds its share of the
+	// shots, rounded up, at least one (plan amulet-more-shots); the quick shots amulet shortens both times, +100%
+	// halves them (plan amulet-quick-shots).
+	[[nodiscard]] int Shots(ItemKind weapon) const;
+	[[nodiscard]] ShotPace ShotRecoveryPace() const;
 	// Lays a curse (plan curses): its status line, the field note the first time. Disease keeps the HP's share of the
 	// max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true.
 	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events);

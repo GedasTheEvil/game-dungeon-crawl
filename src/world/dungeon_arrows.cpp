@@ -49,7 +49,7 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 Dungeon::ShotRefusal Dungeon::ShotRefused(ItemKind weapon, int dir) const {
 	if (!isRanged(weapon))
 		return ShotRefusal::None;
-	if (sim.items->ShotsLeft(weapon, PlayerStats::Shots(weapon)) == 0)
+	if (sim.items->ShotsLeft(weapon, sim.player->stats.Shots(weapon)) == 0)
 		return ShotRefusal::Empty;
 	// Only a monster the shot would aim at (aimTarget: on the row, not hidden, no wall between), or one already past
 	// the launch point but not behind the player. Measured as the aim's range: from the launch point to its near edge.

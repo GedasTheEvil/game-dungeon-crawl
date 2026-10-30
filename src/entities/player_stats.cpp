@@ -203,6 +203,18 @@ int PlayerStats::TypeMightPercent(const DamageMix& mix) const {
 	return sum / 100;
 }
 
+int PlayerStats::Shots(ItemKind weapon) const {
+	const int shots = weaponDef(weapon).shots;
+	if (shots == 0 || amulet.shotsPercent == 0)
+		return shots;
+	return shots + std::max(1, (shots * amulet.shotsPercent + 99) / 100);
+}
+
+ShotPace PlayerStats::ShotRecoveryPace() const {
+	const int speed = 100 + amulet.shotRecoveryPercent;
+	return {SHOT_RECOVERY_DELAY_MS * 100 / speed, SHOT_RECOVERY_MS * 100 / speed};
+}
+
 void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
 	const int oldMax = CurrentMaxHP();
 	amulet = bonus;

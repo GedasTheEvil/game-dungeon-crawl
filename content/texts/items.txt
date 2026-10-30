@@ -154,6 +154,14 @@ lore2: It parts what it meets.
 lore1: The arrowhead of Neith.
 lore2: It finds the gap.
 
+[item.amulet-shots]
+lore1: Satet's quiver, never empty.
+lore2: One arrow more, and one more.
+
+[item.amulet-quick-shots]
+lore1: Bastet's cat, ever ready.
+lore2: It pounces again at once.
+
 # The rings (plan ring-accessories): [item.ring-<gem>], all metals of a gem share them.
 [item.ring-ruby]
 lore1: A drop of Sekhmet's blood

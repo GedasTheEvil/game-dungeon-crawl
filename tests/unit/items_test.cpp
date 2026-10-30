@@ -334,7 +334,7 @@ TEST_CASE("an older save: 9 counts, then the map position") {
 }
 
 TEST_CASE("amulets: four tiers a type, regeneration only normal and grand") {
-	CHECK(AMULET_KIND_COUNT == 13 * AMULET_TIER_COUNT + 2);
+	CHECK(AMULET_KIND_COUNT == 15 * AMULET_TIER_COUNT + 2);
 	CHECK(*amuletKind(AmuletType::FireWard, AmuletTier::Grand) == ItemKind::FireWardGrand);
 	CHECK(*amuletKind(AmuletType::Venom, AmuletTier::Lesser) == ItemKind::VenomLesser);
 	CHECK(isAmulet(ItemKind::StrengthLesser));

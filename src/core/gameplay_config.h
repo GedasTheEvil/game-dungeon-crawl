@@ -50,6 +50,9 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 // (Dungeon::updateTraps).
 constexpr float SPIKES_SCALE = 16.f;
 constexpr float DEATH_TRAP_SCALE = 40.f;
+// The player and the reckless walkers touch a spike or death trap with their box (plan trap-player-box), less this
+// share of their half width on each side: grazing its edge doesn't count.
+constexpr float TRAP_BOX_FORGIVE = 0.25f;
 // Crossing a spike or death trap on foot (the player only; TrapBell): over the whole hitbox at walking speed it deals
 // *_CROSS_HP, or *_CROSS_PERCENT of the max HP when more, spread over the hitbox as a bell curve (TRAP_BELL_SIGMA of
 // its half width): the middle hurts most, a step into its edge only a little. Faster costs more, up to

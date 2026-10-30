@@ -171,33 +171,37 @@ void Dungeon::updateAnimations() {
 	treasureSpin += 1.f;
 }
 //======================================================================================
-std::optional<Dungeon::TrapContact> Dungeon::inTrap(float x, float y) const {
+std::optional<Dungeon::TrapContact> Dungeon::inTrap(float x, float y, float half) const {
+	const float body = half * (1.f - TRAP_BOX_FORGIVE);
 	const auto col = static_cast<int>(std::floor(x));
 	const auto row = static_cast<int>(std::floor(y));
-	for (int j = row - 1; j <= row + 1; j++) // the death trap's hitbox reaches into the next cells
-		for (int i = col - 1; i <= col + 1; i++) {
+	const int span = 1 + static_cast<int>(std::ceil(body)); // the death trap's hitbox reaches into the next cells
+	for (int j = row - 1; j <= row + 1; j++)
+		for (int i = col - span; i <= col + span; i++) {
 			if (!IsInBounds(i, j))
 				continue;
 			const int type = MapAt(i, j).type;
 			if (type != Spike && type != Death)
 				continue;
 			const float scale = type == Death ? DEATH_TRAP_SCALE : SPIKES_SCALE;
-			const float centre = static_cast<float>(i) + 0.5f, half = TRAP_HITBOX_X_SCALE * scale;
-			if (std::fabs(x - centre) <= half && std::fabs(y - static_cast<float>(j)) <= TRAP_HITBOX_Y_SCALE * scale)
-				return TrapContact{type, (x - centre) / half, centre, half};
+			const float centre = static_cast<float>(i) + 0.5f, reach = TRAP_HITBOX_X_SCALE * scale + body;
+			if (std::fabs(x - centre) <= reach && std::fabs(y - static_cast<float>(j)) <= TRAP_HITBOX_Y_SCALE * scale)
+				return TrapContact{type, (x - centre) / reach, centre, reach};
 		}
 	return std::nullopt;
 }
 //======================================================================================
-// Only walkers on the ground stand in a spike trap: flyers pass over, a leaper is in the air. A fire vent's jet fills
+// Only walkers on the ground stand in a spike trap: flyers pass over, a leaper is in the air. The player and a reckless
+// walker touch it with their box; the others keep out of its cell and touch it with their centre only, or a death
+// trap's spikes, reaching into the next cells, would stab them standing beside it. A fire vent's jet fills
 // its cell (plan fire-jet-trap): it burns them all, the player in a jump too.
 void Dungeon::updateTraps() {
-	const std::optional<TrapContact> here = inTrap(mapX, mapY);
+	const float half = sim.player->HalfWidth();
+	const std::optional<TrapContact> here = inTrap(mapX, mapY, half);
 	if (!here || here->type != Death)
 		playerVenomed = false;
 	updateTrapCrossing(here);
 	updateDrips();
-	const float half = sim.player->HalfWidth();
 	const bool jet = !here && sim.player->Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
 	if (!jet)
 		playerScorched = false;
@@ -232,7 +236,8 @@ void Dungeon::updateTraps() {
 		if (!mon.Active() || !mon.Alive())
 			continue;
 		if (!mon.flies() && !mon.jumping())
-			if (const auto trap = inTrap(mon.CentreX(), static_cast<float>(mon.Row()))) {
+			if (const auto trap =
+					inTrap(mon.CentreX(), static_cast<float>(mon.Row()), mon.reckless() ? mon.HalfWidth() : 0.f)) {
 				mon.StandInTrap(
 					trap->type == Death ? std::optional(PoisonTier::Strong) : std::nullopt,
 					sim.random->gameplay

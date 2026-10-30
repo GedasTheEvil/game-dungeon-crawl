@@ -58,7 +58,7 @@ TEST_CASE("a step into the spikes' edge and back only nicks: a warning, no kill"
 	SimWorld world; // 50 HP
 	REQUIRE(world.Load("tests/levels/spikes_one"));
 	world.WaitTicks(5);
-	REQUIRE(world.WalkTo(4.25f)); // the hitbox starts at 4.18
+	REQUIRE(world.WalkTo(4.21f)); // the hitbox starts at 4.18, the box (plan trap-player-box) touches it from 4.135
 	REQUIRE(world.WalkTo(3.5f));
 	CHECK(world.Hp() < 50);
 	CHECK(world.Hp() >= 40);

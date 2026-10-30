@@ -1,0 +1,9 @@
+# Plan trap-player-box, for `bin/game --play tests/play/trap-player-box.txt`: tests/levels/reckless_spikes, a level-10
+# player with the hitboxes on (F3), stopped just left of the spikes (col 4). Step right a little at a time: the spikes
+# hurt once the green box's inner part reaches them, before the centre does; grazing with its edge does not. The mummy
+# (col 5) walks into the spikes from the right: it takes them once its red box gets there.
+seed 1
+level tests/levels/reckless_spikes
+xp 200000
+hitboxes on
+walk to 3.95

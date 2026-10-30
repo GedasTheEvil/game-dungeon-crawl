@@ -540,16 +540,17 @@ class Dungeon {
 	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
 	// Spike and death trap tiles hurt the player and the monsters standing in them (TrapHurt).
 	TrapHurt trapHurt; // the player's
-	// (x, y) in map units is in a spike or death trap's hitbox: TRAP_HITBOX_X/Y_SCALE x the trap's scale round the
-	// tile's bottom centre.
+	// Feet at (x, y) in map units, half wide (a box; 0 a point), touch a spike or death trap's hitbox:
+	// TRAP_HITBOX_X/Y_SCALE x the trap's scale round the tile's bottom centre. The box is TRAP_BOX_FORGIVE narrower on
+	// each side (plan trap-player-box), so grazing an edge doesn't count.
 	// The trap it stands in: its tile type (Spike or Death) and x's offset from its middle in half widths (-1 to 1).
 	struct TrapContact {
 		int type;
 		float offset;
 		float centre; // its middle's map x
-		float half; // its hitbox's half width
+		float half; // its hitbox's half width, widened by the box: the centre's span in it
 	};
-	[[nodiscard]] std::optional<TrapContact> inTrap(float x, float y) const;
+	[[nodiscard]] std::optional<TrapContact> inTrap(float x, float y, float half) const;
 	float trapLastX = 0.f; // the player's x on the tick before (updateTraps): the way covered in a trap
 	void updateTrapCrossing(const std::optional<TrapContact>& here);
 	int trapBellCarry = 0; // hundredths of a HP of the crossing's damage not dealt yet

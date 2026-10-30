@@ -45,7 +45,8 @@ copper, silver, gold).
   from about level 30.
 * Numbers are a start: check them against the monster balance (`monster-balance` plan, the play-test levels).
 
-Two rings of the same gem stack (two gold rubies: 1 HP / 1.5 s). Caps: the amethyst at `NORMAL` (two silver = all),
+Both rings always count, also two exactly the same (two gold rubies: 1 HP / 1.5 s; two copper topazes: +10%).
+Rings are few in a playthrough, the player may well hold only two of the same. Caps: the amethyst at `NORMAL` (two silver = all),
 the topaz at +20%, the crystal at +40%. Cap more if a stack turns out too strong in the play-test.
 
 Left out (the user's ideas, why not):
@@ -67,9 +68,12 @@ Names, as the amulets (the card's name by the object, the label by its effect):
 
 * `ItemBag`: `std::array<std::optional<ItemKind>, 2> rings` (left, right) next to `worn`. A ring worn is one of
   those counted (as the amulet). Two copies of the same ring can be worn only if two are held.
-* Use on a ring in the Rings tab: worn → taken off. Not worn → put on the free hand (left first); both full → it
-  replaces the ring worn longest. Show which hand in the slot (a small `L` / `R` mark where the amulet slot shows
-  "worn").
+* The ring's card (the user's choice): two buttons, `Left hand` and `Right hand`, where the others have `Use` and
+  `Upgrade` (`Inventory::TwoButtons`, `inventory_layout.h`). A button puts the ring on that hand (the ring there
+  comes off); on the hand it is worn on, the button reads `Take off`. Worn on the left, `Right hand` moves it over.
+* The quick way (the Use key / double click on the slot, as an amulet): worn → taken off. Not worn → the free hand
+  (left first); both full → it replaces the ring worn longest.
+* The slot shows the hand: a small `L` / `R` mark where the amulet slot shows "worn".
 * `PlayerStats` gets a `RingBonus` (as `AmuletBonus`), the sum of both rings, applied when a ring goes on or off.
 * HUD: `PlayerHud::Icon::Ring` already exists in the atlas (`hud_icons.py`): show the worn rings like the worn
   amulet, two small gem dots or two icons.
@@ -101,8 +105,12 @@ Two models, so the gem can blend apart from the band:
   the amulets).
 * Metal: copper (orange-brown), silver (cold grey-white), gold (as the amulets' gold). Three textures or a tint on
   one band texture.
-* Gem: **semi-transparent** (the user's wish), tinted per gem (red, blue, green, yellow, clear, purple) on one gem
-  model; a bright core / rim so it still reads in the dark.
+* Gem: **semi-transparent** (the user's wish), tinted per gem on one gem model. The colours are the implementer's
+  (the user left them): ruby deep red, sapphire blue, emerald green, topaz golden yellow (apart from the gold band:
+  lighter, more lemon), rock crystal near clear with a cold blue rim, amethyst violet.
+* The gem shines more than other items (the user's wish): a bright core / rim and a soft glint (a slow sparkle or
+  a small additive glow, not a light that lights the room), on the floor, in a chest and in the slot. It reads in
+  the dark and makes a ring easy to spot.
 * The engine cannot do it yet: an `Item` is one model with one texture (`src/entities/item.h`), drawn opaque. Add an
   optional second part: a model, texture and tint drawn right after the first with the same transform, with alpha
   blending and no depth write (after the opaque scene where the item lies in the world; in the inventory slot right
@@ -110,9 +118,17 @@ Two models, so the gem can blend apart from the band:
   general, so a potion's glass or an amulet's stone can use it later.
 * The 18 rings share the two models; metal and gem as texture or tint, so no 18 models.
 
+## Notes and texts
+
+* Journal: a field note the first time a ring of each gem is found, as the amulets' (`FieldNote::AmuletFirst` ..
+  `AmuletLast`, plan amulet-extras): `RingFirst` .. `RingLast`, texts in `content/texts/`. The first ring's note also
+  says a ring goes on each hand.
+* The player's stats (wherever the worn amulet's bonus shows: the stats card, the HUD tooltip) show the rings' sum.
+
 ## Tests
 
-* Unit (`tests/unit/`): the ring bonus sums (two rings, same gem stacks, the caps), the ruby heals in a fight and
+* Unit (`tests/unit/`): the ring bonus sums (two rings, same gem stacks, two identical rings stack, the caps),
+  left / right / take off / move to the other hand, the quick way (free hand, then the oldest), the ruby heals in a fight and
   not while poisoned, the emerald shortens poison, sapphire's stamina rate, the topaz's walk (the jump's reach the
   same), the crystal's reach (with Sharp eye), the amethyst's resistance (weakness untouched), the save round trip
   with two worn rings, the loot rolls (metal by level, the amethyst rarer).
@@ -129,4 +145,4 @@ Two models, so the gem can blend apart from the band:
 * Which gem has which effect: the colours are a guess (yellow = speed, clear = sight / reach, purple = the rare,
   strong one).
 * Upgrades later (three copper → one silver?). Not in this plan.
-* Both hands full: replace the oldest, or let the player pick the hand (a small choice on Use).
+* A ring seen on the player's fist (`Item::DrawHeld`, the first-person hand): nice, not in this plan.

@@ -14,7 +14,7 @@ stays disabled. Add them.
 
 ## The rings: gem = effect, metal = strength
 
-Three gems, three metals: 9 item kinds. The gem says what it does, the metal how much (the amulet's tier, in short:
+Six gems, three metals: 18 item kinds. The gem says what it does, the metal how much (the amulet's tier, in short:
 copper, silver, gold).
 
 | gem | effect | copper | silver | gold |
@@ -22,6 +22,9 @@ copper, silver, gold).
 | ruby (red) | regeneration, also in a fight | 1 HP / 8 s | 1 HP / 5 s | 1 HP / 3 s |
 | sapphire (blue) | stamina comes back faster | +15% | +25% | +40% |
 | emerald (green) | poison wears off faster | +20% | +35% | +50% |
+| topaz (yellow) | walk and sprint faster | +5% | +8% | +12% |
+| rock crystal (clear, a faint blue rim) | longer reach, melee and ranged | +10% | +15% | +25% |
+| amethyst (purple) | cuts through the monster's resistances | 1/4 | 1/2 | all |
 
 * Ruby vs. the regeneration amulet (Faience Lotus, 1 or 2 HP a second, only when safe): the ring heals far slower,
   but always, also with monsters chasing. Not while poisoned (as the amulet). Its own carry in
@@ -29,16 +32,33 @@ copper, silver, gold).
 * Sapphire: a factor on `PlayerStats::RegenerateStamina`'s rate. No amulet does stamina.
 * Emerald: poison runs out sooner (`Poison::Advance`, its time left goes down faster); the poison amulet only
   stops it from starting. Its damage a tick stays.
+* Topaz: nothing gives speed yet. Walk, sprint and climb on the ground only. **The jump carries as without the
+  ring** (its forward drift and the walk in the air): the level checker and every gap in the campaign assume the
+  jump's reach (`Jump::WALKING_REACH`, the `static_assert`s in `movement.h`), a longer jump would clear gaps that
+  are meant to stop the player. The slowness curse still halves the (faster) walk.
+* Rock crystal: a share more `weaponReach` (melee: from the box edge; ranged: how far it aims), stacks with the
+  Sharp eye skill (`SHARP_EYE_RANGE_PERCENT`, multiplied). Small on purpose: a dagger reaches a bit farther, it does
+  not become a spear. The minimum range of `ranged-weaker-than-melee` (if done by then) stays.
+* Amethyst: a resistance (a damage type's multiplier under `NORMAL`, `damage.h`) moves that share of the way to
+  `NORMAL`: `RESISTS` 50 becomes 62 / 75 / 100. Weaknesses (`WEAK`) stay as they are. Every type, fire too. Only
+  the player's hits. The strongest ring: rarer than the others in the rolls (half their weight), gold amethyst only
+  from about level 30.
 * Numbers are a start: check them against the monster balance (`monster-balance` plan, the play-test levels).
 
-Two rings of the same gem stack (two gold rubies: 1 HP / 1.5 s). With three gems, "only the stronger counts" would
-make the choice trivial; stacking makes "two rubies or ruby + sapphire" a real one. Cap if a stack turns out too
-strong in the play-test.
+Two rings of the same gem stack (two gold rubies: 1 HP / 1.5 s). Caps: the amethyst at `NORMAL` (two silver = all),
+the topaz at +20%, the crystal at +40%. Cap more if a stack turns out too strong in the play-test.
+
+Left out (the user's ideas, why not):
+
+* A longer (or higher) jump: the levels and the checker are built on the jump's reach and peak; a longer one breaks
+  gaps and ledges all over the campaign. Not a ring.
+* A yellow gem only for colour: the topaz has a job now (speed).
 
 Names, as the amulets (the card's name by the object, the label by its effect):
 
 * name: `Gold Ruby Ring`, short (slot name band): `Ruby III` (copper I, silver II, gold III), label:
-  `gold ring of regeneration`, effect line: `Heals 1 health every 3 s`.
+  `gold ring of regeneration`, effect line: `Heals 1 health every 3 s`. The longest short names: `Amethyst III`,
+  `Crystal III`; check they fit the band.
 * Lore lines in `content/texts/items.txt` (`[item.<slug>]`), one per gem (or per ring).
 * The Shen Ring amulet (stab guard) has "Ring" in its name; it stays an amulet. If it confuses next to the real rings,
   rename it (`Shen Amulet`?), implementer's call.
@@ -73,30 +93,40 @@ Metal by depth, like the amulet tiers (`loot.cpp`):
 
 ## Look
 
-* One model, `media/models/items/ring.md3`, built in Blender (docs/modeling.md, a new script next to
-  `tools/blender/models/amulets.py`): a band with a raised setting and a cut gem, sized to read on the floor and in
-  the inventory slot (bigger than real, like the amulets).
+Two models, so the gem can blend apart from the band:
+
+* `media/models/items/ring_band.md3`: the band with a raised setting, opaque. `ring_gem.md3`: the cut gem that sits
+  in it, its own mesh and texture. Built in Blender (docs/modeling.md, a new script next to
+  `tools/blender/models/amulets.py`), sized to read on the floor and in the inventory slot (bigger than real, like
+  the amulets).
 * Metal: copper (orange-brown), silver (cold grey-white), gold (as the amulets' gold). Three textures or a tint on
   one band texture.
-* Gem: ruby, sapphire, emerald, **semi-transparent** (the user's wish): drawn after the opaque items with alpha
-  blending, a bright core / rim so it still reads as a gem in the dark. Check how the item renderer draws (the potion
-  liquids may already blend); if it cannot, add that path.
-* The 9 rings share the model; metal and gem as material or tint, so no 9 models.
+* Gem: **semi-transparent** (the user's wish), tinted per gem (red, blue, green, yellow, clear, purple) on one gem
+  model; a bright core / rim so it still reads in the dark.
+* The engine cannot do it yet: an `Item` is one model with one texture (`src/entities/item.h`), drawn opaque. Add an
+  optional second part: a model, texture and tint drawn right after the first with the same transform, with alpha
+  blending and no depth write (after the opaque scene where the item lies in the world; in the inventory slot right
+  after its band). Same in every place an item draws: on the floor, in the chest, the inventory slot and card. Kept
+  general, so a potion's glass or an amulet's stone can use it later.
+* The 18 rings share the two models; metal and gem as texture or tint, so no 18 models.
 
 ## Tests
 
-* Unit (`tests/unit/`): the ring bonus sums (two rings, same gem stacks), the ruby heals in a fight and not while
-  poisoned, the emerald shortens poison, sapphire's stamina rate, the save round trip with two worn rings, the loot
-  rolls (metal by level).
+* Unit (`tests/unit/`): the ring bonus sums (two rings, same gem stacks, the caps), the ruby heals in a fight and
+  not while poisoned, the emerald shortens poison, sapphire's stamina rate, the topaz's walk (the jump's reach the
+  same), the crystal's reach (with Sharp eye), the amethyst's resistance (weakness untouched), the save round trip
+  with two worn rings, the loot rolls (metal by level, the amethyst rarer).
 * Scenario: inventory screenshot of the Rings tab with two worn rings (L / R marks, name band width of the longest
   short name), a ring on the floor and in a chest (gem see-through).
 * Play script `tests/play/ring-accessories.txt`: `give` a few rings, a monster to fight.
-* Glossary: rows for ring, the three gems, the metal; the `group` row loses "no rings yet".
+* Glossary: rows for ring, the six gems, the metal; the `group` row loses "no rings yet".
 
 ## Open points (implementer's choice, warn when reporting)
 
-* The effects are not final (user). Ruby = regeneration is the user's; sapphire and emerald are proposals. Other
-  ring-only ideas: longer potion effects, faster sprint, curses wear off faster, more light radius, a chance to find
-  one bonus item more in chests.
+* The effects are not final (user). Ruby, topaz (speed), crystal (reach) and amethyst (resistances) are the
+  user's ideas; sapphire and emerald proposals. Spare ring-only ideas: longer potion effects, curses wear off
+  faster, more light radius, a chance to find one bonus item more in chests.
+* Which gem has which effect: the colours are a guess (yellow = speed, clear = sight / reach, purple = the rare,
+  strong one).
 * Upgrades later (three copper → one silver?). Not in this plan.
 * Both hands full: replace the oldest, or let the player pick the hand (a small choice on Use).

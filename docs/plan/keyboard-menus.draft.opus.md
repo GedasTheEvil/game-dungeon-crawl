@@ -1,6 +1,7 @@
 # Keyboard menus
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: draft 2026-10-30, needs [shared-click-handling](shared-click-handling.draft.opus.md) first (the focus
+model extends its helper). From the project audit of 2026-10-30.
 
 Opus: focus handling across all menu screens.
 

@@ -33,7 +33,7 @@ They come back one at a time while the player does not shoot that weapon.
   not in hand.
 * A new field per ranged weapon (`WeaponDef::shots`) and the recovery times in `gameplay_config.h`. Shots and recovery
   go through one place (a `PlayerStats`-style getter) so the amulets that follow can scale them
-  ([amulet-more-shots](../amulet-more-shots.md), [amulet-quick-shots](../amulet-quick-shots.md)).
+  ([amulet-more-shots](amulet-more-shots.md), [amulet-quick-shots](amulet-quick-shots.md)).
 * **HUD:** the shots left as pips on the weapon's tile (the quick slot), the recovering one filling up. Full: no pips,
   or dimmed (implementer's choice; it must not clutter melee play).
 * Saves: the counts need not be saved; a load starts full (AGENTS.md, Old save games).

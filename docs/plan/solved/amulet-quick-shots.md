@@ -1,6 +1,6 @@
 # Amulet: shots come back faster
 
-Status: draft 2026-10-30 (user). Needs [ranged-weaker-than-melee](solved/ranged-weaker-than-melee.md) first (the
+Status: draft 2026-10-30 (user). Needs [ranged-weaker-than-melee](ranged-weaker-than-melee.md) first (the
 shots and their recovery).
 
 ## Idea
@@ -21,7 +21,7 @@ sim's kite tactic, `tools/balance`); if it does, lower the top tier.
 * Name and lore: Egyptian, swiftness or the hunt, not a god another amulet already has (Montu, Neith, Seth); e.g.
   "Wings of Horus", "Bastet's Swiftness". `content/texts/items.txt`.
 * Model: a new amulet model in `tools/blender/models/amulets.py` (a bowstring, a feather, a falcon wing), per
-  [docs/modeling.md](../modeling.md). Tier textures like the other types.
+  [docs/modeling.md](../../modeling.md). Tier textures like the other types.
 * Loot: in the amulet chests and mimic loot like the other types, the tier by depth.
 * Journal and glossary rows. Unit test: each tier's recovery times.
 
@@ -41,4 +41,4 @@ sim's kite tactic, `tools/balance`); if it does, lower the top tier.
   60% in 26 s) but never beats melee where it did not before (it already did against the crocodile, hippo, rerek,
   baboon, scorpion queen). The top tier stays +100%.
 * Tests: `tests/unit/amulet_shots_test.cpp` (every tier's times, a javelin back in 2.25 s in the world),
-  `tests/scenarios/amulet_shots.txt`. Play: `bin/game --play tests/play/amulet-quick-shots.txt`.
+  `tests/scenarios/solved/amulet_shots.txt`. Play: `bin/game --play tests/play/amulet-quick-shots.txt`.

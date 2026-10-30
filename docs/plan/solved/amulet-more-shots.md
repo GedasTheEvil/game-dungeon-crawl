@@ -1,6 +1,6 @@
 # Amulet: more shots
 
-Status: draft 2026-10-30 (user). Needs [ranged-weaker-than-melee](solved/ranged-weaker-than-melee.md) first (the
+Status: draft 2026-10-30 (user). Needs [ranged-weaker-than-melee](ranged-weaker-than-melee.md) first (the
 shots).
 
 ## Idea
@@ -20,7 +20,7 @@ costs something.
 * Name and lore: Egyptian, archery. Neith is already the piercing amulet ("Neith's Arrowhead"); e.g. Satet, the
   archer goddess of the cataracts ("Satet's Quiver"). `content/texts/items.txt`.
 * Model: a new amulet model in `tools/blender/models/amulets.py` (a quiver or a bundle of arrows on the amulet's
-  plate), per [docs/modeling.md](../modeling.md). Tier textures like the other types.
+  plate), per [docs/modeling.md](../../modeling.md). Tier textures like the other types.
 * Loot: in the amulet chests and mimic loot like the other types, the tier by depth. A campaign level or two gets one
   by hand where a ranged-heavy fight sits (level checker clean).
 * The HUD pips (plan ranged-weaker-than-melee) show the larger count.
@@ -45,4 +45,4 @@ costs something.
   kite loses less (giant cobra 54% -> 29%, hippo 12% -> 8%) but stays slower and costlier than the tank wherever it
   was before.
 * Tests: `tests/unit/amulet_shots_test.cpp` (every tier for every ranged weapon, four javelins in the world),
-  `tests/scenarios/amulet_shots.txt` (cards, icons, the pips). Play: `bin/game --play tests/play/amulet-more-shots.txt`.
+  `tests/scenarios/solved/amulet_shots.txt` (cards, icons, the pips). Play: `bin/game --play tests/play/amulet-more-shots.txt`.

@@ -77,7 +77,7 @@ same input on two actions is a warning: the first action in the list below keeps
 Fixed, not in the file: `Esc` (menu / back, so a bad mapping can always be undone), `F1` (toon shading) to `F11`
 (`F3`: hitboxes, `F5`: quick save, `F9`: quick load), and mouse movement (looks around). The menus, the inventory, the Heka screen and the journal
 move their focus or selection with the arrow keys and the keys bound to move left / right and climb up / down; Enter,
-Space or the interact key picks ([keyboard-menus](plan/keyboard-menus.md)). Left / Right on an Options row
+Space or the interact key picks ([keyboard-menus](plan/solved/keyboard-menus.md)). Left / Right on an Options row
 change it. The inventory's `U` (upgrade) and `Tab` (next tab) are fixed.
 
 Key names:

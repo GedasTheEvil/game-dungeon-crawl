@@ -1,4 +1,4 @@
-# Keyboard menus (plan keyboard-menus), kept while the plan waits for a play-test: the in-game menu, Options and
+# Keyboard menus (plan keyboard-menus): the in-game menu, Options and
 # Save Game by the keys, a journal the menu opened goes back to it on Esc, a riddle answered from the journal by Enter.
 # Hover only on the save slots, no Enter there: that would write the real saves/; scenarios never write
 # saves/settings.ini.

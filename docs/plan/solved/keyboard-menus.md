@@ -1,6 +1,6 @@
 # Keyboard menus
 
-Status: draft 2026-10-30, needs [shared-click-handling](solved/shared-click-handling.md) first (the focus
+Status: draft 2026-10-30, needs [shared-click-handling](shared-click-handling.md) first (the focus
 model extends its helper). From the project audit of 2026-10-30.
 
 Opus: focus handling across all menu screens.
@@ -21,7 +21,7 @@ Opus: focus handling across all menu screens.
 
 * One focus model for button lists, tabs, option rows and slots: Up/Down (and the bound move keys) move the
   focus, Left/Right change an option value or switch tabs, Enter activates, Esc goes back one level. A visible
-  focus highlight in the screen look ([ui.md](../ui.md)). Mouse hover moves the same focus.
+  focus highlight in the screen look ([ui.md](../../ui.md)). Mouse hover moves the same focus.
 * Journal: focus on the riddle Answer buttons with the arrows, Enter answers. Journal also takes the bound move keys.
 * Inventory and Heka: the bound move / use keys, plus the arrows and Enter.
 * Esc returns to the screen it came from (menu → journal → Esc → menu).

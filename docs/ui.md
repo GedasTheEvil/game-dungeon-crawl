@@ -342,7 +342,7 @@ Every screen handles its mouse through one `ui::Pointer<Target>` (`src/ui/pointe
 
 The wheel, the menu's slider drag and the journal's page drag stay with the screen, before the pointer.
 
-Keys ([keyboard-menus](plan/keyboard-menus.md)): `navKeyOf` (`src/input/bindings.h`) turns a key into a
+Keys ([keyboard-menus](plan/solved/keyboard-menus.md)): `navKeyOf` (`src/input/bindings.h`) turns a key into a
 `NavKey`: the arrows, Enter and Space, and the keys bound to move left / right, climb up / down and interact. `hovered`
 is the focus, so a focused tile looks hovered; the mouse moves it too.
 

@@ -21,7 +21,7 @@ logic, with GLUT's `GLUT_DOWN` / `GLUT_UP`:
 * Screen tabs (`src/ui/screen_tabs.cpp`): `tabs.hovered` / `tabs.pressed`; hover cleared after a switch.
 
 Six copies of the same rules; each new screen or button repeats them, and the bugs differ per copy. The
-[keyboard-menus](../keyboard-menus.md) focus model would need a seventh.
+[keyboard-menus](keyboard-menus.md) focus model would need a seventh.
 
 ## Plan
 
@@ -33,7 +33,7 @@ Six copies of the same rules; each new screen or button repeats them, and the bu
 * Keep the per-screen cases as options, not copies: select-on-press (inventory slots, skill cards), right click
   fires at once (inventory), drag (menu sliders), wheel (passed through to the screen).
 * Move the six screens onto it one at a time; screenshot scenarios pixel-identical after each, all scenarios pass.
-* Leave room for the keyboard focus of [keyboard-menus](../keyboard-menus.md): the focused target is the same
+* Leave room for the keyboard focus of [keyboard-menus](keyboard-menus.md): the focused target is the same
   slot as `hovered` (mouse moves it, keys move it), so that draft adds keys to the helper instead of a new copy.
 * Unit tests for the helper: release over another target fires nothing, `Clear()` drops a held press, right click.
 * Update [ui.md](../../ui.md) (how a screen handles clicks).

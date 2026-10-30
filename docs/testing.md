@@ -52,7 +52,6 @@ unit tests or parks them (above). Each has a one-line why in its first comment.
 | Scenario | Guards | Why a unit test cannot |
 |---|---|---|
 | `smoke` | level 1 loads, the player walks both ways, frames render | needs the whole game and a window (cheap guard, always run) |
-| `keyboard_menus` | [keyboard-menus](plan/keyboard-menus.md): the menu, Options, Save Game and the journal by the keys, Esc from a journal the menu opened | the screens' key routing and drawing need the game (until the plan is solved) |
 
 `tools/run_scenarios.sh` runs the scripts in parallel, each under its own `xvfb-run` when it is installed.
 Each game starts through the load gate `tools/load_gate.sh`, the one `make tidy` and the build use too: before a

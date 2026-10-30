@@ -35,6 +35,9 @@ Answers are compared on letters and digits only, lower case, with a leading `a`,
 
 Use plain ASCII: the fonts have no other characters (curly quotes and dashes show as `?`).
 
+A unit test (`tests/unit/riddle_files_test.cpp`) fails when two riddles share a question. A hint helps without giving
+the answer away.
+
 ## Checking a file
 
 The game log (`game.log`) lists every problem as `file:line: message` and the riddle count, for example

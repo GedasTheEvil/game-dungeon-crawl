@@ -7,6 +7,7 @@ A: indiana jones
 A: indiana
 A: indy
 A: jones
+H: Whip, fedora and a lost ark.
 
 Q: In The Mummy (1999), which lost city of the dead
 Q: did the explorers search for?
@@ -15,51 +16,67 @@ H: It starts with Hamun...
 
 Q: Walk like an ________. (The Bangles, 1986)
 A: egyptian
+H: Think of the Nile and the pyramids.
 
 Q: A grey wizard stood on a narrow bridge and said:
 Q: You shall not ____!
 A: pass
+H: Gandalf on the bridge of Khazad-dum: the opposite of stop.
 
 Q: Who you gonna call?
 A: ghostbusters
+H: Proton packs against ghosts; it is a job title.
 
 Q: The cake is a ___.
 A: lie
+H: A test chamber, a robot voice, and a falsehood.
 
 Q: It's dangerous to go alone! Take ____.
 A: this
+H: An old man in a cave hands Link a sword.
 
 Q: All your base are belong to __.
 A: us
+H: A broken translation meme; the last word is a two-letter pronoun.
 
 Q: Winter is ______.
 A: coming
+H: House Stark's words; the opposite of going.
 
 Q: Leeroy _______!
 A: jenkins
+H: A raid wipe cry in World of Warcraft; the surname is also a common first name.
 
 Q: Say my name. (Breaking Bad)
 A: heisenberg
 A: walter white
 A: walter
+H: A chemistry teacher turned drug lord; his alias is a famous physicist.
 
 Q: Frankly, my dear, I don't give a ____.
 A: damn
+H: Rhett Butler's last words to Scarlett; a mild curse word.
 
 Q: Never gonna ____ you up.
 A: give
+H: The most famous prank song; the verb comes before 'you up'.
 
 Q: Another one bites the ____.
 A: dust
+H: Queen, 1980: what the biter turns to.
 
 Q: What is the name of Mario's taller brother?
 A: luigi
+H: The green-capped one in the Mario Bros.
 
 Q: Would you kindly name the city under the sea in BioShock?
 A: rapture
+H: An art deco city on the ocean floor; it also means a feeling of joy.
 
 Q: Here's looking at you, ___.
 A: kid
+H: Humphrey Bogart in Casablanca; a young goat or child.
 
 Q: Which ring rules them all? The ___ Ring.
 A: one
+H: Sauron forged it; a single digit spelled out.

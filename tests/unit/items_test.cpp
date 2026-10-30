@@ -364,7 +364,7 @@ TEST_CASE("amulet names and effects") {
 	CHECK(std::string(itemText(ItemKind::VenomGrand).effect) == "30% of hits poison (strong)");
 	CHECK(std::string(itemText(ItemKind::VenomLesser).label) == "lesser amulet of venom");
 	CHECK(std::string(itemText(ItemKind::FireWardMinor).name) == "Minor Sun Disc");
-	CHECK(std::string(itemText(ItemKind::FireWardMinor).effect) == "Fire damage -40%");
+	CHECK(std::string(itemText(ItemKind::FireWardMinor).effect) == "Fire guard: you take 40% less");
 	CHECK(std::string(itemText(ItemKind::FireWardGrand).label) == "grand amulet of fire guard");
 }
 

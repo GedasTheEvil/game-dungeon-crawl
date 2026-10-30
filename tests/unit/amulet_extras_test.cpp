@@ -5,6 +5,7 @@
 #include "../../src/world/journal.h"
 #include "../../src/world/journal_text.h"
 #include "sim_world.h"
+#include <set>
 #include <string>
 
 namespace {
@@ -37,9 +38,9 @@ TEST_CASE("typed might amulet names and effects") {
 	CHECK(std::string(itemText(ItemKind::CleavingGrand).name) == "Grand Montu's Khopesh");
 	CHECK(std::string(itemText(ItemKind::PiercingNormal).name) == "Neith's Arrowhead");
 	CHECK(std::string(itemText(ItemKind::CrushingMinor).label) == "minor amulet of crushing");
-	CHECK(std::string(itemText(ItemKind::CrushingGrand).effect) == "Smash damage +50%");
-	CHECK(std::string(itemText(ItemKind::CleavingMinor).effect) == "Cut damage +20%");
-	CHECK(std::string(itemText(ItemKind::PiercingLesser).effect) == "Stab damage +10%");
+	CHECK(std::string(itemText(ItemKind::CrushingGrand).effect) == "Smash power: you deal 50% more");
+	CHECK(std::string(itemText(ItemKind::CleavingMinor).effect) == "Cut power: you deal 20% more");
+	CHECK(std::string(itemText(ItemKind::PiercingLesser).effect) == "Stab power: you deal 10% more");
 	CHECK(std::string(amuletModel(AmuletType::Cleaving)) == "amulet_cleaving");
 }
 
@@ -101,4 +102,17 @@ TEST_CASE("every amulet type has a journal note, written the first time one of i
 	REQUIRE(journal.Notes().size() == 2);
 	CHECK(journal.Notes()[1] == amuletNote(AmuletType::Regeneration));
 	CHECK(bag.Count(ItemKind::CleavingGrand) == 1);
+}
+
+TEST_CASE("no two amulet types share a slot name (plan amulet-effect-words)") {
+	std::set<std::string> seen;
+	for (int type = 0; type < AMULET_TYPE_COUNT; type++) {
+		const auto kind = amuletKind(static_cast<AmuletType>(type), AmuletTier::Normal);
+		REQUIRE(kind.has_value());
+		std::string name = itemText(*kind).shortName;
+		name.erase(name.rfind(' ')); // the tier numeral
+		CHECK(seen.insert(name).second);
+	}
+	CHECK(std::string(itemText(ItemKind::CrushingGrand).shortName) == "Smash Power IV");
+	CHECK(std::string(itemText(ItemKind::FireWardMinor).shortName) == "Fire Guard II");
 }

@@ -350,9 +350,9 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Trap Guard",
 	 "Trap",
 	 "Trap damage and chest traps -%d%%"}, // chest traps: the chance they do not go off (plan trapped-chests)
-	{"amulet_blunt", {8, 16, 28, 40}, "Djed Pillar", "Smash Guard", "Blunt", "Smash damage -%d%%"},
-	{"amulet_slash", {8, 16, 28, 40}, "Knot of Isis", "Cut Guard", "Slash", "Cut damage -%d%%"},
-	{"amulet_pierce", {8, 16, 28, 40}, "Shen Ring", "Stab Guard", "Pierce", "Stab damage -%d%%"},
+	{"amulet_blunt", {8, 16, 28, 40}, "Djed Pillar", "Smash Guard", "Smash Guard", "Smash guard: you take %d%% less"},
+	{"amulet_slash", {8, 16, 28, 40}, "Knot of Isis", "Cut Guard", "Cut Guard", "Cut guard: you take %d%% less"},
+	{"amulet_pierce", {8, 16, 28, 40}, "Shen Ring", "Stab Guard", "Stab Guard", "Stab guard: you take %d%% less"},
 	{"amulet_regeneration",
 	 {0, 0, 1, 2},
 	 "Faience Lotus",
@@ -361,11 +361,16 @@ constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
 	 "Heals %d health a second when safe"},
 	{"amulet_venom", {10, 15, 20, 30}, "Wadjet's Cobra", "Venom", "Venom", "%d%% of hits poison (%s)"},
 	// Never more than 80%: fire always hurts a little. Armour does not stop fire, only this does (plan fire-damage).
-	{"amulet_fire", {20, 40, 60, 80}, "Sun Disc", "Fire Guard", "Fire", "Fire damage -%d%%"},
+	{"amulet_fire", {20, 40, 60, 80}, "Sun Disc", "Fire Guard", "Fire Guard", "Fire guard: you take %d%% less"},
 	// The matching share of the weapon's damage mix grows (plan amulet-extras).
-	{"amulet_crushing", {10, 20, 30, 50}, "Seth's Mace", "Crushing", "Crush", "Smash damage +%d%%"},
-	{"amulet_cleaving", {10, 20, 30, 50}, "Montu's Khopesh", "Cleaving", "Cleave", "Cut damage +%d%%"},
-	{"amulet_piercing", {10, 20, 30, 50}, "Neith's Arrowhead", "Piercing", "Pierce", "Stab damage +%d%%"},
+	{"amulet_crushing", {10, 20, 30, 50}, "Seth's Mace", "Crushing", "Smash Power", "Smash power: you deal %d%% more"},
+	{"amulet_cleaving", {10, 20, 30, 50}, "Montu's Khopesh", "Cleaving", "Cut Power", "Cut power: you deal %d%% more"},
+	{"amulet_piercing",
+	 {10, 20, 30, 50},
+	 "Neith's Arrowhead",
+	 "Piercing",
+	 "Stab Power",
+	 "Stab power: you deal %d%% more"},
 }};
 // The venom amulet's poison, by tier: the stronger amulets poison more often and worse.
 constexpr std::array<PoisonTier, AMULET_TIER_COUNT> VENOM_TIERS =

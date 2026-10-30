@@ -1,0 +1,24 @@
+# Amulet effect words (plan amulet-effect-words): the grand guard and power amulets, longest slot names
+# (Smash Guard IV, Smash Power IV) and effect lines, in the Amulets tab.
+seed 1
+level tests/levels/empty_row
+wait 10
+give amulet 23
+give amulet 27
+give amulet 31
+give amulet 41
+give amulet 45
+give amulet 49
+give amulet 53
+key i
+wait 5
+screenshot slots
+select grand_amulet_of_smash_guard
+wait 5
+screenshot smash_guard
+select grand_amulet_of_crushing
+wait 5
+screenshot crushing
+select grand_amulet_of_fire_guard
+wait 5
+screenshot fire_guard

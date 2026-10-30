@@ -1,0 +1,12 @@
+# Plan amulet-effect-words, for `bin/game --play tests/play/amulet-effect-words.txt`: tests/levels/empty_row, the grand
+# guard and power amulets in the pack (I, Amulets tab). Read the slot names (Smash Guard IV, Smash Power IV, ...) and the
+# effect lines ("Smash guard: you take 40% less", "Smash power: you deal 50% more").
+seed 1
+level tests/levels/empty_row
+give amulet 23
+give amulet 27
+give amulet 31
+give amulet 41
+give amulet 45
+give amulet 49
+give amulet 53

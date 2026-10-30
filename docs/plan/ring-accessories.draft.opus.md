@@ -92,8 +92,8 @@ Metal by depth, like the amulet tiers (`loot.cpp`):
   drop a ring instead, now and then: the ones that "carry" things (mummy, mummy priest, the cursed mimic, Anubis
   statue; the implementer picks, a `ringDrop` percent in `MonsterKind`). Bosses keep their amulet; a boss may add a
   silver or gold ring (implementer's call).
-* No ring placed by hand in the levels for now (no level file changes, `levelcheck` untouched), unless the level
-  format already takes any item kind (then a few in the campaign are fine).
+* No ring placed by hand in the levels (no level file changes, `levelcheck` untouched). The first ring comes by
+  chance, maybe late in the campaign: fine (the user), no early ring to teach them, no tutorial.
 
 ## Look
 

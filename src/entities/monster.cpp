@@ -25,7 +25,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	callDue = false;
 	minion = false;
 	summonMs = -1;
-	state = flies() || lurking() ? ModelState::Idle : ModelState::Move;
+	// A rooted one (the plant, the egg cluster) dormant too, until it notices the player (plan missing-idle-clips).
+	state = flies() || lurking() || rooted() ? ModelState::Idle : ModelState::Move;
 	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
 	inWater = false;
 	headInWater = false;

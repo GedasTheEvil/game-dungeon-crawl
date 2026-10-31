@@ -144,6 +144,32 @@ TEST_CASE("a bat hangs on its roost clip until it swoops, then flies") {
 	CHECK((bat->State() == ModelState::Move || bat->State() == ModelState::Attack));
 }
 
+TEST_CASE("a monster blocked on the player's row stands on its own idle clip, not the walk clip") {
+	SimWorld world; // tests/levels/idle_clips: two monsters a floor, walled off, down a ladder
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/idle_clips"));
+	const auto standing = [&world] {
+		int idle = 0;
+		for (const Monster* mon : active(world)) {
+			if (!mon->sameRow(world.Y()))
+				continue;
+			CAPTURE(static_cast<int>(mon->Type()->id));
+			CHECK(mon->State() == ModelState::Idle);
+			CHECK(mon->Type()->model.Shown(ModelState::Idle) == ModelState::Idle); // plan missing-idle-clips
+			idle++;
+		}
+		return idle;
+	};
+	world.Wait(2000);
+	CHECK(standing() == 2); // rat, scarab
+	REQUIRE(world.WalkTo(4.5f));
+	for (const int monsters : {2, 2, 1}) { // scorpion and Anubis, plant and egg cluster, the worm
+		REQUIRE(world.Climb(-1.9f));
+		world.Wait(2000);
+		CHECK(standing() == monsters);
+	}
+}
+
 TEST_CASE("the player stands, walks, jumps once, climbs with the height and holds the die clip") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/classic2"));

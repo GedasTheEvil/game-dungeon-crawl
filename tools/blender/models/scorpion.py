@@ -1,9 +1,9 @@
 """Procedural Egyptian deathstalker scorpion (Leiurus quinquestriatus): mesh, rig, baked texture and the .md3
-animations (walk, attack, die, climb).
+animations (walk, attack, die, climb, idle: waits on its eight legs, the tail swaying, the claws opening, loops).
 
     MCP:  p = ".../tools/blender/models/scorpion.py"; g = {"__file__": p, "__name__": "scorpion"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/scorpion.py -- [--export | --export-climb]
+    CLI:  blender -b --python tools/blender/models/scorpion.py -- [--export | --export-climb | --export-clip SUFFIX]
 
 Two textures share one UV layout: scorpion.png (straw, the deathstalker) and scorpion_giant.png (black-brown, a
 carnelian sheen on the claws and the tail). Set SCORPION_TEX=giant to show the giant texture on the built object.
@@ -39,7 +39,7 @@ from common import REPO, Builder, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "scorpion_new"
 CLIMB = ("scorpion_climb", "_climb", 24)
-CLIPS = [("scorpion_walk", "", 24), ("scorpion_attack", "_att", 24), ("scorpion_die", "_die", 30), CLIMB]
+CLIPS = [("scorpion_walk", "", 24), ("scorpion_attack", "_att", 24), ("scorpion_die", "_die", 30), CLIMB, ("scorpion_idle", "_idle", 40)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0.25, 0.4), "ortho": 2.5, "res": (560, 380)}
 
@@ -474,6 +474,17 @@ def walk_params(t):
     return p
 
 
+def idle_params(t):
+    """Waits on its eight legs: breathing, the cocked tail swaying slowly, the claws drifting, opening and closing."""
+    p = dict(REST)
+    w = 2 * math.pi * t
+    p.update(z=0.004 * math.sin(2 * w), pitch=0.8 * math.sin(2 * w), flex=1.0 * math.sin(w + 0.5),
+             preach=0.012 * math.sin(w), pspread=0.010 * math.sin(w + 1), pup=0.010 * math.sin(2 * w),
+             popen=12 + 10 * math.sin(2 * w + 1), tsway=9, tphase=t, tbob=4 * math.sin(w), tcock=0.0)
+    p["feet"] = {leg["name"]: (leg["foot"].copy(), 0.0) for leg in LEGS}
+    return p
+
+
 READY = walk_params(0.0)
 READY_FEET = {k: v[0].copy() for k, v in READY["feet"].items()}
 
@@ -805,6 +816,8 @@ def make_actions(rig, skin):
         for f in range(last + 1):
             if name == "scorpion_walk":
                 p = walk_params(f / frames)
+            elif name == "scorpion_idle":
+                p = idle_params(f / frames)
             else:
                 p = interpolate({"scorpion_attack": ATTACK, "scorpion_die": DIE}[name], f)
                 p["tphase"] = f / CLIPS[0][2]  # keeps the tail sway going from where the walk's frame 0 is
@@ -913,9 +926,10 @@ if __name__ == "__main__" and "--" in sys.argv:
         obj, _ = build(bake=False)
         materials(COL_QUEEN)
         common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "scorpion_queen.png"), TEX_SIZE, "scorpion_queen", ao_distance=0.12)
-    elif "--export-climb" in args:  # the climb clip alone (no texture bake)
+    elif "--export-climb" in args or "--export-clip" in args:  # that clip alone (no texture bake)
+        suffix = "_climb" if "--export-climb" in args else args[args.index("--export-clip") + 1]
         build(bake=False)
-        common.export_files(bpy.data.objects["scorpion_new"], bpy.data.objects["scorpion_rig"], "scorpion", [CLIMB], "monsters")
+        common.export_files(bpy.data.objects["scorpion_new"], bpy.data.objects["scorpion_rig"], "scorpion", [c for c in CLIPS if c[1] == suffix], "monsters")
     elif "--export" in args:
         tex_dir = os.path.join(REPO, "media", "textures", "monsters")
         build(tex_path=os.path.join(tex_dir, "scorpion.png"), giant_path=os.path.join(tex_dir, "scorpion_giant.png"))

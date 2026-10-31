@@ -1,10 +1,10 @@
 """Procedural tomb rat (plus the giant rat texture): mesh, rig, baked textures and the .md3 animations
-(walk, attack, die, jump: the giant rat's leap over pits and traps, plays once, the game moves the body; and climb:
-up a ladder, loops, the frame set from the climb height).
+(walk, attack, die, jump: the giant rat's leap over pits and traps, plays once, the game moves the body; climb:
+up a ladder, loops, the frame set from the climb height; and idle 32: stands and sniffs, loops).
 
     MCP:  p = ".../tools/blender/models/rat.py"; g = {"__file__": p, "__name__": "rat"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/rat.py -- [--export | --export-climb]
+    CLI:  blender -b --python tools/blender/models/rat.py -- [--export | --export-climb | --export-clip SUFFIX]
 
 Blender space: Z up, the rat faces +Y (game uses rotA = 180), its right side is +X.
 Rigid parts follow one bone each; the body blends between a hips and a chest bone. Every frame
@@ -34,7 +34,8 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "rat_new"
-CLIPS = [("rat_walk", "", 24), ("rat_attack", "_att", 24), ("rat_die", "_die", 30), ("rat_jump", "_jump", 10), ("rat_climb", "_climb", 16)]
+CLIPS = [("rat_walk", "", 24), ("rat_attack", "_att", 24), ("rat_die", "_die", 30), ("rat_jump", "_jump", 10), ("rat_climb", "_climb", 16),
+         ("rat_idle", "_idle", 32)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, -0.3, 0.3), "ortho": 2.4, "res": (560, 340)}
 
@@ -464,6 +465,18 @@ def walk_params(t):
     return p
 
 
+def idle_params(t):
+    """Stands on all fours and sniffs: breathing, the head up and turning, quick nods of the nose, the tail sweeping
+    slowly on the floor."""
+    p = dict(REST)
+    w = 2 * math.pi * t
+    sniff = math.sin(8 * w) * max(0.0, math.sin(w + 0.5))  # bursts of quick nods
+    p.update(z=0.004 * math.sin(2 * w), pitch=-1.0 + 0.8 * math.sin(2 * w), flex_y=3 * math.sin(w), hp=6 + 4 * math.sin(w) + 2.5 * sniff,
+             hy=-12 * math.sin(w + 0.3), hr=4 * math.sin(w + 0.3), jaw=1.5 * max(0.0, sniff), tsway=8, tphase=t)
+    p["feet"] = {leg["name"]: (leg["foot"].copy(), 0.0) for leg in LEGS}
+    return p
+
+
 READY = walk_params(0.0)
 READY_FEET = {k: v[0].copy() for k, v in READY["feet"].items()}
 
@@ -790,6 +803,8 @@ def make_actions(rig, skin, obj):
         for f in range(last + 1):
             if name == "rat_walk":
                 p = walk_params(f / frames)
+            elif name == "rat_idle":
+                p = idle_params(f / frames)
             else:
                 p = interpolate({"rat_attack": ATTACK, "rat_die": DIE, "rat_jump": JUMP}[name], f)
                 p["tphase"] = f / CLIPS[0][2]  # keeps the tail sway going from where the walk's frame 0 is
@@ -845,8 +860,9 @@ if __name__ == "__main__" and "--" in sys.argv:
         build(tex_path=os.path.join(tex_dir, "rat.png"), giant_path=os.path.join(tex_dir, "rat_giant.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "rat.blend"))
-    elif "--export-climb" in args:  # only rat_climb.md3 (the textures and the other clips stay as they are)
+    elif "--export-climb" in args or "--export-clip" in args:  # that clip's file only (the textures and the other clips stay as they are)
+        suffix = "_climb" if "--export-climb" in args else args[args.index("--export-clip") + 1]
         build(bake=False)
-        common.export_files(bpy.data.objects["rat_new"], bpy.data.objects["rat_rig"], "rat", [c for c in CLIPS if c[1] == "_climb"], "monsters")
+        common.export_files(bpy.data.objects["rat_new"], bpy.data.objects["rat_rig"], "rat", [c for c in CLIPS if c[1] == suffix], "monsters")
     else:
         build()

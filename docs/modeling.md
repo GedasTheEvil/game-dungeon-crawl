@@ -82,7 +82,8 @@ means that one). How the original models were rebuilt, and notes per model: [rem
   variants `<base>_*.png` (`anubis_boss`), which T cycles through. A potion vessel (`items/potion_flask`) has no texture
   of its own: it gets its potions' textures from the game's table (`PotionDef::texture`), also cycled by T.
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
-  plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling). Monsters without it show the move clip when idle.
+  plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling, a standing rat sniffing). Without it the move
+  clip stands in and the monster walks on the spot, so every monster has one (`tests/unit/model_info_test.cpp`).
   The mimic (`AMBUSH_CLIPS`) requires `_idle` (the closed chest) and uses it as the reference clip; the cursed mimic
   (`AMBUSH_HOP_CLIPS`, files `mimic_cursed*`) the same, its move clip a hop, plus an optional `_jump`.
   Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's, giant scarab's and cursed mimic's leap) and `media/sounds/<category>/<name>_jump.wav`.

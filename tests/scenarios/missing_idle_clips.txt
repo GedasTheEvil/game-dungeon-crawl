@@ -1,0 +1,16 @@
+# Idle clips (plan missing-idle-clips, tests/levels/idle_rooted): a plant and an egg cluster stand dormant on their own
+# idle clips (the bloom half closed and nodding, a slow pulse up the eggs) until they bite or are hit. The walkers'
+# idle clips: tests/unit/clip_state_test.cpp (walled off, out of sight) and the model viewer.
+seed 1
+god
+level tests/levels/idle_rooted
+torch 6 on
+torch 8 on
+walk to 4
+wait 2s
+screenshot dormant
+wait 1s
+screenshot dormant_later
+camera 30 10
+screenshot dormant_side
+expect hp == 50

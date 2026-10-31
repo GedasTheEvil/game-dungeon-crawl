@@ -35,7 +35,9 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	if (!rooted())
 		alerted = true; // chasing the player
 	fleeDir = 0;
-	if (blocked) { // stands where it can go no further (plan walk-clip-stride)
+	// Stands where it can go no further (plan walk-clip-stride); a rooted one dormant until it has bitten or been hit,
+	// its walk file the awake loop (plan missing-idle-clips).
+	if (blocked || (rooted() && !alerted)) {
 		walked = 0.f;
 		enter(ModelState::Idle);
 		return true;

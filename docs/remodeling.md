@@ -5,6 +5,16 @@ done; this file is its record, with notes per model. Making a new model: [modeli
 conventions, steps). New model notes go in the script's docstring, not here.
 
 ## Model notes
+* Idle clips ([missing-idle-clips](plan/missing-idle-clips.md)): `_idle`, loops, shown while a monster stands (blocked,
+  out of range, waiting); without one the walk clip stood in and the monster walked on the spot. Feet planted at the leg's
+  rest foot, the lowest point at walk frame 0's. Rat 32 (sniffs: head up and turning, quick nods, the tail sweeping), scarab
+  32 (the antennae twitching apart, the elytra lifting a crack), worm 40 (a slow coil, the reared front turning, the jaws
+  tasting), plant 40 (dormant: the bloom half closed and nodding; its walk file stays the awake loop), Anubis 36 (weight
+  shifting from leg to leg, the thighs turned back by the pelvis tilt so the feet stay put; the head looking around),
+  scorpion 40 (the tail swaying, the claws opening and closing), egg cluster 40 (dormant: one slow pulse up the mound). The
+  rooted two stand dormant on it until they have bitten or been hit (`Monster::Seek`), then show the walk file. The
+  giant kin and the bosses on these models (Anubis boss, Khepri, the scorpion queen, Rerek) share them. Each script writes
+  its idle file alone with `-- --export-clip _idle`.
 * `tools/blender/mdl2md3.py` - one-off converter used to move from the old text `.mdl` files (still in git history).
 * `tools/blender/models/anubis.py` - humanoid example: primitive parts, Euler key poses, rigid props, dropped prop bone.
   `--boss-texture` bakes only `anubis_boss.png` (the Anubis boss: obsidian, carnelian and gold) on the same UV layout.
@@ -130,7 +140,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   low sand mound. Each egg is rigid on its own bone (pointing up from its centre); a resin blob is weighted half to each of its two
   eggs. Clips: move 24 (the reference, loops: the eggs swell out of step, two twitch; 0.50 high x 0.88 wide), attack 16 (loops: a
   heave runs down from the top, the root swells; up to 0.52 high), die 20 (once: the top eggs swell and burst first, every egg
-  collapses into a flat husk on the mound). Every frame stays at or above the floor (printed per clip).
+  collapses into a flat husk on the mound), idle 40 (loops, dormant: one slow pulse up the mound). Every frame stays at or above the floor (printed per clip).
   Sounds: `tools/audio/egg_cluster_sounds.py` (`media/sounds/monsters/egg_cluster_{att,die}.wav`: squelches and a shell crack; bursts,
   splatter, drips).
 * `tools/blender/models/lotus.py` - the blue lotus (Nymphaea caerulea), a floating monster (faces -Y, rotA 0; plan water-lotus). No
@@ -300,7 +310,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 
 ## Frame counts and sizes
-* Frame counts per file (Anubis 26 + climb 24, worm 32/32/40, scarab 24/26/32 + jump 10 + roll 15, plant 32/26/36, rat 24/24/30 + jump 10 + climb 16, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24).
+* Frame counts per file (Anubis 26 + climb 24 + idle 36, worm 32/32/40 + rise 20 + idle 40, scarab 24/26/32 + jump 10 + roll 15 + idle 32, plant 32/26/36 + idle 40, rat 24/24/30 + jump 10 + climb 16 + idle 32, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24 + idle 40, egg cluster 24/16/20 + idle 40).
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, hippo 9.6k tris ~2.0-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
 
 ## Status
@@ -308,10 +318,10 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 
 | Model | Files | Texture | Status |
 |---|---|---|---|
-| Anubis, Anubis boss (monsters) | `monsters/anubis{,_att,_die,_climb}.md3` | `monsters/anubis.png`, `monsters/anubis_boss.png` | remodelled (the boss uses the same files with its own texture) |
-| Worm (monster) | `monsters/worm{,_att,_die}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
-| Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump,_att_ranged}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
-| Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump,_climb}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
+| Anubis, Anubis boss (monsters) | `monsters/anubis{,_att,_die,_climb,_idle}.md3` | `monsters/anubis.png`, `monsters/anubis_boss.png` | remodelled (the boss uses the same files with its own texture) |
+| Worm (monster) | `monsters/worm{,_att,_die,_rise,_idle}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
+| Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump,_att_ranged,_idle}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
+| Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump,_climb,_idle}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Bat, giant bat, vampire bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png`, `monsters/bat_vampire.png` | new (tomb bat; the giant bat and the vampire bat boss use the same files with their own textures) |
 | Mimic, cursed mimic (monsters) | `monsters/mimic{,_att,_die,_idle}.md3`, `monsters/mimic_cursed{,_att,_die,_idle,_jump}.md3` | `monsters/mimic.png`, `monsters/mimic_cursed.png` | new (treasure chest with fangs and tongue; idle = the chest item; the cursed one dark, hops) |
 | Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
@@ -319,8 +329,8 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png` | new (Nile crocodile; idle = lying flat, lurks floating at the water surface) |
 | Hippo (monster) | `monsters/hippo{,_att,_die,_idle}.md3` | `monsters/hippo.png` | new (hippopotamus; idle = lying low, lurks with only eyes, ears and nostrils above the water) |
 | Baboon (monster) | `monsters/baboon{,_att,_att_ranged,_die,_idle,_climb}.md3` | `monsters/baboon.png` | new (hamadryas baboon; throws a burning coal; idle = sitting, greeting the sun) |
-| Scorpion (monster) | `monsters/scorpion{,_att,_die,_climb}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
-| Plant (monster) | `monsters/plant{,_att,_die}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = idle) |
+| Scorpion (monster) | `monsters/scorpion{,_att,_die,_climb,_idle}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
+| Plant (monster) | `monsters/plant{,_att,_die,_idle}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = the awake loop, idle = dormant) |
 | Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Teleporter gate ("columns") | `props/columns.md3` | `props/columns.png` | remodelled (static, `props.py`; Door, gate type 5, plasma quad between the columns) |

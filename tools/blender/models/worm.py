@@ -2,13 +2,14 @@
 
     MCP:  p = ".../tools/blender/models/worm.py"; g = {"__file__": p, "__name__": "worm"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/worm.py -- [--export] [--export-rise] [--boss-texture]
+    CLI:  blender -b --python tools/blender/models/worm.py -- [--export] [--export-rise] [--export-clip SUFFIX] [--boss-texture]
 
 worm_rerek.png (Rerek, the boss, plan worm-boss: sand-coloured rings, a dark head with serpent scales, dark jaws)
 shares the UVs: bake it alone with --boss-texture; WORM_TEX=rerek shows it (in a build that bakes).
 The rise clip (_rise, plan worm-boss) bursts up out of the sand, the whole worm under the floor at frame 0 (lift
 below zero), and ends in walk frame 0; the game plays it as the worm and Rerek come up and backwards as they dive
-(Monster::showBurrow). --export-rise writes only that file.
+(Monster::showBurrow). --export-rise writes only that file (--export-clip SUFFIX: any clip's file only).
+The idle clip (_idle, 40, loops) waits on the floor: a slow coil from side to side, the jaws tasting.
 
 Blender space: Z up, the worm faces -Y (game uses rotA = 0), tail towards +Y.
 The spine is posed procedurally from a curve (elevation, heading, roll per bone), so every
@@ -32,7 +33,8 @@ importlib.reload(common)
 from common import REPO, Builder, chain_weights, smoothstep, tube  # noqa: E402
 
 COLL = "worm_new"
-CLIPS = [("worm_walk", "", 32), ("worm_attack", "_att", 32), ("worm_die", "_die", 40), ("worm_rise", "_rise", 20)]
+CLIPS = [("worm_walk", "", 32), ("worm_attack", "_att", 32), ("worm_die", "_die", 40), ("worm_rise", "_rise", 20),
+         ("worm_idle", "_idle", 40)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 2.0, 0.7), "ortho": 5.8, "res": (560, 320)}
 
@@ -462,6 +464,16 @@ def walk_params(t):
     return p
 
 
+def idle_params(t):
+    """Waits at phase t in [0, 1): the body coils slowly from side to side, the reared front breathes and turns, the
+    jaws taste the air."""
+    p = dict(REST)
+    w = 2 * math.pi * t
+    p.update(wave=3, lat=9, phase=t, hyaw=12 * math.sin(w + 0.6), rise=38 + 3 * math.sin(2 * w), head=-12 + 4 * math.sin(w),
+             jaw=3 + 3 * math.sin(2 * w + 1) + 6 * max(0.0, math.sin(4 * w)) * max(0.0, math.sin(w)))
+    return p
+
+
 READY = walk_params(0.0)
 
 
@@ -619,6 +631,8 @@ def make_actions(rig):
                 key_frame(rig, interpolate(ATTACK, f), f, 2)  # tail planted, front lunges
             elif name == "worm_rise":
                 key_frame(rig, interpolate(RISE, f), f, N // 2)
+            elif name == "worm_idle":
+                key_frame(rig, idle_params(f / frames), f, N // 2)
             else:
                 key_frame(rig, interpolate(DIE, f), f, N // 2)
         acts[name] = act
@@ -666,9 +680,10 @@ if __name__ == "__main__" and "--" in sys.argv:
         obj, _ = build(bake=False)
         materials(COL_REREK)
         common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "worm_rerek.png"), TEX_SIZE, "worm_rerek", ao_distance=0.25)
-    elif "--export-rise" in args:
+    elif "--export-rise" in args or "--export-clip" in args:
+        suffix = "_rise" if "--export-rise" in args else args[args.index("--export-clip") + 1]
         build(bake=False)
-        common.export_files(bpy.data.objects["worm_new"], bpy.data.objects["worm_rig"], "worm", [c for c in CLIPS if c[1] == "_rise"], "monsters")
+        common.export_files(bpy.data.objects["worm_new"], bpy.data.objects["worm_rig"], "worm", [c for c in CLIPS if c[1] == suffix], "monsters")
     else:
         build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "worm.png") if "--export" in args else None)
         if "--export" in args:

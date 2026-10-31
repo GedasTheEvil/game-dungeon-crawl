@@ -3,13 +3,14 @@ a sand base. A rooted "monster": it never moves, the move clip is an idle loop.
 
     MCP:  p = ".../tools/blender/models/egg_cluster.py"; g = {"__file__": p, "__name__": "egg_cluster"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/egg_cluster.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/egg_cluster.py -- [--export | --export-clip SUFFIX]
 
 Blender space: Z up, the cluster faces -Y (game uses rotA = 0); it is round, about 0.9 wide x 0.5 high.
 Every egg is a rigid ellipsoid on its own bone (pointing up from the egg's centre, parented to the root): the clips
 only scale and move the bones. Clips: move 24 (the reference, loops: the eggs swell and shrink slowly out of step,
 two eggs twitch), attack 16 (loops: a stronger heave, the eggs bulge in a wave from the top, played while a scorpion
-hatches), die 20 (once: the eggs swell and burst one after another, collapsing into flat husks on the base).
+hatches), die 20 (once: the eggs swell and burst one after another, collapsing into flat husks on the base), idle 40
+(loops, dormant: one slow pulse runs over the mound from the bottom up, no twitches).
 Every frame the lowest vertex stays at or above the floor (printed per clip).
 """
 
@@ -30,7 +31,8 @@ importlib.reload(common)
 from common import REPO, Builder, ellipsoid, smoothstep  # noqa: E402
 
 COLL = "egg_cluster_new"
-CLIPS = [("egg_cluster_move", "", 24), ("egg_cluster_attack", "_att", 16), ("egg_cluster_die", "_die", 20)]
+CLIPS = [("egg_cluster_move", "", 24), ("egg_cluster_attack", "_att", 16), ("egg_cluster_die", "_die", 20),
+         ("egg_cluster_idle", "_idle", 40)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0, 0.24), "ortho": 1.3, "res": (480, 360)}
 
@@ -216,6 +218,9 @@ def egg_pose(clip, i, n, t, egg):
             k = (t * 2 + i * 0.13) % 1.0
             sz += 0.12 * math.exp(-((k - 0.5) / 0.04) ** 2)
         return s, sz, 0.0
+    if clip == "egg_cluster_idle":
+        wave = 2 * math.pi * t - c.z * 4.0 + 0.3 * (i % 5)
+        return 1 + 0.025 * math.sin(wave), 1 + 0.04 * math.sin(wave), 0.0
     if clip == "egg_cluster_attack":
         wave = 2 * math.pi * t - c.z * 6.0
         s = 1 + 0.10 * max(0.0, math.sin(wave))
@@ -322,5 +327,10 @@ if __name__ == "__main__" and "--" in sys.argv:
         build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "egg_cluster.png"))
         export()
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "egg_cluster.blend"))
+    elif "--export-clip" in args:  # that clip's file only (the texture and the other clips stay as they are)
+        build(bake=False)
+        suffix = args[args.index("--export-clip") + 1]
+        common.export_files(bpy.data.objects["egg_cluster_new"], bpy.data.objects["egg_cluster_rig"], "egg_cluster",
+                            [c for c in CLIPS if c[1] == suffix], "monsters")
     else:
         build(bake="--bake" in args)

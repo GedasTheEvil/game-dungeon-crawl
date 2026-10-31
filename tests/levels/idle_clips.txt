@@ -1,0 +1,13 @@
+; Idle clips (plan missing-idle-clips, tests/unit/clip_state_test.cpp): each
+; monster in a pocket, a wall between it and the player. Blocked on the player's row, it stands on its idle clip.
+; Down the ladder (col 4), a floor at a time: rat (col 2) and scarab (col 7); scorpion and Anubis; plant and egg
+; cluster; the worm.
+##########
+#.t#HS#s.#
+####H#####
+#.j#H.#n.#
+####H#####
+#.p#H.#e.#
+####H#####
+####H.#w...#
+############

@@ -3,8 +3,9 @@
 Everything is generated from code, so this file is the model source. Run in Blender 5:
     MCP:  p = ".../tools/blender/models/anubis.py"; g = {"__file__": p, "__name__": "anubis"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]() to write game files
-    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export] [--export-climb] [--boss-texture] [--measure]
-          (--export-climb writes only anubis_climb.md3; ANUBIS_LADDER=1 adds a ladder stand-in for review renders;
+    CLI:  blender -b --python tools/blender/models/anubis.py -- [--export] [--export-climb] [--export-clip SUFFIX]
+          [--boss-texture] [--measure]
+          (--export-climb writes only anubis_climb.md3, --export-clip only that clip's file; ANUBIS_LADDER=1 adds a ladder stand-in for review renders;
           --measure prints the sceptre head per attack frame: the ranged attack's release, RangedRules)
 
 Blender space: Z up, the model faces +Y, its right side is +X. Units are metres (~2 m tall);
@@ -33,7 +34,8 @@ from common import REPO, Builder, chain_weights, ellipsoid, loft, smoothstep, tr
 COLL = "anubis_new"
 FRAMES = 26  # frames per animation file; engine plays ~14 fps
 CLIMB = ("anubis_climb", "_climb", 24)
-CLIPS = [("anubis_walk", "", FRAMES), ("anubis_attack", "_att", FRAMES), ("anubis_die", "_die", FRAMES), CLIMB]
+IDLE = ("anubis_idle", "_idle", 36)  # stands guard: weight shifting from leg to leg, the head turning, loops
+CLIPS = [("anubis_walk", "", FRAMES), ("anubis_attack", "_att", FRAMES), ("anubis_die", "_die", FRAMES), CLIMB, IDLE]
 TEX_SIZE = 1024
 
 # Linear-space colours.
@@ -439,6 +441,28 @@ def walk_poses():
     return poses
 
 
+def idle_poses():
+    """Stands guard, the sceptre held: the weight shifts from leg to leg (the pelvis tilts, the knee of the free leg
+    bends), the chest breathes, the head looks around."""
+    frames = IDLE[2]
+    poses = []
+    for f in range(0, frames + 1, 2):
+        w = 2 * math.pi * f / frames
+        shift = math.sin(w)  # +1: the weight on the right leg
+        breath = math.sin(2 * w)
+        p = pose(
+            # The thighs turn back by the pelvis tilt, so the feet stay put; the free leg (the lower hip) bends.
+            pelvis=(-1, 0, 3 * shift), spine=(-1 - breath, -1.5 * shift, -1.5 * shift), chest=(-1 - 1.5 * breath, 0, -1.5 * shift),
+            thigh_L=(4 * max(0.0, shift), 0, 3 * shift), shin_L=(-8 * max(0.0, shift), 0, 0), foot_L=(4 * max(0.0, shift), 0, 0),
+            thigh_R=(4 * max(0.0, -shift), 0, 3 * shift), shin_R=(-8 * max(0.0, -shift), 0, 0), foot_R=(4 * max(0.0, -shift), 0, 0),
+            neck=(2 * math.sin(w + 1), 6 * math.sin(w + 0.4), 0), head=(3 * math.sin(2 * w + 0.5), 14 * math.sin(w + 0.4), 0),
+            upperarm_L=(-4 + 3 * breath, 0, 6 + 2 * shift), forearm_L=(14 + 4 * math.sin(w + 2), 0, 0),
+        )
+        p["root_loc"] = (0, 0, -0.015)  # the lowest point at walk frame 0's (the engine's floor)
+        poses.append((f, p))
+    return poses
+
+
 def attack_poses():
     ready = pose()
     windup = pose(
@@ -778,7 +802,8 @@ def make_actions(rig, obj):
 
     rig.animation_data_create()
     acts = {}
-    for name, poses, cyclic in (("walk", walk_poses(), True), ("attack", attack_poses(), True), ("die", die_poses(), False)):
+    for name, poses, cyclic in (("walk", walk_poses(), True), ("attack", attack_poses(), True), ("die", die_poses(), False),
+                                ("idle", idle_poses(), True)):
         act = bpy.data.actions.get("anubis_" + name)
         if act:
             bpy.data.actions.remove(act)
@@ -872,7 +897,7 @@ def measure():
 
 
 def export(models_dir=None, clips=CLIPS):
-    """Write media/models/monsters/anubis{,_att,_die,_climb}.md3 from the built objects."""
+    """Write media/models/monsters/anubis{,_att,_die,_climb,_idle}.md3 from the built objects."""
     common.export_files(bpy.data.objects["anubis_new"], bpy.data.objects["anubis_rig"], "anubis", clips, "monsters", models_dir)
 
 
@@ -886,9 +911,10 @@ if __name__ == "__main__" and "--" in sys.argv:
     elif "--measure" in args:
         build(bake=False)
         measure()
-    elif "--export-climb" in args:
+    elif "--export-climb" in args or "--export-clip" in args:
+        suffix = "_climb" if "--export-climb" in args else args[args.index("--export-clip") + 1]
         build(bake=False)
-        export(clips=[CLIMB])
+        export(clips=[c for c in CLIPS if c[1] == suffix])
     else:
         build(tex_path=os.path.join(tex_dir, "anubis.png") if "--export" in args else None)
     if "--export" in args:

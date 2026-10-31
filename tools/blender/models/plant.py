@@ -2,10 +2,11 @@
 
     MCP:  p = ".../tools/blender/models/plant.py"; g = {"__file__": p, "__name__": "plant"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/plant.py -- [--export]
+    CLI:  blender -b --python tools/blender/models/plant.py -- [--export | --export-clip SUFFIX]
 
 Blender space: Z up, the bloom faces -Y (game uses rotA = 0). The plant never moves: the walk
-file is an idle loop. A cobra-like stalk carries the bloom (petals hinge open around a fanged maw),
+file is its awake loop (once it has bitten or been hit), the idle file (40, loops) the dormant one: the bloom half closed and
+nodding, a slower, smaller sway. A cobra-like stalk carries the bloom (petals hinge open around a fanged maw),
 thorny vines spill over the jar rim onto the floor. Everything is FK: per-bone Euler angles from
 pose parameters, every frame keyed; poses that would push the bloom through the floor are eased
 off by bisection (lunge in the attack, droop while dying).
@@ -28,7 +29,7 @@ importlib.reload(common)
 from common import REPO, Builder, _cr, chain_weights, cone, ellipsoid, lathe, orient, perp, smoothstep, tube  # noqa: E402
 
 COLL = "plant_new"
-CLIPS = [("plant_walk", "", 32), ("plant_attack", "_att", 26), ("plant_die", "_die", 36)]
+CLIPS = [("plant_walk", "", 32), ("plant_attack", "_att", 26), ("plant_die", "_die", 36), ("plant_idle", "_idle", 40)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, -0.4, 1.5), "ortho": 4.4, "res": (440, 480)}
 
@@ -520,6 +521,14 @@ def idle_params(t):
 READY = idle_params(0.0)
 
 
+def dormant_params(t):
+    p = dict(REST)
+    w = 2 * math.pi * t
+    p.update(sway=1.2, side=1.0, ph=t, hp=6 + 3 * math.sin(w + 0.8), hy=3 * math.sin(w), open=-10 + 4 * math.sin(w), vlift=7, vsway=6,
+             vph=t, vcurl=6 + 3 * math.sin(w))
+    return p
+
+
 def interpolate(keys, frame, linear=("ph", "vph")):
     full = []
     for f, over in keys:
@@ -588,6 +597,8 @@ def make_actions(rig, obj):
         for f in range(last + 1):
             if name == "plant_walk":
                 p = idle_params(f / frames)
+            elif name == "plant_idle":
+                p = dormant_params(f / frames)
             elif name == "plant_attack":
                 p = fit_floor(rig, obj, interpolate(ATTACK, f), signs, "lunge")
             else:
@@ -650,6 +661,11 @@ def export(models_dir=None):
 
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1 :]
+    if "--export-clip" in args:  # that clip's file only (the texture and the other clips stay as they are)
+        build(bake=False)
+        suffix = args[args.index("--export-clip") + 1]
+        common.export_files(bpy.data.objects["plant_new"], bpy.data.objects["plant_rig"], "plant", [c for c in CLIPS if c[1] == suffix], "monsters")
+        sys.exit(0)
     build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "plant.png") if "--export" in args else None)
     if "--export" in args:
         export()

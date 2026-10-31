@@ -1,6 +1,7 @@
 """Procedural golden scarab (Scarabaeus sacer, plus the giant scarab texture): mesh, rig, baked textures and the
 .md3 animations (walk, attack, die, jump: the giant scarab's leap over pits and traps, plays once, the game
-moves the body; and roll, _att_ranged: the giant scarab's and Khepri's dung ball, plays once).
+moves the body; roll, _att_ranged: the giant scarab's and Khepri's dung ball, plays once; and idle 32: stands,
+the antennae twitching, loops).
 
     MCP:  p = ".../tools/blender/models/scarab.py"; g = {"__file__": p, "__name__": "scarab"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
@@ -39,7 +40,7 @@ from common import REPO, Builder, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "scarab_new"
 CLIPS = [("scarab_walk", "", 24), ("scarab_attack", "_att", 26), ("scarab_die", "_die", 32), ("scarab_jump", "_jump", 10),
-         ("scarab_roll", "_att_ranged", 15)]
+         ("scarab_roll", "_att_ranged", 15), ("scarab_idle", "_idle", 32)]
 ONE_SHOT = ("scarab_die", "scarab_jump", "scarab_roll")
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0, 0.45), "ortho": 3.6, "res": (520, 400)}
@@ -452,7 +453,7 @@ def build_rig(coll):
 
 # ---------------------------------------------------------------- animation
 
-REST = dict(x=0.0, y=0.0, z=0.0, pitch=0.0, roll=0.0, yaw=0.0, hp=0.0, hy=0.0, ely=0.0, ant=0.0,
+REST = dict(x=0.0, y=0.0, z=0.0, pitch=0.0, roll=0.0, yaw=0.0, hp=0.0, hy=0.0, ely=0.0, ant=0.0, antd=0.0,
             plant=1.0, fplant=1.0, fup=0.0, ffwd=0.0, fout=0.0, curl=0.0, flail=0.0, fphase=0.0,
             hplant=1.0, hup=0.0, hback=0.0, hpaddle=0.0, hphase=0.0)
 STRIDE, STEP_H = 0.42, 0.14
@@ -480,6 +481,18 @@ def walk_params(t):
     p.update(z=0.012 * math.cos(2 * w), roll=1.5 * math.sin(w), yaw=1.5 * math.cos(w), pitch=0.8 * math.sin(2 * w),
              hp=2 * math.sin(2 * w + 1), hy=3 * math.sin(w), ant=8 * math.sin(2 * w + 0.5), ely=0.0)
     p["feet"] = {leg["name"]: gait(leg, t) for leg in LEGS}
+    return p
+
+
+def idle_params(t):
+    """Stands on its six legs: breathing, the head turning, the antennae (antd: right up, left down) twitching in turn,
+    the elytra lifting a crack now and then."""
+    p = dict(REST)
+    w = 2 * math.pi * t
+    twitch = math.sin(6 * w) * max(0.0, math.sin(w))
+    p.update(z=0.005 * math.sin(2 * w), pitch=-1.0 + 1.0 * math.sin(2 * w), hp=2 * math.sin(w + 1), hy=6 * math.sin(w),
+             ant=10 * math.sin(2 * w + 0.5), antd=18 * twitch, ely=3 * max(0.0, math.sin(w + 2)) ** 2)
+    p["feet"] = {leg["name"]: (leg["foot"].copy(), 0.0) for leg in LEGS}
     return p
 
 
@@ -527,7 +540,7 @@ def pose_matrices(rig, p):
         open_m = rot_about(hinge, Matrix.Rotation(math.radians(-0.6 * p["ely"] * s), 3, "Y") @ Matrix.Rotation(math.radians(-p["ely"]), 3, "X"))
         mats["ely" + sfx] = T @ open_m @ rest["ely" + sfx]
         base = bones["ant" + sfx].head_local
-        mats["ant" + sfx] = head_m @ rot_about(base, euler(p["ant"], 0, -0.5 * p["ant"] * s)) @ rest["ant" + sfx]
+        mats["ant" + sfx] = head_m @ rot_about(base, euler(p["ant"] + p["antd"] * s, 0, -0.5 * p["ant"] * s)) @ rest["ant" + sfx]
     feet = p["feet"] if "feet" in p else leg_targets(p, T)
     for leg in LEGS:
         n = leg["name"]
@@ -656,6 +669,8 @@ def make_actions(rig, obj):
         for f in range(last + 1):
             if name == "scarab_walk":
                 key_frame(rig, walk_params(f / frames), f)
+            elif name == "scarab_idle":
+                key_frame(rig, idle_params(f / frames), f)
             else:
                 key_frame(rig, interpolate({"scarab_attack": ATTACK, "scarab_die": DIE, "scarab_jump": JUMP, "scarab_roll": ROLL}[name], f), f)
         acts[name] = act

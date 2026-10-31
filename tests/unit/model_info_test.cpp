@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <string>
 
-TEST_CASE("every monster model has its clips, measured round its centre") {
+TEST_CASE("every monster model has its clips (an idle one too), measured round its centre") {
 	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
 		const MonsterKind& kind = *monsterKind(id);
 		CAPTURE(std::string(kind.model));
@@ -28,6 +28,9 @@ TEST_CASE("every monster model has its clips, measured round its centre") {
 		CHECK(info.referenceTop <= 1.001f);
 		CHECK(info.HalfWidth() > 0.f);
 		CHECK(info.HalfWidth() <= 1.001f);
+		// Every monster stands on an idle clip of its own, not on the walk clip walking on the spot (plan
+		// missing-idle-clips).
+		CHECK(info.Clip(ModelState::Idle).present);
 		if (info.Clip(ModelState::Idle).present)
 			CHECK(info.idleBottom < info.idleTop);
 	}

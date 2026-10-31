@@ -258,7 +258,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | campaign run | | a run begun with New Game on level 1; only its win goes on the leaderboard (scenario `campaign`) | `RunStats::campaign` |
 | death screen | You died | the panel over the dimmed game after the death clip: Retry from the newest save, Main Menu | `DeathScreen`, `Screen::Death` |
 | deaths | Deaths | a run's deaths, counted at the death and written into the autosave then, so a retry keeps them | `RunStats::deaths` |
-| exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 | `explorationScore` |
+| exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 + secrets found x30 | `explorationScore` |
 | Hall of Records | Hall of Records | the main menu's leaderboard screen: rank, name, score in the chosen order; a row opens the run's details | `RecordsView` |
 | leaderboard | Hall of Records | the won campaign runs, one record each, in `saves/leaderboard.txt` (never in a save game) | `Leaderboard`, `RunRecord` |
 | play time | Time | a run's time in play: menus, the UI screens and the win do not count; per level on the details | `RunStats::PlayMs` |

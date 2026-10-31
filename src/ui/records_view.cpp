@@ -339,6 +339,7 @@ void RecordsView::drawDetail(Font& heading, Font& small) const {
 		{false, "Inscriptions", value(r.inscriptions)},
 		{false, "Treasures", value(r.treasures)},
 		{false, "Riddles", value(r.riddles)},
+		{false, "Secrets", real ? number(r.secrets) + " / " + number(campaignSecretTotal()) : "-"},
 	};
 	for (const DetailLine& l : countLines("Potions", r.potions, r.PotionsTotal()))
 		found.push_back(l);

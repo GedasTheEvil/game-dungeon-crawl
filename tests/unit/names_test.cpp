@@ -188,6 +188,7 @@ TEST_CASE("the name gate: asks for the name, stays sealed until it is spoken, th
 	CHECK_FALSE(isNameGate(world.dungeon.Cell(9, 1)));
 	CHECK(isTeleporter(world.dungeon.Cell(9, 1)));
 	CHECK_FALSE(world.dungeon.SpeakName()); // once
+	CHECK(world.player.stats.run.secrets == 1); // plan leaderboard-secrets: counted once
 	CHECK(world.dungeon.InteractVerb() == Interaction::Enter);
 	world.Interact();
 	world.WaitTicks(world.GATE_TRAVEL_TICKS);

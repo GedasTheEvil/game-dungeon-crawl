@@ -65,6 +65,7 @@ void RunStats::Dump(std::ostream& out) const {
 		out << ' ' << ms;
 	out << "\nNAMES " << nameSeed << '\n';
 	out << "DEATHS " << deaths << '\n';
+	out << "SECRETS " << secrets << '\n';
 }
 
 void RunStats::LoadDump(std::istream& in) {
@@ -109,6 +110,14 @@ void RunStats::LoadDump(std::istream& in) {
 		in.clear();
 		in.seekg(deathsAt);
 		deaths = 0;
+		return;
+	}
+	// From the leaderboard's secrets on (plan leaderboard-secrets).
+	const auto secretsAt = in.tellg();
+	if (!(in >> tag) || tag != "SECRETS" || !(in >> secrets)) {
+		in.clear();
+		in.seekg(secretsAt);
+		secrets = 0;
 	}
 }
 

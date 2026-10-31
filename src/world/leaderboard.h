@@ -39,6 +39,7 @@ struct RunRecord {
 	int biggestHit = 0;
 	int poisoned = 0;
 	int cursed = 0;
+	int secrets = 0; // name gates opened (plan leaderboard-secrets); 0 in a record from before it
 	int deaths = 0; // plan autosave; 0 in a record from before it
 	bool placeholder = false; // the empty board's "Spirit of Exploration", never written
 
@@ -58,7 +59,11 @@ constexpr std::array<const char*, RECORD_ORDER_COUNT> RECORD_ORDER_NAMES = {"Tim
 constexpr int EXPLORE_INSCRIPTION_POINTS = 10;
 constexpr int EXPLORE_TREASURE_POINTS = 10;
 constexpr int EXPLORE_RIDDLE_POINTS = 30;
+constexpr int EXPLORE_SECRET_POINTS = 30; // plan leaderboard-secrets: a name gate needs the cartouche and the scroll
 [[nodiscard]] int explorationScore(const RunRecord& r);
+
+// The secrets of the whole campaign: the name gates in content/levels/lvl1 .. lvl<CAMPAIGN_LEVELS> (read once).
+[[nodiscard]] int campaignSecretTotal();
 
 [[nodiscard]] std::string formatPlayTime(int ms); // "h:mm:ss"
 // The score column in that order: the play time, the XP, the exploration score; "-" for the placeholder.

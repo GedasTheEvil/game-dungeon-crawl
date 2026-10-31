@@ -1,13 +1,16 @@
 #include "leaderboard.h"
 #include "../core/logger.h"
 #include "../entities/player_stats.h"
+#include "campaign.h"
 #include "items.h"
+#include "level.h"
 #include "monster_kinds.h"
 #include "skills.h"
 #include <algorithm>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <numeric>
 #include <sstream>
 
@@ -76,7 +79,7 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 		r.slain.emplace_back(key.substr(std::string(SLAIN_KEY).size()), number);
 	else if (key.rfind(POTION_KEY, 0) == 0)
 		r.potions.emplace_back(key.substr(std::string(POTION_KEY).size()), number);
-	const std::array<std::pair<const char*, int*>, 16> ints = {{
+	const std::array<std::pair<const char*, int*>, 17> ints = {{
 		{"time_ms", &r.playMs},
 		{"xp", &r.xp},
 		{"player_level", &r.playerLevel},
@@ -92,6 +95,7 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 		{"biggest_hit", &r.biggestHit},
 		{"poisoned", &r.poisoned},
 		{"cursed", &r.cursed},
+		{"secrets", &r.secrets},
 		{"deaths", &r.deaths},
 	}};
 	for (const auto& [name, field] : ints)
@@ -136,13 +140,29 @@ RunRecord recordOf(const PlayerStats& stats, std::string name, std::string date,
 	r.biggestHit = run.biggestHit;
 	r.poisoned = run.poisoned;
 	r.cursed = run.cursed;
+	r.secrets = run.secrets;
 	r.deaths = run.deaths;
 	return r;
 }
 
 int explorationScore(const RunRecord& r) {
 	return r.inscriptions * EXPLORE_INSCRIPTION_POINTS + r.treasures * EXPLORE_TREASURE_POINTS +
-		   r.riddles * EXPLORE_RIDDLE_POINTS;
+		   r.riddles * EXPLORE_RIDDLE_POINTS + r.secrets * EXPLORE_SECRET_POINTS;
+}
+
+int campaignSecretTotal() {
+	static const int TOTAL = [] {
+		int count = 0;
+		for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+			auto grid = std::make_unique<LevelGrid>();
+			if (!loadLevelFile(("content/levels/lvl" + std::to_string(n)).c_str(), *grid).empty())
+				continue;
+			for (const Tile& t : grid->cells)
+				count += isNameGate(t) ? 1 : 0;
+		}
+		return count;
+	}();
+	return TOTAL;
 }
 
 std::string formatPlayTime(int ms) {
@@ -246,6 +266,7 @@ void writeRecord(std::ostream& out, const RunRecord& r) {
 		<< "biggest_hit=" << r.biggestHit << '\n'
 		<< "poisoned=" << r.poisoned << '\n'
 		<< "cursed=" << r.cursed << '\n'
+		<< "secrets=" << r.secrets << '\n'
 		<< "deaths=" << r.deaths << '\n'
 		<< "level_ms=" << list(r.levelMs, [](int ms) { return std::to_string(ms); }) << '\n';
 	for (const auto& [kind, count] : r.slain)

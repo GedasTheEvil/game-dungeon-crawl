@@ -314,6 +314,7 @@ bool Dungeon::SpeakName() {
 	if (!isNameGate(map[cell]))
 		return false;
 	unsealNameGate(map[cell]);
+	sim.player->stats.run.secrets++; // plan leaderboard-secrets
 	namedCell = cell;
 	namedAtMs = GameClock::now();
 	sim.events->Play(WorldSound::Teleport);

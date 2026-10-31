@@ -1,5 +1,6 @@
 // Plan leaderboard: the run's counters (kept by a save and load), the leaderboard file, its orders and scores.
 #include "../../external/doctest/doctest.h"
+#include "../../src/world/campaign.h"
 #include "../../src/world/leaderboard.h"
 #include "../../src/world/run_stats.h"
 #include "sim_world.h"
@@ -70,6 +71,7 @@ TEST_CASE("run counters: potions by kind, play time per level, the save line and
 	stats.riddles = 2;
 	stats.poisoned = 4;
 	stats.cursed = 5;
+	stats.secrets = 3;
 	CHECK(stats.DrunkTotal() == 3);
 	CHECK(stats.Drunk(ItemKind::SmallHealth) == 2);
 	CHECK(stats.LevelMs() == std::vector<int>{500, 0, 700});
@@ -88,6 +90,7 @@ TEST_CASE("run counters: potions by kind, play time per level, the save line and
 	CHECK(loaded.riddles == 2);
 	CHECK(loaded.biggestHit == 9);
 	CHECK(loaded.poisoned == 4);
+	CHECK(loaded.secrets == 3);
 	CHECK(loaded.cursed == 5);
 	std::string next;
 	saved >> next;
@@ -112,6 +115,7 @@ TEST_CASE("a record written and read back; a broken line and a record without a 
 	r.damageTaken = 321;
 	r.poisoned = 6;
 	r.cursed = 2;
+	r.secrets = 4;
 	std::stringstream file;
 	writeRecord(file, r);
 	file << "[run]\nxp=5\n\n"; // no name
@@ -134,6 +138,7 @@ TEST_CASE("a record written and read back; a broken line and a record without a 
 	CHECK(back.damageTaken == 321);
 	CHECK(back.poisoned == 6);
 	CHECK(back.cursed == 2);
+	CHECK(back.secrets == 4);
 	CHECK(back.SlainTotal() == 15);
 	CHECK(records[1].name == "Thutmose");
 	CHECK(records[1].xp == 10); // the broken xp line after it left it as it was
@@ -155,6 +160,9 @@ TEST_CASE("the orders and their scores: time fastest first, XP and exploration h
 	CHECK(namesIn(records, RecordOrder::Xp) == std::vector<std::string>{"rich", "slow", "fast"});
 	CHECK(namesIn(records, RecordOrder::Explored) == std::vector<std::string>{"rich", "fast", "slow"});
 	CHECK(explorationScore(records[2]) == 2 * EXPLORE_TREASURE_POINTS + 3 * EXPLORE_RIDDLE_POINTS);
+	RunRecord secretive = run("secretive", 1, 1, 0, 0, 0);
+	secretive.secrets = 2;
+	CHECK(explorationScore(secretive) == 2 * EXPLORE_SECRET_POINTS);
 	CHECK(scoreText(records[0], RecordOrder::Time) == "1:23:20");
 	CHECK(scoreText(records[0], RecordOrder::Xp) == "900");
 	CHECK(scoreText(records[2], RecordOrder::Explored) == "110");
@@ -211,6 +219,11 @@ TEST_CASE("a poisoning that takes and a curse count; a warded poisoning does not
 	const RunRecord r = recordOf(player.stats, "Seti", "", "");
 	CHECK(r.poisoned == player.stats.run.poisoned);
 	CHECK(r.cursed == 2);
+}
+
+TEST_CASE("the campaign's secrets: the name gates of its levels") {
+	CHECK(campaignSecretTotal() > 0);
+	CHECK(campaignSecretTotal() <= CAMPAIGN_LEVELS); // a level has at most one name gate
 }
 
 TEST_CASE("a record of the player at the win: end stats, skills, kills and potions by name") {

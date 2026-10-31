@@ -17,7 +17,7 @@ curse warnings get lost. There is no log to read them back.
   ("Gained 30 XP" twice → "Gained 60 XP"). Important lines (level up, curse, poison, heka earned) stay longer and
   have a colour.
 * Log: the last ~50 messages of this level, readable on a page (a journal tab or a section of the inventory; pick
-  what fits [ui.md](../ui.md)). Not saved.
+  what fits [ui.md](../../ui.md)). Not saved.
 * Unit tests for the queue (stacking, merge, expiry).
 
 ## Done
@@ -30,7 +30,7 @@ curse warnings get lost. There is no log to read them back.
 * Log: the journal's section L, this level's last 50 lines, newest first; cleared on a new level, a new game and a
   load. Not saved.
 * Tests: `tests/unit/message_log_test.cpp` (stacking, expiry, merges, log size, level change); screenshot scenario
-  `tests/scenarios/message-log.txt`.
+  `tests/scenarios/solved/message-log.txt`.
 * Play-test fix 2026-10-31: the level banner (shown again after a load) sat at a fixed height and the stacked lines
   ran over it. It now goes under the stack (`StatusBox::draw` returns where the stack ends) and only moves down while
-  it shows. Scenario `tests/scenarios/message-log-banner.txt`.
+  it shows. Scenario `tests/scenarios/solved/message-log-banner.txt`.

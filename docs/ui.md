@@ -320,7 +320,7 @@ hint sits under the panel. Any arrow moves the focus to the other tile, Enter pi
 
 ### Status box
 
-The gameplay status lines (`Game().ShowStatus`, world `Status` events; `MessageLog`, [message-log](plan/message-log.md))
+The gameplay status lines (`Game().ShowStatus`, world `Status` events; `MessageLog`, [message-log](plan/solved/message-log.md))
 over the running game: up to three stacked, oldest at the top, 1.5 apart, each a `panel` (fill alpha 0.92) sized to
 its text, min 40 wide, the first one's top edge at y 86, centred, with the picture-frame drop shadow. `hudBody` font
 (4.2) in `GOLD`; good news (`StatusTone::Good`: level up, heka taken, a curse lifted) in faience green, dangers

@@ -91,6 +91,10 @@ note: A servant figure, buried to answer for the dead when the gods call them to
 [monster.cursed-mimic]
 note: Some chests bite. Some bite the mind. The dark ones with the purple glow in the lock: leave them shut.
 
+[monster.mimic-jar]
+note: Set had a whole household. This one kept the beer cold and the fangs in the neck. Break the next sealed jar
+	from arm's length.
+
 [monster.seth]
 note: Seth in the shape of the red beast. Horus took him with a harpoon. I have a spear; it will have to do.
 

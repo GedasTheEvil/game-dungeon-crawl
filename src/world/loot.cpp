@@ -127,6 +127,10 @@ std::vector<ItemKind> RollChestLoot(ItemKind placed, const OwnedWeapons& owned, 
 ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng) {
 	if (rng.percent(50))
 		return pickOwned(owned, WEAPON_KIND_COUNT, rng).value_or(ItemKind::Club);
+	return RollMimicJarLoot(rng);
+}
+
+ItemKind RollMimicJarLoot(Rng& rng) {
 	int count = 0;
 	for (int i = WEAPON_KIND_COUNT; i < FIRST_AMULET; i++)
 		count += potionDef(itemAt(i)).mimicLoot ? 1 : 0;
@@ -156,7 +160,7 @@ std::optional<ItemKind> RollKillDrop(bool boss, const OwnedWeapons& owned, int l
 }
 
 ChestTrap RollChestTrap(Container kind, int level, Rng& rng) {
-	if (kind == Container::Canopic || kind == Container::Jar)
+	if (kind == Container::Canopic || kind == Container::Jar || kind == Container::Coffin)
 		return ChestTrap::Curse;
 	const int (&percent)[CHEST_TRAP_COUNT] = CHEST_TRAP_PERCENT[decorTier(level)];
 	int pick = rng.below(100);

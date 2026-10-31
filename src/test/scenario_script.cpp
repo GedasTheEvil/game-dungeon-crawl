@@ -350,6 +350,11 @@ bool parseContainer(const Args& args, Command& cmd) {
 	if (args.size() < 2 || args.size() > 3 || !parseFloat(args[0], cmd.a) ||
 		(args.size() == 3 && (!parseFloat(args[2], cmd.b) || cmd.b < 0.f || cmd.b >= STANCE_COUNT)))
 		return false;
+	if (args[1] == "cursed_coffin") { // a coffin with the execration text (plan tomb-curse-containers)
+		cmd.ticks = static_cast<int>(Container::Coffin);
+		cmd.arg = "inscribed";
+		return true;
+	}
 	for (int k = 0; k < CONTAINER_COUNT; k++)
 		if (args[1] == CONTAINER_NAMES[k]) {
 			cmd.ticks = k;
@@ -479,7 +484,8 @@ const std::vector<CommandDef>& commandDefs() {
 		{"wear",
 		 CommandType::Wear,
 		 parseWear,
-		 "<amulet>|off: lesser_amulet_of_strength, amulet_of_health, ...; <ring> left|right: gold_ring_of_speed, ..."},
+		 "<amulet>|off: lesser_amulet_of_strength, amulet_of_health, ...; <ring> left|right: gold_ring_of_speed, "
+		 "..."},
 		{"xp", CommandType::Xp, numberAtLeast<0>, "<non-negative number>"},
 		{"gear", CommandType::Gear, parseGear, "<armour> <might> <max HP %>: the potions' and amulets' gains"},
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},
@@ -501,7 +507,8 @@ const std::vector<CommandDef>& commandDefs() {
 		{"container",
 		 CommandType::Container,
 		 parseContainer,
-		 "<col> <chest|coffer|basket|canopic|jar|table> [stance 0-7]: a treasure's look (STANCES)"},
+		 "<col> <chest|coffer|basket|canopic|jar|table|coffin|cursed_coffin> [stance 0-7]: a treasure's look "
+		 "(STANCES)"},
 		{"savegame", CommandType::SaveGame, oneWord, "<path>"},
 		{"loadgame", CommandType::LoadGame, oneWord, "<path>"},
 		{"mouse", CommandType::Mouse, twoNumbers, "<x%> <y%> (0..100, y from the bottom)"},

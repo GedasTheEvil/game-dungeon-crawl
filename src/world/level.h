@@ -128,8 +128,10 @@ enum MonsterTypeId : unsigned char {
 	MonsterMotherOfWebs = 33,
 	// boss: the baboons', leaps from ledge to ledge, throws volleys of coals and a big one that sets the floor burning
 	MonsterBabi = 34,
+	// passes for a sealed pottery jar until opened or hit, then bites where it stands (plan tomb-curse-containers)
+	MonsterMimicJar = 35,
 };
-constexpr int MONSTER_TYPE_MAX = MonsterBabi; // names, glyphs, threat, boss: monster_kinds.h
+constexpr int MONSTER_TYPE_MAX = MonsterMimicJar; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

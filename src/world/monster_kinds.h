@@ -6,6 +6,7 @@
 // row into a MonsterType (entities/monster.h); levelgen picks from the rows.
 
 #include "../core/gameplay_config.h"
+#include "containers.h"
 #include "curses.h"
 #include "damage.h"
 #include "level.h"
@@ -361,6 +362,8 @@ struct MonsterKind {
 	int kin = 0;
 	BossRules boss{}; // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
 	GenPick generated{}; // levelgen's random monsters
+	// An ambusher's cover (ambushes()): the container it passes for, the one it leaves killed (the mimic jar's jar).
+	Container disguise = Container::Chest;
 
 	[[nodiscard]] constexpr bool isBoss() const { return boss.minion != 0; }
 };

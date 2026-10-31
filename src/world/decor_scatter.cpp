@@ -5,6 +5,7 @@
 #include "tile_defs.h"
 #include "../core/gameplay_config.h"
 #include <algorithm>
+#include <cstdlib>
 #include <cstdint>
 #include <cstring>
 #include <iterator>
@@ -245,14 +246,19 @@ int scatterTreasures(const Tile* cells, uint32_t seed, int tier, TreasureLook* t
 			for (int k = 0; k < CONTAINER_COUNT; k++)
 				kinds[k] = static_cast<uint32_t>(CONTAINER_PERCENT[tier][k]);
 			const int kind = weightedPick(kinds, CONTAINER_COUNT, h);
+			const bool lengthwise = CONTAINER_DEFS[kind].lengthwise;
 			uint32_t stances[STANCE_COUNT];
 			for (int k = 0; k < STANCE_COUNT; k++) {
 				const StanceDef& st = STANCES[k];
-				stances[k] = st.wallSide == 0 || rockAt(cells, i + st.wallSide, j) ? static_cast<uint32_t>(st.weight)
-																				   : 0;
+				const bool fits = (st.wallSide == 0 || rockAt(cells, i + st.wallSide, j)) &&
+								  (!lengthwise || std::abs(st.yaw) < 90);
+				stances[k] = fits ? static_cast<uint32_t>(st.weight) : 0;
 			}
 			const StanceDef& stance = STANCES[weightedPick(stances, STANCE_COUNT, mix(h))];
-			look = {static_cast<Container>(kind), stance.yaw, stance.x, stance.z};
+			// A coffin's text (plan tomb-curse-containers): its own roll, the other looks stay as they were.
+			const bool inscribed = static_cast<Container>(kind) == Container::Coffin &&
+								   mix(mix(h)) % 100U < static_cast<uint32_t>(COFFIN_INSCRIBED_PERCENT);
+			look = {static_cast<Container>(kind), stance.yaw, stance.x, stance.z, inscribed};
 			chests += isTreasure(at(cells, i, j)) ? 1 : 0;
 		}
 	return chests;

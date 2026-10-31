@@ -607,13 +607,14 @@ void scaleKind(int id, double hp, double damage) {
 		type.roar->damage = scaled(kind.roar->damage, damage);
 }
 
-// The first zone a kind lives in (ZONE_FAUNA; the mimic in the first with mimics, the cursed one in the first with
-// cursed ones; a boss in its own), -1 for none.
+// The first zone a kind lives in (ZONE_FAUNA; the mimic in the first with mimics, the cursed one and the jar in the
+// first with them; a boss in its own), -1 for none.
 int homeZone(const MonsterKind& kind) {
 	for (int z = 0; z < ZONE_ID_COUNT; z++) {
 		const ZoneFauna& fauna = zoneFauna(static_cast<ZoneId>(z));
 		if (zoneBoss(static_cast<ZoneId>(z)) == kind.id || (kind.id == MonsterMimic && fauna.mimicPercent > 0) ||
-			(kind.id == MonsterCursedMimic && fauna.cursedPercent > 0))
+			(kind.id == MonsterCursedMimic && fauna.cursedPercent > 0) ||
+			(kind.id == MonsterMimicJar && fauna.jarPercent > 0))
 			return z;
 		for (const ZoneMonster& m : fauna.monsters)
 			if (m.type == kind.id && m.type != 0)
@@ -719,6 +720,8 @@ int table(bool play) {
 				printRow(zoneSlug(zone.id), *monsterKind(m.type), s);
 		if (zoneFauna(zone.id).mimicPercent > 0)
 			printRow(zoneSlug(zone.id), *monsterKind(MonsterMimic), s);
+		if (zoneFauna(zone.id).jarPercent > 0)
+			printRow(zoneSlug(zone.id), *monsterKind(MonsterMimicJar), s);
 		if (const int boss = zoneBoss(zone.id); boss != 0)
 			printRow(zoneSlug(zone.id), *monsterKind(boss), statsAt(zone.last));
 	}

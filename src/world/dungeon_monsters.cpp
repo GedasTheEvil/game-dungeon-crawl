@@ -73,6 +73,12 @@ void Dungeon::UpdateMonsters() {
 					mon,
 					RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay, mon.Type()->ringDropPercent)
 				);
+			else if (mon.Type()->disguise == Container::Jar) // its die clip ends in the container's smashed jar
+				placeDroppedChest(
+					MapIndex(mon.Col(), mon.SpawnRow()),
+					fileIdOf(RollMimicJarLoot(sim.random->gameplay)),
+					Container::Jar
+				);
 			else
 				placeDroppedChest(
 					MapIndex(mon.Col(), mon.SpawnRow()),

@@ -44,6 +44,8 @@ ItemKind RollBossAmulet(int level, Rng& rng);
 // The item in the chest a killed mimic leaves: a weapon the player holds or any potion but the antidote, even odds for
 // weapon or potion. The club, if nothing is held.
 ItemKind RollMimicLoot(const OwnedWeapons& owned, Rng& rng);
+// The jar a killed mimic jar leaves (plan tomb-curse-containers), smaller fry: any potion but the antidote.
+ItemKind RollMimicJarLoot(Rng& rng);
 
 // The cursed mimic's chest (plan cursed-mimic), a grade better: CURSED_MIMIC_AMULET_CHANCE percent a lesser or minor
 // amulet (as RollChestAmulet's on level `level`), else ringPercent a ring (RollRing), else the mimic's loot.
@@ -78,7 +80,8 @@ constexpr int CHEST_TRAP_PERCENT[DECOR_TIER_COUNT][CHEST_TRAP_COUNT] = {
 constexpr int TRAPPED_CHEST_FULL_PERCENT = 50;
 // Each a chance on the gameplay stream when the chest opens, in this order: the contents (TRAPPED_CHEST_FULL_PERCENT),
 // the trap ward (AmuletBonus::trapCutPercent: the trap does not go off), the trap (RollChestTrap), then the trap's own.
-// Canopic jars and pottery jars always curse, with disease; the other containers by depth.
+// Canopic jars and pottery jars always curse, with disease, the coffins (plan tomb-curse-containers) as a chest's
+// curse; the other containers by depth.
 ChestTrap RollChestTrap(Container kind, int level, Rng& rng);
 // A chest's curse: disease from canopic jars and pottery jars, else weakness, clumsiness, vulnerability, fatigue or
 // slowness at even odds.

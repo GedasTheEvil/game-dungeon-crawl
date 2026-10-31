@@ -7,14 +7,17 @@
 
 namespace {
 // The containers in a save: one character per cell after the tag. An opened container is saved as open, its clip
-// played.
+// played. A dropped one: the chest, or a dead mimic jar's jar (plan tomb-curse-containers).
 constexpr std::string_view CONTAINERS_TAG = "containers:";
-constexpr char CLOSED = '.', OPENED = 'o', EMPTIED = 'e', DROPPED = 'd', DROPPED_EMPTIED = 'x';
+constexpr char CLOSED = '.', OPENED = 'o', EMPTIED = 'e', DROPPED = 'd', DROPPED_EMPTIED = 'x', DROPPED_JAR = 'j',
+			   DROPPED_JAR_EMPTIED = 'k';
 } // namespace
 
 char Dungeon::containerChar(const ContainerCell& c) {
 	if (!c.opened)
 		return CLOSED;
+	if (c.dropped && c.droppedKind == Container::Jar)
+		return c.emptied ? DROPPED_JAR_EMPTIED : DROPPED_JAR;
 	if (c.dropped)
 		return c.emptied ? DROPPED_EMPTIED : DROPPED;
 	return c.emptied ? EMPTIED : OPENED;
@@ -22,9 +25,11 @@ char Dungeon::containerChar(const ContainerCell& c) {
 //======================================================================================
 Dungeon::ContainerCell Dungeon::containerFromChar(char c) {
 	ContainerCell cell;
-	cell.opened = c == OPENED || c == EMPTIED || c == DROPPED || c == DROPPED_EMPTIED;
-	cell.emptied = c == EMPTIED || c == DROPPED_EMPTIED;
-	cell.dropped = c == DROPPED || c == DROPPED_EMPTIED;
+	const bool jar = c == DROPPED_JAR || c == DROPPED_JAR_EMPTIED;
+	cell.opened = c == OPENED || c == EMPTIED || c == DROPPED || c == DROPPED_EMPTIED || jar;
+	cell.emptied = c == EMPTIED || c == DROPPED_EMPTIED || c == DROPPED_JAR_EMPTIED;
+	cell.dropped = c == DROPPED || c == DROPPED_EMPTIED || jar;
+	cell.droppedKind = jar ? Container::Jar : Container::Chest;
 	cell.openedMs = GameClock::now() - CONTAINER_OPENED_LONG_AGO_MS;
 	return cell;
 }

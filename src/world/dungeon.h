@@ -84,7 +84,8 @@ class Dungeon {
 	struct ContainerCell {
 		bool opened = false; // its clip started at openedMs: the item shows once it has played
 		bool emptied = false; // the item was taken: the open container stays
-		bool dropped = false; // a kill's or a dead mimic's chest: DROPPED_LOOK, open from the start
+		bool dropped = false; // a kill's or a dead mimic's chest: droppedLook(droppedKind), open from the start
+		Container droppedKind = Container::Chest; // the chest, or a dead mimic jar's smashed jar
 		int openedMs = 0; // GameClock
 	};
 	ContainerCell containers[MAP_CELL_COUNT];
@@ -92,8 +93,8 @@ class Dungeon {
 	static char containerChar(const ContainerCell& c); // in a save (dungeon_io.cpp)
 	static ContainerCell containerFromChar(char c);
 	void openContainer(); // Interact Open on a closed treasure: its clip starts
-	// A chest a kill or a dead mimic leaves on cell (map index): open, its item showing.
-	void placeDroppedChest(int cell, ItemFileId item);
+	// A chest a kill or a dead mimic leaves on cell (map index): open, its item showing. kind: a mimic jar's jar.
+	void placeDroppedChest(int cell, ItemFileId item, Container kind = Container::Chest);
 	// Trapped chests (plan trapped-chests, dungeon_chest_traps.cpp): openContainer on a TrappedTreasure rolls its
 	// contents and its trap (loot.h), the trap goes off unless the trap ward stops it.
 	void springChestTrap(int cell);
@@ -113,6 +114,14 @@ class Dungeon {
 	void drawChestGas(); // after the opaque scene, drawSummonEffects' frame
 	// 0 .. 1: how much a closed trapped container in cell shows its tell (darker), by the player's distance.
 	[[nodiscard]] float chestTell(int cell) const;
+	// Tomb-curse coffins (plan tomb-curse-containers): a coffin with an execration text on its lid, an inscribed one
+	// or a trapped one (whose trap is its curse). Opening an inscribed one curses unless the trap ward stops it; its
+	// loot is a trapped chest's.
+	[[nodiscard]] bool cursedCoffin(int cell) const;
+	void coffinCurse();
+	// 0 .. 1: how much of the text shows on a cursed coffin's lid in cell, by the player's distance (as chestTell).
+	[[nodiscard]] float coffinTell(int cell) const;
+	[[nodiscard]] float tellNear(int cell) const; // 1 within CHEST_TELL_NEAR of the cell, 0 from CHEST_TELL_FAR
 	[[nodiscard]] bool containerShows(int cell) const; // opened and its clip played: the item shows
 	// 0 closed .. 1 open, the cell's clip.
 	[[nodiscard]] float containerOpening(int cell) const;
@@ -650,9 +659,13 @@ class Dungeon {
 	[[nodiscard]] bool ContainerStands(int col, int row) const {
 		return IsInBounds(col, row) && (isTreasure(MapAt(col, row)) || containers[MapIndex(col, row)].emptied);
 	}
+	// The look of the container in (col, row), and how much of a cursed coffin's text shows there (coffinTell).
+	[[nodiscard]] TreasureLook LookAt(int col, int row) const { return treasureLook(MapIndex(col, row)); }
+	[[nodiscard]] float CoffinTellAt(int col, int row) const { return coffinTell(MapIndex(col, row)); }
 	// Scenario `container`: the treasure in (col, row) looks like `kind` (CONTAINER_NAMES) in STANCES[stance],
-	// whatever the level's scatter picked. False if the cell is outside the level or the stance unknown.
-	bool PlaceContainer(int col, int row, int kind, int stance);
+	// whatever the level's scatter picked; a coffin inscribed or not. False if the cell is outside the level or the
+	// stance unknown.
+	bool PlaceContainer(int col, int row, int kind, int stance, bool inscribed = false);
 	// The highest decoration tier (decor.h) among the level's props, decals and surfaces; -1 for a bare level.
 	[[nodiscard]] int DecorTierUsed() const;
 	void Update();

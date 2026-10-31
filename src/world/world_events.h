@@ -39,11 +39,13 @@ enum class WorldSound : unsigned char {
 	Dodge, // the player sidesteps a blow (Dodge skill)
 	PowerHit, // a charged melee hit lands (plan skill-power-hit): a heavy thump
 	// A treasure container opens (plan treasure-containers): a wooden lid creaks up (chest, coffer), reed or linen
-	// rustles (basket, the offering table's cover), the canopic jars' stone heads scrape off, the sealed jar smashes.
+	// rustles (basket, the offering table's cover), the canopic jars' stone heads scrape off, the sealed jar smashes, a
+	// coffin's heavy lid scrapes off and thuds on the floor (plan tomb-curse-containers).
 	LidWood,
 	LidReed,
 	LidStone,
 	JarSmash,
+	LidCoffin,
 	PagePickup, // a torn notebook page picked up (plan expedition-notes): the journal's paper rustle
 	DungThud, // a dung ball breaks on a wall, the floor or the player (plan scarab-dung-ball)
 	RingsDown, // a ring platform's rings drop round the player, hum and flash (plan ring-transporter)

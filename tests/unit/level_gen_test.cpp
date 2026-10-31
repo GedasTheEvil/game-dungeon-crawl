@@ -115,7 +115,8 @@ TEST_CASE("a zone level's terrain and monsters follow the zone table") {
 				discs += t.fixture.type == SunDisc ? 1 : 0;
 				coffins += t.dressing.prop == DECOR_COFFIN_MUMMY ? 1 : 0;
 				figures += t.dressing.prop == DECOR_USHABTI ? 1 : 0;
-				if (t.type != MonsterSpawn || t.attr == MonsterMimic || t.attr == MonsterCursedMimic)
+				if (t.type != MonsterSpawn || t.attr == MonsterMimic || t.attr == MonsterCursedMimic ||
+					t.attr == MonsterMimicJar)
 					continue;
 				bool inSet = false;
 				for (const ZoneMonster& m : fauna.monsters)

@@ -534,7 +534,8 @@ bool runInstant(const Command& cmd) {
 			static_cast<int>(cmd.a),
 			static_cast<int>(std::floor(y)),
 			cmd.ticks,
-			static_cast<int>(cmd.b)
+			static_cast<int>(cmd.b),
+			cmd.arg == "inscribed"
 		);
 		report(cmd, placed, placed ? "" : "outside the level");
 		return true;

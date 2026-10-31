@@ -22,6 +22,7 @@ constexpr int ANUBIS_BOSS_BURN_MS = 5000; // its guard's: BURN_MS
 constexpr DamageMix CROCODILE_MIX = {50, 0, 50}; // crushing jaws
 constexpr DamageMix SCORPION_MIX = {0, 30, 70}; // claws, sting
 constexpr DamageMix MIMIC_MIX = {40, 0, 60}; // lid slam, teeth
+constexpr DamageMix MIMIC_JAR_MIX = {20, 0, 80}; // the stopper, fangs
 constexpr DamageMix COBRA_MIX = {0, 0, 100}; // fangs
 constexpr DamageMix EGG_CLUSTER_MIX = {100, 0, 0}; // never bites
 constexpr DamageMix LOTUS_MIX = {0, 30, 70}; // fangs in the petals
@@ -50,6 +51,12 @@ constexpr Resistances BAT_RESIST =
 	{WEAK, RESISTS, TOUGH, WEAK}; // swat it; an arrow goes through the wing, and thin membranes burn
 constexpr Resistances MIMIC_RESIST =
 	{WEAK, RESISTS, TOUGH, WEAK}; // wood: crack it; a point only sticks in it, and dry wood burns
+constexpr Resistances MIMIC_JAR_RESIST = {
+	WEAK,
+	RESISTS,
+	TOUGH,
+	WEAK
+}; // fired clay: a blow shatters it, an edge or a point glances off; fire scorches its mouth
 constexpr Resistances ANUBIS_RESIST =
 	{WEAK, RESISTS, NORMAL, TOUGH}; // bronze dents, a blade glances off, stone does not burn
 constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH, WEAK}; // dry linen tears and burns; nothing inside to stab
@@ -1282,6 +1289,30 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbGrip = 0.0427f,
 	 .kin = MonsterBaboon,
 	 .boss = {MonsterBaboon, 2, 2, 5000, 8, 0, Summon::DigOut}},
+	// The mimic jar (plan tomb-curse-containers): the Chest of Set's smaller kin in the tombs, a sealed pottery jar
+	// (the container's scale and yaw) until opened or hit; it bites where it stands. Killed, it leaves its smashed jar
+	// with a potion. Hand-placed in the tomb zones; levelgen turns some of the mimics there into it (jarPercent).
+	{.id = MonsterMimicJar,
+	 .glyph = '}',
+	 .name = "Jar of Set",
+	 .label = "mimic jar",
+	 .description = "Jar of Set, a sealed pottery jar until the player opens it or hits it, then bites",
+	 .threat = 1.5f, // the mimic's ambush, a weaker bite
+	 .model = "monsters/mimic_jar",
+	 .texture = "monsters/mimic_jar",
+	 .scale = 7.5f,
+	 .rotA = 0,
+	 .blood = {0.5f, 0.05f, 0.1f},
+	 .speed = 0,
+	 .maxHealth = 380,
+	 .damage = 45,
+	 .attackMs = 800,
+	 .xp = 1100,
+	 .attackMix = MIMIC_JAR_MIX,
+	 .resist = MIMIC_JAR_RESIST,
+	 .locomotion = Locomotion::Ambush,
+	 .poisonResistPercent = POISON_IMMUNE,
+	 .disguise = Container::Jar},
 }};
 
 constexpr bool validKinds() {

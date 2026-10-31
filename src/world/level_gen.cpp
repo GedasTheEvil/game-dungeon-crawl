@@ -27,6 +27,10 @@ constexpr float MIMIC_CHANCE = 0.15f; // of the treasure chests from MIMIC_MIN_D
 // Of those mimics from CURSED_MIMIC_MIN_DIFFICULTY on, the share that is cursed (plan cursed-mimic).
 constexpr int CURSED_MIMIC_MIN_DIFFICULTY = 8;
 constexpr float CURSED_MIMIC_SHARE = 0.3f;
+// Of the other mimics from MIMIC_JAR_MIN_DIFFICULTY on, the share that is a mimic jar (plan tomb-curse-containers):
+// with the tombs' decorations (decorTier).
+constexpr int MIMIC_JAR_MIN_DIFFICULTY = 6;
+constexpr float MIMIC_JAR_SHARE = 0.3f;
 
 // Zone levels (plan campaign-levelgen): the campaign's shape.
 constexpr int HALL_FULL = MAX_COL - MIN_COL + 1; // a hall across the whole grid
@@ -1629,11 +1633,17 @@ class LevelBuilder {
 		if (fauna != nullptr) {
 			if (!mimicRng.percent(fauna->mimicPercent))
 				return chest;
-			return Tile{MonsterSpawn, mimicRng.percent(fauna->cursedPercent) ? MonsterCursedMimic : MonsterMimic, 0};
+			if (mimicRng.percent(fauna->cursedPercent))
+				return Tile{MonsterSpawn, MonsterCursedMimic, 0};
+			// The tombs' mimic jars (plan tomb-curse-containers): rolled only where there are some, so the other
+			// zones' mimics come out as before.
+			const bool jar = fauna->jarPercent > 0 && mimicRng.percent(fauna->jarPercent);
+			return Tile{MonsterSpawn, jar ? MonsterMimicJar : MonsterMimic, 0};
 		}
 		if (d >= MIMIC_MIN_DIFFICULTY && mimicRng.chance(MIMIC_CHANCE)) {
 			const bool cursed = d >= CURSED_MIMIC_MIN_DIFFICULTY && mimicRng.chance(CURSED_MIMIC_SHARE);
-			return Tile{MonsterSpawn, cursed ? MonsterCursedMimic : MonsterMimic, 0};
+			const bool jar = !cursed && d >= MIMIC_JAR_MIN_DIFFICULTY && mimicRng.chance(MIMIC_JAR_SHARE);
+			return Tile{MonsterSpawn, cursed ? MonsterCursedMimic : jar ? MonsterMimicJar : MonsterMimic, 0};
 		}
 		return chest;
 	}

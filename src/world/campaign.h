@@ -111,13 +111,14 @@ struct ZoneFauna {
 	ZoneMonster monsters[ZONE_MONSTER_MAX]; // type 0 after the last
 	int mimicPercent; // of the chests
 	int cursedPercent; // of the mimics
+	int jarPercent = 0; // of the plain mimics: mimic jars, in the tombs (plan tomb-curse-containers)
 };
 // By ZoneId.
 constexpr ZoneFauna ZONE_FAUNA[ZONE_ID_COUNT] = {
 	{{{MonsterRat, 4}, {MonsterScarab, 4}, {MonsterBat, 3}, {MonsterPlant, 2}}, 10, 0},
 	{{{MonsterBat, 4}, {MonsterGiantBat, 3}, {MonsterWorm, 2}, {MonsterGiantRat, 3}, {MonsterCrocodile, 2}}, 15, 0},
 	{{{MonsterCamelSpider, 4}, {MonsterGiantScarab, 3}, {MonsterGiantRat, 1}}, 30, 0},
-	{{{MonsterMummy, 4}, {MonsterUshabti, 2}, {MonsterAnubis, 1}, {MonsterGiantScarab, 1}}, 15, 0},
+	{{{MonsterMummy, 4}, {MonsterUshabti, 2}, {MonsterAnubis, 1}, {MonsterGiantScarab, 1}}, 15, 0, 40},
 	{{{MonsterScorpion, 4}, {MonsterGiantScorpion, 3}, {MonsterGiantScarab, 1}}, 15, 0},
 	{{{MonsterCobra, 4}, {MonsterGiantCobra, 2}, {MonsterCrocodile, 2}, {MonsterGiantBat, 1}}, 15, 0},
 	{{{MonsterCrocodile, 4}, {MonsterHippo, 1}, {MonsterGiantCobra, 3}, {MonsterLotus, 2}, {MonsterGiantBat, 1}},
@@ -126,7 +127,7 @@ constexpr ZoneFauna ZONE_FAUNA[ZONE_ID_COUNT] = {
 	{{{MonsterCamelSpider, 3}, {MonsterGiantScorpion, 3}, {MonsterHippo, 2}, {MonsterWorm, 1}}, 15, 10},
 	{{{MonsterWorm, 4}, {MonsterCamelSpider, 3}, {MonsterGiantScorpion, 1}}, 15, 10},
 	{{{MonsterBaboon, 3}, {MonsterGiantCobra, 3}, {MonsterGiantBat, 2}}, 15, 20},
-	{{{MonsterAnubis, 3}, {MonsterMummy, 4}, {MonsterBaboon, 1}, {MonsterGiantScorpion, 1}}, 25, 60},
+	{{{MonsterAnubis, 3}, {MonsterMummy, 4}, {MonsterBaboon, 1}, {MonsterGiantScorpion, 1}}, 25, 60, 50},
 	{{{MonsterAnubis, 4}, {MonsterMummy, 2}, {MonsterGiantCobra, 2}, {MonsterBaboon, 1}, {MonsterCamelSpider, 1}},
 	 20,
 	 50},

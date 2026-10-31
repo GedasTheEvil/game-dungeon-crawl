@@ -30,7 +30,7 @@ struct SoundBank {
 	Sound mirrorTurn, sunDisc; // a mirror turned, a sun disc lit (plan sunlight-mirrors)
 	Sound dodge; // a body whoosh: the player dodges a blow
 	Sound powerCharge, powerSwing, powerHit; // a power hit's charge, its swing, its impact (plan skill-power-hit)
-	Sound lidWood, lidReed, lidStone, jarSmash; // a treasure container opens (WorldSound)
+	Sound lidWood, lidReed, lidStone, jarSmash, lidCoffin; // a treasure container opens (WorldSound)
 	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor
 	Sound stoneHit, stoneWall; // a sling stone or throwing stick in a monster, off a wall
 	Sound summonDig, summonDrop; // a boss's minion digs out of the floor, drops from the ceiling (Summon)
@@ -58,6 +58,8 @@ struct FontSet {
 
 struct ItemPrototypes {
 	std::array<std::unique_ptr<Item>, CONTAINER_COUNT> containers; // by Container (containers.h)
+	// The coffin with the execration text on its lid (plan tomb-curse-containers): its model, the cursed texture.
+	std::unique_ptr<Item> cursedCoffin;
 	std::array<std::unique_ptr<Item>, WEAPON_KIND_COUNT> weapons; // in ItemKind order
 	std::array<std::unique_ptr<Item>, POTION_KIND_COUNT> potions; // in ItemKind order; one vessel's share its model
 	std::array<std::unique_ptr<Item>, AMULET_TYPE_COUNT> amulets; // by AmuletType: its tiers share the model

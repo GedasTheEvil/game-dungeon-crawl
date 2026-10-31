@@ -1,0 +1,6 @@
+; Plan tomb-curse-containers (tests/unit/tomb_curse_test.cpp, tests/scenarios/tomb_curse.txt,
+; tests/play/tomb-curse-containers.txt): treasures in cols 2, 4 and 6, the player (col 8), a mimic jar (col 10), a
+; trapped treasure (col 12), treasures in cols 14 and 16; the tests and scripts give them their looks (`container`).
+#####################
+#.$.$.$.S.}.%.$.$.E.#
+#####################

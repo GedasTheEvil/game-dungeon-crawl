@@ -377,6 +377,13 @@ title: The dial
 text: A stone lectern before the ring, two circles of signs round a red dome. I pressed the dome. Nothing. I pressed
 	it again, harder. Indeed. Whatever it was built to call does not answer, and Abydos is not on this map.
 
+[note.coffins]
+title: Coffins
+text: Somebody moved out of this coffin long ago and left the furniture. The robbers missed a few things; so did I,
+	until I lifted the lid. Read a lid before lifting it. The prayers run down the legs in blue and black; a text in
+	red is the other kind, a curse on whoever disturbs the owner. The cursed ones keep a little more inside, which is
+	exactly what a curse would say.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

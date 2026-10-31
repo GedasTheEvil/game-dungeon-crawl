@@ -44,10 +44,10 @@ from common import REPO, Builder, ellipsoid, lathe, smoothstep, transform, tube 
 from decor import arc_len, box, place, prism, rot  # noqa: E402
 
 COLL = "containers_new"
-CONTAINERS = ["coffer", "basket", "canopic", "jar", "table"]
+CONTAINERS = ["coffer", "basket", "canopic", "jar", "table", "coffin"]
 # Frames of the opening clip, over CONTAINER_DEFS' openMs (~17 a second).
-FRAMES = {"coffer": 12, "basket": 11, "canopic": 16, "jar": 10, "table": 14}
-BAKE_POSE = {"coffer": 1.0, "basket": 1.0, "canopic": 1.0, "jar": 0.0, "table": 0.0}
+FRAMES = {"coffer": 12, "basket": 11, "canopic": 16, "jar": 10, "table": 14, "coffin": 16}
+BAKE_POSE = {"coffer": 1.0, "basket": 1.0, "canopic": 1.0, "jar": 0.0, "table": 0.0, "coffin": 1.0}
 UNITS_PER_M = 8.0 / 0.834  # the chest: 8 world units over its 0.834 m width (items.py)
 TEX_SIZE = 512
 SPACING = 1.6  # containers are spread along X in the scene (bake only; export is at the origin)
@@ -81,6 +81,10 @@ COL = {
     "linen_dark": (0.70, 0.64, 0.50),
     "bread": (0.62, 0.38, 0.14),
     "fig": (0.30, 0.12, 0.16),
+    "varnish": (0.74, 0.52, 0.16),
+    "varnish_dark": (0.50, 0.32, 0.08),
+    "skin": (0.50, 0.20, 0.08),
+    "curse_red": (0.66, 0.06, 0.03),
 }
 
 
@@ -118,6 +122,19 @@ def materials():
         "linen_hem": st("v", 0.01, [(2, "linen"), (1, "blue")]),
         "bread": ("solid", "bread"),
         "fig": ("solid", "fig"),
+        "varnish": ("solid", "varnish"),
+        "coffin_side": st("u", 0.14, [(6, "varnish"), (1, "blue"), (1, "varnish"), (1, "red")]),
+        "coffin_wig": st("v", 0.026, [(1, "lapis"), (1, "gold")]),
+        "coffin_collar": st("u", 0.024, [(1, "red"), (1, "yellow"), (1, "blue"), (1, "yellow"), (1, "green"), (1, "yellow")]),
+        # The column of text down the lid: an offering formula in blue and black on the varnish; on a cursed coffin
+        # (plan tomb-curse-containers, container_coffin_cursed.png) an execration text, black on red.
+        "coffin_text": st("u", 0.024, [(3, "varnish"), (1, "black"), (2, "varnish"), (1, "blue"), (1, "varnish"), (2, "black")]),
+        # Round the case under the lid: a band of prayers, on a cursed coffin the execration text again, the side the
+        # player sees.
+        "coffin_frieze": st("u", 0.03, [(3, "varnish"), (1, "blue"), (2, "varnish"), (1, "black")]),
+        "coffin_frieze_cursed": st("u", 0.03, [(3, "curse_red"), (1, "black"), (2, "curse_red"), (1, "black")]),
+        "coffin_text_cursed": st("u", 0.024, [(3, "curse_red"), (1, "black"), (2, "curse_red"), (1, "black"), (1, "curse_red"), (2, "black")]),
+        "skin": ("solid", "skin"),
     }
     return {name: common.make_material("cont_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -357,10 +374,11 @@ def shard(th0, th1, z0, z1, jit):
     return (verts, fixed, fuv), c, nrm
 
 
-def build_jar(b, M, opening=1.0):
+def build_jar(b, M, opening=1.0, stopper=None):
     """A large storage jar of red-brown pottery, black and ochre bands at the shoulder, the mouth sealed with a dome
     of mud and a stamped seal. It smashes: the shards above the foot fly outwards and land lying flat round it, the
-    upper ones farther; the stopper drops beside it. The foot stays standing, its top edge broken."""
+    upper ones farther; the stopper drops beside it. The foot stays standing, its top edge broken.
+    stopper: a 4x4 for the stopper instead (its seal's centre at the origin, the mimic jar's lid, mimic_jar.py)."""
     rnd = random.Random(SHARD_SEED)
     rows = jar_rows()
     n = JAR_COLS
@@ -405,16 +423,20 @@ def build_jar(b, M, opening=1.0):
             m = Matrix.Translation(pos) @ q.to_matrix().to_4x4() @ Matrix.Translation(-centre)
             merge_moved(b, p, m)
     # The mud stopper over the mouth, the seal pressed into its top; it drops and rolls to the left front.
-    top = rows[-1]
     plug = part()
     prof = [(0.0, -0.03), (0.105, -0.03), (0.135, 0.0), (0.13, 0.03), (0.09, 0.07), (0.0, 0.085)]
     revolve(plug, M, prof, ["mud"] * 5, n=20)
     revolve(plug, M, [(0.0, 0.082), (0.04, 0.082), (0.042, 0.092), (0.0, 0.094)], ["seal"] * 3, n=14)
+    merge_moved(b, plug, stopper if stopper is not None else jar_stopper(t))
+
+
+def jar_stopper(t):
+    """4x4 for the jar's stopper at t 0..1 (its seal's centre at the origin): it drops and rolls to the left front."""
     u = smoothstep(0.0, 0.9, t)
     drop = V((-0.36, -0.22, 0.03))
-    pos = V((0, 0, top)).lerp(drop, u)
+    pos = V((0, 0, jar_rows()[-1])).lerp(drop, u)
     pos.z += math.sin(math.pi * u) * 0.12
-    merge_moved(b, plug, Matrix.Translation(pos) @ rot(x=-70 * u, y=25 * u).to_4x4())
+    return Matrix.Translation(pos) @ rot(x=-70 * u, y=25 * u).to_4x4()
 
 
 # ---------------------------------------------------------------- offering table
@@ -488,7 +510,177 @@ def build_table(b, M, opening=1.0):
     b.add(cover(opening), M["linen"], "root")
 
 
-BUILDERS = {"coffer": build_coffer, "basket": build_basket, "canopic": build_canopic, "jar": build_jar, "table": build_table}
+# ---------------------------------------------------------------- coffin (plan tomb-curse-containers)
+
+# The outline from above (x, half width) and the lid's rise over its rim (x, height), head at -X: the wig, the
+# shoulders, the narrowing legs, the feet a little raised.
+COFFIN_W = [(-0.9, 0.07), (-0.88, 0.12), (-0.84, 0.155), (-0.78, 0.178), (-0.7, 0.182), (-0.63, 0.17), (-0.56, 0.2),
+            (-0.48, 0.238), (-0.4, 0.245), (-0.2, 0.232), (0.0, 0.218), (0.3, 0.19), (0.55, 0.16), (0.7, 0.146),
+            (0.78, 0.15), (0.85, 0.154), (0.9, 0.138)]
+COFFIN_RISE = [(-0.9, 0.035), (-0.88, 0.07), (-0.84, 0.1), (-0.78, 0.125), (-0.7, 0.13), (-0.63, 0.11), (-0.56, 0.1),
+               (-0.48, 0.11), (-0.4, 0.115), (-0.2, 0.11), (0.0, 0.1), (0.3, 0.085), (0.55, 0.075), (0.7, 0.075),
+               (0.78, 0.09), (0.85, 0.095), (0.9, 0.06)]
+COFFIN_RIM, COFFIN_FLOOR, COFFIN_WALL, COFFIN_LIP = 0.24, 0.05, 0.03, 0.022
+COFFIN_ACROSS = 10  # lid rows across
+
+
+def interp(keys, x):
+    for (x0, a), (x1, b) in zip(keys, keys[1:]):
+        if x <= x1:
+            return a + (b - a) * (x - x0) / (x1 - x0)
+    return keys[-1][1]
+
+
+def coffin_w(x):
+    return interp(COFFIN_W, x)
+
+
+def coffin_top(x, v):
+    """The lid's top over the rim at x, across v -1 (front) .. 1 (back)."""
+    return COFFIN_RIM + COFFIN_LIP + interp(COFFIN_RISE, x) * (1 - v * v) ** 0.6
+
+
+def faces_geo():
+    return [], [], []
+
+
+def quad(geo, pts, uvs, expected):
+    verts, faces, fuv = geo
+    base = len(verts)
+    verts.extend(V(p) for p in pts)
+    face = list(range(base, base + len(pts)))
+    f = common.orient(verts, face, V(expected))
+    faces.append(f)
+    fuv.append(uvs if f is face else uvs[::-1])
+
+
+def coffin_case(b, M):
+    """The open case: its walls round the outline, the varnished sides with painted panels and a band of text under the
+    rim, the inside black with resin."""
+    xs = [x for x, _ in COFFIN_W]
+    inner_x = [x * (0.9 - COFFIN_WALL) / 0.9 for x in xs]
+    outline = [(x, -coffin_w(x)) for x in xs] + [(x, coffin_w(x)) for x in reversed(xs)]
+    inline = [(xi, -max(coffin_w(x) - COFFIN_WALL, 0.02)) for x, xi in zip(xs, inner_x)]
+    inline += [(xi, -y) for xi, y in reversed(inline)]
+    band = COFFIN_RIM - 0.07
+    side, frieze, rim, inside, floor = (faces_geo() for _ in range(5))
+    n = len(outline)
+    arc = 0.0
+    for k in range(n):
+        (x0, y0), (x1, y1) = outline[k], outline[(k + 1) % n]
+        seg = math.hypot(x1 - x0, y1 - y0)
+        out = (y1 - y0, -(x1 - x0), 0)  # counter-clockwise outline: its right is outside
+        for geo, z0, z1 in ((side, 0.0, band), (frieze, band, COFFIN_RIM)):
+            quad(geo, [(x0, y0, z0), (x1, y1, z0), (x1, y1, z1), (x0, y0, z1)],
+                 [(arc, z0), (arc + seg, z0), (arc + seg, z1), (arc, z1)], out)
+        (a0, c0), (a1, c1) = inline[k], inline[(k + 1) % n]
+        quad(rim, [(x0, y0, COFFIN_RIM), (x1, y1, COFFIN_RIM), (a1, c1, COFFIN_RIM), (a0, c0, COFFIN_RIM)],
+             [(x0, y0), (x1, y1), (a1, c1), (a0, c0)], (0, 0, 1))
+        quad(inside, [(a0, c0, COFFIN_FLOOR), (a1, c1, COFFIN_FLOOR), (a1, c1, COFFIN_RIM), (a0, c0, COFFIN_RIM)],
+             [(a0, COFFIN_FLOOR), (a1, COFFIN_FLOOR), (a1, COFFIN_RIM), (a0, COFFIN_RIM)], (-out[0], -out[1], 0))
+        arc += seg
+    m = len(xs)
+    for i in range(m - 1):  # the inner floor and the bottom, strips across
+        (a0, c0), (a1, c1) = inline[i], inline[i + 1]
+        quad(floor, [(a0, c0, COFFIN_FLOOR), (a1, c1, COFFIN_FLOOR), (a1, -c1, COFFIN_FLOOR), (a0, -c0, COFFIN_FLOOR)],
+             [(a0, c0), (a1, c1), (a1, -c1), (a0, -c0)], (0, 0, 1))
+        (x0, y0), (x1, y1) = outline[i], outline[i + 1]
+        quad(floor, [(x0, y0, 0.0), (x1, y1, 0.0), (x1, -y1, 0.0), (x0, -y0, 0.0)], [(x0, y0), (x1, y1), (x1, -y1), (x0, -y0)],
+             (0, 0, -1))
+    b.add(side, M["coffin_side"], "root")
+    b.add(frieze, M["coffin_frieze"], "root")
+    b.add(rim, M["varnish"], "root")
+    b.add(inside, M["black"], "root")
+    b.add(floor, M["black"], "root")
+
+
+def coffin_lid(M, cursed=False):
+    """The lid, closed: an anthropoid figure lying on its back, a blue and gold striped wig, a gilt face, a broad
+    collar, the arms crossed on the chest, a column of text down the legs (an execration text in red when cursed)."""
+    p = part()
+    xs = [x for x, _ in COFFIN_W]
+    m, n = len(xs), COFFIN_ACROSS
+    vs = [-1 + 2 * j / n for j in range(n + 1)]
+    grid = [[V((x, v * coffin_w(x), coffin_top(x, v))) for v in vs] for x in xs]
+    regions = {}
+
+    def region(x, v):
+        if x < -0.63:
+            return "coffin_wig"
+        if x < -0.44:
+            return "coffin_collar"
+        if abs(v) < 0.45 and -0.3 < x < 0.74:
+            return "coffin_text_cursed" if cursed else "coffin_text"
+        return "varnish"
+
+    for i in range(m - 1):
+        for j in range(n):
+            pts = [grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]]
+            c = sum(pts, V()) / 4
+            geo = regions.setdefault(region(c.x, (vs[j] + vs[j + 1]) / 2), faces_geo())
+            quad(geo, pts, [(q.x, q.y) for q in pts], (0, 0, 1))
+    under = regions.setdefault("varnish", faces_geo())
+    for i in range(m - 1):  # the underside, flat on the rim, and the lip round it
+        x0, x1 = xs[i], xs[i + 1]
+        w0, w1 = coffin_w(x0), coffin_w(x1)
+        quad(under, [(x0, -w0, COFFIN_RIM), (x1, -w1, COFFIN_RIM), (x1, w1, COFFIN_RIM), (x0, w0, COFFIN_RIM)],
+             [(x0, -w0), (x1, -w1), (x1, w1), (x0, w0)], (0, 0, -1))
+        for s, j in ((-1, 0), (1, n)):
+            quad(under, [(x0, s * w0, COFFIN_RIM), (x1, s * w1, COFFIN_RIM), grid[i + 1][j], grid[i][j]],
+                 [(x0, COFFIN_RIM), (x1, COFFIN_RIM), (x1, grid[i + 1][j].z), (x0, grid[i][j].z)], (0, s, 0))
+    for i, s in ((0, -1), (m - 1, 1)):  # the head and foot ends
+        x, w = xs[i], coffin_w(xs[i])
+        for j in range(n):
+            a, c = grid[i][j], grid[i][j + 1]
+            quad(under, [(x, a.y, COFFIN_RIM), (x, c.y, COFFIN_RIM), c, a], [(a.y, COFFIN_RIM), (c.y, COFFIN_RIM), (c.y, c.z), (a.y, a.z)],
+                 (s, 0, 0))
+    for mat, geo in regions.items():
+        p.add(geo, M[mat], "root")
+    # The face, gilt, looking up; its nose and the false beard.
+    fx = -0.765
+    fz = coffin_top(fx, 0.0)
+    p.add(ellipsoid((fx, 0, fz - 0.005), (0.07, 0.085, 0.04), n=14, rings=6, axis=V((0, 0, 1)), ref=V((1, 0, 0))), M["gold"], "root")
+    p.add(ellipsoid((fx + 0.005, 0, fz + 0.035), (0.012, 0.02, 0.014), n=8, rings=4), M["gold"], "root")
+    p.add(tube([((fx + 0.07, 0, fz + 0.005), 0.014, 0.012), ((fx + 0.12, 0, fz + 0.012), 0.012, 0.011)], sub=1, n=8,
+               ref=V((0, 0, 1))), M["blue"], "root")
+    for sy in (-1, 1):  # the eyes, black outlined
+        p.add(ellipsoid((fx - 0.02, sy * 0.032, fz + 0.03), (0.01, 0.017, 0.006), n=8, rings=3), M["black"], "root")
+    # The arms crossed on the chest, the fists at the shoulders.
+    for sy in (-1, 1):
+        sh = V((-0.44, sy * 0.19, coffin_top(-0.44, sy * 0.78)))
+        el = V((-0.22, sy * 0.15, coffin_top(-0.22, sy * 0.65) + 0.004))
+        fist = V((-0.38, -sy * 0.1, coffin_top(-0.38, -sy * 0.41) + 0.016))
+        p.add(tube([(sh, 0.03, 0.016), (el, 0.03, 0.016), (fist + V((0.03, sy * 0.02, -0.004)), 0.027, 0.015)], sub=3, n=8,
+                   ref=V((0, 0, 1))), M["skin"], "root")
+        p.add(ellipsoid(fist, (0.034, 0.03, 0.02), n=8, rings=4), M["skin"], "root")
+    return p
+
+
+def coffin_lid_motion(t):
+    """4x4 for the lid at t 0..1: a rattle at the seal, lifted and pushed back off the case, down on the floor behind
+    it, tilted against the case's back."""
+    if t < 0.15:
+        return Matrix.Translation(V((0, 0, 0.006 * math.sin(math.pi * t / 0.15))))
+    u = ease_out((t - 0.15) / 0.85)
+    slide, drop = smoothstep(0.0, 0.6, u), smoothstep(0.6, 1.0, u)  # it clears the case's back before it drops
+    lift = 0.1 * math.sin(math.pi * slide)
+    back = V((0.04 * u, 0.52 * slide, -(COFFIN_RIM - 0.061) * drop + lift))
+    tilt = rot(x=-14 * drop, z=6 * u).to_4x4()
+    pivot = V((0, 0, COFFIN_RIM))
+    return Matrix.Translation(back) @ about(pivot, tilt.to_3x3())
+
+
+def build_coffin(b, M, opening=1.0, cursed=False):
+    """An anthropoid coffin of varnished wood lying on the floor, head to the left: its lid a figure with a wig, a gilt
+    face, a collar, crossed arms and a column of text. Opening it, the lid rattles, lifts, is pushed back off and lies
+    against the back of the case, the inside black with resin. A cursed one (the tomb curse) has its texts in red: the
+    column on the lid, the band round the case."""
+    coffin_case(b, M)
+    merge_moved(b, coffin_lid(M, cursed), coffin_lid_motion(opening))
+
+
+BUILDERS = {"coffer": build_coffer, "basket": build_basket, "canopic": build_canopic, "jar": build_jar, "table": build_table,
+            "coffin": build_coffin}
 _MATS = {}
 
 
@@ -519,6 +711,8 @@ def build(bake=True, tex_dir=None, only=None):
         if bake:
             out = tex_dir or bpy.app.tempdir or "/tmp"
             stem = "container_" + name
+            if name == "coffin":
+                bake_cursed(obj, out)
             tex = common.bake_texture(obj, os.path.join(out, stem + ".png"), TEX_SIZE, "item_" + stem, ao_distance=0.12)
             common.use_baked_material(obj, tex)
             obj["texture"] = tex.name
@@ -533,6 +727,24 @@ def build(bake=True, tex_dir=None, only=None):
             print("container_table: item lift {:.2f}".format(TABLE_TOP * UNITS_PER_M))
         objs[name] = obj
     return objs
+
+
+def bake_cursed(obj, out):
+    """container_coffin_cursed.png: the coffin's texture on the same UVs with the execration text on the lid (the
+    engine fades it in close by, plan tomb-curse-containers)."""
+    M = materials_cache()
+    copy = obj.copy()
+    copy.data = obj.data.copy()
+    obj.users_collection[0].objects.link(copy)
+    for name in ("coffin_text", "coffin_frieze"):
+        slot = list(copy.data.materials).index(M[name])
+        copy.data.materials[slot] = M[name + "_cursed"]
+    common.bake_texture(copy, os.path.join(out, "container_coffin_cursed.png"), TEX_SIZE, "item_container_coffin_cursed",
+                        ao_distance=0.12)
+    data = copy.data
+    bpy.data.objects.remove(copy)
+    bpy.data.meshes.remove(data)
+    bpy.context.view_layer.update()
 
 
 def write_frames(obj, path, g, name):

@@ -187,6 +187,16 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 		glColor3f(shade, shade * 0.9f, shade * 0.85f);
 	}
 	container.Draw(containerOpening(cell));
+	// A cursed coffin's execration text (plan tomb-curse-containers): its red lid over the plain one, only up close.
+	if (const float text = coffinTell(cell); text > 0.f) {
+		Item& cursed = *sim.assets->items.cursedCoffin;
+		cursed.rotA = look.yaw;
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glColor4f(1, 1, 1, text);
+		cursed.Draw(containerOpening(cell)); // the same model and frame: the depth test (GL_LEQUAL) lets it on top
+		glDisable(GL_BLEND);
+	}
 	glColor3f(1, 1, 1);
 
 	const Tile tile = MapAt(i, j);

@@ -230,6 +230,10 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading item models", "Containers, potions, amulets and rings");
 	for (size_t i = 0; i < CONTAINER_COUNT; i++) // face the camera at rotA 0 (tools/blender/models/containers.py)
 		items.containers[i] = loadItem(CONTAINER_DEFS[i].model, CONTAINER_DEFS[i].scale);
+	const Item& coffin = *items.containers[static_cast<size_t>(Container::Coffin)];
+	items.cursedCoffin = std::make_unique<Item>();
+	items.cursedCoffin->shareModel(coffin, "container_coffin_cursed");
+	items.cursedCoffin->scale = coffin.scale;
 	loadPotions(items);
 	for (size_t i = 0; i < AMULET_TYPE_COUNT; i++)
 		items.amulets[i] = loadItem(amuletModel(static_cast<AmuletType>(i)), AMULET_SCALE);
@@ -369,6 +373,7 @@ void loadSounds(SoundBank& sounds) {
 	sounds.lidReed.Load(MEDIA_DIR "sounds/items/lid_reed.wav");
 	sounds.lidStone.Load(MEDIA_DIR "sounds/items/lid_stone.wav");
 	sounds.jarSmash.Load(MEDIA_DIR "sounds/items/jar_smash.wav");
+	sounds.lidCoffin.Load(MEDIA_DIR "sounds/items/lid_coffin.wav");
 	sounds.shotDry.Load(MEDIA_DIR "sounds/items/shot_dry.wav");
 	sounds.shotTooClose.Load(MEDIA_DIR "sounds/items/shot_too_close.wav");
 	sounds.dungThud.Load(MEDIA_DIR "sounds/monsters/scarab_ball_thud.wav");

@@ -19,9 +19,10 @@ bool Dungeon::PickUp() {
 	if (!isTreasure(Map(mapX, mapY)))
 		return false;
 	sim.player->stats.run.treasures++;
-	const bool trapped = Map(mapX, mapY).type == TrappedTreasure; // one bonus more (plan trapped-chests)
-	std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
 	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
+	// One bonus more (plans trapped-chests, tomb-curse-containers): a trapped chest's, a cursed coffin's.
+	const bool trapped = Map(mapX, mapY).type == TrappedTreasure || cursedCoffin(cell);
+	std::optional<ItemKind> placed = itemFromFile(Map(mapX, mapY).attr, Map(mapX, mapY).value);
 	clearObject(map[cell]);
 	containers[cell].opened = true; // the open container stays, empty
 	containers[cell].emptied = true;
@@ -158,14 +159,20 @@ void Dungeon::openContainer() {
 	case Container::Jar:
 		sim.events->Play(WorldSound::JarSmash);
 		break;
+	case Container::Coffin:
+		sim.events->Play(WorldSound::LidCoffin);
+		sim.events->Note(FieldNote::Coffins);
+		break;
 	}
 	if (map[cell].type == TrappedTreasure)
 		springChestTrap(cell);
+	else if (cursedCoffin(cell)) // a trapped coffin's trap is its curse (RollChestTrap): no second roll
+		coffinCurse();
 }
 //======================================================================================
-void Dungeon::placeDroppedChest(int cell, ItemFileId item) {
+void Dungeon::placeDroppedChest(int cell, ItemFileId item, Container kind) {
 	setObject(map[cell], Tile{Treasure, item.type, item.id});
-	containers[cell] = {true, false, true, GameClock::now() - containerDef(DROPPED_LOOK.kind).openMs};
+	containers[cell] = {true, false, true, kind, GameClock::now() - containerDef(kind).openMs};
 }
 //======================================================================================
 float Dungeon::containerOpening(int cell) const {
@@ -178,14 +185,16 @@ float Dungeon::containerOpening(int cell) const {
 bool Dungeon::containerShows(int cell) const { return containerOpening(cell) >= 1.f; }
 //======================================================================================
 TreasureLook Dungeon::treasureLook(int cell) const {
-	return containers[cell].dropped ? DROPPED_LOOK : decoration.treasure[cell];
+	return containers[cell].dropped ? droppedLook(containers[cell].droppedKind) : decoration.treasure[cell];
 }
 //======================================================================================
-bool Dungeon::PlaceContainer(int col, int row, int kind, int stance) {
+bool Dungeon::PlaceContainer(int col, int row, int kind, int stance, bool inscribed) {
 	if (!IsInBounds(col, row) || kind < 0 || kind >= CONTAINER_COUNT || stance < 0 || stance >= STANCE_COUNT)
 		return false;
 	const StanceDef& st = STANCES[stance];
-	decoration.treasure[MapIndex(col, row)] = {static_cast<Container>(kind), st.yaw, st.x, st.z};
+	const auto container = static_cast<Container>(kind);
+	decoration
+		.treasure[MapIndex(col, row)] = {container, st.yaw, st.x, st.z, inscribed && container == Container::Coffin};
 	return true;
 }
 //======================================================================================

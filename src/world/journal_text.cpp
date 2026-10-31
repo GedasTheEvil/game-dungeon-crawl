@@ -178,6 +178,7 @@ constexpr std::array<const char*, static_cast<int>(FieldNote::RingFirst) - stati
 		"rings",
 		"stargate",
 		"dial-device",
+		"coffins",
 };
 
 std::string fieldNoteKey(int note) {

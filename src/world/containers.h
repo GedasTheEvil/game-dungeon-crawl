@@ -17,9 +17,13 @@ enum class Container : uint8_t {
 	Canopic, // four jars, the sons of Horus: their heads lift off
 	Jar, // a large sealed pottery jar: it smashes, a puff of dust
 	Table, // an offering table, the item under a linen cover
+	// An anthropoid coffin lying on the floor, a tomb-curse object (plan tomb-curse-containers): its lid is pushed off.
+	// Some carry an execration text on the lid (TreasureLook::inscribed): opening one curses (Dungeon::coffinCurse).
+	Coffin,
 };
-constexpr int CONTAINER_COUNT = 6;
-constexpr const char* CONTAINER_NAMES[CONTAINER_COUNT] = {"chest", "coffer", "basket", "canopic", "jar", "table"};
+constexpr int CONTAINER_COUNT = 7;
+constexpr const char* CONTAINER_NAMES[CONTAINER_COUNT] =
+	{"chest", "coffer", "basket", "canopic", "jar", "table", "coffin"};
 
 struct ContainerDef {
 	const char* model; // media/models/items/<model>.md3 and media/textures/items/<model>.png
@@ -27,6 +31,7 @@ struct ContainerDef {
 	int openMs; // the opening clip, the item shows at its end
 	float itemLift; // world units the item stands above the floor once open (the table's top)
 	bool smashes; // the jar: no lid, it breaks (dust, shards stay)
+	bool lengthwise = false; // the coffin: too long to stand side-on, it takes the stances facing the camera only
 };
 constexpr ContainerDef CONTAINER_DEFS[CONTAINER_COUNT] = {
 	{"treasure_chest", 8.f, 700, 0.f, false},
@@ -35,6 +40,7 @@ constexpr ContainerDef CONTAINER_DEFS[CONTAINER_COUNT] = {
 	{"container_canopic", 12.f, 900, 0.f, false},
 	{"container_jar", 7.5f, 500, 0.f, true},
 	{"container_table", 7.1f, 800, 4.f, false},
+	{"container_coffin", 17.3f, 900, 0.5f, false, true}, // the item lies on the coffin's floor
 };
 constexpr const ContainerDef& containerDef(Container c) { return CONTAINER_DEFS[static_cast<int>(c)]; }
 // The longest opening clip.
@@ -46,14 +52,18 @@ constexpr int containerOpenMsMax() {
 }
 
 // The share of each container in percent, per decoration tier (DECOR_TIER_FROM): the cave has chests, baskets and
-// jars; the painted coffers and the canopic jars come with the worked tunnels, the offering tables with the tombs.
-// The wooden chests stay at 40 % or more, so a mimic among them is not given away.
+// jars; the painted coffers and the canopic jars come with the worked tunnels, the offering tables and the coffins
+// with the tombs. The wooden chests stay at 40 % or more, so a mimic among them is not given away; the jars at 10 %
+// from the tombs on, where the mimic jars lie among them.
 constexpr int CONTAINER_PERCENT[DECOR_TIER_COUNT][CONTAINER_COUNT] = {
-	{60, 0, 20, 0, 20, 0}, // cave
-	{45, 15, 15, 10, 15, 0}, // worked tunnel
-	{40, 15, 10, 15, 10, 10}, // tomb
-	{40, 15, 5, 15, 10, 15}, // temple / necropolis
+	{60, 0, 20, 0, 20, 0, 0}, // cave
+	{45, 15, 15, 10, 15, 0, 0}, // worked tunnel
+	{40, 12, 8, 15, 10, 8, 7}, // tomb
+	{40, 12, 5, 13, 10, 12, 8}, // temple / necropolis
 };
+// The share of the coffins with an execration text on the lid (plan tomb-curse-containers): rolled with the look, so
+// it is the same on every load and readable up close (Dungeon::coffinTell).
+constexpr int COFFIN_INSCRIBED_PERCENT = 40;
 
 // How a container stands in its cell: turned (yaw, degrees about the vertical, 0 = facing the camera, + turns the
 // back to the left) and moved from the cell's spot for an item (x to the right, z towards the camera, tile units).
@@ -61,6 +71,7 @@ struct TreasureLook {
 	Container kind = Container::Chest;
 	int16_t yaw = 0;
 	float x = 0.f, z = 0.f;
+	bool inscribed = false; // a coffin with an execration text on its lid (COFFIN_INSCRIBED_PERCENT)
 };
 
 // The stances, by weight: facing the camera, angled, side-on, pushed against the back wall, its back against
@@ -84,7 +95,7 @@ constexpr StanceDef STANCES[STANCE_COUNT] = {
 };
 
 // A kill's chest and the one a dead mimic leaves (plan treasure-containers): a plain wooden chest facing the camera
-// where the mimic stood, open from the start.
-constexpr TreasureLook DROPPED_LOOK = {};
+// where the mimic stood, open from the start. A dead mimic jar leaves its smashed jar (plan tomb-curse-containers).
+constexpr TreasureLook droppedLook(Container kind = Container::Chest) { return TreasureLook{kind}; }
 
 #endif

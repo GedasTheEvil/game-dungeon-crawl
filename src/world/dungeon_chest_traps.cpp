@@ -1,5 +1,6 @@
 // Trapped chests and tomb curses (plan trapped-chests): a TrappedTreasure's opening rolls its contents and its trap
 // (loot.h); the trap ward's chance stops it. The gas cloud is drawn in dungeon_render_effects.cpp.
+// The tomb-curse coffins too (plan tomb-curse-containers).
 #include "dungeon.h"
 #include "../entities/player.h"
 #include "journal.h"
@@ -96,12 +97,38 @@ void Dungeon::updateChestGas() {
 	}
 }
 //======================================================================================
-float Dungeon::chestTell(int cell) const {
-	if (map[cell].type != TrappedTreasure || containers[cell].opened)
-		return 0.f;
+float Dungeon::tellNear(int cell) const {
 	const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
 	const float dx = mapX - (static_cast<float>(col) + 0.5f);
 	const float dy = mapY - static_cast<float>(row);
 	const float d = std::sqrt(dx * dx + dy * dy);
 	return std::clamp((CHEST_TELL_FAR - d) / (CHEST_TELL_FAR - CHEST_TELL_NEAR), 0.f, 1.f);
+}
+//======================================================================================
+float Dungeon::chestTell(int cell) const {
+	if (map[cell].type != TrappedTreasure || containers[cell].opened || cursedCoffin(cell))
+		return 0.f; // a coffin's tell is its text (coffinTell)
+	return tellNear(cell);
+}
+//======================================================================================
+// Tomb-curse coffins (plan tomb-curse-containers): the text on the lid is the tell, the same for an inscribed coffin
+// and a trapped one. Once open, the lid lies behind it, its text still on it.
+bool Dungeon::cursedCoffin(int cell) const {
+	const TreasureLook look = treasureLook(cell);
+	return look.kind == Container::Coffin && (look.inscribed || map[cell].type == TrappedTreasure);
+}
+//======================================================================================
+float Dungeon::coffinTell(int cell) const { return cursedCoffin(cell) ? tellNear(cell) : 0.f; }
+//======================================================================================
+// One roll on the gameplay stream, as a chest trap's: the trap ward's chance, then the curse.
+void Dungeon::coffinCurse() {
+	Rng& rng = sim.random->gameplay;
+	if (rng.percent(sim.player->stats.TrapWardPercent())) {
+		sim.events->Status("The red text on the lid flakes away as I lift it. The Eye of Horus read it first.");
+		return;
+	}
+	tombCurse(
+		RollChestCurse(Container::Coffin, rng),
+		"An execration text on the lid: cursed be he who disturbs the rest of this one."
+	);
 }

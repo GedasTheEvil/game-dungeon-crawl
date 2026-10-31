@@ -107,6 +107,7 @@ TEST_CASE("the campaign's levels (plan denser-levels): the zone's monsters, its 
 			CAPTURE(t.attr);
 			bool inSet = (t.attr == MonsterMimic && fauna.mimicPercent > 0) ||
 						 (t.attr == MonsterCursedMimic && fauna.cursedPercent > 0) ||
+						 (t.attr == MonsterMimicJar && fauna.jarPercent > 0) ||
 						 (t.attr == zone.boss && n == zone.last) ||
 						 (zone.boss != 0 && n == zone.last && t.attr == monsterKind(zone.boss)->boss.nest); // her eggs
 			for (const ZoneMonster& m : fauna.monsters)

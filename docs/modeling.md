@@ -123,13 +123,14 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `baboon.py` | baboon, Babi (`--boss`: reshaped, own files) | `rat.py` style quadruped (loft over bones, two-bone IK legs, FK tail, climb) with world-point hand targets (rearing, raised hands), a mane loft with flat locks, a prop bone scaled to zero (the coal); ranged clip `--measure` |
 | `bat.py` | bat, giant, vampire | flying: FK deformation matrices, membrane grids, hanging idle |
 | `mimic.py` | mimic, cursed mimic | ambush monster built on an item's mesh (`items.build_chest`); `--cursed`: own move (hop) and jump clips, the texture recoloured by colour class |
+| `mimic_jar.py` | mimic jar | ambush monster on a container's mesh (`containers.build_jar`): no rig, every frame built whole and written as vertex frames (as the containers' clips); its die clip ends in the container's smashed jar |
 | `egg_cluster.py` | egg cluster | rooted monster, a rigid bone per part |
 | `lotus.py` | blue lotus | no rig: every frame rebuilt from pose numbers, written with `md3.py` |
 | `ushabti.py` | living ushabti | `lotus.py` style: rigid parts posed from numbers, a waddle on the base edges, the die clip breaks the parts apart |
 | `plant.py` | plant | static monster, FK chains, poses eased off the floor by bisection |
 | `items.py` | weapons, missiles, potions, chest, amulets | static items in metres; bow draw and chest opening frames from shape keys |
 | `rings.py` | ring band and gem (all 18 rings) | two models from one origin, the second drawn see-through over the first (`Item::loadPart`); a texture per metal, the gem baked pale and tinted by the engine |
-| `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |
+| `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table, coffin (and its cursed texture) | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
 | `decor.py` | corridor and water decorations, torch, coffins, the Stargate (ring, track, lit chevron) and its dial device | static, tile units, lighting baked in (the lit chevron unlit) |
 | `ladder.py` | ladder pieces | stackable pieces in tile units |

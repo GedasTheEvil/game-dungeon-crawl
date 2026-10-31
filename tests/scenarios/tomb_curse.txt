@@ -1,0 +1,36 @@
+# Plan tomb-curse-containers (tests/levels/tomb_curse): a plain coffin (col 4), a cursed one (col 6, its red text only
+# up close), the mimic jar (col 10) between two jar containers (cols 14, 2), a trapped coffin (col 12). Opening the
+# cursed coffin curses; the mimic jar opened wakes and bites.
+seed 1
+level tests/levels/tomb_curse
+god
+container 2 jar
+container 4 coffin
+container 6 cursed_coffin
+container 12 coffin
+container 14 jar
+container 16 chest
+walk to 7.9
+wait 1s
+screenshot coffins_far
+walk to 5.6
+wait 500ms
+screenshot coffins_near
+walk to 6.5
+interact
+wait 400ms
+screenshot opening
+wait 1s
+expect curses >= 1
+screenshot opened
+interact
+wait 500ms
+walk to 12.3
+wait 500ms
+screenshot jars
+walk to 10.5
+interact
+wait 600ms
+screenshot jar_wakes
+wait 2s
+screenshot jar_bites

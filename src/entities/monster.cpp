@@ -29,6 +29,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	state = flies() || lurking() || rooted() ? ModelState::Idle : ModelState::Move;
 	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
 	inWater = false;
+	waterKnown = false;
 	headInWater = false;
 	sink = 0.f;
 	swim = 0.f;

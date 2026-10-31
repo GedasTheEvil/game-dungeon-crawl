@@ -177,6 +177,9 @@ constexpr float WADE_SPEED_FACTOR_BOTH = 1.25f;
 constexpr float WADE_SPRINT_FACTOR_BOTH = 1.0f;
 constexpr float WADE_SPRINT_DRAIN_BOTH = 0.5f; // share of the land sprint's stamina drain
 constexpr int ARROW_WATER_DAMAGE_PCT = 50;
+// A monster entering half water (plan monster-water-splash) splashes when its box is this half wide (map units) or
+// more, otherwise it only wades.
+constexpr float MONSTER_SPLASH_HALF_WIDTH = 0.3f;
 // Fire in water (plan fire-in-water): whoever stands in water takes this share of a hit's fire damage.
 constexpr int WATER_FIRE_DAMAGE_PCT = 10;
 // Fire arrows (plan fire-damage): interact by a brazier with a bow, the next shots carry fire, this share of the

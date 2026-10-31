@@ -28,13 +28,15 @@ void Dungeon::UpdateMonsters() {
 		};
 		const bool onSand = mon.Type()->sandBurrow &&
 							inSand(MapAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row()));
-		mon.SetInWater(
+		const bool splashed = mon.SetInWater(
 			waterAt(mon.CentreX()),
 			waterAt(mon.HeadX()),
 			mon.flies() ? 0.f
 			: onSand	? -RenderConfig::SAND_BURROWER_LIFT
 						: WaterSink(mon.CentreX(), mon.Row())
 		);
+		if (splashed && !mon.flies()) // plan monster-water-splash: a big body splashes, a small one only wades
+			sim.events->Play(mon.HalfWidth() >= MONSTER_SPLASH_HALF_WIDTH ? WorldSound::Splash : WorldSound::Wade);
 		const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
 		mon.SetOnRungs(
 			mon.Climbing() || (!mon.flies() && MapAt(monCol, mon.Row()).type == Ladder &&

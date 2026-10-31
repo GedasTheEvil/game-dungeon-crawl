@@ -96,6 +96,7 @@ class Monster {
 	float wallX = 0.f; // Summon::Wall: tile-local x of the wall cell's centre it steps out of
 	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
 	bool inWater = false; // standing in half water (Dungeon::UpdateMonsters sets it every tick)
+	bool waterKnown = false; // SetInWater ran since the spawn
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
 	float swim = 0.f; // a swimmer in the water: world units it floats up off the floor (swimLift), eased
 	bool swimPlaced = false; // swim was set on the first Animate after the spawn
@@ -208,10 +209,15 @@ class Monster {
 	// for ARROW_WATER_DAMAGE_PCT. head: the cell under HeadX.
 	// sink: world units it is drawn down into a water basin (Dungeon::WaterSink), < 0 up onto the sand
 	// (SAND_BURROWER_LIFT).
-	void SetInWater(bool water, bool head, float basin) {
+	// Returns true the tick it enters the water from dry cells (plan monster-water-splash), not the first tick after
+	// the spawn.
+	bool SetInWater(bool water, bool head, float basin) {
+		const bool entered = water && !inWater && waterKnown;
+		waterKnown = true;
 		inWater = water;
 		headInWater = head;
 		sink = basin;
+		return entered;
 	}
 	// Map x of the front of its box, the way it faces (its centre while it faces the camera).
 	[[nodiscard]] float HeadX() const { return facing > 0 ? Right() : facing < 0 ? Left() : CentreX(); }

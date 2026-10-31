@@ -23,8 +23,8 @@ enum class WorldSound : unsigned char {
 	Teleport,
 	SummonDig, // a boss's minion digs out of the floor
 	SummonDrop, // a boss's minion drops from the ceiling
-	Wade, // a splashing step in half water
-	Splash, // the player lands in half water
+	Wade, // a splashing step in half water; a small monster enters it
+	Splash, // the player lands in half water; a big monster enters it (plan monster-water-splash)
 	PlateClick, // a dart trap's plate sinks
 	Dart, // a dart leaves the wall
 	SpikeScrape, // wall spikes twitch before they come out (plan rhythm-traps)

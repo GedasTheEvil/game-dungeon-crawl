@@ -1,0 +1,8 @@
+; A rat (col 7) walks east towards the player (col 11), through a pool of half water (cols 8-9) (tests/unit/monster_splash_test.cpp).
+########################
+#......t...S..........E#
+########################
+structure
+########################
+#.......~~..............#
+########################

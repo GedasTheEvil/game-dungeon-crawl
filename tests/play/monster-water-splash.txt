@@ -1,0 +1,7 @@
+# Plan monster-water-splash, for `bin/game --play tests/play/monster-water-splash.txt`: tests/levels/splash_giant_scorpion, a
+# giant scorpion (col 7) walks east at you (col 11) through a pool (cols 8-9). Stay still: it splashes (loud) where it
+# enters the water. tests/levels/splash_rat has a rat: only the soft wade sound. Hippos and crocodiles lying in their
+# pools make none.
+seed 1
+level tests/levels/splash_giant_scorpion
+god

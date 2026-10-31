@@ -1,4 +1,5 @@
 #include "monster_kinds.h"
+#include "world_events.h"
 #include <array>
 
 namespace {
@@ -1335,4 +1336,24 @@ static_assert(
 
 const MonsterKind* monsterKind(int type) {
 	return type >= 1 && type <= MONSTER_TYPE_MAX ? &KINDS[static_cast<size_t>(type - 1)] : nullptr;
+}
+
+bool playsSound(const MonsterKind& kind, CharacterSound sound) {
+	const Locomotion l = kind.locomotion;
+	switch (sound) {
+	case CharacterSound::Die:
+	case CharacterSound::Attack:
+		return true;
+	case CharacterSound::Jump: // Monster::Jump: a leap over a gap, a pounce
+		return leaps(l);
+	case CharacterSound::Wake: // Monster::wake (a lurker), a charge's windup, a grab's tell, a dive or surge
+		return ambushes(l) || l == Locomotion::Entombed || l == Locomotion::Submerged || l == Locomotion::Coiled ||
+			   l == Locomotion::Floating || l == Locomotion::Figurine || l == Locomotion::Burrow || kind.charge ||
+			   kind.hold || kind.sandBurrow;
+	case CharacterSound::AttackRanged: // a spit, a bolt, a dung ball's kick
+		return kind.ranged || kind.roll;
+	case CharacterSound::Roar: // a charger's roar, a flyer's screech, the pack call
+		return (kind.charge && kind.roar) || kind.screech || kind.call;
+	}
+	return false;
 }

@@ -57,6 +57,13 @@ enum class WorldSound : unsigned char {
 
 // A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged,roar}.wav).
 enum class CharacterSound : unsigned char { Die, Attack, Jump, Wake, AttackRanged, Roar };
+constexpr int CHARACTER_SOUND_COUNT = 6;
+// The file name's end: "_die.wav", "_att.wav", ...
+[[nodiscard]] constexpr const char* characterSoundSuffix(CharacterSound sound) {
+	constexpr const char* SUFFIXES[CHARACTER_SOUND_COUNT] =
+		{"_die.wav", "_att.wav", "_jump.wav", "_wake.wav", "_att_ranged.wav", "_roar.wav"};
+	return SUFFIXES[static_cast<int>(sound)];
+}
 constexpr int PLAYER_CHARACTER = 0; // WorldEvents::PlayCharacter's who for the player; a monster gives its type
 
 // How a status line shows (plan message-log): a plain one, good news (a level up, heka taken) or a danger (a curse,

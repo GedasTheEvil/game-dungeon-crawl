@@ -1,7 +1,7 @@
 """Synthesize the scorpion sounds: the attack (chitin clacks of the claws grabbing and pinching, a quick hiss and whip
-of the tail strike, the sting's tick) and the death (dry chitin rattle of the convulsion, legs scraping, fading out).
+of the tail strike, the sting's tick) and the death (dry chitin rattle of the convulsion, legs scraping, fading out), and the wake: the grab's tell (claws clattering open, a hiss).
 
-    python3 tools/audio/scorpion_sounds.py [out_dir]      (default: media/sounds/monsters/, writes scorpion_{att,die}.wav)
+    python3 tools/audio/scorpion_sounds.py [out_dir]      (default: media/sounds/monsters/, writes scorpion_{att,die,wake}.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
@@ -125,6 +125,17 @@ def die():
     return finish(out)
 
 
+def wake():
+    """The grab's tell (the giant scorpion, the queen): claws clattering open, a hiss rising as the tail cocks."""
+    out = np.zeros(int(0.9 * SR))
+    place(out, rms(rattle(0.35, 40, 26), 0.08), 0.0)
+    place(out, rms(clack(0.06, 2200), 0.12), 0.05)
+    place(out, rms(clack(0.06, 2500), 0.10), 0.09)
+    place(out, rms(hiss(0.55, 2500, 8500, 0.25), 0.05), 0.2)
+    place(out, rms(scrape(0.4, 20), 0.025), 0.3)
+    return finish(out)
+
+
 def write(path, x):
     pcm = (x * 32767).astype("<i2")
     with wave.open(path, "wb") as w:
@@ -139,6 +150,7 @@ def main():
     out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "monsters")
     write(os.path.join(out_dir, "scorpion_att.wav"), attack())
     write(os.path.join(out_dir, "scorpion_die.wav"), die())
+    write(os.path.join(out_dir, "scorpion_wake.wav"), wake())
 
 
 if __name__ == "__main__":

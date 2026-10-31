@@ -28,3 +28,15 @@ Stand-ins: the dodge sound is `items/sling_swing.wav` (`src/state/assets.cpp`); 
   (an ability uses it). Check the game log stays clean afterwards.
 * Bosses keep their kin's voices here (bosses are out of scope for now).
 * Optional cleanup: rename `potion_aphethamine.png` / `potion_stone_skin.png` to the Might / Armor names.
+
+## Implemented
+
+* New sounds, synthesized: `plant_{att,die}` (`tools/audio/plant_sounds.py`; the plant never lurks, so no wake),
+  `worm_wake` (`worm_sounds.py`), `scorpion_wake` (`scorpion_sounds.py`), `scarab_jump` (`scarab_sounds.py`).
+* Own swings: `items/dagger_swing` (the flint knife), `items/axe_swing` (both axes); the dodge:
+  `characters/archeologist_dodge` (`weapon_sounds.py`). The mace keeps `club_swing`, the javelin `spear_swing`.
+* `playsSound` (`src/world/monster_kinds.cpp`): which sounds the code can play for a kind (its abilities, its way of
+  lurking). The loader logs one warning per expected sound with no file (`[sound]` in `game.log`); the game log is
+  clean. Unit test `tests/unit/monster_sounds_test.cpp`: every expected file exists.
+* Cleanup done: `potion_might.png`, `potion_armor.png`.
+* Play-test: `bin/game --play tests/play/missing-monster-sounds.txt` (level `tests/levels/monster_sounds`).

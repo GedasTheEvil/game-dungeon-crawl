@@ -1,10 +1,11 @@
 """Synthesize the dung ball's sounds (plan scarab-dung-ball): the giant scarab's (and Khepri's) kick and the rolling
 rumble of the ball over the stone (scarab_att_ranged.wav, played at the kick), and the wet thud as it breaks on a wall,
-the floor or the player (scarab_ball_thud.wav, WorldSound::DungThud).
+the floor or the player (scarab_ball_thud.wav, WorldSound::DungThud), and its leap: the wing cases snap, the wings
+buzz (scarab_jump.wav, plan missing-monster-sounds).
 
     python3 tools/audio/scarab_sounds.py [out_dir]      (default: media/sounds/monsters/)
 
-Everything is generated (no samples), so this script is the source of these two; the scarab's bite and death are
+Everything is generated (no samples), so this script is the source of these three; the scarab's bite and death are
 older files.
 Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
 """
@@ -52,10 +53,26 @@ def thud(dur=0.45):
     return finish(out)
 
 
+def jump():
+    """The giant scarab's (and Khepri's) leap: the wing cases snap open, a short heavy buzz of the wings."""
+    out = np.zeros(int(0.6 * SR))
+    k = t_axis(0.04)
+    snap = band(rng.standard_normal(len(k)), 1500, 7000) * env(k, 0.0005, 0.006)
+    place(out, rms(snap, 0.12), 0.0)
+    place(out, rms(snap[::-1] * 0.5 + snap, 0.08), 0.025)
+    t = t_axis(0.5)
+    shape = np.clip(t / 0.05, 0, 1) * np.exp(-t / 0.22)
+    wings = np.sign(np.sin(2 * np.pi * (95 + 25 * np.exp(-t / 0.1)) * t)) * shape
+    buzz = band(wings + 0.3 * rng.standard_normal(len(t)), 120, 2500)
+    place(out, rms(buzz, 0.1), 0.04)
+    return finish(out)
+
+
 def main():
     out_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "media", "sounds", "monsters")
     write(os.path.join(out_dir, "scarab_att_ranged.wav"), roll())
     write(os.path.join(out_dir, "scarab_ball_thud.wav"), thud())
+    write(os.path.join(out_dir, "scarab_jump.wav"), jump())
 
 
 if __name__ == "__main__":

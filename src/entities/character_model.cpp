@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <string>
 #include "../core/paths.h"
+#include "../world/world_events.h"
 
 CharacterModel::Parsed CharacterModel::Parse(const char* name, const ClipFiles& files) {
 	Parsed parsed;
@@ -49,14 +50,14 @@ void CharacterModel::Share(const CharacterModel& other, const char* name, Textur
 
 void CharacterModel::loadSounds(const char* name) {
 	const std::string sound = std::string(MEDIA_DIR "sounds/") + name;
-	for (auto [suffix, target] :
-		 {std::pair{"_die.wav", &dieSound},
-		  {"_att.wav", &attackSound},
-		  {"_jump.wav", &jumpSound},
-		  {"_wake.wav", &wakeSound},
-		  {"_att_ranged.wav", &attackRangedSound},
-		  {"_roar.wav", &roarSound}})
-		if (std::string path = sound + suffix; std::filesystem::exists(path))
+	for (auto [which, target] :
+		 {std::pair{CharacterSound::Die, &dieSound},
+		  {CharacterSound::Attack, &attackSound},
+		  {CharacterSound::Jump, &jumpSound},
+		  {CharacterSound::Wake, &wakeSound},
+		  {CharacterSound::AttackRanged, &attackRangedSound},
+		  {CharacterSound::Roar, &roarSound}})
+		if (std::string path = sound + characterSoundSuffix(which); std::filesystem::exists(path))
 			target->Load(path.c_str());
 }
 

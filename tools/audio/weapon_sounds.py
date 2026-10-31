@@ -10,7 +10,8 @@ arrow_wall.wav (tock into stone and the shaft buzzing), sling_swing.wav (the sli
 sling_release.wav (the cord's snap, the stone whizzing off), throw.wav (an arm's throw: the throwing stick, the
 javelin), stone_hit.wav (a blunt missile on a body), stone_wall.wav (a stone or stick clacking off stone),
 axe_hit.wav (a heavy chop: the blade bites in), mace_hit.wav (stone on bone: a deep crunch), shot_dry.wav (no shot
-left: a dry click), shot_too_close.wav (a monster too close to shoot: a dull knock).
+left: a dry click), shot_too_close.wav (a monster too close to shoot: a dull knock), dagger_swing.wav (short, light), axe_swing.wav
+(heavier than the sword), characters/archeologist_dodge.wav (the player ducks a blow).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like mechanism_sounds.py.
 """
@@ -241,6 +242,34 @@ def shot_too_close():
     return normalize(out, -8)
 
 
+def dagger_swing():
+    """Short and light: a quick thin swish, less air than the sword, a faint tick of the flint."""
+    out = np.zeros(int(0.2 * SR))
+    place(out, whoosh(0.15, 1800, 5000, 3200, 8500, peak=0.35), 0.0, 1.0)
+    place(out, burst(0.02, 3000, 8000, 0.004), 0.0, 0.08)
+    return normalize(out, -8)
+
+
+def axe_swing():
+    """Heavier than the sword: a slower low whoosh with a wide head cutting the air, the haft creaking at the start."""
+    out = np.zeros(int(0.5 * SR))
+    place(out, burst(0.06, 300, 900, 0.02, attack=0.004), 0.0, 0.15)
+    place(out, whoosh(0.44, 200, 800, 500, 2200, peak=0.55), 0.02, 1.0)
+    place(out, whoosh(0.3, 900, 2500, 1500, 4000, peak=0.5), 0.12, 0.25)
+    return normalize(out, -5)
+
+
+def dodge():
+    """The player ducks aside: a short body whoosh, cloth fluttering, a foot scuffing the floor."""
+    out = np.zeros(int(0.35 * SR))
+    place(out, whoosh(0.26, 300, 1200, 700, 2600, peak=0.4), 0.0, 1.0)
+    t = t_axis(0.2)
+    flutter = band(rng.standard_normal(len(t)), 600, 3000) * (0.6 + 0.4 * np.sin(2 * np.pi * 38 * t)) * env_ad(t, 0.01, 0.06)
+    place(out, flutter, 0.04, 0.35)
+    place(out, burst(0.08, 1500, 5000, 0.025, attack=0.006), 0.2, 0.3)
+    return normalize(out, -7)
+
+
 # Paths under media/sounds/.
 SOUNDS = {
     "items/club_swing": club_swing, "items/club_hit": club_hit, "items/sword_swing": sword_swing,
@@ -249,6 +278,7 @@ SOUNDS = {
     "items/arrow_wall": arrow_wall, "items/sling_swing": sling_swing, "items/sling_release": sling_release,
     "items/throw": throw, "items/stone_hit": stone_hit, "items/stone_wall": stone_wall, "items/axe_hit": axe_hit,
     "items/mace_hit": mace_hit, "items/shot_dry": shot_dry, "items/shot_too_close": shot_too_close,
+    "items/dagger_swing": dagger_swing, "items/axe_swing": axe_swing, "characters/archeologist_dodge": dodge,
 }
 
 

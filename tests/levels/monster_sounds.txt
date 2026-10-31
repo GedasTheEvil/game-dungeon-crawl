@@ -1,0 +1,10 @@
+; Plan missing-monster-sounds, for tests/play/missing-monster-sounds.txt: from the player (col 2) east, a man-eater plant
+; (col 5: its bite and death), a giant scorpion (col 10: the grab's tell), a giant scarab (col 18) before spikes
+; (col 20: its leap), a sand worm in sand (cols 26-33, worm col 29: it surfaces), the exit (col 38).
+########################################
+#.S..p....J.......k.^........w........E#
+########################################
+structure
+########################################
+#.........................,,,,,,,,.....#
+########################################

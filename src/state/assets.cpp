@@ -3,12 +3,14 @@
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
+#include <filesystem>
 #include <future>
 #include "../core/logger.h"
 #include "../core/gameplay_config.h"
 #include "../core/paths.h"
 #include "../core/worker_pool.h"
 #include "loading_text.h"
+#include "../world/world_events.h"
 
 namespace {
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
@@ -109,6 +111,17 @@ int firstKin(int id) {
 	return 0;
 }
 
+// One warning per sound the code can play for the kind that has no file: it would play nothing (plan
+// missing-monster-sounds).
+void warnMissingSounds(const MonsterKind& kind, const char* voice) {
+	for (int i = 0; i < CHARACTER_SOUND_COUNT; i++) {
+		const auto sound = static_cast<CharacterSound>(i);
+		const std::string path = std::string(MEDIA_DIR "sounds/") + voice + characterSoundSuffix(sound);
+		if (playsSound(kind, sound) && !std::filesystem::exists(path))
+			LOG_WARNINGF("sound", "%s: no %s", kind.label, path.c_str());
+	}
+}
+
 void loadMonsterTypes(
 	MonsterTypes& monsterTypes,
 	std::array<CharacterModel, MONSTER_TYPE_MAX + 1>& monsterModels,
@@ -142,12 +155,10 @@ void loadMonsterTypes(
 		static_cast<MonsterKind&>(type) = kind;
 		// Kin on one model (normal, giant, boss) share its clips: parsed once, each with its own texture.
 		CharacterModel& model = monsterModels[static_cast<size_t>(id)];
+		const char* voice = *kind.sounds != '\0' ? kind.sounds : kind.model;
+		warnMissingSounds(kind, voice);
 		if (const int kin = firstKin(id); kin != 0)
-			model.Share(
-				monsterModels[static_cast<size_t>(kin)],
-				*kind.sounds != '\0' ? kind.sounds : kind.model,
-				std::move(tex)
-			);
+			model.Share(monsterModels[static_cast<size_t>(kin)], voice, std::move(tex));
 		else
 			model.Load(kind.model, std::move(tex), parsed[static_cast<size_t>(id)].get());
 		type.model = model.Info();
@@ -346,7 +357,7 @@ void loadSounds(SoundBank& sounds) {
 	sounds.chevronLock.Load(MEDIA_DIR "sounds/mechanisms/chevron_lock.wav");
 	sounds.chevronFail.Load(MEDIA_DIR "sounds/mechanisms/chevron_fail.wav");
 	sounds.dialPress.Load(MEDIA_DIR "sounds/mechanisms/dial_press.wav");
-	sounds.dodge.Load(MEDIA_DIR "sounds/items/sling_swing.wav");
+	sounds.dodge.Load(MEDIA_DIR "sounds/characters/archeologist_dodge.wav");
 	sounds.powerCharge.Load(MEDIA_DIR "sounds/items/power_charge.wav");
 	sounds.powerSwing.Load(MEDIA_DIR "sounds/items/power_swing.wav");
 	sounds.powerHit.Load(MEDIA_DIR "sounds/items/power_hit.wav");

@@ -28,7 +28,7 @@ struct SoundBank {
 	Sound fireHiss, fireRoar; // a fire vent about to breathe, its jet (plan fire-jet-trap)
 	Sound dripPlips, dripCreak, dripSplat; // a poison drip's small drops, its lump about to fall, falling
 	Sound mirrorTurn, sunDisc; // a mirror turned, a sun disc lit (plan sunlight-mirrors)
-	Sound dodge; // a whoosh (the sling swing): the player dodges a blow
+	Sound dodge; // a body whoosh: the player dodges a blow
 	Sound powerCharge, powerSwing, powerHit; // a power hit's charge, its swing, its impact (plan skill-power-hit)
 	Sound lidWood, lidReed, lidStone, jarSmash; // a treasure container opens (WorldSound)
 	Sound arrowHit, arrowWall; // an arrow in a monster, in a wall or the floor

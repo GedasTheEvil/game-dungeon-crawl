@@ -1,0 +1,12 @@
+# Plan missing-monster-sounds, for `bin/game --play tests/play/missing-monster-sounds.txt`: tests/levels/monster_sounds,
+# walk east. The man-eater plant (col 5) bites and dies with a sound of its own; the giant scorpion's grab (col 10)
+# starts with a chitin clatter and a hiss; the giant scarab (col 18) leaps the spikes with a wing-case snap and a buzz;
+# the sand worm (col 29) bursts out of the sand with a rumble. Swing the flint knife (short, light), then the epsilon axe (heavier than
+# the sword). Learn Dodge on the Heka screen (the XP is there): a dodged bite has its own whoosh, no longer the sling.
+seed 1
+level tests/levels/monster_sounds
+xp 400000
+give melee 3
+give melee 5
+give melee 1
+equip dagger

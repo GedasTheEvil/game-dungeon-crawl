@@ -63,8 +63,8 @@ TEX_SIZE = 512
 POTIONS = [
     ("potion_small_health", "potion_flask", {"liquid": (0.70, 0.04, 0.03), "liquid_dark": (0.38, 0.02, 0.02)}),
     ("potion_large_health", "potion_lotus", {"liquid": (0.55, 0.02, 0.20), "liquid_dark": (0.30, 0.01, 0.10)}),
-    ("potion_aphethamine", "potion_pilgrim", {"liquid": (0.32, 0.06, 0.50), "liquid_dark": (0.16, 0.03, 0.28)}),
-    ("potion_stone_skin", "potion_canopic", {"liquid": (0.85, 0.36, 0.04), "liquid_dark": (0.48, 0.18, 0.02)}),
+    ("potion_might", "potion_pilgrim", {"liquid": (0.32, 0.06, 0.50), "liquid_dark": (0.16, 0.03, 0.28)}),
+    ("potion_armor", "potion_canopic", {"liquid": (0.85, 0.36, 0.04), "liquid_dark": (0.48, 0.18, 0.02)}),
     ("potion_life", "potion_ankh", {"liquid": (0.85, 0.30, 0.06), "liquid_dark": (0.48, 0.15, 0.03)}),
     ("potion_small_stamina", "potion_flask", {"liquid": (0.36, 0.68, 0.18), "liquid_dark": (0.18, 0.36, 0.08)}),
     ("potion_large_stamina", "potion_lotus", {"liquid": (0.10, 0.60, 0.55), "liquid_dark": (0.05, 0.32, 0.30)}),

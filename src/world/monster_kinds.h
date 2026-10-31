@@ -384,6 +384,11 @@ struct MonsterKind {
 	return percent <= 0 ? "normal" : percent <= 50 ? "resists" : percent < 100 ? "tough" : "immune";
 }
 
+enum class CharacterSound : unsigned char;
+// The code can play this sound for the kind (an ability or its way of lurking uses it): its file is expected (plan
+// missing-monster-sounds). Every kind bites and dies.
+[[nodiscard]] bool playsSound(const MonsterKind& kind, CharacterSound sound);
+
 constexpr char UNKNOWN_MONSTER_GLYPH = 'm';
 constexpr float UNKNOWN_MONSTER_THREAT = 2.f;
 

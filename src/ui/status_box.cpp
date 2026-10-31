@@ -25,9 +25,9 @@ Color toneColour(StatusTone tone) {
 }
 } // namespace
 
-void draw(const std::vector<const StatusMessage*>& shown, int now, int resX, int resY, Font& font) {
+float draw(const std::vector<const StatusMessage*>& shown, int now, int resX, int resY, Font& font) {
 	if (shown.empty())
-		return;
+		return TOP;
 	// Font::print resets the modelview, so the canvas is set through the projection.
 	float canvasW = beginSquareCanvas(CANVAS_H, resX, resY);
 	float top = TOP;
@@ -56,5 +56,6 @@ void draw(const std::vector<const StatusMessage*>& shown, int now, int resX, int
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glColor3f(1, 1, 1);
+	return top;
 }
 } // namespace StatusBox

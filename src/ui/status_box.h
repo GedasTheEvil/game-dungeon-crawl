@@ -12,7 +12,8 @@ class Font;
 namespace StatusBox {
 // The lines MessageLog::Visible gives at GameClock time now. Sets its own square-pixel ortho projection (100 high)
 // for a resX x resY window. Leaves texturing on and the HUD blend function (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
-void draw(const std::vector<const StatusMessage*>& shown, int now, int resX, int resY, Font& font);
+// Returns the free top under the stack (TOP when nothing shows), on that canvas: the level banner goes there.
+float draw(const std::vector<const StatusMessage*>& shown, int now, int resX, int resY, Font& font);
 } // namespace StatusBox
 
 #endif

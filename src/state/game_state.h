@@ -25,6 +25,7 @@
 #include "../ui/map_view.h"
 #include "../ui/journal_view.h"
 #include "../ui/message_log.h"
+#include "../ui/zone_banner.h"
 #include "../ui/skills_view.h"
 #include "../ui/screen_tabs.h"
 #include "../world/inscriptions.h"
@@ -72,6 +73,7 @@ struct UIContext {
 	ui::Toast autosaved; // "Autosaved" over the game
 	int bannerLevel = 0; // the campaign level whose banner shows (plan zone-looks, ZoneBanner), since bannerStartMs
 	int bannerStartMs = 0;
+	float bannerTop = ZoneBanner::TOP; // under the status lines; it only moves down while it shows (plan message-log)
 };
 
 class GameState {

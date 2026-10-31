@@ -31,3 +31,6 @@ curse warnings get lost. There is no log to read them back.
   load. Not saved.
 * Tests: `tests/unit/message_log_test.cpp` (stacking, expiry, merges, log size, level change); screenshot scenario
   `tests/scenarios/message-log.txt`.
+* Play-test fix 2026-10-31: the level banner (shown again after a load) sat at a fixed height and the stacked lines
+  ran over it. It now goes under the stack (`StatusBox::draw` returns where the stack ends) and only moves down while
+  it shows. Scenario `tests/scenarios/message-log-banner.txt`.

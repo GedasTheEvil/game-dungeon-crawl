@@ -7,7 +7,6 @@
 using namespace ui;
 
 namespace {
-constexpr float TOP = 80.f; // the panel's top, under the status box
 constexpr float PAD_X = 6.f;
 constexpr float PAD_Y = 3.f;
 constexpr float TITLE_H = 7.f; // a line of the title font, of the body font
@@ -24,7 +23,7 @@ float Alpha(int ageMs, bool zone) {
 	return std::clamp(std::min(in, out), 0.f, 1.f);
 }
 
-void draw(const LevelBanner& banner, float alpha, int resX, int resY, Font& title, Font& body) {
+void draw(const LevelBanner& banner, float alpha, float top, int resX, int resY, Font& title, Font& body) {
 	if (alpha <= 0.f)
 		return;
 	const float canvasW = beginSquareCanvas(100.f, resX, resY);
@@ -35,7 +34,7 @@ void draw(const LevelBanner& banner, float alpha, int resX, int resY, Font& titl
 	textW = std::max(textW, body.TextWidth(banner.guardian.c_str()));
 	const int bodyLines = (banner.subtitle.empty() ? 0 : 1) + (banner.guardian.empty() ? 0 : 1);
 	const float h = headH + static_cast<float>(bodyLines) * BODY_H + 2.f * PAD_Y;
-	const Rect box = {(canvasW - textW) / 2.f - PAD_X, TOP - h, textW + 2.f * PAD_X, h};
+	const Rect box = {(canvasW - textW) / 2.f - PAD_X, top - h, textW + 2.f * PAD_X, h};
 
 	beginShapes();
 	fillRect({box.x + 0.7f, box.y - 0.9f, box.w, box.h}, BLACK, BLACK, 0.45f * alpha); // drop shadow

@@ -103,8 +103,9 @@ void drawAutosaved() {
 	glColor3f(1, 1, 1);
 }
 
-// The level's banner (plan zone-looks): when a campaign level starts, the zone's on its first level.
-void drawLevelBanner() {
+// The level's banner (plan zone-looks): when a campaign level starts, the zone's on its first level. Under the status
+// lines, whose stack ends at statusBottom (plan message-log).
+void drawLevelBanner(float statusBottom) {
 	const int now = GameClock::now();
 	UIContext& ui = Game().ui;
 	if (!Game().dungeon.CampaignLevel())
@@ -112,11 +113,14 @@ void drawLevelBanner() {
 	if (Game().dungeon.LevelNumber() != ui.bannerLevel) {
 		ui.bannerLevel = Game().dungeon.LevelNumber();
 		ui.bannerStartMs = now;
+		ui.bannerTop = ZoneBanner::TOP;
 	}
+	ui.bannerTop = std::min(ui.bannerTop, statusBottom);
 	const LevelBanner banner = levelBanner(ui.bannerLevel, Game().dungeon.LevelTitle());
 	ZoneBanner::draw(
 		banner,
 		ZoneBanner::Alpha(now - ui.bannerStartMs, banner.zone),
+		ui.bannerTop,
 		Game().render.resX,
 		Game().render.resY,
 		Game().assets.fonts.banner,
@@ -124,9 +128,10 @@ void drawLevelBanner() {
 	);
 }
 
-void drawStatusLine() {
+// Returns the free top under the status lines (StatusBox::draw).
+float drawStatusLine() {
 	const int now = GameClock::now();
-	StatusBox::draw(
+	return StatusBox::draw(
 		Game().messages.Visible(now),
 		now,
 		Game().render.resX,
@@ -378,8 +383,7 @@ void drawGameplay() {
 
 	glColor3f(1, 1, 1);
 
-	drawLevelBanner();
-	drawStatusLine();
+	drawLevelBanner(drawStatusLine());
 	drawAutosaved();
 	Game().ui.winEntry.Draw(Game().render.resX, Game().render.resY);
 }

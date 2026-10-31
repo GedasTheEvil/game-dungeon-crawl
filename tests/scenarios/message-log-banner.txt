@@ -1,0 +1,10 @@
+# Plan message-log: the status lines that come while the level banner shows stack above it, not over it.
+seed 1
+level 1
+wait 30
+xp 90
+curse weakness
+poison weak
+wait 1s
+screenshot stacked
+quit

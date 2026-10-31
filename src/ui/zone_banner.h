@@ -7,16 +7,18 @@ class Font;
 
 // The banner over the game when a campaign level starts (plan zone-looks, levelBanner): on a zone's first level a
 // large one with the hour and its gate, the zone and its guardian; on any other the level and its zone, smaller.
-// A framed panel in the upper third, under the status box; it fades in and out.
+// A framed panel in the upper third, under the status lines; it fades in and out.
 namespace ZoneBanner {
+constexpr float TOP = 80.f; // the panel's top, under one status line (StatusBox, the same 100 high canvas)
 constexpr int ZONE_MS = 6500;
 constexpr int LEVEL_MS = 3500;
 constexpr int FADE_MS = 900;
 
 // ageMs since the level started: 0 .. 1, 0 once it is over.
 [[nodiscard]] float Alpha(int ageMs, bool zone);
-// Sets its own square-pixel ortho projection (100 high). Leaves texturing on and the HUD blend function set.
-void draw(const LevelBanner& banner, float alpha, int resX, int resY, Font& title, Font& body);
+// Its top edge at top, at most TOP. Sets its own square-pixel ortho projection (100 high). Leaves texturing on and
+// the HUD blend function set.
+void draw(const LevelBanner& banner, float alpha, float top, int resX, int resY, Font& title, Font& body);
 } // namespace ZoneBanner
 
 #endif

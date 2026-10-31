@@ -20,7 +20,7 @@ parts below instead of drawing their own.
 | Zone banner (a campaign level starts: the hour and gate, the zone, its guardian; else the level) | `src/ui/zone_banner.cpp` (text: `levelBanner`, `src/world/campaign.h`) | 100 high, width follows the window; over the game, under the status box |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
 | Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
-| Confirm box (Yes / No over a menu screen) | `src/ui/confirm_box.cpp` (`ConfirmBox`, [save-load-safety](plan/save-load-safety.md)) | 160 x 100, over the dimmed screen that asks |
+| Confirm box (Yes / No over a menu screen) | `src/ui/confirm_box.cpp` (`ConfirmBox`, [save-load-safety](plan/solved/save-load-safety.md)) | 160 x 100, over the dimmed screen that asks |
 | Death screen | `src/ui/death_screen.cpp` (`DeathScreen`, [autosave](plan/solved/autosave.md)) | 160 x 100, over the dimmed game |
 | Win screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`) in the 3D scene, not the shared look |
 
@@ -302,7 +302,7 @@ run summary in `body` `GOLD`, a `WELL` name field with a `GOLD` frame and a blin
 
 ### Confirm box
 
-What would throw away play asks first ([save-load-safety](plan/save-load-safety.md)): the screen behind
+What would throw away play asks first ([save-load-safety](plan/solved/save-load-safety.md)): the screen behind
 dimmed (black, alpha 0.6), a `panel` `{36, 34, 88, 34}`, the question in `body` `LABEL` (wrapped), Yes (lapis) and No
 (stone) 26 x 8 tiles, the key hint in `small` at the panel's foot. Enter picks the focused tile (Yes at first), Esc is
 No, Left / Right move between them. While it is open the screen hands it the mouse (in canvas units) and the keys,

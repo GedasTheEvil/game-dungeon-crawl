@@ -1,8 +1,8 @@
 # Save and load safety
 
-Status: implemented 2026-10-31, waiting for a play-test (`bin/game --play tests/play/save-load-safety.txt`). From the project audit of 2026-10-30.
+Status: solved 2026-10-31 (play-tested by the user). From the project audit of 2026-10-30.
 
-Opus: a confirm dialog in the shared UI look ([ui.md](../ui.md)), several menu flows, save error handling.
+Opus: a confirm dialog in the shared UI look ([ui.md](../../ui.md)), several menu flows, save error handling.
 
 ## Problems
 
@@ -46,4 +46,4 @@ Opus: a confirm dialog in the shared UI look ([ui.md](../ui.md)), several menu f
   size); `saves/gamelist.dat` is gone (it only held the level). A cross on a used slot, or Delete, deletes it after a
   question.
 * Death screen: a Retry whose save cannot be loaded turns into "Could not load ..." and is disabled.
-* Tests: `tests/unit/save_load_safety_test.cpp`, scenario `tests/scenarios/save_load_safety.txt`.
+* Tests: `tests/unit/save_load_safety_test.cpp`, scenario `tests/scenarios/solved/save_load_safety.txt`.

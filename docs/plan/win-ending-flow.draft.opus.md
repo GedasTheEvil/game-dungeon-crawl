@@ -17,7 +17,7 @@ Opus: end screen flow, a new journal page, input gating.
 ## Plan
 
 * Esc at the name entry asks "Leave without entering the Hall of Records?" (the confirm box of
-  [save-load-safety](save-load-safety.md) if it exists by then, else a second Esc press with a hint line).
+  [save-load-safety](solved/save-load-safety.md) if it exists by then, else a second Esc press with a hint line).
 * After the name entry (or skipping it): the epilogue opens in the journal, like the prologue does at New Game
   (`journal.TakeIntro`, `ui.journal.OpenIntro`). A short text in `content/texts/journal.txt`: the archaeologist
   comes up into the dawn with the ankh. Fits the 12th hour: Ra is reborn as Khepri through the serpent

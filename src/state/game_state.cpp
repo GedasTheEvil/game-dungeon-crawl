@@ -14,6 +14,7 @@
 #include "../core/gameplay_config.h"
 #include "../world/campaign.h"
 #include "../world/texts.h"
+#include "../world/dungeon_save.h"
 #include "../graphics/animated_model.h"
 #include "../graphics/ink.h"
 #include "../graphics/frame_rate.h"
@@ -90,7 +91,6 @@ void GameState::Load() {
 
 	assets.sounds.soundtrack.Play();
 
-	saves.LoadNames();
 	leaderboard.Load();
 
 	messages.Clear();
@@ -291,17 +291,23 @@ bool GameState::HasAutosave() const { return SaveSlots::DescribeFile(AutosavePat
 void GameState::Autosave(AutosaveMoment moment) {
 	if (!player->Alive() || (moment != AutosaveMoment::LevelStart && dungeon.PlayerInDanger()))
 		return;
-	Save(AutosavePath().c_str());
-	ui.autosaved.Show("Autosaved", GameClock::now());
+	ui.autosaved.Show(Save(AutosavePath().c_str()) ? "Autosaved" : "Autosave failed", GameClock::now());
 }
 
-void GameState::LoadAutosave() { LoadSaveIntoGame(AutosavePath()); }
+bool GameState::LoadAutosave() { return LoadSaveIntoGame(AutosavePath()); }
 
-void GameState::LoadSaveIntoGame(const std::string& path) {
-	LoadSave(path.c_str());
+bool GameState::LoadSaveIntoGame(const std::string& path) {
+	if (!LoadSave(path.c_str()))
+		return false;
 	ui.screen = Screen::Gameplay;
 	ui.menu.ResetSubScreens();
 	ui.menu.inGame = true;
+	return true;
+}
+
+bool GameState::UnsavedProgress() const {
+	constexpr int UNSAVED_PLAY_MS = 3000; // a look around after a load is no progress
+	return player->stats.run.PlayMs() - savedPlayMs >= UNSAVED_PLAY_MS;
 }
 
 std::string GameState::QuicksavePath() const {
@@ -313,8 +319,7 @@ bool GameState::HasQuicksave() const { return SaveSlots::DescribeFile(QuicksaveP
 void GameState::Quicksave() {
 	if (!player->Alive())
 		return;
-	Save(QuicksavePath().c_str());
-	ui.autosaved.Show("Quick saved", GameClock::now());
+	ui.autosaved.Show(Save(QuicksavePath().c_str()) ? "Quick saved" : "Quick save failed", GameClock::now());
 }
 
 void GameState::LoadQuicksave() {
@@ -322,8 +327,10 @@ void GameState::LoadQuicksave() {
 		ui.autosaved.Show("No quick save", GameClock::now());
 		return;
 	}
-	LoadSaveIntoGame(QuicksavePath());
-	ui.autosaved.Show("Quick loaded", GameClock::now());
+	ui.autosaved.Show(
+		LoadSaveIntoGame(QuicksavePath()) ? "Quick loaded" : "Could not load the quick save",
+		GameClock::now()
+	);
 }
 
 std::string GameState::SlotPath(int slot) const {
@@ -338,9 +345,9 @@ std::optional<SaveSlots::Latest> GameState::LatestSave() const {
 	return SaveSlots::PickLatest(AutosavePath(), slots, QuicksavePath());
 }
 
-void GameState::LoadLatestSave() {
-	if (const auto latest = LatestSave())
-		LoadSaveIntoGame(latest->path);
+bool GameState::LoadLatestSave() {
+	const auto latest = LatestSave();
+	return latest && LoadSaveIntoGame(latest->path);
 }
 
 // A load puts the saved count back, so the file learns the death now: a retry, or Continue after a restart, keeps it.
@@ -444,61 +451,47 @@ void GameState::DrawLoad(float xxx, const char step[], const char detail[]) {
 	glutSwapBuffers();
 }
 //==============================================================
-void GameState::Save(const char filename[]) {
+bool GameState::Save(const char filename[]) {
 	if (!cacheLoaded) {
 		LOG_ERROR("game", "can't save without loading cashe");
-		return;
+		return false;
 	}
-
-	std::ofstream dump(filename);
-	if (!dump) {
-		LOG_ERRORF("game", "can't open save file %s", filename);
-		return;
+	std::ostringstream text;
+	writeSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal});
+	if (!writeFileSafely(filename, text.str())) {
+		LOG_ERRORF("game", "can't write save file %s", filename);
+		return false;
 	}
-
-	dump << dungeon.LevelNumber() << " ";
-
-	player->stats.Dump(dump);
-	ui.inventory->Dump(dump);
-	dungeon.Dump(dump);
-	journal.Dump(dump);
-
-	dump.close();
+	savedPlayMs = player->stats.run.PlayMs();
+	return true;
 }
 //==============================================================
-void GameState::LoadSave(const char filename[]) {
+// Read and checked before the game changes: a missing or broken file leaves the game as it was (plan
+// save-load-safety).
+bool GameState::LoadSave(const char filename[]) {
 	if (!cacheLoaded) {
 		LOG_ERROR("game", "can't load without loading cashe");
-		return;
+		return false;
+	}
+	LOG_INFOF("game", "Loading save %s", filename);
+	std::string text;
+	if (!readWholeFile(filename, text)) {
+		LOG_ERRORF("game", "can't open save file %s", filename);
+		return false;
+	}
+	const bool loaded = loadSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal});
+	ui.inventory->BagLoaded();
+	if (!loaded) {
+		LOG_ERRORF("game", "broken save file %s", filename);
+		return false;
 	}
 	messages.Clear(); // the log is not saved
-
-	player->Reanimate();
 	dungeon.ClearWin(); // a save is never of a won game
-
-	LOG_INFOF("game", "Loading save %s", filename);
-	std::ifstream dump(filename);
-	if (!dump) {
-		LOG_ERRORF("game", "can't open save file %s", filename);
-		return;
-	}
-
-	int levelNumber = 1;
-	dump >> levelNumber;
-	dungeon.SetLevelNumber(levelNumber);
-	LOG_INFOF("game", "Got MapNo : %d", levelNumber);
-
-	player->stats.LoadDump(dump);
-	LOG_INFO("game", "Done loading Stats");
-	ui.inventory->LoadDump(dump);
-	LOG_INFO("game", "Done loading Inventory");
-	player->stats.Wear(amuletBonus(ui.inventory->Bag().Worn()), false); // the saved HP is already the worn one's
-	player->stats.WearRings(ringBonus(ui.inventory->Bag().Rings()));
-	dungeon.LoadDump(dump);
-	journal.Load(dump);
+	const int levelNumber = dungeon.LevelNumber();
 	dungeon.scatterDecorations(campaignLevelFile(levelNumber).c_str(), levelNumber);
-	LOG_INFO("game", "Done loading map");
-	dump.close();
+	LOG_INFOF("game", "Loaded level %d", levelNumber);
 	PlayerHud::reset();
+	savedPlayMs = player->stats.run.PlayMs();
+	return true;
 }
 //==============================================================

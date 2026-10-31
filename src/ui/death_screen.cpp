@@ -44,8 +44,12 @@ void DeathScreen::Follow() {
 }
 
 void DeathScreen::activate(int button) {
-	if (button == RETRY && retryEnabled && Game().LatestSave()) {
-		Game().LoadLatestSave();
+	if (const auto latest = Game().LatestSave(); button == RETRY && retryEnabled && latest) {
+		if (!Game().LoadSaveIntoGame(latest->path)) { // a broken file (plan save-load-safety): no second try
+			retryEnabled = false;
+			retryLabel = "Could not load " + latest->Label();
+			pointer.Move(MAIN_MENU);
+		}
 		return;
 	}
 	if (button != MAIN_MENU)

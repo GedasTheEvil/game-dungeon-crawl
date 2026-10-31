@@ -171,7 +171,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Tile types, level file format, level grid, wall layer (fixtures) | `world/tile_defs.*`, `world/level.*` (`Fixture`, `isWallType`); drawn by `Dungeon::drawFixture` (`world/dungeon_render.cpp`) |
 | Name gates, name cartouches, the royal names (per run) | `world/names.*` (data `content/names/*.txt`, [names.md](names.md)), `Dungeon::SpeakName`, `inscriptionPage` in `world/dungeon_interact.cpp`, `Riddle::AskName` (`ui/riddle.cpp`), the pulse `Dungeon::nameGateAlpha` (`world/dungeon_render.cpp`), `checkNameGates` in `world/level_check.cpp` |
 | Level checker, generator, campaign order | `world/level_check.*`, `world/level_gen.*`, `world/campaign.*` |
-| Save / load | `state/game_state.cpp`, `state/save_slots.*`, `world/dungeon_io.cpp` (the dungeon's part) |
+| Save / load | `state/game_state.cpp`, the file and its checks `world/dungeon_save.*`, `state/save_slots.*`, `world/dungeon_io.cpp` (the dungeon's part), the confirm box `ui/confirm_box.*` |
 | Quick save (F5) and quick load (F9) | `GameState::Quicksave` / `LoadQuicksave`, the keys in `specialKeyPressed` (`input/input.cpp`), the Load list in `ui/menu.cpp` |
 | Autosave, death screen, Continue | `GameState::Autosave` / `CountDeath` (`state/game_state.cpp`), the safe moments `AutosaveMoment` (`world/world_events.h`) and `Dungeon::PlayerInDanger` (`world/dungeon_monsters.cpp`), `ui/death_screen.*`, the Load list and Continue in `ui/menu.cpp`, the newest save `GameState::LatestSave` / `SaveSlots::PickLatest` |
 | Models, textures, sounds loaded once | `state/assets.cpp` |

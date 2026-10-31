@@ -9,6 +9,7 @@
 #include "../../src/graphics/render_config.h"
 #include "../../src/world/campaign.h"
 #include "../../src/world/dungeon.h"
+#include "../../src/world/dungeon_save.h"
 #include "../../src/world/item_bag.h"
 #include "../../src/world/items.h"
 #include "../../src/world/inscriptions.h"
@@ -20,6 +21,7 @@
 #include <cmath>
 #include <cstdint>
 #include <fstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -212,26 +214,15 @@ class SimWorld {
 	// the journal through a file, and back.
 	void SaveAndLoad() {
 		const std::string path = "build/sim_world.sav";
+		const SaveParts parts{dungeon, player, items, journal};
 		{
 			std::ofstream out(path);
-			out << dungeon.LevelNumber() << " ";
-			player.stats.Dump(out);
-			items.Save(out);
-			dungeon.Dump(out);
-			journal.Dump(out);
+			writeSaveGame(out, parts);
 		}
-		player.Reanimate();
 		std::ifstream in(path);
-		int level = 1;
-		in >> level;
-		dungeon.SetLevelNumber(level);
-		player.stats.LoadDump(in);
-		items.Load(in);
-		player.stats.Wear(amuletBonus(items.Worn()), false);
-		player.stats.WearRings(ringBonus(items.Rings()));
-		dungeon.LoadDump(in);
-		journal.Load(in);
-		dungeon.scatterDecorations(campaignLevelFile(level).c_str(), level);
+		if (!readSaveGame(in, parts))
+			throw std::runtime_error("the save does not read back");
+		dungeon.scatterDecorations(campaignLevelFile(dungeon.LevelNumber()).c_str(), dungeon.LevelNumber());
 	}
 
 	[[nodiscard]] float X() {

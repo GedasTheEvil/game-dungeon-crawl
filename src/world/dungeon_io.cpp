@@ -81,7 +81,7 @@ bool Dungeon::LoadCampaignLevel(int number) {
 	return true;
 }
 //======================================================================================
-bool Dungeon::LoadDump(std::ifstream& f) {
+bool Dungeon::LoadDump(std::istream& f) {
 	f >> mapX >> mapY;
 	if (!f)
 		return false;
@@ -123,7 +123,7 @@ bool Dungeon::LoadDump(std::ifstream& f) {
 	return true;
 }
 //======================================================================================
-void Dungeon::Dump(std::ofstream& f) {
+void Dungeon::Dump(std::ostream& f) {
 	f << mapX << " " << mapY << " ";
 
 	writeLevel(f, map, meta);

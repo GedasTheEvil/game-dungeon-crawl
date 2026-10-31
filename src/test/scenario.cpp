@@ -561,8 +561,11 @@ bool runInstant(const Command& cmd) {
 		return true;
 	}
 	case CommandType::SaveGame: // relative paths land in the output directory
-		Game().Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str());
-		report(cmd, true, "");
+		report(
+			cmd,
+			Game().Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str()),
+			""
+		);
 		return true;
 	case CommandType::LoadGame: {
 		std::string path = cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg;
@@ -570,8 +573,8 @@ bool runInstant(const Command& cmd) {
 			report(cmd, false, "no such file");
 			return true;
 		}
-		Game().LoadSave(path.c_str());
-		report(cmd, true, stateLine());
+		const bool loaded = Game().LoadSave(path.c_str());
+		report(cmd, loaded, loaded ? stateLine() : "cannot load");
 		return true;
 	}
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up

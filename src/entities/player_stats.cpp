@@ -351,7 +351,7 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 	return buf;
 }
 
-void PlayerStats::Dump(std::ofstream& f) const {
+void PlayerStats::Dump(std::ostream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
 	poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
@@ -362,7 +362,7 @@ void PlayerStats::Dump(std::ofstream& f) const {
 	run.Dump(f);
 }
 
-void PlayerStats::LoadDump(std::ifstream& f) {
+void PlayerStats::LoadDump(std::istream& f) {
 	f >> level >> XP >> Armor >> MaxHP >> HP >> Might;
 
 	int loadedStamina = 100;

@@ -170,8 +170,8 @@ class PlayerStats {
 	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken: the worn amulet's (Wear)
 	Heka heka; // bosses' points and the skills bought with them
 	RunStats run; // what this run did since New Game, for the leaderboard (plan leaderboard)
-	void Dump(std::ofstream& f) const;
-	void LoadDump(std::ifstream& f);
+	void Dump(std::ostream& f) const;
+	void LoadDump(std::istream& f);
 };
 
 #endif

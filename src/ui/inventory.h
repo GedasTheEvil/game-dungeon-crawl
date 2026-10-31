@@ -146,8 +146,7 @@ class Inventory {
 	[[nodiscard]] int Level(ItemKind kind) const { return bag.Level(kind); }
 	// Weapon damage with its level bonus.
 	[[nodiscard]] int EquippedDamage() const;
-	void Dump(std::ostream& f) const { bag.Save(f); }
-	void LoadDump(std::istream& f);
+	void BagLoaded(); // a save game was read into the bag (dungeon_save.h): the selection follows it
 };
 
 #endif

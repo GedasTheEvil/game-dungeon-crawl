@@ -1,11 +1,13 @@
 #ifndef MENU_H
 #define MENU_H
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 #include "../graphics/font.h"
 #include "../graphics/textures.h"
 #include "../input/bindings.h"
+#include "confirm_box.h"
 #include "pointer.h"
 #include "records_view.h"
 #include "ui_draw.h"
@@ -23,6 +25,7 @@ class MainMenu {
 	static constexpr int RESET_CONTROLS = 390; // Options > Controls: back to the default keys
 	static constexpr int BIND_BASE = 400; // Options > Controls: action * BINDING_SLOTS + slot
 	static constexpr int RECORDS_BASE = 600; // Hall of Records: its own targets (RecordsView)
+	static constexpr int DELETE_BASE = 700; // Save / Load Game: a used slot's delete button, + slot
 
 	ui::Pointer<int> pointer{NONE};
 
@@ -34,6 +37,7 @@ class MainMenu {
 	int capturing = NONE; // the BIND_BASE target waiting for a key or a mouse button
 	int dragging = NONE; // the slider the mouse went down on
 	RecordsView records;
+	ConfirmBox confirm; // "Overwrite slot 2?" over the screen (plan save-load-safety)
 
 	void LoadAssets();
 	void BeginCanvas();
@@ -67,6 +71,13 @@ class MainMenu {
 	void Navigate(NavKey key);
 	void Activate(int target);
 	void ShowToast(const std::string& text);
+	// What would throw away play asks first (plan save-load-safety); these run on the answer.
+	void SaveToSlot(int slot);
+	void LoadFrom(int target); // a slot, AUTOSAVE_TARGET or QUICKSAVE_TARGET
+	void DeleteSlot(int slot);
+	void AskDelete();
+	void AskOrDo(bool ask, const std::string& question, const std::function<void()>& action);
+	void ConfirmInput(const std::function<void()>& forward); // the box had the input: a closed box ends the focus
 
   public:
 	MainMenu();
@@ -84,9 +95,14 @@ class MainMenu {
 	// Options > Controls waits for the key or mouse button of a binding.
 	[[nodiscard]] bool Capturing() const { return capturing != NONE; }
 	void CaptureKey(const InputKey& key); // Esc cancels, Delete clears the binding
-	[[nodiscard]] bool InSubScreen() const { return saveD || loadD || optionsD || creditsD || recordsD; }
+	// A sub-screen or the confirm box is open: Esc backs out of it.
+	[[nodiscard]] bool InSubScreen() const {
+		return saveD || loadD || optionsD || creditsD || recordsD || confirm.Open();
+	}
 	void ResetSubScreens();
-	void BackOut(); // Esc or Back: a run's details back to the Hall of Records' list, any other sub-screen closes
+	// Esc or Back: the confirm box says no, a run's details back to the Hall of Records' list, any other sub-screen
+	// closes.
+	void BackOut();
 	// The Hall of Records, with the run just recorded marked (an index into the board's records, or
 	// RecordsView::NONE).
 	void OpenRecords(int marked);

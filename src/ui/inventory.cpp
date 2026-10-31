@@ -1098,8 +1098,7 @@ void Inventory::DrawFooter() {
 
 // ---- saves -----------------------------------------------------------------
 
-void Inventory::LoadDump(std::istream& f) {
-	bag.Load(f);
+void Inventory::BagLoaded() {
 	selectedSlot = itemIndex(bag.Equipped());
 	saneWeapon.reset();
 }

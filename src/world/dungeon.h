@@ -863,8 +863,8 @@ class Dungeon {
 	static constexpr int EXPLORE_RADIUS = 1; // cells to each side: a 3 x 3 square
 	[[nodiscard]] bool Explored(int col, int row) const { return IsInBounds(col, row) && explored[MapIndex(col, row)]; }
 	[[nodiscard]] Tile Cell(int col, int row) const { return MapAt(col, row); }
-	void Dump(std::ofstream& f);
-	bool LoadDump(std::ifstream& f);
+	void Dump(std::ostream& f);
+	bool LoadDump(std::istream& f);
 	// Props, decals, torches, ladders and surfaces, seeded by the level's file name, from the decoration tiers its
 	// depth unlocks (decor.h: the campaign level, DECOR_DEPTH_ALL outside the campaign).
 	void scatterDecorations(const char* levelName, int depth);

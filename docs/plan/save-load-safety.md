@@ -1,6 +1,6 @@
 # Save and load safety
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: implemented 2026-10-31, waiting for a play-test (`bin/game --play tests/play/save-load-safety.txt`). From the project audit of 2026-10-30.
 
 Opus: a confirm dialog in the shared UI look ([ui.md](../ui.md)), several menu flows, save error handling.
 
@@ -31,3 +31,19 @@ Opus: a confirm dialog in the shared UI look ([ui.md](../ui.md)), several menu f
 * Confirm overwriting a used slot. Slot rows show level, zone, character level and play time
   (`RunStats` has the time). A delete action per slot, with confirmation.
 * Unit tests: failed save reports failure and leaves the old file; failed load leaves the state untouched.
+
+## Done
+
+* `ConfirmBox` (`src/ui/confirm_box.*`, docs/ui.md "Confirm box"); `MainMenu::AskOrDo`.
+* New Game asks while an autosave exists. No `autosave.bak`: nothing could load it.
+* The save file goes through `world/dungeon_save.*` (no GL, unit-tested): `writeFileSafely` writes a temp file and
+  renames it; `loadSaveGame` reads into the game and, on a broken save, puts back the state it had (written and read
+  as a save is: what a save leaves out, such as a burning player, starts over). New saves start with `SAVEGAME` and
+  end with `END`, so a cut one is caught; older saves have neither and load as before.
+* Main Menu and Load Game ask after 3 s or more of play since the last save or load (`GameState::UnsavedProgress`).
+  Exit does not ask: it is only on the main menu, after the run was already left.
+* Slots: level and zone, date, character level and play time, read from the file's head (cached by file time and
+  size); `saves/gamelist.dat` is gone (it only held the level). A cross on a used slot, or Delete, deletes it after a
+  question.
+* Death screen: a Retry whose save cannot be loaded turns into "Could not load ..." and is disabled.
+* Tests: `tests/unit/save_load_safety_test.cpp`, scenario `tests/scenarios/save_load_safety.txt`.

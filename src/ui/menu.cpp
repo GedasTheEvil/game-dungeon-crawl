@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <filesystem>
+#include <system_error>
 #include <vector>
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
@@ -457,10 +459,31 @@ void drawMouse(float x, float y, MouseInput m, float scale) {
 
 // ---- save slots ------------------------------------------------------------
 
-void saveToSlot(int slot) {
-	Game().Save(Game().SlotPath(slot).c_str());
-	Game().saves.Record(slot, Game().dungeon.LevelNumber());
+// A used slot's delete button, in its top right corner.
+Rect deleteRect(int slot, bool load) {
+	const Rect r = slotRect(slot, load);
+	constexpr float SIZE = 4.5f;
+	return {r.x + r.w - SIZE - 1.5f, r.y + r.h - SIZE - 1.5f, SIZE, SIZE};
 }
+
+// Load Game's slot, autosave or quick save: what the toast and the confirm box call it.
+std::string saveName(int target) {
+	if (target == AUTOSAVE_TARGET)
+		return "the autosave";
+	if (target == QUICKSAVE_TARGET)
+		return "the quick save";
+	return "slot " + std::to_string(target + 1);
+}
+
+std::string pathOf(int target) {
+	if (target == AUTOSAVE_TARGET)
+		return Game().AutosavePath();
+	if (target == QUICKSAVE_TARGET)
+		return Game().QuicksavePath();
+	return Game().SlotPath(target);
+}
+
+constexpr const char* LOST = " The play since the last save is lost.";
 } // namespace
 
 MainMenu::MainMenu() {
@@ -506,12 +529,17 @@ void MainMenu::Draw() {
 		DrawBackground(saveD ? "Save Game" : "Load Game");
 		DrawSlots();
 		DrawBackButton();
-		DrawFooter(saveD ? "Click or Enter: save to a slot    Esc: back" : "Click or Enter: load a slot    Esc: back");
+		DrawFooter(
+			saveD ? "Click or Enter: save to a slot    Delete: delete    Esc: back"
+				  : "Click or Enter: load a slot    Delete: delete    Esc: back"
+		);
 	} else {
 		DrawBackground("Dungeon Crawl");
 		DrawButtons();
 		DrawFooter(inGame ? "Arrows: move    Enter: pick    Esc: return to game" : "Arrows: move    Enter: pick");
 	}
+	if (confirm.Open())
+		confirm.Draw(heading, body, small, visibleArea());
 	EndFrame();
 }
 
@@ -578,13 +606,12 @@ void MainMenu::DrawSlots() {
 }
 
 // A save slot, or the autosave or the quick save (AUTOSAVE_TARGET, QUICKSAVE_TARGET) in Load Game. The text sits as on
-// the Save Game's taller tiles, scaled to the tile.
+// the Save Game's taller tiles, scaled to the tile: the level and its zone, under it the date, the character level and
+// the play time.
 void MainMenu::DrawSlot(int slot) {
 	const bool quicksave = slot == QUICKSAVE_TARGET;
 	const bool autosave = slot == AUTOSAVE_TARGET || quicksave; // the game's own files, read-only
-	SaveSlots::Info info = slot == AUTOSAVE_TARGET ? SaveSlots::DescribeFile(Game().AutosavePath())
-						   : quicksave			   ? SaveSlots::DescribeFile(Game().QuicksavePath())
-												   : Game().saves.Describe(slot);
+	const SaveSlots::Info info = SaveSlots::DescribeFile(pathOf(slot));
 	bool enabled = saveD || info.used;
 	bool isHovered = enabled && pointer.hovered == slot;
 	bool held = isHovered && pointer.Held(slot);
@@ -608,9 +635,20 @@ void MainMenu::DrawSlot(int slot) {
 			info.used ? GOLD : LABEL_DIM
 		);
 
+	const bool deletable = info.used && !autosave;
 	float textX = well.x + well.w + 3.5f;
+	const float textRight = r.x + r.w - (deletable ? 8.f : 3.f);
 	if (info.used) // divider between the level and the date
 		line(textX, r.y + 7.4f * k, r.x + r.w - 3.f, r.y + 7.4f * k, BRONZE, 1.f, 1.f);
+	if (deletable) { // a cross on a small stone tile
+		const int target = DELETE_BASE + slot;
+		const bool deleteHovered = pointer.hovered == target;
+		const Rect d = tile(deleteRect(slot, loadD), TileStyle::Stone, deleteHovered, pointer.Held(target));
+		const Color c = deleteHovered ? Color{0.95f, 0.5f, 0.35f} : LABEL_DIM;
+		const float s = d.w * 0.25f;
+		line(d.cx() - s, d.cy() - s, d.cx() + s, d.cy() + s, c, 1.f, 1.5f);
+		line(d.cx() - s, d.cy() + s, d.cx() + s, d.cy() - s, c, 1.f, 1.5f);
+	}
 
 	beginText();
 	if (!autosave) {
@@ -620,26 +658,33 @@ void MainMenu::DrawSlot(int slot) {
 	}
 
 	if (info.used) {
-		char level[40] = "Saved game";
-		if (autosave) {
-			const char* name = quicksave ? "Quick save" : "Autosave";
-			if (info.level > 0)
-				std::snprintf(level, sizeof(level), "%s, level %d", name, info.level);
-			else
-				std::snprintf(level, sizeof(level), "%s", name);
-		} else if (info.level > 0)
-			std::snprintf(level, sizeof(level), "Level %d", info.level);
-		if (info.level > 0 && !campaignLevelTitle(info.level).empty()) { // plan campaign-texts: if it fits
-			const std::string titled = std::string(level) + ": " + campaignLevelTitle(info.level);
-			if (textX + heading.TextWidth(titled.c_str()) < r.x + r.w - 3.f)
-				std::snprintf(level, sizeof(level), "%s", titled.c_str());
+		std::string level = "Saved game";
+		if (autosave)
+			level = std::string(quicksave ? "Quick save" : "Autosave") +
+					(info.level > 0 ? ", level " + std::to_string(info.level) : "");
+		else if (info.level > 0)
+			level = "Level " + std::to_string(info.level);
+		text(heading, textX, r.y + 8.8f * k, level.c_str(), isHovered ? GOLD_BRIGHT : GOLD);
+		if (const Zone* zone = zoneOf(info.level)) { // plan save-load-safety: the zone after it, smaller, if it fits
+			const char* name = zoneInfo(zone->id).name;
+			const float zoneX = textX + heading.TextWidth(level.c_str()) + 2.f;
+			if (zoneX + body.TextWidth(name) < textRight)
+				text(body, zoneX, r.y + 8.8f * k, name, isHovered ? LABEL : LABEL_DIM);
 		}
-		text(heading, textX, r.y + 8.8f * k, level, isHovered ? GOLD_BRIGHT : GOLD);
-		text(body, textX, r.y + 3.f * k, info.when.c_str(), isHovered ? LABEL : LABEL_DIM);
-		if (saveD && isHovered) {
-			const char* overwrite = "Overwrite";
-			text(small, r.x + r.w - small.TextWidth(overwrite) - 2.5f, r.y + 10.f * k, overwrite, {0.9f, 0.45f, 0.3f});
-		}
+		text(small, textX, r.y + 3.f * k, info.when.c_str(), isHovered ? LABEL : LABEL_DIM);
+		std::string run;
+		if (info.characterLevel > 0)
+			run = "Lv " + std::to_string(info.characterLevel);
+		if (info.playMs >= 0)
+			run += (run.empty() ? "" : ", ") + SaveSlots::PlayTime(info.playMs);
+		if (!run.empty())
+			text(
+				small,
+				r.x + r.w - 3.f - small.TextWidth(run.c_str()),
+				r.y + 3.f * k,
+				run.c_str(),
+				isHovered ? LABEL : LABEL_DIM
+			);
 	} else {
 		textMiddle(
 			heading,
@@ -842,7 +887,14 @@ void MainMenu::DrawBackButton() {
 void MainMenu::DrawFooter(const char* hint) {
 	beginText();
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f) // under the Back button where there is one
-		textCentered(body, CENTRE, optionsD ? 5.6f : 12.f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
+		textCentered(
+			body,
+			CENTRE,
+			saveD || loadD || optionsD || creditsD || recordsD ? 5.6f : 12.f,
+			toast.text.c_str(),
+			{1.f, 0.9f, 0.6f},
+			alpha
+		);
 	textCentered(small, CENTRE, 2.2f, hint, LABEL_DIM);
 }
 
@@ -889,9 +941,13 @@ std::vector<MainMenu::Placed> MainMenu::Targets() const {
 		return targets;
 	}
 	if (saveD || loadD) {
-		for (int slot = 0; slot < SaveSlots::COUNT; slot++)
-			if (saveD || Game().saves.Describe(slot).used)
+		for (int slot = 0; slot < SaveSlots::COUNT; slot++) {
+			const bool used = SaveSlots::DescribeFile(Game().SlotPath(slot)).used;
+			if (used) // before its slot, which it sits on
+				targets.push_back({DELETE_BASE + slot, deleteRect(slot, loadD)});
+			if (saveD || used)
 				targets.push_back({slot, slotRect(slot, loadD)});
+		}
 		if (loadD && Game().HasAutosave())
 			targets.push_back({AUTOSAVE_TARGET, slotRect(AUTOSAVE_TARGET, true)});
 		if (loadD && Game().HasQuicksave())
@@ -1000,36 +1056,37 @@ void MainMenu::Activate(int target) {
 			optionsTab = target - TAB_BASE;
 		return;
 	}
+	if (target >= DELETE_BASE) {
+		const int slot = target - DELETE_BASE;
+		confirm.Ask("Delete the save in slot " + std::to_string(slot + 1) + "?", [this, slot] { DeleteSlot(slot); });
+		return;
+	}
 	if (saveD) {
-		saveToSlot(target);
-		ResetSubScreens();
-		ShowToast("Saved to slot " + std::to_string(target + 1));
-		return;
-	}
-	if (loadD && target == AUTOSAVE_TARGET) {
-		Game().LoadAutosave();
-		return;
-	}
-	if (loadD && target == QUICKSAVE_TARGET) {
-		Game().LoadSaveIntoGame(Game().QuicksavePath());
+		AskOrDo(
+			SaveSlots::DescribeFile(Game().SlotPath(target)).used,
+			"Overwrite the save in slot " + std::to_string(target + 1) + "?",
+			[this, target] { SaveToSlot(target); }
+		);
 		return;
 	}
 	if (loadD) {
-		Game().LoadSave(Game().SlotPath(target).c_str());
-		ResetSubScreens();
-		Game().ui.screen = Screen::Gameplay;
-		inGame = true;
+		AskOrDo(inGame && Game().UnsavedProgress(), "Load " + saveName(target) + "?" + LOST, [this, target] {
+			LoadFrom(target);
+		});
 		return;
 	}
 
 	switch (menuButtons(inGame)[target].action) {
 	case MenuAction::Continue:
-		Game().LoadLatestSave();
+		if (!Game().LoadLatestSave())
+			ShowToast("Could not load the newest save");
 		break;
 	case MenuAction::NewGame:
-		Game().ui.screen = Screen::Gameplay;
-		Game().NewGame();
-		inGame = true;
+		AskOrDo(Game().HasAutosave(), "Start a new game? The autosave of the last run is replaced.", [this] {
+			Game().ui.screen = Screen::Gameplay;
+			Game().NewGame();
+			inGame = true;
+		});
 		break;
 	case MenuAction::Resume:
 		Game().ui.screen = Screen::Gameplay;
@@ -1054,11 +1111,49 @@ void MainMenu::Activate(int target) {
 		creditsD = true;
 		break;
 	case MenuAction::MainMenu:
-		inGame = false;
+		AskOrDo(Game().UnsavedProgress(), std::string("Leave for the main menu?") + LOST, [this] { inGame = false; });
 		break;
 	case MenuAction::Quit: // glutMainLoop returns, main cleans up
 		glutLeaveMainLoop();
 	}
+}
+
+void MainMenu::AskOrDo(bool ask, const std::string& question, const std::function<void()>& action) {
+	if (ask)
+		confirm.Ask(question, action);
+	else
+		action();
+}
+
+// A failed save stays on Save Game with the old file kept (GameState::Save).
+void MainMenu::SaveToSlot(int slot) {
+	const std::string name = "slot " + std::to_string(slot + 1);
+	if (!Game().Save(Game().SlotPath(slot).c_str())) {
+		ShowToast("Could not save to " + name);
+		return;
+	}
+	ResetSubScreens();
+	ShowToast("Saved to " + name);
+}
+
+// A save that cannot be loaded leaves the game as it was, on Load Game.
+void MainMenu::LoadFrom(int target) {
+	if (!Game().LoadSaveIntoGame(pathOf(target)))
+		ShowToast("Could not load " + saveName(target));
+}
+
+void MainMenu::DeleteSlot(int slot) {
+	std::error_code error;
+	std::filesystem::remove(Game().SlotPath(slot), error);
+	ShowToast(
+		error ? "Could not delete slot " + std::to_string(slot + 1) : "Slot " + std::to_string(slot + 1) + " deleted"
+	);
+}
+
+void MainMenu::ConfirmInput(const std::function<void()>& forward) {
+	forward();
+	if (!confirm.Open())
+		pointer.Clear();
 }
 
 void MainMenu::ActivateOption(int row, int step) {
@@ -1176,6 +1271,13 @@ void MainMenu::Bind(const InputKey& key) {
 }
 
 void MainMenu::MouseFunction(int button, int state, int x, int y) {
+	if (confirm.Open()) {
+		float cx = 0.f;
+		float cy = 0.f;
+		ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+		ConfirmInput([&] { confirm.Button(button, state == GLUT_DOWN, cx, cy); });
+		return;
+	}
 	int target = TargetAt(x, y);
 	pointer.Move(target);
 
@@ -1228,16 +1330,31 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	}
 }
 
-void MainMenu::MousePassiveMotion(int x, int y) { pointer.Move(TargetAt(x, y)); }
+void MainMenu::MousePassiveMotion(int x, int y) {
+	if (confirm.Open()) {
+		float cx = 0.f;
+		float cy = 0.f;
+		ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+		confirm.Move(cx, cy);
+		return;
+	}
+	pointer.Move(TargetAt(x, y));
+}
 
 void MainMenu::MouseDrag(int x, int y) {
-	if (dragging != NONE)
+	if (confirm.Open())
+		MousePassiveMotion(x, y);
+	else if (dragging != NONE)
 		SetSlider(dragging - OPTION_BASE, x);
 	else
 		pointer.Move(TargetAt(x, y));
 }
 
 void MainMenu::BackOut() {
+	if (confirm.Open()) {
+		confirm.Cancel();
+		return;
+	}
 	if (recordsD && records.InDetail()) {
 		records.CloseDetail();
 		pointer.Move(NONE);
@@ -1253,20 +1370,36 @@ void MainMenu::OpenRecords(int marked) {
 }
 
 void MainMenu::KeyPressed(unsigned char key) {
-	if (recordsD)
+	if (confirm.Open())
+		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls)); });
+	else if ((saveD || loadD) && key == KEY_DELETE)
+		AskDelete();
+	else if (recordsD)
 		records.Key(key);
 	else
 		Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
 }
 
 void MainMenu::SpecialKeyPressed(int key) {
-	if (recordsD)
+	if (confirm.Open())
+		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); });
+	else if ((saveD || loadD) && key == SPECIAL_KEYPAD_DELETE)
+		AskDelete();
+	else if (recordsD)
 		records.SpecialKey(key);
 	else
 		Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls));
 }
 
+// Delete on a used slot (or its delete button): as a click on the delete button.
+void MainMenu::AskDelete() {
+	const int slot = pointer.hovered >= DELETE_BASE ? pointer.hovered - DELETE_BASE : pointer.hovered;
+	if (slot >= 0 && slot < SaveSlots::COUNT && SaveSlots::DescribeFile(Game().SlotPath(slot)).used)
+		Activate(DELETE_BASE + slot);
+}
+
 void MainMenu::ResetSubScreens() {
+	confirm.Cancel();
 	creditsD = false;
 	recordsD = false;
 	saveD = false;

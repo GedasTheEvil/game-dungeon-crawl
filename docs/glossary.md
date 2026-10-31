@@ -102,7 +102,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | water slab | | (drawing) the thin rock a deep water cell sits on, and stands against at its sides, where it meets an open cell | `Dungeon::deepWaterBox`, `WATER_SLAB` |
 | water prop | | ([water-decorations](plan/solved/water-decorations.md)) a prop scattered in a free half water cell: papyrus reeds (at the bank), weed (under the surface), lotus leaves, a blue lotus. No function; the reeds and weed sway, the leaves bob | `isWaterProp`, `DECOR_WATER_FIRST` |
 | zone | | ([campaign-zones](plan/solved/campaign-zones.md)) a run of campaign levels with its own stone, main monsters, new mechanic and (mostly) a boss on one of its levels; one hour of the Duat, its title "The Fourth Hour: the Gate of the Priests"; each level file names its own (`zone SLUG`, the editor's zone button) | `Zone`, `ZONES`, `ZONE_INFO`, `zoneOf`, `zoneTitle`, `LevelMeta` |
-| level title | | (plan campaign-texts) a campaign level's own name in its file ("The Hall of Drifts"), shown on the level banner, the map and the save slots | `LevelMeta::title` |
+| level title | | (plan campaign-texts) a campaign level's own name in its file ("The Hall of Drifts"), shown on the level banner and the map | `LevelMeta::title` |
 | hour note | | (plan campaign-texts) the field note written on first entering a zone: the archaeologist on that hour of the Duat | `FieldNote::HourFirst` |
 | zone look | | ([zone-looks](plan/solved/zone-looks.md)) how a zone looks and sounds: its stone (the zone table), decor set, ambient light, haze, torch chance, ambient loop and banner guardian | `ZoneLook`, `ZONE_LOOKS`, `levelLook`, `Dungeon::Look` |
 | zone banner | | ([zone-looks](plan/solved/zone-looks.md)) the panel over the game when a campaign level starts: on a zone's first level its hour and gate, the zone and its guardian; on any other the level and its zone, smaller | `ZoneBanner`, `levelBanner`, `LevelBanner` |
@@ -260,6 +260,9 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | campaign run | | a run begun with New Game on level 1; only its win goes on the leaderboard (scenario `campaign`) | `RunStats::campaign` |
 | death screen | You died | the panel over the dimmed game after the death clip: Retry from the newest save, Main Menu | `DeathScreen`, `Screen::Death` |
 | deaths | Deaths | a run's deaths, counted at the death and written into the autosave then, so a retry keeps them | `RunStats::deaths` |
+| unsaved progress | The play since the last save is lost | (plan save-load-safety) 3 s or more of play since the last save or load: Main Menu and Load Game ask first then | `GameState::UnsavedProgress` |
+| confirm box | Yes, No | (plan save-load-safety) the question over a menu screen before an action that throws away play or a save | `ConfirmBox` |
+| save file tags | | (plan save-load-safety) a save's first word `SAVEGAME` and last word `END`: a tagged save without its end was cut and does not load; an older save has neither | `SaveSlots::FILE_TAG`, `SaveSlots::END_TAG` |
 | exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 + secrets found x30 | `explorationScore` |
 | Hall of Records | Hall of Records | the main menu's leaderboard screen: rank, name, score in the chosen order; a row opens the run's details | `RecordsView` |
 | leaderboard | Hall of Records | the won campaign runs, one record each, in `saves/leaderboard.txt` (never in a save game) | `Leaderboard`, `RunRecord` |

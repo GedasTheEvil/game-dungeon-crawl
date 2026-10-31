@@ -1,0 +1,64 @@
+# Plan save-load-safety: the confirm box before overwriting or deleting a slot and before leaving a run with play
+# since the last save; the slots show the zone, the character level and the play time.
+level 1
+wait 10
+key esc
+wait 2
+# Save Game, into the empty slot 1: no question.
+click 50 56.1
+wait 2
+click 31.4 72
+wait 2
+screenshot saved
+# Slot 1 again: overwrite?
+click 50 56.1
+wait 2
+mouse 31.4 72
+wait 2
+screenshot slots
+click 31.4 72
+wait 2
+screenshot confirm_overwrite
+key esc
+wait 2
+screenshot overwrite_cancelled
+click 31.4 72
+wait 2
+key enter
+wait 2
+screenshot overwritten
+# Delete slot 1 by its cross.
+click 50 56.1
+wait 2
+mouse 46.77 76.25
+wait 2
+screenshot delete_hover
+click 46.77 76.25
+wait 2
+screenshot confirm_delete
+mouse 41 45
+wait 2
+screenshot confirm_yes_hover
+click 41 45
+wait 2
+screenshot deleted
+key esc
+wait 2
+key esc
+wait 2
+# Play, then Main Menu: the play since the autosave would be lost.
+wait 5s
+key esc
+wait 2
+click 50 25.5
+wait 2
+screenshot confirm_leave
+click 59 45
+wait 2
+dump
+click 50 25.5
+wait 2
+click 41 45
+wait 2
+screenshot left
+dump

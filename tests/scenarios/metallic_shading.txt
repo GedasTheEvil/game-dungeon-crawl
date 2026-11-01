@@ -1,5 +1,6 @@
 # Metal shine (plan metallic-shading): the khopesh in hand and the treasure chests' gold, by a torch and in the
-# player's own light, normal and toon. Level 1 start corridor: the torch a few steps right (lighting.txt).
+# player's own light, normal and toon; the key, a gate, a mirror and a sun disc. Level 1 start corridor: the torch a
+# few steps right (lighting.txt).
 resolution 1920 1080
 seed 1
 god
@@ -25,5 +26,27 @@ screenshot chest_coffer
 toon on
 wait 2
 screenshot chest_coffer_toon
+toon off
+# Step 2: the key and the red gate (tests/levels/mechanisms: key col 5, gate col 8), the mirror and the sun disc
+# (tests/levels/mirrors: mirror col 3, disc col 8).
+level tests/levels/mechanisms
+wait 30
+walk to 3.5
+wait 10
+screenshot key_gate
+walk right 4.1
+wait 10
+screenshot gate_close
+level tests/levels/mirrors
+wait 30
+walk to 3.5
+interact
+wait 600ms
+interact
+wait 300ms
+screenshot mirror
+wait 2s
+walk to 7.5
+screenshot sun_disc
 expect alive == 1
 quit

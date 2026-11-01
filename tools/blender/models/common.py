@@ -383,37 +383,56 @@ def bake_texture(obj, out_path, size=1024, prefix="model", ao_distance=0.15):
     a = np.array(ao.pixels[:]).reshape(-1, 4)[:, :1]
     out = c.copy()
     out[:, :3] = c[:, :3] * (0.45 + 0.55 * a)
-    metallic = any("metal_mask" in m for m in obj.data.materials)
-    if metallic:
-        mask = bpy.data.images.new(prefix + "_bake_metal", size, size, alpha=False)
-        mask.colorspace_settings.name = "Non-Color"
-        mats = list(obj.data.materials)
-        for i, m in enumerate(mats):
-            g = _metal_mask_material(m)
-            node = g.node_tree.nodes.get("bake_target") or g.node_tree.nodes.new("ShaderNodeTexImage")
-            node.name = "bake_target"
-            node.image = mask
-            g.node_tree.nodes.active = node
-            obj.data.materials[i] = g
-        bpy.ops.object.bake(type="DIFFUSE", margin=6, use_clear=True, pass_filter={"COLOR"})
-        for i, m in enumerate(mats):
-            obj.data.materials[i] = m
-        out[:, 3] = 1.0 - np.array(mask.pixels[:]).reshape(-1, 4)[:, 0]
-        bpy.data.images.remove(mask)
-    tex = bpy.data.images.get(prefix + "_tex")
-    if tex is not None and (tex.depth == 32) != metallic:
-        bpy.data.images.remove(tex)
-        tex = None
-    tex = tex or bpy.data.images.new(prefix + "_tex", size, size, alpha=metallic)
-    tex.pixels = out.ravel().tolist()
-    tex.filepath_raw = out_path
-    tex.file_format = "PNG"
-    tex.save()
-    scene.render.engine = engine
     for m in obj.data.materials:
         m.node_tree.nodes.remove(m.node_tree.nodes["bake_target"])
     bpy.data.images.remove(col)
     bpy.data.images.remove(ao)
+    tex = save_texture(prefix + "_tex", out, size, out_path, bake_metal_mask(obj, size, prefix))
+    scene.render.engine = engine
+    return tex
+
+
+def bake_metal_mask(obj, size, prefix):
+    """The metal strength per pixel (0..1, flat) of obj, the active and only selected object, baked with Cycles in a
+    second pass over its materials in grey (_metal_mask_material); None when no material has metal."""
+    import numpy as np
+
+    if not any("metal_mask" in m for m in obj.data.materials):
+        return None
+    mask = bpy.data.images.new(prefix + "_bake_metal", size, size, alpha=False)
+    mask.colorspace_settings.name = "Non-Color"
+    mats = list(obj.data.materials)
+    for i, m in enumerate(mats):
+        g = _metal_mask_material(m)
+        node = g.node_tree.nodes.get("bake_target") or g.node_tree.nodes.new("ShaderNodeTexImage")
+        node.name = "bake_target"
+        node.image = mask
+        g.node_tree.nodes.active = node
+        obj.data.materials[i] = g
+    bpy.ops.object.bake(type="DIFFUSE", margin=6, use_clear=True, pass_filter={"COLOR"})
+    for i, m in enumerate(mats):
+        obj.data.materials[i] = m
+    strength = np.array(mask.pixels[:]).reshape(-1, 4)[:, 0]
+    bpy.data.images.remove(mask)
+    return strength
+
+
+def save_texture(name, pixels, size, out_path, metal=None):
+    """Writes pixels (size x size x RGBA floats, any shape) to a PNG: RGB, or RGBA with alpha 1 - metal (bake_metal_mask)."""
+    import numpy as np
+
+    out = np.array(pixels, dtype=float).reshape(-1, 4)
+    if metal is not None:
+        out[:, 3] = 1.0 - metal
+    tex = bpy.data.images.get(name)
+    if tex is not None and (tex.depth == 32) != (metal is not None):
+        bpy.data.images.remove(tex)
+        tex = None
+    tex = tex or bpy.data.images.new(name, size, size, alpha=metal is not None)
+    tex.pixels = out.ravel().tolist()
+    tex.filepath_raw = out_path
+    tex.file_format = "PNG"
+    tex.save()
     return tex
 
 

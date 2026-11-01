@@ -42,7 +42,7 @@ import decor  # noqa: E402
 
 importlib.reload(common)
 importlib.reload(decor)
-from common import REPO, Builder, ellipsoid, transform, tube  # noqa: E402
+from common import REPO, Builder, ellipsoid, metal, transform, tube  # noqa: E402
 from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E402
 
 COLL = "mechanism_new"
@@ -72,20 +72,21 @@ GEMS = {
 }
 
 COL = {
-    "gold": (0.78, 0.55, 0.16),
-    "gold_dark": (0.46, 0.30, 0.08),
-    "bronze": (0.44, 0.28, 0.10),
-    "bronze_dark": (0.24, 0.14, 0.05),
+    "gold": metal((0.78, 0.55, 0.16)),
+    "gold_dark": metal((0.46, 0.30, 0.08)),
+    "bronze": metal((0.44, 0.28, 0.10)),
+    "bronze_dark": metal((0.24, 0.14, 0.05)),
     "verdigris": (0.14, 0.34, 0.26),
     "sandstone": (0.62, 0.48, 0.29),
     "sandstone_dark": (0.40, 0.29, 0.16),
     "sandstone_light": (0.74, 0.60, 0.38),
     "crack": (0.05, 0.035, 0.02),
-    "polished": (0.96, 0.84, 0.56),
+    "polished": metal((0.96, 0.84, 0.56)),
     "sand": (0.76, 0.60, 0.35),
     "enamel": (0.02, 0.015, 0.01),
     "poison": (0.28, 0.52, 0.06),
     "wood": (0.30, 0.18, 0.08),
+    "wood_dark": (0.24, 0.14, 0.05),
     "soot": (0.2, 0.14, 0.08),
     "ember": (0.55, 0.12, 0.02),
     "gem": GEMS["red"]["gem"],
@@ -112,7 +113,7 @@ def materials():
         "poison": ("solid", "poison"),
         "soot": ("solid", "soot"),
         "ember": ("solid", "ember"),
-        "wood": stripes("u", 1 / 7, [(3, "wood"), (1, "bronze_dark")], "LINEAR"),
+        "wood": stripes("u", 1 / 7, [(3, "wood"), (1, "wood_dark")], "LINEAR"),
         "gem": ("solid", "gem"),
         "glint": ("solid", "glint"),
         "accent": ("solid", "accent"),
@@ -655,13 +656,8 @@ def bake_lit(obj, out_path, name, size, suns, sky):
     for m in obj.data.materials:
         m.node_tree.nodes.remove(m.node_tree.nodes["bake_target"])
     px = np.clip(np.array(img.pixels[:]), 0.0, 1.0)
-    tex = bpy.data.images.get(name) or bpy.data.images.new(name, size, size, alpha=False)
-    tex.pixels = px.tolist()
-    tex.filepath_raw = out_path
-    tex.file_format = "PNG"
-    tex.save()
     bpy.data.images.remove(img)
-    return tex
+    return common.save_texture(name, px, size, out_path, common.bake_metal_mask(obj, size, name))
 
 
 # ---------------------------------------------------------------- entry points

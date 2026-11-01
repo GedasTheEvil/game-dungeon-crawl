@@ -102,7 +102,8 @@ means that one). How the original models were rebuilt, and notes per model: [rem
   (255 matte, 255 - 255 x strength metal; the texture is RGBA then, RGB without metal). The game's shader shines it
   (`uMetalMask`, set by `AnimatedModel::Show`): less diffuse, a Blinn-Phong highlight per light tinted by the colour,
   one hard band in toon mode. So a model's alpha is never see-through: a model draw's alpha is its colour's.
-  Metal so far: gold, bronze and the blades of `items.py`, the ring bands (`rings.py`).
+  Metal so far: gold, bronze and the blades of `items.py`, the ring bands (`rings.py`), gold, bronze and the polished
+  mirror of `mechanism.py` (its lit bake, `bake_lit`, saves through `save_texture` with `bake_metal_mask` too).
 * Engine side: `src/entities/md3_mesh.cpp` (MD3 loader), `src/entities/model_info.cpp` (clip files, normalization), `src/graphics/animated_model.cpp` (drawing), `src/graphics/textures.cpp` (PNG textures), model/texture paths in `src/world/monster_kinds.cpp` (`KINDS`) and `src/world/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,

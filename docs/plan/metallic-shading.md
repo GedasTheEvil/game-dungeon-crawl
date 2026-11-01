@@ -44,3 +44,26 @@ animated monsters each part would have to follow the same frames. The MD3 loader
 
 * Scenario screenshots: a ring and a khopesh by a torch, normal and toon mode, before and after; a gate in a dark corner.
 * Unit: the shader still compiles (if a GL-free check exists), baked textures of step 1 have alpha < 255 somewhere.
+
+## Implemented (2026-11-01)
+
+* Mask: alpha 255 matte, 255 - 255 x strength metal (`common.metal(rgb[, strength])` in a palette; `make_material`
+  keeps the strengths, `bake_texture` / `save_texture` bake and write them, `bake_metal_mask`). A script's own node
+  material: `metal_palette` + `"metal_mask_material"` (the crocodile's collar). Documented in docs/modeling.md.
+* Shader: `uMetalMask`, set by `AnimatedModel::Show` around its draw (every model, nothing else: decals and
+  sprites keep their see-through alpha). Diffuse x 0.7 on full metal, Blinn-Phong (exponent 10, x 2.2) per light,
+  tinted by the base colour; toon: the bands as the paint's (x 0.75) and one hard highlight band. No rim term: the
+  player's light alone gives the medium shine. Emissive draws unchanged; the lit and emissive paths output
+  `gl_Color.a` on a masked draw.
+* Alpha out, loading: `LoadPNG` keeps RGBA. The inventory and the journal's photo draw models without the shader
+  and without blending: no shine there, and the alpha does nothing.
+* Step 1 wider than listed: every gold, bronze and blade colour in `items.py` (all weapons, amulets, the chest's
+  trims, gilded potion vessels), the three ring bands. Step 2: `mechanism.py` gold, bronze and the polished mirror
+  (keys, gates, levers, mirrors, sun discs, spikes, the ring transporter); the wood grain got its own matte colour.
+  Step 3: Sobek's scutes and collar, Serket's carapace (0.6) and sting, the mummy priest's gold.
+* The re-exports of `items.py` and part of `mechanism.py` gave new UV layouts (geometry unchanged, checked per
+  vertex): those `.md3` files went in with their textures. `rings.py` now exports ring geometry different from the
+  committed `.md3` files (UVs the same): only the ring textures were replaced, the `.md3` files kept.
+* Tests: `tests/scenarios/metallic_shading.txt` (khopesh by a torch, normal and toon, the chest and coffer, key,
+  gate, mirror, sun disc), `tests/unit/metal_mask_test.cpp` (the baked textures have metal, matte ones none). No
+  GL-free shader compile check exists; the scenario compiles it. Play: `bin/game --play tests/play/metallic-shading.txt`.

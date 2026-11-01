@@ -1,0 +1,11 @@
+# Plan metallic-shading, for `bin/game --play tests/play/metallic-shading.txt`: tests/levels/mechanisms with the
+# khopesh in hand: its blade, the red key (col 5), the gate's bronze bars and gold ring (col 8) and the lever (col 10)
+# shine in your own light, brighter by a torch. F1 toggles toon mode (one hard highlight band). Rings, amulets and
+# the chest's gold too; the bosses: `bin/game --level tests/levels/scorpion_queen`, `.../sobek`, `.../mummy_priest`.
+seed 1
+god
+level tests/levels/mechanisms
+give melee 4
+equip khopesh
+give ring 8
+give amulet 3

@@ -1,0 +1,49 @@
+# Plan map-symbols-and-zoom: the draft map's symbols for teleporters, ring platforms, name gates, sphinx gates, the
+# portals and the boss gate, the legend slip, zoom (+ / -) and pan (arrows).
+seed 1
+god
+resolution 1024 768
+level tests/levels/map_symbols
+wait 30
+walk to 20
+wait 10
+key m
+wait 2
+screenshot symbols
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+wait 2
+screenshot zoomed
+key left
+key left
+key left
+key left
+key left
+key left
+key left
+key left
+key down
+wait 2
+screenshot panned
+key -
+key -
+key -
+key -
+key -
+key -
+key -
+key -
+key -
+key -
+key -
+key -
+wait 2
+screenshot zoomed_out
+key m
+quit

@@ -1,0 +1,6 @@
+# Plan map-symbols-and-zoom, for `bin/game --play tests/play/map-symbols-and-zoom.txt`: tests/levels/map_symbols, one
+# of every draft map symbol along the row. Walk right to the exit, press M: the symbols and the legend slip. Zoom with
+# the wheel (round the mouse) and + / -, pan with a drag and the arrows.
+seed 1
+god
+level tests/levels/map_symbols

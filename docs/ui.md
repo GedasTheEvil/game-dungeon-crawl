@@ -11,7 +11,7 @@ parts below instead of drawing their own.
 | Win entry (name for the leaderboard) | `src/ui/win_entry.cpp` | 160 x 100, over the won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
-| Draft map | `src/ui/map_view.cpp` | 100 high, width follows the window |
+| Draft map (zoom: `src/ui/map_zoom.h`) | `src/ui/map_view.cpp` | 100 high, width follows the window |
 | Journal | `src/ui/journal_view.cpp` (data: `src/world/journal.h`) | 160 x 100 |
 | Heka (skills) | `src/ui/skills_view.cpp` (layout: `src/ui/skills_layout.h`, data: `src/world/skills.h`) | 160 x 100 |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
@@ -240,6 +240,16 @@ open book, the ka's raised arms) and the key (I, M, J, K) in `small` `GOLD`. The
 shows the screen's name on a dark label to the left. Screens with the strip keep their title rule short
 (`SCREEN_TABS_TITLE_REACH`, 33). The strip is always drawn in the 160 x 100 canvas, also over the draft map's
 window-wide one, so it stays in the same place. Its clicks are handled before the screen's own (`ScreenTabs::Mouse`).
+
+### Draft map
+
+A pencil sketch of the explored cells on a portrait papyrus sheet, one symbol a cell (`MapMark`: the object, else
+the fixture), keys, gates, levers and sun discs in their lock colour, the boss gate in obsidian with a red seal,
+teleporters and ring platforms in teal, a name gate's cartouche in gold. Left of the sheet a narrower slip, the
+legend: a row per mark drawn so far (its first explored tile as the sample), then "You"; in a narrow window it lies
+over the sheet's margin. The wheel (round the mouse) and `+` / `-` zoom from the fit (1x) up to `MapZoom::MAX_CELL`;
+a drag and the arrows pan within the 1x view; the sketch is clipped to the sheet (clip planes). A new level starts at
+1x ([map-symbols-and-zoom](plan/map-symbols-and-zoom.md)).
 
 ### Inventory group tabs
 

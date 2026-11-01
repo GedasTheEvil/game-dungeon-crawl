@@ -81,7 +81,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
   name, editor text, decor flags, glyph, editor icon; the icon drawn by `tools/editor/icons/make_icons.py`), and its
   glyph in the legend. A thing on the back wall is a wall type: add it to `isWallType` (`level.h`), read it from
   `Tile::fixture` and draw it in `Dungeon::drawFixture`. `-Wswitch` then flags `Dungeon::drawTileContent`; the checker (`level_check.cpp`), the draft
-  map (`ui/map_view.cpp`) and the editor's hints (`describeCell`, `tools/editor/tile_info.cpp`) need a look by hand.
+  map (`ui/map_view.cpp`: `markOf`, a `MapMark` with its legend name and symbol) and the editor's hints (`describeCell`, `tools/editor/tile_info.cpp`) need a look by hand.
 * **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/world/monster_kinds.cpp`): names, glyph,
   threat, stats, model, resistances, wading, poison, ranged attack, boss summons, levelgen weights. Only the fields that differ
   from the defaults in `MonsterKind`.

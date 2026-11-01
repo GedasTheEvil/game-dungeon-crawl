@@ -515,6 +515,8 @@ void keyPressed(unsigned char key, int x, int y) {
 		Game().ui.skills.KeyPressed(key);
 	if (screen == Screen::Journal)
 		Game().ui.journal.KeyPressed(key);
+	if (screen == Screen::Map)
+		Game().ui.map.KeyPressed(key);
 }
 
 void specialKeyPressed(int key, int x, int y) {
@@ -549,6 +551,8 @@ void specialKeyPressed(int key, int x, int y) {
 		Game().ui.inventory->SpecialKeyPressed(key);
 	if (Game().ui.screen == Screen::Skills)
 		Game().ui.skills.SpecialKeyPressed(key);
+	if (Game().ui.screen == Screen::Map)
+		Game().ui.map.SpecialKeyPressed(key);
 	if (Game().ui.screen != Screen::Gameplay)
 		return;
 
@@ -617,6 +621,10 @@ void processMouse(int button, int state, int x, int y) {
 	}
 	if (Game().ui.screen == Screen::Skills) {
 		Game().ui.skills.MouseFunction(button, state, x, y);
+		return;
+	}
+	if (Game().ui.screen == Screen::Map) {
+		Game().ui.map.MouseFunction(button, state, x, y);
 		return;
 	}
 
@@ -698,6 +706,8 @@ void processMouseActiveMotion(int a, int b) {
 		Game().ui.journal.MouseMotion(a, b);
 	if (Game().ui.screen == Screen::Skills)
 		Game().ui.skills.MouseMotion(a, b);
+	if (Game().ui.screen == Screen::Map)
+		Game().ui.map.MouseMotion(a, b);
 }
 
 void processMouseEntry(int a) { (void)a; }

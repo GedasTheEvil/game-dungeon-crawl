@@ -1,8 +1,13 @@
 # Modelling
 
 How a new model gets made. Every model is a Python script in `tools/blender/models/` that builds the mesh, rig,
-texture and clips from code: the script is the source. Run it with Blender 5 (the path in AGENTS.md; `blender` below
-means that one). How the original models were rebuilt, and notes per model: [remodeling.md](remodeling.md).
+texture and clips from code: the script is the source. How the original models were rebuilt, and notes per model:
+[remodeling.md](remodeling.md).
+
+## Blender
+Always use Blender 5: `/home/gediminas.skucas/Apps/blender-5.2.2-linux-x64/blender` (`blender` below means that
+one). Never use the system `blender` (v4.0). The `blender` MCP server needs Blender 5 running with the MCP add-on
+started (port 9876).
 
 ## Steps
 1. Reference images in `docs/plan/references/<model>/` (not in git).

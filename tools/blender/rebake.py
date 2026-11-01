@@ -14,7 +14,7 @@ positions and UVs against the committed one. --apply copies the textures whose m
 whose RGB changed. When an .md3's UVs changed (positions the same), every texture of the run fits the new UVs, not the
 committed ones: --apply then refuses unless --with-models, which copies those .md3 files and all the textures. An .md3
 whose positions changed is never copied: the script's geometry differs from the game's, export it on purpose.
-Blender: $BLENDER, else the Blender 5 of AGENTS.md. Needs numpy and PIL.
+Blender: $BLENDER, else the Blender 5 of docs/modeling.md. Needs numpy and PIL.
 """
 
 import json

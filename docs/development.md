@@ -1,6 +1,6 @@
 # Development
 
-Terms used in the game, the code and the docs: [glossary.md](glossary.md).
+Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git workflow: [version-control.md](version-control.md).
 
 ## Requirements
 
@@ -197,8 +197,7 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
 * `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about
   it. `.clang-format` aligns nothing across lines (trailing comments, line continuations), so a diff shows only the
   lines that changed. A call too long for one line gets one argument per line and the `)` on its own line (the same
-  for parameters). The whole-tree reformats for these are in `.git-blame-ignore-revs`
-  (`git config blame.ignoreRevsFile .git-blame-ignore-revs`).
+  for parameters). The whole-tree reformats for these are skipped by `git blame` ([version-control.md](version-control.md#blame)).
 * `make format-check` fails on a file `make format` would change, and on code clang-format does not leave stable (a
   file that flips between two layouts on every `make format`, often a long trailing comment that wraps onto a second
   line: move the comment above the line).

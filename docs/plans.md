@@ -1,7 +1,19 @@
 # Plans
 
-The plan lifecycle in `docs/plan/`: draft, implemented, solved (or won't do). The core rules (naming, who
-implements, slug-only names in code, drafts that arrive mid-task) are in [AGENTS.md](../AGENTS.md#plans).
+The plan lifecycle in `docs/plan/`: draft, implemented, solved (or won't do). The rules every task needs (save an
+idea as a draft, never rename by hand, drafts that arrive mid-task) are in [AGENTS.md](../AGENTS.md#plans).
+
+## Lifecycle
+
+`<slug>.draft.<model>.md` → implemented `<slug>.md` → user-confirmed `solved/<slug>.md`. A draft the user drops goes
+to `wont-do/<slug>.md` instead ([Won't do](#wont-do)).
+`tools/plan.py move <slug> implemented|solved|wont-do|draft-opus|draft-sonet` renames a plan and rewrites every link.
+
+## Plans in code
+
+Code, tests and level files name a plan by its slug only (`// Climbers (plan monster-climbers): ...`), never by its
+path or file name: a draft's rename or move to "solved/" then touches no code, so solving one needs no rebuild and
+no test run. Only docs (markdown) link plans by path. Old path references in code: shorten them when you touch them.
 
 ## Model tag
 
@@ -13,6 +25,11 @@ The `<model>` in `<idea-slug>.draft.<model>.md` says who can implement it:
   modelling, balance work, or several systems at once.
 
 When refining a draft changes its size, retag it: `tools/plan.py move <slug> draft-opus` (or `draft-sonet`).
+
+The default model stays Opus 5.5; `opus` drafts you implement yourself. When asked to implement a `sonet` draft,
+don't do it yourself and don't ask: delegate it to a Sonnet 5.5 agent (Agent tool, `model: sonnet`), then report its
+result. Tell the agent to follow AGENTS.md and docs/plans.md, run the checks, go through the draft point by point
+before it renames the plan (and report any point it left out), and commit with a Sonnet 5.5 `Co-Authored-By` line.
 
 ## Writing a draft
 

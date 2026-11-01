@@ -2,6 +2,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/campaign.h"
 #include "../../src/world/zone_music.h"
+#include <filesystem>
 #include <string>
 
 namespace {
@@ -21,4 +22,13 @@ TEST_CASE("the music file: the menu's, the zone's, the fallback") {
 	CHECK(musicFile(tomb, false, [](const std::string& file) {
 			  return file != MUSIC_DIR "tomb_entrance.ogg";
 		  }) == MUSIC_FALLBACK);
+}
+
+TEST_CASE("every zone and the menu have a music file of their own") {
+	const auto own = [](const std::string& file) { return std::filesystem::exists(file); };
+	for (int zone = 0; zone < ZONE_ID_COUNT; zone++) {
+		CAPTURE(zoneInfo(static_cast<ZoneId>(zone)).slug);
+		CHECK(musicFile(zone, false, own) != MUSIC_FALLBACK);
+	}
+	CHECK(musicFile(NO_ZONE, true, own) != MUSIC_FALLBACK);
 }

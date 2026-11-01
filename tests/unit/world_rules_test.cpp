@@ -515,3 +515,23 @@ TEST_CASE("using a teleporter emits the teleport sound") {
 	});
 	CHECK(heard);
 }
+
+TEST_CASE("using the exit gate emits the teleport sound") {
+	SimWorld world; // tests/levels/teleport: row 2 -> row 4, the exit there
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/teleport"));
+	world.WaitTicks(30);
+	REQUIRE(world.Walk(5.3f));
+	world.WaitTicks(10);
+	world.Interact();
+	world.Wait(1000);
+	REQUIRE(world.WalkTo(9.5f));
+	world.WaitTicks(10);
+	world.said.clear();
+	world.Interact();
+	world.WaitTicks(5);
+	const bool heard = std::any_of(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Sound && e.sound == WorldSound::Teleport;
+	});
+	CHECK(heard);
+}

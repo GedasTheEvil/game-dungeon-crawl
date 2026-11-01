@@ -340,8 +340,7 @@ void Dungeon::startTravel(bool exitGate, bool rings) {
 		return;
 	}
 	travel = {GateTravel::Phase::Out, GameClock::now(), exitGate};
-	if (!exitGate)
-		sim.events->Play(WorldSound::Teleport);
+	sim.events->Play(WorldSound::Teleport);
 }
 //======================================================================================
 int Dungeon::travelPhaseMs() const {

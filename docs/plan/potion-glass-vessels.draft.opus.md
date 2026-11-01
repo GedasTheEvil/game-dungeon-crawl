@@ -10,6 +10,9 @@ The glass potion vessels look like painted clay today: one opaque model, the liq
 (`POTIONS` in `tools/blender/models/items.py`, [potion-textures](solved/potion-textures.md)). Make the glass slightly
 see-through, with the liquid a model of its own inside it. The liquid stands still (no slosh, no level change).
 
+**Focus: the inventory** (slot and card, the user's priority). Tune the look there first: inventory light, slot size,
+the card's close-up. On a chest it only has to look no worse than today; no extra work for it.
+
 ## Lore
 
 Fits, with one care point. Egypt made glass vessels from about 1500 BC (Thutmose III, Amarna): small core-formed
@@ -44,6 +47,7 @@ lesser and greater resistance; its vial becomes glass too, the gold cobra stays 
   potions.
 * Everywhere a potion draws: the inventory slot and card (`DrawPart` calls in `src/ui/inventory.cpp`), on a chest
   (`Dungeon`'s see-through pass, `dungeon_render.cpp`), the HUD quick slots if they draw the model, and the model
-  viewer. Check that the chest's gold heap still hides the vessel's lower half without a seam through the glass.
+  viewer. On a chest, a quick look only (the gold heap hides the lower half; a seam through the glass there is
+  acceptable if the fix is not trivial).
 * The icons (`PotionDef::colour`) do not change.
-* Screenshot scenario: the potions in the inventory and on a chest, lit and in the dark.
+* Screenshot scenario: every potion in the inventory slots and on the item card.

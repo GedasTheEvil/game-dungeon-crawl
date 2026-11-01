@@ -37,6 +37,7 @@ constexpr Color LOCK_PENCILS[LOCK_COLOUR_COUNT] = {
 constexpr Color ANKH_GOLD = {0.78f, 0.56f, 0.10f};
 constexpr Color WATER_BLUE = {0.16f, 0.38f, 0.70f};
 constexpr Color PLASMA = {0.10f, 0.50f, 0.55f}; // a teleporter's and a ring platform's
+constexpr Color PORTAL_BLUE = {0.14f, 0.36f, 0.80f}; // the exit's plasma (the entrance's is red)
 constexpr Color OBSIDIAN = {0.08f, 0.06f, 0.08f}; // the boss gate's
 constexpr float WAVE_AMPLITUDE = 0.06f; // cells
 constexpr int WAVE_SEGMENTS = 8; // per wave, two crests
@@ -366,21 +367,25 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 	auto y = static_cast<float>(j);
 	uint32_t seed = cellSeed(i, j, 20);
 	switch (markOf(t)) {
-	case MapMark::Entrance: // the sphinx's arch, the portal in it
+	case MapMark::Entrance: // the sphinx's arch, the portal in it in its plasma's colour: red in, blue out
 	case MapMark::Exit: {
-		const Color c = t.attr == GateExit ? PENCIL_RED : GRAPHITE;
-		arch(sk, x, y, c, seed);
-		sk.loop(x + 0.5f, y + 0.42f, 0.15f, 0.3f, 8, c, 0.7f, seed + 8);
+		const Color c = t.attr == GateExit ? PORTAL_BLUE : PENCIL_RED;
+		arch(sk, x, y, GRAPHITE, seed);
+		sk.loop(x + 0.5f, y + 0.42f, 0.17f, 0.3f, 8, c, 0.95f, seed + 8);
+		sk.loop(x + 0.5f, y + 0.42f, 0.07f, 0.13f, 6, c, 0.85f, seed + 16);
 		break;
 	}
-	case MapMark::SphinxGate: { // the arch, a question mark in it
+	case MapMark::SphinxGate: { // a door, a question mark in it
 		const Color c = LOCK_PENCILS[1];
-		arch(sk, x, y, c, seed);
-		sk.pencil(x + 0.4f, y + 0.6f, x + 0.5f, y + 0.7f, c, 0.95f, seed + 8);
-		sk.pencil(x + 0.5f, y + 0.7f, x + 0.6f, y + 0.6f, c, 0.95f, seed + 9);
-		sk.pencil(x + 0.6f, y + 0.6f, x + 0.5f, y + 0.45f, c, 0.95f, seed + 10);
-		sk.pencil(x + 0.5f, y + 0.45f, x + 0.5f, y + 0.33f, c, 0.95f, seed + 11);
-		sk.loop(x + 0.5f, y + 0.2f, 0.03f, 0.03f, 4, c, 0.95f, seed + 12);
+		sk.pencil(x + 0.18f, y, x + 0.18f, y + 0.92f, GRAPHITE, 0.9f, seed);
+		sk.pencil(x + 0.82f, y, x + 0.82f, y + 0.92f, GRAPHITE, 0.9f, seed + 1);
+		sk.pencil(x + 0.12f, y + 0.92f, x + 0.88f, y + 0.92f, GRAPHITE, 0.9f, seed + 2);
+		sk.pencil(x + 0.34f, y + 0.6f, x + 0.42f, y + 0.74f, c, 0.95f, seed + 8);
+		sk.pencil(x + 0.42f, y + 0.74f, x + 0.58f, y + 0.76f, c, 0.95f, seed + 9);
+		sk.pencil(x + 0.58f, y + 0.76f, x + 0.66f, y + 0.62f, c, 0.95f, seed + 10);
+		sk.pencil(x + 0.66f, y + 0.62f, x + 0.5f, y + 0.47f, c, 0.95f, seed + 11);
+		sk.pencil(x + 0.5f, y + 0.47f, x + 0.5f, y + 0.32f, c, 0.95f, seed + 12);
+		sk.loop(x + 0.5f, y + 0.16f, 0.04f, 0.04f, 5, c, 0.95f, seed + 13);
 		break;
 	}
 	case MapMark::Doorway:

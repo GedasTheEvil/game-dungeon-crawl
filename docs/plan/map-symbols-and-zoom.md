@@ -20,9 +20,9 @@ Status: implemented 2026-11-01, waiting for a play-test (`bin/game --play tests/
 ## Done
 
 * Symbols (`MapMark`, `markOf` in `src/ui/map_view.cpp`; one switch draws them): the entrance and the exit get the
-  portal in the sphinx's arch (the exit in red), a sphinx gate a blue arch with a question mark, an empty sphinx a
-  plain arch; a teleporter two columns with teal plasma between them; a ring platform three teal rings over a
-  platform; a sealed name gate the columns with a gold cartouche between them; the boss gate an obsidian portcullis
+  portal in the sphinx's arch, in their plasma's colour as in the game (entrance red, exit blue; the user, 2026-11-01),
+  a sphinx gate a door with a blue question mark in it (the user), an empty sphinx a plain arch; a teleporter two
+  columns with teal plasma between them; a ring platform three teal rings over a platform; a sealed name gate the columns with a gold cartouche between them; the boss gate an obsidian portcullis
   with a red seal while closed.
 * Legend: a papyrus slip left of the sheet, one row per mark on the explored cells (drawn with the first such tile,
   so a key or gate row is in the colour found first), then "You" (the red ring). Nothing unexplored is named.

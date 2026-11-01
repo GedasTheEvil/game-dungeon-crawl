@@ -4,8 +4,8 @@ Status: implemented 2026-10-31, waiting for a play-test (`bin/game --play tests/
 `bin/game --level 15`: a mimic jar at col 31 row 16; coffins stand among the containers from level 10 on). Draft
 2026-10-30, from the project audit of 2026-10-30.
 
-Opus: new container kinds and maybe a model. Left from [treasure-containers](solved/treasure-containers.md) and
-[trapped-chests](solved/trapped-chests.md).
+Opus: new container kinds and maybe a model. Left from [treasure-containers](treasure-containers.md) and
+[trapped-chests](trapped-chests.md).
 
 * A mimic jar: a canopic jar or sealed pot that is a mimic, smaller and weaker than the chest mimic, in tomb levels.
   Its own bite and wake sounds.
@@ -26,7 +26,7 @@ Opus: new container kinds and maybe a model. Left from [treasure-containers](sol
   ward's chance stops it, else a lesser chest curse (weakness, clumsiness, vulnerability, fatigue or slowness) with the
   line "An execration text on the lid..." (`Dungeon::coffinCurse`). The risk pays: it holds a trapped chest's loot
   (the item and one bonus more). A trapped coffin (`TrappedTreasure`) curses through its trap (`RollChestTrap`: always
-  a curse), no second roll. One roll per object, as [trapped-chests](solved/trapped-chests.md)'s rule.
+  a curse), no second roll. One roll per object, as [trapped-chests](trapped-chests.md)'s rule.
 * **The tell**: the text is red, on the lid's column and round the case under the lid (the side the player sees),
   black on red where a plain coffin has blue and black on varnish. Drawn as a second texture over the coffin
   (`container_coffin_cursed.png`), faded in by the player's distance like the trapped chest's tell (`coffinTell`):

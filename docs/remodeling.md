@@ -5,7 +5,7 @@ done; this file is its record, with notes per model. Making a new model: [modeli
 conventions, steps). New model notes go in the script's docstring, not here.
 
 ## Model notes
-* Idle clips ([missing-idle-clips](plan/missing-idle-clips.md)): `_idle`, loops, shown while a monster stands (blocked,
+* Idle clips ([missing-idle-clips](plan/solved/missing-idle-clips.md)): `_idle`, loops, shown while a monster stands (blocked,
   out of range, waiting); without one the walk clip stood in and the monster walked on the spot. Feet planted at the leg's
   rest foot, the lowest point at walk frame 0's. Rat 32 (sniffs: head up and turning, quick nods, the tail sweeping), scarab
   32 (the antennae twitching apart, the elytra lifting a crack), worm 40 (a slow coil, the reared front turning, the jaws

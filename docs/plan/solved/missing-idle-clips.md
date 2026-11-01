@@ -2,7 +2,7 @@
 
 Status: implemented 2026-10-31, waiting for a play-test. Draft 2026-10-30, from the project audit of 2026-10-30.
 
-Opus: Blender clips ([modeling.md](../modeling.md)).
+Opus: Blender clips ([modeling.md](../../modeling.md)).
 
 ## Problem
 
@@ -23,7 +23,7 @@ pauses; check which). The giant kin on those models share the gap.
 * An `_idle` per model, built in its script (`-- --export-clip _idle` writes it alone): rat 32 (sniffing), scarab 32
   (antennae twitching apart, the elytra lifting a crack), worm 40 (slow coil, jaws tasting), plant 40 (dormant: bloom
   half closed, nodding), Anubis 36 (weight shift, feet planted, head turning), scorpion 40 (tail sway, claws opening),
-  egg cluster 40 (dormant: one slow pulse). Notes: [remodeling.md](../remodeling.md#model-notes). The giant kin and the
+  egg cluster 40 (dormant: one slow pulse). Notes: [remodeling.md](../../remodeling.md#model-notes). The giant kin and the
   bosses on these files share them (the boss models themselves untouched).
 * Engine: the plant and the egg cluster had their walk file as an idle loop already and never stood idle. They now
   start dormant on `_idle` and stay on it on the player's row until they have bitten or been hit (`Monster::Seek`),

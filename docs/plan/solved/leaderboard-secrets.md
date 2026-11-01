@@ -2,8 +2,8 @@
 
 Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
 
-[leaderboard](solved/leaderboard.md) left out counting secrets. A secret: a name gate opened (secret room,
-[secret-name-gates](solved/secret-name-gates.md)), a teleporter to a sealed room used, other hidden rooms if the code marks
+[leaderboard](leaderboard.md) left out counting secrets. A secret: a name gate opened (secret room,
+[secret-name-gates](secret-name-gates.md)), a teleporter to a sealed room used, other hidden rooms if the code marks
 them. Check what the level data already flags.
 
 * Count secrets found in `RunStats` (saved), the total from the campaign levels.

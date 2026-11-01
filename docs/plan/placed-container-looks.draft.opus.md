@@ -1,6 +1,6 @@
 # Placed container looks: a coffin (or any container) by hand
 
-Status: draft 2026-10-31, needs nothing first. Left from [tomb-curse-containers](tomb-curse-containers.md).
+Status: draft 2026-10-31, needs nothing first. Left from [tomb-curse-containers](solved/tomb-curse-containers.md).
 
 Opus: level file format, editor, checker and hand placement in the campaign levels.
 

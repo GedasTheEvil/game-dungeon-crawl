@@ -9,6 +9,7 @@
 //
 // Per frame: begin() -> add() lights -> commit() -> draw the scene -> end(). add() takes positions in the
 // current modelview's local space, so callers can add lights from inside their own transforms.
+// begin() reads the projection: an orthographic one (the inventory's models) is lit with the eye along -z.
 namespace Lighting {
 
 struct LightDef {

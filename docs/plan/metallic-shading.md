@@ -55,8 +55,12 @@ animated monsters each part would have to follow the same frames. The MD3 loader
   tinted by the base colour; toon: the bands as the paint's (x 0.75) and one hard highlight band. No rim term: the
   player's light alone gives the medium shine. Emissive draws unchanged; the lit and emissive paths output
   `gl_Color.a` on a masked draw.
-* Alpha out, loading: `LoadPNG` keeps RGBA. The inventory and the journal's photo draw models without the shader
-  and without blending: no shine there, and the alpha does nothing.
+* Alpha out, loading: `LoadPNG` keeps RGBA. The journal's photo draws models without the shader and without
+  blending: no shine there, and the alpha does nothing.
+* Inventory (after the play-test, 2026-11-01): its models are drawn with the scene shader too
+  (`Inventory::Draw`): ambient 0.78, so matte items stay as flat as before, and one far light above, left and in
+  front (`MODEL_LIGHT`), so metal catches a highlight as the models turn. `Lighting::begin` reads the projection: in
+  an orthographic one the eye looks down -z (`uOrtho`), for the two-sided normal and the highlight.
 * Step 1 wider than listed: every gold, bronze and blade colour in `items.py` (all weapons, amulets, the chest's
   trims, gilded potion vessels), the three ring bands. Step 2: `mechanism.py` gold, bronze and the polished mirror
   (keys, gates, levers, mirrors, sun discs, spikes, the ring transporter); the wood grain got its own matte colour.
@@ -65,5 +69,5 @@ animated monsters each part would have to follow the same frames. The MD3 loader
   vertex): those `.md3` files went in with their textures. `rings.py` now exports ring geometry different from the
   committed `.md3` files (UVs the same): only the ring textures were replaced, the `.md3` files kept.
 * Tests: `tests/scenarios/metallic_shading.txt` (khopesh by a torch, normal and toon, the chest and coffer, key,
-  gate, mirror, sun disc), `tests/unit/metal_mask_test.cpp` (the baked textures have metal, matte ones none). No
+  gate, mirror, sun disc, the inventory's weapons, amulets and rings), `tests/unit/metal_mask_test.cpp` (the baked textures have metal, matte ones none). No
   GL-free shader compile check exists; the scenario compiles it. Play: `bin/game --play tests/play/metallic-shading.txt`.

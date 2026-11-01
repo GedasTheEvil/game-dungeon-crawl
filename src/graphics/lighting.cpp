@@ -47,6 +47,7 @@ uniform float uToon; // 1 = cel bands (see toonLight)
 // 1 = the texture's alpha is the metal mask (plan metallic-shading): 1 matte, 0 all metal; the draw's alpha is
 // gl_Color's alone.
 uniform float uMetalMask;
+uniform float uOrtho; // 1 = an orthographic view (the inventory): the eye looks down -z at every fragment
 uniform int uLightCount;
 uniform vec4 uLightPos[MAX_LIGHTS]; // eye space xyz, radius in w
 uniform vec3 uLightColor[MAX_LIGHTS];
@@ -80,9 +81,10 @@ void main() {
 		return;
 	}
 	vec3 n = normalize(vNormal);
-	if (dot(n, vPos) > 0.0) // two-sided: the winding in the old models and tiles is not consistent
+	vec3 view = uOrtho > 0.5 ? vec3(0.0, 0.0, -1.0) : vPos; // from the eye to the fragment
+	if (dot(n, view) > 0.0) // two-sided: the winding in the old models and tiles is not consistent
 		n = -n;
-	vec3 eye = normalize(-vPos);
+	vec3 eye = normalize(-view);
 	vec3 light = uAmbient;
 	vec3 shine = vec3(0.0);
 	for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -121,7 +123,7 @@ bool gActive = false;
 GLint gLocFog = -1, gLocFogStart = -1;
 Lighting::Atmosphere gAir;
 GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
-GLint gLocBlend = -1, gLocMetalMask = -1;
+GLint gLocBlend = -1, gLocMetalMask = -1, gLocOrtho = -1;
 Light gLights[64];
 int gLightCount = 0;
 bool gFlicker = true;
@@ -155,6 +157,7 @@ bool ensureProgram() {
 	gLocColor = glGetUniformLocation(program, "uLightColor");
 	gLocBlend = glGetUniformLocation(program, "uBlend");
 	gLocMetalMask = glGetUniformLocation(program, "uMetalMask");
+	gLocOrtho = glGetUniformLocation(program, "uOrtho");
 	glUseProgram(program);
 	glUniform1i(glGetUniformLocation(program, "uTex"), 0);
 	glUseProgram(0);
@@ -176,6 +179,9 @@ void Lighting::begin() {
 	glUniform1f(gLocToon, Ink::toon() ? 1.f : 0.f);
 	glUniform1f(gLocBlend, 0.f);
 	glUniform1f(gLocMetalMask, 0.f);
+	float projection[16];
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	glUniform1f(gLocOrtho, projection[11] == 0.f ? 1.f : 0.f); // a perspective divides by -z: -1 there
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {

@@ -7,6 +7,7 @@
 #include "../input/input.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
+#include "../graphics/lighting.h"
 #include "inventory_layout.h"
 #include "ui_draw.h"
 #include "screen_tabs.h"
@@ -42,6 +43,11 @@ constexpr float AMULET_DETAIL_SCALE = 16.f;
 constexpr float RING_DETAIL_SCALE = 15.f;
 constexpr const char* HAND_MARKS[HAND_COUNT] = {"L", "R"}; // a worn ring's slot
 constexpr float PLINTH_Y = 49.f; // detail model base
+// The models' light (plan metallic-shading): a bright ambient, so matte items look as flat as on the page, and one
+// far light above, left and in front, so metal catches a highlight as it turns. Far, so every slot gets the same.
+constexpr float MODEL_AMBIENT = 0.78f;
+constexpr Lighting::LightDef MODEL_LIGHT = {0.68f, 0.64f, 0.58f, 3000.f, 0.f};
+constexpr float MODEL_LIGHT_POS[3] = {-300.f, 400.f, 600.f}; // from the area's centre
 constexpr float REST_ANGLE = 25.f; // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
@@ -564,9 +570,14 @@ void Inventory::Draw() {
 	glEnable(GL_TEXTURE_2D);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+	Lighting::setAtmosphere({{MODEL_AMBIENT, MODEL_AMBIENT, MODEL_AMBIENT}});
+	Lighting::begin();
+	Lighting::add(area.cx() + MODEL_LIGHT_POS[0], area.cy() + MODEL_LIGHT_POS[1], MODEL_LIGHT_POS[2], MODEL_LIGHT, 0);
+	Lighting::commit();
 	for (int slot : shown)
 		DrawSlotModel(slot);
 	DrawDetailModel();
+	Lighting::end();
 	glDisable(GL_DEPTH_TEST);
 
 	beginText();

@@ -48,5 +48,31 @@ screenshot mirror
 wait 2s
 walk to 7.5
 screenshot sun_disc
+# The inventory (plan metallic-shading, play-test): the models lit by the shader, metal shining as they turn; normal
+# and toon. Weapons (the khopesh selected), amulets, rings.
+give melee 1
+give melee 5
+give melee 7
+give amulet 3
+give amulet 11
+give ring 17
+give ring 13
+give ring 2
+key i
+wait 5
+select khopesh
+wait 40
+screenshot inventory_weapons
+toon on
+wait 2
+screenshot inventory_weapons_toon
+toon off
+select grand_amulet_of_strength
+wait 40
+screenshot inventory_amulets
+select gold_ring_of_sundering
+wait 40
+screenshot inventory_rings
+key esc
 expect alive == 1
 quit

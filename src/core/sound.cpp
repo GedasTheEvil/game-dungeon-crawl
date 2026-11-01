@@ -57,28 +57,32 @@ Music::~Music() {
 		Mix_FreeMusic(music);
 }
 
-bool Music::Load(const char filename[]) {
-	if (music) {
-		LOG_ERRORF("audio", "Music already loaded, not loading %s", filename);
-		return false;
-	}
-	music = Mix_LoadMUS(filename);
-	if (!music) {
-		LOG_ERRORF("audio", "Music load error: %s: %s", filename, Mix_GetError());
-		return false;
-	}
-	return true;
-}
-
-void Music::Play() const {
-	if (music)
-		Mix_PlayMusic(music, -1);
-}
-
 namespace {
+constexpr int MUSIC_FADE_MS = 1500;
 constexpr int AMBIENCE_CHANNEL = 0; // reserved: the effects never take it
 constexpr int AMBIENCE_FADE_MS = 1500;
 } // namespace
+
+// Mix_FadeInMusic and Mix_FreeMusic wait for a fade-out to end: the new file starts on the first update after it.
+void Music::Play(const std::string& filename) {
+	if (filename != wanted) {
+		wanted = filename;
+		if (Mix_PlayingMusic() != 0)
+			Mix_FadeOutMusic(MUSIC_FADE_MS);
+	}
+	if (Mix_PlayingMusic() != 0)
+		return;
+	if (wanted != loaded) {
+		if (music)
+			Mix_FreeMusic(music);
+		loaded = wanted;
+		music = Mix_LoadMUS(loaded.c_str());
+		if (!music)
+			LOG_ERRORF("audio", "Music load error: %s: %s", loaded.c_str(), Mix_GetError());
+	}
+	if (music)
+		Mix_FadeInMusic(music, -1, MUSIC_FADE_MS);
+}
 
 Ambience::~Ambience() {
 	if (chunk) {

@@ -458,8 +458,5 @@ void Assets::Load(const std::function<void(float, const char*, const char*)>& pr
 
 	progress(95, "Loading game font", "");
 	loadFonts(fonts);
-
-	progress(100, "Loading game soundtrack", "");
-	sounds.soundtrack.Load(MEDIA_DIR "sounds/music/soundtrack.ogg");
 	textureBatch.Finish();
 }

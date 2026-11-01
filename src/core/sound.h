@@ -29,16 +29,18 @@ class Sound : AudioUser {
 	static void Stop(int channel); // -1: nothing
 };
 
-// Looped background music (OGG).
+// Looped background music (OGG), one file at a time (plan zone-music), at the music volume.
 class Music : AudioUser {
   private:
 	Mix_Music* music = nullptr;
+	std::string wanted; // the file asked for last
+	std::string loaded; // the file in music (nullptr: it failed to load)
 
   public:
 	Music() = default;
 	~Music();
-	bool Load(const char filename[]);
-	void Play() const;
+	// Each update: the file playing goes on; another fades the one playing out, then fades in, looped.
+	void Play(const std::string& filename);
 };
 
 // A looped background sound on a channel of its own (plan zone-looks: the zone's ambience), at the effects volume.

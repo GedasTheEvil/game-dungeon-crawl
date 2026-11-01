@@ -21,7 +21,7 @@
 struct SoundBank {
 	Sound drink_s;
 	Sound amulet_s; // an amulet put on or taken off
-	Music soundtrack;
+	Music music; // the menu's or the zone's track (plan zone-music), loaded when it starts
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
 	Sound sandHiss, sandPour, sandStep; // a sand fall starts, pours down; a step in sand (plan desert-chapter)
 	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)

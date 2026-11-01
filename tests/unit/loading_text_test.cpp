@@ -21,6 +21,4 @@ TEST_CASE("every weapon name fits the loading screen's detail line") {
 	CHECK(loading_text::detailWidth("Containers, potions and amulets") <= loading_text::MAX_WIDTH);
 }
 
-TEST_CASE("the step lines fit") {
-	CHECK(loading_text::stepWidth("Loading game soundtrack") <= loading_text::MAX_WIDTH);
-}
+TEST_CASE("the step lines fit") { CHECK(loading_text::stepWidth("Loading monster models") <= loading_text::MAX_WIDTH); }

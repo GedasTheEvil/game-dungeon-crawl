@@ -89,8 +89,6 @@ void GameState::Load() {
 	if (!dungeon.LoadCampaignLevel(dungeon.LevelNumber()))
 		LOG_WARNING("game", "Failed loading map");
 
-	assets.sounds.soundtrack.Play();
-
 	leaderboard.Load();
 
 	messages.Clear();

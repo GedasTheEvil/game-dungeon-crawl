@@ -633,6 +633,7 @@ class Dungeon {
 	[[nodiscard]] const std::string& LevelTitle() const { return meta.title; } // empty: none
 	// The look of the level's zone (plan zone-looks, LevelMeta): light, fog, ambience. DEFAULT_LOOK in none.
 	[[nodiscard]] const ZoneLook& Look() const { return levelLook(meta.zone); }
+	[[nodiscard]] int Zone() const { return meta.zone; } // the ZoneId, or NO_ZONE (LevelMeta)
 	[[nodiscard]] bool CampaignLevel() const { return campaignLevel; } // not a test or generated level
 	// No monster can chase or attack the player now (Monster::Threatens, no wall between): the regeneration amulet
 	// heals. Out of combat, as the player feels it.

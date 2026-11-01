@@ -6,7 +6,11 @@
 #include "../ui/inventory.h"
 #include "../ui/player_hud.h"
 #include "../ui/screen_state.h"
+#include "../core/logger.h"
 #include "../core/paths.h"
+#include "../world/zone_music.h"
+#include <filesystem>
+#include <map>
 #include <string>
 
 namespace {
@@ -54,6 +58,25 @@ void updateAttack() {
 		player.attackStartMs = -1;
 }
 
+// The menu's track on the start menu, the death and the win screen (the in-game menu keeps the zone's), else the
+// zone's (plan zone-music). A file is looked for once; a missing one is logged once.
+void playMusic() {
+	static std::map<std::string, bool> found;
+	const auto exists = [](const std::string& file) {
+		const auto [at, added] = found.try_emplace(file, false);
+		if (added) {
+			at->second = std::filesystem::exists(file);
+			if (!at->second)
+				LOG_INFOF("audio", "No music file %s, playing %s", file.c_str(), MUSIC_FALLBACK);
+		}
+		return at->second;
+	};
+	const Screen screen = ScreenState::GetDrawScreen(Game());
+	const bool menu = (screen == Screen::Menu && !Game().ui.menu.inGame) || screen == Screen::Death ||
+					  Game().dungeon.Won();
+	Game().assets.sounds.music.Play(musicFile(Game().dungeon.Zone(), menu, exists));
+}
+
 void tick() {
 	if (!Game().cacheLoaded) {
 		Game().Load();
@@ -61,6 +84,7 @@ void tick() {
 		return;
 	}
 
+	playMusic();
 	if (ScreenState::GetDrawScreen(Game()) != Screen::Gameplay) {
 		glutPostRedisplay();
 		return;

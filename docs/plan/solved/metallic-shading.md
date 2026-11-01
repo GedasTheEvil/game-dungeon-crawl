@@ -68,6 +68,6 @@ animated monsters each part would have to follow the same frames. The MD3 loader
 * The re-exports of `items.py` and part of `mechanism.py` gave new UV layouts (geometry unchanged, checked per
   vertex): those `.md3` files went in with their textures. `rings.py` now exports ring geometry different from the
   committed `.md3` files (UVs the same): only the ring textures were replaced, the `.md3` files kept.
-* Tests: `tests/scenarios/metallic_shading.txt` (khopesh by a torch, normal and toon, the chest and coffer, key,
+* Tests: `tests/scenarios/solved/metallic_shading.txt` (screenshots, parked on solving; khopesh by a torch, normal and toon, the chest and coffer, key,
   gate, mirror, sun disc, the inventory's weapons, amulets and rings), `tests/unit/metal_mask_test.cpp` (the baked textures have metal, matte ones none). No
   GL-free shader compile check exists; the scenario compiles it. Play: `bin/game --play tests/play/metallic-shading.txt`.

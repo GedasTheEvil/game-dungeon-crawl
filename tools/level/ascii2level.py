@@ -9,8 +9,9 @@ Lines 'def CHAR TYPE ATTR VALUE' add a character to the legend for this file, e.
 'def 1 8 1 1' (sword chest). Put them before the drawing.
 
 Optional: a line 'structure', then the structure drawing, as many rows as the object drawing: '#' wall, '.' empty,
-'~' half water, '=' deep water (the structure glyphs come from the game). Then '#' and '.' in the object drawing are
-just "no object". Without it, the structure follows from the object drawing: '#' wall, anything else empty.
+'~' half water, '=' deep water, ',' sand, '%' quicksand (the structure glyphs come from the game). Then '#' and '.'
+in the object drawing are just "no object". Without it, the structure follows from the object drawing: '#' wall,
+anything else empty.
 
 Optional, after the object drawing (and after the structure drawing if there is one): a line 'wall', then the wall
 drawing (plan wall-layer), as many rows as the object drawing: the fixtures on the back wall (lever, inscription, wall

@@ -217,9 +217,9 @@ char tileGlyph(const Tile& t) {
 		return kind != nullptr ? kind->glyph : UNKNOWN_MONSTER_GLYPH;
 	}
 	case Key:
-		return isLockColour(t.attr) ? lockColour(t.attr).keyGlyph : 'q';
+		return isLockColour(t.attr) ? lockColour(t.attr).keyGlyph : UNKNOWN_KEY_GLYPH;
 	case Gate:
-		return isGateColour(t.attr) ? lockColour(t.attr).gateGlyph : 'Q';
+		return isGateColour(t.attr) ? lockColour(t.attr).gateGlyph : UNKNOWN_GATE_GLYPH;
 	case Inscription:
 		return t.attr == NAME_CARTOUCHE_ID ? ':' : 'i';
 	case RockFall:

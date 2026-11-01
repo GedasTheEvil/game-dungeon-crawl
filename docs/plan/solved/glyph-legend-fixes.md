@@ -1,6 +1,11 @@
 # Level legend: glyph fixes
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-01 (tooling and docs only). From the project audit of 2026-10-30.
+
+Done: an unknown key colour draws as `<`, an unknown gate colour as `>` (`UNKNOWN_KEY_GLYPH`, `UNKNOWN_GATE_GLYPH`,
+`src/world/tile_defs.h`); `docs/levels.md` and the `ascii2level.py` docstring list `,` sand and `%` quicksand. The
+unique-glyph legend test already existed (`tests/unit/tile_defs_test.cpp`); added: no legend entry uses an unknown
+glyph (`m`, `<`, `>`).
 
 Tooling and docs only: once checks pass, solved in the same commit (docs/plans.md, Solved, exception).
 

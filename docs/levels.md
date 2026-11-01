@@ -454,11 +454,12 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
 `tools/level/ascii2level.py IN.txt OUT` builds a level file from a drawing in the `levelcheck --map` legend. It
 reads the legend from `levelcheck --legend`, which prints the game's tables (`src/world/tile_defs.cpp`,
 `monster_kinds.cpp`, the lock colours in `level.h`), so the drawing, the checker and the game cannot disagree.
-In `--map` output, `m`, `q` and `Q` mark a monster type, key colour or gate colour the game does not know.
+In `--map` output, `m`, `<` and `>` mark a monster type, key colour or gate colour the game does not know (no legend
+entry uses them).
 A `def CHAR TYPE ATTR VALUE` line adds a character to the legend for that file, for example `def L 12 2 0`
 (blue lever) or `def 1 8 3 1` (large health potion).
 The drawing is the object layer. A line `structure` can follow it with a second drawing of the same rows, the
-structure: `#` wall, `.` empty, `~` half water, `=` deep water. Then `#` and `.` in the first drawing just mean no
+structure: `#` wall, `.` empty, `~` half water, `=` deep water, `,` sand, `%` quicksand. Then `#` and `.` in the first drawing just mean no
 object. Without it, the structure follows from the object drawing: `#` wall, anything else empty. A line `wall` can
 follow (after the structure drawing, if any) with the wall drawing, the same rows: the fixtures (`/` lever, `i`
 inscription, `|` wall spikes, `+` fire vent, `,` poison drip, or a `def` of a wall type), `#` and `.` for none. A wall glyph in the object drawing goes

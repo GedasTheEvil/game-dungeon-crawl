@@ -35,6 +35,9 @@ struct StructureDef {
 // fixture; a cell without either is '#' in a wall or deep water, '.' anywhere else. The structure has its own drawing
 // (structureGlyph, level.h).
 [[nodiscard]] char tileGlyph(const Tile& t);
+// tileGlyph of a key or gate colour the game does not know (UNKNOWN_MONSTER_GLYPH for a monster): in no legend entry.
+constexpr char UNKNOWN_KEY_GLYPH = '<';
+constexpr char UNKNOWN_GATE_GLYPH = '>';
 
 // The characters an ASCII level source may use, each with the tile it stands for. Details the character does not say
 // (which item a chest holds, a lever's colour, a teleporter pair other than 1) come from 'def' / 'set' lines in the

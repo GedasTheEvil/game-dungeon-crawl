@@ -32,7 +32,7 @@ sys.path.insert(0, HERE)
 import common  # noqa: E402
 
 importlib.reload(common)
-from common import REPO, Builder, chain_weights, ellipsoid, smoothstep, tube  # noqa: E402
+from common import REPO, Builder, chain_weights, ellipsoid, metal, smoothstep, tube  # noqa: E402
 
 COLL = "crocodile_new"
 CLIPS = [("croc_walk", "", 24), ("croc_attack", "_att", 22), ("croc_die", "_die", 30), ("croc_idle", "_idle", 32)]
@@ -64,7 +64,7 @@ COL_SOBEK = {
     "back": (0.025, 0.04, 0.02),
     "dark": (0.012, 0.018, 0.01),
     "band": (0.01, 0.012, 0.008),
-    "scute": (0.55, 0.40, 0.10),
+    "scute": metal((0.55, 0.40, 0.10)),
     "claw": (0.40, 0.30, 0.08),
     "eye": (0.80, 0.06, 0.03),
     "pupil": (0.01, 0.005, 0.004),
@@ -72,7 +72,7 @@ COL_SOBEK = {
     "tooth": (0.85, 0.78, 0.55),
     "mouth": (0.62, 0.25, 0.22),
     "throat": (0.30, 0.10, 0.08),
-    "collar": (0.75, 0.55, 0.15),
+    "collar": metal((0.75, 0.55, 0.15)),
     "lapis": (0.04, 0.10, 0.45),
 }
 
@@ -174,10 +174,10 @@ def socket(sockets, ident):
     return next(s for s in sockets if s.identifier == ident)
 
 
-def hide_material(pal):
+def hide_material(pal, name="croc_hide"):
     """Dark olive back fading to a pale yellowish belly (rest-pose normal z), scale cells (voronoi edges),
     mottling, dark cross bands on the tail and flanks."""
-    mat = bpy.data.materials.get("croc_hide") or bpy.data.materials.new("croc_hide")
+    mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
     nt = mat.node_tree
     for node in list(nt.nodes):
         if node.type not in ("OUTPUT_MATERIAL", "BSDF_PRINCIPLED"):
@@ -303,6 +303,10 @@ def materials(pal):
     specs = {name: ("solid", name) for name in ("scute", "claw", "eye", "pupil", "nostril", "tooth", "mouth", "throat")}
     M = {name: common.make_material("croc_" + name, spec, pal) for name, spec in specs.items()}
     M["hide"] = hide_material(pal)
+    if "collar" in pal and getattr(pal["collar"], "strength", 0.0):  # the gold of the collar band (plan metallic-shading)
+        M["hide"]["metal_mask_material"] = hide_material(common.metal_palette(pal), "croc_hide_metal_mask").name
+    elif "metal_mask_material" in M["hide"]:
+        del M["hide"]["metal_mask_material"]
     return M
 
 

@@ -35,7 +35,7 @@ sys.path.insert(0, HERE)
 import common  # noqa: E402
 
 importlib.reload(common)
-from common import REPO, Builder, ellipsoid, smoothstep, tube  # noqa: E402
+from common import REPO, Builder, ellipsoid, metal, smoothstep, tube  # noqa: E402
 
 COLL = "scorpion_new"
 CLIMB = ("scorpion_climb", "_climb", 24)
@@ -77,18 +77,18 @@ COL_GIANT = {
 # The scorpion queen (scorpion_queen.png, same UVs, a boss; Serket): pale gold carapace, lapis-blue joints, rims and claw
 # tips, a gold sting.
 COL_QUEEN = {
-    "straw": (0.78, 0.58, 0.20),
-    "straw_hi": (0.92, 0.76, 0.36),
-    "straw_pale": (0.84, 0.68, 0.30),
+    "straw": metal((0.78, 0.58, 0.20), 0.6),
+    "straw_hi": metal((0.92, 0.76, 0.36), 0.6),
+    "straw_pale": metal((0.84, 0.68, 0.30), 0.6),
     "amber": (0.62, 0.40, 0.08),
     "amber_dark": (0.03, 0.07, 0.36),
     "rim": (0.04, 0.10, 0.42),
-    "black": (0.55, 0.36, 0.05),
+    "black": metal((0.55, 0.36, 0.05), 1.0),
     "eye": (0.004, 0.004, 0.02),
-    "claw": (0.80, 0.60, 0.22),
-    "tail": (0.80, 0.60, 0.22),
-    "tail_end": (0.70, 0.48, 0.12),
-    "telson": (0.86, 0.66, 0.22),
+    "claw": metal((0.80, 0.60, 0.22), 0.6),
+    "tail": metal((0.80, 0.60, 0.22), 0.6),
+    "tail_end": metal((0.70, 0.48, 0.12), 0.6),
+    "telson": metal((0.86, 0.66, 0.22), 0.8),
 }
 
 UP, FWD, X = V((0, 0, 1)), V((0, 1, 0)), V((1, 0, 0))

@@ -47,7 +47,7 @@ import mummy  # noqa: E402
 
 importlib.reload(common)
 importlib.reload(mummy)
-from common import ellipsoid, loft, smoothstep, transform, tube  # noqa: E402
+from common import ellipsoid, loft, metal, smoothstep, transform, tube  # noqa: E402
 from mummy import TILE, TORSO, TORSO_CHAIN, add, band, chain_weights, joints, pose, set_pose, side_name  # noqa: E402
 
 COL = dict(mummy.COL, **{
@@ -57,8 +57,8 @@ COL = dict(mummy.COL, **{
     "stain": (0.15, 0.07, 0.015),  # resin
     "skin": (0.06, 0.035, 0.02),
     "eye": (0.62, 0.22, 1.0),  # violet, the colour of his bolt
-    "gold": (0.80, 0.55, 0.12),
-    "gold_dark": (0.42, 0.25, 0.05),
+    "gold": metal((0.80, 0.55, 0.12)),
+    "gold_dark": metal((0.42, 0.25, 0.05)),
     "lapis": (0.03, 0.07, 0.38),
     "fur": (0.62, 0.40, 0.13),
     "fur_spot": (0.035, 0.022, 0.012),

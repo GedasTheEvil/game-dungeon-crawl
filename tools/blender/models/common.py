@@ -343,8 +343,17 @@ def uv_unwrap(obj, tags, boost=None):
         v.co = co
 
 
+def metal_palette(palette):
+    """The palette in grey: each colour its metal strength (0 for a plain colour). For a script's own node material:
+    built again on this palette, it is the material's mask; name it in the material's "metal_mask_material"."""
+    return {k: (getattr(c, "strength", 0.0),) * 3 for k, c in palette.items()}
+
+
 def _metal_mask_material(mat):
-    """The material in grey: its metal strength per colour (make_material), black for no metal."""
+    """The material in grey: its metal strength per colour (make_material, or its "metal_mask_material"), black for no
+    metal."""
+    if "metal_mask_material" in mat:
+        return bpy.data.materials[mat["metal_mask_material"]]
     if "metal_mask" not in mat:
         return make_material("metal_mask_none", ("solid", "none"), {"none": (0.0, 0.0, 0.0)})
     spec, strengths = json.loads(mat["metal_mask"])
@@ -397,7 +406,7 @@ def bake_metal_mask(obj, size, prefix):
     second pass over its materials in grey (_metal_mask_material); None when no material has metal."""
     import numpy as np
 
-    if not any("metal_mask" in m for m in obj.data.materials):
+    if not any("metal_mask" in m or "metal_mask_material" in m for m in obj.data.materials):
         return None
     mask = bpy.data.images.new(prefix + "_bake_metal", size, size, alpha=False)
     mask.colorspace_settings.name = "Non-Color"

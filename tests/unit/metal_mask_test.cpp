@@ -35,4 +35,5 @@ TEST_CASE("metal mask: the metal parts of the baked textures") {
 	CHECK(metalShare("items/sling") == 0.f);
 	CHECK(metalShare("items/ring_gem") == 0.f);
 	CHECK(metalShare("mechanisms/rock") == 0.f);
+	CHECK(metalShare("monsters/crocodile") == 0.f);
 }

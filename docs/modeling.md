@@ -102,8 +102,14 @@ means that one). How the original models were rebuilt, and notes per model: [rem
   (255 matte, 255 - 255 x strength metal; the texture is RGBA then, RGB without metal). The game's shader shines it
   (`uMetalMask`, set by `AnimatedModel::Show`): less diffuse, a Blinn-Phong highlight per light tinted by the colour,
   one hard band in toon mode. So a model's alpha is never see-through: a model draw's alpha is its colour's.
+  A script's own node material (not `make_material`): build it again on `common.metal_palette(palette)` (each colour
+  its strength in grey) and name that material in the first one's `"metal_mask_material"` (`crocodile.py`'s collar).
+  A lit bake (`mechanism.py`'s `bake_lit`) saves through `save_texture` with `bake_metal_mask` too.
   Metal so far: gold, bronze and the blades of `items.py`, the ring bands (`rings.py`), gold, bronze and the polished
-  mirror of `mechanism.py` (its lit bake, `bake_lit`, saves through `save_texture` with `bake_metal_mask` too).
+  mirror of `mechanism.py`, the gold of Sobek (`crocodile.py`, scutes and collar), Serket (`scorpion.py` `COL_QUEEN`,
+  the carapace at 0.6) and the mummy priest (`mummy_priest.py`: ankh, finger stalls, scarab).
+  Re-bake only what you change: Cycles adds a little noise, and `uv_unwrap` may lay the UVs out anew since the last
+  export (then the `.md3` must go with its new texture: compare positions and UVs with `md3.read_md3` first).
 * Engine side: `src/entities/md3_mesh.cpp` (MD3 loader), `src/entities/model_info.cpp` (clip files, normalization), `src/graphics/animated_model.cpp` (drawing), `src/graphics/textures.cpp` (PNG textures), model/texture paths in `src/world/monster_kinds.cpp` (`KINDS`) and `src/world/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,

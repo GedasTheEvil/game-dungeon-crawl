@@ -1,6 +1,6 @@
 # Smaller chest potions
 
-Status: draft 2026-10-24, from the user ("The potions coming out of the chests are too large. I would scale them
+Status: solved 2026-10-26 (play-tested by the user). Was: draft 2026-10-24, from the user ("The potions coming out of the chests are too large. I would scale them
 down 2 times."). Needs nothing first. Implemented 2026-10-26, waits for the play-test:
 `bin/game --play tests/play/smaller-chest-potions.txt`, open the containers.
 

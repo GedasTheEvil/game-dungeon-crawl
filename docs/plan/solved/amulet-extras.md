@@ -1,6 +1,6 @@
 # Amulet extras
 
-Status: implemented 2026-10-23, waits for a play-test (`bin/game --play tests/play/amulet-extras.txt`). Drafted
+Status: solved 2026-10-24 (play-tested by the user). Was: implemented 2026-10-23, waits for a play-test (`bin/game --play tests/play/amulet-extras.txt`). Drafted
 2026-10-07, refined 2026-10-09. Left open by [amulets](amulets.md)
 (done, play-tested).
 

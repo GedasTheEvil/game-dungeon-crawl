@@ -1,6 +1,6 @@
 # Zone looks: each zone looks its own
 
-Status: draft 2026-10-21, from the user (the campaign has distinct zones). Needs first:
+Status: solved 2026-10-26 (play-tested by the user). Was: draft 2026-10-21, from the user (the campaign has distinct zones). Needs first:
 [campaign-zones](campaign-zones.md) (the zones and their stone in the zone table).
 
 ## Idea

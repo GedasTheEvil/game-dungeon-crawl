@@ -1,6 +1,6 @@
 # Zone music
 
-Status: draft 2026-10-30, needs nothing first. The code works with no new files: every zone and the menu fall back
+Status: solved 2026-11-01 (play-tested by the user). Was: draft 2026-10-30, needs nothing first. The code works with no new files: every zone and the menu fall back
 to `soundtrack.ogg`. Implemented 2026-11-01; 13 CC0 tracks from OpenGameArt, picked by description (not heard),
 fetched by `tools/audio/zone_music.py`: the user's ear decides which stay.
 

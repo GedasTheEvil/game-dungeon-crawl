@@ -1,6 +1,6 @@
 # Rings: two worn at once, one per hand
 
-Status: draft 2026-10-30 (user). Needs nothing first. Open points at the end (ring effects not final, upgrades
+Status: solved 2026-10-30 (play-tested by the user). Was: draft 2026-10-30 (user). Needs nothing first. Open points at the end (ring effects not final, upgrades
 later).
 
 ## Idea

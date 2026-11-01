@@ -1,6 +1,6 @@
 # Quick save and quick load
 
-Status: draft 2026-10-29, from the user's idea. Needs nothing first.
+Status: solved 2026-10-29 (play-tested by the user). Was: draft 2026-10-29, from the user's idea. Needs nothing first.
 
 ## Idea
 

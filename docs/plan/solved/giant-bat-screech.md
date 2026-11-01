@@ -1,6 +1,6 @@
 # Giant bat: screech
 
-Status: draft 2026-10-19, ready (needs nothing first). From the user's review: each giant gets an ability of its own,
+Status: solved 2026-10-26 (play-tested by the user). Was: draft 2026-10-19, ready (needs nothing first). From the user's review: each giant gets an ability of its own,
 not only bigger numbers.
 
 ## Idea

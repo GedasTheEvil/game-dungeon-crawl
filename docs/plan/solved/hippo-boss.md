@@ -1,6 +1,6 @@
 # Hippo boss: Seth, the red hippopotamus
 
-Status: draft 2026-10-19, from the user ("a hippo boss, Egyptian, stronger than just a hippopotamus"). Ready:
+Status: solved 2026-10-20 (play-tested by the user). Was: draft 2026-10-19, from the user ("a hippo boss, Egyptian, stronger than just a hippopotamus"). Ready:
 [hippo](hippo.md) is in. Boss slot: not now (user, 2026-10-19), see Placement. Implemented 2026-10-20, see
 [Implemented](#implemented); play-test: `bin/game --play tests/play/hippo-boss.txt`.
 

@@ -1,6 +1,6 @@
 # Poison drip trap
 
-Status: implemented 2026-10-25, waiting for the user's play-test: `bin/game --play tests/play/poison-drip-trap.txt`. Draft 2026-10-14. Needs first: [rhythm-traps](rhythm-traps.md) (the timed cycle, its telegraph
+Status: solved 2026-10-26 (play-tested by the user). Was: implemented 2026-10-25, waiting for the user's play-test: `bin/game --play tests/play/poison-drip-trap.txt`. Draft 2026-10-14. Needs first: [rhythm-traps](rhythm-traps.md) (the timed cycle, its telegraph
 and level check). From the user. Sibling of [fire-jet-trap](fire-jet-trap.md).
 
 ## Idea

@@ -1,6 +1,6 @@
 # Inventory overhaul: tabs
 
-Status: draft 2026-10-06, refined 2026-10-06, implemented 2026-10-06; waiting for a check in play.
+Status: solved 2026-10-06 (play-tested by the user). Was: draft 2026-10-06, refined 2026-10-06, implemented 2026-10-06; waiting for a check in play.
 
 ## Problem
 

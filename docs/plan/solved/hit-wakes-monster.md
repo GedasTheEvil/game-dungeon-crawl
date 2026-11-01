@@ -1,6 +1,6 @@
 # A hit wakes the monster: it comes for the player, or runs
 
-Status: draft 2026-10-30 (user). Needs nothing first.
+Status: solved 2026-10-30 (play-tested by the user). Was: draft 2026-10-30 (user). Needs nothing first.
 
 ## Problem
 

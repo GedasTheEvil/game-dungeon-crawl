@@ -1,6 +1,6 @@
 # A climber in reach leaves the rungs to fight
 
-Status: draft 2026-10-28, implemented 2026-10-28, needs nothing first. From the user: when a monster climbs after me, I can step off the
+Status: solved 2026-10-29 (play-tested by the user). Was: draft 2026-10-28, implemented 2026-10-28, needs nothing first. From the user: when a monster climbs after me, I can step off the
 ladder and keep hitting it, and it stays on the ladder. It should find ground to attack me from.
 
 ## Today

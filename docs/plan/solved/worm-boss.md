@@ -1,6 +1,6 @@
 # Worm boss: the serpent of the sands
 
-Status: draft 2026-10-20, from the user ("a boss of the worm type for the new desert section"). Needs first:
+Status: solved 2026-10-23 (play-tested by the user). Was: draft 2026-10-20, from the user ("a boss of the worm type for the new desert section"). Needs first:
 [desert-chapter](desert-chapter.md) (the sand it burrows in, the worm's sand burrowing).
 
 ## Lore

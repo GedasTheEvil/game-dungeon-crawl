@@ -1,6 +1,6 @@
 # Text vertical centre
 
-Status: draft 2026-10-27, from the user. Ready (needs nothing first).
+Status: solved 2026-10-27 (play-tested by the user). Was: draft 2026-10-27, from the user. Ready (needs nothing first).
 
 ## Problem
 

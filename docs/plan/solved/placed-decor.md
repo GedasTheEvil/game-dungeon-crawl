@@ -1,6 +1,6 @@
 # Placed decor: decor and decal layers the editor paints (props, decals, torches)
 
-Status: implemented 2026-10-21. Needs nothing first. From the user. Play-test: `bin/game --play
+Status: solved 2026-10-21 (play-tested by the user). Was: implemented 2026-10-21. Needs nothing first. From the user. Play-test: `bin/game --play
 tests/play/placed-decor.txt` (the decoys), `make run-editor` (the Decor and Decals layers).
 
 ## Today

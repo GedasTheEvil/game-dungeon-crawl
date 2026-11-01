@@ -1,6 +1,6 @@
 # Resistance potion
 
-Status: implemented 2026-10-09, to be play-tested. Draft 2026-10-06, split off [poison-and-antidote.md](poison-and-antidote.md): the antidote only
+Status: solved 2026-10-09 (play-tested by the user). Was: implemented 2026-10-09, to be play-tested. Draft 2026-10-06, split off [poison-and-antidote.md](poison-and-antidote.md): the antidote only
 cures, it gives no protection afterwards. The amulets moved to [amulets.md](amulets.md).
 
 ## Decided (2026-10-08)

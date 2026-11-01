@@ -1,6 +1,6 @@
 # Campaign texts: enough texts for 40-60 levels
 
-Status: implemented (commit 5fb4b84), waiting for the user's play-test, which comes with
+Status: solved 2026-10-30 (play-tested by the user). Was: implemented (commit 5fb4b84), waiting for the user's play-test, which comes with
 [denser-levels](denser-levels.md) (user, 2026-10-26: testable only on the rebuilt campaign). Draft
 2026-10-21, from the user. Needed first: [campaign-zones](campaign-zones.md) (the level count
 and the zone themes the texts follow).

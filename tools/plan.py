@@ -4,7 +4,7 @@
     tools/plan.py status              drafts (ready, blocked, on hold) and implemented plans waiting for a play-test
     tools/plan.py move SLUG STAGE     STAGE: draft-sonet, draft-opus, implemented, solved, wont-do. Renames the plan
                                       (git mv), rewrites every markdown link to it and the links inside it, lists its
-                                      scenarios
+                                      scenarios; solved: its Status line starts "solved <today>. Was: ..."
     tools/plan.py links               fixes markdown links to plans that moved, fails on the ones it cannot fix
 
 A plan is found by its slug: <slug>.draft.<model>.md, <slug>.md, solved/<slug>.md or wont-do/<slug>.md in docs/plan/.
@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -90,6 +91,20 @@ def status_line(path):
             break
         head.append(line)
     return " ".join(head).strip()
+
+
+def mark_solved(path, day, note=""):
+    """Turns the first Status line into "Status: solved DAY[ NOTE]. Was: ...", unless it already says solved."""
+    lines = path.read_text().split("\n")
+    i = next((k for k, line in enumerate(lines) if line.startswith("Status:")), None)
+    if i is None:
+        return False
+    end = next((k for k in range(i, len(lines)) if not lines[k].strip()), len(lines))
+    if re.search(r"\bsolved\b", " ".join(lines[i:end]), re.I):
+        return False
+    lines[i] = f"Status: solved {day}{note}. Was: " + lines[i][len("Status:"):].lstrip()
+    path.write_text("\n".join(lines))
+    return True
 
 
 def blockers(path, index):
@@ -176,6 +191,8 @@ def move(slug, stage):
     fixed, broken = fix_links(index)
     print(f"{old.relative_to(ROOT)} -> {new.relative_to(ROOT)}, {fixed} links rewritten")
     if stage == "solved":
+        if mark_solved(new, date.today().isoformat()):
+            print("Status line: solved today (add \"(play-tested by the user)\" when the user confirmed it)")
         hits = subprocess.run(["git", "grep", "-l", "-w", slug, "--", "tests/scenarios/*.txt", "tests/play/*.txt"],
                               cwd=ROOT, capture_output=True, text=True).stdout.split()
         if hits:

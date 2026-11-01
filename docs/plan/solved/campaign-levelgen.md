@@ -1,6 +1,6 @@
 # Campaign levelgen: generate campaign-quality levels per zone
 
-Status: implemented 2026-10-25 (all nine steps), waiting for the user's play-test, which comes
+Status: solved 2026-10-30 (play-tested by the user). Was: implemented 2026-10-25 (all nine steps), waiting for the user's play-test, which comes
 with [denser-levels](denser-levels.md) (user, 2026-10-26: testable only on the rebuilt campaign). Preview:
 `bin/game --level gen:1:6:hall_of_judgment:boss` (any zone's slug, with or without `:boss`). Draft 2026-10-21, from
 the user ("I expect levels to be re-generated completely"). Needed first:

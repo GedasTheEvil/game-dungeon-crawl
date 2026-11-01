@@ -1,6 +1,6 @@
 # Metallic shading
 
-Status: draft 2026-11-01, needs nothing first. From the user. Brightness settled with the user: the player's own light
+Status: solved 2026-11-01 (play-tested by the user). Was: draft 2026-11-01, needs nothing first. From the user. Brightness settled with the user: the player's own light
 (`Lighting::PLAYER`, `src/graphics/draw.cpp`, always on) gives metal a medium shine where no other light reaches;
 torches nearby make it bright. Keep it simple: no extra rim term unless the screenshots show metal still reads as
 paint.

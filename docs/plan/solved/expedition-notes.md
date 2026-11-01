@@ -1,6 +1,6 @@
 # A previous expedition's notes
 
-Status: draft 2026-10-10, ready (needs nothing first). From the lore review, picked by the user.
+Status: solved 2026-10-21 (play-tested by the user). Was: draft 2026-10-10, ready (needs nothing first). From the lore review, picked by the user.
 
 ## Idea
 

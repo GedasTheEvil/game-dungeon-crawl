@@ -1,6 +1,6 @@
 # Ancient gems and materials
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30. Implemented 2026-11-01: ruby,
+Status: solved 2026-11-01 (play-tested by the user). Was: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30. Implemented 2026-11-01: ruby,
 sapphire, emerald, topaz are garnet, lapis (lazuli), (green) feldspar, (yellow) jasper (`RingGem`, `ItemKind`,
 `RingEffect`, the lore and field note keys and texts); colours and effects unchanged. The gold gate's gem is "Gold"
 (not jasper: the ring has it), the Book of Gates inscription says "the golden door". Lapis is now both the blue gate's

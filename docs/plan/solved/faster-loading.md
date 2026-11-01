@@ -1,6 +1,6 @@
 # Faster loading
 
-Status: draft 2026-10-22, from the user. Ready: nothing needed first. Follow-up:
+Status: solved 2026-10-24 (play-tested by the user). Was: draft 2026-10-22, from the user. Ready: nothing needed first. Follow-up:
 [loading-per-level](../wont-do/loading-per-level.md), only if startup is still slow after this one.
 
 ## Idea

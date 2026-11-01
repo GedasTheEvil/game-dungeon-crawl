@@ -1,6 +1,6 @@
 # Campaign zones: 40-60 levels in distinct zones
 
-Status: draft 2026-10-21, from the user. Needs nothing first. Zone list decided 2026-10-21 (user: "I like it"), see
+Status: solved 2026-10-21. Was: draft 2026-10-21, from the user. Needs nothing first. Zone list decided 2026-10-21 (user: "I like it"), see
 [Zones](#zones-decided-2026-10-21); the Lake of Fire added the same day as the twelfth zone (user).
 
 ## Idea

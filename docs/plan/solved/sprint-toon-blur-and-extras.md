@@ -1,6 +1,6 @@
 # Sprint blur in toon mode, sprint extras
 
-Status: draft 2026-10-05, refined 2026-10-09 (decided, not implemented). Split off [sprint-motion-effect.md](sprint-motion-effect.md).
+Status: solved 2026-10-24 (play-tested by the user). Was: draft 2026-10-05, refined 2026-10-09 (decided, not implemented). Split off [sprint-motion-effect.md](sprint-motion-effect.md).
 
 ## Idea
 

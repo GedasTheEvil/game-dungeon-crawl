@@ -1,6 +1,6 @@
 # Journal intro: the story starts in the notebook
 
-Status: draft 2026-10-19, ready (needs nothing first). From the user. The game has no intro today: a new game drops
+Status: solved 2026-10-21 (play-tested by the user). Was: draft 2026-10-19, ready (needs nothing first). From the user. The game has no intro today: a new game drops
 the player into lvl1 without a word.
 
 ## Idea

@@ -1,6 +1,6 @@
 # Trapped chests and tomb curses
 
-Status: implemented 2026-10-21, waiting for a play-test (`bin/game --play tests/play/trapped-chests.txt`, or
+Status: solved 2026-10-21 (play-tested by the user). Was: implemented 2026-10-21, waiting for a play-test (`bin/game --play tests/play/trapped-chests.txt`, or
 `bin/game --level 3`: the trapped chest at col 1 row 7). Draft 2026-10-12, tomb-curse-triggers (2026-10-10, from the
 lore review) merged in 2026-10-19 (user: one curse system).
 

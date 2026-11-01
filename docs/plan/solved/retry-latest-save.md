@@ -1,6 +1,6 @@
 # Retry from the latest save
 
-Status: draft 2026-10-29, from the user's idea. Needs nothing first. Works with
+Status: solved 2026-10-29 (play-tested by the user). Was: draft 2026-10-29, from the user's idea. Needs nothing first. Works with
 [quick-save](quick-save.md) in either order.
 
 ## Idea

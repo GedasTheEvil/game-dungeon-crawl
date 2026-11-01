@@ -1,6 +1,6 @@
 # Camel spider boss: the web spinner
 
-Status: draft 2026-10-20, from the user ("for the remaining bosses, a spider boss makes sense; others remain without
+Status: solved 2026-10-24 (play-tested by the user). Was: draft 2026-10-20, from the user ("for the remaining bosses, a spider boss makes sense; others remain without
 a boss"). Refined 2026-10-22 (open points decided by the user). Needs nothing first. Implemented 2026-10-23, see
 [Implemented](#implemented-2026-10-23); play-test: `bin/game --play tests/play/camel-spider-boss.txt`.
 

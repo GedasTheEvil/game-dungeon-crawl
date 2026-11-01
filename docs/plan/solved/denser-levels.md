@@ -1,6 +1,6 @@
 # Rebuild the campaign: zone by zone, the whole grid, forks
 
-Status: implemented 2026-10-26 (all twelve zones, 54 levels), waiting for the user's play-test (batches 1-4 already
+Status: solved 2026-10-30 (play-tested by the user). Was: implemented 2026-10-26 (all twelve zones, 54 levels), waiting for the user's play-test (batches 1-4 already
 play-tested); the bosses and the XP are retuned from the sim afterwards (user). Draft 2026-10-06 (denser levels), refined 2026-10-09; more-inscriptions and route-fork merged in 2026-10-21;
 turned into the full rebuild 2026-10-21 (user: "levels re-generated completely, adjusting to the new bosses", 40-60
 levels in zones). Slug kept from the first version.

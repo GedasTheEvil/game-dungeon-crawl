@@ -1,6 +1,6 @@
 # Monster and weapon balance
 
-Status: implemented 2026-10-26 (steps 2-5, [Done](#done-2026-10-26)), waiting for the user's play-test:
+Status: solved 2026-10-30 (play-tested by the user). Was: implemented 2026-10-26 (steps 2-5, [Done](#done-2026-10-26)), waiting for the user's play-test:
 `bin/game --play tests/play/monster-balance.txt` (a generated serpent temple level with the player the sim puts
 there; other zones: the `level`, `xp` and `gear` lines from the table in [Done](#done-2026-10-26)). Merged 2026-10-05
 from three drafts: monster strength (2026-10-01), monster XP tuning, and weapon ranges and HP balance. The weapon reach

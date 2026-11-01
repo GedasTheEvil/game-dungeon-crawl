@@ -1,6 +1,6 @@
 # Giant rat: pack call
 
-Status: draft 2026-10-19, ready (needs nothing first). From the user's review: each giant gets an ability of its
+Status: solved 2026-10-26 (play-tested by the user). Was: draft 2026-10-19, ready (needs nothing first). From the user's review: each giant gets an ability of its
 own. Its bite already gives disease (`meleeCurses`, `src/world/monster_kinds.cpp`), so the new ability is a call.
 
 ## Idea

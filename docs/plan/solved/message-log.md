@@ -1,6 +1,6 @@
 # Message queue and log
 
-Status: implemented 2026-10-30, waiting for a play-test: `bin/game --play tests/play/message-log.txt`. From the project audit of 2026-10-30.
+Status: solved 2026-10-31 (play-tested by the user). Was: implemented 2026-10-30, waiting for a play-test: `bin/game --play tests/play/message-log.txt`. From the project audit of 2026-10-30.
 
 Opus: HUD change, a new journal or screen section.
 

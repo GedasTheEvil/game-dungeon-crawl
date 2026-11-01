@@ -1,6 +1,6 @@
 # Inventory sort orders
 
-Status: implemented 2026-10-09, not play-tested yet. Draft 2026-10-07, refined 2026-10-09. Left open by
+Status: solved 2026-10-09 (play-tested by the user). Was: implemented 2026-10-09, not play-tested yet. Draft 2026-10-07, refined 2026-10-09. Left open by
 [inventory-sorting](inventory-sorting.md), which made "found first" the default.
 
 ## Decided (2026-10-09)

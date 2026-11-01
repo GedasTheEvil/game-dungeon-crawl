@@ -1,6 +1,6 @@
 # Inventory sorting: found first
 
-Status: draft 2026-10-06, updated 2026-10-07. Implemented 2026-10-07 (see [Implementation](#implementation)), not
+Status: solved 2026-10-07 (play-tested by the user). Was: draft 2026-10-06, updated 2026-10-07. Implemented 2026-10-07 (see [Implementation](#implementation)), not
 play-tested yet. Split off [inventory-overhaul.md](inventory-overhaul.md), which kept the `ItemKind` order.
 Further orders: [inventory-sort-orders](inventory-sort-orders.md).
 

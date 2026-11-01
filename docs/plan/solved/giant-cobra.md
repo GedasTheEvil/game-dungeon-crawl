@@ -1,6 +1,6 @@
 # Giant cobra
 
-Status: implemented 2026-10-06 (not play tested). Draft 2026-10-06. Asked for by the user beside the [cobra](cobra.md). Needs the cobra (done).
+Status: solved 2026-10-09 (play-tested by the user). Was: implemented 2026-10-06 (not play tested). Draft 2026-10-06. Asked for by the user beside the [cobra](cobra.md). Needs the cobra (done).
 
 The cobra's giant kin, like the giant rat, bat and scarab: the same model and clips with its own texture, bigger, stronger.
 

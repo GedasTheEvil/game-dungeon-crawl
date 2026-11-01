@@ -1,6 +1,6 @@
 # Ranged weapons: a few shots, not too close, a little weaker
 
-Status: draft 2026-10-30 (user). Needs nothing first.
+Status: solved 2026-10-30 (play-tested by the user). Was: draft 2026-10-30 (user). Needs nothing first.
 
 ## Goal
 

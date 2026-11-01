@@ -40,7 +40,9 @@ so they don't play through the campaign: `bin/game --level N` (a campaign level 
 ## Solved
 
 Once the user confirms an implemented plan is solved (tested / verified): `tools/plan.py move <slug> solved`. It moves
-the plan to `docs/plan/solved/`, rewrites the links and lists the scenarios and play scripts that name it.
+the plan to `docs/plan/solved/`, rewrites the links and lists the scenarios and play scripts that name it. It also
+starts the Status line with "solved <today>. Was: ..."; add "(play-tested by the user)" after the date when the user
+confirmed it.
 
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
 levels or balance) needs no user confirmation. Once implemented and its checks pass, move it straight to

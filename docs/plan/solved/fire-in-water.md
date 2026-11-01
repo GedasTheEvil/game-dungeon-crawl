@@ -1,6 +1,6 @@
 # Fire in water
 
-Status: draft 2026-10-19, from the user. Ready: nothing needed first.
+Status: solved 2026-10-26 (play-tested by the user). Was: draft 2026-10-19, from the user. Ready: nothing needed first.
 
 ## Idea
 

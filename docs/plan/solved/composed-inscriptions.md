@@ -1,6 +1,6 @@
 # Composed inscriptions: plates and a hieroglyph sheet instead of baked atlases
 
-Status: draft 2026-10-22, from the user. Needs nothing first.
+Status: solved 2026-10-24 (play-tested by the user). Was: draft 2026-10-22, from the user. Needs nothing first.
 
 ## Idea
 

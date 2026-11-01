@@ -1,6 +1,6 @@
 # Amulet effect words: guard vs. power
 
-Status: draft 2026-10-30 (user), needs nothing first.
+Status: solved 2026-10-30 (play-tested by the user). Was: draft 2026-10-30 (user), needs nothing first.
 
 ## Why
 

@@ -1,7 +1,9 @@
 # Metallic shading
 
-Status: draft 2026-11-01, needs nothing first. From the user. Open question: how strong the rim term is in the dark
-(tune on screenshots).
+Status: draft 2026-11-01, needs nothing first. From the user. Brightness settled with the user: the player's own light
+(`Lighting::PLAYER`, `src/graphics/draw.cpp`, always on) gives metal a medium shine where no other light reaches;
+torches nearby make it bright. Keep it simple: no extra rim term unless the screenshots show metal still reads as
+paint.
 
 ## Idea
 
@@ -23,8 +25,9 @@ animated monsters each part would have to follow the same frames. The MD3 loader
   it to alpha. A helper shared by the bakers, documented in `docs/modeling.md`.
 * **Shader** (`FRAGMENT_SRC`): where the mask is on: diffuse darker (metal is mostly reflection), a Blinn-Phong
   highlight per light in the existing loop, tinted by the base colour (gold gives a yellow highlight), eye vector
-  `-vPos`; a faint rim (fresnel-like) term so metal reads in dim light. Toon mode: one hard highlight band. Emissive
-  draws unchanged.
+  `-vPos`. The player's light is one of the loop's lights, so metal always has a highlight; tune its strength so
+  that with only the player's light it is medium, not blinding (between matte and a torch-lit shine). A rim term
+  only if needed (see Status). Toon mode: one hard highlight band. Emissive draws unchanged.
 * **Alpha out.** The shader writes `base.a` as output alpha; with the mask that would leak into blending (fades, the
   gem's pass). Output `gl_Color.a` for the lit path, or only use `base.a` where a draw wants texture alpha.
 * **Check texture loading** keeps the alpha channel (`Texture::LoadPNG`) and no draw enables alpha test/blend on the

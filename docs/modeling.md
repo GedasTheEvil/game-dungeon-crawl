@@ -40,7 +40,7 @@ means that one). How the original models were rebuilt, and notes per model: [rem
 * `docs/plan/references/<model>/` - reference images (photos, concept art) to compare renders against for shape and
   proportions; kept out of git (its `.gitignore`), like `docs/plan/screenshots/`.
 * `tools/blender/models/common.py` - shared helpers: loft/tube/ellipsoid, chain_weights, Builder, make_material,
-  finish_mesh, uv_unwrap, bake_texture, export_files. Model scripts import it (with `importlib.reload` for live iteration).
+  finish_mesh, uv_unwrap, bake_texture, metal, export_files. Model scripts import it (with `importlib.reload` for live iteration).
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `media/models/<category>/<name>{,_att,_die,...}.md3`, `media/textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`;
   the rig-less `lotus.py` and `ushabti.py` save none).
@@ -97,6 +97,12 @@ means that one). How the original models were rebuilt, and notes per model: [rem
 * Any frame count per file; the engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for monsters and the player (the mimics 1024x512, the lotus and the ushabti 512x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
+* Metal (plan metallic-shading): a palette colour wrapped in `common.metal((r, g, b)[, strength])` is metal. `make_material`
+  keeps the strengths on the material, `bake_texture` bakes them in a second pass and writes them to the alpha
+  (255 matte, 255 - 255 x strength metal; the texture is RGBA then, RGB without metal). The game's shader shines it
+  (`uMetalMask`, set by `AnimatedModel::Show`): less diffuse, a Blinn-Phong highlight per light tinted by the colour,
+  one hard band in toon mode. So a model's alpha is never see-through: a model draw's alpha is its colour's.
+  Metal so far: gold, bronze and the blades of `items.py`, the ring bands (`rings.py`).
 * Engine side: `src/entities/md3_mesh.cpp` (MD3 loader), `src/entities/model_info.cpp` (clip files, normalization), `src/graphics/animated_model.cpp` (drawing), `src/graphics/textures.cpp` (PNG textures), model/texture paths in `src/world/monster_kinds.cpp` (`KINDS`) and `src/world/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,

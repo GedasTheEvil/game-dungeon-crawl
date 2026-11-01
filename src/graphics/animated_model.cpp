@@ -97,7 +97,9 @@ void AnimatedModel::Show(const AnimPlayback& p, int textureId) const {
 		glVertexAttribPointer(Lighting::NEXT_POSITION_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, b.v);
 		glVertexAttribPointer(Lighting::NEXT_NORMAL_ATTRIB, 3, GL_FLOAT, GL_FALSE, 0, b.n);
 	}
+	Lighting::setMetalMask(true);
 	drawTriangles(a.v, a.n, texCoords, indices, static_cast<int>(mesh.indices.size()));
+	Lighting::setMetalMask(false);
 	if (blend) {
 		glDisableVertexAttribArray(Lighting::NEXT_POSITION_ATTRIB);
 		glDisableVertexAttribArray(Lighting::NEXT_NORMAL_ATTRIB);

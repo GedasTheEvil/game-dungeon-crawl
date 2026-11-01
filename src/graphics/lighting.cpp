@@ -44,11 +44,19 @@ uniform vec4 uFog; // colour, density per unit past uFogStart
 uniform float uFogStart;
 uniform float uEmissive;
 uniform float uToon; // 1 = cel bands (see toonLight)
+// 1 = the texture's alpha is the metal mask (plan metallic-shading): 1 matte, 0 all metal; the draw's alpha is
+// gl_Color's alone.
+uniform float uMetalMask;
 uniform int uLightCount;
 uniform vec4 uLightPos[MAX_LIGHTS]; // eye space xyz, radius in w
 uniform vec3 uLightColor[MAX_LIGHTS];
 varying vec3 vPos;
 varying vec3 vNormal;
+const float METAL_DIFFUSE = 0.7; // what is left of the diffuse light on full metal: it mostly reflects
+const float METAL_SHININESS = 10.0; // Blinn-Phong exponent: broad, so small items catch it
+const float METAL_SHINE = 2.2; // the highlight's strength, tinted by the metal's colour
+const float METAL_TOON_DIFFUSE = 0.75; // toon mode: the bands stay readable, the band does the shine
+const float METAL_TOON_BAND = 0.35; // the hard band's light, before METAL_SHINE
 // Snaps the light to three flat bands with thin soft steps; the dark band leans cool so shadows read as painted.
 vec3 toonLight(vec3 light) {
 	float i = max(max(light.r, light.g), light.b);
@@ -59,7 +67,13 @@ vec3 toonLight(vec3 light) {
 	return mix(hue, vec3(0.55, 0.6, 1.0), shade * 0.6) * band;
 }
 void main() {
-	vec4 base = texture2D(uTex, gl_TexCoord[0].st) * gl_Color;
+	vec4 tex = texture2D(uTex, gl_TexCoord[0].st);
+	vec4 base = tex * gl_Color;
+	float metal = 0.0;
+	if (uMetalMask > 0.5) {
+		metal = 1.0 - tex.a;
+		base.a = gl_Color.a;
+	}
 	float haze = 1.0 - exp(-uFog.w * max(length(vPos) - uFogStart, 0.0));
 	if (uEmissive > 0.5) {
 		gl_FragColor = vec4(mix(base.rgb, uFog.rgb, haze), base.a);
@@ -68,22 +82,31 @@ void main() {
 	vec3 n = normalize(vNormal);
 	if (dot(n, vPos) > 0.0) // two-sided: the winding in the old models and tiles is not consistent
 		n = -n;
+	vec3 eye = normalize(-vPos);
 	vec3 light = uAmbient;
+	vec3 shine = vec3(0.0);
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		if (i >= uLightCount)
 			break;
 		vec3 d = uLightPos[i].xyz - vPos;
 		float dist = length(d);
+		vec3 l = d / max(dist, 0.001);
 		float k = clamp(1.0 - dist / uLightPos[i].w, 0.0, 1.0);
-		float lambert = max(dot(n, d / max(dist, 0.001)), 0.0) * 0.7 + 0.3; // wrapped, so grazing walls still glow
+		float lambert = max(dot(n, l), 0.0) * 0.7 + 0.3; // wrapped, so grazing walls still glow
 		light += uLightColor[i] * (k * k * lambert);
+		if (metal > 0.0)
+			shine += uLightColor[i] * (k * k * pow(max(dot(n, normalize(l + eye)), 0.0), METAL_SHININESS));
 	}
 	if (uToon > 0.5) {
 		float grey = dot(base.rgb, vec3(0.299, 0.587, 0.114));
 		base.rgb = clamp(mix(vec3(grey), base.rgb, 1.25), 0.0, 1.0); // livelier paint
-		light = toonLight(light);
-	}
-	gl_FragColor = vec4(mix(base.rgb * light, uFog.rgb, haze), base.a);
+		light = toonLight(light) * (1.0 - (1.0 - METAL_TOON_DIFFUSE) * metal); // the metal's bands as the paint's
+		float s = max(max(shine.r, shine.g), shine.b); // one hard highlight band
+		shine = shine / max(s, 0.001) * smoothstep(0.1, 0.14, s) * METAL_TOON_BAND;
+	} else
+		light *= 1.0 - (1.0 - METAL_DIFFUSE) * metal;
+	vec3 lit = base.rgb * (light + shine * (METAL_SHINE * metal));
+	gl_FragColor = vec4(mix(lit, uFog.rgb, haze), base.a);
 }
 )";
 
@@ -98,7 +121,7 @@ bool gActive = false;
 GLint gLocFog = -1, gLocFogStart = -1;
 Lighting::Atmosphere gAir;
 GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
-GLint gLocBlend = -1;
+GLint gLocBlend = -1, gLocMetalMask = -1;
 Light gLights[64];
 int gLightCount = 0;
 bool gFlicker = true;
@@ -131,6 +154,7 @@ bool ensureProgram() {
 	gLocPos = glGetUniformLocation(program, "uLightPos");
 	gLocColor = glGetUniformLocation(program, "uLightColor");
 	gLocBlend = glGetUniformLocation(program, "uBlend");
+	gLocMetalMask = glGetUniformLocation(program, "uMetalMask");
 	glUseProgram(program);
 	glUniform1i(glGetUniformLocation(program, "uTex"), 0);
 	glUseProgram(0);
@@ -151,6 +175,7 @@ void Lighting::begin() {
 	glUniform1f(gLocEmissive, 0.f);
 	glUniform1f(gLocToon, Ink::toon() ? 1.f : 0.f);
 	glUniform1f(gLocBlend, 0.f);
+	glUniform1f(gLocMetalMask, 0.f);
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {
@@ -217,6 +242,11 @@ void Lighting::end() {
 void Lighting::setEmissive(bool on) {
 	if (gActive)
 		glUniform1f(gLocEmissive, on ? 1.f : 0.f);
+}
+
+void Lighting::setMetalMask(bool on) {
+	if (gActive)
+		glUniform1f(gLocMetalMask, on ? 1.f : 0.f);
 }
 
 bool Lighting::setBlend(float t) {

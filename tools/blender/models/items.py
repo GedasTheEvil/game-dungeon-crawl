@@ -44,7 +44,7 @@ import decor  # noqa: E402
 
 importlib.reload(common)
 importlib.reload(decor)
-from common import REPO, Builder, cone, ellipsoid, transform, tube  # noqa: E402
+from common import REPO, Builder, cone, ellipsoid, metal, transform, tube  # noqa: E402
 from decor import box, place, prism, revolve, rod, rot, stripes  # noqa: E402
 
 COLL = "items_new"
@@ -82,13 +82,13 @@ COL = {
     "ash_dark": (0.38, 0.26, 0.13),
     "leather": (0.30, 0.15, 0.06),
     "leather_dark": (0.15, 0.07, 0.03),
-    "bronze": (0.62, 0.40, 0.14),
-    "bronze_dark": (0.34, 0.20, 0.07),
+    "bronze": metal((0.62, 0.40, 0.14)),
+    "bronze_dark": metal((0.34, 0.20, 0.07)),
     "verdigris": (0.16, 0.36, 0.28),
-    "blade": (0.40, 0.21, 0.07),
-    "blade_edge": (0.72, 0.48, 0.20),
-    "gold": (0.85, 0.60, 0.16),
-    "gold_dark": (0.48, 0.31, 0.08),
+    "blade": metal((0.40, 0.21, 0.07)),
+    "blade_edge": metal((0.72, 0.48, 0.20)),
+    "gold": metal((0.85, 0.60, 0.16)),
+    "gold_dark": metal((0.48, 0.31, 0.08)),
     "ebony": (0.05, 0.035, 0.03),
     "ivory": (0.82, 0.76, 0.60),
     "linen": (0.78, 0.72, 0.58),

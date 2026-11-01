@@ -33,7 +33,7 @@ import decor  # noqa: E402
 
 importlib.reload(common)
 importlib.reload(decor)
-from common import REPO, Builder, lathe, tube  # noqa: E402
+from common import REPO, Builder, lathe, metal, tube  # noqa: E402
 from decor import arc_len, place, stripes  # noqa: E402
 
 COLL = "rings_new"
@@ -44,13 +44,13 @@ SETTING_Z = BAND_R + 0.0012 * S  # the setting's floor, on top of the band
 GEM_R = 0.0058 * S  # the gem's girdle
 # The band's metals, in RingMetal order: texture stem and the palette its texture uses.
 METALS = [
-    ("ring_band_copper", {"metal": (0.70, 0.34, 0.16), "metal_dark": (0.38, 0.15, 0.06)}),
-    ("ring_band_silver", {"metal": (0.80, 0.82, 0.86), "metal_dark": (0.46, 0.48, 0.53)}),
-    ("ring_band_gold", {"metal": (0.85, 0.60, 0.16), "metal_dark": (0.48, 0.31, 0.08)}),
+    ("ring_band_copper", {"metal": metal((0.70, 0.34, 0.16)), "metal_dark": metal((0.38, 0.15, 0.06))}),
+    ("ring_band_silver", {"metal": metal((0.80, 0.82, 0.86)), "metal_dark": metal((0.46, 0.48, 0.53))}),
+    ("ring_band_gold", {"metal": metal((0.85, 0.60, 0.16)), "metal_dark": metal((0.48, 0.31, 0.08))}),
 ]
 COL = {
-    "metal": (0.85, 0.60, 0.16),
-    "metal_dark": (0.48, 0.31, 0.08),
+    "metal": metal((0.85, 0.60, 0.16)),
+    "metal_dark": metal((0.48, 0.31, 0.08)),
     "gem_table": (1.0, 1.0, 1.0),
     "gem_light": (0.92, 0.92, 0.94),
     "gem_mid": (0.74, 0.74, 0.78),

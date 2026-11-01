@@ -3,6 +3,7 @@
 Model scripts do: sys.path.insert(0, HERE); import common; importlib.reload(common)
 """
 
+import json
 import math
 import os
 
@@ -228,9 +229,32 @@ class Builder:
 # ---------------------------------------------------------------- materials
 
 
+class Metal(tuple):
+    """A palette colour that is metal (plan metallic-shading): used as a plain (r, g, b), but bake_texture writes its
+    strength (0..1, 1 all metal) to the texture's alpha, as 1 - strength, and the game's shader shines it."""
+
+    def __new__(cls, rgb, strength=1.0):
+        colour = super().__new__(cls, rgb)
+        colour.strength = strength
+        return colour
+
+
+def metal(rgb, strength=1.0):
+    """A metal palette entry: "gold": metal((0.85, 0.60, 0.16))."""
+    return Metal(rgb, strength)
+
+
 def make_material(name, spec, palette):
-    """spec: ("solid", colour) or ("stripes", "u"|"v", period, [(width, colour), ...][, "LINEAR"]); colours index palette."""
+    """spec: ("solid", colour) or ("stripes", "u"|"v", period, [(width, colour), ...][, "LINEAR"]); colours index palette.
+
+    A spec with a metal colour (metal()) keeps its metal strengths on the material, for bake_texture's mask."""
     mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+    colours = [spec[1]] if spec[0] == "solid" else [c for _, c in spec[3]]
+    strengths = {c: getattr(palette[c], "strength", 0.0) for c in colours}
+    if any(strengths.values()):
+        mat["metal_mask"] = json.dumps([list(spec), strengths])
+    elif "metal_mask" in mat:
+        del mat["metal_mask"]
     nt = mat.node_tree
     for node in list(nt.nodes):
         if node.type not in ("OUTPUT_MATERIAL", "BSDF_PRINCIPLED"):
@@ -319,7 +343,16 @@ def uv_unwrap(obj, tags, boost=None):
         v.co = co
 
 
+def _metal_mask_material(mat):
+    """The material in grey: its metal strength per colour (make_material), black for no metal."""
+    if "metal_mask" not in mat:
+        return make_material("metal_mask_none", ("solid", "none"), {"none": (0.0, 0.0, 0.0)})
+    spec, strengths = json.loads(mat["metal_mask"])
+    return make_material(mat.name + "_metal_mask", spec, {c: (s, s, s) for c, s in strengths.items()})
+
+
 def bake_texture(obj, out_path, size=1024, prefix="model", ao_distance=0.15):
+    """Albedo x ambient occlusion to a PNG, RGB; RGBA when a material has metal (metal()): alpha 1 - metal strength."""
     import numpy as np
 
     scene = bpy.context.scene
@@ -350,7 +383,28 @@ def bake_texture(obj, out_path, size=1024, prefix="model", ao_distance=0.15):
     a = np.array(ao.pixels[:]).reshape(-1, 4)[:, :1]
     out = c.copy()
     out[:, :3] = c[:, :3] * (0.45 + 0.55 * a)
-    tex = bpy.data.images.get(prefix + "_tex") or bpy.data.images.new(prefix + "_tex", size, size, alpha=False)
+    metallic = any("metal_mask" in m for m in obj.data.materials)
+    if metallic:
+        mask = bpy.data.images.new(prefix + "_bake_metal", size, size, alpha=False)
+        mask.colorspace_settings.name = "Non-Color"
+        mats = list(obj.data.materials)
+        for i, m in enumerate(mats):
+            g = _metal_mask_material(m)
+            node = g.node_tree.nodes.get("bake_target") or g.node_tree.nodes.new("ShaderNodeTexImage")
+            node.name = "bake_target"
+            node.image = mask
+            g.node_tree.nodes.active = node
+            obj.data.materials[i] = g
+        bpy.ops.object.bake(type="DIFFUSE", margin=6, use_clear=True, pass_filter={"COLOR"})
+        for i, m in enumerate(mats):
+            obj.data.materials[i] = m
+        out[:, 3] = 1.0 - np.array(mask.pixels[:]).reshape(-1, 4)[:, 0]
+        bpy.data.images.remove(mask)
+    tex = bpy.data.images.get(prefix + "_tex")
+    if tex is not None and (tex.depth == 32) != metallic:
+        bpy.data.images.remove(tex)
+        tex = None
+    tex = tex or bpy.data.images.new(prefix + "_tex", size, size, alpha=metallic)
     tex.pixels = out.ravel().tolist()
     tex.filepath_raw = out_path
     tex.file_format = "PNG"

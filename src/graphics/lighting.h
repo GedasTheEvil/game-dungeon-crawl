@@ -44,6 +44,10 @@ void end();
 // Draws without lighting (texture x colour) while set: flames, portals, overlays.
 void setEmissive(bool on);
 
+// Metal shine (plan metallic-shading) while set: the bound texture's alpha is a metal mask (255 matte, lower more
+// metal), not see-through; the draw's alpha is the colour's alone. The models set it (AnimatedModel::Show).
+void setMetalMask(bool on);
+
 // Model frame blending (plan model-frame-interpolation): the generic attributes a model draw puts its next key
 // frame's positions and normals in.
 constexpr unsigned NEXT_POSITION_ATTRIB = 6; // free of the built-ins' aliases (NVIDIA: 0, 2, 3, 8-15)

@@ -932,43 +932,59 @@ void Inventory::DrawDetails() {
 		char buf[48];
 		float labelX = DETAIL_PANEL.x + 9;
 		float valueX = DETAIL_PANEL.x + 30;
-		auto statRow = [&](float y, const char* label, int value, int currentValue) {
+		// unit: the values are tenths, shown with one decimal and the unit after them
+		auto statRow = [&](float y, const char* label, int value, int currentValue, const char* unit = nullptr) {
 			text(body, labelX, y, label, INK_FADED);
-			snprintf(buf, sizeof(buf), "%d", value);
+			if (unit)
+				snprintf(buf, sizeof(buf), "%.1f%s", static_cast<double>(value) / 10, unit);
+			else
+				snprintf(buf, sizeof(buf), "%d", value);
 			text(body, valueX, y, buf, INK);
 			if (kindOf(selectedSlot) == bag.Equipped() || value == currentValue)
 				return;
-			snprintf(buf, sizeof(buf), "%+d", value - currentValue);
-			text(body, valueX + body.TextWidth("000") + 1, y, buf, value > currentValue ? INK_GREEN : INK_RED);
+			const float diffX = valueX + body.TextWidth(unit ? "0.0/s" : "000") + 1;
+			if (unit)
+				snprintf(buf, sizeof(buf), "%+.1f", static_cast<double>(value - currentValue) / 10);
+			else
+				snprintf(buf, sizeof(buf), "%+d", value - currentValue);
+			text(body, diffX, y, buf, value > currentValue ? INK_GREEN : INK_RED);
 		};
+		// Attacks per second in tenths (plan weapon-compare-speed); a bow's AttackMs holds its draw.
+		auto attacksPerSecond = [](const WeaponDef& w) {
+			return static_cast<int>(std::lround(10000.0 / w.motion.AttackMs()));
+		};
+		constexpr float ROW = 2.8f;
+		const float typeY = STAT_Y + 2.5f * ROW;
 		// The damage mix, the main type first: what the monsters' resistances work on.
 		const DamageMix& mix = shown.mix;
 		const auto main = static_cast<size_t>(mainType(mix));
-		text(body, labelX, STAT_Y + 7.f, "Type", INK_FADED);
+		text(body, labelX, typeY, "Type", INK_FADED);
 		snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[main], mix[main]);
-		text(body, valueX, STAT_Y + 7.f, buf, INK);
+		text(body, valueX, typeY, buf, INK);
 		float minorX = valueX + body.TextWidth(buf) + 1.5f;
 		for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++) {
 			if (t == main || mix[t] <= 0)
 				continue;
 			snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[t], mix[t]);
-			text(small, minorX, STAT_Y + 7.2f, buf, INK_FADED);
+			text(small, minorX, typeY + 0.2f, buf, INK_FADED);
 			minorX += small.TextWidth(buf) + 1.5f;
 		}
-		statRow(STAT_Y + 3.5f, "Damage", shownDamage, EquippedDamage());
-		statRow(STAT_Y, "Range", shown.range, current.range);
+		statRow(typeY - ROW, "Damage", shownDamage, EquippedDamage());
+		statRow(typeY - 2 * ROW, "Speed", attacksPerSecond(shown), attacksPerSecond(current), "/s");
+		statRow(typeY - 3 * ROW, "Range", shown.range, current.range);
 
 		// Progress towards the next level: copies collected / copies needed.
 		int level = bag.Level(kindOf(selectedSlot));
-		text(body, labelX, STAT_Y - 3.5f, "Copies", INK_FADED);
+		const float copiesY = typeY - 4 * ROW;
+		text(body, labelX, copiesY, "Copies", INK_FADED);
 		if (level >= MAX_WEAPON_LEVEL) {
-			text(body, valueX, STAT_Y - 3.5f, "Max level", INK);
+			text(body, valueX, copiesY, "Max level", INK);
 		} else {
 			int cost = upgradeCost(level);
 			snprintf(buf, sizeof(buf), "%d / %d", bag.Count(kindOf(selectedSlot)), cost);
-			text(body, valueX, STAT_Y - 3.5f, buf, bag.Count(kindOf(selectedSlot)) >= cost ? INK_GREEN : INK);
+			text(body, valueX, copiesY, buf, bag.Count(kindOf(selectedSlot)) >= cost ? INK_GREEN : INK);
 			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(kindOf(selectedSlot), shown.damage, level + 1));
-			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, STAT_Y - 3.3f, buf, INK_FADED);
+			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, copiesY + 0.2f, buf, INK_FADED);
 		}
 	}
 	textCentered(small, cx, LORE_Y, info.lore1, INK_FADED);

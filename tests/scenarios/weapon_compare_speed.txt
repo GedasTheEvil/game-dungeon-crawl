@@ -1,0 +1,24 @@
+# Weapon compare: attack speed (plan weapon-compare-speed): the weapon details show attacks per second; another
+# weapon than the one in hand shows the difference, green when faster, red when slower.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+give melee 1
+give melee 4
+give ranged 0
+key i
+wait 5
+select club
+wait 2
+screenshot club_equipped
+select short_sword
+wait 2
+screenshot sword_faster
+select khopesh
+wait 2
+screenshot khopesh
+select self-bow
+wait 2
+screenshot bow
+quit

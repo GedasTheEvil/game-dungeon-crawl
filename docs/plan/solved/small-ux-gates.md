@@ -1,6 +1,6 @@
 # Small UX: exit gate plasma, teleporter sound, gate travel effect
 
-Status: implemented 2026-10-11, play-tested and solved 2026-10-12. Item 2: the teleport sound is rewritten in `tools/audio/mechanism_sounds.py` (faster, brighter) and `teleport.wav` is regenerated. The event was never lost (unit test), so the old sound was just too soft. Red plasma: `plasma_red.png` (R/B swapped). Fade: 0.3 s out and in, no swirl, world frozen (`Dungeon::Travel`), scenario `tests/scenarios/solved/gate_travel.txt`. From the user.
+Status: implemented 2026-10-11, play-tested and solved 2026-10-12. Item 2: the teleport sound is rewritten in `tools/audio/mechanism_sounds.py` (faster, brighter) and `teleport.wav` is regenerated. The event was never lost (unit test), so the old sound was just too soft. Red plasma: `plasma_red.png` (R/B swapped). Fade: 0.3 s out and in, no swirl, world frozen (`Dungeon::Travel`), scenario `tests/scenarios/solved/gate_travel.txt`. From the user. Follow-up 2026-11-01, play-tested: the exit gate was still silent (`startTravel` played the sound only for teleporters); it plays the teleport sound too now (unit test "using the exit gate emits the teleport sound").
 
 ## 1. Red plasma in the exit gate
 

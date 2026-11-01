@@ -104,18 +104,18 @@ enum class ItemKind : std::uint8_t {
 	QuickShotsNormal,
 	QuickShotsGrand,
 	// The rings (plan ring-accessories), one inventory row per gem: copper, silver, gold.
-	RubyCopper, // the first ring
-	RubySilver,
-	RubyGold,
-	SapphireCopper,
-	SapphireSilver,
-	SapphireGold,
-	EmeraldCopper,
-	EmeraldSilver,
-	EmeraldGold,
-	TopazCopper,
-	TopazSilver,
-	TopazGold,
+	GarnetCopper, // the first ring
+	GarnetSilver,
+	GarnetGold,
+	LapisCopper,
+	LapisSilver,
+	LapisGold,
+	FeldsparCopper,
+	FeldsparSilver,
+	FeldsparGold,
+	JasperCopper,
+	JasperSilver,
+	JasperGold,
 	CrystalCopper,
 	CrystalSilver,
 	CrystalGold,
@@ -126,7 +126,7 @@ enum class ItemKind : std::uint8_t {
 constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::AmethystGold) + 1;
 constexpr int WEAPON_KIND_COUNT = static_cast<int>(ItemKind::SmallHealth); // the first potion
 constexpr int FIRST_AMULET = static_cast<int>(ItemKind::StrengthLesser);
-constexpr int FIRST_RING = static_cast<int>(ItemKind::RubyCopper);
+constexpr int FIRST_RING = static_cast<int>(ItemKind::GarnetCopper);
 constexpr int POTION_KIND_COUNT = FIRST_AMULET - WEAPON_KIND_COUNT;
 constexpr int AMULET_KIND_COUNT = FIRST_RING - FIRST_AMULET;
 constexpr int RING_KIND_COUNT = ITEM_KIND_COUNT - FIRST_RING;
@@ -178,7 +178,7 @@ constexpr int MELEE_WEAPON = 1;
 constexpr int RANGED_WEAPON = 2;
 constexpr int POTION = 3;
 constexpr int AMULET = 4; // id: the amulet's place among the amulets (0 = lesser strength)
-constexpr int RING = 5; // id: the ring's place among the rings (0 = copper ruby)
+constexpr int RING = 5; // id: the ring's place among the rings (0 = copper garnet)
 } // namespace ItemType
 
 struct ItemFileId {
@@ -398,10 +398,10 @@ struct AmuletBonus {
 // All metals of a gem share the band and gem models (ringBandModel, ringGemModel), the metal and the gem as texture and
 // tint.
 enum class RingGem : std::uint8_t {
-	Ruby, // heals slowly, also in a fight
-	Sapphire, // stamina comes back faster
-	Emerald, // poison wears off faster
-	Topaz, // walk and sprint faster (not the jump)
+	Garnet, // heals slowly, also in a fight
+	Lapis, // stamina comes back faster
+	Feldspar, // poison wears off faster
+	Jasper, // walk and sprint faster (not the jump)
 	Crystal, // rock crystal: longer weapon reach
 	Amethyst, // cuts through the monsters' resistances
 };
@@ -422,7 +422,7 @@ struct Ring {
 }
 // The gem's colour (the gem model's tint, the HUD's dot) and its see-through share (the gem's alpha).
 [[nodiscard]] Rgb ringGemColour(RingGem gem);
-[[nodiscard]] const char* ringGemSlug(RingGem gem); // "ruby": its lore and field note keys
+[[nodiscard]] const char* ringGemSlug(RingGem gem); // "garnet": its lore and field note keys
 constexpr float RING_GEM_ALPHA = 0.62f;
 // The models all rings share: media/models/items/<name>.md3; the band's texture per metal, the gem's one texture.
 constexpr const char* RING_BAND_MODEL = "ring_band";
@@ -437,13 +437,13 @@ using WornRings = std::array<std::optional<ItemKind>, HAND_COUNT>;
 // One ring's numbers, by metal (copper, silver, gold). Both worn rings always count, two of the same too; the sums
 // stop at the caps below.
 namespace RingEffect {
-constexpr std::array<int, RING_METAL_COUNT> RUBY_MS_PER_HP = {8000, 5000, 3000};
-constexpr std::array<int, RING_METAL_COUNT> SAPPHIRE_PERCENT = {15, 25, 40}; // faster stamina regeneration
-constexpr std::array<int, RING_METAL_COUNT> EMERALD_PERCENT = {20, 35, 50}; // poison's time runs this much faster
-constexpr std::array<int, RING_METAL_COUNT> TOPAZ_PERCENT = {5, 8, 12}; // walk, sprint and climb speed
+constexpr std::array<int, RING_METAL_COUNT> GARNET_MS_PER_HP = {8000, 5000, 3000};
+constexpr std::array<int, RING_METAL_COUNT> LAPIS_PERCENT = {15, 25, 40}; // faster stamina regeneration
+constexpr std::array<int, RING_METAL_COUNT> FELDSPAR_PERCENT = {20, 35, 50}; // poison's time runs this much faster
+constexpr std::array<int, RING_METAL_COUNT> JASPER_PERCENT = {5, 8, 12}; // walk, sprint and climb speed
 constexpr std::array<int, RING_METAL_COUNT> CRYSTAL_PERCENT = {10, 15, 25}; // weapon reach
 constexpr std::array<int, RING_METAL_COUNT> AMETHYST_PERCENT = {25, 50, 100}; // of a resistance's way to NORMAL
-constexpr int TOPAZ_CAP = 20;
+constexpr int JASPER_CAP = 20;
 constexpr int CRYSTAL_CAP = 40;
 constexpr int AMETHYST_CAP = 100;
 constexpr int MS_PER_HOUR = 3600000;

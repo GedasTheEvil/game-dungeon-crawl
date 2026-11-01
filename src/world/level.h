@@ -152,7 +152,7 @@ constexpr LockColour LOCK_COLOURS[BOSS_LOCK] = {
 	{"red", "Carnelian", 'r', 'R', "Red (Carnelian)"},
 	{"blue", "Lapis", 'b', 'B', "Blue (Lapis)"},
 	{"green", "Turquoise", 'g', 'G', "Green (Turquoise)"},
-	{"gold", "Amber", 'y', 'Y', "Gold (Amber)"},
+	{"gold", "Gold", 'y', 'Y', "Gold"},
 	{"boss", "Obsidian", '\0', 'Z', "Boss gate, opens when the level's boss dies"},
 };
 // colour must be isGateColour.

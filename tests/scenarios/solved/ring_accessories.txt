@@ -1,5 +1,5 @@
 # Rings (plan ring-accessories, tests/levels/ring_accessories): two worn at once, one per hand; the Rings tab with the L / R marks
-# and the longest short names (Amethyst III, Sapphire III), the ring card's hand buttons, the HUD's gems; a ring on an
+# and the longest short names (Amethyst III, Lapis III), the ring card's hand buttons, the HUD's gems; a ring on an
 # open chest, its gem see-through and shining. The rules: tests/unit/ring_accessories_test.cpp.
 seed 1
 god

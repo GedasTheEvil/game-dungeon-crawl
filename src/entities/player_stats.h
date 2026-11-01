@@ -61,7 +61,7 @@ class PlayerStats {
 	// Shift held with stamina left: the step is already a sprint step, before UpdateStamina sees it moved. Slowness
 	// sprints less (SLOWNESS_SPRINT_MULTIPLIER).
 	[[nodiscard]] float SprintMoveMultiplier() const;
-	// Walk and climb steps: SLOWNESS_WALK_FACTOR while slowed, times the topaz rings' speed on the ground (not in the
+	// Walk and climb steps: SLOWNESS_WALK_FACTOR while slowed, times the jasper rings' speed on the ground (not in the
 	// air: a jump carries as far as without them, the levels are built on its reach).
 	[[nodiscard]] float WalkFactor(bool airborne) const;
 	// A walk step really moved the player (not into a wall). halvedDrain: it was a sprint in half water with the
@@ -146,7 +146,7 @@ class PlayerStats {
 	// Puts on the worn rings' bonus (a default RingBonus: none).
 	void WearRings(const RingBonus& bonus);
 	[[nodiscard]] const RingBonus& Rings() const { return rings; }
-	// The emerald rings: the poison's time runs down this much faster.
+	// The feldspar rings: the poison's time runs down this much faster.
 	[[nodiscard]] int PoisonFasterPercent() const { return rings.poisonFasterPercent; }
 	// The amethyst rings: the share of a monster's resistances the player's weapon hits ignore.
 	[[nodiscard]] int ResistCutPercent() const { return rings.resistCutPercent; }

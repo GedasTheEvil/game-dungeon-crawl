@@ -175,7 +175,7 @@ std::unique_ptr<Item> loadItem(const char* name, float scale) {
 constexpr float AMULET_SCALE = 4.f; // on a chest raised to CHEST_MIN_SCALE (10), twice a potion's there
 constexpr float RING_SCALE = 4.f; // as the amulets: much bigger than real, so it reads on a chest and in the slot
 
-// The band and the gem loaded once, by the copper ruby; the other rings share them, in their metal and gem.
+// The band and the gem loaded once, by the copper garnet; the other rings share them, in their metal and gem.
 void loadRings(ItemPrototypes& items) {
 	const Item* first = nullptr;
 	for (size_t i = 0; i < RING_KIND_COUNT; i++) {

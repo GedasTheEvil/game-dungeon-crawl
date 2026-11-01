@@ -46,8 +46,8 @@ float walked(std::optional<ItemKind> ring, int ms, bool jump) {
 } // namespace
 
 TEST_CASE("rings: six gems, three metals, named by both") {
-	CHECK(isRing(ItemKind::RubyCopper));
-	CHECK_FALSE(isAmulet(ItemKind::RubyCopper));
+	CHECK(isRing(ItemKind::GarnetCopper));
+	CHECK_FALSE(isAmulet(ItemKind::GarnetCopper));
 	CHECK_FALSE(isRing(ItemKind::PiercingGrand));
 	CHECK(itemGroup(ItemKind::AmethystGold) == ItemGroup::Rings);
 	for (int i = FIRST_RING; i < ITEM_KIND_COUNT; i++) {
@@ -58,89 +58,91 @@ TEST_CASE("rings: six gems, three metals, named by both") {
 		CHECK(itemFromFile(id.type, id.id) == itemAt(i));
 	}
 	CHECK_FALSE(itemFromFile(ItemType::RING, RING_KIND_COUNT).has_value());
-	CHECK(std::string(itemText(ItemKind::RubyGold).name) == "Gold Ruby Ring");
-	CHECK(std::string(itemText(ItemKind::RubyGold).shortName) == "Ruby III");
-	CHECK(std::string(itemText(ItemKind::RubyGold).label) == "gold ring of regeneration");
-	CHECK(std::string(itemText(ItemKind::RubyGold).effect) == "Heals 1 health every 3 s");
+	CHECK(std::string(itemText(ItemKind::GarnetGold).name) == "Gold Garnet Ring");
+	CHECK(std::string(itemText(ItemKind::GarnetGold).shortName) == "Garnet III");
+	CHECK(std::string(itemText(ItemKind::GarnetGold).label) == "gold ring of regeneration");
+	CHECK(std::string(itemText(ItemKind::GarnetGold).effect) == "Heals 1 health every 3 s");
 	CHECK(std::string(itemText(ItemKind::AmethystCopper).shortName) == "Amethyst I");
-	CHECK(std::string(itemText(ItemKind::TopazSilver).effect) == "Walk and sprint 8% faster");
+	CHECK(std::string(itemText(ItemKind::JasperSilver).effect) == "Walk and sprint 8% faster");
 	CHECK(std::string(itemText(ItemKind::CrystalGold).lore1) != "");
 }
 
 TEST_CASE("the ring bonus: both hands count, the same gem stacks, two identical rings too, up to the caps") {
 	CHECK(ringBonus(worn(std::nullopt, std::nullopt)).regenHpPerHour == 0);
-	const RingBonus mixed = ringBonus(worn(ItemKind::SapphireSilver, ItemKind::EmeraldGold));
+	const RingBonus mixed = ringBonus(worn(ItemKind::LapisSilver, ItemKind::FeldsparGold));
 	CHECK(mixed.staminaRegenPercent == 25);
 	CHECK(mixed.poisonFasterPercent == 50);
 	CHECK(mixed.speedPercent == 0);
 	// Two gold rubies: 1 HP every 1.5 s.
-	CHECK(ringBonus(worn(ItemKind::RubyGold, ItemKind::RubyGold)).regenHpPerHour == 2 * RingEffect::MS_PER_HOUR / 3000);
-	CHECK(ringBonus(worn(ItemKind::TopazCopper, ItemKind::TopazCopper)).speedPercent == 10);
-	CHECK(ringBonus(worn(ItemKind::TopazCopper, ItemKind::TopazSilver)).speedPercent == 13);
-	CHECK(ringBonus(worn(ItemKind::TopazGold, ItemKind::TopazGold)).speedPercent == RingEffect::TOPAZ_CAP);
+	CHECK(
+		ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)).regenHpPerHour == 2 * RingEffect::MS_PER_HOUR / 3000
+	);
+	CHECK(ringBonus(worn(ItemKind::JasperCopper, ItemKind::JasperCopper)).speedPercent == 10);
+	CHECK(ringBonus(worn(ItemKind::JasperCopper, ItemKind::JasperSilver)).speedPercent == 13);
+	CHECK(ringBonus(worn(ItemKind::JasperGold, ItemKind::JasperGold)).speedPercent == RingEffect::JASPER_CAP);
 	CHECK(ringBonus(worn(ItemKind::CrystalGold, ItemKind::CrystalGold)).reachPercent == RingEffect::CRYSTAL_CAP);
 	CHECK(ringBonus(worn(ItemKind::AmethystSilver, ItemKind::AmethystSilver)).resistCutPercent == 100);
 	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystSilver)).resistCutPercent == 100);
 	CHECK(
-		ringSumText(ringBonus(worn(ItemKind::RubyGold, ItemKind::RubyGold)), RingGem::Ruby) ==
+		ringSumText(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)), RingGem::Garnet) ==
 		"heals 1 health every 1.5 s"
 	);
-	CHECK(ringSumText(mixed, RingGem::Topaz).empty());
+	CHECK(ringSumText(mixed, RingGem::Jasper).empty());
 }
 
 TEST_CASE("a ring card's hand buttons: on, off, swapped, moved over") {
-	ItemBag bag = bagWith({ItemKind::RubyCopper, ItemKind::TopazGold});
-	CHECK(bag.WearOn(ItemKind::RubyCopper, Hand::Left, true));
-	CHECK(bag.RingOn(Hand::Left) == ItemKind::RubyCopper);
+	ItemBag bag = bagWith({ItemKind::GarnetCopper, ItemKind::JasperGold});
+	CHECK(bag.WearOn(ItemKind::GarnetCopper, Hand::Left, true));
+	CHECK(bag.RingOn(Hand::Left) == ItemKind::GarnetCopper);
 	CHECK_FALSE(bag.RingOn(Hand::Right).has_value());
-	// The only ruby moves to the other hand.
-	CHECK(bag.WearOn(ItemKind::RubyCopper, Hand::Right, true));
+	// The only garnet moves to the other hand.
+	CHECK(bag.WearOn(ItemKind::GarnetCopper, Hand::Right, true));
 	CHECK_FALSE(bag.RingOn(Hand::Left).has_value());
-	CHECK(bag.RingOn(Hand::Right) == ItemKind::RubyCopper);
-	// The topaz on the right: the ruby comes off.
-	CHECK(bag.WearOn(ItemKind::TopazGold, Hand::Right, true));
-	CHECK(bag.RingOn(Hand::Right) == ItemKind::TopazGold);
-	CHECK_FALSE(bag.RingWorn(ItemKind::RubyCopper));
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::GarnetCopper);
+	// The jasper on the right: the garnet comes off.
+	CHECK(bag.WearOn(ItemKind::JasperGold, Hand::Right, true));
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::JasperGold);
+	CHECK_FALSE(bag.RingWorn(ItemKind::GarnetCopper));
 	// The hand it is on: off.
-	CHECK(bag.WearOn(ItemKind::TopazGold, Hand::Right, true));
+	CHECK(bag.WearOn(ItemKind::JasperGold, Hand::Right, true));
 	CHECK_FALSE(bag.RingOn(Hand::Right).has_value());
 	// Not held, or dead: nothing.
-	CHECK_FALSE(bag.WearOn(ItemKind::EmeraldGold, Hand::Left, true));
-	CHECK_FALSE(bag.WearOn(ItemKind::RubyCopper, Hand::Left, false));
-	CHECK(bag.Block(ItemKind::RubyCopper, ALIVE) == UseBlock::None);
+	CHECK_FALSE(bag.WearOn(ItemKind::FeldsparGold, Hand::Left, true));
+	CHECK_FALSE(bag.WearOn(ItemKind::GarnetCopper, Hand::Left, false));
+	CHECK(bag.Block(ItemKind::GarnetCopper, ALIVE) == UseBlock::None);
 }
 
 TEST_CASE("two copies of a ring go on both hands, one copy only on one") {
-	ItemBag bag = bagWith({ItemKind::RubyGold, ItemKind::RubyGold});
-	CHECK(bag.WearOn(ItemKind::RubyGold, Hand::Left, true));
-	CHECK(bag.WearOn(ItemKind::RubyGold, Hand::Right, true));
-	CHECK(bag.RingOn(Hand::Left) == ItemKind::RubyGold);
-	CHECK(bag.RingOn(Hand::Right) == ItemKind::RubyGold);
+	ItemBag bag = bagWith({ItemKind::GarnetGold, ItemKind::GarnetGold});
+	CHECK(bag.WearOn(ItemKind::GarnetGold, Hand::Left, true));
+	CHECK(bag.WearOn(ItemKind::GarnetGold, Hand::Right, true));
+	CHECK(bag.RingOn(Hand::Left) == ItemKind::GarnetGold);
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::GarnetGold);
 	// The quick way takes off the one put on last.
-	CHECK(bag.Use(ItemKind::RubyGold, ALIVE));
-	CHECK(bag.RingOn(Hand::Left) == ItemKind::RubyGold);
+	CHECK(bag.Use(ItemKind::GarnetGold, ALIVE));
+	CHECK(bag.RingOn(Hand::Left) == ItemKind::GarnetGold);
 	CHECK_FALSE(bag.RingOn(Hand::Right).has_value());
 }
 
 TEST_CASE("the quick way: worn comes off, else the free hand, left first, else in place of the older ring") {
-	ItemBag bag = bagWith({ItemKind::RubyCopper, ItemKind::TopazCopper, ItemKind::EmeraldCopper});
-	CHECK(bag.Use(ItemKind::RubyCopper, ALIVE));
-	CHECK(bag.RingOn(Hand::Left) == ItemKind::RubyCopper);
-	CHECK(bag.Use(ItemKind::TopazCopper, ALIVE));
-	CHECK(bag.RingOn(Hand::Right) == ItemKind::TopazCopper);
-	CHECK(bag.Use(ItemKind::EmeraldCopper, ALIVE)); // the ruby went on first
-	CHECK(bag.RingOn(Hand::Left) == ItemKind::EmeraldCopper);
-	CHECK(bag.RingOn(Hand::Right) == ItemKind::TopazCopper);
-	CHECK(bag.Use(ItemKind::RubyCopper, ALIVE)); // now the topaz is the older
-	CHECK(bag.RingOn(Hand::Right) == ItemKind::RubyCopper);
-	CHECK(bag.Use(ItemKind::RubyCopper, ALIVE)); // worn: off
+	ItemBag bag = bagWith({ItemKind::GarnetCopper, ItemKind::JasperCopper, ItemKind::FeldsparCopper});
+	CHECK(bag.Use(ItemKind::GarnetCopper, ALIVE));
+	CHECK(bag.RingOn(Hand::Left) == ItemKind::GarnetCopper);
+	CHECK(bag.Use(ItemKind::JasperCopper, ALIVE));
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::JasperCopper);
+	CHECK(bag.Use(ItemKind::FeldsparCopper, ALIVE)); // the garnet went on first
+	CHECK(bag.RingOn(Hand::Left) == ItemKind::FeldsparCopper);
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::JasperCopper);
+	CHECK(bag.Use(ItemKind::GarnetCopper, ALIVE)); // now the jasper is the older
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::GarnetCopper);
+	CHECK(bag.Use(ItemKind::GarnetCopper, ALIVE)); // worn: off
 	CHECK_FALSE(bag.RingOn(Hand::Right).has_value());
-	CHECK(bag.Use(ItemKind::TopazCopper, ALIVE)); // the free hand
-	CHECK(bag.RingOn(Hand::Right) == ItemKind::TopazCopper);
+	CHECK(bag.Use(ItemKind::JasperCopper, ALIVE)); // the free hand
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::JasperCopper);
 }
 
 TEST_CASE("two worn rings survive a save and a load; a save from before the rings loads with none") {
-	ItemBag bag = bagWith({ItemKind::CrystalSilver, ItemKind::AmethystGold, ItemKind::RubyCopper});
+	ItemBag bag = bagWith({ItemKind::CrystalSilver, ItemKind::AmethystGold, ItemKind::GarnetCopper});
 	bag.WearOn(ItemKind::AmethystGold, Hand::Right, true);
 	bag.WearOn(ItemKind::CrystalSilver, Hand::Left, true);
 	std::stringstream file;
@@ -149,9 +151,9 @@ TEST_CASE("two worn rings survive a save and a load; a save from before the ring
 	loaded.Load(file);
 	CHECK(loaded.RingOn(Hand::Left) == ItemKind::CrystalSilver);
 	CHECK(loaded.RingOn(Hand::Right) == ItemKind::AmethystGold);
-	CHECK(loaded.Count(ItemKind::RubyCopper) == 1);
-	CHECK(loaded.Use(ItemKind::RubyCopper, ALIVE)); // the older one (the amethyst) gives way
-	CHECK(loaded.RingOn(Hand::Right) == ItemKind::RubyCopper);
+	CHECK(loaded.Count(ItemKind::GarnetCopper) == 1);
+	CHECK(loaded.Use(ItemKind::GarnetCopper, ALIVE)); // the older one (the amethyst) gives way
+	CHECK(loaded.RingOn(Hand::Right) == ItemKind::GarnetCopper);
 
 	// The same bag as INV7: no rings after the worn amulet.
 	std::string line = file.str();
@@ -169,11 +171,11 @@ TEST_CASE("two worn rings survive a save and a load; a save from before the ring
 	CHECK_FALSE(before.RingOn(Hand::Right).has_value());
 }
 
-TEST_CASE("the ruby heals in a fight too, but not while poisoned") {
+TEST_CASE("the garnet heals in a fight too, but not while poisoned") {
 	PlayerStats stats;
 	stats.LoseHP(20);
 	const int hp = stats.CurrentHP();
-	stats.WearRings(ringBonus(worn(ItemKind::RubyGold, std::nullopt)));
+	stats.WearRings(ringBonus(worn(ItemKind::GarnetGold, std::nullopt)));
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
 		stats.Regenerate(false, UPDATE_TICK_MS); // not safe: a monster chases
 	CHECK(stats.CurrentHP() == hp + 1);
@@ -182,13 +184,13 @@ TEST_CASE("the ruby heals in a fight too, but not while poisoned") {
 		stats.Regenerate(false, UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() == hp + 1);
 	stats.poison.Cure();
-	stats.WearRings(ringBonus(worn(ItemKind::RubyGold, ItemKind::RubyGold)));
+	stats.WearRings(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)));
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
 		stats.Regenerate(false, UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() == hp + 3); // two: 1 every 1.5 s
 }
 
-TEST_CASE("the emerald runs the poison out sooner, its bite a second the same") {
+TEST_CASE("the feldspar runs the poison out sooner, its bite a second the same") {
 	Poison plain;
 	Poison washed;
 	plain.Apply(PoisonTier::Weak);
@@ -207,11 +209,11 @@ TEST_CASE("the emerald runs the poison out sooner, its bite a second the same") 
 	CHECK(washedHp >= 12);
 	CHECK(washedHp <= 14);
 	PlayerStats stats;
-	stats.WearRings(ringBonus(worn(ItemKind::EmeraldGold, ItemKind::EmeraldCopper)));
+	stats.WearRings(ringBonus(worn(ItemKind::FeldsparGold, ItemKind::FeldsparCopper)));
 	CHECK(stats.PoisonFasterPercent() == 70);
 }
 
-TEST_CASE("the sapphire brings the stamina back faster") {
+TEST_CASE("the lapis brings the stamina back faster") {
 	auto regained = [](std::optional<ItemKind> ring) {
 		PlayerStats stats;
 		stats.WearRings(ringBonus(worn(ring, std::nullopt)));
@@ -225,17 +227,17 @@ TEST_CASE("the sapphire brings the stamina back faster") {
 	};
 	const int plain = regained(std::nullopt);
 	REQUIRE(plain > 0);
-	CHECK(regained(ItemKind::SapphireGold) == doctest::Approx(plain * 1.4).epsilon(0.1));
+	CHECK(regained(ItemKind::LapisGold) == doctest::Approx(plain * 1.4).epsilon(0.1));
 }
 
-TEST_CASE("the topaz walks faster on the ground, the jump carries as far as without it") {
+TEST_CASE("the jasper walks faster on the ground, the jump carries as far as without it") {
 	CHECK(
-		walked(ItemKind::TopazGold, 2000, false) ==
+		walked(ItemKind::JasperGold, 2000, false) ==
 		doctest::Approx(walked(std::nullopt, 2000, false) * 1.12f).epsilon(0.03)
 	);
-	CHECK(walked(ItemKind::TopazGold, 0, true) == doctest::Approx(walked(std::nullopt, 0, true)));
+	CHECK(walked(ItemKind::JasperGold, 0, true) == doctest::Approx(walked(std::nullopt, 0, true)));
 	PlayerStats stats;
-	stats.WearRings(ringBonus(worn(ItemKind::TopazGold, ItemKind::TopazCopper)));
+	stats.WearRings(ringBonus(worn(ItemKind::JasperGold, ItemKind::JasperCopper)));
 	CHECK(stats.WalkFactor(false) == doctest::Approx(1.17f));
 	CHECK(stats.WalkFactor(true) == doctest::Approx(1.f));
 	stats.curses.Lay(Curse::Slowness, CurseGrade::Lesser, 1000); // the slowness halves the faster walk
@@ -294,8 +296,8 @@ TEST_CASE("chests hold a ring now and then: the metal by depth, the amethyst rar
 			gems[static_cast<size_t>(ring.gem)]++;
 		}
 		const int amethyst = gems[static_cast<size_t>(RingGem::Amethyst)];
-		CHECK(amethyst > gems[static_cast<size_t>(RingGem::Ruby)] / 3);
-		CHECK(amethyst < gems[static_cast<size_t>(RingGem::Ruby)] * 2 / 3); // half the weight
+		CHECK(amethyst > gems[static_cast<size_t>(RingGem::Garnet)] / 3);
+		CHECK(amethyst < gems[static_cast<size_t>(RingGem::Garnet)] * 2 / 3); // half the weight
 		return count;
 	};
 	const auto early = metals(1);
@@ -335,8 +337,8 @@ TEST_CASE("the first ring of each gem writes its field note") {
 	CHECK(static_cast<int>(FieldNote::RingLast) + 1 == FIELD_NOTE_COUNT); // the last notes, saved by number
 	Journal journal;
 	ItemBag bag;
-	bag.Find(ItemKind::TopazSilver, journal);
-	bag.Find(ItemKind::TopazGold, journal);
+	bag.Find(ItemKind::JasperSilver, journal);
+	bag.Find(ItemKind::JasperGold, journal);
 	REQUIRE(journal.Notes().size() == 1);
-	CHECK(journal.Notes()[0] == ringNote(RingGem::Topaz));
+	CHECK(journal.Notes()[0] == ringNote(RingGem::Jasper));
 }

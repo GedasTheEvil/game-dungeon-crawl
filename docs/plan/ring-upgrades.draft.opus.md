@@ -10,4 +10,4 @@ Opus: balance work and a first-person drawing. From [ring-accessories](solved/ri
 * The ring effects were marked "not final" and were never checked in the balance sim (`tools/balance`). Run them
   through it and tune.
 * Draw the worn ring(s) on the first-person fist / held-item view.
-* Coordinate with [ancient-gems-and-materials](ancient-gems-and-materials.draft.sonet.md) if it lands first (gem names).
+* Coordinate with [ancient-gems-and-materials](ancient-gems-and-materials.md) if it lands first (gem names).

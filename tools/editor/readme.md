@@ -227,7 +227,7 @@ leads to (`levelcheck` warns otherwise).
 | 1 | Red | Carnelian |
 | 2 | Blue | Lapis |
 | 3 | Green | Turquoise |
-| 4 | Gold | Amber |
+| 4 | Gold | Gold |
 | 5 | Boss (gates only) | Obsidian |
 
 Keys, gates and levers with the same colour belong together. A boss gate (colour 5) has no key or lever: it opens

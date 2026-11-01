@@ -38,7 +38,7 @@ only with what you have seen: a pencil sketch of a creature becomes a photo once
 weaknesses stay blank until you find them out. The riddles you met and the rules of the tomb are written down
 too. The draft map (`M`) is a pencil sketch of the rooms you have explored.
 
-**Locks, levers, traps and light.** Coloured keys and levers open gates of carnelian, turquoise, lapis and amber, and
+**Locks, levers, traps and light.** Coloured keys and levers open gates of carnelian, turquoise, lapis and gold, and
 later levels chain them together. Sphinx statues hold the portals between levels and teleporters to sealed rooms.
 Spikes, pits, rock falls, dart plates, poison drips, wall spikes and fire vents on a rhythm guard the way; deeper down
 you swim through flooded halls, wade through sand and get stuck in quicksand, and turn bronze mirrors to send a beam of

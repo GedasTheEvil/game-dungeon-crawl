@@ -94,7 +94,7 @@ style: row
 G: O32 O32 O32 I14 R8 Z2
 T: Every hour of the night has its gate, every gate its keeper.
 T: The carnelian door opens first, then the turquoise,
-T: and the amber door last of all.
+T: and the golden door last of all.
 T: Who knows the order passes.
 N: Red, then green, then gold. Even the ancients had keycards.
 

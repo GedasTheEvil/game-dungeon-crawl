@@ -405,25 +405,27 @@ p3: I will keep notes. Someone should know what happened here.
 
 # The ring notes (plan ring-accessories): one per RingGem in order, [note.ring-<gem>], the numbers of the copper,
 # silver and gold rings.
-[note.ring-ruby]
-title: Ruby ring
-text: A ring, a ruby in it. Rings are worn one on each hand, two at once, and both count, even two of the same.
+[note.ring-garnet]
+title: Garnet ring
+text: A ring, a garnet in it. Rings are worn one on each hand, two at once, and both count, even two of the same.
 	This one heals me slowly, also with something at my throat: 1 health every 8, 5 or 3 seconds, copper, silver,
 	gold. Not while poison runs.
 
-[note.ring-sapphire]
-title: Sapphire ring
-text: A sapphire, night blue. My breath comes back faster with it: stamina returns 15, 25 or 40 percent faster,
-	copper to gold. Rings go one on each hand, two at once.
+[note.ring-lapis]
+title: Lapis lazuli ring
+text: Lapis lazuli, night blue with flecks of gold, brought from far over the mountains. My breath comes back
+	faster with it: stamina returns 15, 25 or 40 percent faster, copper to gold. Rings go one on each hand, two at
+	once.
 
-[note.ring-emerald]
-title: Emerald ring
-text: An emerald. It does not keep the venom out, but it washes it out of me sooner: poison wears off 20, 35 or 50
-	percent faster, copper to gold. It bites as hard while it lasts. Rings go one on each hand, two at once.
+[note.ring-feldspar]
+title: Green feldspar ring
+text: Green feldspar, the colour of fresh papyrus. It does not keep the venom out, but it washes it out of me
+	sooner: poison wears off 20, 35 or 50 percent faster, copper to gold. It bites as hard while it lasts. Rings go
+	one on each hand, two at once.
 
-[note.ring-topaz]
-title: Topaz ring
-text: A yellow topaz, a sliver of the sun. I walk and sprint 5, 8 or 12 percent faster with it, copper to gold. A
+[note.ring-jasper]
+title: Yellow jasper ring
+text: A yellow jasper, a sliver of the sun. I walk and sprint 5, 8 or 12 percent faster with it, copper to gold. A
 	jump carries me no farther: the gaps stay as wide as they are. Rings go one on each hand, two at once.
 
 [note.ring-crystal]

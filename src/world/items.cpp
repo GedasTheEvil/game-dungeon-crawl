@@ -488,16 +488,16 @@ struct AmuletTexts {
 // Per gem (plan ring-accessories): its names and colour; the effect line is put together from RingEffect's numbers.
 // The lore lines: content/texts/items.txt, [item.ring-<gem slug>].
 struct RingGemDef {
-	const char* noun; // "Ruby": the name is the metal, the noun and "Ring"
+	const char* noun; // "Garnet": the name is the metal, the noun and "Ring"
 	const char* slug; // the lore's and the field note's: [item.ring-<slug>], [note.ring-<slug>]
 	const char* labelNoun; // what it does, for the label ("ring of <labelNoun>"): editor, tools, scenarios
 	Rgb colour;
 };
 constexpr std::array<RingGemDef, RING_GEM_COUNT> RING_GEMS = {{
-	{"Ruby", "ruby", "regeneration", {0.78f, 0.04f, 0.10f}},
-	{"Sapphire", "sapphire", "vigor", {0.10f, 0.28f, 0.95f}},
-	{"Emerald", "emerald", "cleansing", {0.05f, 0.75f, 0.30f}},
-	{"Topaz", "topaz", "speed", {1.f, 0.92f, 0.25f}}, // lemon: apart from the gold band
+	{"Garnet", "garnet", "regeneration", {0.78f, 0.04f, 0.10f}},
+	{"Lapis", "lapis", "vigor", {0.10f, 0.28f, 0.95f}},
+	{"Feldspar", "feldspar", "cleansing", {0.05f, 0.75f, 0.30f}},
+	{"Jasper", "jasper", "speed", {1.f, 0.92f, 0.25f}}, // lemon: apart from the gold band
 	{"Crystal", "crystal", "reach", {0.82f, 0.92f, 1.f}}, // near clear, a cold blue
 	{"Amethyst", "amethyst", "sundering", {0.62f, 0.22f, 0.92f}},
 }};
@@ -511,17 +511,17 @@ std::string ringEffect(Ring r) {
 	const auto m = static_cast<size_t>(r.metal);
 	char effect[64];
 	switch (r.gem) {
-	case RingGem::Ruby:
-		std::snprintf(effect, sizeof(effect), "Heals 1 health every %d s", RingEffect::RUBY_MS_PER_HP[m] / 1000);
+	case RingGem::Garnet:
+		std::snprintf(effect, sizeof(effect), "Heals 1 health every %d s", RingEffect::GARNET_MS_PER_HP[m] / 1000);
 		break;
-	case RingGem::Sapphire:
-		std::snprintf(effect, sizeof(effect), "Stamina returns %d%% faster", RingEffect::SAPPHIRE_PERCENT[m]);
+	case RingGem::Lapis:
+		std::snprintf(effect, sizeof(effect), "Stamina returns %d%% faster", RingEffect::LAPIS_PERCENT[m]);
 		break;
-	case RingGem::Emerald:
-		std::snprintf(effect, sizeof(effect), "Poison wears off %d%% faster", RingEffect::EMERALD_PERCENT[m]);
+	case RingGem::Feldspar:
+		std::snprintf(effect, sizeof(effect), "Poison wears off %d%% faster", RingEffect::FELDSPAR_PERCENT[m]);
 		break;
-	case RingGem::Topaz:
-		std::snprintf(effect, sizeof(effect), "Walk and sprint %d%% faster", RingEffect::TOPAZ_PERCENT[m]);
+	case RingGem::Jasper:
+		std::snprintf(effect, sizeof(effect), "Walk and sprint %d%% faster", RingEffect::JASPER_PERCENT[m]);
 		break;
 	case RingGem::Crystal:
 		std::snprintf(effect, sizeof(effect), "Weapon reach +%d%%", RingEffect::CRYSTAL_PERCENT[m]);
@@ -581,17 +581,17 @@ RingBonus ringBonus(const WornRings& worn) {
 		const Ring r = ringOf(*on);
 		const auto m = static_cast<size_t>(r.metal);
 		switch (r.gem) {
-		case RingGem::Ruby:
-			bonus.regenHpPerHour += RingEffect::MS_PER_HOUR / RingEffect::RUBY_MS_PER_HP[m];
+		case RingGem::Garnet:
+			bonus.regenHpPerHour += RingEffect::MS_PER_HOUR / RingEffect::GARNET_MS_PER_HP[m];
 			break;
-		case RingGem::Sapphire:
-			bonus.staminaRegenPercent += RingEffect::SAPPHIRE_PERCENT[m];
+		case RingGem::Lapis:
+			bonus.staminaRegenPercent += RingEffect::LAPIS_PERCENT[m];
 			break;
-		case RingGem::Emerald:
-			bonus.poisonFasterPercent += RingEffect::EMERALD_PERCENT[m];
+		case RingGem::Feldspar:
+			bonus.poisonFasterPercent += RingEffect::FELDSPAR_PERCENT[m];
 			break;
-		case RingGem::Topaz:
-			bonus.speedPercent += RingEffect::TOPAZ_PERCENT[m];
+		case RingGem::Jasper:
+			bonus.speedPercent += RingEffect::JASPER_PERCENT[m];
 			break;
 		case RingGem::Crystal:
 			bonus.reachPercent += RingEffect::CRYSTAL_PERCENT[m];
@@ -601,7 +601,7 @@ RingBonus ringBonus(const WornRings& worn) {
 			break;
 		}
 	}
-	bonus.speedPercent = std::min(bonus.speedPercent, RingEffect::TOPAZ_CAP);
+	bonus.speedPercent = std::min(bonus.speedPercent, RingEffect::JASPER_CAP);
 	bonus.reachPercent = std::min(bonus.reachPercent, RingEffect::CRYSTAL_CAP);
 	bonus.resistCutPercent = std::min(bonus.resistCutPercent, RingEffect::AMETHYST_CAP);
 	return bonus;
@@ -679,7 +679,7 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 std::string ringSumText(const RingBonus& bonus, RingGem gem) {
 	char text[64] = "";
 	switch (gem) {
-	case RingGem::Ruby:
+	case RingGem::Garnet:
 		if (bonus.regenHpPerHour > 0)
 			std::snprintf(
 				text,
@@ -688,15 +688,15 @@ std::string ringSumText(const RingBonus& bonus, RingGem gem) {
 				static_cast<double>(RingEffect::MS_PER_HOUR) / 1000.0 / bonus.regenHpPerHour
 			);
 		break;
-	case RingGem::Sapphire:
+	case RingGem::Lapis:
 		if (bonus.staminaRegenPercent > 0)
 			std::snprintf(text, sizeof(text), "stamina returns %d%% faster", bonus.staminaRegenPercent);
 		break;
-	case RingGem::Emerald:
+	case RingGem::Feldspar:
 		if (bonus.poisonFasterPercent > 0)
 			std::snprintf(text, sizeof(text), "poison wears off %d%% faster", bonus.poisonFasterPercent);
 		break;
-	case RingGem::Topaz:
+	case RingGem::Jasper:
 		if (bonus.speedPercent > 0)
 			std::snprintf(text, sizeof(text), "walk and sprint %d%% faster", bonus.speedPercent);
 		break;

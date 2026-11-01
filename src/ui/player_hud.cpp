@@ -74,7 +74,7 @@ constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
 constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
 constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
 constexpr Color BADGE = {0.05f, 0.04f, 0.03f};
-// Key gems in LOCK_COLOURS order: carnelian, lapis, turquoise, amber.
+// Key gems in LOCK_COLOURS order: carnelian, lapis, turquoise, gold.
 constexpr Color GEMS[LOCK_COLOUR_COUNT] =
 	{{0.85f, 0.2f, 0.12f}, {0.2f, 0.35f, 0.95f}, {0.15f, 0.8f, 0.6f}, {1.f, 0.78f, 0.2f}};
 

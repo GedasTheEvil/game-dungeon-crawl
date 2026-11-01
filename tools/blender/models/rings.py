@@ -156,7 +156,7 @@ def export(objs, models_dir=None):
 
 
 def review(path, objs):
-    """Front and three-quarter views of the ring, the gem tinted ruby and see-through as the engine draws it."""
+    """Front and three-quarter views of the ring, the gem tinted garnet and see-through as the engine draws it."""
     scene = bpy.context.scene
     scene.render.engine = "BLENDER_EEVEE"
     if scene.world is None:

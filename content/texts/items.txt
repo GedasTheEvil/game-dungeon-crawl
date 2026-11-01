@@ -163,19 +163,19 @@ lore1: Bastet's cat, ever ready.
 lore2: It pounces again at once.
 
 # The rings (plan ring-accessories): [item.ring-<gem>], all metals of a gem share them.
-[item.ring-ruby]
+[item.ring-garnet]
 lore1: A drop of Sekhmet's blood
 lore2: that never dries.
 
-[item.ring-sapphire]
+[item.ring-lapis]
 lore1: Blue as the night sky
 lore2: Nut stretches over you.
 
-[item.ring-emerald]
-lore1: Green of the Nile reeds.
+[item.ring-feldspar]
+lore1: Green of the Nile papyrus.
 lore2: The venom runs off.
 
-[item.ring-topaz]
+[item.ring-jasper]
 lore1: A sliver of the sun.
 lore2: Your feet grow wings.
 

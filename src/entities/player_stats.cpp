@@ -86,7 +86,7 @@ void PlayerStats::RegenerateStamina() {
 
 	// 5% of max per second at level 1, +0.5% per level, up to 15%
 	const float regenRate = std::min(0.05f + 0.005f * static_cast<float>(level - 1), 0.15f) *
-							static_cast<float>(100 + rings.staminaRegenPercent) / 100.f; // the sapphire rings'
+							static_cast<float>(100 + rings.staminaRegenPercent) / 100.f; // the lapis rings'
 	stamina_regen_carry += regenRate * static_cast<float>(MaxStamina());
 
 	int staminaGain = static_cast<int>(stamina_regen_carry);

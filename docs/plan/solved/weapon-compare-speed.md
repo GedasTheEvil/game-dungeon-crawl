@@ -1,7 +1,7 @@
 # Weapon compare: attack speed
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30. Implemented 2026-11-01, waiting
-for the user's play-test: `bin/game --play tests/play/weapon-compare-speed.txt`, open the inventory (I), select each
+Status: solved 2026-11-01 (play-tested by the user). From the project audit of 2026-10-30. Play-test:
+`bin/game --play tests/play/weapon-compare-speed.txt`, open the inventory (I), select each
 weapon.
 
 ## Done
@@ -11,7 +11,7 @@ weapon.
   closer (2.8 instead of 3.5) to fit the fifth one between the plinth and the lore rule.
 * Ranged: `AttackMs()` already holds the draw (`hitMs`) and the recovery, so the same row covers the draw / reload
   time; no extra row.
-* Scenario `tests/scenarios/weapon_compare_speed.txt`: club in hand, sword, spear, bow screenshots.
+* Scenario `tests/scenarios/solved/weapon_compare_speed.txt`: club in hand, sword, khopesh, bow screenshots.
 
 ## Problem
 

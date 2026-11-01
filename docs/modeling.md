@@ -34,6 +34,11 @@ means that one). How the original models were rebuilt, and notes per model: [rem
   step of the vertices on the floor per frame; an in-place walk wants an even step, `-` = nothing on the floor), with
   `--intersect` also `INTERSECT` (self-intersecting face pairs per frame; rigid parts overlap by design, so watch the
   jumps, not the baseline).
+* `tools/blender/rebake.py` - re-bake a model's textures into a temp dir and check them and its `.md3` files against the
+  committed ones (RGB drift, metal share, corner positions, UVs); `--apply` copies only what changed for a reason
+  (the metal mask, `--rgb` the colours; changed UVs need `--with-models`), never an `.md3` whose geometry moved.
+  `python3 tools/blender/rebake.py tools/blender/models/items.py --only khopesh --apply`, a boss texture
+  `--palette COL_SOBEK --stem crocodile_sobek`, a monster's own `--tex-path mummy_priest`.
 * `tools/blender/md3_stats.py` - frames, triangles, bytes and extents (frame 0, all frames) of exported files; `--diff [REV]`
   compares with the files at a git revision (default `HEAD`): extents change and the largest corner move.
   `python3 tools/blender/md3_stats.py --diff media/models/monsters/rat*.md3` after an `--export`.
@@ -108,8 +113,8 @@ means that one). How the original models were rebuilt, and notes per model: [rem
   Metal so far: gold, bronze and the blades of `items.py`, the ring bands (`rings.py`), gold, bronze and the polished
   mirror of `mechanism.py`, the gold of Sobek (`crocodile.py`, scutes and collar), Serket (`scorpion.py` `COL_QUEEN`,
   the carapace at 0.6) and the mummy priest (`mummy_priest.py`: ankh, finger stalls, scarab).
-  Re-bake only what you change: Cycles adds a little noise, and `uv_unwrap` may lay the UVs out anew since the last
-  export (then the `.md3` must go with its new texture: compare positions and UVs with `md3.read_md3` first).
+  Re-bake with `tools/blender/rebake.py` (Tools), not a plain `--export`: Cycles adds a little noise, and `uv_unwrap`
+  may lay the UVs out anew since the last export (then the `.md3` must go with its new texture).
 * Engine side: `src/entities/md3_mesh.cpp` (MD3 loader), `src/entities/model_info.cpp` (clip files, normalization), `src/graphics/animated_model.cpp` (drawing), `src/graphics/textures.cpp` (PNG textures), model/texture paths in `src/world/monster_kinds.cpp` (`KINDS`) and `src/world/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
 * Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,

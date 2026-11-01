@@ -79,7 +79,7 @@ Fixed, not in the file: `Esc` (menu / back, so a bad mapping can always be undon
 move their focus or selection with the arrow keys and the keys bound to move left / right and climb up / down; Enter,
 Space or the interact key picks ([keyboard-menus](plan/solved/keyboard-menus.md)). Left / Right on an Options row
 change it. The inventory's `U` (upgrade) and `Tab` (next tab) are fixed. On the draft map the wheel and `+` / `-` zoom,
-the arrows (and the move keys) and a drag pan ([map-symbols-and-zoom](plan/map-symbols-and-zoom.md)).
+the arrows (and the move keys) and a drag pan ([map-symbols-and-zoom](plan/solved/map-symbols-and-zoom.md)).
 
 Key names:
 

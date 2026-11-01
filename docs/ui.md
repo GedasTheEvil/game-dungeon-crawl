@@ -249,7 +249,7 @@ teleporters and ring platforms in teal, a name gate's cartouche in gold. Left of
 legend: a row per mark drawn so far (its first explored tile as the sample), then "You"; in a narrow window it lies
 over the sheet's margin. The wheel (round the mouse) and `+` / `-` zoom from the fit (1x) up to `MapZoom::MAX_CELL`;
 a drag and the arrows pan within the 1x view; the sketch is clipped to the sheet (clip planes). A new level starts at
-1x ([map-symbols-and-zoom](plan/map-symbols-and-zoom.md)).
+1x ([map-symbols-and-zoom](plan/solved/map-symbols-and-zoom.md)).
 
 ### Inventory group tabs
 

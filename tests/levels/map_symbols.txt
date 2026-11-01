@@ -1,5 +1,5 @@
 ; Plan map-symbols-and-zoom: one of every draft map symbol, along the walk (row 1) and over it (row 2), for the map's
-; screenshots (tests/scenarios/map_symbols.txt). Built with tools/level/ascii2level.py.
+; screenshots (tests/scenarios/solved/map_symbols.txt). Built with tools/level/ascii2level.py.
 def O 2 5 2
 def ! 2 5 265
 #O0!|vrRZX.............#################

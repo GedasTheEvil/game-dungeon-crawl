@@ -1,12 +1,12 @@
 # Draft map: symbols, zoom, markers
 
-Status: implemented 2026-11-01, waiting for a play-test (`bin/game --play tests/play/map-symbols-and-zoom.txt`, then
-`M`). Draft 2026-10-30, from the project audit of 2026-10-30.
+Status: implemented 2026-11-01, play-tested and solved 2026-11-01 (`bin/game --play tests/play/map-symbols-and-zoom.txt`,
+then `M`). Draft 2026-10-30, from the project audit of 2026-10-30.
 
 ## Problems
 
 * `src/ui/map_view.cpp` has no symbol for teleporters or the boss gate; they fall back to `GRAPHITE`
-  ([tile-table](solved/tile-table.md) left them out).
+  ([tile-table](tile-table.md) left them out).
 * `DraftMap` only draws (`src/ui/map_view.h`): no zoom or pan, no legend, no player markers, no maps of earlier levels.
 
 ## Plan
@@ -33,5 +33,5 @@ Status: implemented 2026-11-01, waiting for a play-test (`bin/game --play tests/
 * Player markers: left out (optional). They would need a save field per level and a way to remove them; the left
   button is the drag now, the right one is free for them.
 * Earlier levels' maps: left out (out of scope; the explored cells of a level are not kept after it).
-* Scenario `tests/scenarios/map_symbols.txt` (level `tests/levels/map_symbols`: every symbol along one walk) takes the
-  symbols, zoomed, panned and zoomed-out screenshots at 4:3.
+* Scenario `tests/scenarios/solved/map_symbols.txt` (parked; level `tests/levels/map_symbols`: every symbol along one
+  walk) takes the symbols, zoomed, panned and zoomed-out screenshots at 4:3. The zoom rules are unit tests.

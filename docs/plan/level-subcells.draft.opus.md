@@ -70,7 +70,8 @@ quarter tile. Proposal: **2 x 4 = 8 parts** a cell (half a tile wide, a quarter 
 ## Monsters
 
 * Each `MonsterKind` gets a height (in quarters) and whether it can take a step: small walkers (rats, scarabs) fit
-  through crawl spaces, large ones (mummy, hippo, crocodile, Anubis) do not, so a crawl space is an escape route. Walk-jumpers and leapers jump a step; plain walkers stop at it like at a wall.
+  through crawl spaces, large ones (mummy, hippo, crocodile, Anubis) do not, so a crawl space is an escape route.
+  Walk-jumpers and leapers jump a step; plain walkers stop at it like at a wall.
 * Bosses follow their kin (AGENTS.md, Boss abilities): a boss of a step-taking kin takes steps too; a boss of a small
   kin may be too large for crawl spaces (that is fine; say so in the kind).
 * Flyers: a low ceiling lowers their flight band.

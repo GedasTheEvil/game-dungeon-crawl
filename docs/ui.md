@@ -8,7 +8,7 @@ parts below instead of drawing their own.
 |---|---|---|
 | Main / in-game menu, Save, Load, Options, Credits | `src/ui/menu.cpp` (`MainMenu`) | 160 x 100 |
 | Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/world/leaderboard.h`) | 160 x 100 |
-| Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
+| Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map (zoom: `src/ui/map_zoom.h`) | `src/ui/map_view.cpp` | 100 high, width follows the window |

@@ -6,7 +6,7 @@ Authentic details that would deepen the texts. Each is optional; pick the ones t
 
 * **12th hour**: Ra is reborn by passing through the serpent "Life of the Gods" (ꜥnḫ-nṯrw) tail to mouth and comes out
   as Khepri at dawn. Ties the ankh goal to the last hour; use in the hour-12 note and the epilogue
-  ([win-ending-flow](win-ending-flow.md)).
+  ([win-ending-flow](solved/win-ending-flow.md)).
 * **Sphinx**: the Egyptian *shesep-ankh*, "living image": another ankh tie for the riddle gates (a riddle-gate text).
 * **Mehen**, the coiled serpent guarding Ra's boat in hour 7: not every serpent is an enemy (inscription id 91 hints at
   it already).

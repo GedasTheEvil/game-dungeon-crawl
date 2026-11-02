@@ -16,8 +16,9 @@ gets a protection from curses for 2 minutes: the Blessing of Isis.
   * clear every active curse (`Curses`), greater ones too;
   * start the ward: 2 minutes in which no curse can land, from any source (monster melee/ranged curse entries, tomb
     curses, trapped chests, cursed coffins). A blocked curse shows a short message instead of "A curse!".
-  * Ward ends on death, like the Blessing of Hapi potion. Its own HUD tile (Isis colour, e.g. gold/white), timer
-    like the other timed effects.
+  * Ward ends on death, like the Blessing of Hapi potion.
+  * HUD: shown as a card like the curse tiles (same size, layout, timer), but with a yellow background instead of the
+    curses' purple frame (from the user).
   * Message + sound (a soft chime / sistrum shake; `tools/audio` style).
 * Uses: one per shrine (it dims after use), so a shrine is a placed resource, not a camp. Save its used state.
 * Placement: a few in the campaign, in levels with heavy curse sources (cursed mimics, mummy priests, tomb-curse

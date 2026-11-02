@@ -16,22 +16,25 @@ gets a protection from curses for 2 minutes: the Blessing of Isis (renamed to Pr
   * clear every active curse (`Curses`), greater ones too;
   * start the ward, named "Protection of Isis" (from the user; "Blessing of Isis" is already a skill,
     `SkillId::BlessingOfIsis`): 2 minutes in which no curse can land, from any source (monster melee/ranged curse
-    entries, tomb curses, trapped chests, cursed coffins). A blocked curse shows a short message instead of "A curse!".
+    entries, tomb curses, trapped chests, cursed coffins), all kinds and grades, insanity too (from the user). A blocked curse
+    shows a short message instead of "A curse!".
   * Ward ends on death, like the Blessing of Hapi potion.
   * HUD: shown as a card like the curse tiles (same size, layout, timer), but with a yellow background instead of the
     curses' purple frame (from the user).
   * Message + sound (a soft chime / sistrum shake; `tools/audio` style).
-* Uses: one per shrine (it dims after use), so a shrine is a placed resource, not a camp. Save its used state.
-* Placement: a few in the campaign, in levels with heavy curse sources (cursed mimics, mummy priests, tomb-curse
-  zones), before a hard fight or deep in a side branch. Every touched level passes `bin/levelcheck` with no warnings;
-  the checker may treat a shrine as a curse counter where it weighs curse threat.
+* Uses: unlimited, no cooldown (from the user). Praying again clears the new curses and restarts the 2 minutes.
+  Nothing to save. Shrines stay rare instead.
+* Placement: rare, about one in 4 levels (from the user): ~13 over the 54 campaign levels. Put them in levels with
+  heavy curse sources (cursed mimics, mummy priests, tomb-curse zones), before a hard fight or deep in a side
+  branch. Every touched level passes `bin/levelcheck` with no warnings; the checker may treat a shrine as a curse
+  counter where it weighs curse threat.
+* Glossary: add the shrine and Protection of Isis rows; the curse row's "no cure, no resistance" becomes the shrine
+  rule (from the user: the new rules replace the old ones).
 * Journal field note on the first use (`FieldNote`, `journal_text.cpp`).
-* Tests: unit test (curses cleared, ward blocks a curse, ward expires after 2 min, ends on death, one use);
+* Tests: unit test (curses cleared, ward blocks a curse, ward expires after 2 min, ends on death, a second prayer clears and restarts);
   play script `tests/play/shrine-of-isis.txt` (curse the player, stand by a shrine).
 
 ## Open points
 
-* Should the skill interact with the shrine (e.g. ward lasts 4 min with the skill)? Implementer's choice; mirrors
+* Should the Blessing of Isis skill make the ward last longer (e.g. 4 min)? Implementer's choice; it would mirror
   Favour of Hapi lengthening the Blessing of Hapi.
-* One use per shrine vs reusable with a cooldown: plan picks one use.
-* Does the ward also block insanity (the cursed mimic's only special)? Plan: yes, it is a curse.

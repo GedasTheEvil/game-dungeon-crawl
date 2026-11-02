@@ -16,3 +16,14 @@ Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10
 * On window entry (and on focus gain, on returning from any screen), reset the last mouse position so the next
   motion has zero delta.
 * Unit test if the input code allows it; otherwise a short note in the plan how it was checked.
+
+## Done
+
+* `MouseLook` (`src/input/mouse_look.h`) keeps the last cursor position. Every passive and drag motion on every
+  screen goes through it; only `Screen::Gameplay` turns the camera, so the riddle (and any new screen) needs no
+  early return of its own.
+* `processMouseEntry` forgets the position (leave and enter): the first motion after it turns nothing. freeglut has
+  no focus callback; entry covers the cursor coming back.
+* Also: a drag on the game (the attack button held for a power hit) now turns the camera too. Before, it updated
+  nothing and the camera jumped on the next motion after the release.
+* Unit test: `tests/unit/mouse_look_test.cpp`.

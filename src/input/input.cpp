@@ -8,12 +8,11 @@
 #include "../graphics/frame_rate.h"
 #include "input.h"
 #include "input_actions.h"
+#include "mouse_look.h"
 #include "../ui/screen_state.h"
 
-int lastMx = 0;
-int lastMy = 0;
-
 namespace {
+MouseLook mouseLook;
 // The walk keys held down, in GameplayAction order from MoveLeft.
 std::array<bool, 4> walkHeld{};
 // This press of the attack key was refused on a ladder and told so: the key repeat does not tell it again.
@@ -649,47 +648,42 @@ void processMouse(int button, int state, int x, int y) {
 		pressBinding(*action);
 	}
 }
+
+namespace {
+// Only the game turns the camera; the screens over it (the riddle too) keep the position fresh (MouseLook).
+void lookAt(int x, int y) {
+	const MouseLook::Turn turn = mouseLook.Motion(x, y, Game().ui.screen == Screen::Gameplay);
+	if (turn.dx != 0 || turn.dy != 0)
+		PlayerActionController::applyCameraDelta(
+			MOUSE_LOOK_SENSITIVITY * static_cast<float>(turn.dx),
+			MOUSE_LOOK_SENSITIVITY * static_cast<float>(turn.dy)
+		);
+}
+} // namespace
+
 void processMousePassiveMotion(int a, int b) {
+	lookAt(a, b);
 	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
 		Game().ui.menu.MousePassiveMotion(a, b);
 		return;
 	}
 	if (Game().ui.screen == Screen::Death) {
 		Game().ui.death.MouseMotion(a, b);
-		lastMx = a; // no camera jump on the retry
-		lastMy = b;
 		return;
 	}
 	if (ScreenTabs::Has(Game().ui.screen))
 		ScreenTabs::Motion(a, b);
-
-	if (ScreenState::ShouldRouteMouseToInventory(Game())) {
+	if (ScreenState::ShouldRouteMouseToInventory(Game()))
 		Game().ui.inventory->MouseMotion(a, b);
-		lastMx = a; // no camera jump when the inventory closes
-		lastMy = b;
-		return;
-	}
-
 	if (Game().ui.screen == Screen::Journal)
 		Game().ui.journal.MouseMotion(a, b);
 	if (Game().ui.screen == Screen::Skills)
 		Game().ui.skills.MouseMotion(a, b);
-	if (Game().ui.screen == Screen::Map || Game().ui.screen == Screen::Journal || Game().ui.screen == Screen::Skills) {
-		lastMx = a;
-		lastMy = b;
-		return;
-	}
-
-	PlayerActionController::applyCameraDelta(
-		-MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMx - a),
-		-MOUSE_LOOK_SENSITIVITY * static_cast<float>(lastMy - b)
-	);
-
-	lastMx = a;
-	lastMy = b;
 }
 
+// A button held (the attack's power hit charge) still turns the camera: no jump at the release.
 void processMouseActiveMotion(int a, int b) {
+	lookAt(a, b);
 	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
 		Game().ui.menu.MouseDrag(a, b);
 		return;
@@ -710,4 +704,8 @@ void processMouseActiveMotion(int a, int b) {
 		Game().ui.map.MouseMotion(a, b);
 }
 
-void processMouseEntry(int a) { (void)a; }
+// The cursor left or entered the window: the first motion back does not turn the camera by the way it went outside.
+void processMouseEntry(int a) {
+	(void)a;
+	mouseLook.Forget();
+}

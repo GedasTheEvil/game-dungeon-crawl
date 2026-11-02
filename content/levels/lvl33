@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone seths_desert
 title The Gate of Seth
 structure
@@ -55,7 +55,6 @@ wall 14
 35 19 15 100 0
 7 21 15 51 0
 36 23 12 3 0
-22 44 15 46 0
 23 40 24 0 2
 24 40 24 0 2
 26 40 24 0 1
@@ -64,6 +63,7 @@ wall 14
 30 40 24 0 0
 32 40 24 0 0
 33 40 24 0 0
+22 44 15 46 0
 objects 174
 15 2 3 0 0
 3 3 2 2 0
@@ -243,3 +243,4 @@ decor 2
 35 3 8 1
 9 21 8 0
 decals 0
+shapes 0

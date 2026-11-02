@@ -1,6 +1,7 @@
 #include "level.h"
 #include "decor.h"
 #include "campaign.h"
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 
@@ -119,6 +120,35 @@ std::string readDecals(std::istream& in, Tile* cells) {
 	return "";
 }
 
+// The shape list (plan level-subcells): "shapes COUNT", then COUNT lines "COL ROW MASK", MASK 4 hex digits. shaped:
+// per cell, the structure drawing has its SHAPED_GLYPHS glyph; the two must agree.
+std::string readShapes(std::istream& in, Tile* cells, const bool* shaped) {
+	std::string word;
+	int count = 0;
+	if (!(in >> word >> count) || word != "shapes" || count < 0)
+		return "no shape layer";
+	for (int k = 0; k < count; k++) {
+		int col = 0, row = 0;
+		std::string mask;
+		if (!(in >> col >> row >> mask))
+			return "file ends early";
+		if (!LevelGrid::inBounds(col, row))
+			return "shape outside the level" + where(col, row);
+		if (mask.size() != 4 || mask.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos)
+			return "shape " + mask + " is not 4 hex digits" + where(col, row);
+		const int i = row * LEVEL_WIDTH + col;
+		cells[i].shape = static_cast<std::uint16_t>(std::stoul(mask, nullptr, 16));
+		if (!hasShape(cells[i]))
+			return "empty shape" + where(col, row);
+		if (!shaped[i])
+			return "shape" + where(col, row) + " on a cell the structure drawing does not show shaped";
+	}
+	for (int i = 0; i < CELLS; i++)
+		if (shaped[i] && !hasShape(cells[i]))
+			return "shaped cell" + where(i % LEVEL_WIDTH, i / LEVEL_WIDTH) + " with no shape";
+	return "";
+}
+
 std::string readMeta(std::istream& in, LevelMeta& meta) {
 	std::string word, slug;
 	if (!(in >> word >> slug) || word != "zone")
@@ -153,6 +183,7 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version, LevelMeta& 
 	std::string word;
 	if (!(in >> word) || word != "structure")
 		return "no structure layer";
+	bool shaped[CELLS] = {};
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
 		std::string line;
 		if (!(in >> line))
@@ -160,12 +191,19 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version, LevelMeta& 
 		if (line.size() != static_cast<size_t>(LEVEL_WIDTH))
 			return "structure row " + std::to_string(row) + " is not " + std::to_string(LEVEL_WIDTH) + " wide";
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
-			const char* glyph = std::strchr(STRUCTURE_GLYPHS, line[static_cast<size_t>(col)]);
-			if (glyph == nullptr || *glyph == '\0')
+			const char c = line[static_cast<size_t>(col)];
+			const char* glyph = std::strchr(STRUCTURE_GLYPHS, c);
+			const char* shapedGlyph = version >= 6 && c != ' ' ? std::strchr(SHAPED_GLYPHS, c) : nullptr;
+			const int i = row * LEVEL_WIDTH + col;
+			cells[i] = Tile{};
+			if (glyph != nullptr && *glyph != '\0')
+				cells[i].structure = static_cast<Structure>(glyph - STRUCTURE_GLYPHS);
+			else if (shapedGlyph != nullptr && *shapedGlyph != '\0') {
+				cells[i].structure = static_cast<Structure>(shapedGlyph - SHAPED_GLYPHS);
+				shaped[i] = true;
+			} else
 				return "unknown structure '" + line.substr(static_cast<size_t>(col), 1) + "' in row " +
 					   std::to_string(row);
-			cells[row * LEVEL_WIDTH + col] = Tile{};
-			cells[row * LEVEL_WIDTH + col].structure = static_cast<Structure>(glyph - STRUCTURE_GLYPHS);
 		}
 	}
 
@@ -178,7 +216,9 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version, LevelMeta& 
 	if (!error.empty() || version < 4)
 		return error;
 	error = readDecor(in, cells);
-	return error.empty() ? readDecals(in, cells) : error;
+	if (error.empty())
+		error = readDecals(in, cells);
+	return error.empty() && version >= 6 ? readShapes(in, cells, shaped) : error;
 }
 } // namespace
 
@@ -209,7 +249,7 @@ void writeLevel(std::ostream& out, const Tile* cells, const LevelMeta& meta) {
 	out << "structure\n";
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
 		for (int col = 0; col < LEVEL_WIDTH; col++)
-			out << structureGlyph(cells[row * LEVEL_WIDTH + col].structure);
+			out << cellGlyph(cells[row * LEVEL_WIDTH + col]);
 		out << '\n';
 	}
 	int count = 0;
@@ -251,6 +291,16 @@ void writeLevel(std::ostream& out, const Tile* cells, const LevelMeta& meta) {
 			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << d.decal << ' ' << (d.decalMirror ? 1 : 0) << ' '
 				<< static_cast<int>(d.torch) << '\n';
 	}
+	count = 0;
+	for (int i = 0; i < CELLS; i++)
+		count += hasShape(cells[i]) ? 1 : 0;
+	out << "shapes " << count << '\n';
+	for (int i = 0; i < CELLS; i++)
+		if (hasShape(cells[i])) {
+			char mask[8];
+			snprintf(mask, sizeof(mask), "%04x", static_cast<unsigned>(cells[i].shape));
+			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << mask << '\n';
+		}
 }
 
 std::string loadLevelFile(const char* path, LevelGrid& grid, int* version) {

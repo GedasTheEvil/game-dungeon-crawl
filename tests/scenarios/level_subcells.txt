@@ -1,0 +1,30 @@
+# Plan level-subcells: the draft map draws the solid sub-cells of tests/levels/subcells (steps, stairs, low ceilings,
+# a crawl space, lips, a step in half water and in sand); the game still draws and walks them as open cells.
+seed 1
+god
+resolution 1024 768
+level tests/levels/subcells
+wait 30
+walk to 13
+wait 10
+screenshot hall
+walk to 24
+expect x > 23
+wait 10
+key m
+wait 2
+screenshot map
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+key +
+wait 2
+screenshot zoomed

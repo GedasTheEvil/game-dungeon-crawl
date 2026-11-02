@@ -15,6 +15,12 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
   trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
 
+An open structure can carry a **shape** ([level-subcells](plan/level-subcells.md)): the cell splits into
+4 x 4 sub-cells, a quarter tile each way, and the shape is the mask of the solid ones (steps, stairs, low ceilings,
+crawl spaces). The game asks `solidAt`, `floorHeight` and `ceilingHeight` (`src/world/level.h`), never the bits.
+Until [subcell-physics](plan/subcell-physics.draft.opus.md) the game draws and walks a shaped cell as open and the
+checker treats it so; the map screen draws its solid sub-cells. Test level: `tests/levels/subcells`.
+
 Two more say how the cell is dressed ([placed-decor](plan/solved/placed-decor.md)), each unset (the game scatters
 it as on any level), bare (none) or one picked with its mirror, whatever the depth:
 
@@ -69,14 +75,14 @@ reach with the mirrors the player reaches from there (with the colours open by t
 light shaft without rock behind it, a mirror in front of an inscription, a sun disc no beam can ever reach and one lit
 as the level starts.
 
-Level files are text, version 5: a `DCLEVEL 5 40 47` header, the level's zone (`zone cisterns_of_sobek`, or
+Level files are text, version 6: a `DCLEVEL 6 40 47` header, the level's zone (`zone cisterns_of_sobek`, or
 `zone none`; [Zones](#zones)), an optional level title (`title The Hall of Drifts`, the rest of the line; every campaign
-level has one, plan campaign-texts), the structure as a drawing, then the lists of fixtures, objects, props and decals
-(format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
+level has one, plan campaign-texts), the structure as a drawing (a shaped cell with its own glyph), then the lists of fixtures, objects, props, decals and
+shapes (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
 the same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1
-to v4) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
-v3 file's cells are all unset, a v4 file has no zone); `levelcheck` warns about a file older than v5, and
-`bin/levelconvert FILE...` (built by `make`) rewrites one as v5. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
+to v5) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
+v3 file's cells are all unset, a v4 file has no zone, a v5 file no shapes); `levelcheck` warns about a file older than
+v6, and `bin/levelconvert FILE...` (built by `make`) rewrites one as v6. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 
@@ -479,12 +485,18 @@ where it has no object, prints the structure drawing after the map when the leve
 when it has fixtures. `levelcheck --legend` marks the wall types (`wall:`). A level with placed props gets a `decor`
 drawing (`a` + the prop's index, `-` bare), one with placed decals or torches a `decals` drawing (`a` + the decal's
 index, upper case with a torch, `t` a torch alone, `-` bare or no torch); `--legend` ends with their `prop` and `decal`
-lines. The ASCII sources have no decor or decal drawings: the editor paints them.
+lines. The ASCII sources have no decor or decal drawings: the editor paints them. A `shape COL ROW MASK` line gives a
+cell its shape (plan level-subcells; MASK as in the level file, rock turns empty); the built file draws it with its
+shaped glyph (`--legend`'s `shaped` line), as does `--map`'s structure drawing. Example: `tests/levels/subcells.txt`.
 Example with both layers in a cell: `tests/levels/wall_layer.txt`.
 Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/bats.txt` (the built files sit next to them).
 
 ## Tests
 
+- `tests/unit/subcells_test.cpp` (plan [level-subcells](plan/level-subcells.md)): solid at, floor and
+  ceiling heights from a shape; the v6 shape list and its glyphs round-trip, a v5 file loads with no shapes, the list
+  and the drawing must agree; the editor's shape brushes; `tests/levels/subcells` loads, passes the checker and keeps
+  its shapes through a save. Scenario `tests/scenarios/level_subcells.txt`: the map screen's sub-cells (screenshots).
 - `tests/unit/level_gen_test.cpp` (plan campaign-levelgen): zone levels over two seeds per zone pass the checker
   with no warnings, fill the grid, keep the target size and name their zone; between them tall halls, pillar loops,
   hubs, ledges, shafts and gates turn up; each zone's terrain is the one of the zone table (water, deep water, sand,

@@ -1,5 +1,7 @@
 #include "tile_info.h"
 #include "dressing_brush.h"
+#include "shape_brush.h"
+#include <cstdio>
 #include "../../src/world/items.h"
 #include "../../src/world/monster_kinds.h"
 #include <string>
@@ -159,6 +161,22 @@ CellHint describeStructure(Structure s) {
 	CellHint hint;
 	hint.title = std::string(structureDef(s).name) + " (structure " + std::to_string(static_cast<int>(s)) + ")";
 	hint.description = structureDef(s).description;
+	hint.attribute = unusedField();
+	hint.value = unusedField();
+	return hint;
+}
+
+CellHint describeShape(int brush, std::uint16_t shape) {
+	CellHint hint;
+	char mask[8];
+	snprintf(mask, sizeof(mask), "%04x", static_cast<unsigned>(brush >= 0 ? SHAPE_BRUSHES[brush].mask : shape));
+	const bool whole = brush < 0 || SHAPE_BRUSHES[brush].tool == ShapeTool::Whole;
+	hint.title = std::string(brush >= 0 ? SHAPE_BRUSHES[brush].label : "Shape") +
+				 (whole ? std::string(" (shape ") + mask + ")" : "");
+	hint.description = brush >= 0 ? SHAPE_BRUSHES[brush].description
+								  : "A shape painted by hand: the solid sub-cells as drawn on the map.";
+	hint.description += " A cell is 4 x 4 sub-cells, a quarter tile each way; the game draws a shaped cell as open "
+						"until sub-cell physics come (plan subcell-physics).";
 	hint.attribute = unusedField();
 	hint.value = unusedField();
 	return hint;

@@ -12,6 +12,7 @@ void checkSameCells(const LevelGrid& a, const LevelGrid& b) {
 		CHECK(a.cells[i].attr == b.cells[i].attr);
 		CHECK(a.cells[i].value == b.cells[i].value);
 		CHECK(a.cells[i].structure == b.cells[i].structure);
+		CHECK(a.cells[i].shape == b.cells[i].shape);
 		CHECK(a.cells[i].fixture.type == b.cells[i].fixture.type);
 		CHECK(a.cells[i].fixture.attr == b.cells[i].fixture.attr);
 		CHECK(a.cells[i].fixture.value == b.cells[i].fixture.value);
@@ -62,7 +63,7 @@ TEST_CASE("a level names its zone: kept by a save and a load, none by default (p
 
 	// Version 4 has no zone line.
 	std::string v4 = file.str();
-	v4.replace(v4.find("DCLEVEL 5"), 9, "DCLEVEL 4");
+	v4.replace(v4.find("DCLEVEL " + std::to_string(LEVEL_VERSION)), 9, "DCLEVEL 4");
 	v4.erase(v4.find("zone lake_of_fire\n"), std::string("zone lake_of_fire\n").size());
 	std::istringstream old(v4);
 	loaded.meta.zone = 3;
@@ -129,7 +130,7 @@ TEST_CASE("a v1 level converts: wall, open, objects in open cells, Area3D droppe
 
 TEST_CASE("a broken level is an error") {
 	LevelGrid grid;
-	std::istringstream badVersion("DCLEVEL 6 40 47");
+	std::istringstream badVersion("DCLEVEL " + std::to_string(LEVEL_VERSION + 1) + " 40 47");
 	CHECK_FALSE(readLevel(badVersion, grid.cells).empty());
 	std::istringstream badSize("DCLEVEL 2 30 47");
 	CHECK_FALSE(readLevel(badSize, grid.cells).empty());

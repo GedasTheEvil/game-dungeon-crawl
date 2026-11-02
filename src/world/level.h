@@ -192,14 +192,27 @@ struct Dressing {
 	return d.decal != PLACED_UNSET || d.torch != TorchPlacing::Unset;
 }
 
-// One level cell: the object (tile type, attribute and value), the structure it stands in, the fixture on its back
-// wall and its dressing. Tile{Ladder, 0, 0} is a ladder in an empty cell; change the object of a cell already in a
-// level with setObject, which keeps its structure and fixture.
+// Sub-cells (plan level-subcells): a cell splits into SUBCELLS x SUBCELLS sub-cells, a quarter tile each way. A cell's
+// shape is the mask of its solid sub-cells: bit = column + SUBCELLS * row, row 0 at the bottom (as the level grid). A
+// Wall is all solid, an Empty cell with no shape all open; an open structure (empty, half water, sand, quicksand) with
+// a shape is partly solid. Wall and DeepWater take no shape.
+constexpr int SUBCELLS = 4;
+constexpr float SUBCELL_SIZE = 1.f / SUBCELLS; // in tiles
+constexpr std::uint16_t NO_SHAPE = 0;
+[[nodiscard]] constexpr std::uint16_t subcellBit(int col, int row) {
+	return static_cast<std::uint16_t>(1u << (col + SUBCELLS * row));
+}
+[[nodiscard]] constexpr bool takesShape(Structure s) { return !isSolidStructure(s); }
+
+// One level cell: the object (tile type, attribute and value), the structure it stands in and its shape, the fixture
+// on its back wall and its dressing. Tile{Ladder, 0, 0} is a ladder in an empty cell; change the object of a cell
+// already in a level with setObject, which keeps its structure and fixture.
 struct Tile {
 	int type = NoObject; // DungeonTileType
 	int attr = 0; // attribute: meaning depends on the type (monster type, lock colour, ...)
 	int value = 0; // value: meaning depends on the type (gate state, ...)
 	Structure structure = Structure::Empty;
+	std::uint16_t shape = NO_SHAPE; // its solid sub-cells, only in an open structure (takesShape)
 	Fixture fixture;
 	Dressing dressing;
 };
@@ -325,6 +338,39 @@ inline bool isSolidTile(const Tile& t) {
 // creature stands on. Today any solid cell; sub-cells (a cell with its top row solid) change it here.
 [[nodiscard]] inline bool isFloor(const Tile& t) { return isSolidTile(t); }
 
+// The shape queries (plan level-subcells): the game code asks these, not the mask's bits. A position in the cell is in
+// tiles from its bottom left corner, 0 to 1 (1 counts as the last sub-cell). They read the structure and the shape
+// only: a Wall or DeepWater cell is all solid; gates and wall spikes are isSolidTile's.
+[[nodiscard]] inline bool hasShape(const Tile& t) { return takesShape(t.structure) && t.shape != NO_SHAPE; }
+[[nodiscard]] inline bool subcellSolid(const Tile& t, int col, int row) {
+	return isSolidStructure(t.structure) || (t.shape & subcellBit(col, row)) != 0;
+}
+// The sub-cell column or row of a position in the cell.
+[[nodiscard]] inline int subcellOf(float inCell) {
+	const auto k = static_cast<int>(inCell * SUBCELLS);
+	return k < 0 ? 0 : (k >= SUBCELLS ? SUBCELLS - 1 : k);
+}
+[[nodiscard]] inline bool solidAt(const Tile& t, float x, float y) {
+	return subcellSolid(t, subcellOf(x), subcellOf(y));
+}
+// The first sub-cell row at or over `row` in sub-cell column col that is (or is not) solid; SUBCELLS for none.
+[[nodiscard]] inline int nextSubcellRow(const Tile& t, int col, int row, bool solid) {
+	while (row < SUBCELLS && subcellSolid(t, col, row) != solid)
+		row++;
+	return row;
+}
+// The floor height under x: the top of the solid run up from the cell's bottom in x's sub-cell column, 0 for none, 1
+// for a column solid all the way up.
+[[nodiscard]] inline float floorHeight(const Tile& t, float x) {
+	return static_cast<float>(nextSubcellRow(t, subcellOf(x), 0, false)) * SUBCELL_SIZE;
+}
+// The ceiling height over x: the bottom of the lowest solid sub-cell above the floor (floorHeight) in x's column, 1 for
+// none (the cell's top).
+[[nodiscard]] inline float ceilingHeight(const Tile& t, float x) {
+	const int col = subcellOf(x);
+	return static_cast<float>(nextSubcellRow(t, col, nextSubcellRow(t, col, 0, false), true)) * SUBCELL_SIZE;
+}
+
 // What a level says about itself, besides its cells (the file's lines before the layers).
 constexpr int NO_ZONE = -1;
 struct LevelMeta {
@@ -378,25 +424,34 @@ class TeleportPairs {
 	int partners[LEVEL_WIDTH * LEVEL_HEIGHT];
 };
 
-// The level format (docs/levels.md), in level files and save games. Version 5, text:
-//   DCLEVEL 5 WIDTH HEIGHT
+// The level format (docs/levels.md), in level files and save games. Version 6, text:
+//   DCLEVEL 6 WIDTH HEIGHT
 //   zone SLUG, the level's zone (ZoneInfo::slug, campaign.h), or "zone none"
 //   title TEXT, optional: the level's title, the rest of the line (plan campaign-texts)
-//   structure, then HEIGHT rows of WIDTH structure glyphs (STRUCTURE_GLYPHS), top row first
+//   structure, then HEIGHT rows of WIDTH structure glyphs (cellGlyph), top row first
 //   wall COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with a fixture (hasFixture)
 //   objects COUNT, then COUNT lines "COL ROW TYPE ATTR VALUE", the cells with an object (hasObject)
 //   decor COUNT, then COUNT lines "COL ROW PROP MIRROR", the cells with a placed prop (hasPlacedProp)
 //   decals COUNT, then COUNT lines "COL ROW DECAL MIRROR TORCH", the cells with hasPlacedDecal (TORCH: TorchPlacing)
-// PROP and DECAL as in Dressing: the index, -1 bare, -2 unset; MIRROR 0 or 1.
+//   shapes COUNT, then COUNT lines "COL ROW MASK", the cells with a shape (hasShape), MASK 4 hex digits
+// PROP and DECAL as in Dressing: the index, -1 bare, -2 unset; MIRROR 0 or 1. A shaped cell has its SHAPED_GLYPHS
+// glyph in the structure drawing, and only a shaped cell has one.
+// Version 5 has no shape layer: no cell has a shape.
 // Version 4 has no zone line: it loads with NO_ZONE.
 // Version 3 has no decor and decal layers: every cell loads unset.
 // Version 2 has no wall layer: its wall types stand in the object layer and move to the wall layer on load (setThing).
-// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 to 4
+// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 to 5
 // are read and converted, never written.
 constexpr const char* LEVEL_MAGIC = "DCLEVEL";
-constexpr int LEVEL_VERSION = 5;
+constexpr int LEVEL_VERSION = 6;
 constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~=,%"; // by Structure
 [[nodiscard]] inline char structureGlyph(Structure s) { return STRUCTURE_GLYPHS[static_cast<int>(s)]; }
+// A shaped cell's glyph (plan level-subcells), by Structure; ' ' for Wall and DeepWater, which take no shape.
+constexpr char SHAPED_GLYPHS[STRUCTURE_COUNT + 1] = " _- ;&";
+// The structure drawing's glyph of a cell: SHAPED_GLYPHS for a shaped one, else STRUCTURE_GLYPHS.
+[[nodiscard]] inline char cellGlyph(const Tile& t) {
+	return (hasShape(t) ? SHAPED_GLYPHS : STRUCTURE_GLYPHS)[static_cast<int>(t.structure)];
+}
 
 // A v1 cell: type 0 is a wall without an object, anything else a thing in an empty cell, in its layer (the unused
 // Area3D, type 7, nothing).

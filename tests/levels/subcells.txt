@@ -1,0 +1,28 @@
+; Sub-cells (plan level-subcells; tests/unit/subcells_test.cpp): one hall on row 2 with shaped cells, for the sub-cell
+; drafts to extend (subcell-physics, crouch, subcell-monsters). From the left: a quarter step (col 3), quarter steps
+; on the left and the right half (cols 5, 6), a half block (col 8), a stair up to the right (col 10), a block three
+; quarters high (col 11), a stair down (col 12), a low ceiling (col 14), a crawl space a quarter high (cols 15, 16), a
+; ceiling half a cell lower (col 17), a ledge's lips (cols 19, 20), a step in half water (col 22) and in sand (col 23).
+; The game draws them as open until subcell-physics.
+###########################
+#S.....................E..#
+###########################
+structure
+###########################
+#.....................~,..#
+######################=####
+shape 3 2 000f
+shape 5 2 0003
+shape 6 2 000c
+shape 8 2 00ff
+shape 10 2 08ce
+shape 11 2 0fff
+shape 12 2 0137
+shape 14 2 f000
+shape 15 2 fff0
+shape 16 2 fff0
+shape 17 2 ff00
+shape 19 2 0008
+shape 20 2 0001
+shape 22 2 000f
+shape 23 2 000f

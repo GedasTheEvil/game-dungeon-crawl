@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone bat_galleries
 title The Hall of Echoes
 structure
@@ -254,3 +254,4 @@ decals 98
 27 36 -2 0 1
 28 36 -2 0 1
 29 36 -2 0 1
+shapes 0

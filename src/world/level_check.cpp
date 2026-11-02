@@ -1167,7 +1167,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			onPath[p.row * LEVEL_WIDTH + p.col] = 1;
 
 	std::string objects, structure, wall, decor, decals;
-	bool layered = false, fixtures = false; // water or sand: the structure drawing too
+	bool layered = false, fixtures = false; // water, sand or shapes: the structure drawing too
 	bool props = false, wallDecals = false;
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
 		std::string line, structureLine, wallLine, decorLine, decalLine;
@@ -1176,14 +1176,14 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			Tile t = grid.at(col, row);
 			char c = tileGlyph(t);
 			any = any || !isWall(t) || hasObject(t) || hasFixture(t);
-			layered = layered || (t.structure != Structure::Wall && t.structure != Structure::Empty);
+			layered = layered || (t.structure != Structure::Wall && t.structure != Structure::Empty) || hasShape(t);
 			fixtures = fixtures || hasFixture(t);
 			props = props || hasPlacedProp(t.dressing);
 			wallDecals = wallDecals || hasPlacedDecal(t.dressing);
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)
 				c = '*';
 			line += c;
-			structureLine += structureGlyph(t.structure);
+			structureLine += cellGlyph(t);
 			wallLine += hasFixture(t) ? tileGlyph(fixtureAsTile(t.fixture)) : isSolidStructure(t.structure) ? '#' : '.';
 			decorLine += propGlyph(t);
 			decalLine += decalGlyph(t);

@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone scorpion_nest
 title The Nest of the Queen
 structure
@@ -281,3 +281,4 @@ decals 65
 36 9 -2 0 1
 37 9 -2 0 1
 38 9 -2 0 1
+shapes 0

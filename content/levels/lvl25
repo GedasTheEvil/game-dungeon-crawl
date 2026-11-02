@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone serpent_temple
 title The Hall of the Rhythm
 structure
@@ -268,3 +268,4 @@ decals 27
 30 17 -2 0 1
 31 17 -2 0 1
 32 17 -2 0 1
+shapes 0

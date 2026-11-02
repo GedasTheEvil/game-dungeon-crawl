@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone tomb_entrance
 title The Lair of Khepri
 structure
@@ -134,3 +134,4 @@ objects 79
 decor 0
 decals 1
 15 2 11 0 0
+shapes 0

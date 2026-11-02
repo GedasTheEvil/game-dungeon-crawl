@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone bat_galleries
 title The Flooded Stretch
 structure
@@ -212,3 +212,4 @@ decals 51
 34 34 -2 0 1
 35 34 -2 0 1
 36 34 -2 0 1
+shapes 0

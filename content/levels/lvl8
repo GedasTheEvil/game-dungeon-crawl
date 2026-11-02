@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone bat_galleries
 title The Roost Stair
 structure
@@ -226,3 +226,4 @@ decals 52
 27 45 -2 0 1
 28 45 -2 0 1
 29 45 -2 0 1
+shapes 0

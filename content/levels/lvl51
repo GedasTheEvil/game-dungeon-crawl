@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone hall_of_judgment
 title The Gate of Judgment
 structure
@@ -283,3 +283,4 @@ decals 30
 30 41 -2 0 1
 31 41 -2 0 1
 32 41 -2 0 1
+shapes 0

@@ -33,6 +33,8 @@ struct CellHint {
 
 [[nodiscard]] CellHint describeCell(const Tile& cell); // its object
 [[nodiscard]] CellHint describeStructure(Structure s);
+// A shape brush (SHAPE_BRUSHES, shape_brush.h), or -1 and a cell's shape painted by hand (plan level-subcells).
+[[nodiscard]] CellHint describeShape(int brush, std::uint16_t shape);
 
 // The decor and decal layers (plan placed-decor). A palette id: PLACED_UNSET, PLACED_BARE, a prop (DECOR_NAMES); for
 // the decals also TORCH_BRUSH, NO_TORCH_BRUSH (dressing_brush.h) or a decal (DECAL_DEFS).

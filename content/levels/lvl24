@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone serpent_temple
 title The Spitting Wall
 structure
@@ -314,3 +314,4 @@ decals 70
 32 45 -2 0 2
 33 45 -2 0 1
 34 45 -2 0 1
+shapes 0

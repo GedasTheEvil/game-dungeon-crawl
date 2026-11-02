@@ -68,7 +68,7 @@ Put the shape in `Tile` (`std::uint16_t shape`, next to `structure`) and make th
 and a position inside the cell. Then the `Dungeon` map, save games, `LevelGrid`, `climb_path`, the checker and the
 editor carry shapes with no change to how they read the grid. (The review found three ways to read the grid: the
 `Dungeon` map array, `climb_path`'s own `at` / `inBounds`, `LevelGrid`. Merging them is not worth it on its own.)
-Add this line to [level-subcells](../level-subcells.draft.opus.md) when implementing this plan.
+Add this line to [level-subcells](../level-subcells.md) when implementing this plan.
 
 ## Tests
 

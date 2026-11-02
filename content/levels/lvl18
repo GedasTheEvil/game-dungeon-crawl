@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone priests_quarter
 title The Tomb of the High Priest
 structure
@@ -278,3 +278,4 @@ decor 75
 30 45 9 1
 decals 1
 25 2 11 0 0
+shapes 0

@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone seths_desert
 title The Hall of Drifts
 structure
@@ -263,3 +263,4 @@ decor 2
 33 22 1 1
 37 22 1 1
 decals 0
+shapes 0

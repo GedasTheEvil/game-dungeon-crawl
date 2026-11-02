@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone priests_quarter
 title The Hall of Purification
 structure
@@ -285,3 +285,4 @@ decor 62
 35 44 24 1
 36 44 24 1
 decals 0
+shapes 0

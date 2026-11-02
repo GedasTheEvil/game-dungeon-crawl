@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone lake_of_fire
 title The Shore of Babi
 structure
@@ -219,3 +219,4 @@ decor 8
 28 36 6 0
 decals 1
 14 2 11 0 0
+shapes 0

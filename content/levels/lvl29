@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone cisterns_of_sobek
 title The Flooded Halls
 structure
@@ -276,3 +276,4 @@ decals 60
 29 28 -2 0 2
 30 28 -2 0 1
 31 28 -2 0 1
+shapes 0

@@ -403,8 +403,9 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		// For tools/level/ascii2level.py: "size WIDTH HEIGHT", "format MAGIC VERSION", "structure GLYPHS" (by
-		// Structure number), "wall TYPE..." (the wall types, isWallType), then "CHAR TYPE ATTR VALUE STRUCTURE
-		// meaning" per glyph of the drawings; a wall type's meaning starts with "wall:".
+		// Structure number), "wall TYPE..." (the wall types, isWallType), "shaped STRUCTURE GLYPH..." (a shaped cell's
+		// glyph, SHAPED_GLYPHS, after its Structure number, no space), then "CHAR TYPE ATTR VALUE STRUCTURE meaning"
+		// per glyph of the drawings; a wall type's meaning starts with "wall:".
 		if (strcmp(argv[i], "--legend") == 0) {
 			printf(
 				"size %d %d\nformat %s %d\nstructure %s\nwall",
@@ -417,6 +418,10 @@ int main(int argc, char** argv) {
 			for (int type = 0; type < TILE_TYPE_COUNT; type++)
 				if (isWallType(type))
 					printf(" %d", type);
+			printf("\nshaped");
+			for (int s = 0; s < STRUCTURE_COUNT; s++)
+				if (takesShape(static_cast<Structure>(s)))
+					printf(" %d%c", s, SHAPED_GLYPHS[s]);
 			printf("\n");
 			for (const GlyphDef& g : glyphLegend())
 				printf(

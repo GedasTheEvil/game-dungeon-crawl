@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone priests_quarter
 title The Gate of the Priests
 structure
@@ -273,3 +273,4 @@ decor 68
 30 44 24 1
 31 44 24 1
 decals 0
+shapes 0

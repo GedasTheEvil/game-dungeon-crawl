@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone tomb_entrance
 title The Biting Chest
 structure
@@ -124,3 +124,4 @@ objects 70
 31 44 2 1 0
 decor 0
 decals 0
+shapes 0

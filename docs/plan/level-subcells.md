@@ -1,6 +1,23 @@
 # Sub-cells: the level format, editor and map
 
-Status: draft 2026-11-02, needs nothing first. From the user.
+Status: implemented 2026-11-02, waiting for the user's play-test (`bin/game --level tests/levels/subcells`, M for the
+map; the editor's structure palette). Was: draft 2026-11-02, needs nothing first. From the user.
+
+Implementer's choices:
+
+* The shape layer is a list like the other four (`shapes COUNT`, then `COL ROW MASK`, 4 hex digits), not a grid of
+  `0000`s: the diff of every level stays one line, and the structure drawing already shows where the shapes are.
+* The structure drawing has one shaped glyph per open structure (`SHAPED_GLYPHS`: `_` empty, `-` half water, `;`
+  sand, `&` quicksand), so a shaped cell keeps its structure. The glyph and the list must agree (a load error
+  otherwise).
+* The shape queries read the structure and the shape only (gates and wall spikes stay `isSolidTile`'s). `isFloor`,
+  `floorUnder`, `heightOverFloor`, `bodyBlocked` and the checker are unchanged: a shaped cell walks and checks as open
+  until [subcell-physics](subcell-physics.draft.opus.md). So does "an object or fixture in a shaped cell stands on the
+  floor under the cell's middle": it needs the drawing (`floorHeight(t, 0.5f)` is the height), left to that plan.
+* Editor: the shape brushes sit in the structure palette after the six structures (no seventh layer button: the
+  button row is full). "Ledge lip" became `Lip L` / `Lip R`: a rim a quarter high and wide at the cell's edge.
+* Every campaign level converted to v6 (`levelconvert`: a `shapes 0` line; it also put a few hand-ordered list lines
+  in file order).
 
 The first of the sub-cell drafts; the others build on it: [subcell-physics](subcell-physics.draft.opus.md),
 [crouch](crouch.draft.opus.md), [subcell-monsters](subcell-monsters.draft.opus.md),

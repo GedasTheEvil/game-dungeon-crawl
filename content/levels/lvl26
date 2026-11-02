@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone serpent_temple
 title The Uraeus Stair
 structure
@@ -320,3 +320,4 @@ decals 68
 36 4 -2 0 1
 37 4 -2 0 1
 38 4 -2 0 1
+shapes 0

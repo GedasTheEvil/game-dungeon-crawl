@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone seths_desert
 title Seth's Oasis
 structure
@@ -250,3 +250,4 @@ decor 3
 5 22 1 0
 decals 1
 20 2 11 0 0
+shapes 0

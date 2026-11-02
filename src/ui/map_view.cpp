@@ -64,15 +64,16 @@ class Sketch {
   public:
 	Sketch(float originX, float originY, float cell) : ox(originX), oy(originY), s(cell) {}
 
-	// A hand-drawn line: slightly off at both ends, gone over twice with less pressure the second time.
-	void pencil(float x0, float y0, float x1, float y1, Color c, float alpha, uint32_t seed) {
+	// A hand-drawn line: slightly off at both ends (by up to jitter cells), gone over twice with less pressure the
+	// second time.
+	void pencil(float x0, float y0, float x1, float y1, Color c, float alpha, uint32_t seed, float jitter = JITTER) {
 		for (uint32_t pass = 0; pass < 2; pass++) {
 			uint32_t k = seed * 8 + pass * 4;
 			strokes.push_back(
-				{ox + (x0 + JITTER * noise(k)) * s,
-				 oy + (y0 + JITTER * noise(k + 1)) * s,
-				 ox + (x1 + JITTER * noise(k + 2)) * s,
-				 oy + (y1 + JITTER * noise(k + 3)) * s,
+				{ox + (x0 + jitter * noise(k)) * s,
+				 oy + (y0 + jitter * noise(k + 1)) * s,
+				 ox + (x1 + jitter * noise(k + 2)) * s,
+				 oy + (y1 + jitter * noise(k + 3)) * s,
 				 c,
 				 pass == 0 ? alpha : alpha * 0.45f}
 			);
@@ -153,6 +154,76 @@ void hatch(Sketch& sk, int i, int j) {
 		else
 			sk.pencil(x + 1, y + t - 1, x + t - 1, y + 1, GRAPHITE, 0.30f, cellSeed(i, j, k));
 	}
+}
+
+// The jitter of the sub-cells' lines: a quarter of a cell is small for the walls' wobble.
+constexpr float SUBCELL_JITTER = JITTER / 2;
+
+// The solid sub-cells of a shaped cell (plan level-subcells): the walls' hatching, twice as dense (the lines x + y on
+// the quarter tile) so that a quarter step reads as rock too, cut to each solid sub-cell.
+void hatchShape(Sketch& sk, int i, int j, const Tile& t) {
+	constexpr int LINES = 2 * SUBCELLS - 1;
+	for (int row = 0; row < SUBCELLS; row++)
+		for (int col = 0; col < SUBCELLS; col++) {
+			if (!subcellSolid(t, col, row))
+				continue;
+			const float x0 = static_cast<float>(col) * SUBCELL_SIZE;
+			const float y0 = static_cast<float>(row) * SUBCELL_SIZE;
+			for (int k = 1; k <= LINES; k++) { // the line x + y = c through the sub-cell, from its lower right end
+				const float c = static_cast<float>(k) * SUBCELL_SIZE;
+				const float xa = std::max(x0, c - y0 - SUBCELL_SIZE);
+				const float xb = std::min(x0 + SUBCELL_SIZE, c - y0);
+				if (xa < xb)
+					sk.pencil(
+						static_cast<float>(i) + xb,
+						static_cast<float>(j) + c - xb,
+						static_cast<float>(i) + xa,
+						static_cast<float>(j) + c - xa,
+						GRAPHITE,
+						0.30f,
+						cellSeed(i, j, 32 + k) ^ (subcellBit(col, row) * 0x9e3779b9U),
+						SUBCELL_JITTER
+					);
+			}
+		}
+}
+
+// The outline of a shaped cell: where a solid sub-cell meets an open one. A neighbour without a shape (rock or open
+// space) draws none of its own, so the shaped cell draws every edge against it; between two shaped cells the solid
+// side draws.
+void outlineShape(Sketch& sk, const Dungeon& d, int i, int j) {
+	const Tile t = d.Cell(i, j);
+	constexpr int DIRS[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+	for (int row = 0; row < SUBCELLS; row++)
+		for (int col = 0; col < SUBCELLS; col++) {
+			const bool solid = subcellSolid(t, col, row);
+			for (const auto& dir : DIRS) {
+				int nc = col + dir[0], nr = row + dir[1], ci = i, cj = j;
+				if (nc < 0 || nc >= SUBCELLS || nr < 0 || nr >= SUBCELLS) { // the sub-cell in the next cell
+					ci += dir[0];
+					cj += dir[1];
+					nc = (nc + SUBCELLS) % SUBCELLS;
+					nr = (nr + SUBCELLS) % SUBCELLS;
+					if (!d.Explored(ci, cj))
+						continue;
+				}
+				const Tile n = d.Cell(ci, cj);
+				const bool plainNeighbour = (ci != i || cj != j) && !hasShape(n);
+				if (solid == subcellSolid(n, nc, nr) || (!solid && !plainNeighbour))
+					continue;
+				// The edge between the two sub-cells, in map cells.
+				const float x = static_cast<float>(i) + static_cast<float>(col) * SUBCELL_SIZE;
+				const float y = static_cast<float>(j) + static_cast<float>(row) * SUBCELL_SIZE;
+				const float ex = x + (dir[0] > 0 ? SUBCELL_SIZE : 0.f);
+				const float ey = y + (dir[1] > 0 ? SUBCELL_SIZE : 0.f);
+				const uint32_t seed = cellSeed(i, j, 40) ^ (subcellBit(col, row) * 0x85ebca6bU) ^
+									  static_cast<uint32_t>(dir[0] + 2 * dir[1] + 3);
+				if (dir[0] != 0)
+					sk.pencil(ex, y, ex, y + SUBCELL_SIZE, GRAPHITE, 0.85f, seed, SUBCELL_JITTER);
+				else
+					sk.pencil(x, ey, x + SUBCELL_SIZE, ey, GRAPHITE, 0.85f, seed, SUBCELL_JITTER);
+			}
+		}
 }
 
 // Water: blue waves in the lower part of a half-water cell (its water line and below), three rows over a deep one.
@@ -833,11 +904,15 @@ void DraftMap::Draw() {
 		for (int i = 0; i < LEVEL_WIDTH; i++)
 			if (d.Explored(i, j) && isWall(d.Cell(i, j)))
 				hatch(sk, i, j);
+			else if (d.Explored(i, j) && hasShape(d.Cell(i, j)))
+				hatchShape(sk, i, j, d.Cell(i, j));
 	sk.flush(1.f * pxScale);
 
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
-			if (d.Explored(i, j) && !isWall(d.Cell(i, j)))
+			if (d.Explored(i, j) && hasShape(d.Cell(i, j)))
+				outlineShape(sk, d, i, j);
+			else if (d.Explored(i, j) && !isWall(d.Cell(i, j)))
 				outline(sk, d, i, j);
 	sk.flush(2.f * pxScale);
 

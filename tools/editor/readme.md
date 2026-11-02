@@ -54,9 +54,30 @@ fixtures and objects in every layer; the other layers stay visible, dimmed, and 
 top. The props show in the decor layer only, the decals and torches in the decal layer only.
 
 * Painting an object or a fixture into a wall or deep water carves the cell open (`Empty`).
-* Painting a wall or deep water over a cell removes its object, fixture, prop, decal and torch.
+* Painting a wall or deep water over a cell removes its object, fixture, prop, decal, torch and shape.
 * `None` in the wall or objects palette removes the fixture or the object and keeps the rest.
 * Props, decals and torches go only in open cells (painting them on rock does nothing).
+
+### Shapes (sub-cells)
+
+A cell is 4 x 4 sub-cells, a quarter tile each way ([level-subcells](../../docs/plan/level-subcells.md)).
+Its shape says which are solid: steps to jump onto, low ceilings, crawl spaces. Only an open structure (empty, half
+water, sand, quicksand) takes one. The structure palette has the shape brushes after the six structures:
+
+* `No shape`: takes the shape off; the cell is just its structure again.
+* `+ Sub` / `- Sub`: make the sub-cell under the mouse solid or open (drag to paint more). The cell under the mouse
+  shows the sub-cell it paints.
+* The common shapes, painted on the whole cell: `Step` (a quarter high over the whole floor), `Step L`, `Step R` (on
+  the left or right half), `Half`, `Half L`, `Half R` (half a cell high: too high for one jump), `Stair R`, `Stair L`
+  (three quarter steps rising to the right or left), `Low 1`, `Low 2`, `Low 3` (a ceiling one to three quarters lower;
+  two or three make a crawl space), `Lip L`, `Lip R` (a rim a quarter high and wide at the cell's edge, as at a
+  ledge's edge).
+
+A shape painted on rock or deep water carves the cell open (`Empty`), unless it leaves it all solid (`+ Sub`, `No
+shape`). Painting a structure keeps the shape; rock or deep water removes it. A right click picks the structure, and
+the shape's brush when it is one of the common shapes. The map draws the solid sub-cells in the rock's colour, the
+hover line shows the shape's mask. The game draws a shaped cell as an open one until
+[subcell-physics](../../docs/plan/subcell-physics.draft.opus.md).
 
 ### Decor and decal layers
 
@@ -116,7 +137,8 @@ Tile and prop icons (`prop_<name>.png`, `torch.png`, `no_torch.png`, `bare.png`)
 | `,` | Sand | 4 | Open space, a drift of sand on the floor (plan desert-chapter). Any object may stand in it. The player walks at 3/4 speed and cannot sprint in it; jumping is fine. A sand worm placed in it lies under the surface (a ripple) and comes up under the player within 2.5 cells on its row (at the sand's edge for a player beside it), later dives to come up under them again. Put a wall under it. |
 | `%` | Quicksand | 5 | Looks like sand, with a slow swirl up close. Standing in it sinks the player: slower each second, stuck after 3 s, 5% of the max HP a second from 5 s (no armour); a jump frees them, for 40 stamina (twice a jump's). `levelcheck` treats it as a passable trap (a jump crosses one cell of it) and warns about runs of more than 2 cells. Put a wall under it. |
 
-The glyph is the one in the level file's structure drawing and in `levelcheck --map`.
+The glyph is the one in the level file's structure drawing and in `levelcheck --map`. A shaped cell (see
+[Shapes](#shapes-sub-cells)) has a glyph of its own: `_` empty, `-` half water, `;` sand, `&` quicksand.
 
 ## Tile reference
 
@@ -249,11 +271,11 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Level format v5, plain text (`src/world/level.h`). A header, the level's zone, the structure layer as a drawing,
-then the wall layer, the object layer, the decor layer and the decal layer as lists:
+Level format v6, plain text (`src/world/level.h`). A header, the level's zone, the structure layer as a drawing,
+then the wall layer, the object layer, the decor layer, the decal layer and the shape layer as lists:
 
 ```
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone tomb_entrance                        the zone's slug (ZONE_INFO, src/world/campaign.h), or none
 structure
 ########################################
@@ -270,6 +292,8 @@ decor 2
 9 1 -1 0
 decals 1
 7 1 -2 0 2                                column row decal mirror torch
+shapes 1
+3 1 000f                                  column row mask
 ```
 
 The structure glyphs are in the [Structure reference](#structure-reference). The wall list holds only the cells with
@@ -280,7 +304,11 @@ The decor list holds the cells whose prop is set, the decal list those whose dec
 index of `DECOR_NAMES`, `decal` one of `DECAL_DEFS` (`src/world/decor.h`, `levelcheck --legend` lists both), `-1`
 bare, `-2` unset (a decal line with only its torch set). `mirror` is 0 or 1, `torch` 0 unset, 1 none, 2 a torch.
 
+The shape list holds the shaped cells, `mask` 4 hex digits: bit = sub-column + 4 x sub-row, sub-row 0 at the bottom
+(`000f` a quarter step over the floor, `f000` a ceiling a quarter lower). A shaped cell has its shaped glyph in the
+structure drawing, and only a shaped cell does.
+
 The old formats still load: the game, the editor and `levelcheck` convert them as they read them (`levelcheck`
-warns). v4 has no zone line: no zone. v3 has no decor and decal lists: every cell is unset. v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
-`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v5 for
+warns). v5 has no shape list: no shapes. v4 has no zone line: no zone. v3 has no decor and decal lists: every cell is unset. v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
+`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v6 for
 good.

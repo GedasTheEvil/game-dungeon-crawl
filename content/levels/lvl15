@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone priests_quarter
 title The House of Life
 structure
@@ -246,3 +246,4 @@ decor 42
 7 44 1 0
 8 44 2 1
 decals 0
+shapes 0

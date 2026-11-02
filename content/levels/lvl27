@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone serpent_temple
 title The Pit of Apep
 structure
@@ -376,3 +376,4 @@ decals 140
 34 45 -2 0 1
 35 45 -2 0 1
 36 45 -2 0 1
+shapes 0

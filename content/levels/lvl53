@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone hall_of_judgment
 title The Feather of Maat
 structure
@@ -326,3 +326,4 @@ decals 78
 29 8 -2 0 1
 30 8 -2 0 1
 31 8 -2 0 1
+shapes 0

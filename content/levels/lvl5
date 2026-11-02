@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone bat_galleries
 title The Lever Gallery
 structure
@@ -200,3 +200,4 @@ decals 70
 36 45 -2 0 2
 37 45 -2 0 1
 38 45 -2 0 1
+shapes 0

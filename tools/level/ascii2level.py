@@ -5,6 +5,8 @@
 IN.txt: the object drawing, top row first; rows are placed so the last drawn row is row 1 (row 0 and the rest stay
 wall), columns start at 0. Shorter lines are padded with wall. Lines starting with ';' are comments.
 Lines 'set COL ROW TYPE ATTR VALUE' override the object of single cells (after the drawing), e.g. a lever's colour.
+Lines 'shape COL ROW MASK' give single cells a shape (plan level-subcells): MASK 4 hex digits, the solid sub-cells,
+bit = sub-column + 4 x sub-row, sub-row 0 at the bottom; the cell keeps its structure (a wall turns empty).
 Lines 'def CHAR TYPE ATTR VALUE' add a character to the legend for this file, e.g. 'def L 12 2 0' (blue lever),
 'def 1 8 1 1' (sword chest). Put them before the drawing.
 
@@ -31,8 +33,8 @@ NO_OBJECT = 1  # tile type
 
 
 def game_legend():
-    """(width, height, header, structure glyphs, wall types, {char: (type, attr, value, structure)}) from
-    `levelcheck --legend`."""
+    """(width, height, header, structure glyphs, wall types, {structure: shaped glyph},
+    {char: (type, attr, value, structure)}) from `levelcheck --legend`."""
     try:
         out = subprocess.run([LEVELCHECK, "--legend"], capture_output=True, text=True, check=True).stdout
     except (OSError, subprocess.CalledProcessError) as e:
@@ -42,23 +44,27 @@ def game_legend():
     _, magic, version = lines[1].split()
     structures = lines[2].split()[1]
     wall_types = {int(v) for v in lines[3].split()[1:]}
+    shaped = {int(v[:-1]): v[-1] for v in lines[4].split()[1:]}
     # The glyph lines; "prop" and "decal" lines after them are for the --map drawings.
-    legend = {line[0]: tuple(int(v) for v in line[2:].split()[:4]) for line in lines[4:] if line[1] == " "}
-    return int(w), int(h), f"{magic} {version} {w} {h}", structures, wall_types, legend
+    legend = {line[0]: tuple(int(v) for v in line[2:].split()[:4]) for line in lines[5:] if line[1] == " "}
+    return int(w), int(h), f"{magic} {version} {w} {h}", structures, wall_types, shaped, legend
 
 
 def main(src, dst):
-    W, H, header, STRUCTURES, WALL_TYPES, legend = game_legend()
+    W, H, header, STRUCTURES, WALL_TYPES, SHAPED, legend = game_legend()
     wall, empty = STRUCTURES.index("#"), STRUCTURES.index(".")
     objects, fixtures = {}, {}  # (col, row): (type, attr, value)
     structure = [[wall] * W for _ in range(H)]  # [row][col]
-    drawing, structure_drawing, wall_drawing, sets = [], None, None, []
+    drawing, structure_drawing, wall_drawing, sets, shapes = [], None, None, [], {}
     for line in open(src).read().splitlines():
         if line.startswith(";") or not line.strip():
             continue
         if line.startswith("def "):
             ch, *tile = line.split()[1:]
             legend[ch] = tuple(int(v) for v in tile) + (empty,)
+        elif line.startswith("shape "):
+            col, row, mask = line.split()[1:]
+            shapes[(int(col), int(row))] = int(mask, 16)
         elif line.startswith("set "):
             sets.append([int(v) for v in line.split()[1:]])
         elif line.strip() == "structure":
@@ -113,15 +119,26 @@ def main(src, dst):
             layer(a)[(col, row)] = (a, b, c)
             if structure[row][col] == wall:  # an object or fixture carves its cell
                 structure[row][col] = empty
+    for (col, row), mask in shapes.items():
+        if structure[row][col] == wall:
+            structure[row][col] = empty
+        if structure[row][col] not in SHAPED or not 0 < mask <= 0xFFFF:
+            sys.exit(f"shape {mask:04x} at row {row} col {col}: not a shape, or a structure that takes none")
     with open(dst, "w") as f:
         f.write(f"{header}\nzone none\nstructure\n")  # no zone: the plain look (plan zone-looks)
         for row in range(H - 1, -1, -1):
-            f.write("".join(STRUCTURES[s] for s in structure[row]) + "\n")
+            f.write(
+                "".join(SHAPED[s] if (col, row) in shapes else STRUCTURES[s] for col, s in enumerate(structure[row]))
+                + "\n"
+            )
         for name, things in (("wall", fixtures), ("objects", objects)):
             f.write(f"{name} {len(things)}\n")
             for (col, row), (a, b, c) in sorted(things.items(), key=lambda kv: (kv[0][1], kv[0][0])):
                 f.write(f"{col} {row} {a} {b} {c}\n")
         f.write("decor 0\ndecals 0\n")  # no placed props or decals: the editor paints them (plan placed-decor)
+        f.write(f"shapes {len(shapes)}\n")
+        for (col, row), mask in sorted(shapes.items(), key=lambda kv: (kv[0][1], kv[0][0])):
+            f.write(f"{col} {row} {mask:04x}\n")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone web_halls
 title The Lair of the Mother of Webs
 structure
@@ -798,3 +798,4 @@ decals 558
 35 40 -2 0 1
 36 40 -2 0 1
 37 40 -2 0 1
+shapes 0

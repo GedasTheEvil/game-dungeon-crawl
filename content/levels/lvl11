@@ -1,4 +1,4 @@
-DCLEVEL 5 40 47
+DCLEVEL 6 40 47
 zone web_halls
 title The Dark Gallery
 structure
@@ -681,3 +681,4 @@ decals 463
 28 45 -2 0 1
 29 45 -2 0 1
 30 45 -2 0 1
+shapes 0

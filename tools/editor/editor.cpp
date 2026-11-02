@@ -2,6 +2,7 @@
 
 #include "dressing_brush.h"
 #include "map_view.h"
+#include "shape_brush.h"
 #include "tile_info.h"
 #include "../../src/graphics/font.h"
 #include "../../src/graphics/textures.h"
@@ -127,13 +128,21 @@ enum class Target : unsigned char {
 	Zone
 };
 
-// The palette of a layer: structure numbers, tile types (the wall types in the wall layer, the others in the object
-// layer, None in both), props or decal brushes (tile_info.h), in slot order.
+// The structure layer's palette ids of the shape brushes (shape_brush.h): SHAPE_ID + the brush's index.
+constexpr int SHAPE_ID = 100;
+[[nodiscard]] bool isShapeId(int id) { return id >= SHAPE_ID && id < SHAPE_ID + SHAPE_BRUSH_COUNT; }
+// A structure palette id that is no shape brush: its structure.
+[[nodiscard]] Structure structureOf(int id) { return isStructure(id) ? static_cast<Structure>(id) : Structure::Wall; }
+
+// The palette of a layer: structure numbers then the shape brushes, tile types (the wall types in the wall layer, the
+// others in the object layer, None in both), props or decal brushes (tile_info.h), in slot order.
 std::vector<int> paletteOf(Layer layer) {
 	std::vector<int> ids;
 	if (layer == Layer::Structure) {
 		for (int s = 0; s < STRUCTURE_COUNT; s++)
 			ids.push_back(s);
+		for (int b = 0; b < SHAPE_BRUSH_COUNT; b++)
+			ids.push_back(SHAPE_ID + b);
 		return ids;
 	}
 	if (dressingLayer(layer)) {
@@ -211,6 +220,7 @@ class Editor {
 	LevelGrid grid; // all wall, the rock the level is carved from
 	int tile = NoObject;
 	Structure structure = Structure::Empty;
+	int shapeBrush = -1; // the structure layer's brush is a shape brush (SHAPE_BRUSHES), else the structure
 	int prop = PLACED_UNSET; // the decor layer's brush
 	int decal = PLACED_UNSET; // the decal layer's (dressing_brush.h)
 	bool mirror = false; // of the prop or decal
@@ -253,7 +263,7 @@ class Editor {
 	[[nodiscard]] int selectedId() const {
 		switch (layer) {
 		case Layer::Structure:
-			return static_cast<int>(structure);
+			return shapeBrush >= 0 ? SHAPE_ID + shapeBrush : static_cast<int>(structure);
 		case Layer::Decor:
 			return prop;
 		case Layer::Decals:
@@ -298,6 +308,9 @@ class Editor {
 	void drawButton(const Rect& r, const char* label, bool active, Target target);
 	void drawTextBox(const Rect& r, const std::string& value, Field which, Target target);
 	void drawStructureSwatch(Structure s, const Rect& r, float alpha);
+	static void drawShape(std::uint16_t shape, const Rect& r, float alpha);
+	void drawShapeIcon(int brush, const Rect& r, float alpha);
+	[[nodiscard]] int subcellUnderPointer(CellPos cell, bool row) const;
 	void drawObjectIcon(int type, const Rect& r, float alpha);
 	void drawPropIcon(int id, const Rect& r, float alpha);
 	void drawDecalIcon(int id, const Rect& r, float alpha);
@@ -476,9 +489,12 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 	switch (hoveredTarget) {
 	case Target::Tile: {
 		int id = paletteOf(layer)[static_cast<size_t>(hoveredSlot)];
-		if (layer == Layer::Structure)
-			structure = static_cast<Structure>(id);
-		else if (layer == Layer::Decor)
+		if (layer == Layer::Structure && isShapeId(id))
+			shapeBrush = id - SHAPE_ID;
+		else if (layer == Layer::Structure) {
+			structure = structureOf(id);
+			shapeBrush = -1;
+		} else if (layer == Layer::Decor)
 			prop = id;
 		else if (layer == Layer::Decals)
 			decal = id;
@@ -640,16 +656,26 @@ void Editor::setLayer(Layer l) {
 		tile = NoObject; // the brush's type is not in this layer's palette
 }
 
+// The sub-cell column (or row) of the cell under the mouse.
+int Editor::subcellUnderPointer(CellPos cell, bool row) const {
+	const Rect r = cellRect(cell.col, cell.row);
+	return subcellOf(row ? (pointerY - r.y) / r.h : (pointerX - r.x) / r.w);
+}
+
 // Keeps the level valid: an object or fixture painted into rock carves the cell open, rock painted over them removes
-// them and the dressing. Props, decals and torches go only in open cells.
+// them, the dressing and the shape. A shape painted into rock carves it open (paintShape). Props, decals and torches go
+// only in open cells.
 void Editor::paint(CellPos cell) {
 	Tile t = grid.at(cell.col, cell.row);
-	if (layer == Layer::Structure) {
+	if (layer == Layer::Structure && shapeBrush >= 0) {
+		paintShape(t, SHAPE_BRUSHES[shapeBrush], subcellUnderPointer(cell, false), subcellUnderPointer(cell, true));
+	} else if (layer == Layer::Structure) {
 		t.structure = structure;
 		if (isSolidStructure(structure)) {
 			clearObject(t);
 			clearFixture(t);
 			t.dressing = Dressing{};
+			t.shape = NO_SHAPE;
 		}
 	} else if (dressingLayer(layer)) {
 		if (isSolidStructure(t.structure))
@@ -670,8 +696,8 @@ void Editor::paint(CellPos cell) {
 	reportStale = true;
 }
 
-// Takes the cell's structure, or its fixture's or object's type, attribute and value, into the brush: the layer being
-// painted.
+// Takes the cell's structure (its shape's brush if it has a common one), or its fixture's or object's type, attribute
+// and value, into the brush: the layer being painted.
 void Editor::pick(CellPos cell) {
 	Tile t = grid.at(cell.col, cell.row);
 	if (layer == Layer::Decor) {
@@ -690,7 +716,12 @@ void Editor::pick(CellPos cell) {
 		t = fixtureAsTile(t.fixture);
 	if (layer == Layer::Structure) {
 		structure = t.structure;
-		showStatus("Picked " + std::string(structureDef(t.structure).name), false);
+		shapeBrush = hasShape(t) ? shapeBrushOf(t.shape) : -1;
+		std::string picked = "Picked " + std::string(structureDef(t.structure).name);
+		if (hasShape(t))
+			picked += shapeBrush >= 0 ? std::string(", shape ") + SHAPE_BRUSHES[shapeBrush].label
+									  : ", a shape painted by hand (left out)";
+		showStatus(picked, false);
 		return;
 	}
 	if (isTileType(t.type))
@@ -840,6 +871,31 @@ void Editor::drawStructureSwatch(Structure s, const Rect& r, float alpha) {
 	}
 }
 
+// The solid sub-cells of a shape, in the rock's colours.
+void Editor::drawShape(std::uint16_t shape, const Rect& r, float alpha) {
+	const float w = r.w / SUBCELLS;
+	const float h = r.h / SUBCELLS;
+	for (int row = 0; row < SUBCELLS; row++)
+		for (int col = 0; col < SUBCELLS; col++)
+			if ((shape & subcellBit(col, row)) != 0)
+				fillRect(
+					{r.x + static_cast<float>(col) * w, r.y + static_cast<float>(row) * h, w, h},
+					WALL_TOP,
+					WALL_BOTTOM,
+					alpha
+				);
+}
+
+// A shape brush's palette icon: its shape; the sub-cell brushes one solid sub-cell in the open, one open in the rock.
+void Editor::drawShapeIcon(int brush, const Rect& r, float alpha) {
+	const ShapeBrush& b = SHAPE_BRUSHES[brush];
+	const std::uint16_t middle = subcellBit(1, 1) | subcellBit(2, 1) | subcellBit(1, 2) | subcellBit(2, 2);
+	if (b.tool == ShapeTool::OpenSubcell)
+		drawShape(static_cast<std::uint16_t>(FULL_SHAPE & ~middle), r, alpha);
+	else
+		drawShape(b.tool == ShapeTool::SolidSubcell ? middle : b.mask, r, alpha);
+}
+
 void Editor::drawObjectIcon(int type, const Rect& r, float alpha) {
 	if (isTileType(type) && hasIcon[type]) {
 		texturedRect(r, icons[type].ID(), {alpha, alpha, alpha});
@@ -887,6 +943,8 @@ void Editor::drawDressing(const Dressing& d, const Rect& r, float alpha) {
 // The fixture and the object share the cell: the brighter one (the layer being painted) is drawn on top.
 void Editor::drawCell(const Tile& t, const Rect& r, float structureAlpha, float wallAlpha, float objectAlpha) {
 	drawStructureSwatch(t.structure, r, structureAlpha);
+	if (hasShape(t))
+		drawShape(t.shape, r, structureAlpha);
 	if (!hasObject(t) && !hasFixture(t))
 		return;
 	const bool wallOnTop = wallAlpha > objectAlpha;
@@ -999,7 +1057,25 @@ void Editor::drawMapOverlay() {
 		Rect r = cellRect(hovered.col, hovered.row);
 		if (mode == Mode::Paint) { // preview of the brush
 			const float alpha = 0.55f + 0.3f * pulse;
-			if (layer == Layer::Structure)
+			if (layer == Layer::Structure && shapeBrush >= 0) {
+				const ShapeBrush& b = SHAPE_BRUSHES[shapeBrush];
+				if (b.tool == ShapeTool::Whole)
+					drawShape(b.mask, r, alpha);
+				else { // the sub-cell it paints
+					const float w = r.w / SUBCELLS;
+					const Rect sub = {
+						r.x + static_cast<float>(subcellUnderPointer(hovered, false)) * w,
+						r.y + static_cast<float>(subcellUnderPointer(hovered, true)) * w,
+						w,
+						w
+					};
+					if (b.tool == ShapeTool::SolidSubcell)
+						fillRect(sub, WALL_TOP, WALL_BOTTOM, alpha);
+					else
+						fillRect(sub, OPEN_COLOR, OPEN_COLOR, alpha);
+					strokeRect(sub, GOLD, 1.f, 1.f);
+				}
+			} else if (layer == Layer::Structure)
 				drawStructureSwatch(structure, r, alpha);
 			else if (layer == Layer::Decor)
 				drawPropIcon(prop, r, alpha);
@@ -1047,6 +1123,11 @@ void Editor::drawMapOverlay() {
 				t.value
 			);
 		std::string readout = buf;
+		if (hasShape(t)) {
+			char shape[16];
+			snprintf(shape, sizeof(shape), ",  shape %04x", static_cast<unsigned>(t.shape));
+			readout += shape;
+		}
 		const Dressing& d = t.dressing;
 		if (hasPlacedProp(d))
 			readout += std::string(",  prop ") + propLabel(d.prop) + (d.propMirror ? " (mirrored)" : "");
@@ -1148,8 +1229,11 @@ void Editor::drawPalette() {
 		constexpr float ICON = 4.6f;
 		Rect icon = {r.cx() - ICON / 2, r.y + NAME_BAND_H + (r.h - NAME_BAND_H - ICON) / 2, ICON, ICON};
 		const float alpha = selected || hover ? 1.f : 0.8f;
-		if (layer == Layer::Structure) {
-			drawStructureSwatch(static_cast<Structure>(id), icon, alpha);
+		if (layer == Layer::Structure && isShapeId(id)) {
+			fillRect(icon, OPEN_COLOR, OPEN_COLOR, alpha);
+			drawShapeIcon(id - SHAPE_ID, icon, alpha);
+		} else if (layer == Layer::Structure) {
+			drawStructureSwatch(structureOf(id), icon, alpha);
 		} else {
 			fillRect(icon, OPEN_COLOR, OPEN_COLOR, alpha);
 			if (layer == Layer::Decor)
@@ -1167,10 +1251,11 @@ void Editor::drawPalette() {
 			strokeRect(r, hover ? GOLD_BRIGHT : BRONZE, 1.f, hover ? 2.f : 1.5f);
 
 		beginText();
-		const char* label = layer == Layer::Structure ? structureDef(static_cast<Structure>(id)).name
-							: layer == Layer::Decor	  ? propLabel(id)
-							: layer == Layer::Decals  ? decalLabel(id)
-													  : tileInfo(id).name;
+		const char* label = layer == Layer::Structure && isShapeId(id) ? SHAPE_BRUSHES[id - SHAPE_ID].label
+							: layer == Layer::Structure				   ? structureDef(structureOf(id)).name
+							: layer == Layer::Decor					   ? propLabel(id)
+							: layer == Layer::Decals				   ? decalLabel(id)
+																	   : tileInfo(id).name;
 		textCentered(tiny, r.cx(), r.y + 0.4f, label, selected || hover ? GOLD : Color{0.78f, 0.64f, 0.40f});
 		beginShapes();
 	}
@@ -1229,6 +1314,8 @@ void Editor::drawHint() {
 	if (checking && layer == Layer::Wall) // the fixture, in the cell's structure
 		cell = Tile{cell.fixture.type, cell.fixture.attr, cell.fixture.value, cell.structure};
 	CellHint hint = !checking && layer == Layer::Structure ? describeStructure(structure) : describeCell(cell);
+	if (layer == Layer::Structure && (checking ? hasShape(cell) : shapeBrush >= 0))
+		hint = describeShape(checking ? shapeBrushOf(cell.shape) : shapeBrush, checking ? cell.shape : NO_SHAPE);
 	if (layer == Layer::Decor)
 		hint = describeProp(checking ? cell.dressing.prop : prop);
 	else if (layer == Layer::Decals)

@@ -163,6 +163,20 @@ TEST_CASE("walls, deep water and closed gates are solid") {
 	CHECK_FALSE(isSolidTile({Ladder, 0, 0}));
 }
 
+TEST_CASE("a creature stands on walls, deep water, closed gates and wall spikes out (plan floor-queries)") {
+	CHECK(isFloor(wallTile()));
+	CHECK(isFloor(water(Tile{}, Structure::DeepWater)));
+	CHECK_FALSE(isFloor(water(Tile{}, Structure::HalfWater)));
+	CHECK(isFloor({Gate, 1, 0}));
+	CHECK_FALSE(isFloor({Gate, 1, 1}));
+	CHECK_FALSE(isFloor(Tile{}));
+	Tile spikes{};
+	setFixture(spikes, Fixture{WallSpikes, 0, 0});
+	CHECK_FALSE(isFloor(spikes));
+	setSpikeState(spikes.fixture, SpikeState::Extended);
+	CHECK(isFloor(spikes));
+}
+
 TEST_CASE("teleporters pair by id") {
 	LevelGrid grid;
 	grid.set(2, 1, {Door, GateTeleport, 7});

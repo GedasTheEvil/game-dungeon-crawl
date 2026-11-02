@@ -1,7 +1,7 @@
 # Sub-cells: player movement and drawing
 
 Status: draft 2026-11-02. Needs first: [level-subcells](level-subcells.draft.opus.md) and
-[floor-queries](floor-queries.draft.opus.md). From the user.
+[floor-queries](solved/floor-queries.md). From the user.
 
 The player walks, jumps and falls against the solid sub-cells of a shaped cell, and the game draws them.
 

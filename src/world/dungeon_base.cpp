@@ -35,7 +35,7 @@ void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), 
 //======================================================================================
 bool Dungeon::PlacePlayer(int col, int row) {
 	if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)) ||
-		(MapAt(col, row).type != Ladder && !isSolidTile(MapAt(col, row - 1))))
+		(MapAt(col, row).type != Ladder && !isFloor(MapAt(col, row - 1))))
 		return false;
 	mapX = static_cast<float>(col) + 0.5f;
 	mapY = static_cast<float>(row);
@@ -82,16 +82,15 @@ void Dungeon::UpdateMovementState() {
 	if ((Map(mapX, mapY).type != Ladder || lostGrip) && !sim.player->jump.jumping) {
 		// Climbing steps leave float drift (38.9999 for 39): without the snap a jump off the ladder lands a hair
 		// below the floor top, falls and ends up inside the floor tile.
-		float nearestRow = std::round(mapY);
-		if (std::fabs(mapY - nearestRow) < FALL_START_THRESHOLD)
-			mapY = nearestRow;
-		if ((mapY - static_cast<float>(static_cast<int>(mapY))) > FALL_START_THRESHOLD ||
-			!isSolidTile(Map(mapX, mapY - 1))) {
+		const float nearestFloor = floorUnder(mapX, mapY + FALL_START_THRESHOLD);
+		if (std::fabs(mapY - nearestFloor) < FALL_START_THRESHOLD)
+			mapY = nearestFloor;
+		if (heightOverFloor() > FALL_START_THRESHOLD || !isFloor(Map(mapX, mapY - 1))) {
 			JumpState& jump = sim.player->jump;
 			if (jump.fall_inc.TimePassed()) {
-				float floorY = std::floor(mapY);
+				const float floorY = floorUnder(mapX, mapY);
 				mapY -= jump.fall_velocity;
-				if (mapY < floorY && isSolidTile(Map(mapX, floorY - 1))) {
+				if (mapY < floorY && isFloor(Map(mapX, floorY - 1))) {
 					mapY = floorY; // landed: don't sink into the floor tile
 					if (inHalfWater(Map(mapX, mapY)))
 						sim.events->Play(WorldSound::Splash);
@@ -100,7 +99,7 @@ void Dungeon::UpdateMovementState() {
 			}
 			jump.falling = true;
 		} else {
-			mapY = std::floor(mapY); // drop the sub-threshold remainder left by the last step
+			mapY = floorUnder(mapX, mapY); // drop the sub-threshold remainder left by the last step
 			lostGrip = false;
 			sim.player->jump.falling = false;
 			sim.player->jump.fall_velocity = FALL_STEP;
@@ -304,7 +303,7 @@ bool Dungeon::Move(float dirX, float dirY) {
 	if (dirX != 0) {
 		playerFacing = dirX > 0 ? 1 : -1;
 		float probeX = mapX + dirX + (dirX > 0 ? PLAYER_BODY_HALF_WIDTH : -PLAYER_BODY_HALF_WIDTH);
-		if (!isSolidTile(Map(mapX, mapY)) && !isSolidTile(Map(probeX, mapY)))
+		if (!bodyBlocked(probeX, mapY))
 			mapX += dirX;
 		else if (Map(probeX, mapY).type == Gate)
 			bumpGate(static_cast<int>(probeX), static_cast<int>(mapY));
@@ -379,8 +378,16 @@ float Dungeon::WaterSink(float x, int row) const {
 //======================================================================================
 float Dungeon::PlayerSink() const {
 	const auto row = static_cast<int>(std::floor(mapY));
-	const float above = mapY - static_cast<float>(row); // in the air over the floor: sinks as it comes down
+	const float above = heightOverFloor(); // in the air over the floor: sinks as it comes down
 	return WaterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f) + QuicksandSink() + SwallowSink();
+}
+//======================================================================================
+float Dungeon::floorUnder(float /*x*/, float y) const { return std::floor(y); }
+//======================================================================================
+float Dungeon::heightOverFloor() const { return mapY - floorUnder(mapX, mapY); }
+//======================================================================================
+bool Dungeon::bodyBlocked(float probeX, float y) const {
+	return isSolidTile(Map(mapX, y)) || isSolidTile(Map(probeX, y));
 }
 //======================================================================================
 void Dungeon::StartJump(int dir) {
@@ -485,8 +492,8 @@ bool Dungeon::JumpAllowed() {
 bool Dungeon::PlayerOnLadder() const {
 	if (lostGrip || Map(mapX, mapY).type != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
 		return false;
-	bool floorBelow = isSolidTile(Map(mapX, mapY - 1));
-	return !floorBelow || mapY - std::floor(mapY) >= STANDING_EPSILON;
+	const bool floorBelow = isFloor(Map(mapX, mapY - 1));
+	return !floorBelow || heightOverFloor() >= STANDING_EPSILON;
 }
 //======================================================================================
 float Dungeon::ClimbPhase() const { return mapY + CLIMB_SIDE_RATE * mapX; }

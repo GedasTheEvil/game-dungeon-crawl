@@ -40,13 +40,13 @@ void Dungeon::UpdateMonsters() {
 		const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
 		mon.SetOnRungs(
 			mon.Climbing() || (!mon.flies() && MapAt(monCol, mon.Row()).type == Ladder &&
-							   IsInBounds(monCol, mon.Row()) && !isSolidTile(MapAt(monCol, mon.Row() - 1)))
+							   IsInBounds(monCol, mon.Row()) && !isFloor(MapAt(monCol, mon.Row() - 1)))
 		);
 
 		if (!mon.Alive() && mon.OnRungs()) { // killed on the rungs: down the shaft to the floor
 			if (!mon.Falling()) {
 				int floor = mon.Row();
-				while (floor > 0 && !isSolidTile(MapAt(monCol, floor - 1)))
+				while (floor > 0 && !isFloor(MapAt(monCol, floor - 1)))
 					floor--;
 				mon.DropTo(floor);
 			}
@@ -172,7 +172,7 @@ void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
 		for (int fall = 0; fall < MAX_FALL && IsInBounds(col, row - 1); fall++) {
 			if (MapAt(col, row).type != NoObject || isSolidTile(MapAt(col, row)))
 				return -1;
-			if (isSolidTile(MapAt(col, row - 1)))
+			if (isFloor(MapAt(col, row - 1)))
 				return row;
 			row--;
 		}

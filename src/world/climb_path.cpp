@@ -24,7 +24,7 @@ bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless) {
 					  cell.fixture.type == PoisonDrip; // its puddle always poisons
 	if (trap && !reckless)
 		return true;
-	return !inBounds(col, row - 1) || !isSolidTile(at(cells, col, row - 1));
+	return !inBounds(col, row - 1) || !isFloor(at(cells, col, row - 1));
 }
 
 int leapLandingAt(const Tile* cells, int col, int row, int dir) {

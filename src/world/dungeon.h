@@ -292,6 +292,9 @@ class Dungeon {
 	[[nodiscard]] WaterBox deepWaterBox(int col, int row) const;
 	void drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const;
 	Tile Map(float x, float y) const;
+	// The player's body, stepping sideways so its side reaches probeX at map height y, hits something solid: the cell
+	// the player is in or the one at the side (plan floor-queries).
+	[[nodiscard]] bool bodyBlocked(float probeX, float y) const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp, drawn in dungeon_render_mechanisms.cpp).
 	struct Motion {
 		int cell; // map index
@@ -742,6 +745,11 @@ class Dungeon {
 	// World units the player is drawn down into a water basin (WaterSink, less while above the floor: a fall, a jump),
 	// or into quicksand (QuicksandSink), or the sand of a swallow (SwallowSink).
 	[[nodiscard]] float PlayerSink() const;
+	// The map y of the floor the player at (x, y) would stand on in their cell, if the cell has one (isFloor under
+	// it): today the cell's bottom edge, floor(y). Sub-cells will raise it inside the cell (plan floor-queries).
+	[[nodiscard]] float floorUnder(float x, float y) const;
+	// How far the player is above floorUnder: in a jump, a fall, up a ladder (plan floor-queries).
+	[[nodiscard]] float heightOverFloor() const;
 	// World units the player has sunk into quicksand: down to QUICKSAND_SINK_DEPTH tiles as they get stuck.
 	[[nodiscard]] float QuicksandSink() const;
 	// World units the player is pulled down into the sand, held by a swallower (HoldRules::swallow, plan worm-boss).

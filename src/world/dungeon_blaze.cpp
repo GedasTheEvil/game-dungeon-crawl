@@ -11,7 +11,7 @@ bool Dungeon::blazeFloor(int col, int row) const {
 	if (!IsInBounds(col, row) || !IsInBounds(col, row - 1))
 		return false;
 	const Tile t = MapAt(col, row);
-	return !isSolidTile(t) && !inHalfWater(t) && isSolidTile(MapAt(col, row - 1));
+	return !isSolidTile(t) && !inHalfWater(t) && isFloor(MapAt(col, row - 1));
 }
 //======================================================================================
 void Dungeon::blazeAt(float x, float y, int ms) {
@@ -19,7 +19,7 @@ void Dungeon::blazeAt(float x, float y, int ms) {
 	auto row = static_cast<int>(std::floor(y));
 	if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)))
 		return;
-	while (row > 0 && !isSolidTile(MapAt(col, row - 1)) && MapAt(col, row).type != Ladder) // thrown down a shaft
+	while (row > 0 && !isFloor(MapAt(col, row - 1)) && MapAt(col, row).type != Ladder) // thrown down a shaft
 		row--;
 	if (!blazeFloor(col, row))
 		return;

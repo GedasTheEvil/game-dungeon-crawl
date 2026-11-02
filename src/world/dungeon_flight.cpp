@@ -50,7 +50,7 @@ FlightGoal Dungeon::flightGoal(const Monster& mon) const {
 	FlightGoal goal;
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
 	const int row = mon.Row();
-	goal.openBelow = IsInBounds(col, row - 1) && !isSolidTile(MapAt(col, row - 1));
+	goal.openBelow = IsInBounds(col, row - 1) && !isFloor(MapAt(col, row - 1));
 	// The player's row: their feet's cell, on the floor, in a jump or up a ladder.
 	const auto playerCol = static_cast<int>(std::floor(mapX));
 	const auto playerRow = static_cast<int>(std::floor(mapY + 0.1f));

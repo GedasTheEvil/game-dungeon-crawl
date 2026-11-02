@@ -321,6 +321,9 @@ constexpr int GUST_LEFT = SPIKE_SPEED_COUNT;
 inline bool isSolidTile(const Tile& t) {
 	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open) || spikesOut(t.fixture);
 }
+// The cell under an open one carries a creature standing there (plan floor-queries): the one place that says what a
+// creature stands on. Today any solid cell; sub-cells (a cell with its top row solid) change it here.
+[[nodiscard]] inline bool isFloor(const Tile& t) { return isSolidTile(t); }
 
 // What a level says about itself, besides its cells (the file's lines before the layers).
 constexpr int NO_ZONE = -1;

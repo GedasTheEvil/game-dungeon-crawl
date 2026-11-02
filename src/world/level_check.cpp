@@ -118,10 +118,18 @@ class Walker {
 		return isSolidTile(t);
 	}
 
+	// The cell carries the player standing over it (isFloor), with the gates as in solid.
+	[[nodiscard]] bool floor(int col, int row, int mask) const {
+		Tile t = grid.at(col, row);
+		if (t.type == Gate)
+			return gateState(t) == GateState::Closed && (mask & bitOf(t.attr)) == 0;
+		return isFloor(t);
+	}
+
 	[[nodiscard]] bool standable(int col, int row, int mask) const {
 		if (!LevelGrid::inBounds(col, row) || solid(col, row, mask))
 			return false;
-		return grid.at(col, row).type == Ladder || solid(col, row - 1, mask);
+		return grid.at(col, row).type == Ladder || floor(col, row - 1, mask);
 	}
 
 	// Picks up what the player touches in this cell. Reaching the boss counts as killing it: the boss gates open.
@@ -215,7 +223,7 @@ class Walker {
 											  nextTile.fixture.type == PoisonDrip || inQuicksand(nextTile));
 			bool overGap = fallen > 0;
 			int far = col + 2 * dir;
-			if ((overGap || overHazard) && !inHalfWater(here) && solid(col, row - 1, mask) &&
+			if ((overGap || overHazard) && !inHalfWater(here) && floor(col, row - 1, mask) &&
 				LevelGrid::inBounds(far, row) && standable(far, row, mask))
 				add(stateOf(far, row, touch(far, row, touch(next, row, mask))), COST_JUMP, Move::Jump);
 		}

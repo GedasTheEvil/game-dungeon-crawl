@@ -30,7 +30,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | decoy | | ([placed-decor](plan/solved/placed-decor.md)) a prop that looks like a lurking monster and never wakes: the sleeping mummy, a coffin with a mummy asleep in it, beside the real mummy's coffin. Editor label "Sleeper" | `DECOR_COFFIN_MUMMY`, `Dungeon::drawDecoys`, `DrawEntombed` |
 | fixture | | a thing on a cell's back wall, in the wall layer: a lever, an inscription, wall spikes, a sun disc, a fire vent, a poison drip (on the ceiling, but in the wall layer for the cycle). Drafts also say "wall thing" | `Fixture`, `Tile::fixture`, `isWallType` |
 | flooded cell | | a cell with water in it: half water or deep water | `Structure` |
-| floor | | a solid cell under an open one, what the player stands on. Also a storey of the map ("the upper floor") | `isSolidStructure` |
+| floor | | a solid cell under an open one, what the player stands on. Also a storey of the map ("the upper floor") | `isFloor`, `Dungeon::floorUnder` |
 | foot of a ladder | | the lowest ladder cell, standing on a floor; the player can jump from it | `LADDER_BOTTOM` |
 | gap | | (map) an open cell in a floor, one cell wide, jumped over. Not the gap between hitboxes (see Combat) | `src/world/level_check.h` |
 | half water | | an open cell, half full: the player wades (half speed, no sprint, no jump), swimmers swim | `Structure::HalfWater`, `inHalfWater`, `WADE_SPEED_FACTOR` |

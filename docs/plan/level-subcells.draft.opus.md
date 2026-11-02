@@ -32,6 +32,11 @@ A cell splits into **4 x 4 = 16 sub-cells**, a quarter tile each way. A quarter 
   water, sand) plus a mask; a `Wall` or `DeepWater` cell takes no mask.
 * Queries the game code uses instead of reading bits (`src/world/level.h`): solid at a point in the cell, the floor
   height under an x (top of the highest solid run from the bottom, or 0), the ceiling height over an x.
+* Put the shape in `Tile` (`std::uint16_t shape`, next to `structure`) and make the shape queries take a `const Tile&`
+  and a position inside the cell. Then the `Dungeon` map, save games, `LevelGrid`, `climb_path`, the checker and the
+  editor carry shapes with no change to how they read the grid. The floor rules to change are already named
+  ([floor-queries](solved/floor-queries.md)): `isFloor` (`level.h`), `Dungeon::floorUnder`,
+  `Dungeon::heightOverFloor`, `Dungeon::bodyBlocked`, the checker's `Walker::floor`.
 * An object or fixture in a shaped cell stands on the floor under the cell's middle.
 * Glossary: "sub-cell" (one of the 16), "shape" (the mask), "step" (a rise of a quarter tile), "crawl space" (an
   opening too low to stand in). Check clashes first: code uses "step" for the walk step (`PLAYER_MOVE_STEP`).

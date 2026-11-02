@@ -1,11 +1,13 @@
 # Floor queries: one place that says where the floor is
 
-Status: draft 2026-11-02, needs nothing first. From a code review for the sub-cell drafts. A refactor: no change to
+Status: solved 2026-11-02 (a refactor, no play-test). `floorUnder` and `heightOverFloor` are public (the unit
+tests call them); the checker's floor test is `Walker::floor` (it keeps the checker's gate rule, then `isFloor`). Was:
+draft 2026-11-02, needs nothing first. From a code review for the sub-cell drafts. A refactor: no change to
 gameplay, visuals or levels (once implemented, straight to "solved/", docs/plans.md).
 
 ## Why
 
-[subcell-physics](subcell-physics.draft.opus.md) lets the player and monsters stand on a quarter step inside a cell.
+[subcell-physics](../subcell-physics.draft.opus.md) lets the player and monsters stand on a quarter step inside a cell.
 Today the code assumes the floor of the player's cell is always the cell's bottom edge (`mapY` a whole row), and
 asks "is there a floor under this cell" inline, with the same expression in many files. Each place would need the
 sub-cell rule on its own. Name both now, behaviour unchanged, so the sub-cell drafts change two or three functions
@@ -66,7 +68,7 @@ Put the shape in `Tile` (`std::uint16_t shape`, next to `structure`) and make th
 and a position inside the cell. Then the `Dungeon` map, save games, `LevelGrid`, `climb_path`, the checker and the
 editor carry shapes with no change to how they read the grid. (The review found three ways to read the grid: the
 `Dungeon` map array, `climb_path`'s own `at` / `inBounds`, `LevelGrid`. Merging them is not worth it on its own.)
-Add this line to [level-subcells](level-subcells.draft.opus.md) when implementing this plan.
+Add this line to [level-subcells](../level-subcells.draft.opus.md) when implementing this plan.
 
 ## Tests
 

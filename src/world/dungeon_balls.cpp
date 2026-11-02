@@ -78,7 +78,7 @@ void Dungeon::updateBalls() {
 					breakBall(b, false);
 				else if (inHalfWater(MapAt(under, row)))
 					breakBall(b, true);
-				else if (!IsInBounds(under, row - 1) || !isSolidTile(MapAt(under, row - 1)))
+				else if (!IsInBounds(under, row - 1) || !isFloor(MapAt(under, row - 1)))
 					b.falling = true;
 			}
 			if (gone || b.breakMs >= 0 || !player.Alive() || std::fabs(b.x - mapX) > half + r || b.y >= mapY + height ||

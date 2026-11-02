@@ -41,7 +41,7 @@ bool Dungeon::webFloor(int col, int row) const {
 		return false;
 	const Tile t = MapAt(col, row);
 	return (t.type == NoObject || t.type == MonsterSpawn) && !isSolidTile(t) && !inHalfWater(t) &&
-		   isSolidTile(MapAt(col, row - 1));
+		   isFloor(MapAt(col, row - 1));
 }
 //======================================================================================
 int Dungeon::webAt(int cell) const {

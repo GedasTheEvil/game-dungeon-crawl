@@ -65,6 +65,30 @@ TEST_CASE("the climb path runs along the floors and up the ladder, a leaper's ov
 	CHECK(capped.Steps(ladderCol + 6, foot) == -1);
 }
 
+TEST_CASE("the player's floor: on a floor, in a jump, over the shaft and down the ladder (plan floor-queries)") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/climb_up"));
+	world.player.god = true;
+	const float upper = world.Y();
+	CHECK(world.dungeon.floorUnder(world.X(), world.Y()) == upper);
+	CHECK(world.dungeon.heightOverFloor() == 0.f);
+
+	world.Jump();
+	world.WaitTicks(5);
+	CHECK(world.dungeon.floorUnder(world.X(), world.Y()) == upper);
+	CHECK(world.dungeon.heightOverFloor() > 0.f);
+	world.Wait(1000);
+	CHECK(world.Y() == upper);
+	CHECK(world.dungeon.heightOverFloor() == 0.f);
+
+	REQUIRE(world.WalkTo(6.45f)); // the ladder's top cell, the shaft under it: no floor, the player hangs on
+	CHECK(world.dungeon.floorUnder(world.X(), world.Y()) == upper);
+	CHECK(world.dungeon.PlayerOnLadder());
+	REQUIRE(world.Climb(-0.5f));
+	CHECK(world.dungeon.floorUnder(world.X(), world.Y()) == upper - 1.f);
+	CHECK(world.dungeon.heightOverFloor() == doctest::Approx(0.5f).epsilon(0.05));
+}
+
 TEST_CASE("a rat follows the player up the ladder") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/climb_up"));

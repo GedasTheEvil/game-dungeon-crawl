@@ -47,7 +47,7 @@ and turns its cell to sand. A sand worm placed in sand lies under it and comes u
 counts sand and quicksand as a little more costly on the path, jumps a quicksand cell like a trap, and warns about
 sand or quicksand not on a wall and a run of more than 2 quicksand cells.
 
-Sandstorm halls ([sandstorm-halls](plan/sandstorm-halls.md)): a sand gust (`SandGust`, `{`, in the wall layer;
+Sandstorm halls ([sandstorm-halls](plan/solved/sandstorm-halls.md)): a sand gust (`SandGust`, `{`, in the wall layer;
 attribute: speed 0 normal, 1 fast, 2 slow, plus 3 for a wind to the left; value: phase) blows sand along the row
 through its cell on a cycle (2 s of every 7 s at normal speed; the hiss and the grit 1.2 s before). A gust pushes the
 player downwind faster than they walk, and the light monsters (the small walkers, the flyers); arrows drift, the haze
@@ -504,7 +504,7 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   ripple, the sandstone halls and Seth's oasis (screenshots).
 - `tests/unit/sandstorm_test.cpp` (plan sandstorm-halls): the gust's cycle and sounds, the push against the walk, the
   shelter, the haze and the muffle (`tests/levels/sandstorm`), the checker's runs and downwind ends, the desert's halls.
-  Scenario `tests/scenarios/sandstorm.txt`: lvl34's and lvl33's halls through a gust cycle (screenshots).
+  Scenario `tests/scenarios/solved/sandstorm.txt`: lvl34's and lvl33's halls through a gust cycle (screenshots).
 - `tests/scenarios/solved/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.
 - `tests/unit/world_rules_test.cpp` (on the sim harness, `tests/unit/sim_world.h`): a rock fall walked through,
   grazed, stepped back from, a direct hit; a dart trap's volley outruns the walk and poisons, a running jump over the

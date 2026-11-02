@@ -1,9 +1,9 @@
 # Sandstorm halls
 
-Status: implemented 2026-11-02, waiting for the user's play-test (`bin/game --play tests/play/sandstorm-halls.txt`). Was:
+Status: solved 2026-11-02 (play-tested by the user). Was: implemented 2026-11-02, waiting for the user's play-test (`bin/game --play tests/play/sandstorm-halls.txt`). Was:
 draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
 
-Opus: a level feature, visuals and level design. [desert-chapter](solved/desert-chapter.md) left the sandstorm halls out;
+Opus: a level feature, visuals and level design. [desert-chapter](desert-chapter.md) left the sandstorm halls out;
 only a sandstorm monster or level flag exists (`monster_kinds`, `level.h`): check what it does today.
 
 * A hall in the desert zone where wind blows sand: pushes the player and light monsters sideways in gusts, lowers
@@ -54,7 +54,7 @@ the screen).
   the decor goldens of 34 and 36 changed on those rows (no scattered prop in a gust's cell).
 * **Editor**: the hint (wind and phase lists), the readme row; the map's sandstorm mark (three lines of wind, an
   arrowhead); journal note `note.sandstorm`.
-* **Tests**: `tests/unit/sandstorm_test.cpp` (`tests/levels/sandstorm`), scenario `tests/scenarios/sandstorm.txt`
+* **Tests**: `tests/unit/sandstorm_test.cpp` (`tests/levels/sandstorm`), scenario `tests/scenarios/solved/sandstorm.txt`
   (lvl34 through a gust cycle, lvl33's sand hall).
 * Not done: a unit test of the arrows' drift and of a light monster blown (seen in play only).
 

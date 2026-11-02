@@ -162,6 +162,10 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 	}
 	if (inSand(MapAt(i, j)))
 		drawSandDrift(i, j);
+	if (const int side = windbreakSide(i, j); side != 0) {
+		tex.wallTex[cell.wall].Bind();
+		drawWindbreak(side, isRock(i, j - 1), isRock(i, j + 1));
+	}
 	glColor3f(1, 1, 1);
 }
 //======================================================================================
@@ -471,6 +475,7 @@ void Dungeon::drawTileContent(int i, int j) {
 	case SunDisc:
 	case FireVent:
 	case PoisonDrip: // drawn after the opaque scene (drawPoisonDrips)
+	case SandGust: // the blown sand after the opaque scene too (drawGusts)
 	case LightShaft: // nothing but its beam and the glow where it comes in (drawSunBeams)
 		break;
 	case Mirror:
@@ -576,6 +581,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawSummonEffects();
 	drawBallEffects();
 	drawSandEffects();
+	drawGusts();
 	drawWebs();
 	drawBlazes();
 	drawSunBeams();

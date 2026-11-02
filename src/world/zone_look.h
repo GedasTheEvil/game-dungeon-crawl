@@ -23,6 +23,10 @@ struct ZoneLook {
 };
 
 constexpr float FOG_START = 55.f; // world units from the camera: the player stands about here
+// A sandstorm hall's haze at its thickest (plan sandstorm-halls, Dungeon::StormHaze): the zone's fog turns to this.
+constexpr float STORM_FOG[3] = {0.42f, 0.33f, 0.2f};
+constexpr float STORM_FOG_DENSITY = 0.02f;
+constexpr float STORM_FOG_START = 70.f; // just past the player: they stay clear, the hall beyond goes
 
 // Props: web, pottery, canopic, rubble, sand, skeleton, brazier, lamp, scrolls, ushabti, cat, jackal, osiris, Thoth,
 // (3 Thoth variants, never picked), sarcophagus. Decals: crack, impact crack, floor crack, vines, flowering vines,

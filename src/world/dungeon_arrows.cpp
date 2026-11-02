@@ -191,7 +191,10 @@ void Dungeon::updateMissiles() {
 		const float flown = static_cast<float>(now - a.startMs) / 1000.f;
 		bool gone = false;
 		while (a.t < flown && a.stuckMs < 0 && !gone) {
-			a.t = std::min(flown, a.t + ARROW_STEP_S);
+			const float dt = std::min(flown, a.t + ARROW_STEP_S) - a.t;
+			// A gust carries it downwind (plan sandstorm-halls): against the wind it lands shorter, with it farther.
+			a.drift += static_cast<float>(gustAt(a.X(), static_cast<int>(std::floor(a.Y())))) * GUST_DRIFT_SPEED * dt;
+			a.t += dt;
 			const float x = a.X(), y = a.Y();
 			const auto col = static_cast<int>(std::floor(x)), row = static_cast<int>(std::floor(y));
 			if (!IsInBounds(col, row)) {
@@ -302,7 +305,7 @@ void Dungeon::updateShots() {
 		while (left > 0.f && v.splatMs < 0 && !gone) {
 			const float dt = std::min(left, ARROW_STEP_S);
 			left -= dt;
-			v.x += v.vx * dt;
+			v.x += (v.vx + static_cast<float>(gustAt(v.x, static_cast<int>(std::floor(v.y)))) * GUST_DRIFT_SPEED) * dt;
 			v.y += v.vy * dt;
 			v.flown += SHOT_SPEED * dt;
 			const auto col = static_cast<int>(std::floor(v.x)), row = static_cast<int>(std::floor(v.y));

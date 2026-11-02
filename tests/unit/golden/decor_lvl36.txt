@@ -218,11 +218,11 @@
 24,15 surface 9/3/3
 25,15 surface 8/3/5 decal 13 0.700,0.225
 26,15 surface 9/3/5 sand>
-27,15 surface 8/1/5 prop jackalm 0.200 torch fire torch 0.000,0.680,0.098
-28,15 surface 8/3/3 sand<> prop ushabtim -0.024
-29,15 surface 8/1/3 prop sandm 0.000
+27,15 surface 8/1/5 torch fire torch 0.000,0.680,0.098
+28,15 surface 8/3/3 sand<>
+29,15 surface 8/1/3
 30,15 surface 9/3/3 sand<
-31,15 surface 8/3/5 sand> prop sandm 0.000
+31,15 surface 8/3/5 sand>
 32,15 surface 8/1/3
 33,15 surface 8/1/3
 34,15 surface 9/1/5 ladder 0/3

@@ -384,6 +384,13 @@ text: Somebody moved out of this coffin long ago and left the furniture. The rob
 	red is the other kind, a curse on whoever disturbs the owner. The cursed ones keep a little more inside, which is
 	exactly what a curse would say.
 
+[note.sandstorm]
+title: Sandstorm
+text: Wind, a hundred feet under the desert. It comes through the hall in gusts, on a beat you can count: the hiss
+	rises, grit skitters along the floor, then the sand hits and walks me back the way I came. No point fighting it.
+	Count, cross in the calm, and wait out the next gust behind a statue. In the gust I can hardly see, or hear what
+	is coming. Neither can the rats; the wind takes them too.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

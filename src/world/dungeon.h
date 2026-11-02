@@ -173,6 +173,18 @@ class Dungeon {
 	// A sand fall landed on cell: the hit and the slow for the player under it, the drift it leaves (the cell turns to
 	// sand).
 	void landSandFall(int cell);
+	// Sandstorm halls (dungeon_gusts.cpp, plan sandstorm-halls). The way a gust blowing in the cell at (x, row) pushes,
+	// -1 / +1; 0: calm, or no gust there.
+	[[nodiscard]] int gustAt(float x, int row) const;
+	// A gust pushes the player (not held, not on a ladder) and the light monsters in it downwind, walls stop them; the
+	// storm round the player (storm, muffle) follows stormTarget.
+	void updateGusts();
+	// The storm round the player now, 0..1: the haze from the gusts near on their row (the nearer and the harder they
+	// blow, the more), and how near a blowing one is (blow).
+	void stormTarget(float& haze, float& blow) const;
+	float storm = 0.f; // StormHaze
+	float muffle = 0.f; // SoundMuffle
+	bool playerInGust = false; // last tick: a gust's first push says so
 	// Walkers (dungeon_walkers.cpp). A walker can't step into (col, row): a wall, no floor under it (a pit or a drop),
 	// or a trap (spikes, a death trap, a rock fall not yet fallen) unless it is reckless (Courage).
 	[[nodiscard]] bool walkerBlocked(int col, int row, bool reckless = false) const;
@@ -446,6 +458,13 @@ class Dungeon {
 	[[nodiscard]] float driftHeight(int i, int j, float u, float v) const; // world units over the floor
 	void drawSandDrift(int i, int j); // in drawCellSurfaces' frame
 	void drawSandEffects(); // the steps' dust, a worm's ripple, the sand falls; drawSummonEffects' frame
+	void drawGusts(); // the sand blown along the sandstorm halls (plan sandstorm-halls); drawSandEffects' frame
+	// A sandstorm hall's shelter (plan sandstorm-halls): the side of cell (i, j) its pillar stands on, against the
+	// back wall, -1 left / +1 right: the side a gust blows in from (a gust beside it blowing this way), or the side of
+	// the pillar in the open cell below in a tall hall; 0: none.
+	[[nodiscard]] int windbreakSide(int i, int j) const;
+	// The pillar in drawCellSurfaces' frame, the wall texture bound: a base on the floor, a capital under the ceiling.
+	static void drawWindbreak(int side, bool floor, bool ceiling);
 	void drawRipple(float x, float y, float z, float size, int now) const; // size: 1 a worm's
 	// A shaft of daylight falls through the cracked sandstone ceiling of (i, j) (CEILING_SANDSTONE_CRACKED, picked by
 	// scatterSurfaces).
@@ -470,7 +489,8 @@ class Dungeon {
 		float t = 0.f; // seconds flown so far
 		int stuckMs = -1; // GameClock time it hit a wall or the floor (or a monster: the stick turns back); < 0: flying
 		float endX = 0.f, endY = 0.f; // where it stopped: the throwing stick flies back from there
-		[[nodiscard]] float X() const { return x0 + vx * t; }
+		float drift = 0.f; // map units a sand gust has carried it along x (plan sandstorm-halls)
+		[[nodiscard]] float X() const { return x0 + vx * t + drift; }
 		[[nodiscard]] float Y() const;
 	};
 	std::vector<Missile> missiles;
@@ -791,6 +811,10 @@ class Dungeon {
 	void ShovePlayer(int dir, float tiles);
 	// 0..1: how thick the sand over the screen is (a storm roar), fading out.
 	[[nodiscard]] float SandHaze() const;
+	// 0..1: how thick the sandstorm hall's haze is round the player (plan sandstorm-halls): the fog closes in.
+	[[nodiscard]] float StormHaze() const { return storm; }
+	// 0..1: the share of the other sounds' volume the wind of a gust near the player takes now.
+	[[nodiscard]] float SoundMuffle() const { return muffle; }
 	[[nodiscard]] int DustPuffs() const { return static_cast<int>(puffs.size()); } // steps' dust still in the air
 	void SetMotionEffects(bool on) { motionEffectsOn = on; }
 	void SetCutScenes(bool on) { cutScenesOn = on; } // off: remote gates open unseen

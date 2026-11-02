@@ -369,6 +369,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.sandHiss.Load(MEDIA_DIR "sounds/mechanisms/sand_hiss.wav");
 	sounds.sandPour.Load(MEDIA_DIR "sounds/mechanisms/sand_pour.wav");
 	sounds.sandStep.Load(MEDIA_DIR "sounds/mechanisms/sand_step.wav");
+	sounds.gustRise.Load(MEDIA_DIR "sounds/mechanisms/gust_rise.wav");
+	sounds.gustBlow.Load(MEDIA_DIR "sounds/mechanisms/gust_blow.wav");
 	sounds.lidWood.Load(MEDIA_DIR "sounds/items/lid_wood.wav");
 	sounds.lidReed.Load(MEDIA_DIR "sounds/items/lid_reed.wav");
 	sounds.lidStone.Load(MEDIA_DIR "sounds/items/lid_stone.wav");

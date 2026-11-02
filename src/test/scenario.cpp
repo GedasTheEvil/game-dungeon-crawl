@@ -625,7 +625,8 @@ bool runInstant(const Command& cmd) {
 }
 
 // waittraps: can the player walk from here through the rhythm traps of cmd, starting now? The time to walk up to the
-// first one at WALK_SPEED counts, with a margin for the walk's start.
+// first one at WALK_SPEED counts, with a margin for the walk's start. A run of sand gusts (plan sandstorm-halls):
+// against the wind, at the walk in sand if the run has any.
 bool trapsClear(const Command& cmd) {
 	constexpr int MARGIN_MS = 120;
 	float x = 0.f;
@@ -637,11 +638,16 @@ bool trapsClear(const Command& cmd) {
 	const bool right = cmd.move == Move::Right;
 	std::vector<Fixture> run;
 	run.reserve(static_cast<size_t>(count));
-	for (int k = 0; k < count; k++)
-		run.push_back(Game().dungeon.Cell(right ? col + k : col + count - 1 - k, row).fixture);
+	bool gustInSand = false;
+	for (int k = 0; k < count; k++) {
+		const Tile cell = Game().dungeon.Cell(right ? col + k : col + count - 1 - k, row);
+		run.push_back(cell.fixture);
+		gustInSand = gustInSand || (cell.fixture.type == SandGust && inSand(cell));
+	}
+	const float speed = WALK_SPEED * (gustInSand ? SAND_SPEED_FACTOR : 1.f);
 	const float gap = right ? static_cast<float>(col) - x : x - static_cast<float>(col + count);
-	const auto leadMs = static_cast<int>(std::max(0.f, gap - PLAYER_BODY_HALF_WIDTH) / WALK_SPEED * 1000.f);
-	return rhythmRunClear(run.data(), count, GameClock::now() + leadMs, MARGIN_MS);
+	const auto leadMs = static_cast<int>(std::max(0.f, gap - PLAYER_BODY_HALF_WIDTH) / speed * 1000.f);
+	return rhythmRunClear(run.data(), count, GameClock::now() + leadMs, MARGIN_MS, speed);
 }
 
 // Executes commands until one needs more ticks.

@@ -34,6 +34,8 @@ enum class WorldSound : unsigned char {
 	DripPlips, // a poison drip's small drops into its puddle, after the big one (plan poison-drip-trap)
 	DripCreak, // its lump about to fall
 	DripSplat, // the lump falls into the puddle
+	GustRise, // the wind rises in a sandstorm hall before a gust: a hiss, grit (plan sandstorm-halls)
+	GustBlow, // a gust of sand blows through it
 	MirrorTurn, // a mirror turned on its stand (plan sunlight-mirrors)
 	SunDisc, // a sun disc lit by the beam
 	Dodge, // the player sidesteps a blow (Dodge skill)

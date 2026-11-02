@@ -1,10 +1,12 @@
 #include "sound.h"
 #include <SDL/SDL_mixer.h>
+#include <algorithm>
 #include "logger.h"
 
 namespace {
 int gAudioUsers = 0;
 bool gAudioOpened = false;
+int gEffectsVolume = MIX_MAX_VOLUME; // Audio::SetVolumes
 } // namespace
 
 AudioUser::AudioUser() {
@@ -45,7 +47,15 @@ bool Sound::Load(const char filename[]) {
 	return true;
 }
 
-int Sound::Play() const { return chunk ? Mix_PlayChannel(-1, chunk, 0) : -1; }
+// Every play sets its channel's volume: one played quieter leaves none behind for the next sound on the channel.
+int Sound::Play(float gain) const {
+	if (!chunk)
+		return -1;
+	const int channel = Mix_PlayChannel(-1, chunk, 0);
+	if (channel >= 0)
+		Mix_Volume(channel, static_cast<int>(static_cast<float>(gEffectsVolume) * std::clamp(gain, 0.f, 1.f)));
+	return channel;
+}
 
 void Sound::Stop(int channel) {
 	if (channel >= 0)
@@ -113,5 +123,6 @@ void Ambience::Play(const std::string& filename) {
 
 void Audio::SetVolumes(int music, int effects) {
 	Mix_VolumeMusic(music * MIX_MAX_VOLUME / 100);
-	Mix_Volume(-1, effects * MIX_MAX_VOLUME / 100);
+	gEffectsVolume = effects * MIX_MAX_VOLUME / 100;
+	Mix_Volume(-1, gEffectsVolume);
 }

@@ -9,6 +9,7 @@
 #include "../graphics/render_config.h"
 #include "../graphics/fire.h"
 #include "../graphics/lighting.h"
+#include "spike_cycle.h"
 
 namespace {
 constexpr float T = RenderConfig::TILE_SIZE;
@@ -168,6 +169,98 @@ void Dungeon::drawSandEffects() {
 			SAND_POUR_MS,
 			static_cast<uint32_t>(p.startMs)
 		);
+}
+//======================================================================================
+// Same frame as drawSandEffects: the sand blown through each cell of a sandstorm hall (plan sandstorm-halls), after the
+// opaque scene.
+void Dungeon::drawGusts() {
+	const int now = GameClock::now();
+	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
+	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++)
+		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++) {
+			if (!IsInBounds(i, j))
+				continue;
+			const Fixture& f = MapAt(i, j).fixture;
+			if (f.type != SandGust)
+				continue;
+			Grit::gust(
+				(static_cast<float>(i) - col0) * T,
+				(static_cast<float>(j) - row0) * T,
+				-T,
+				0.f,
+				gustDir(f),
+				gustStrength(f, now),
+				now,
+				static_cast<uint32_t>(MapIndex(i, j))
+			);
+		}
+}
+//======================================================================================
+int Dungeon::windbreakSide(int i, int j) const {
+	if (!IsInBounds(i, j) || isRock(i, j) || MapAt(i, j).fixture.type == SandGust)
+		return 0;
+	for (const int side : {-1, 1})
+		if (IsInBounds(i + side, j)) {
+			const Fixture& f = MapAt(i + side, j).fixture;
+			if (f.type == SandGust && gustDir(f) == -side)
+				return side;
+		}
+	constexpr int TALL = 2; // rows of a tall hall the pillar goes up through
+	for (int below = 1; below <= TALL && !isRock(i, j - below); below++)
+		if (const int side = windbreakSide(i, j - below); side != 0 && isRock(i, j - below - 1))
+			return side;
+	return 0;
+}
+//======================================================================================
+void Dungeon::drawWindbreak(int side, bool floor, bool ceiling) {
+	constexpr float WIDTH = 0.26f * T, DEPTH = 0.34f * T; // the shaft
+	constexpr float LIP = 0.05f * T, SLAB = 0.07f * T; // the base and the capital stand out this far, this high
+	const float outer = side > 0 ? T : 0.f; // the cell's side the wind comes from
+	auto box = [&](float x0, float x1, float y0, float y1, float zf) {
+		const float z0 = -T;
+		const float tu = (x1 - x0) / T, tz = (zf - z0) / T, t0 = y0 / T, t1 = y1 / T;
+		glBegin(GL_QUADS);
+		glNormal3f(0, 0, 1); // the front
+		glTexCoord2f(0, t0);
+		glVertex3f(x0, y0, zf);
+		glTexCoord2f(tu, t0);
+		glVertex3f(x1, y0, zf);
+		glTexCoord2f(tu, t1);
+		glVertex3f(x1, y1, zf);
+		glTexCoord2f(0, t1);
+		glVertex3f(x0, y1, zf);
+		for (const float x : {x0, x1}) { // the sides
+			glNormal3f(x == x0 ? -1.f : 1.f, 0, 0);
+			glTexCoord2f(0, t0);
+			glVertex3f(x, y0, z0);
+			glTexCoord2f(tz, t0);
+			glVertex3f(x, y0, zf);
+			glTexCoord2f(tz, t1);
+			glVertex3f(x, y1, zf);
+			glTexCoord2f(0, t1);
+			glVertex3f(x, y1, z0);
+		}
+		glNormal3f(0, 1, 0); // the top: seen on the base, under the capital hidden
+		glTexCoord2f(0, 0);
+		glVertex3f(x0, y1, zf);
+		glTexCoord2f(tu, 0);
+		glVertex3f(x1, y1, zf);
+		glTexCoord2f(tu, tz);
+		glVertex3f(x1, y1, z0);
+		glTexCoord2f(0, tz);
+		glVertex3f(x0, y1, z0);
+		glEnd();
+	};
+	auto span = [&](float width) { // x0, x1 of a part this wide against the cell's windward side
+		return side > 0 ? std::pair{outer - width, outer} : std::pair{outer, outer + width};
+	};
+	const auto [s0, s1] = span(WIDTH);
+	box(s0, s1, 0.f, T, -T + DEPTH);
+	const auto [b0, b1] = span(WIDTH + LIP);
+	if (floor)
+		box(b0, b1, 0.f, SLAB, -T + DEPTH + LIP);
+	if (ceiling)
+		box(b0, b1, T - SLAB, T, -T + DEPTH + LIP);
 }
 //======================================================================================
 bool Dungeon::lightShaft(int i, int j) const {

@@ -24,8 +24,8 @@ class Sound : AudioUser {
 	Sound() = default;
 	~Sound();
 	bool Load(const char filename[]);
-	// The channel it plays on, for Stop; -1: none (not loaded, no free channel).
-	int Play() const;
+	// The channel it plays on, for Stop; -1: none (not loaded, no free channel). gain: of the effects volume, 0..1.
+	int Play(float gain = 1.f) const;
 	static void Stop(int channel); // -1: nothing
 };
 

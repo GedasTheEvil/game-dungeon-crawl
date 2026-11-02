@@ -412,7 +412,7 @@
 19,31 surface 8/3/4
 20,31 surface 8/3/3
 21,31 surface 8/3/5
-22,31 surface 8/3/5 prop skeletonm -0.128
+22,31 surface 8/3/5
 23,31 surface 8/3/3 decal 2 0.557,0.350
 24,31 surface 8/3/3 decal 13 0.595,0.225
 25,31 surface 9/3/3 prop sarcophagusm -0.086

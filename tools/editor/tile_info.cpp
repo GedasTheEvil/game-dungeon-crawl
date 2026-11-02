@@ -79,6 +79,15 @@ const Choices SPIKE_SPEEDS = {
 	{1, "fast", "Fast: out 0.8 s of every 3.2 s"},
 	{2, "slow", "Slow: out 1.6 s of every 4.8 s"},
 };
+const Choices GUST_KINDS = {
+	// plan sandstorm-halls: speed + GUST_LEFT for a wind to the left
+	{0, "normal, right", "Normal: blows 2 s of every 7 s, to the right"},
+	{1, "fast, right", "Fast: blows 1.6 s of every 5.6 s, to the right"},
+	{2, "slow, right", "Slow: blows 2.4 s of every 8.4 s, to the right"},
+	{GUST_LEFT, "normal, left", "Normal: blows 2 s of every 7 s, to the left"},
+	{GUST_LEFT + 1, "fast, left", "Fast: blows 1.6 s of every 5.6 s, to the left"},
+	{GUST_LEFT + 2, "slow, left", "Slow: blows 2.4 s of every 8.4 s, to the left"},
+};
 const Choices BEAM_DIRS_LIST = {
 	{0, "down", "Down"},
 	{1, "left", "Left"},
@@ -226,6 +235,10 @@ CellHint describeCell(const Tile& cell) {
 	case FireVent:
 	case PoisonDrip:
 		hint.attribute = field("speed", SPIKE_SPEEDS, cell.attr, "unknown, normal speed");
+		hint.value = field("phase", SPIKE_PHASES_LIST, cell.value, "the game keeps only the low 3 bits");
+		break;
+	case SandGust:
+		hint.attribute = field("wind", GUST_KINDS, cell.attr, "unknown, normal speed to the right");
 		hint.value = field("phase", SPIKE_PHASES_LIST, cell.value, "the game keeps only the low 3 bits");
 		break;
 	default:

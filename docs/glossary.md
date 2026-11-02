@@ -167,6 +167,10 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | sand spray | | Rerek's burst of sand as he comes up out of it: a shove and the sand haze for the player near him, no hit ([worm-boss](plan/solved/worm-boss.md)) | `MonsterKind::spray`, `Dungeon::sandBurst`, `Dungeon::sprays` |
 | shove | | the player pushed along the row, sliding at `SHOVE_SPEED` until a wall (the storm roar); the wall spikes' shove is instant | `Dungeon::ShovePlayer` |
 | sand haze | | sand over the screen after a storm roar, fading out | `Dungeon::SandHaze` |
+| sandstorm hall | | a hall of the desert where sand gusts blow along the row ([sandstorm-halls](plan/sandstorm-halls.md)); its cells without a gust are its shelters | `SandGust` |
+| sand gust | | the wind in one cell of a sandstorm hall, a wall-layer fixture on a cycle of its own (spike_cycle.h): calm, the rise (the tell: a hiss, grit low over the floor), the gust that pushes the player and the light monsters downwind and makes arrows drift. Not a rhythm trap: it does not hurt (`isCycled` covers both) | `SandGust`, `gustDir`, `gustBlowing`, `gustStrength`, `Dungeon::updateGusts` |
+| shelter | | (sandstorm hall) a cell of the hall without a gust, where the player waits out a gust; a pillar is drawn on its windward side. Drafts also say "windbreak", "alcove" | `Dungeon::windbreakSide`, `Dungeon::drawWindbreak` |
+| storm haze | | the fog of a sandstorm hall closing in round the player, thin in the calm, thick in a gust; the gust's wind also drowns the other sounds (the muffle). Not the sand haze | `Dungeon::StormHaze`, `Dungeon::SoundMuffle`, `STORM_FOG` |
 | submerged | | lies under the water until the player comes near (the crocodile; the hippo wakes at its charge range) | `Locomotion::Submerged` |
 | swimmer | | faster in half water, floats at the surface (the crocodile, the hippo) | `Wading::Swimmer` |
 | threat | | (monster) one monster's weight in the checker's difficulty score. Not how dangerous it plays | `MonsterKind::threat`, `monsterThreat` |

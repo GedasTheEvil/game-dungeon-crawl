@@ -30,8 +30,8 @@ constexpr int STRUCTURE_COUNT = 6;
 [[nodiscard]] constexpr bool isSolidStructure(Structure s) { return s == Structure::Wall || s == Structure::DeepWater; }
 
 // The object and wall layers share one number space. The numbers are the v1 file's tile types: 0 was Wall (now a
-// structure), 7 the unused Area3D. Lever, Inscription, WallSpikes, SunDisc, FireVent and PoisonDrip are wall types
-// (isWallType): fixtures.
+// structure), 7 the unused Area3D. Lever, Inscription, WallSpikes, SunDisc, FireVent, PoisonDrip and SandGust are wall
+// types (isWallType): fixtures.
 enum DungeonTileType : unsigned char {
 	NoObject = 1,
 	Door = 2,
@@ -67,6 +67,10 @@ enum DungeonTileType : unsigned char {
 	// it that falls into it on the wall spikes' cycle. In the wall layer for that cycle; b = speed, c = phase | live
 	// state.
 	PoisonDrip = 23,
+	// A sandstorm hall's wind (plan sandstorm-halls): gusts blow sand along the row through its cell on a cycle of
+	// their own (spike_cycle.h), pushing the player and light monsters downwind. b = speed | the way it blows
+	// (gustSpeed, gustDir), c = phase | live state, as WallSpikes. A cell of the hall without one is a shelter.
+	SandGust = 24,
 };
 // The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
 constexpr int EXPEDITION_PAGE_COUNT = 24;
@@ -74,13 +78,16 @@ constexpr int EXPEDITION_PAGE_COUNT = 24;
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {
 	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc || type == FireVent ||
-		   type == PoisonDrip;
+		   type == PoisonDrip || type == SandGust;
 }
 // The rhythm traps (plans rhythm-traps, fire-jet-trap, poison-drip-trap): wall spikes, fire vents and poison drips, on
 // the same cycle (spike_cycle.h).
 [[nodiscard]] constexpr bool isRhythmTrap(int type) {
 	return type == WallSpikes || type == FireVent || type == PoisonDrip;
 }
+// The fixtures on a cycle (spike_cycle.h): the rhythm traps and the sand gusts (plan sandstorm-halls), whose cycle is
+// slower; the gusts are no trap (they push, they do not hurt).
+[[nodiscard]] constexpr bool isCycled(int type) { return isRhythmTrap(type) || type == SandGust; }
 
 enum GateType : unsigned char {
 	GateEntrance = 1,
@@ -289,6 +296,17 @@ enum class SpikeState : std::uint8_t { Retracted = 0, Telegraph = 1, Extended = 
 [[nodiscard]] inline int spikePhase(const Fixture& f) { return f.value & (SPIKE_PHASES - 1); }
 [[nodiscard]] inline SpikeState spikeState(const Fixture& f) { return static_cast<SpikeState>((f.value >> 3) & 3); }
 inline void setSpikeState(Fixture& f, SpikeState s) { f.value = spikePhase(f) | (static_cast<int>(s) << 3); }
+// A sand gust (plan sandstorm-halls) on the same cycle and value: the attribute is the speed, plus GUST_LEFT for a wind
+// that blows to the left (else to the right). Extended: the gust blows; Telegraph: the hiss and the grit before it.
+constexpr int GUST_LEFT = SPIKE_SPEED_COUNT;
+[[nodiscard]] inline SpikeSpeed gustSpeed(const Fixture& f) {
+	return f.attr >= 0 && f.attr < 2 * SPIKE_SPEED_COUNT ? static_cast<SpikeSpeed>(f.attr % SPIKE_SPEED_COUNT)
+														 : SpikeSpeed::Normal;
+}
+[[nodiscard]] inline int gustDir(const Fixture& f) { return f.attr >= GUST_LEFT ? -1 : 1; } // the way it blows
+[[nodiscard]] inline bool gustBlowing(const Fixture& f) {
+	return f.type == SandGust && spikeState(f) == SpikeState::Extended;
+}
 [[nodiscard]] inline bool spikesOut(const Fixture& f) {
 	return f.type == WallSpikes && spikeState(f) == SpikeState::Extended;
 }

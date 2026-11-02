@@ -494,6 +494,27 @@ static_assert(
 	"a single wall spike's safe window is 1.5 times the walk through it"
 );
 
+// Sand gusts (plan sandstorm-halls, SandGust): a gust blows for GUST_OUT_MS of each GUST_PERIOD_MS, by speed (normal,
+// fast, slow, SpikeSpeed); for the last GUST_TELEGRAPH_MS before it the hiss rises and grit skitters along the floor.
+// It pushes the player in its cell downwind at GUST_PUSH_SPEED, faster than the walk: against the wind they lose
+// ground, so they cross between gusts and wait them out in a shelter (a cell of the hall without a gust). A light
+// monster (weight up to GUST_LIGHT_WEIGHT: the small ones and the flyers) goes at GUST_MONSTER_PUSH_SPEED; arrows and
+// spit drift GUST_DRIFT_SPEED along their flight. Near a hall (GUST_HAZE_REACH along the row) the haze closes in, at
+// GUST_HAZE_CALM between gusts, and in a gust the wind takes GUST_MUFFLE of the other sounds' volume. The checker wants
+// a run of gusts crossed against the wind in one calm, GUST_CROSS_MARGIN_MS to spare.
+constexpr int GUST_PERIOD_MS[3] = {7000, 5600, 8400};
+constexpr int GUST_OUT_MS[3] = {2000, 1600, 2400};
+constexpr int GUST_TELEGRAPH_MS = 1200;
+constexpr float GUST_PUSH_SPEED = 1.6f; // tiles per second
+constexpr int GUST_LIGHT_WEIGHT = 1;
+constexpr float GUST_MONSTER_PUSH_SPEED = 1.2f;
+constexpr float GUST_DRIFT_SPEED = 2.5f;
+constexpr float GUST_HAZE_REACH = 4.f;
+constexpr int GUST_HAZE_FADE_MS = 600; // the haze follows the storm's strength this slowly
+constexpr float GUST_HAZE_CALM = 0.25f;
+constexpr float GUST_MUFFLE = 0.65f;
+constexpr int GUST_CROSS_MARGIN_MS = 300;
+
 // Fire vents (plan fire-jet-trap): the jet burns the player standing in it for FIRE_JET_PERCENT_PER_SECOND of their max
 // HP a second, at least FIRE_JET_HP_PER_SECOND, dealt each TRAP_HURT_INTERVAL_MS: a whole jet costs 540 HP or more,
 // the burning after a half more.

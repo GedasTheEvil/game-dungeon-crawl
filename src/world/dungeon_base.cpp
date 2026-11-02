@@ -53,6 +53,9 @@ void Dungeon::resetPlayerMotion() {
 	shove = Shove{};
 	lostGrip = false;
 	hazeMs = 0;
+	storm = 0.f;
+	muffle = 0.f;
+	playerInGust = false;
 	sunkMs = 0;
 	sandSlowUntilMs = 0;
 }
@@ -134,6 +137,7 @@ void Dungeon::Update() {
 	}
 	UpdateMovementState();
 	updateShove();
+	updateGusts();
 	updateQuicksand();
 	exploreAroundPlayer();
 	updateMechanisms();

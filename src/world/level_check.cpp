@@ -29,6 +29,7 @@ constexpr int COST_ROCK_FALL = 15;
 constexpr int COST_DART_PLATE = 8;
 constexpr int COST_WALL_SPIKES = 6; // the wait for the safe window, the risk of misjudging it
 constexpr int COST_DRIP_PUDDLE = 10; // a poison drip's puddle (plan poison-drip-trap): weak poison, jump it
+constexpr int COST_GUST = 3; // a sand gust (plan sandstorm-halls): the wait for the calm, the ground lost to a gust
 constexpr int COST_MONSTER = 2;
 constexpr int COST_TELEPORT = 4;
 constexpr int COST_SAND = 1; // the slower walk (plan desert-chapter)
@@ -161,7 +162,7 @@ class Walker {
 		// On the back wall, over the object's; a poison drip's puddle on top.
 		const int spikes = isRhythmTrap(t.fixture.type)
 							   ? COST_WALL_SPIKES + (t.fixture.type == PoisonDrip ? COST_DRIP_PUDDLE : 0)
-							   : 0;
+							   : (t.fixture.type == SandGust ? COST_GUST : 0);
 		if (t.type == DartPlate)
 			return COST_DART_PLATE + spikes;
 		if (t.type == MonsterSpawn)
@@ -357,6 +358,7 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 			r.wallSpikes += f.type == WallSpikes ? 1 : 0;
 			r.fireVents += f.type == FireVent ? 1 : 0;
 			r.poisonDrips += f.type == PoisonDrip ? 1 : 0;
+			r.sandGusts += f.type == SandGust ? 1 : 0;
 			r.levers += f.type == Lever ? 1 : 0;
 			r.sunDiscs += f.type == SunDisc ? 1 : 0;
 			if (f.type == Inscription) {
@@ -770,6 +772,65 @@ void checkWallSpikes(const LevelGrid& grid, LevelReport& r) {
 		}
 }
 
+bool gustAt(const LevelGrid& grid, int col, int row) { return grid.at(col, row).fixture.type == SandGust; }
+
+// What a gust blows the player into at the downwind end of its run (col, row) is safe: rock (or a gate, as open) stops
+// the push; open floor takes it, no drop, no trap, no quicksand. Empty: safe, else what is wrong.
+std::string blownInto(const LevelGrid& grid, int col, int row) {
+	const Tile t = grid.at(col, row);
+	if (isSolidStructure(t.structure))
+		return "";
+	if (t.type == Spike || t.type == Death)
+		return std::string(tileDef(t.type).name);
+	if (inQuicksand(t))
+		return "quicksand";
+	if (isRhythmTrap(t.fixture.type))
+		return std::string(tileDef(t.fixture.type).name);
+	if (t.type != Ladder && !isWall(grid.at(col, row - 1)))
+		return "a drop";
+	return "";
+}
+
+// Sand gusts (plan sandstorm-halls) blow over a floor, out of the water, with nothing in their cells the push would
+// drag the player through: no spikes, death trap or quicksand. Each run of them in a row blows one way (two winds
+// meeting would hold the player between them), can be crossed against the wind in one calm (gustsCrossable), and
+// blows the player at its downwind end into rock or safe floor (blownInto).
+void checkSandGusts(const LevelGrid& grid, LevelReport& r) {
+	for (int row = 0; row < LEVEL_HEIGHT; row++)
+		for (int col = 0; col < LEVEL_WIDTH; col++) {
+			if (!gustAt(grid, col, row))
+				continue;
+			const int cell = row * LEVEL_WIDTH + col;
+			const Tile& t = grid.at(col, row);
+			if (!isWall(grid.at(col, row - 1)))
+				r.warnings.push_back("a sand gust without a floor under it at " + at(cell));
+			if (t.structure != Structure::Empty && t.structure != Structure::Sand)
+				r.warnings.push_back(
+					"a sand gust over " + std::string(structureDef(t.structure).name) + " at " + at(cell)
+				);
+			if (t.type == Spike || t.type == Death)
+				r.warnings.push_back(std::string(tileDef(t.type).name) + " in a sand gust at " + at(cell));
+			if (gustAt(grid, col - 1, row))
+				continue; // not the first of its run
+			int count = 1;
+			bool bothWays = false;
+			while (gustAt(grid, col + count, row)) {
+				bothWays = bothWays || gustDir(grid.at(col + count, row).fixture) != gustDir(t.fixture);
+				count++;
+			}
+			const std::string run = "the " + std::to_string(count) + " sand gusts from " + at(cell);
+			if (bothWays) {
+				r.warnings.push_back(run + " blow both ways");
+				continue;
+			}
+			if (!gustsCrossable(grid, col, row, count))
+				r.warnings.push_back(run + " cannot be crossed against the wind in one calm");
+			const int end = gustDir(t.fixture) > 0 ? col + count : col - 1;
+			if (const std::string into = blownInto(grid, end, row); !into.empty())
+				r.warnings.push_back(run + " blow the player into " + into + " at " + at(row * LEVEL_WIDTH + end));
+		}
+}
+
 float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	float score = 0.04f * static_cast<float>(r.pathLength);
 	score += 1.0f * static_cast<float>(r.pathSpikes) + 4.f * static_cast<float>(r.pathDeathTraps);
@@ -778,6 +839,7 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	score += 0.02f * static_cast<float>(r.pathSand);
 	score += 2.f * static_cast<float>(r.pathDartPlates);
 	score += 1.5f * static_cast<float>(r.pathWallSpikes + r.pathFireVents + r.pathPoisonDrips);
+	score += 0.3f * static_cast<float>(r.pathSandGusts);
 	score += 0.8f * static_cast<float>(r.pathGates);
 	score += 0.8f * static_cast<float>(r.pathTurns); // a light puzzle on the way
 
@@ -834,6 +896,25 @@ bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int
 	return false;
 }
 
+bool gustsCrossable(const LevelGrid& grid, int col, int row, int count) {
+	const int dir = gustDir(grid.at(col, row).fixture);
+	int cycle = 1;
+	bool sand = false;
+	std::vector<Fixture> run; // in the order walked against the wind
+	for (int k = 0; k < count; k++) {
+		const Tile& t = grid.at(dir > 0 ? col + count - 1 - k : col + k, row);
+		run.push_back(t.fixture);
+		sand = sand || inSand(t);
+		cycle = std::lcm(cycle, spikePeriodMs(t.fixture));
+	}
+	const float speed = WALK_SPEED * (sand ? SAND_SPEED_FACTOR : 1.f);
+	constexpr int START_STEP_MS = 10;
+	for (int start = 0; start < cycle; start += START_STEP_MS)
+		if (rhythmRunClear(run.data(), count, start, GUST_CROSS_MARGIN_MS, speed))
+			return true;
+	return false;
+}
+
 LevelReport checkLevel(const LevelGrid& grid) {
 	LevelReport r;
 	countContent(grid, r);
@@ -844,6 +925,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkDeadGates(grid, r);
 	checkTeleporters(grid, r);
 	checkWallSpikes(grid, r);
+	checkSandGusts(grid, r);
 	checkDressing(grid, r);
 	const int litAtStart = checkSunBeams(grid, r);
 
@@ -1020,6 +1102,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathWallSpikes += t.fixture.type == WallSpikes ? 1 : 0;
 		r.pathFireVents += t.fixture.type == FireVent ? 1 : 0;
 		r.pathPoisonDrips += t.fixture.type == PoisonDrip ? 1 : 0;
+		r.pathSandGusts += t.fixture.type == SandGust ? 1 : 0;
 		if (t.type == Gate && gateState(t) == GateState::Closed) {
 			r.pathGates++;
 			gateColours |= bitOf(t.attr);

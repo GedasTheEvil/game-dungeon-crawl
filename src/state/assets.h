@@ -24,6 +24,7 @@ struct SoundBank {
 	Music music; // the menu's or the zone's track (plan zone-music), loaded when it starts
 	Sound keyPickup, gateOpen, gateLocked, lever, rockRumble, rockCrash, teleport, plateClick, dart;
 	Sound sandHiss, sandPour, sandStep; // a sand fall starts, pours down; a step in sand (plan desert-chapter)
+	Sound gustRise, gustBlow; // the wind rising before a gust, the gust (plan sandstorm-halls)
 	Sound spikeScrape, spikeThunk; // wall spikes about to come out, coming out (plan rhythm-traps)
 	Sound fireHiss, fireRoar; // a fire vent about to breathe, its jet (plan fire-jet-trap)
 	Sound dripPlips, dripCreak, dripSplat; // a poison drip's small drops, its lump about to fall, falling

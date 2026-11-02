@@ -417,6 +417,68 @@ void Grit::pour(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed)
 	Sprites::end();
 }
 
+void Grit::gust(float x, float y, float zBack, float zFront, int dir, float strength, int nowMs, uint32_t seed) {
+	constexpr int GRAINS = 60;
+	constexpr int CLOUDS = 5;
+	constexpr int TRAIL = 3; // sprites per grain in a gust: a streak
+	const float w = RenderConfig::TILE_SIZE;
+	const float sec = static_cast<float>(nowMs % 600000) / 1000.f; // wraps every ten minutes, out of sight
+	const float gusting = std::clamp((strength - 0.6f) / 0.4f, 0.f, 1.f); // 0 up to the telegraph's end, 1 a gust
+	const float rising = std::clamp((strength - 0.25f) / 0.35f, 0.f, 1.f);
+	const auto count = static_cast<int>(static_cast<float>(GRAINS) * (0.1f + 0.35f * rising + 0.55f * gusting));
+	const float speed = w * (0.4f + 1.4f * rising + 3.f * gusting); // world units a second
+	const float dx = static_cast<float>(dir);
+	Sprites s;
+	s.begin();
+	for (int i = 0; i < count; i++) {
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x7f4a7c15U));
+		const uint32_t h2 = mix(h);
+		const float own = 0.7f + 0.6f * unit01(h2); // each grain its own pace
+		float u = unit01(h) + sec * speed * own / w;
+		u -= std::floor(u); // through the cell and in again: the next cell's grains take over at its edge
+		const float px = dir > 0 ? x + u * w : x + (1.f - u) * w;
+		// Low in the calm and the rise (a skitter: hops along the floor), at every height in a gust.
+		const float lowY = 1.5f + 5.f * unit01(h >> 16) * std::fabs(std::sin(sec * 9.f * own + unit01(h2) * 6.f));
+		const float highY = 2.f + 0.85f * w * unit01(h >> 16) * unit01(h2 >> 16);
+		const float py = y + lowY + (highY - lowY) * gusting;
+		const float pz = zBack + (zFront - zBack) * (0.15f + 0.8f * unit01(mix(h2)));
+		const float edge = std::sin(3.1416f * u); // fades in and out at the cell's sides
+		const float a = (0.35f + 0.5f * gusting) * edge;
+		const float size = 1.f + 1.4f * unit01(mix(h2) >> 16);
+		const int trail = gusting > 0.f ? TRAIL : 1;
+		for (int k = 0; k < trail; k++)
+			s.add(
+				px - dx * static_cast<float>(k) * 2.5f * gusting,
+				py,
+				pz,
+				size,
+				SAND_R,
+				SAND_G,
+				SAND_B,
+				a / static_cast<float>(k + 1)
+			);
+	}
+	for (int i = 0; i < CLOUDS && gusting > 0.f; i++) { // dust rolling through with the gust
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x165667b1U));
+		float u = unit01(h) + sec * speed * 0.5f / w;
+		u -= std::floor(u);
+		const float px = dir > 0 ? x + u * w : x + (1.f - u) * w;
+		const float py = y + 6.f + 0.6f * w * unit01(h >> 16);
+		const float pz = zBack + (zFront - zBack) * (0.3f + 0.5f * unit01(mix(h)));
+		s.add(
+			px,
+			py,
+			pz,
+			14.f + 12.f * unit01(mix(h) >> 16),
+			SAND_R,
+			SAND_G,
+			SAND_B,
+			0.22f * gusting * std::sin(3.1416f * u)
+		);
+	}
+	Sprites::end();
+}
+
 float SunBeam::strength(float progress) {
 	if (progress <= 0.f || progress >= 1.f)
 		return 0.f;

@@ -76,8 +76,8 @@ void main() {
 		base.a = gl_Color.a;
 	}
 	float haze = 1.0 - exp(-uFog.w * max(length(vPos) - uFogStart, 0.0));
-	if (uEmissive > 0.5) {
-		gl_FragColor = vec4(mix(base.rgb, uFog.rgb, haze), base.a);
+	if (uEmissive > 0.5) { // the fog by alpha: a premultiplied sprite's clear corners stay clear (sandstorm-halls)
+		gl_FragColor = vec4(mix(base.rgb, uFog.rgb * base.a, haze), base.a);
 		return;
 	}
 	vec3 n = normalize(vNormal);

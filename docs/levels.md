@@ -47,6 +47,17 @@ and turns its cell to sand. A sand worm placed in sand lies under it and comes u
 counts sand and quicksand as a little more costly on the path, jumps a quicksand cell like a trap, and warns about
 sand or quicksand not on a wall and a run of more than 2 quicksand cells.
 
+Sandstorm halls ([sandstorm-halls](plan/sandstorm-halls.md)): a sand gust (`SandGust`, `{`, in the wall layer;
+attribute: speed 0 normal, 1 fast, 2 slow, plus 3 for a wind to the left; value: phase) blows sand along the row
+through its cell on a cycle (2 s of every 7 s at normal speed; the hiss and the grit 1.2 s before). A gust pushes the
+player downwind faster than they walk, and the light monsters (the small walkers, the flyers); arrows drift, the haze
+closes in, the other sounds go quiet. Mark every cell of the hall; the cells left out are its shelters: the game draws
+a pillar on the side the wind comes from. Runs of 2 or 3 gusts between shelters (in sand at most 2 at normal speed),
+the upwind runs at a higher phase so the gust rolls down the hall. `levelcheck` counts a gust as a little more costly
+on the path, and warns about a run that cannot be crossed against the wind in one calm, blows both ways, has no floor
+or spikes, a death trap or quicksand in it, or blows the player into a drop, a trap or quicksand. Halls today: lvl33
+row 40 (sand, the wind to the right), lvl34 row 31 and lvl36 row 15 (stone, to the left; lvl36's slow).
+
 Sunlight rules ([sunlight-mirrors](plan/solved/sunlight-mirrors.md), `src/world/sun_beam.h`): a light shaft (`l`, attribute: its way, 0 down, 1
 left, 2 up, 3 right) sends a beam of sunlight through open cells until rock, deep water or a gate not fully open stops
 it; the player does not. A mirror (`(`, value: the way it points) sends a beam that falls on it on that way: pointing
@@ -119,7 +130,7 @@ The campaign's zones (decided 2026-10-21; `ZONES`, `ZONE_FAUNA`, `ZONE_TERRAIN`,
 | 6 | Serpent temple | 23-27 | cobras, giant cobras | dart plates, rhythm traps | Apep |
 | **Act III: the river and the sands** |||||
 | 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras | deep water, swimming, Hapi potions | Sobek |
-| 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, mirrors and sun discs | Seth |
+| 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, sandstorm halls, mirrors and sun discs | Seth |
 | 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](plan/solved/worm-boss.md)) |
 | **Act IV: the Duat** (dark granite) |||||
 | 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](plan/solved/baboon.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge | Babi ([babi-boss](plan/solved/babi-boss.md)) |
@@ -167,10 +178,10 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 30 | The Cistern Grid: Giant bat 7, mimic 1, crocodile 9, giant cobra 20, lotus 3, hippo 1, cursed mimic 1. 2 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The drink of Hapi; A workmen's note; The cistern treasury; The satire of the trades (a stamina boon). |
 | 31 | The Cistern Stairs: Giant bat 2, mimic 1, crocodile 10, giant cobra 22, lotus 6, hippo 1. 2 keys, 1 lever, 1 riddle gate. Inscriptions: Sobek of Shedet; The boatman's fee; The hippopotamus and the king. |
 | 32 | The Lake of Sobek: Sobek in his lake, the seventh boss. Giant bat 6, mimic 1, crocodile 11, giant cobra 14, sobek 1, lotus 1, hippo 2. 2 keys, 2 levers, 1 riddle gate. Expedition page 17. Inscriptions: Sobek, the green one; Hymn to Sobek. |
-| 33 | The Gate of Seth: Worm 11, mimic 3, giant scorpion 17, camel spider 16, hippo 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. Inscriptions: The red land; The water carriers; Sinuhe in the desert. |
-| 34 | The Buried Gate: Worm 11, giant scorpion 22, camel spider 14. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. Expedition page 18. Inscriptions: The heat of the day; The servant of Seth; The mirror of Ra. |
+| 33 | The Gate of Seth: Worm 11, mimic 3, giant scorpion 17, camel spider 16, hippo 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. A sandstorm hall. Inscriptions: The red land; The water carriers; Sinuhe in the desert. |
+| 34 | The Buried Gate: Worm 11, giant scorpion 22, camel spider 14. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. A sandstorm hall. Expedition page 18. Inscriptions: The heat of the day; The servant of Seth; The mirror of Ra. |
 | 35 | The Hall of Drifts: Worm 1, mimic 4, giant scorpion 22, camel spider 15, hippo 1. 3 keys, 1 riddle gate. Inscriptions: Montu, the lord of the strong arm (a might boon); Wenamun's letter. |
-| 36 | The Sand Stair: Worm 4, mimic 2, giant scorpion 15, camel spider 19, hippo 1, cursed mimic 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate. Inscriptions: The sand that swallows; Seth in the prow; The water of the oasis. |
+| 36 | The Sand Stair: Worm 4, mimic 2, giant scorpion 15, camel spider 19, hippo 1, cursed mimic 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate. A sandstorm hall. Inscriptions: The sand that swallows; Seth in the prow; The water of the oasis. |
 | 37 | Seth's Oasis: Seth in his oasis pool, the eighth boss. Worm 11, mimic 3, giant scorpion 15, camel spider 11, seth 1. 3 keys, 1 sun disc, 1 riddle gate. Expedition page 19. Inscriptions: The first harpoon (a might boon); The red hippopotamus. |
 | 38 | The Gate of Sokar: Worm 29, giant scorpion 4, camel spider 9. 2 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 20. Inscriptions: The Book of Gates; The ways of Rosetau; Sokar of the dark land. |
 | 39 | The Two Drifts: The second route fork. Worm 25, mimic 1, giant scorpion 5, camel spider 13. 2 keys, 1 lever, 1 riddle gate. Inscriptions: The deep drift; The worms of Sokar. |
@@ -491,6 +502,9 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
   player (`tests/levels/sand`, `tests/levels/sand_worm`), and the campaign: each zone's boss on its last level, sand on the sand zones' levels.
   Scenarios `tests/scenarios/solved/sand.txt`, `sand_worm.txt`, `desert.txt`: the drifts, the pour, the sunk player, the
   ripple, the sandstone halls and Seth's oasis (screenshots).
+- `tests/unit/sandstorm_test.cpp` (plan sandstorm-halls): the gust's cycle and sounds, the push against the walk, the
+  shelter, the haze and the muffle (`tests/levels/sandstorm`), the checker's runs and downwind ends, the desert's halls.
+  Scenario `tests/scenarios/sandstorm.txt`: lvl34's and lvl33's halls through a gust cycle (screenshots).
 - `tests/scenarios/solved/mechanisms.txt`: key, gates, lever, rock falls (hit and dodged), keys kept over save and load.
 - `tests/unit/world_rules_test.cpp` (on the sim harness, `tests/unit/sim_world.h`): a rock fall walked through,
   grazed, stepped back from, a direct hit; a dart trap's volley outruns the walk and poisons, a running jump over the

@@ -16,9 +16,10 @@ void Dungeon::updateRhythmTraps() {
 	const int now = GameClock::now();
 	const ViewWindow v = view();
 	bool scrape = false, thunk = false, hiss = false, roar = false, plips = false, creak = false, splat = false;
+	bool rise = false, gust = false;
 	for (int cell = 0; cell < MAP_WIDTH * MAP_HEIGHT; cell++) {
 		Fixture& t = map[cell].fixture;
-		if (!isRhythmTrap(t.type))
+		if (!isCycled(t.type))
 			continue;
 		const SpikeState was = spikeState(t), is = spikeStateAt(t, now);
 		if (was == is)
@@ -26,6 +27,11 @@ void Dungeon::updateRhythmTraps() {
 		setSpikeState(t, is);
 		const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
 		const bool heard = v.contains(static_cast<float>(col) + 0.5f, row);
+		if (t.type == SandGust) { // plan sandstorm-halls: the wind's rise and its gust (dungeon_gusts.cpp)
+			rise = rise || (heard && is == SpikeState::Telegraph);
+			gust = gust || (heard && is == SpikeState::Extended);
+			continue;
+		}
 		if (t.type == PoisonDrip) {
 			plips = plips || (heard && is == SpikeState::Retracted);
 			creak = creak || (heard && is == SpikeState::Telegraph);
@@ -58,6 +64,10 @@ void Dungeon::updateRhythmTraps() {
 		sim.events->Play(WorldSound::DripCreak);
 	if (splat)
 		sim.events->Play(WorldSound::DripSplat);
+	if (rise)
+		sim.events->Play(WorldSound::GustRise);
+	if (gust)
+		sim.events->Play(WorldSound::GustBlow);
 }
 //======================================================================================
 bool Dungeon::overlapsFixture(float left, float right, int row, bool (*on)(const Fixture&)) const {

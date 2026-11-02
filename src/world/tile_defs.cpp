@@ -123,6 +123,18 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 false,
 	 true,
 	 ','},
+	{"SandGust",
+	 "A sandstorm hall's wind: gusts of sand blow along the row through the cell, 2 s of every 7 s (fast: 1.6 of 5.6 "
+	 "s, slow: 2.4 of 8.4 s); the hiss rises and grit skitters along the floor 1.2 s before. A gust pushes the player "
+	 "downwind faster than they walk, and the small monsters and the flyers too; arrows drift, the haze closes in, "
+	 "the other sounds go quiet. No hurt. Mark every cell of the hall; the cells left out are its shelters (put a "
+	 "statue "
+	 "or a sarcophagus there: the pillar the player hides behind). Attribute: speed (0 normal, 1 fast, 2 slow), plus 3 "
+	 "for a wind to the left (else to the right). Value: phase, 0 to 7 eighths of the cycle. Put a floor under it. The "
+	 "checker wants each run crossed against the wind in one calm and nothing to fall or step into downwind.",
+	 true,
+	 true,
+	 '{'},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -182,6 +194,7 @@ std::vector<GlyphDef> buildLegend() {
 		{'|', {WallSpikes, 0, 0}, "wall spikes (normal speed, phase 0; others: 'def')"},
 		{'+', {FireVent, 0, 0}, "fire vent (normal speed, phase 0; others: 'def')"},
 		{',', {PoisonDrip, 0, 0}, "poison drip (normal speed, phase 0; others: 'def')"},
+		{'{', {SandGust, 0, 0}, "sand gust (normal speed, blows right, phase 0; others: 'def')"},
 		{'l', {LightShaft, 0, 0}, "light shaft (beam down; other ways: 'def')"},
 		{'(', {Mirror, 0, 0}, "mirror (pointing down; other ways: 'def')"},
 		{'a', {SunDisc, 1, 0}, "sun disc (red; other colours: 'def')"},

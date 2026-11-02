@@ -174,12 +174,13 @@ enum class FieldNote : unsigned char {
 	Stargate, // the Stargate dialled the first time (plan stargate-chamber), with its XP
 	DialDevice, // its dial device pressed
 	Coffins, // the first coffin opened (plan tomb-curse-containers)
+	Sandstorm, // the first gust in a sandstorm hall (plan sandstorm-halls)
 	// The ring notes (plan ring-accessories): one per RingGem in order, written when the first ring of the gem is found
 	// (ringNote).
 	RingFirst,
 	RingLast = RingFirst + RING_GEM_COUNT - 1,
 };
-constexpr int FIELD_NOTE_COUNT = 56 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 57 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

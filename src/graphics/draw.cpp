@@ -227,11 +227,14 @@ void drawGameplay() {
 	const ScreenPoint chest = cutScene ? ScreenPoint{0.5f, 0.5f} : toScreen(0, 16, -22);
 
 	const ZoneLook& look = Game().dungeon.Look(); // plan zone-looks
+	// A sandstorm hall (plan sandstorm-halls): the haze turns to blown sand and closes in on the player.
+	const float storm = Game().dungeon.StormHaze();
+	auto toSand = [storm](float fog, float sand) { return fog + (sand - fog) * storm; };
 	Lighting::setAtmosphere(
 		{{look.ambient[0], look.ambient[1], look.ambient[2]},
-		 {look.fog[0], look.fog[1], look.fog[2]},
-		 look.fogDensity,
-		 FOG_START}
+		 {toSand(look.fog[0], STORM_FOG[0]), toSand(look.fog[1], STORM_FOG[1]), toSand(look.fog[2], STORM_FOG[2])},
+		 toSand(look.fogDensity, STORM_FOG_DENSITY),
+		 toSand(FOG_START, STORM_FOG_START)}
 	);
 	Lighting::begin();
 	if (Game().player->Alive())

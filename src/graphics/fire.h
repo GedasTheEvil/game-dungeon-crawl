@@ -78,6 +78,11 @@ void puff(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);
 // A sand fall pouring down from the ceiling point (x, y, z) to the floor a tile below, ageMs since it began, for
 // lifeMs: a thick stream of grains, thinning at the end, and dust where it lands.
 void pour(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);
+// A sandstorm hall's cell (plan sandstorm-halls): grains blown along x through the cell from (x, y) (its bottom left on
+// the floor) TILE_SIZE wide, between depths zBack and zFront, the way dir (-1 / +1). strength 0..1 (gustStrength): a
+// few motes drifting in the calm, grit skittering low along the floor as the wind rises, streaks of sand at every
+// height and dust in a gust. nowMs: the clock the grains move on; seed: the cell's.
+void gust(float x, float y, float zBack, float zFront, int dir, float strength, int nowMs, uint32_t seed);
 } // namespace Grit
 
 // A dazed player (plan screech-bite): gold stars of Nut circle the head, the cartoon "stunned" look. Stateless like

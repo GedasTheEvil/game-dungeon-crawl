@@ -39,6 +39,7 @@ constexpr Color WATER_BLUE = {0.16f, 0.38f, 0.70f};
 constexpr Color PLASMA = {0.10f, 0.50f, 0.55f}; // a teleporter's and a ring platform's
 constexpr Color PORTAL_BLUE = {0.14f, 0.36f, 0.80f}; // the exit's plasma (the entrance's is red)
 constexpr Color OBSIDIAN = {0.08f, 0.06f, 0.08f}; // the boss gate's
+constexpr Color SAND_PENCIL = {0.66f, 0.47f, 0.2f}; // a sandstorm hall's wind (plan sandstorm-halls)
 constexpr float WAVE_AMPLITUDE = 0.06f; // cells
 constexpr int WAVE_SEGMENTS = 8; // per wave, two crests
 
@@ -265,6 +266,7 @@ enum class MapMark : std::uint8_t {
 	WallSpikes,
 	FireVent,
 	PoisonDrip,
+	SandGust,
 	LightShaft,
 	Mirror,
 	SunDisc,
@@ -275,10 +277,10 @@ enum class MapMark : std::uint8_t {
 };
 constexpr int MARK_COUNT = static_cast<int>(MapMark::None);
 constexpr const char* MARK_NAMES[MARK_COUNT] = {
-	"Entrance",	  "Exit",	   "Sphinx gate", "Sphinx",		   "Teleporter", "Ring platform", "Name gate",
-	"Ladder",	  "Treasure",  "Key",		  "Gate",		   "Boss gate",	 "Lever",		  "Spikes",
-	"Death trap", "Rock fall", "Dart plate",  "Wall spikes",   "Fire vent",	 "Poison drip",	  "Light shaft",
-	"Mirror",	  "Sun disc",  "Inscription", "Notebook page", "Ankh",
+	"Entrance",	   "Exit",		"Sphinx gate", "Sphinx",	  "Teleporter",	   "Ring platform", "Name gate",
+	"Ladder",	   "Treasure",	"Key",		   "Gate",		  "Boss gate",	   "Lever",			"Spikes",
+	"Death trap",  "Rock fall", "Dart plate",  "Wall spikes", "Fire vent",	   "Poison drip",	"Sandstorm",
+	"Light shaft", "Mirror",	"Sun disc",	   "Inscription", "Notebook page", "Ankh",
 };
 
 MapMark doorMark(const Tile& t) {
@@ -330,6 +332,8 @@ MapMark markOf(const Tile& t) {
 		return MapMark::FireVent;
 	case PoisonDrip:
 		return MapMark::PoisonDrip;
+	case SandGust:
+		return MapMark::SandGust;
 	case LightShaft:
 		return MapMark::LightShaft;
 	case Mirror:
@@ -525,6 +529,25 @@ bool symbol(Sketch& sk, int i, int j, Tile t) {
 				seed + static_cast<uint32_t>(k + 1)
 			);
 		}
+		break;
+	}
+	case MapMark::SandGust: { // three lines of wind the way it blows, an arrowhead on the middle one
+		const float d = static_cast<float>(gustDir(Fixture{t.type, t.attr, t.value}));
+		for (int k = 0; k < 3; k++) {
+			const float v = y + 0.25f + 0.25f * static_cast<float>(k);
+			const float tail = 0.18f * static_cast<float>(k % 2);
+			sk.pencil(
+				x + 0.5f - d * (0.38f - tail),
+				v,
+				x + 0.5f + d * 0.38f,
+				v,
+				SAND_PENCIL,
+				0.9f,
+				seed + static_cast<uint32_t>(k)
+			);
+		}
+		sk.pencil(x + 0.5f + d * 0.38f, y + 0.5f, x + 0.5f + d * 0.22f, y + 0.62f, SAND_PENCIL, 0.9f, seed + 4);
+		sk.pencil(x + 0.5f + d * 0.38f, y + 0.5f, x + 0.5f + d * 0.22f, y + 0.38f, SAND_PENCIL, 0.9f, seed + 5);
 		break;
 	}
 	case MapMark::Mirror: { // the disc on its post, a stroke the way it points

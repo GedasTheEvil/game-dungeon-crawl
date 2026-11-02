@@ -1,0 +1,31 @@
+# Sandstorm halls (plan sandstorm-halls): lvl34's hall on row 31 (stone, the wind to the left), the player in the
+# shelter at col 21 by the Osiris statue; a shot a second through one gust cycle (7 s): the calm's motes, the rise's
+# grit low over the floor, the gust's streaks and haze. Then lvl33's sand hall (row 40), from the shelter at col 25.
+seed 1
+god
+level 34 at 21 31
+wait 30
+screenshot hall_0
+wait 1s
+screenshot hall_1
+wait 1s
+screenshot hall_2
+wait 1s
+screenshot hall_3
+wait 1s
+screenshot hall_4
+wait 1s
+screenshot hall_5
+wait 1s
+screenshot hall_6
+wait 1s
+screenshot hall_7
+level 33 at 25 40
+wait 30
+screenshot sand_0
+wait 2s
+screenshot sand_1
+wait 2s
+screenshot sand_2
+wait 2s
+screenshot sand_3

@@ -165,6 +165,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.dripCreak;
 	case WorldSound::DripSplat:
 		return sounds.dripSplat;
+	case WorldSound::GustRise:
+		return sounds.gustRise;
+	case WorldSound::GustBlow:
+		return sounds.gustBlow;
 	case WorldSound::MirrorTurn:
 		return sounds.mirrorTurn;
 	case WorldSound::SunDisc:
@@ -204,6 +208,7 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 	}
 	return sounds.arrowHit;
 }
+bool isGustSound(WorldSound sound) { return sound == WorldSound::GustRise || sound == WorldSound::GustBlow; }
 const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
 	switch (sound) {
 	case CharacterSound::Die:
@@ -226,8 +231,8 @@ const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
 void GameState::ApplyWorldEvents() {
 	for (const WorldEvent& event : events.Take())
 		switch (event.kind) {
-		case WorldEvent::Kind::Sound:
-			soundOf(assets.sounds, event.sound).Play();
+		case WorldEvent::Kind::Sound: // a gust's wind drowns the rest (plan sandstorm-halls)
+			soundOf(assets.sounds, event.sound).Play(isGustSound(event.sound) ? 1.f : 1.f - dungeon.SoundMuffle());
 			break;
 		case WorldEvent::Kind::Status:
 			PushStatus(event.text, event.tone);
@@ -241,7 +246,7 @@ void GameState::ApplyWorldEvents() {
 											  : assets.monsterModels[static_cast<size_t>(event.who)],
 				event.character
 			)
-				.Play();
+				.Play(1.f - dungeon.SoundMuffle());
 			break;
 		case WorldEvent::Kind::AskRiddle:
 			ui.riddle->Ask();

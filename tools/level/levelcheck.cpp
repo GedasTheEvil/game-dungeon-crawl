@@ -67,6 +67,7 @@ class PathScript {
 					line("wait " + std::to_string(GATE_WAIT_MS) + "ms");
 				}
 				waitForTraps(r.path[i - 1], cur);
+				waitForGusts(r.path[i - 1], cur);
 				walkTo(target);
 				break;
 			case PathMove::Drop:
@@ -153,6 +154,28 @@ class PathScript {
 	bool bossKilled = false;
 	std::map<int, BeamDir> mirrors; // the way each mirror points by now
 	size_t turns = 0; // Turn moves so far
+
+	// Stepping from prev into a run of sand gusts against the wind (plan sandstorm-halls): wait in prev for the calm
+	// that lets the player cross the whole run.
+	void waitForGusts(const CellPos& prev, const CellPos& cur) {
+		auto gust = [this, &cur](int col) { return grid.at(col, cur.row).fixture.type == SandGust; };
+		if (prev.row != cur.row || gust(prev.col) || !gust(cur.col))
+			return;
+		const int step = cur.col - prev.col;
+		if (gustDir(grid.at(cur.col, cur.row).fixture) != -step)
+			return; // with the wind: it only helps
+		int left = cur.col;
+		while (gust(left - 1))
+			left--;
+		int right = cur.col;
+		while (gust(right + 1))
+			right++;
+		flushWalk();
+		line(
+			"waittraps " + std::to_string(left) + " " + std::to_string(right - left + 1) +
+			(step > 0 ? " right" : " left")
+		);
+	}
 
 	// Stepping from prev into a run of rhythm traps with wall spikes in it (out, they block): wait in prev until the
 	// whole run can be walked through.
@@ -262,7 +285,8 @@ void printReport(const Entry& e, bool map) {
 		"levers, %d riddles, "
 		"%d teleporters "
 		"(%d name "
-		"gates), %d inscriptions, %d sand cells (%d quicksand), %d light shafts, %d mirrors, %d sun discs\n",
+		"gates), %d inscriptions, %d sand cells (%d quicksand), %d sand gusts, %d light shafts, %d mirrors, %d sun "
+		"discs\n",
 		r.monsterCount,
 		perType.c_str(),
 		r.spikes,
@@ -285,6 +309,7 @@ void printReport(const Entry& e, bool map) {
 		r.inscriptions,
 		r.sandCells,
 		r.quicksandCells,
+		r.sandGusts,
 		r.lightShafts,
 		r.mirrors,
 		r.sunDiscs
@@ -295,7 +320,7 @@ void printReport(const Entry& e, bool map) {
 			"falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gates (%d colours), %d "
 			"teleports, %d monsters "
 			"near, %d sand, %d "
-			"quicksand, %d mirror turns\n",
+			"quicksand, %d sand gusts, %d mirror turns\n",
 			r.pathLength,
 			r.pathJumps,
 			r.pathDrops,
@@ -314,6 +339,7 @@ void printReport(const Entry& e, bool map) {
 			r.pathMonsters,
 			r.pathSand,
 			r.pathQuicksand,
+			r.pathSandGusts,
 			r.pathTurns
 		);
 	printf("   difficulty: %.1f\n", r.difficulty);

@@ -22,7 +22,10 @@
 //   - wall spikes (plan rhythm-traps) go back in, so they never block for good; a fire vent's jet (plan fire-jet-trap)
 //     and a poison drip's falling venom (plan poison-drip-trap) never block; a run of these rhythm traps in a row must
 //     be crossable at walking speed, which is checked on its own (checkWallSpikes), not on the path. A poison drip's
-//     puddle is a floor trap: a cost, jumped over like spikes.
+//     puddle is a floor trap: a cost, jumped over like spikes;
+//   - sand gusts (plan sandstorm-halls) push the player downwind, never for good: a cost on the path. Each run of them
+//     must be crossable against the wind between gusts and blow the player into nothing worse than rock or a floor,
+//     checked on its own (checkSandGusts).
 // A Death cell with no way out (a spike pit) kills the player; any other dead end is a softlock.
 
 #include "level.h"
@@ -62,6 +65,7 @@ struct LevelReport {
 	int sandFalls = 0; // among the rock falls (plan desert-chapter)
 	int fireVents = 0; // plan fire-jet-trap
 	int poisonDrips = 0; // plan poison-drip-trap
+	int sandGusts = 0; // plan sandstorm-halls
 	int sandCells = 0, quicksandCells = 0; // sand counts the quicksand too
 	int teleporters = 0;
 	int lightShafts = 0, mirrors = 0, sunDiscs = 0; // plan sunlight-mirrors
@@ -85,6 +89,7 @@ struct LevelReport {
 		pathMonsters = 0;
 	int pathSandFalls = 0, pathSand = 0, pathQuicksand = 0; // pathRockFalls counts no sand falls
 	int pathFireVents = 0, pathPoisonDrips = 0;
+	int pathSandGusts = 0;
 	int keysNeeded = 0; // colours the path has to collect before a gate
 	bool pathBoss = false; // the path goes through a boss gate: the boss has to die
 
@@ -97,6 +102,11 @@ struct LevelReport {
 // col to col + count - 1 on row, without stopping, in the direction dir (+1 / -1), at some start time? Out, wall spikes
 // block and stab the player they come out on, a fire vent's jet burns, a poison drip's venom falls on them.
 [[nodiscard]] bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir);
+
+// Sand gusts (plan sandstorm-halls): can the player cross the run of them from col to col + count - 1 on row against
+// the wind, between gusts, at the walk (in sand, if the run has any), GUST_CROSS_MARGIN_MS to spare, at some start
+// time? A run that blows both ways: against the first one's wind.
+[[nodiscard]] bool gustsCrossable(const LevelGrid& grid, int col, int row, int count);
 
 // Threat of one monster of this MonsterTypeId in the difficulty score.
 [[nodiscard]] float monsterThreat(int type);

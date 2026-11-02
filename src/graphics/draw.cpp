@@ -272,11 +272,6 @@ void drawGameplay() {
 	glTranslatef(playerX, playerY - sink, 0);
 	Game().playerView.Draw(*Game().player, Game().assets.textures);
 
-	Lighting::setEmissive(true);
-	if (Game().dungeon.Won())
-		Game().ui.endScreens->DrawWin();
-	Lighting::setEmissive(false);
-
 	if (Game().player->Alive() && !Game().player->climbing()) // both hands on the ladder: no weapon
 		drawWeapon();
 	glPopMatrix();

@@ -176,7 +176,7 @@ TEST_CASE("a new game writes the prologue and asks once for the journal on it; a
 	j.LearnNote(FieldNote::Keys);
 	j.Begin();
 	CHECK(j.Notes().empty());
-	REQUIRE(j.Diary().size() == DIARY_PAGE_COUNT);
+	REQUIRE(j.Diary().size() == 2);
 	CHECK(j.Diary().front() == DiaryPage::Arrival);
 	CHECK(j.TakeIntro());
 	CHECK_FALSE(j.TakeIntro());
@@ -192,4 +192,15 @@ TEST_CASE("a new game writes the prologue and asks once for the journal on it; a
 	loaded.Load(save);
 	CHECK(loaded.Diary() == j.Diary());
 	CHECK_FALSE(loaded.TakeIntro());
+}
+
+TEST_CASE("the win writes the epilogue after the prologue, once (plan win-ending-flow)") {
+	Journal j;
+	j.Begin();
+	j.WriteDiary(DiaryPage::Dawn);
+	j.WriteDiary(DiaryPage::Dawn);
+	REQUIRE(j.Diary().size() == DIARY_PAGE_COUNT);
+	CHECK(j.Diary().back() == DiaryPage::Dawn);
+	CHECK(std::string(diaryText(DiaryPage::Dawn).title) == "The twelfth hour");
+	CHECK(diaryText(DiaryPage::Dawn).paragraphs[2] != nullptr);
 }

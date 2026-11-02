@@ -410,6 +410,18 @@ p2: The first signs I can read speak of one thing only: the ankh, life without e
 	it. Or to keep someone in. If there is a way out, it is at the bottom, with the ankh.
 p3: I will keep notes. Someone should know what happened here.
 
+# The epilogue (plan win-ending-flow), written when the ankh is taken. The 12th hour of the Amduat: Ra's boat is
+# drawn through the serpent "Life of the Gods" (ankh-netjeru), tail to mouth, and comes out as Khepri at dawn.
+[diary.dawn]
+title: The twelfth hour
+p1: The ankh is warm in my hand, warmer than my hand. The last wall tells the twelfth hour: the sun goes into the
+	great serpent, Life of the Gods, at its tail, and comes out of its mouth young again, a scarab pushing the new
+	sun. Khepri. Whoever rides with him comes out with him.
+p2: I went in after him. Stone, then sand, then air that moves. I came up out of the east trench as the sky went
+	grey. The statue is gone. The tents still stand, and the sun came up over Saqqara as if nothing had happened.
+p3: Life without end, the signs said. I do not know yet what that means. Someone should know what happened down
+	there. Now someone does.
+
 # The ring notes (plan ring-accessories): one per RingGem in order, [note.ring-<gem>], the numbers of the copper,
 # silver and gold rings.
 [note.ring-garnet]

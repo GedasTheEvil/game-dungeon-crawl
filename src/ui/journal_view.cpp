@@ -315,12 +315,12 @@ bool JournalScreen::CanAnswer(int side) const {
 
 void JournalScreen::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
 
-void JournalScreen::OpenIntro() {
+void JournalScreen::OpenDiary(const char* closes) {
 	turn = {};
 	pointer.Clear();
 	section = Section::Diary;
-	spread[static_cast<size_t>(section)] = 0;
-	intro = true;
+	spread[static_cast<size_t>(section)] = SpreadCount(section) - 1;
+	closesTo = closes;
 	Game().assets.sounds.pageTurn.Play();
 }
 
@@ -1076,8 +1076,8 @@ void JournalScreen::DrawDiary(const Rect& p, int index) {
 		text(*font, p.x + PAGE_PAD, y, l.c_str(), INK_BLUE);
 		y -= l.empty() ? step / 2 : step;
 	}
-	if (intro && index == PageCount(Section::Diary) - 1) {
-		std::string hint = keyCapOf(BindAction::Journal) + " or Esc closes the journal";
+	if (closesTo != nullptr && index == PageCount(Section::Diary) - 1) {
+		std::string hint = keyCapOf(BindAction::Journal) + " or Esc " + closesTo;
 		textCentered(handSmall, p.cx(), p.y + COMMENT_BOTTOM - COMMENT_STEP, hint.c_str(), PENCIL, FADED);
 	}
 	beginShapes();

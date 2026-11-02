@@ -1,0 +1,59 @@
+# Plan win-ending-flow: a run off the campaign gets the epilogue, then the main menu; a won campaign run gets the name
+# entry (no 3D win picture), Esc asks before it leaves the Hall of Records out, the epilogue in the journal, then the
+# Hall of Records. No quick save once won.
+seed 1
+god
+level 54 at 24 2
+wait 30
+walk to 26.5
+interact
+wait 100ms
+expect won == 1
+screenshot epilogue_off_campaign
+key esc
+wait 100ms
+screenshot main_menu
+# A campaign run, its name recorded.
+level 54 at 24 2
+campaign
+wait 30
+walk to 26.5
+interact
+wait 100ms
+screenshot win_entry
+key esc
+screenshot confirm
+key esc
+screenshot confirm_no
+key f5
+expect quicksave == 0
+key backspace
+key T
+key e
+key s
+key t
+key enter
+wait 100ms
+expect records == 1
+screenshot epilogue
+key f5
+expect quicksave == 0
+key esc
+wait 100ms
+screenshot hall
+# Skipped: Yes in the box, no record, still the epilogue and the Hall of Records.
+level 54 at 24 2
+campaign
+wait 30
+walk to 26.5
+interact
+wait 100ms
+key esc
+key enter
+wait 100ms
+expect records == 1
+screenshot epilogue_skipped
+key j
+wait 100ms
+screenshot hall_skipped
+quit

@@ -8,7 +8,7 @@ parts below instead of drawing their own.
 |---|---|---|
 | Main / in-game menu, Save, Load, Options, Credits | `src/ui/menu.cpp` (`MainMenu`) | 160 x 100 |
 | Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/world/leaderboard.h`) | 160 x 100 |
-| Win entry (name for the leaderboard) | `src/ui/win_entry.cpp` | 160 x 100, over the won game |
+| Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map (zoom: `src/ui/map_zoom.h`) | `src/ui/map_view.cpp` | 100 high, width follows the window |
@@ -22,7 +22,6 @@ parts below instead of drawing their own.
 | Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
 | Confirm box (Yes / No over a menu screen) | `src/ui/confirm_box.cpp` (`ConfirmBox`, [save-load-safety](plan/solved/save-load-safety.md)) | 160 x 100, over the dimmed screen that asks |
 | Death screen | `src/ui/death_screen.cpp` (`DeathScreen`, [autosave](plan/solved/autosave.md)) | 160 x 100, over the dimmed game |
-| Win screen | `src/ui/end_screens.cpp` (`EndScreens`) | legacy: a textured quad (`ui/win.png`) in the 3D scene, not the shared look |
 
 Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too. The layout
 without GL is `src/ui/ui_layout.h` (the canvas, `Rect`, `visibleArea`, `toCanvas` / `toWindow`, the screen tabs, the
@@ -218,7 +217,8 @@ of its texture (`Texture::LoadPNG`'s pixel filter), a red catalogue number above
 with an arrow below.
 
 Diary pages ([journal-intro](plan/solved/journal-intro.md)): a dated heading, the entry in `INK_BLUE`, a smaller hand when it
-would not fit; while a new game shows the prologue, the close key in pencil at the bottom. Expedition pages
+would not fit; while a new game shows the prologue or the win the epilogue, the close key and where it leads in
+pencil at the bottom. Expedition pages
 ([expedition-notes](plan/solved/expedition-notes.md)): someone else's notebook page torn out and pasted in a little
 askew (`media/textures/ui/expedition_page.png`, `tools/textures/expedition_page.py`: yellowed ruled paper, a ragged
 left edge), their heading and lines in `SEPIA` ink standing on its rules, from the margin line.

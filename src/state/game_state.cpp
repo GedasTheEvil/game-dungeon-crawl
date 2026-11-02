@@ -50,7 +50,6 @@ void GameState::Load() {
 	assets.Load([this](float percent, const char* step, const char* detail) { DrawLoad(percent, step, detail); });
 	ui.riddle = std::make_unique<Riddle>();
 	ui.inventory = std::make_unique<Inventory>();
-	ui.endScreens = std::make_unique<EndScreens>();
 
 	Texture playerTexture;
 	playerTexture.LoadPNG(MEDIA_DIR "textures/characters/archeologist.png");
@@ -279,7 +278,7 @@ void GameState::NewGame() {
 	Autosave(AutosaveMoment::LevelStart);
 	// The story starts in the notebook: the prologue, open before the first frame of play (plan journal-intro).
 	if (journal.TakeIntro()) {
-		ui.journal.OpenIntro();
+		ui.journal.OpenDiary("closes the journal");
 		ui.screen = Screen::Journal;
 	}
 }
@@ -292,7 +291,7 @@ std::string GameState::AutosavePath() const {
 bool GameState::HasAutosave() const { return SaveSlots::DescribeFile(AutosavePath()).used; }
 
 void GameState::Autosave(AutosaveMoment moment) {
-	if (!player->Alive() || (moment != AutosaveMoment::LevelStart && dungeon.PlayerInDanger()))
+	if (!player->Alive() || dungeon.Won() || (moment != AutosaveMoment::LevelStart && dungeon.PlayerInDanger()))
 		return;
 	ui.autosaved.Show(Save(AutosavePath().c_str()) ? "Autosaved" : "Autosave failed", GameClock::now());
 }
@@ -320,7 +319,7 @@ std::string GameState::QuicksavePath() const {
 bool GameState::HasQuicksave() const { return SaveSlots::DescribeFile(QuicksavePath()).used; }
 
 void GameState::Quicksave() {
-	if (!player->Alive())
+	if (!player->Alive() || dungeon.Won()) // a save is never of a won game (plan win-ending-flow)
 		return;
 	ui.autosaved.Show(Save(QuicksavePath().c_str()) ? "Quick saved" : "Quick save failed", GameClock::now());
 }

@@ -18,7 +18,6 @@
 #include "../entities/trap.h"
 #include "../ui/riddle.h"
 #include "../ui/menu.h"
-#include "../ui/end_screens.h"
 #include "../ui/win_entry.h"
 #include "../ui/death_screen.h"
 #include "../ui/ui_layout.h"
@@ -63,8 +62,7 @@ struct UIContext {
 	std::unique_ptr<Inventory> inventory;
 	std::unique_ptr<Riddle> riddle;
 	MainMenu menu;
-	std::unique_ptr<EndScreens> endScreens;
-	WinEntry winEntry; // the won run's name for the leaderboard
+	WinEntry winEntry; // the won run: its name for the leaderboard, the epilogue, then the Hall of Records
 	DraftMap map;
 	JournalScreen journal;
 	SkillsScreen skills;

@@ -535,6 +535,10 @@ void specialKeyPressed(int key, int x, int y) {
 			Game().ui.death.SpecialKeyPressed(key);
 		return;
 	}
+	if (Game().ui.screen == Screen::Gameplay && Game().ui.winEntry.Typing()) { // no quick save or load either
+		Game().ui.winEntry.SpecialKeyPressed(key);
+		return;
+	}
 	if (Game().ui.screen == Screen::Menu)
 		Game().ui.menu.SpecialKeyPressed(key);
 	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
@@ -562,9 +566,9 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 	if (key == SPECIAL_TOGGLE_HITBOXES)
 		Game().render.Hitboxes = !Game().render.Hitboxes;
-	if (key == SPECIAL_QUICK_SAVE && !Game().ui.winEntry.Typing())
+	if (key == SPECIAL_QUICK_SAVE)
 		Game().Quicksave();
-	if (key == SPECIAL_QUICK_LOAD && !Game().ui.winEntry.Typing())
+	if (key == SPECIAL_QUICK_LOAD)
 		Game().LoadQuicksave();
 }
 

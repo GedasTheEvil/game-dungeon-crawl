@@ -1,6 +1,7 @@
 # Win ending flow
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: implemented 2026-11-02, waiting for the user's play-test. Was: draft 2026-10-30, needs nothing first. From
+the project audit of 2026-10-30.
 
 Opus: end screen flow, a new journal page, input gating.
 
@@ -25,3 +26,17 @@ Opus: end screen flow, a new journal page, input gating.
 * Closing the epilogue goes to the Hall of Records with the new row marked, then the main menu. Drop the 3D win quad.
 * No quick save, no Save Game, no Return to Game once won.
 * Play-test: a `tests/play/win-ending-flow.txt` that starts next to the ankh.
+
+## Done
+
+* `WinEntry` (`src/ui/win_entry.cpp`) runs the whole end: Typing, Epilogue, Done. The name panel now stands alone over
+  the dimmed game with a title ("The Ankh of Life"); `EndScreens` and `media/textures/ui/win.png` are gone.
+* Esc at the name entry opens the `ConfirmBox` ("Leave without entering the Hall of Records?"); its arrows are routed
+  to it (special keys no longer reach the game while typing).
+* The epilogue is a third diary page, `DiaryPage::Dawn` (`[diary.dawn]` in `content/texts/journal.txt`, the twelfth
+  hour). `JournalScreen::OpenDiary` (was `OpenIntro`) opens the diary's last spread with the close hint ("J or Esc
+  goes to the Hall of Records"). Closing the journal: the Hall of Records with the new row marked (none if skipped),
+  in-game menu off. A run off the campaign (`--level`) skips the name entry and goes to the main menu.
+* `GameState::Quicksave` and `Autosave` refuse a won game.
+* Scenario `tests/scenarios/win_ending_flow.txt`, unit test in `journal_test.cpp`, play-test
+  `tests/play/win-ending-flow.txt`.

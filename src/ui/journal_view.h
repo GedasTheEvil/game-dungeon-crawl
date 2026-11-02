@@ -25,10 +25,11 @@ class JournalScreen {
 	static constexpr int SECTION_COUNT = 7;
 
 	void Draw();
-	// A new game (plan journal-intro): the book opens on the Diary's first spread, the close key hinted on the page
-	// until the game runs again (EndIntro).
-	void OpenIntro();
-	void EndIntro() { intro = false; }
+	// A new game's prologue (plan journal-intro) or the win's epilogue (plan win-ending-flow): the book opens on the
+	// Diary's last spread, the close key hinted on its last page ("J or Esc " + `closes`) until the game runs again
+	// (EndDiary).
+	void OpenDiary(const char* closes);
+	void EndDiary() { closesTo = nullptr; }
 	// The arrows and the bound move keys turn pages and switch sections; Enter / Space / Interact focus and press the
 	// riddle Answer buttons (Navigate).
 	void KeyPressed(unsigned char key);
@@ -82,7 +83,7 @@ class JournalScreen {
 	std::array<Texture, MONSTER_TYPE_MAX + 1> photoTextures; // monster textures in black and white, by type, on demand
 	std::array<RenderTarget, PAGE_SLOTS> pages; // drawn each frame, then laid on the book or bent
 	bool pagesFailed = false; // no framebuffers: the pages are drawn straight onto the book, turns are instant
-	bool intro = false; // opened by a new game, not closed yet (OpenIntro)
+	const char* closesTo = nullptr; // opened on the diary, not closed yet: what the close key does (OpenDiary)
 	// The log section's pages, laid out each frame from Game().messages (PaginateLog): its lines, wrapped.
 	struct LogEntry {
 		std::vector<std::string> lines;

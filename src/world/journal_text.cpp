@@ -208,7 +208,7 @@ const FieldNoteText& fieldNoteText(FieldNote note) {
 
 const DiaryText& diaryText(DiaryPage page) {
 	// [diary.<slug>], by DiaryPage: a title, then p1, p2, p3 (the ones there are).
-	static constexpr std::array<const char*, DIARY_PAGE_COUNT> SLUGS = {"arrival", "descent"};
+	static constexpr std::array<const char*, DIARY_PAGE_COUNT> SLUGS = {"arrival", "descent", "dawn"};
 	static const std::array<DiaryText, DIARY_PAGE_COUNT> DIARY = [] {
 		std::array<DiaryText, DIARY_PAGE_COUNT> diary{};
 		for (size_t p = 0; p < diary.size(); p++) {

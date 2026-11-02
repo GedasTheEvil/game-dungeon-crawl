@@ -204,8 +204,9 @@ constexpr int FIELD_NOTE_COUNT = 57 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 enum class DiaryPage : unsigned char {
 	Arrival, // the prologue: the statue, the ankh, the torch on the wall
 	Descent, // the prologue's second page: the club, the way down, the ankh at the bottom
+	Dawn, // the epilogue (plan win-ending-flow): up into the dawn with the ankh, written at the win
 };
-constexpr int DIARY_PAGE_COUNT = 2;
+constexpr int DIARY_PAGE_COUNT = 3;
 
 // The earlier expedition's notebook (plan expedition-notes): torn pages found over the campaign, numbered in order of
 // depth (Page tiles, level.h). Its own section of the journal, someone else's hand.

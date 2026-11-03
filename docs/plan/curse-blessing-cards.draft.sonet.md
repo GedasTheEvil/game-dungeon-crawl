@@ -31,11 +31,14 @@ condition later is one icon and one line, no new draw code.
 
 `enum class StatusKind { Blessing, Condition, Curse }` (`player_hud.h`):
 
-* Blessing, yellow-gold (the Isis card's `ISIS_TOP/BOTTOM`): a god's gift. Blessing of Hapi, Protection of Isis,
-  future blessings.
-* Condition, neutral grey stone: everything else, good or bad, that is neither a god's gift nor a curse. Poison (each
-  tier), burning, daze, the resistance potion.
-* Curse, purple (`CURSE_FRAME_TOP/BOTTOM`): the 8 curses.
+The kind follows what the effect does to the player:
+
+* Blessing, yellow-gold (the Isis card's `ISIS_TOP/BOTTOM`): any good effect, whatever its source. Blessing of Hapi,
+  Protection of Isis, the resistance potion, future blessings and good potion effects.
+* Condition, neutral grey stone: a bad effect that is easy to end: an antidote cures poison, water puts out fire, a
+  daze wears off fast. Poison (each tier), burning, daze.
+* Curse, purple (`CURSE_FRAME_TOP/BOTTOM`): a bad effect that is almost incurable (only a prayer at a Shrine of Isis
+  lifts it). The 8 curses.
 
 New generator `tools/textures/status_cards.py` (PIL, the `hud_icons.py` style: drawn at 4x, downsampled, `bleed`)
 writes `media/textures/ui/status_cards.png`: one row, one 128 px cell per `StatusKind`, in enum order. Same shape and
@@ -59,7 +62,8 @@ The rest exist: `IsisWard`, `Daze`, the curses.
 * `PlayerHud::View` gets the running effects as one list in display order: `struct Status { StatusKind kind; Icon icon;
   Color tint; int pips; int leftMs; }`, a fixed-size array plus a count (no allocation per frame). Built in
   `player_hud_view.cpp` from `PlayerStats` and `Player::burning`.
-* Order: blessings, then conditions, then curses; inside a kind as now (poison weak first, curses in `Curse` order).
+* Order: blessings, then conditions, then curses; inside a kind as now (resistance, Hapi, Isis; poison weak first, burning, daze; curses in
+  `Curse` order).
   Same kinds sit together, so the row reads by colour.
 * One `drawStatuses` loop: drop shadow, the kind's card, the icon (tinted), the pips; one loop for the seconds. Remove
   `drawPoison`, `drawResist`, `drawWaterBlessing`, `drawIsisWard`, `drawCurses`, `drawDaze`, `potionTiles`,
@@ -70,17 +74,16 @@ The rest exist: `IsisWard`, `Daze`, the curses.
 ### Docs and tests
 
 * `docs/ui.md` (HUD), the comment block in `player_hud.h`, the glossary rows "curse" ("Purple-framed HUD tiles") and
-  "Protection of Isis". New glossary rows: "status card" (the three kinds and their colours) and the kind names.
+  "Protection of Isis". New glossary rows: "status card" (the three kinds, their colours and the rule: good, bad but easy to end, bad and
+  almost incurable) and the kind names.
 * `docs/development.md` (Where is X, or how to add an effect): adding a status effect to the HUD.
-* Unit test: the view builder orders a mixed set (a blessing, poison, burning, a greater curse) by kind, with the right
+* Unit test: the view builder orders a mixed set (resistance, poison, burning, a greater curse) by kind, with the right
   pips and icons.
-* Scenario in `tests/scenarios/`: Isis and Hapi, poison tier 2, burning, daze, two curses (one greater) running; one
+* Scenario in `tests/scenarios/`: Isis, Hapi and resistance, poison tier 2, burning, daze, two curses (one greater) running; one
   screenshot of the HUD row. Check the three cards tell apart, the icons sit centred, the pips read on all three.
 
 ## Open points (implementer's choice)
 
-* The resistance potion as a condition (grey): it is a potion, not a god's gift. Hapi is a potion too but named a
-  blessing, so it goes yellow. If that reads odd in play, say so in the report.
 * Card corners: square as now, or slightly rounded. Keep the size so `poisonRect` and the layout stay.
 * The row may grow long with many effects at once (now up to ~15). Not in scope; note it if the screenshot shows it
   running into something.

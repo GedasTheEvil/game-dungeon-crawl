@@ -61,7 +61,8 @@ counts as `GATE_LOAD_MB` (default 1500) more memory to come: it loads its models
 Gated jobs run on the last `GATE_CPUS` cores (default: the job cap), so the first cores stay free for the desktop.
 Each game runs niced with one llvmpipe thread (`LP_NUM_THREADS=1`). The last lines report peak parallel runs,
 seconds held back, minimum idle cores, minimum free memory (and at the start), minimum free swap and the wall time.
-Run from the repo root.
+Run from the repo root. `SCENARIO_TIMES=file` writes the time and ticks of each scenario; profiling and the
+other measuring recipes: [performance-testing.md](performance-testing.md).
 
 ## Behaviour in test mode
 

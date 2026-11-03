@@ -7,9 +7,10 @@ Today a jump that meets a low ceiling (a solid sub-cell over the body, `Dungeon:
 
 ## The bump
 
-* 5 HP (from the user), straight off the HP: no armour, no resistances (the player's own head, no helmet slot).
-  It can kill, like fall damage; the death line names the cause (pick the wording, e.g. "cracked their skull").
-* 50% chance (from the user), rolled on the gameplay stream, of a daze for 2 to 3 s (from the user), uniform in that
+* Damage: the larger of 5 HP and 5% of the current max HP (`CurrentMaxHP`), from the user, so it still counts at a
+  high level (above 100 max HP). Straight off the HP: no armour, no resistances (the player's own head, no helmet
+  slot). It can kill, like fall damage.
+* 50% chance (from the user), rolled on the gameplay stream, of a daze for 1 to 2 s (from the user), uniform in that
   range. Reuse the screech's daze (`Player::Daze`, plan giant-bat-screech): half walk speed, no sprint, no jump,
   the view wobbles, the stars of Nut circle the head, the HUD daze tile. No new state.
 * Only a real bump hurts: the rise must be cut short, the jump's upward velocity at the contact above a small
@@ -18,10 +19,12 @@ Today a jump that meets a low ceiling (a solid sub-cell over the body, `Dungeon:
 * Once per jump: the rise ends at the bump, so it cannot repeat in the same jump. A dazed player cannot jump, so no
   chain of bumps while dazed.
 * A pain grunt on a hurting bump, besides the knock (reuse the player's hurt sound).
+* Write the damage and daze roll as one function a monster bump and a spiked ceiling can share
+  ([monster-head-bump](monster-head-bump.draft.sonet.md), [ceiling-spikes](ceiling-spikes.draft.opus.md)).
 
 ## Tests
 
-* Unit: a jump under a low sub-cell ceiling costs 5 HP; a graze below the threshold costs nothing; with a fixed seed
-  a daze of 2..3 s follows about half the bumps (count over many rolls); dazed, no jump; a bump at 5 HP or less kills.
+* Unit: a jump under a low sub-cell ceiling costs 5 HP, at 300 max HP 15; a graze below the threshold costs nothing; with a fixed seed
+  a daze of 1..2 s follows about half the bumps (count over many rolls); dazed, no jump; a bump at 5 HP or less kills.
 * Scenario on `tests/levels/subcells`: jump under the low ceiling, screenshot of the stars and the HUD tile.
 * Glossary: "head bump".

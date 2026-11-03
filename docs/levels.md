@@ -15,7 +15,7 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
   trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
 
-An open structure can carry a **shape** ([level-subcells](plan/level-subcells.md)): the cell splits into
+An open structure can carry a **shape** ([level-subcells](plan/solved/level-subcells.md)): the cell splits into
 4 x 4 sub-cells, a quarter tile each way, and the shape is the mask of the solid ones (steps, stairs, low ceilings,
 crawl spaces). The game asks `solidAt`, `floorHeight` and `ceilingHeight` (`src/world/level.h`), never the bits.
 Until [subcell-physics](plan/subcell-physics.draft.opus.md) the game draws and walks a shaped cell as open and the
@@ -493,10 +493,10 @@ Examples: `tests/levels/mechanisms.txt`, `tests/levels/rats.txt`, `tests/levels/
 
 ## Tests
 
-- `tests/unit/subcells_test.cpp` (plan [level-subcells](plan/level-subcells.md)): solid at, floor and
+- `tests/unit/subcells_test.cpp` (plan [level-subcells](plan/solved/level-subcells.md)): solid at, floor and
   ceiling heights from a shape; the v6 shape list and its glyphs round-trip, a v5 file loads with no shapes, the list
   and the drawing must agree; the editor's shape brushes; `tests/levels/subcells` loads, passes the checker and keeps
-  its shapes through a save. Scenario `tests/scenarios/level_subcells.txt`: the map screen's sub-cells (screenshots).
+  its shapes through a save. Scenario `tests/scenarios/solved/level_subcells.txt`: the map screen's sub-cells (screenshots).
 - `tests/unit/level_gen_test.cpp` (plan campaign-levelgen): zone levels over two seeds per zone pass the checker
   with no warnings, fill the grid, keep the target size and name their zone; between them tall halls, pillar loops,
   hubs, ledges, shafts and gates turn up; each zone's terrain is the one of the zone table (water, deep water, sand,

@@ -51,3 +51,23 @@ lesser and greater resistance; its vial becomes glass too, the gold cobra stays 
   acceptable if the fix is not trivial).
 * The icons (`PotionDef::colour`) do not change.
 * Screenshot scenario: every potion in the inventory slots and on the item card.
+
+## Done
+
+* Models (`items.py`): `glass_vessel` builds the flask, the lotus jar and the cobra vial (`GLASS_VESSELS`) as the
+  opaque bits plus the liquid (a closed lathe up to the shoulder, `GLASS_THICK + GLASS_GAP` inside the glass) and a
+  glass shell `potion_<vessel>_glass.md3`. The shell is one surface (one layer of glass over the liquid; a doubled wall
+  washed the colours out), thick only at the flask's rolled lip; the lotus's and the cobra's mouths are under the
+  faience flare and the gold lip. The lotus's glyph band is now a painted strip over the glass, its mouth dark
+  (`enamel`: the liquid stands at the shoulder). The potions' textures stay per potion (`liquid` / `liquid_dark`).
+* Glass: `glass_shell` pale blue-green, metal 0.8 (the faint shine of metallic-shading), a 128 px texture per vessel,
+  drawn at `POTION_GLASS_ALPHA` 0.32: cloudy, the liquid's colour reads through it.
+* Engine: `PartStyle` (`Gem`, `Glass`) on `Item::Part`, set in `loadPart`; glass is lit by the scene, no emissive,
+  no glint. `PotionModelDef::glass` names the shell; `loadPotions` loads it once per vessel and shares it
+  (`Item::sharePart`). The inventory slot and card and the chest (`drawItemParts`) already draw the second part;
+  the HUD quick slots draw icons, no model. The model viewer draws the shell over a glass vessel in the lit modes.
+* Ankh: stays opaque (reads as faience, the safer choice). The optional trailed threads: left out.
+* On a chest: no seam work needed (the shell is drawn after the opaque scene, over the gold heap).
+* Tests: `tests/unit/items_test.cpp` (the glass vessels have a shell, its files exist), `metal_mask_test.cpp` (the
+  shells shine); scenario `tests/scenarios/potion_glass_vessels.txt` (every potion in the slots and on the card, a
+  flask, lotus and cobra on their containers). Play-test: `bin/game --play tests/play/potion-glass-vessels.txt`.

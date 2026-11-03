@@ -202,10 +202,13 @@ void loadPotions(ItemPrototypes& items) {
 		const PotionModelDef& model = potionModelDef(def.model);
 		auto item = std::make_unique<Item>();
 		const Item*& vessel = vessels[static_cast<size_t>(def.model)];
-		if (vessel != nullptr)
+		if (vessel != nullptr) {
 			item->shareModel(*vessel, def.texture);
-		else {
+			item->sharePart(*vessel);
+		} else {
 			item->loadModel(model.model, def.texture);
+			if (model.glass != nullptr) // one shell per vessel, shared by its potions
+				item->loadPart(model.glass, {1.f, 1.f, 1.f}, POTION_GLASS_ALPHA, PartStyle::Glass);
 			vessel = item.get();
 		}
 		item->scale = model.scale;

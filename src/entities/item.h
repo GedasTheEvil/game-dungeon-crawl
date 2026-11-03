@@ -1,6 +1,7 @@
 #ifndef ITEM_H
 #define ITEM_H
 
+#include <cstdint>
 #include <memory>
 #include "../core/sound.h"
 #include "../graphics/animated_model.h"
@@ -10,8 +11,12 @@
 
 // A weapon, potion, amulet, ring or the treasure chest: a static model, drawn where the caller has placed it. The
 // potions that come in one vessel share its model, each with its own texture (shareModel). An item may have a second
-// part (a ring's gem, plan ring-accessories): its own model on the same frame, tinted, see-through and shining, drawn
-// by DrawPart after the first (in the world: after the opaque scene).
+// part, its own model on the same frame, tinted and see-through, drawn by DrawPart after the first (in the world:
+// after the opaque scene): a ring's gem (plan ring-accessories) or a potion's glass shell (plan potion-glass-vessels).
+enum class PartStyle : std::uint8_t {
+	Gem, // unlit, shining in the dark, with a slow glint
+	Glass, // lit by the scene like the model, its shine the texture's metal mask; no glint
+};
 class Item {
   private:
 	std::shared_ptr<AnimatedModel> mdl;
@@ -24,11 +29,13 @@ class Item {
 		Rgb tint{1.f, 1.f, 1.f};
 		float alpha = 1.f;
 		float centreY = 0.f; // the glint grows round it
+		PartStyle style = PartStyle::Gem;
 	};
 	Part part;
 
 	void drawScaled(float drawScale, float pose);
 	void drawPartScaled(float drawScale);
+	void drawGlint(const AnimPlayback& playback, Rgb c) const; // the gem again, bigger, added on (in its frame)
 
   public:
 	static constexpr float DRAW_DEPTH = 30.f; // Draw() pushes the model this far back
@@ -45,12 +52,13 @@ class Item {
 
 	// The second part: media/models/items/<name>.md3 with media/textures/items/<name>.png, placed as the first model
 	// (both in the same units, from the same origin); tint x the current colour, alpha its see-through.
-	void loadPart(const char* name, Rgb tint, float alpha);
-	// owner's second part, in another tint.
+	void loadPart(const char* name, Rgb tint, float alpha, PartStyle style = PartStyle::Gem);
+	// owner's second part, as it is or in another tint.
+	void sharePart(const Item& owner);
 	void sharePart(const Item& owner, Rgb tint);
 	[[nodiscard]] bool HasPart() const { return part.mdl != nullptr; }
-	// The second part where Draw draws the first: alpha blended, no depth write, unlit, with a slow additive glint.
-	// Leaves blending off and depth writes on. Nothing without one.
+	// The second part where Draw draws the first: alpha blended, no depth write; a gem unlit with a slow additive
+	// glint, glass lit. Leaves blending off and depth writes on. Nothing without one.
 	void DrawPart();
 };
 

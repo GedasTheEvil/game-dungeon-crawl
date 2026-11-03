@@ -250,6 +250,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | expedition page | Expedition | a torn page of the earlier expedition's notebook (D. J.), on a skeleton, picked up on touch; 18 over the campaign, in the journal's Expedition section ([expedition-notes](plan/solved/expedition-notes.md)) | `Page`, `ExpeditionPage`, `Journal::FindPage`, `expeditionPageText` |
 | note | Field notes | a journal entry on a game rule, written the first time it matters | `FieldNote` |
 | potion | | drunk from the inventory or a quick key | `PotionDef` |
+| glass shell | | a glass potion vessel's see-through glass (flask, lotus jar, cobra vial), its own model drawn over the opaque bits and the liquid inside ([potion-glass-vessels](plan/potion-glass-vessels.md)) | `PotionModelDef::glass`, `PartStyle::Glass`, `Item::loadPart` |
 | antidote | Antidote | the potion that cures poison; the checker wants one where something poisons | `ItemKind::Antidote` |
 | quick-drink | | the quick keys: drink the best fitting health or stamina potion | `Inventory::QuickDrink`, `quickPotion` |
 | sealed | Sealed | a skill shown on the Heka screen whose rules are not in the game yet: not learnable | `SkillDef::sealed` |

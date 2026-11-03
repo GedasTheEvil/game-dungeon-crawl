@@ -28,7 +28,10 @@ TEST_CASE("metal mask: the metal parts of the baked textures") {
 		  "items/ring_band_silver",
 		  "items/ring_band_gold",
 		  "items/khopesh",
-		  "items/amulet_strength"}) {
+		  "items/amulet_strength",
+		  "items/potion_flask_glass", // the glass shells' faint shine (plan potion-glass-vessels)
+		  "items/potion_lotus_glass",
+		  "items/potion_cobra_glass"}) {
 		CAPTURE(name);
 		CHECK(metalShare(name) > 0.02f);
 	}

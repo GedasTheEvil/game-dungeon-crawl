@@ -90,7 +90,8 @@ started (port 9876).
   `model-viewer` looks in `media/textures/<category>/` (the model's sub-directory under `media/models/`) for `<stem>.png`, then the
   base model's `<base>.png` (`anubis_att` -> `anubis`; the base is the shortest `_` cut with its own `.md3`), then the
   variants `<base>_*.png` (`anubis_boss`), which T cycles through. A potion vessel (`items/potion_flask`) has no texture
-  of its own: it gets its potions' textures from the game's table (`PotionDef::texture`), also cycled by T.
+  of its own: it gets its potions' textures from the game's table (`PotionDef::texture`), also cycled by T. A glass
+  vessel's shell (`PotionModelDef::glass`) is drawn over it, see-through, in the lit modes (game, toon).
 * Monsters need three files: `<name>.md3` move (loops), `<name>_att.md3` attack (loops), `<name>_die.md3` die (plays once, holds last frame),
   plus an optional `<name>_idle.md3` (loops; the bat hanging on the ceiling, a standing rat sniffing). Without it the move
   clip stands in and the monster walks on the spot, so every monster has one (`tests/unit/model_info_test.cpp`).
@@ -116,7 +117,7 @@ started (port 9876).
   its strength in grey) and name that material in the first one's `"metal_mask_material"` (`crocodile.py`'s collar).
   A lit bake (`mechanism.py`'s `bake_lit`) saves through `save_texture` with `bake_metal_mask` too.
   Metal so far: gold, bronze and the blades of `items.py`, the ring bands (`rings.py`), gold, bronze and the polished
-  mirror of `mechanism.py`, the gold of Sobek (`crocodile.py`, scutes and collar), Serket (`scorpion.py` `COL_QUEEN`,
+  mirror of `mechanism.py`, the potions' glass shells (`items.py` `glass_shell`, 0.8: the faint shine), the gold of Sobek (`crocodile.py`, scutes and collar), Serket (`scorpion.py` `COL_QUEEN`,
   the carapace at 0.6) and the mummy priest (`mummy_priest.py`: ankh, finger stalls, scarab).
   Re-bake with `tools/blender/rebake.py` (Tools), not a plain `--export`: Cycles adds a little noise, and `uv_unwrap`
   may lay the UVs out anew since the last export (then the `.md3` must go with its new texture).

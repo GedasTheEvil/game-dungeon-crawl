@@ -1,0 +1,62 @@
+# Glass potion vessels (plan potion-glass-vessels): the flask, the lotus jar and the cobra vial are see-through glass
+# with the liquid a model of its own inside, in the inventory slots and on the item card; a quick look on the chests of
+# tests/levels/potions, opened (large health col 5, small stamina 13, antidote 17).
+seed 1
+god
+level tests/levels/potions
+wait 30
+walk to 5.5
+interact
+wait 2s
+walk to 4.3
+wait 10
+screenshot chest_lotus
+walk to 13.5
+interact
+wait 2s
+walk to 12.3
+wait 10
+screenshot chest_flask
+walk to 17.5
+interact
+wait 2s
+walk to 16.3
+wait 10
+screenshot chest_cobra
+give potion 0
+give potion 1
+give potion 2
+give potion 3
+give potion 4
+give potion 5
+give potion 6
+give potion 7
+give potion 8
+give potion 9
+give potion 10
+key i
+wait 5
+select small_health
+wait 5
+screenshot inventory_small_health
+select large_health
+wait 5
+screenshot inventory_large_health
+select small_stamina
+wait 5
+screenshot inventory_small_stamina
+select large_stamina
+wait 5
+screenshot inventory_large_stamina
+select antidote
+wait 5
+screenshot inventory_antidote
+select lesser_resistance
+wait 5
+screenshot inventory_lesser_resistance
+select greater_resistance
+wait 5
+screenshot inventory_greater_resistance
+select might
+wait 5
+screenshot inventory_might

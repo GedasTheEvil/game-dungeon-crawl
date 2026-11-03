@@ -724,11 +724,11 @@ namespace {
 // By PotionModel. Each is about as tall as the flask; the scales keep the real sizes apart (Centrify fits the largest
 // dimension).
 constexpr std::array<PotionModelDef, POTION_MODEL_COUNT> POTION_MODELS = {{
-	{"potion_flask", 5.f, 16.f},
-	{"potion_lotus", 5.f, 16.f},
+	{"potion_flask", 5.f, 16.f, "potion_flask_glass"},
+	{"potion_lotus", 5.f, 16.f, "potion_lotus_glass"},
 	{"potion_pilgrim", 5.2f, 16.5f},
 	{"potion_canopic", 4.6f, 15.f},
-	{"potion_cobra", 5.f, 16.f},
+	{"potion_cobra", 5.f, 16.f, "potion_cobra_glass"},
 	{"potion_ankh", 5.5f, 17.5f},
 }};
 } // namespace

@@ -279,7 +279,14 @@ conventions, steps). New model notes go in the script's docstring, not here.
   shoulder: a chest's gold heap hides the bottom. The engine loads each vessel once and gives every potion its own
   texture (`loadPotions` in `src/state/assets.cpp`, `Item::shareModel`); no tint on the model, `PotionDef::colour`
   tints the icons only. Albedo x AO textures (no baked light), 512 px.
-  `-- --export` writes `media/models/items/<item>.md3` for every item in `ITEMS` (`{club,...,arrow,sling_stone,potion_flask,...,treasure_chest}`) + `media/textures/items/<same>.png` (a potion vessel: its potions' textures); `--review out.png`
+  The glass vessels (`GLASS_VESSELS`: flask, lotus, cobra; [potion-glass-vessels](plan/potion-glass-vessels.md)) are
+  two models on one origin: the opaque bits with the liquid (a closed lathe up to the shoulder, a little inside the
+  glass, `glass_vessel`) as the item's model, and the glass shell `potion_<model>_glass` (one surface, thick only at the
+  flask's rolled lip; `glass_shell`: pale blue-green, metal 0.8 for a faint shine; a 128 px texture per vessel) as its
+  second part (`PotionModelDef::glass`, `Item::loadPart` with `PartStyle::Glass`: lit, see-through at
+  `POTION_GLASS_ALPHA`, no glint), shared by the vessel's potions (`Item::sharePart`). Faience (pilgrim, ankh) and
+  alabaster (canopic) stay opaque.
+  `-- --export` writes `media/models/items/<item>.md3` for every item in `ITEMS` (`{club,...,arrow,sling_stone,potion_flask,...,treasure_chest}`) + `media/textures/items/<same>.png` (a potion vessel: its potions' textures; a glass vessel also `<vessel>_glass.md3` / `.png`); `--review out.png`
   renders front and three-quarter line-ups (`out.png`, `out_34.png`); `--only club,bow`.
 * `tools/blender/models/props.py` - gateway (`sphinx.md3`: doorway at the tile's left edge around the plasma portal quad of
   `Dungeon::Draw`, two Anubis jackals on shrine plinths; exits drawn turned 180 deg), the ankh shrine (gold ankh on a dais between

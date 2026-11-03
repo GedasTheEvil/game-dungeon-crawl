@@ -13,6 +13,9 @@
 //   --size <w>x<h>          the window size (default 800x600)
 // Headless shots: xvfb-run -a -s "-screen 0 1280x1024x24" bin/model-viewer <model.md3> --shot <dir> ...
 //
+// A potion vessel with a glass shell (PotionModelDef::glass, plan potion-glass-vessels) gets it drawn over it,
+// see-through as in the game, in the lit modes.
+//
 // Keys: space cycles through the model's clips, T through its textures, L the lighting (flat, game, toon),
 // + / - speed the loop up / slow it down. Drag with the left mouse button to turn the model.
 
@@ -102,6 +105,10 @@ std::vector<std::string> gTexturePaths; // the model's texture candidates, see T
 std::size_t gTextureIndex = 0;
 std::vector<std::string> gSiblingModelPaths;
 std::size_t gCurrentSiblingIndex = 0;
+
+// The glass shell of a potion vessel (LoadGlass), placed as the model; none for any other model.
+std::unique_ptr<AnimatedModel> gGlass;
+Texture gGlassTex;
 
 // Flat: texture only, as the old viewer. Game: the game's lighting (Lighting), the player's light in front of the
 // model. Toon: game lighting in toon mode with the ink outlines (Ink), as F1 in the game.
@@ -249,6 +256,26 @@ int LoadCurrentTexture() {
 	return 0;
 }
 
+// The glass shell of the potion vessel at path (its PotionModelDef), on the vessel's normalization; else none.
+void LoadGlass(const std::string& path, const ModelNormalization& norm) {
+	gGlass.reset();
+	for (int i = 0; i < POTION_MODEL_COUNT; i++) {
+		const PotionModelDef& def = potionModelDef(static_cast<PotionModel>(i));
+		if (def.glass == nullptr || FileStem(path) != def.model)
+			continue;
+		const std::filesystem::path dir = std::filesystem::path(path).parent_path();
+		gGlass = std::make_unique<AnimatedModel>();
+		if (gGlass->Load((dir / (std::string(def.glass) + ".md3")).string().c_str()) == 0) {
+			gGlass.reset();
+			return;
+		}
+		gGlassTex.LoadPNG((MEDIA_DIR "textures/items/" + std::string(def.glass) + ".png").c_str());
+		gGlass->BindTexture(gGlassTex.ID());
+		gGlass->Normalize(norm);
+		gGlass->Compile();
+	}
+}
+
 // gModel must already have a successful Load() by the time this runs --
 // called once from main() for the initial model, and again from
 // KeyPressed() on every [space] cycle. Resets the loop timer and stats;
@@ -262,8 +289,9 @@ void ApplyLoadedModel(const std::string& path) {
 	gTextureIndex = kept == gTexturePaths.end() ? 0 : static_cast<std::size_t>(kept - gTexturePaths.begin());
 
 	gModel->BindTexture(LoadCurrentTexture());
-	gModel->Centrify();
+	const ModelNormalization norm = gModel->Centrify();
 	gModel->Compile();
+	LoadGlass(path, norm);
 
 	gStartTicks = GameClock::now();
 
@@ -389,6 +417,16 @@ void DrawScene() {
 
 	if (gModel)
 		gModel->Show();
+	if (gGlass && lit) { // as Item::DrawPart's glass: blended over the model, no depth write
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthMask(GL_FALSE);
+		glColor4f(1.f, 1.f, 1.f, POTION_GLASS_ALPHA);
+		gGlass->Show();
+		glColor4f(1.f, 1.f, 1.f, 1.f);
+		glDepthMask(GL_TRUE);
+		glDisable(GL_BLEND);
+	}
 	if (lit)
 		Lighting::end();
 	Ink::end();

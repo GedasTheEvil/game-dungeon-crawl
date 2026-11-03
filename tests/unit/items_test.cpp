@@ -2,6 +2,8 @@
 #include "../../src/world/item_bag.h"
 #include "../../src/world/items.h"
 #include "../../src/world/quick_potion.h"
+#include "../../src/core/paths.h"
+#include <filesystem>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -11,6 +13,22 @@ TEST_CASE("every item converts to its file id and back") {
 		ItemFileId file = fileIdOf(itemAt(i));
 		REQUIRE(itemFromFile(file.type, file.id).has_value());
 		CHECK(*itemFromFile(file.type, file.id) == itemAt(i));
+	}
+}
+
+// Plan potion-glass-vessels: the glass vessels have a glass shell (model and texture), the faience and alabaster ones
+// none.
+TEST_CASE("potion vessels: a glass shell on the flask, the lotus jar and the cobra vial only") {
+	for (int i = 0; i < POTION_MODEL_COUNT; i++) {
+		const auto model = static_cast<PotionModel>(i);
+		const PotionModelDef& def = potionModelDef(model);
+		CAPTURE(def.model);
+		const bool glass = model == PotionModel::Flask || model == PotionModel::Lotus || model == PotionModel::Cobra;
+		CHECK((def.glass != nullptr) == glass);
+		if (def.glass == nullptr)
+			continue;
+		CHECK(std::filesystem::is_regular_file(MEDIA_DIR "models/items/" + std::string(def.glass) + ".md3"));
+		CHECK(std::filesystem::is_regular_file(MEDIA_DIR "textures/items/" + std::string(def.glass) + ".png"));
 	}
 }
 

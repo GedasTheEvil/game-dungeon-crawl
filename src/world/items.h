@@ -281,7 +281,11 @@ struct PotionModelDef {
 	const char* model; // media/models/items/<model>.md3
 	float scale; // on a chest (Item::scale), as is: no CHEST_MIN_SCALE for a potion
 	float detailScale; // the inventory's detail view
+	// The see-through glass shell over the liquid (plan potion-glass-vessels): the item's second part,
+	// media/models/items/<glass>.md3 and its texture; nullptr for the opaque faience and alabaster vessels.
+	const char* glass = nullptr;
 };
+constexpr float POTION_GLASS_ALPHA = 0.32f; // cloudy old glass: the liquid's colour reads through it
 [[nodiscard]] const PotionModelDef& potionModelDef(PotionModel model);
 
 struct PotionDef {

@@ -43,7 +43,7 @@ void Item::shareModel(const Item& owner, const char* texture) {
 	norm = owner.norm;
 }
 
-void Item::loadPart(const char* name, Rgb tint, float alpha) {
+void Item::loadPart(const char* name, Rgb tint, float alpha, PartStyle style) {
 	part.tex = std::make_shared<Texture>();
 	part.tex->LoadPNG((MEDIA_DIR "textures/items/" + std::string(name) + ".png").c_str());
 	part.mdl = std::make_shared<AnimatedModel>();
@@ -55,7 +55,10 @@ void Item::loadPart(const char* name, Rgb tint, float alpha) {
 	part.mdl->Compile();
 	part.tint = tint;
 	part.alpha = alpha;
+	part.style = style;
 }
+
+void Item::sharePart(const Item& owner) { part = owner.part; }
 
 void Item::sharePart(const Item& owner, Rgb tint) {
 	part = owner.part;
@@ -78,9 +81,10 @@ void Item::drawPartScaled(float drawScale) {
 	float colour[4];
 	glGetFloatv(GL_CURRENT_COLOR, colour);
 	const Rgb c = {colour[0] * part.tint.r, colour[1] * part.tint.g, colour[2] * part.tint.b};
+	const bool gem = part.style == PartStyle::Gem;
 	glEnable(GL_BLEND);
 	glDepthMask(GL_FALSE);
-	Lighting::setEmissive(true); // it shines in the dark, a lamp of its own
+	Lighting::setEmissive(gem); // a gem shines in the dark, a lamp of its own; glass takes the scene's light
 	glPushMatrix();
 	glTranslatef(0, 0, -DRAW_DEPTH);
 	glScalef(drawScale, drawScale, drawScale);
@@ -89,6 +93,17 @@ void Item::drawPartScaled(float drawScale) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(c.r, c.g, c.b, part.alpha);
 	part.mdl->Show(playback, part.tex->ID());
+	if (gem)
+		drawGlint(playback, c);
+	glPopMatrix();
+	Lighting::setEmissive(false);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	glColor4f(colour[0], colour[1], colour[2], colour[3]);
+}
+
+void Item::drawGlint(const AnimPlayback& playback, Rgb c) const {
 	// The glint: the gem again, a little bigger, added on, swelling and fading.
 	const float phase = static_cast<float>(GameClock::now() % static_cast<int>(GLINT_PERIOD_MS)) / GLINT_PERIOD_MS;
 	const float glint = GLINT_MIN + (GLINT_MAX - GLINT_MIN) * 0.5f * (1.f - std::cos(phase * 2.f * 3.14159265f));
@@ -98,10 +113,4 @@ void Item::drawPartScaled(float drawScale) {
 	glScalef(GLINT_GROW, GLINT_GROW, GLINT_GROW);
 	glTranslatef(0, -part.centreY, 0);
 	part.mdl->Show(playback, part.tex->ID());
-	glPopMatrix();
-	Lighting::setEmissive(false);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthMask(GL_TRUE);
-	glDisable(GL_BLEND);
-	glColor4f(colour[0], colour[1], colour[2], colour[3]);
 }

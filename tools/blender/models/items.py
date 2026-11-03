@@ -26,7 +26,9 @@ fly as their held models (the engine loads those twice, once centred for the han
 
 Textures: one 512 PNG per item (media/textures/items/<name>.png), albedo x ambient occlusion like the monsters (no baked
 light, the engine lights them). A potion vessel has no texture of its own: each potion bakes one on it (POTIONS,
-media/textures/items/potion_<kind>.png) with its liquid colour; the engine draws it untinted.
+media/textures/items/potion_<kind>.png) with its liquid colour; the engine draws it untinted. A glass vessel
+(GLASS_VESSELS) also exports its glass shell, <vessel>_glass.md3 with <vessel>_glass.png, on the same origin: the
+engine's see-through second part (PotionModelDef::glass, plan potion-glass-vessels).
 """
 
 import importlib
@@ -56,8 +58,10 @@ ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "m
 BOW_FRAMES = 8  # the draw, frame 0 at rest
 CHEST_FRAMES = 12  # the opening, frame 0 closed (CONTAINER_DEFS in src/world/containers.h: 700 ms)
 FRAMED = {"bow": ("draw", BOW_FRAMES), "composite_bow": ("draw", BOW_FRAMES), "chest": ("opening", CHEST_FRAMES)}
-FILES = {"chest": "treasure_chest"}  # model / texture stem when it differs from the item name
+FILES = {"chest": "treasure_chest"}
+GLASS_VESSELS = ("potion_flask", "potion_lotus", "potion_cobra")  # each with a glass shell <vessel>_glass (glass_vessel)  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
+GLASS_TEX_SIZE = 128  # the glass shells' textures: one tint
 # The potions, in ItemKind order: texture stem (media/textures/items/<stem>.png, PotionDef::texture in src/world/items.cpp),
 # vessel model (POTION_MODELS there) and the palette keys its texture overrides.
 POTIONS = [
@@ -99,6 +103,9 @@ COL = {
     "cedar": (0.45, 0.22, 0.09),
     "cedar_dark": (0.26, 0.12, 0.05),
     "glass": (0.78, 0.84, 0.82),
+    # Old Egyptian glass (core-formed, from about 1500 BC): pale blue-green, cloudy; the engine draws it see-through
+    # (Item::loadPart, PartStyle::Glass) with a faint shine.
+    "glass_shell": metal((0.56, 0.76, 0.70), 0.8),
     "liquid": (0.72, 0.72, 0.72),  # each potion its own (POTIONS)
     "liquid_dark": (0.40, 0.40, 0.40),
     "cork": (0.50, 0.36, 0.22),
@@ -162,6 +169,7 @@ def materials(palette=None):
         "red": ("solid", "red"),
         "frieze": stripes("u", 0.05, [(2, "blue"), (1, "gold"), (2, "red"), (1, "gold")]),
         "glass": ("solid", "glass"),
+        "glass_shell": ("solid", "glass_shell"),
         "liquid": ("solid", "liquid"),
         "cork": stripes("u", 1 / 10, [(2, "cork"), (1, "cork_dark")], "LINEAR"),
         "cord": ("solid", "cord"),
@@ -601,7 +609,41 @@ def build_javelin(b, M):
 
 # The potion vessels (POTION_MODELS), about the flask's size: up to 0.19 high, standing on z = 0. Several potions share
 # a vessel; each potion bakes its own texture on it (POTIONS): the liquid colour ("liquid", "liquid_dark") and any
-# palette key it overrides. Clear glass shows the liquid below the liquid line, "glass" above it.
+# palette key it overrides. The glass vessels (GLASS_VESSELS: flask, lotus jar, cobra vial; plan potion-glass-vessels)
+# build their see-through glass shell into b.glass, its own mesh and texture (<vessel>_glass), which the engine draws as
+# the item's second part over the opaque bits and the liquid, a closed mesh of its own up to the shoulder.
+GLASS_THICK = 0.0016  # the shell's wall, so the rim reads
+GLASS_GAP = 0.0006  # between the wall's inside and the liquid
+
+
+def offset_profile(profile, d):
+    """The (r, z) profile moved d to its left (inwards, for a profile running up its outside), r kept >= 0."""
+    out = []
+    for i, (r, z) in enumerate(profile):
+        (r0, z0), (r1, z1) = profile[max(i - 1, 0)], profile[min(i + 1, len(profile) - 1)]
+        tr, tz = r1 - r0, z1 - z0
+        k = math.hypot(tr, tz) or 1.0
+        out.append((max(r - d * tz / k, 0.0), z + d * tr / k))
+    return out
+
+
+def glass_vessel(b, M, outer, liquid_top, n=20, rim=0):
+    """The glass shell over the outer profile (bottom to rim, running up) into b.glass, and the liquid inside it up to
+    liquid_top into b: a closed lathe, its flat top the liquid line. The shell is one surface (one layer of glass over
+    the liquid), its wall thick only in the last rim points, so an open mouth reads."""
+    inner = offset_profile(outer, GLASS_THICK)
+    shell = outer + list(reversed(inner[len(inner) - rim:])) if rim else outer
+    revolve(b.glass, M, shell, ["glass_shell"] * (len(shell) - 1), n=n)
+    wet = offset_profile(outer, GLASS_THICK + GLASS_GAP)
+    pts = []
+    for (r0, z0), (r1, z1) in zip(wet, wet[1:]):
+        pts.append((r0, z0))
+        if z0 <= liquid_top < z1:
+            t = (liquid_top - z0) / (z1 - z0)
+            pts.append((r0 + (r1 - r0) * t, liquid_top))
+            break
+    liquid = ([(0.0, pts[0][1])] if pts[0][0] > 0 else []) + pts + [(0.0, liquid_top)]
+    revolve(b, M, liquid, ["liquid"] * (len(liquid) - 1), n=n)
 
 
 def build_potion_flask(b, M):
@@ -609,19 +651,12 @@ def build_potion_flask(b, M):
     tied round the neck. Plain: the lesser potions."""
     body_r, body_c = 0.05, 0.055
     liquid_top = body_c + 0.034  # high: a chest hides the bottom
-    glass = []
+    outer = []
     for k in range(13):  # bottom pole to the shoulder
         a = math.radians(-90 + 150 * k / 12)
-        glass.append((body_r * math.cos(a), body_c + body_r * math.sin(a)))
-    profile = [(0.0, body_c - body_r)] + glass[1:] + [(0.016, 0.115), (0.014, 0.125), (0.014, 0.15), (0.019, 0.153), (0.019, 0.159), (0.013, 0.161)]
-    # Glass above the liquid line is brighter; split the lathe at the liquid line.
-    split = next(i for i, (_, z) in enumerate(profile) if z > liquid_top)
-    mats = ["liquid" if i < split - 1 else "glass" for i in range(len(profile) - 1)]
-    revolve(b, M, profile, mats, n=20)
-    # Meniscus ring.
-    zr = liquid_top
-    rr = math.sqrt(max(body_r * body_r - (zr - body_c) ** 2, 0)) + 0.0005
-    band(b, M["liquid"], zr, rr, 0.003, n=20)
+        outer.append((body_r * math.cos(a), body_c + body_r * math.sin(a)))
+    outer = [(0.0, body_c - body_r)] + outer[1:] + [(0.016, 0.115), (0.014, 0.125), (0.014, 0.15), (0.019, 0.153), (0.019, 0.159), (0.0155, 0.161)]
+    glass_vessel(b, M, outer, liquid_top, n=20, rim=4)  # the rolled lip
     # Cork and wax cap.
     b.add(spindle([(0.145, 0.0115), (0.175, 0.0125)], n=12, sub=1, bulge=(0, 0.002)), M["cork"], "root")
     b.add(transform(ellipsoid((0, 0, 0.176), (0.016, 0.016, 0.008), n=14, rings=4), lambda v: V((v.x, v.y, max(v.z, 0.169)))), M["wax"], "root")
@@ -635,13 +670,14 @@ def build_potion_flask(b, M):
 
 def build_potion_lotus(b, M):
     """Tall glass jar on a gold foot: an ovoid belly full to the shoulder, a slim neck that opens into a lotus flower of faience
-    petals round a liquid mouth, two small gold handles, a band of glyphs on the shoulder. The larger potions."""
-    profile = [(0.0, 0.0), (0.03, 0.0), (0.031, 0.004), (0.026, 0.009), (0.02, 0.014),  # foot
-               (0.034, 0.026), (0.044, 0.045), (0.047, 0.062), (0.044, 0.08), (0.038, 0.092), (0.031, 0.1),  # belly
-               (0.022, 0.108), (0.013, 0.118), (0.011, 0.13), (0.011, 0.145),  # shoulder, neck
-               (0.016, 0.156), (0.025, 0.167), (0.032, 0.176), (0.028, 0.177), (0.0, 0.171)]  # flare, the mouth
-    mats = ["gold"] * 4 + ["liquid"] * 6 + ["glyphs"] + ["glass"] * 3 + ["faience"] * 3 + ["gold", "liquid"]
-    revolve(b, M, profile, mats, n=24)
+    petals round a dark mouth, two small gold handles, a band of glyphs on the shoulder. The larger potions."""
+    revolve(b, M, [(0.0, 0.0), (0.03, 0.0), (0.031, 0.004), (0.026, 0.009), (0.02, 0.014), (0.0, 0.014)], ["gold"] * 5, n=24)  # foot
+    outer = [(0.02, 0.0125), (0.034, 0.026), (0.044, 0.045), (0.047, 0.062), (0.044, 0.08), (0.038, 0.092), (0.031, 0.1),  # belly
+             (0.022, 0.108), (0.013, 0.118), (0.011, 0.13), (0.011, 0.147)]  # shoulder, neck
+    glass_vessel(b, M, outer, 0.1, n=24)
+    flare = [(0.0105, 0.144), (0.016, 0.156), (0.025, 0.167), (0.032, 0.176), (0.028, 0.177), (0.0, 0.171)]  # the mouth
+    revolve(b, M, flare, ["faience"] * 3 + ["gold", "enamel"], n=24)
+    revolve(b, M, [(0.0318, 0.1), (0.0228, 0.108)], ["glyphs"], n=24)  # painted on the shoulder, over the glass
     band(b, M["gold"], 0.0145, 0.0205, 0.004, n=24)
     band(b, M["gold"], 0.1, 0.0315, 0.003, n=24)  # the liquid line
     band(b, M["gold"], 0.146, 0.0122, 0.004, n=16)
@@ -708,10 +744,10 @@ def build_potion_canopic(b, M):
 def build_potion_cobra(b, M):
     """Slim glass vial on a gold foot, a gold rearing cobra coiled round it: its hood, spread over the mouth, is the
     stopper. The snake potions (antidote, lesser and greater resistance)."""
-    profile = [(0.0, 0.0), (0.024, 0.0), (0.026, 0.004), (0.022, 0.009), (0.019, 0.012), (0.02, 0.03), (0.02, 0.1),
-               (0.017, 0.112), (0.011, 0.12), (0.011, 0.134), (0.0145, 0.137), (0.012, 0.139), (0.0, 0.138)]
-    mats = ["gold"] * 4 + ["liquid"] * 3 + ["glass", "glass", "gold", "gold", "liquid"]
-    revolve(b, M, profile, mats, n=20)
+    revolve(b, M, [(0.0, 0.0), (0.024, 0.0), (0.026, 0.004), (0.022, 0.009), (0.019, 0.012), (0.0, 0.012)], ["gold"] * 5, n=20)  # foot
+    outer = [(0.019, 0.011), (0.02, 0.03), (0.02, 0.1), (0.017, 0.112), (0.011, 0.12), (0.011, 0.1345)]
+    glass_vessel(b, M, outer, 0.112, n=20)
+    revolve(b, M, [(0.0105, 0.133), (0.0145, 0.137), (0.012, 0.139), (0.0, 0.138)], ["gold"] * 3, n=20)  # the lip
     band(b, M["gold"], 0.112, 0.0172, 0.0025, n=20)  # the liquid line
     # The coil: two turns up the vial, the tail thin at the foot, then up the back of the neck.
     keys = []
@@ -733,8 +769,9 @@ def build_potion_cobra(b, M):
 
 
 def build_potion_ankh(b, M):
-    """Ankh-shaped glass vessel full of liquid: the stem flares to a flat foot, the arms flare at the ends, the loop on
-    top is the neck with a gold mouth and stopper; gold caps, a band of glyphs, a gold knot where the arms cross."""
+    """Ankh-shaped vessel full of liquid, opaque (it reads as glazed faience; not in GLASS_VESSELS): the stem flares to a
+    flat foot, the arms flare at the ends, the loop on top is the neck with a gold mouth and stopper; gold caps, a band
+    of glyphs, a gold knot where the arms cross."""
     stem = [(V((0, 0, 0.0)), 0.026, 0.014), (V((0, 0, 0.012)), 0.021, 0.012), (V((0, 0, 0.05)), 0.0145, 0.0105),
             (V((0, 0, 0.098)), 0.011, 0.0095)]
     b.add(tube(stem, sub=4, n=16, ref=V((0, 1, 0))), M["liquid"], "root")
@@ -1194,8 +1231,9 @@ def build(bake=True, tex_dir=None, only=None):
     objs = {}
     for name in names:
         b = Builder()
+        b.glass = Builder() if name in GLASS_VESSELS else None
         BUILDERS[name](b, M)
-        low = min(v.z for v in b.verts)
+        low = min(v.z for v in b.verts + (b.glass.verts if b.glass else []))
         b.verts = [V(v) - V((0, 0, low)) for v in b.verts]
         obj = common.finish_mesh(b, coll, "item_" + name)
         obj["low"] = low  # the draw frames are shifted the same (pose_frames)
@@ -1218,10 +1256,23 @@ def build(bake=True, tex_dir=None, only=None):
                 tex = common.bake_texture(obj, os.path.join(out, stem + ".png"), TEX_SIZE, "item_" + stem, ao_distance=ao)
             common.use_baked_material(obj, tex)
             obj["texture"] = tex.name
+        objs[name] = obj
+        if b.glass:  # the shell on the same origin, its own texture (one per vessel)
+            g = b.glass
+            g.verts = [V(v) - V((0, 0, low)) for v in g.verts]
+            glass = common.finish_mesh(g, coll, "item_" + name + "_glass")
+            glass.data.set_sharp_from_angle(angle=math.radians(50))
+            glass.location = obj.location
+            common.uv_unwrap(glass, g.tags)
+            if bake:
+                tex = common.bake_texture(glass, os.path.join(out, name + "_glass.png"), GLASS_TEX_SIZE, "item_" + name + "_glass", ao_distance=0.001)
+                common.use_baked_material(glass, tex)
+                glass["texture"] = tex.name
+            objs[name + "_glass"] = glass
+    for name, obj in objs.items():
         (x0, x1), (y0, y1), (z0, z1) = extents(obj)
         print("item_{}: {} verts, {} tris, x {:.3f}..{:.3f}, y {:.3f}..{:.3f}, z {:.3f}..{:.3f}".format(
             name, len(obj.data.vertices), common.tri_count(obj), x0, x1, y0, y1, z0, z1))
-        objs[name] = obj
     return objs
 
 

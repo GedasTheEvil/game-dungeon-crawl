@@ -37,6 +37,7 @@ RESERVE_CORES=6 MIN_FREE_MB=4096 make test     # start a new one only while 6 co
 MIN_SWAP_FREE_MB=2048 make test                # and 2 GB of swap free (default 4096)
 HEADLESS=0 make test                           # real windows instead of Xvfb, one at a time
 bin/game tests/scenarios/smoke.txt               # direct run, real window
+bin/game a.txt b.txt ...                         # a batch: one load, each script in a fork (no screenshots)
 SCENARIO_DRAW_ALL=1 bin/game tests/scenarios/smoke.txt  # the same, watchable
 ```
 
@@ -61,7 +62,12 @@ counts as `GATE_LOAD_MB` (default 1500) more memory to come: it loads its models
 Gated jobs run on the last `GATE_CPUS` cores (default: the job cap), so the first cores stay free for the desktop.
 Each game runs niced with one llvmpipe thread (`LP_NUM_THREADS=1`). The last lines report peak parallel runs,
 seconds held back, minimum idle cores, minimum free memory (and at the start), minimum free swap and the wall time.
-Run from the repo root. `SCENARIO_TIMES=file` writes the time and ticks of each scenario; profiling and the
+Headless, the scripts without a `screenshot` (the path scripts) run in batches, as many as the job cap, the longest
+scripts spread first: `bin/game a.txt b.txt ...` loads the assets once, then runs each script in a fork of the loaded
+game, one after another ([plan](plan/solved/scenario-light-startup.md); `make paths` ~4x faster). A fork never draws: a
+script that comes to a frame a lone run draws (a menu, the inventory, the journal: their `Draw()` keeps the UI state
+the next key reads) stops there and runs again alone, after the batches. So every `result.txt` is the same as a lone
+run's. Run from the repo root. `SCENARIO_TIMES=file` writes the time and ticks of each scenario; profiling and the
 other measuring recipes: [performance-testing.md](performance-testing.md).
 
 ## Behaviour in test mode

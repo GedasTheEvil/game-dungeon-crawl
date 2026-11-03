@@ -11,6 +11,7 @@
 #include "../graphics/motion_fx.h"
 #include "../core/timer.h"
 #include "../core/logger.h"
+#include "../core/sound.h"
 #include "../ui/screen_state.h"
 #include "../ui/inventory.h"
 #include "../world/loot.h"
@@ -18,6 +19,7 @@
 #include "../world/spike_cycle.h"
 #include <GL/gl.h>
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <csignal>
 #include <ctime>
@@ -28,6 +30,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "../../external/stb/stb_image_write.h"
@@ -39,6 +42,7 @@ constexpr int EXIT_OK = 0;
 constexpr int EXIT_FAILED = 1;
 constexpr int EXIT_BAD_SCRIPT = 2;
 constexpr int EXIT_CRASH = 3;
+constexpr int EXIT_NEEDS_DRAW = 4; // a batch's script reached a frame a lone run draws: run it alone (runBatch)
 constexpr DamageMix FIRE_HIT = {0, 0, 0, 100}; // firehit
 
 constexpr int MAX_TICKS = 10 * 60 * 1000 / Scenario::TICK_MS; // 10 min of game time
@@ -74,6 +78,8 @@ struct Runner {
 	std::vector<std::string> failures;
 
 	bool hasScreenshots = false; // the script takes a screenshot: blind frames still draw the world
+	std::vector<std::string> batch; // loadBatch: the scripts, each run in a fork of the loaded game
+	bool noDraw = false; // a batch's script: a forked game never draws (GL is the parent's)
 	size_t playSetup = 0; // play mode: the setup commands still to run (all of them, until the first frame)
 	bool playPending = false;
 };
@@ -729,6 +735,11 @@ void checkDeath() {
 	reportEvent("player died: " + stateLine());
 	gRunner.failures.push_back("player died at tick " + std::to_string(gRunner.tick));
 }
+bool takesScreenshots(const Script& script) {
+	return std::any_of(script.commands.begin(), script.commands.end(), [](const Command& cmd) {
+		return cmd.type == CommandType::Screenshot;
+	});
+}
 } // namespace
 
 bool Scenario::load(const char* path) {
@@ -743,11 +754,7 @@ bool Scenario::load(const char* path) {
 		fprintf(stderr, "%s\n", error.c_str());
 	if (!errors.empty())
 		return false;
-	gRunner.hasScreenshots = std::any_of(
-		gRunner.script.commands.begin(),
-		gRunner.script.commands.end(),
-		[](const Command& cmd) { return cmd.type == CommandType::Screenshot; }
-	);
+	gRunner.hasScreenshots = takesScreenshots(gRunner.script);
 
 	std::filesystem::path scriptPath(path);
 	gRunner.outDir = "tests/out/" + scriptPath.stem().string();
@@ -767,6 +774,29 @@ bool Scenario::load(const char* path) {
 
 	const char* drawAll = std::getenv("SCENARIO_DRAW_ALL");
 	gRunner.drawAll = drawAll != nullptr && std::string(drawAll) == "1";
+	gRunner.active = true;
+	return true;
+}
+
+bool Scenario::loadBatch(const std::vector<std::string>& paths) {
+	for (const std::string& path : paths) {
+		std::ifstream in(path);
+		if (!in) {
+			fprintf(stderr, "scenario: cannot open %s\n", path.c_str());
+			return false;
+		}
+		Script script;
+		const std::vector<std::string> errors = parseScript(in, path, script);
+		for (const std::string& error : errors)
+			fprintf(stderr, "%s\n", error.c_str());
+		if (!errors.empty())
+			return false;
+		if (takesScreenshots(script)) {
+			fprintf(stderr, "scenario: %s takes a screenshot: run it alone\n", path.c_str());
+			return false;
+		}
+	}
+	gRunner.batch = paths;
 	gRunner.active = true;
 	return true;
 }
@@ -833,13 +863,10 @@ int Scenario::resolutionY() { return gRunner.script.resY; }
 
 int Scenario::tickDelayMs() { return gRunner.drawAll ? TICK_MS : 0; }
 
-void Scenario::tick() {
+namespace {
+// One game tick of a script, after the assets are loaded.
+void step() {
 	try {
-		if (!Game().cacheLoaded) {
-			Update(); // loads assets, draws the loading bar
-			return;
-		}
-
 		GameClock::advance(TICK_MS);
 		gRunner.tick++;
 		if (gRunner.tick > MAX_TICKS) {
@@ -854,10 +881,16 @@ void Scenario::tick() {
 		// the fill cut (plan scenario-skip-world-draw). Scripts with a screenshot keep the draw (particles and
 		// easing advance there, the screenshots would differ). The other screens still run Draw with a 1x1 scissor:
 		// they advance their own animations there (the inventory's turntable). SCENARIO_DRAW_ALL=1 (HEADLESS=0)
-		// draws every frame in full.
+		// draws every frame in full. A batch's script never draws: it stops at the first frame to draw (runBatch).
 		const bool blind = gRunner.pendingShot.empty() && !gRunner.drawAll;
 		const Screen screen = Game().ui.screen;
-		if (!blind || gRunner.hasScreenshots || (screen != Screen::Gameplay && screen != Screen::Death)) {
+		const bool draw = !blind || gRunner.hasScreenshots || (screen != Screen::Gameplay && screen != Screen::Death);
+		if (draw && gRunner.noDraw) {
+			// Draw keeps UI state the next input reads (the menus' selection): without it the run would differ.
+			fflush(stdout);
+			std::_Exit(EXIT_NEEDS_DRAW);
+		}
+		if (draw) {
 			if (blind) {
 				glEnable(GL_SCISSOR_TEST);
 				glScissor(0, 0, 1, 1);
@@ -878,6 +911,71 @@ void Scenario::tick() {
 		fflush(stdout);
 		std::_Exit(EXIT_CRASH);
 	}
+}
+
+// A batch's script in the forked game: the state is the parent's right after the load, as a lone run's first tick
+// sees it. It runs to its end without returning (finish exits).
+[[noreturn]] void runForked(const std::string& path) {
+	if (!Scenario::load(path.c_str()))
+		std::_Exit(EXIT_BAD_SCRIPT);
+	gRunner.noDraw = true;
+	Game().render.resX = gRunner.script.resX;
+	Game().render.resY = gRunner.script.resY;
+	Game().leaderboard.SetPath(gRunner.outDir + "/leaderboard.txt"); // as main() sets it for a lone run
+	Game().leaderboard.Load();
+	for (;;)
+		step();
+}
+
+// Runs the batch's scripts one after another, each in a fork of the loaded game, so the assets load once
+// (plan scenario-light-startup). Prints "batch: start PATH" before a script's output and "batch: exit CODE SECONDS"
+// after it (tools/run_scenarios.sh splits the output there). A fork must not touch GL, so a script that comes to a
+// frame a lone run draws (a screen other than the gameplay's) stops there with EXIT_NEEDS_DRAW: the runner then runs it
+// alone. Exits 0 when every script passed.
+[[noreturn]] void runBatch() {
+	// The audio device's thread does not live in a fork: closed now, it holds no lock the child's sounds would wait
+	// for. The mixer goes on without it, silent.
+	Audio::CloseDevice();
+	int failed = 0;
+	for (const std::string& path : gRunner.batch) {
+		printf("batch: start %s\n", path.c_str());
+		fflush(stdout);
+		fflush(stderr);
+		const auto started = std::chrono::steady_clock::now();
+		const pid_t pid = fork();
+		if (pid == 0)
+			runForked(path);
+		int status = 0;
+		int code = EXIT_CRASH;
+		if (pid < 0)
+			perror("scenario: fork");
+		else if (waitpid(pid, &status, 0) == pid && WIFEXITED(status))
+			code = WEXITSTATUS(status);
+		const std::chrono::duration<double> took = std::chrono::steady_clock::now() - started;
+		printf("batch: exit %d %.2f\n", code, took.count());
+		if (code != EXIT_OK && code != EXIT_NEEDS_DRAW)
+			failed++;
+	}
+	fflush(stdout);
+	Logger::shutdown();
+	std::_Exit(failed == 0 ? EXIT_OK : EXIT_FAILED);
+}
+} // namespace
+
+void Scenario::tick() {
+	if (!Game().cacheLoaded) {
+		try {
+			Update(); // loads assets, draws the loading bar
+		} catch (const std::exception& e) {
+			printf("CRASH exception: %s\n", e.what());
+			fflush(stdout);
+			std::_Exit(EXIT_CRASH);
+		}
+		return;
+	}
+	if (!gRunner.batch.empty())
+		runBatch();
+	step();
 }
 
 void Scenario::onFrameRendered() {

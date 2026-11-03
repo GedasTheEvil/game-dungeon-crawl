@@ -93,14 +93,17 @@ static bool parseArgs(int argc, char* argv[]) {
 		ok = Scenario::loadPlayLevel(Paths::fromLaunchDir(args[1]).c_str());
 	else if (args.size() == 2 && flag == "--play")
 		ok = Scenario::loadPlay(Paths::fromLaunchDir(args[1]).c_str());
-	else if (args.size() == 1 && flag.rfind("--", 0) != 0) {
-		ok = Scenario::load(Paths::fromLaunchDir(args[0]).c_str());
+	else if (!args.empty() &&
+			 std::none_of(args.begin(), args.end(), [](const std::string& arg) { return arg.rfind("--", 0) == 0; })) {
+		std::vector<std::string> paths(args.size());
+		std::transform(args.begin(), args.end(), paths.begin(), Paths::fromLaunchDir);
+		ok = paths.size() == 1 ? Scenario::load(paths[0].c_str()) : Scenario::loadBatch(paths);
 		setenv("SDL_AUDIODRIVER", "dummy", 1);
 		GameClock::enableVirtual();
 	} else if (!args.empty()) {
 		fprintf(
 			stderr,
-			"usage: %s [--no-sound] [--level N|PATH|gen:SEED:D[:ZONE] | --play SCENARIO.txt | SCENARIO.txt]\n",
+			"usage: %s [--no-sound] [--level N|PATH|gen:SEED:D[:ZONE] | --play SCENARIO.txt | SCENARIO.txt...]\n",
 			argv[0]
 		);
 		ok = false;

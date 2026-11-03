@@ -5,12 +5,18 @@
 // Command reference and output layout: docs/testing.md.
 #include "../core/gameplay_config.h"
 #include <string>
+#include <vector>
 
 namespace Scenario {
 constexpr int TICK_MS = UPDATE_TICK_MS;
 
 // Parses the script. Prints errors and returns false on a parse error.
 bool load(const char* path);
+// Several scripts in one game (`bin/game a.txt b.txt ...`, tools/run_scenarios.sh): the assets load once, then each
+// script runs in a fork of the loaded game that never draws. None may take a screenshot; one that comes to a frame a
+// lone run draws (a menu, the inventory) exits 4: run it alone. Returns false (errors printed) if one cannot be read
+// or parsed.
+bool loadBatch(const std::vector<std::string>& paths);
 bool active();
 
 int resolutionX();

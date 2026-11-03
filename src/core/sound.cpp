@@ -126,3 +126,5 @@ void Audio::SetVolumes(int music, int effects) {
 	gEffectsVolume = effects * MIX_MAX_VOLUME / 100;
 	Mix_Volume(-1, gEffectsVolume);
 }
+
+void Audio::CloseDevice() { SDL_CloseAudio(); }

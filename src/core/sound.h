@@ -59,6 +59,9 @@ class Ambience : AudioUser {
 // Music and effects volume, 0-100 each (Options > Sound).
 namespace Audio {
 void SetVolumes(int music, int effects);
+// Closes the audio device (its thread ends), keeps the mixer: sounds still play, unheard. For a scenario batch,
+// before it forks (Scenario::loadBatch).
+void CloseDevice();
 } // namespace Audio
 
 #endif

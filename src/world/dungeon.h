@@ -293,10 +293,13 @@ class Dungeon {
 	[[nodiscard]] WaterBox deepWaterBox(int col, int row) const;
 	void drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const;
 	Tile Map(float x, float y) const;
-	// The player's body, stepping sideways so its side reaches probeX at map height y, hits something solid: the cell
-	// the player is in or the one at the side (plan floor-queries), or a solid sub-cell from the centre to probeX, from
-	// the feet to the head (plan subcell-physics). The side the body leaves is not asked: it can step out of one.
-	[[nodiscard]] bool bodyBlocked(float probeX, float y) const;
+	// The player's body, stepping sideways (dir -1 or 1) to centre toX at map height y, hits something solid: the cell
+	// the player is in or the one PLAYER_BODY_HALF_WIDTH to the side (plan floor-queries), or a solid sub-cell from the
+	// centre to the hitbox's side (Player::HalfWidth), from the feet to the head (plan subcell-physics). The side the
+	// body leaves is not asked: it can step out of one.
+	[[nodiscard]] bool bodyBlocked(float toX, int dir, float y) const;
+	// How far from the centre the player's feet and head meet solid sub-cells: the hitbox's half width, a little in.
+	[[nodiscard]] float subcellReach() const;
 	// The map y of the ceiling the player's head at feet height y meets (plan subcell-physics): a solid cell over the
 	// centre, a solid sub-cell over the body; none if the head is free.
 	[[nodiscard]] std::optional<float> ceilingAt(float y) const;

@@ -17,10 +17,9 @@
 namespace {
 constexpr float LADDER_REACH = 0.2f; // closer to LADDER_GRIP_X than this (tiles), the player holds on to the ladder
 // Sub-cells (plan subcell-physics): a body touching a sub-cell's face is not in it; the feet that stand on a step reach
-// this far in from the body's sides, so a side touching a step's wall does not carry the player.
+// this far in from the hitbox's sides (subcellReach), so a side touching a step's wall does not carry the player.
 constexpr float SUBCELL_TOUCH = 1e-3f;
 constexpr float FOOT_INSET = 0.01f;
-constexpr float FOOT_REACH = PLAYER_BODY_HALF_WIDTH - FOOT_INSET;
 } // namespace
 
 bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < MAP_WIDTH && row >= 0 && row < MAP_HEIGHT; }
@@ -317,8 +316,9 @@ bool Dungeon::Move(float dirX, float dirY) {
 	const float startY = mapY;
 	if (dirX != 0) {
 		playerFacing = dirX > 0 ? 1 : -1;
-		float probeX = mapX + dirX + (dirX > 0 ? PLAYER_BODY_HALF_WIDTH : -PLAYER_BODY_HALF_WIDTH);
-		if (!bodyBlocked(probeX, mapY))
+		const int dir = dirX > 0 ? 1 : -1;
+		const float probeX = mapX + dirX + static_cast<float>(dir) * PLAYER_BODY_HALF_WIDTH;
+		if (!bodyBlocked(mapX + dirX, dir, mapY))
 			mapX += dirX;
 		else if (Map(probeX, mapY).type == Gate)
 			bumpGate(static_cast<int>(probeX), static_cast<int>(mapY));
@@ -414,7 +414,7 @@ std::optional<float> Dungeon::floorBelow(float x, float y) const {
 		const float mid = top - SUBCELL_SIZE / 2.f;
 		if (k == row * SUBCELLS - 1 && isFloor(Map(x, static_cast<float>(row - 1))))
 			return top;
-		if (subcellAt(x, mid) || subcellAt(x - FOOT_REACH, mid) || subcellAt(x + FOOT_REACH, mid))
+		if (subcellAt(x, mid) || subcellAt(x - subcellReach(), mid) || subcellAt(x + subcellReach(), mid))
 			return top;
 	}
 	return std::nullopt;
@@ -426,11 +426,15 @@ float Dungeon::heightOverFloor() const { return mapY - floorUnder(mapX, mapY); }
 //======================================================================================
 bool Dungeon::playerOnStep() const { return floorUnder(mapX, mapY) > std::floor(mapY) + SUBCELL_TOUCH; }
 //======================================================================================
-bool Dungeon::bodyBlocked(float probeX, float y) const {
-	if (isSolidTile(Map(mapX, y)) || isSolidTile(Map(probeX, y)))
+float Dungeon::subcellReach() const { return sim.player->HalfWidth() - FOOT_INSET; }
+//======================================================================================
+bool Dungeon::bodyBlocked(float toX, int dir, float y) const {
+	const float side = static_cast<float>(dir);
+	if (isSolidTile(Map(mapX, y)) || isSolidTile(Map(toX + side * PLAYER_BODY_HALF_WIDTH, y)))
 		return true;
+	const float edge = toX + side * sim.player->HalfWidth();
 	const float feet = y + SUBCELL_TOUCH, head = y + PLAYER_BODY_HEIGHT - SUBCELL_TOUCH;
-	for (const float x : {mapX, (mapX + probeX) / 2.f, probeX})
+	for (const float x : {mapX, (mapX + edge) / 2.f, edge})
 		for (const float h : {feet, (feet + head) / 2.f, head})
 			if (subcellAt(x, h))
 				return true;
@@ -439,8 +443,8 @@ bool Dungeon::bodyBlocked(float probeX, float y) const {
 //======================================================================================
 std::optional<float> Dungeon::ceilingAt(float y) const {
 	const float head = y + PLAYER_BODY_HEIGHT;
-	if (isSolidTile(Map(mapX, head)) || subcellAt(mapX, head) || subcellAt(mapX - FOOT_REACH, head) ||
-		subcellAt(mapX + FOOT_REACH, head))
+	if (isSolidTile(Map(mapX, head)) || subcellAt(mapX, head) || subcellAt(mapX - subcellReach(), head) ||
+		subcellAt(mapX + subcellReach(), head))
 		return std::floor(head * SUBCELLS) / SUBCELLS;
 	return std::nullopt;
 }

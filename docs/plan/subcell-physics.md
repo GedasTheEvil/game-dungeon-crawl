@@ -42,8 +42,8 @@ The player walks, jumps and falls against the solid sub-cells of a shaped cell, 
 
 ## Player
 
-* Collision against solid sub-cells, with the body half width (`PLAYER_BODY_HALF_WIDTH`, 0.25 tiles) and height
-  (about 0.375 tiles). No auto step-up: walking into a quarter step stops the player, a jump gets them onto it (from
+* Collision against solid sub-cells, with the hitbox's half width (`Player::HalfWidth`, the green box of the F3 view;
+  whole cells keep `PLAYER_BODY_HALF_WIDTH`, 0.25 tiles) and height (about 0.375 tiles). No auto step-up: walking into a quarter step stops the player, a jump gets them onto it (from
   the user: parts you need to jump on).
 * Landing: a fall stops at the floor height under the player. Keep `FALL_MAX_STEP` below a quarter tile (today 0.3),
   so one tick never skips a step's floor; check the fall speed and fall damage stay as today.

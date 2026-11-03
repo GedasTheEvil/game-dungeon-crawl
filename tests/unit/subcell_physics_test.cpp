@@ -48,7 +48,10 @@ TEST_CASE("a quarter step stops the walk; a jump lands on it, and on a half step
 	SimWorld world;
 	load(world);
 	CHECK_FALSE(world.WalkTo(3.5f)); // the step's face at x 3
-	CHECK(world.X() < 3.f - PLAYER_BODY_HALF_WIDTH + 0.01f);
+	// The hitbox's side meets it, not a wider body (nor the weapon's reach).
+	const float half = world.player.HalfWidth();
+	CHECK(world.X() < 3.f - half + 0.01f);
+	CHECK(world.X() > 3.f - half - 0.03f);
 	CHECK(world.Y() == FLOOR);
 
 	jumpAndLand(world);
@@ -70,7 +73,7 @@ TEST_CASE("a jump from the floor does not get onto a half step") {
 	const float before = world.X();
 	jumpAndLand(world);
 	CHECK(world.Y() == FLOOR);
-	CHECK(world.X() >= 10.f + PLAYER_BODY_HALF_WIDTH - 0.06f); // still in front of its face
+	CHECK(world.X() >= 10.f + world.player.HalfWidth() - 0.06f); // still in front of its face
 	CHECK(world.X() <= before);
 }
 
@@ -79,12 +82,14 @@ TEST_CASE("walking down a stair drops a quarter at a time, the trailing foot on 
 	load(world);
 	placeAt(world, 5);
 	CHECK(world.Y() == doctest::Approx(FLOOR + 0.75f));
-	REQUIRE(world.WalkTo(6.45f)); // the trailing foot still on the stair's top column (6 to 6.25)
+	// Just past each column's edge by the hitbox's half width: the trailing foot still on that column.
+	const float half = world.player.HalfWidth();
+	REQUIRE(world.WalkTo(6.25f + half - 0.03f)); // the stair's top column (6 to 6.25)
 	CHECK(world.Y() == doctest::Approx(FLOOR + 0.75f));
-	REQUIRE(world.WalkTo(6.6f));
+	REQUIRE(world.WalkTo(6.5f + half - 0.03f));
 	world.Wait(500);
 	CHECK(world.Y() == doctest::Approx(FLOOR + 0.5f));
-	REQUIRE(world.WalkTo(6.85f));
+	REQUIRE(world.WalkTo(6.75f + half - 0.03f));
 	world.Wait(500);
 	CHECK(world.Y() == doctest::Approx(FLOOR + 0.25f));
 	REQUIRE(world.WalkTo(7.5f));
@@ -104,8 +109,9 @@ TEST_CASE("a fall lands on a step, even from a tick's longest drop over it") {
 	CHECK(world.dungeon.floorUnder(3.5f, FLOOR + 0.9f) == doctest::Approx(FLOOR + 0.25f));
 	CHECK(world.dungeon.floorUnder(2.5f, FLOOR + 0.9f) == FLOOR); // beside it, the cell's floor
 	// A foot on the step carries the player; the centre over the floor beside it.
-	CHECK(world.dungeon.floorUnder(2.8f, FLOOR + 0.5f) == doctest::Approx(FLOOR + 0.25f));
-	CHECK(world.dungeon.floorUnder(2.74f, FLOOR + 0.5f) == FLOOR);
+	const float half = world.player.HalfWidth();
+	CHECK(world.dungeon.floorUnder(3.f - half + 0.02f, FLOOR + 0.5f) == doctest::Approx(FLOOR + 0.25f));
+	CHECK(world.dungeon.floorUnder(3.f - half - 0.01f, FLOOR + 0.5f) == FLOOR);
 }
 
 TEST_CASE("a jump stops at a low ceiling with a bump, then comes back down") {
@@ -142,7 +148,8 @@ TEST_CASE("the player walks under a ceiling half up, not into a crawl space a qu
 
 	placeAt(world, 24);
 	CHECK_FALSE(world.WalkTo(25.5f));
-	CHECK(world.X() < 25.f - PLAYER_BODY_HALF_WIDTH + 0.01f);
+	CHECK(world.X() < 25.f - world.player.HalfWidth() + 0.01f);
+	CHECK(world.X() > 25.f - world.player.HalfWidth() - 0.03f);
 }
 
 TEST_CASE("a step in half water and in sand stands out of them") {

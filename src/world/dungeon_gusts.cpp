@@ -63,7 +63,7 @@ void Dungeon::updateGusts() {
 						: 0;
 	if (dir != 0) {
 		const float to = mapX + static_cast<float>(dir) * step;
-		if (!bodyBlocked(to + static_cast<float>(dir) * PLAYER_BODY_HALF_WIDTH, mapY))
+		if (!bodyBlocked(to, dir, mapY))
 			mapX = to;
 		if (!playerInGust) {
 			sim.events->Status("%s", "The wind throws sand in your face!");

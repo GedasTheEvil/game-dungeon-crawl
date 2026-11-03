@@ -1,7 +1,7 @@
 # `make paths`: half the campaign levels fail their path script
 
-Status: implemented 2026-11-03, waits for the user's play-test (the monster slot fix changes the game). Was: draft 2026-11-03. Needs first: [scenario-skip-world-draw](solved/scenario-skip-world-draw.md) (a run
-takes ~1 min instead of ~23). From the user; found by [paths-speed](solved/paths-speed.md).
+Status: solved 2026-11-03 (play-tested by the user). Was: implemented 2026-11-03, waits for the user's play-test (the monster slot fix changes the game). Was: draft 2026-11-03. Needs first: [scenario-skip-world-draw](scenario-skip-world-draw.md) (a run
+takes ~1 min instead of ~23). From the user; found by [paths-speed](paths-speed.md).
 
 ## Problem
 
@@ -33,7 +33,7 @@ targets, the gate stop, the stamina waits, ladder grip), or the levels changed u
 ## Result
 
 `make paths`: 54/54 (was 27/54), in ~20 s. `bin/levelcheck content/levels/lvl*`: no warnings. `make check` passes.
-Play-test: `bin/game --play tests/play/paths-failures.txt` (level 32, god and peace: walk to Sobek, he must appear).
+Play-tested by the user (level 32, god and peace: Sobek appears). The play script is removed; the unit test covers it.
 
 Not bisected: each cause has a known start, newer than the path scripts. Three causes, by the levels they broke:
 

@@ -11,6 +11,7 @@ struct TextureRegistry {
 		portalRed; // the scrolling plasma of the entrance and teleporter gates (blue), of the exit gate (red)
 	Texture papyrus, loadingBackground, riddleBackground;
 	Texture hudIcons; // the player HUD's quick slot icons
+	Texture statusCards; // the status cards' backgrounds, one cell per StatusKind (plan curse-blessing-cards)
 	Texture skillIcons; // the heka mark and the skills (Heka screen, HUD)
 	Texture ribbon; // the journal's bookmark ribbons, tinted per section
 	Texture expeditionPage; // a torn notebook page of the earlier expedition: on a skeleton, in the journal

@@ -1,0 +1,15 @@
+# Plan curse-blessing-cards, for `bin/game --play tests/play/curse-blessing-cards.txt`: level 18 beside the Shrine of Isis
+# (col 37), peace, god. Over the HUD: poison tier 2 and a daze (grey condition cards), a greater weakness and a
+# slowness (purple curse cards, pips). Two potions in the inventory: drink the lesser resistance (one pip) and the water
+# blessing for the yellow cards (open the inventory (I), select a
+# potion, press E). Pray at the shrine (E, walk right to col 37): the curses lift, Isis's yellow card joins.
+seed 1
+god
+peace
+level 18 at 34 11
+give potion 8
+give potion 10
+poison medium
+daze 60000
+curse weakness greater
+curse slowness

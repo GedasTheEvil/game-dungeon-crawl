@@ -61,17 +61,8 @@ PlayerHud::View playerHudView() {
 			view.ringWorn[hand] = true;
 			view.ringGem[hand] = {c.r, c.g, c.b};
 		}
-	for (int t = 0; t < POISON_TIER_COUNT; t++)
-		view.poisonLeftMs[t] = stats.poison.LeftMs(static_cast<PoisonTier>(t));
-	view.resistLeftMs = stats.PotionResistLeftMs();
-	view.waterLeftMs = stats.WaterBlessingLeftMs();
-	view.isisLeftMs = stats.IsisWardLeftMs();
-	view.resistGreater = stats.PotionResistPercent() >= PotionEffect::GREATER_RESIST_PERCENT;
-	for (int c = 0; c < CURSE_COUNT; c++) {
-		view.curseLeftMs[c] = stats.curses.LeftMs(static_cast<Curse>(c));
-		view.curseGreater[c] = stats.curses.Greater(static_cast<Curse>(c));
-	}
-	view.dazeLeftMs = Game().player->dazeMs;
+	view.statuses = statusList(stats, Game().player->burning.LeftMs(), Game().player->dazeMs);
+	view.poisoned = stats.poison.Any();
 	view.staminaSkillShown = stats.heka.HasStaminaSkill();
 	view.staminaSkillOn = Game().player->staminaSkills;
 	if (std::optional<int> refused = Game().player->staminaSkillRefusedMs)

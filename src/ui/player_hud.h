@@ -1,6 +1,8 @@
 #ifndef PLAYER_HUD_H
 #define PLAYER_HUD_H
 
+#include "hud_icon.h"
+#include "status_list.h"
 #include "ui_draw.h"
 #include "../world/items.h"
 #include "../world/curses.h"
@@ -12,10 +14,9 @@ class Font;
 
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
 // (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets, the worn rings' gems and an
-// XP line. Above it, one poison drop per running tier (one, two or three pips) with its seconds left, a running
-// resistance potion's (one pip lesser, two greater), a running Blessing of Hapi (a blue-green drop), a running
-// Protection of Isis (her throne sign on a yellow card), then each running curse in a purple frame (one pip lesser, two
-// greater), then the daze (plan screech-bite) in a sand-gold frame.
+// XP line. Above it, one status card per running effect (plan curse-blessing-cards, status_list.h): a painted
+// background by kind (blessing yellow, condition grey, curse purple), the effect's icon on it, pips for the tier or
+// grade and the seconds left under it; then the waiting heka.
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -31,27 +32,6 @@ constexpr ui::Color CAP_BOTTOM = {0.10f, 0.08f, 0.055f};
 constexpr float CAP_H = 2.6f;
 constexpr float CAP_PAD = 2.2f; // added to the key's width
 constexpr float CAP_PEN_DROP = 1.8f; // cap centre to the small font's pen y
-
-// Cells of the icon atlas media/textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
-// inventory's tabs. Daze: the stars circling a dazed head (plan screech-bite). The weapons follow from FirstWeapon on,
-// in ItemKind order (weaponIcon); the curses from FirstCurse on, in Curse order.
-enum class Icon : std::uint8_t {
-	Potion,
-	Amulet,
-	Ring,
-	Daze,
-	IsisWard, // the Protection of Isis (plan shrine-of-isis): her throne sign
-	FirstWeapon = 8,
-	FirstAmulet = 21,
-	FirstCurse = 37,
-	None = 0xff
-};
-constexpr Icon weaponIcon(ItemKind weapon) {
-	return static_cast<Icon>(static_cast<int>(Icon::FirstWeapon) + itemIndex(weapon));
-}
-constexpr Icon amuletIcon(AmuletType type) {
-	return static_cast<Icon>(static_cast<int>(Icon::FirstAmulet) + static_cast<int>(type));
-}
 
 struct Slot {
 	Icon icon = Icon::None; // None: an empty slot (no potion of that kind left)
@@ -81,14 +61,9 @@ struct View {
 	// The worn rings (plan ring-accessories), left and right hand: a gem each in its colour, under the key sockets.
 	bool ringWorn[HAND_COUNT] = {};
 	ui::Color ringGem[HAND_COUNT] = {};
-	int poisonLeftMs[POISON_TIER_COUNT] = {}; // per tier, 0: not running. Any: the health bar is green.
-	int resistLeftMs = 0; // a resistance potion's time left, 0: none
-	bool resistGreater = false; // the greater one
-	int waterLeftMs = 0; // the Blessing of Hapi's time left, 0: none (plan water-blessing-potion)
-	int isisLeftMs = 0; // the Protection of Isis's time left, 0: none (plan shrine-of-isis)
-	int curseLeftMs[CURSE_COUNT] = {}; // per curse, 0: not running
-	bool curseGreater[CURSE_COUNT] = {}; // at the greater grade
-	int dazeLeftMs = 0; // a screech's daze, 0: none (plan screech-bite)
+	// The running effects in display order (statusList), each a card with an icon. poisoned: the health bar is green.
+	StatusList statuses;
+	bool poisoned = false;
 	// The stamina-skill sign (plan skill-flaming-arrows): shown once a stamina skill is learnt, lit while the toggle is
 	// on, it blinks when a skill was refused for lack of stamina.
 	bool staminaSkillShown = false;
@@ -105,9 +80,10 @@ void tick(int hp, int maxHp);
 void reset();
 
 // Sets its own square-pixel ortho projection (100 / SCALE high) for a resX x resY window. numbers: health numbers;
-// small: key caps and counts; icons: the icon atlas texture; skillIcons: the skill atlas (the heka mark). Leaves
+// small: key caps and counts; icons: the icon atlas texture; skillIcons: the skill atlas (the heka mark); statusCards:
+// the card backgrounds (one cell per StatusKind). Leaves
 // texturing on and the HUD blend function (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
-void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons, int skillIcons);
+void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons, int skillIcons, int statusCards);
 // One atlas icon (not None) filling `r`, in the canvas set up. Leaves texturing off.
 void drawIcon(Icon icon, const ui::Rect& r, int icons, ui::Color tint);
 } // namespace PlayerHud

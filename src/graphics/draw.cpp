@@ -356,7 +356,8 @@ void drawGameplay() {
 			Game().assets.fonts.hudBody,
 			Game().assets.fonts.hudSmall,
 			Game().assets.textures.hudIcons.ID(),
-			Game().assets.textures.skillIcons.ID()
+			Game().assets.textures.skillIcons.ID(),
+			Game().assets.textures.statusCards.ID()
 		);
 	LevelGem::draw(Game().dungeon.LevelNumber(), Game().render.resX, Game().render.resY, Game().assets.fonts.hud);
 	const bool prompt = Game().player->Alive() && !Game().dungeon.Won() && !Game().dungeon.Travelling();

@@ -1,0 +1,41 @@
+# Plan curse-blessing-cards: the HUD's status cards. Hapi and the lesser resistance potion (blessings, yellow), poison
+# tier 2, burning and daze (conditions, grey), a greater weakness and an insanity (curses, purple), then Isis's
+# prayer lifts the curses and adds her yellow card. Look at: the three kinds tell apart, the icons sit centred, the
+# pips read on all three, the order is blessings, conditions, curses.
+seed 1
+level 18 at 34 11
+god
+peace
+poison medium
+give potion 8
+give potion 10
+wait 10
+key i
+wait 5
+select lesser_resistance
+wait 5
+key e
+wait 2
+select water_blessing
+wait 5
+key e
+wait 2
+key i
+wait 5
+daze 20000
+curse weakness greater
+curse insanity
+firehit 3
+wait 3
+expect water_blessing > 0
+expect poison == 2
+expect burning == 1
+expect daze > 0
+expect curses >= 2
+screenshot cards_all
+walk to 37.5
+wait 10
+interact
+wait 10
+expect curses == 0
+screenshot cards_isis

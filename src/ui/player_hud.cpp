@@ -38,6 +38,7 @@ constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // th
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
 constexpr float POISON_SIZE = 6.f;
 constexpr float POISON_STEP = 9.f;
+constexpr float CARD_MARGIN = 0.6f; // the status card's frame outside its tile
 // The waiting heka, above the panel's right end: clear of the poison and resistance tiles.
 constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISON_Y, 6.f, 6.f};
 constexpr Rect STAMINA_SKILL_SIGN = {51.f, 13.6f, 3.6f, 3.6f}; // right of the stamina bar, under the health numbers
@@ -62,16 +63,6 @@ using PlayerHud::CAP_TOP;
 using PlayerHud::POISON_BOTTOM;
 using PlayerHud::POISON_TOP;
 constexpr Color LOST = {0.95f, 0.62f, 0.42f};
-// The drops, weak to strong: pale lime, venom green, deep malachite.
-constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 0.78f, 0.2f}, {0.08f, 0.5f, 0.18f}};
-constexpr Color CURSE_FRAME_TOP = {0.52f, 0.22f, 0.62f}; // a curse tile's frame, so it does not read as a potion
-constexpr Color CURSE_FRAME_BOTTOM = {0.22f, 0.06f, 0.3f};
-constexpr Color ISIS_TOP = {0.98f, 0.84f, 0.3f}; // the Protection of Isis's card: yellow, where a curse is purple
-constexpr Color ISIS_BOTTOM = {0.78f, 0.56f, 0.1f};
-constexpr Color DAZE_FRAME_TOP = {0.95f, 0.78f, 0.36f}; // the daze tile's: not a curse, not a potion
-constexpr Color DAZE_FRAME_BOTTOM = {0.55f, 0.36f, 0.1f};
-constexpr Color RESIST_DROPS[2] = {{0.35f, 0.62f, 0.92f}, {0.12f, 0.22f, 0.78f}}; // lesser, greater (ITEMS)
-constexpr Color WATER_DROP = {0.08f, 0.52f, 0.68f}; // the Blessing of Hapi's, as its potion (ITEMS)
 constexpr Color AMBER_TOP = {0.98f, 0.76f, 0.26f};
 constexpr Color AMBER_BOTTOM = {0.58f, 0.38f, 0.07f};
 constexpr Color TROUGH = {0.05f, 0.03f, 0.02f};
@@ -114,15 +105,8 @@ void barFrame(const Rect& bar) {
 	diamond(bar.x + bar.w, bar.cy(), 0.9f, GOLD, 1.f);
 }
 
-bool poisoned(const PlayerHud::View& v) {
-	for (int left : v.poisonLeftMs)
-		if (left > 0)
-			return true;
-	return false;
-}
-
 void drawHealth(const PlayerHud::View& v, int now) {
-	const bool poison = poisoned(v);
+	const bool poison = v.poisoned;
 	const Color top = poison ? POISON_TOP : BLOOD_TOP;
 	const Color bottom = poison ? POISON_BOTTOM : BLOOD_BOTTOM;
 	float ratio = ratioOf(v.hp, v.maxHp);
@@ -154,137 +138,32 @@ void drop(float x, float y, float r, Color c) {
 
 Rect poisonRect(int i) { return {POISON_X + POISON_STEP * static_cast<float>(i), POISON_Y, POISON_SIZE, POISON_SIZE}; }
 
-// The running tiers left to right, weak first: a stone tile with the drop and one pip per tier step.
-void drawPoison(const PlayerHud::View& v) {
-	int shown = 0;
-	for (int t = 0; t < POISON_TIER_COUNT; t++) {
-		if (v.poisonLeftMs[t] <= 0)
-			continue;
-		const Rect r = poisonRect(shown++);
+// The status cards left to right in the list's order (blessings, conditions, curses): a drop shadow, the kind's painted
+// card (a margin round the tile), the icon tinted, a pip per tier or grade in the bottom strip.
+void drawStatuses(const PlayerHud::View& v, int icons, int cards) {
+	for (int i = 0; i < v.statuses.count; i++) {
+		const Status& s = v.statuses.items[static_cast<size_t>(i)];
+		const Rect r = poisonRect(i);
 		fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-		tile(r, TileStyle::Stone, false, false);
-		drop(r.cx(), r.y + 2.8f, 1.3f, POISON_DROPS[t]);
-		for (int p = 0; p <= t; p++)
-			diamond(
-				r.cx() + (static_cast<float>(p) - static_cast<float>(t) / 2.f) * 1.4f,
-				r.y + 0.9f,
-				0.45f,
-				GOLD_BRIGHT,
-				1.f
-			);
-	}
-}
-
-int poisonTiles(const PlayerHud::View& v) {
-	int shown = 0;
-	for (int left : v.poisonLeftMs)
-		shown += left > 0 ? 1 : 0;
-	return shown;
-}
-
-// A running resistance potion, right of the poison tiles: a blue drop, one pip lesser, two greater.
-void drawResist(const PlayerHud::View& v) {
-	if (v.resistLeftMs <= 0)
-		return;
-	const Rect r = poisonRect(poisonTiles(v));
-	const int pips = v.resistGreater ? 2 : 1;
-	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-	tile(r, TileStyle::Stone, false, false);
-	drop(r.cx(), r.y + 2.8f, 1.3f, RESIST_DROPS[pips - 1]);
-	for (int p = 0; p < pips; p++)
-		diamond(
-			r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f,
-			r.y + 0.9f,
-			0.45f,
-			GOLD_BRIGHT,
-			1.f
-		);
-}
-
-// A running Blessing of Hapi (plan water-blessing-potion), right of the resistance tile: a blue-green drop.
-void drawWaterBlessing(const PlayerHud::View& v) {
-	if (v.waterLeftMs <= 0)
-		return;
-	const Rect r = poisonRect(poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0));
-	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-	tile(r, TileStyle::Stone, false, false);
-	drop(r.cx(), r.y + 2.8f, 1.3f, WATER_DROP);
-}
-
-// A running Protection of Isis (plan shrine-of-isis), right of the water blessing: a curse tile's size and layout, a
-// yellow card instead of the purple frame, her throne sign on it.
-void drawIsisWard(const PlayerHud::View& v, int icons) {
-	if (v.isisLeftMs <= 0)
-		return;
-	const Rect r = poisonRect(poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0) + (v.waterLeftMs > 0 ? 1 : 0));
-	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-	fillRect({r.x - 0.6f, r.y - 0.6f, r.w + 1.2f, r.h + 1.2f}, ISIS_BOTTOM, ISIS_BOTTOM, 1.f);
-	fillRect(r, ISIS_TOP, ISIS_BOTTOM, 1.f);
-	atlasIcon(
-		{r.x + 0.6f, r.y + 1.3f, r.w - 1.2f, r.h - 1.6f},
-		icons,
-		static_cast<int>(PlayerHud::Icon::IsisWard),
-		ICON_COLUMNS,
-		ICON_ROWS,
-		{1, 1, 1}
-	);
-	beginShapes();
-}
-
-// The poison, resistance, water blessing and Isis tiles shown, left of the curses.
-int potionTiles(const PlayerHud::View& v) {
-	return poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0) + (v.waterLeftMs > 0 ? 1 : 0) + (v.isisLeftMs > 0 ? 1 : 0);
-}
-
-// The running curses right of the resistance, in Curse order: a stone tile in a purple frame with the curse's icon, one
-// pip lesser, two greater.
-void drawCurses(const PlayerHud::View& v, int icons) {
-	int shown = potionTiles(v);
-	for (int c = 0; c < CURSE_COUNT; c++) {
-		if (v.curseLeftMs[c] <= 0)
-			continue;
-		const Rect r = poisonRect(shown++);
-		fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-		fillRect({r.x - 0.6f, r.y - 0.6f, r.w + 1.2f, r.h + 1.2f}, CURSE_FRAME_TOP, CURSE_FRAME_BOTTOM, 1.f);
-		tile(r, TileStyle::Stone, false, false);
+		atlasIcon(r.inset(-CARD_MARGIN), cards, static_cast<int>(s.kind), STATUS_KIND_COUNT, 1, {1, 1, 1});
 		atlasIcon(
 			{r.x + 0.6f, r.y + 1.3f, r.w - 1.2f, r.h - 1.6f},
 			icons,
-			static_cast<int>(PlayerHud::Icon::FirstCurse) + c,
+			static_cast<int>(s.icon),
 			ICON_COLUMNS,
 			ICON_ROWS,
-			{1, 1, 1}
+			{s.tint.r, s.tint.g, s.tint.b}
 		);
 		beginShapes();
-		const int pips = v.curseGreater[c] ? 2 : 1;
-		for (int p = 0; p < pips; p++)
+		for (int p = 0; p < s.pips; p++)
 			diamond(
-				r.cx() + (static_cast<float>(p) - static_cast<float>(pips - 1) / 2.f) * 1.4f,
+				r.cx() + (static_cast<float>(p) - static_cast<float>(s.pips - 1) / 2.f) * 1.4f,
 				r.y + 0.9f,
 				0.45f,
 				GOLD_BRIGHT,
 				1.f
 			);
 	}
-}
-
-int curseTiles(const PlayerHud::View& v) {
-	int shown = 0;
-	for (int left : v.curseLeftMs)
-		shown += left > 0 ? 1 : 0;
-	return shown;
-}
-
-// A screech's daze (plan screech-bite), right of the curses: a stone tile in a sand-gold frame with the circling stars.
-void drawDaze(const PlayerHud::View& v, int icons) {
-	if (v.dazeLeftMs <= 0)
-		return;
-	const Rect r = poisonRect(potionTiles(v) + curseTiles(v));
-	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-	fillRect({r.x - 0.6f, r.y - 0.6f, r.w + 1.2f, r.h + 1.2f}, DAZE_FRAME_TOP, DAZE_FRAME_BOTTOM, 1.f);
-	tile(r, TileStyle::Stone, false, false);
-	atlasIcon(r.inset(0.5f), icons, static_cast<int>(PlayerHud::Icon::Daze), ICON_COLUMNS, ICON_ROWS, {1, 1, 1});
-	beginShapes();
 }
 
 // A heka waits to be spent: a lapis tile with the heka mark and a breathing gold halo, the Heka key under it.
@@ -323,22 +202,9 @@ void tileSeconds(const Rect& r, int leftMs, Font& small) {
 	textCentered(small, r.cx(), r.y - 3.4f, secs, GOLD_BRIGHT);
 }
 
-void drawPoisonText(const PlayerHud::View& v, Font& small) {
-	int shown = 0;
-	for (int t = 0; t < POISON_TIER_COUNT; t++)
-		if (v.poisonLeftMs[t] > 0)
-			tileSeconds(poisonRect(shown++), v.poisonLeftMs[t], small);
-	if (v.resistLeftMs > 0)
-		tileSeconds(poisonRect(shown++), v.resistLeftMs, small);
-	if (v.waterLeftMs > 0)
-		tileSeconds(poisonRect(shown++), v.waterLeftMs, small);
-	if (v.isisLeftMs > 0)
-		tileSeconds(poisonRect(shown++), v.isisLeftMs, small);
-	for (int c = 0; c < CURSE_COUNT; c++)
-		if (v.curseLeftMs[c] > 0)
-			tileSeconds(poisonRect(shown++), v.curseLeftMs[c], small);
-	if (v.dazeLeftMs > 0)
-		tileSeconds(poisonRect(shown), v.dazeLeftMs, small);
+void drawStatusSeconds(const PlayerHud::View& v, Font& small) {
+	for (int i = 0; i < v.statuses.count; i++)
+		tileSeconds(poisonRect(i), v.statuses.items[static_cast<size_t>(i)].leftMs, small);
 }
 
 void drawStamina(const PlayerHud::View& v) {
@@ -502,7 +368,16 @@ void drawIcon(Icon icon, const Rect& r, int icons, Color tint) {
 	atlasIcon(r, icons, static_cast<int>(icon), ICON_COLUMNS, ICON_ROWS, tint);
 }
 
-void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons, int skillIcons) {
+void draw(
+	const View& view,
+	int resX,
+	int resY,
+	Font& numbers,
+	Font& small,
+	int icons,
+	int skillIcons,
+	int statusCards
+) {
 	int now = GameClock::now();
 	// Font::print resets the modelview, so the canvas is set through the projection.
 	float canvasH = 100.f / SCALE;
@@ -521,12 +396,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	drawKeys(view);
 	drawRings(view);
 	drawXp(view);
-	drawPoison(view);
-	drawResist(view);
-	drawWaterBlessing(view);
-	drawIsisWard(view, icons);
-	drawCurses(view, icons);
-	drawDaze(view, icons);
+	drawStatuses(view, icons, statusCards);
 	drawHeka(view, now, skillIcons);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
@@ -543,7 +413,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlotText(view.slots[i], slotRect(i), small);
-	drawPoisonText(view, small);
+	drawStatusSeconds(view, small);
 	if (view.staminaSkillShown && !view.staminaSkillKey.empty())
 		textCentered(
 			small,

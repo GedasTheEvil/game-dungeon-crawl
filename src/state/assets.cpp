@@ -419,6 +419,7 @@ void Assets::Load(const std::function<void(float, const char*, const char*)>& pr
 	TextureBatch textureBatch(pool);
 	textures.papyrus.LoadPNG(MEDIA_DIR "textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	textures.hudIcons.LoadPNG(MEDIA_DIR "textures/ui/hud_icons.png");
+	textures.statusCards.LoadPNG(MEDIA_DIR "textures/ui/status_cards.png"); // tools/textures/status_cards.py
 	textures.skillIcons.LoadPNG(MEDIA_DIR "textures/ui/skill_icons.png");
 	textures.ribbon.LoadPNG(MEDIA_DIR "textures/ui/ribbon.png");
 	textures.ribbon.ClampToEdge(); // drawn as one quad: its edges must not wrap round to the other side

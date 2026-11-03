@@ -3,7 +3,7 @@
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/ui/player_hud.h: the potion, amulet, ring, daze and the Isis ward, then from cell 8 on the weapons in ItemKind order, then from cell
+src/ui/player_hud.h: the potion, amulet, ring, daze, the Isis ward, the status drop and the flame, then from cell 8 on the weapons in ItemKind order, then from cell
 21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
@@ -668,11 +668,40 @@ def isis_ward():
     return img
 
 
+def drop_icon():
+    """A status drop (plan curse-blessing-cards): white, the HUD tints it per effect (poison tier, resistance, Hapi)."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    d.ellipse([110, 190, 402, 482], fill=WHITE, outline=INK, width=LINE)
+    d.polygon([(256, 30), (136, 270), (376, 270)], fill=WHITE)
+    d.line([(256, 30), (140, 262)], fill=INK, width=LINE)
+    d.line([(256, 30), (372, 262)], fill=INK, width=LINE)
+    d.ellipse([112, 192, 400, 480], outline=INK, width=LINE)
+    d.polygon([(256, 40), (150, 266), (370, 266)], fill=WHITE)
+    d.ellipse([160, 290, 220, 400], fill=(215, 215, 215, 255))  # a shade, then the glint
+    d.ellipse([170, 300, 205, 360], fill=WHITE)
+    return img
+
+
+def burning():
+    """The player burning (plan fire-damage): a flame, red with orange and yellow tongues inside."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    outer = [(256, 20), (330, 130), (400, 200), (420, 320), (370, 430), (256, 490), (142, 430), (92, 320), (120, 230),
+             (170, 270), (190, 150)]
+    d.polygon(outer, fill=(214, 60, 24, 255), outline=INK, width=LINE)
+    mid = [(260, 150), (330, 260), (350, 350), (300, 440), (256, 460), (190, 420), (160, 340), (200, 290), (230, 230)]
+    d.polygon(mid, fill=(246, 150, 36, 255))
+    core = [(256, 290), (306, 370), (290, 430), (256, 450), (216, 420), (212, 360)]
+    d.polygon(core, fill=(255, 226, 110, 255))
+    return img
+
+
 CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
 # curses from cell 37 on (Icon::FirstCurse).
-ICONS = [potion, amulet, ring, daze, isis_ward, None, None, None,
+ICONS = [potion, amulet, ring, daze, isis_ward, drop_icon, burning, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
          bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS
 

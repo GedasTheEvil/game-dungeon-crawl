@@ -60,7 +60,7 @@ top. The props show in the decor layer only, the decals and torches in the decal
 
 ### Shapes (sub-cells)
 
-A cell is 4 x 4 sub-cells, a quarter tile each way ([level-subcells](../../docs/plan/level-subcells.md)).
+A cell is 4 x 4 sub-cells, a quarter tile each way ([level-subcells](../../docs/plan/solved/level-subcells.md)).
 Its shape says which are solid: steps to jump onto, low ceilings, crawl spaces. Only an open structure (empty, half
 water, sand, quicksand) takes one. The structure palette has the shape brushes after the six structures:
 

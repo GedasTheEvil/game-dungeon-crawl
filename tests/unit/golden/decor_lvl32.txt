@@ -563,7 +563,7 @@
 31,31 surface 6/1/2 decal 6 0.465,0.575
 23,32 surface 10/4/6 ladder 0/1
 23,33 surface 11/4/6 ladder 0/2m
-5,34 surface 11/4/6
+5,34 surface 11/4/6 prop shrine_isis 0.000
 6,34 surface 10/4/6 decal 15m 0.570,0.400
 7,34 surface 11/4/6 prop cat 0.109
 8,34 surface 10/4/6 ladder 0/4m

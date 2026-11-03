@@ -234,6 +234,10 @@ void PlayerStats::keepHpShare(int oldMax) {
 }
 
 bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
+	if (IsisWarded()) { // plan shrine-of-isis: from any source, every kind and grade
+		events.Status(StatusTone::Good, "Isis turns the curse away");
+		return false;
+	}
 	const int oldMax = CurrentMaxHP();
 	// Blessing of Isis (plan skill-blessing-of-isis): curses last half as long.
 	const int duration = heka.Has(SkillId::BlessingOfIsis) ? CURSE_MS_ISIS : CURSE_MS;
@@ -308,6 +312,28 @@ void PlayerStats::AdvanceWaterBlessing(int ms, WorldEvents& events) {
 		events.Status("The water is deep again");
 }
 
+void PlayerStats::Pray(WorldEvents& events) {
+	const bool lifted = curses.Any();
+	EndCurses();
+	isis_left_ms = ISIS_WARD_MS * (heka.Has(SkillId::BlessingOfIsis) ? 2 : 1);
+	events.Status(
+		StatusTone::Good,
+		"%sIsis shelters me from curses for %d min",
+		lifted ? "The curses lift. " : "",
+		isis_left_ms / 60000
+	);
+	events.Play(WorldSound::ShrinePray);
+	events.Note(FieldNote::ShrineOfIsis);
+}
+
+void PlayerStats::AdvanceIsisWard(int ms, WorldEvents& events) {
+	if (isis_left_ms <= 0)
+		return;
+	isis_left_ms = std::max(0, isis_left_ms - ms);
+	if (isis_left_ms == 0)
+		events.Status("The Protection of Isis fades");
+}
+
 std::string PlayerStats::Drink(const PotionGain& gain) {
 	const int hpBefore = HP;
 	const int staminaBefore = stamina;
@@ -356,6 +382,7 @@ void PlayerStats::Dump(std::ostream& f) const {
 	poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 	f << "WATER " << water_left_ms << "\n";
+	f << "ISIS " << isis_left_ms << "\n";
 	f << "BOONS " << max_stamina_percent << "\n";
 	heka.Dump(f);
 	curses.Dump(f);
@@ -396,6 +423,13 @@ void PlayerStats::LoadDump(std::istream& f) {
 		f.seekg(water);
 	} else
 		f >> water_left_ms;
+	isis_left_ms = 0;
+	const auto isis = f.tellg();
+	if (!(f >> tag) || tag != "ISIS") { // a save from before the Shrine of Isis
+		f.clear();
+		f.seekg(isis);
+	} else
+		f >> isis_left_ms;
 	max_stamina_percent = 0;
 	const auto boons = f.tellg();
 	if (!(f >> tag) || tag != "BOONS") { // a save from before the inscription boons

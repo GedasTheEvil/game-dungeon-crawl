@@ -334,7 +334,7 @@ TEST_CASE("the first ring of each gem writes its field note") {
 		CHECK(std::string(fieldNoteText(ringNote(gem)).title) != "");
 		CHECK(std::string(fieldNoteText(ringNote(gem)).text) != "");
 	}
-	CHECK(static_cast<int>(FieldNote::RingLast) + 1 == FIELD_NOTE_COUNT); // the last notes, saved by number
+	CHECK(static_cast<int>(FieldNote::RingLast) + 1 == static_cast<int>(FieldNote::ShrineOfIsis)); // saved by number
 	Journal journal;
 	ItemBag bag;
 	bag.Find(ItemKind::JasperSilver, journal);

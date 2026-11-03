@@ -304,6 +304,9 @@ constexpr PropInfo PROPS[DECOR_COUNT] = {
 	 "The great ring of seven chevrons (plan stargate-chamber), against the back wall: interact dials it, the "
 	 "seventh will not lock. Fills its cell up to the ceiling; one a campaign."},
 	{"Dial", "The Stargate's dial device: interact presses its red dome (a field note). Beside the ring."},
+	{"Shrine of Isis",
+	 "A naos with Isis seated in it (plan shrine-of-isis): praying there (interact) lifts every curse and wards "
+	 "curses off for 2 minutes. Unlimited prayers; about one level in four has one."},
 };
 
 const char* anchorText(DecalAnchor anchor) {

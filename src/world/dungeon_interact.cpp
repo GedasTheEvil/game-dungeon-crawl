@@ -78,6 +78,9 @@ void Dungeon::Interact() {
 	case Interaction::Press:
 		pressDialDevice();
 		break;
+	case Interaction::Pray:
+		sim.player->stats.Pray(*sim.events); // plan shrine-of-isis
+		break;
 	case Interaction::Answer:
 	case Interaction::Enter:
 		useGate();
@@ -111,6 +114,8 @@ Interaction Dungeon::InteractVerb() const {
 		return Dialling() ? Interaction::None : Interaction::Dial;
 	if (prop == DECOR_DIAL)
 		return Interaction::Press;
+	if (prop == DECOR_SHRINE_ISIS)
+		return Interaction::Pray;
 	const OwnedWeapons& owned = sim.items->Owned();
 	if (prop == DECOR_BRAZIER && (owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] ||
 								  owned[static_cast<size_t>(itemIndex(ItemKind::CompositeBow))]))

@@ -391,6 +391,13 @@ text: Wind, a hundred feet under the desert. It comes through the hall in gusts,
 	Count, cross in the calm, and wait out the next gust behind a statue. In the gust I can hardly see, or hear what
 	is coming. Neither can the rats; the wind takes them too.
 
+[note.shrine-of-isis]
+title: The Shrine of Isis
+text: A little shrine in the rock, Isis on her throne inside, her wings spread on the wall behind her, bread still on
+	the offering table. I knelt and asked her, feeling foolish. Every curse on me lifted at once, and for a while
+	none would take: the next one slid off like water. It does not last, two minutes or so, but she does not tire of
+	being asked. She hid her son from Set in the marshes; she can hide one archaeologist for a moment.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

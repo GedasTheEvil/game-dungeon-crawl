@@ -313,7 +313,7 @@
 23,23 surface 12/5/7
 24,23 surface 13/5/7 decal 8m 0.592,0.594
 25,23 surface 12/5/7 decal 11m 0.496,0.569
-26,23 surface 13/5/7 decal 2m 0.558,0.350
+26,23 surface 13/5/7 prop shrine_isis -0.000 decal 11m 0.549,0.383
 27,23 surface 12/5/7 decal 2 0.645,0.350 torch fire torch 0.000,0.680,0.098
 28,23 surface 13/5/7 prop thoth_ibis_seatedm -0.078
 29,23 surface 12/5/7 sand> prop rubble -0.083

@@ -7,7 +7,8 @@
 #include <ostream>
 
 // Curses (plan curses): timed debuffs a monster's hit lays on the player. Several run at once; the same curse again
-// restarts its time (no stacking). No cure, no resistance: they run out, or end on death.
+// restarts its time (no stacking). They run out, end on death, or a prayer at a Shrine of Isis lifts them and wards
+// them off for a while (plan shrine-of-isis, PlayerStats::Pray).
 
 // Saved by place: append only, never reorder. Cells of the HUD icon atlas from PlayerHud::Icon::FirstCurse on.
 enum class Curse : std::uint8_t { Weakness, Clumsiness, Vulnerability, Fatigue, Disease, Slowness, Palsy, Insanity };
@@ -18,6 +19,9 @@ enum class CurseGrade : std::uint8_t { Lesser, Greater };
 
 constexpr int CURSE_MS = 120000; // every curse lasts 2 minutes
 constexpr int CURSE_MS_ISIS = CURSE_MS / 2; // with the Blessing of Isis skill (plan skill-blessing-of-isis)
+// The Protection of Isis (plan shrine-of-isis): prayed for at a Shrine of Isis, no curse lands; twice as long with the
+// Blessing of Isis skill.
+constexpr int ISIS_WARD_MS = 120000;
 
 // The effects, in percent (PlayerStats applies them).
 constexpr int WEAKNESS_MIGHT_CUT = 50; // of Might

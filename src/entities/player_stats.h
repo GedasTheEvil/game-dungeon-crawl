@@ -36,6 +36,7 @@ class PlayerStats {
 	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
 	int resist_left_ms = 0;
 	int water_left_ms = 0; // the Blessing of Hapi's time left (plan water-blessing-potion)
+	int isis_left_ms = 0; // the Protection of Isis's time left (plan shrine-of-isis)
 
 	Timer stamina_regen_timer{1000};
 	Timer stamina_sprint_drain_timer{1000};
@@ -128,6 +129,14 @@ class PlayerStats {
 	// The potion's time runs out; the status box says when it ends.
 	void AdvanceWaterBlessing(int ms, WorldEvents& events);
 	void EndWaterBlessing() { water_left_ms = 0; }
+	// The Protection of Isis (plan shrine-of-isis): prayed for at a Shrine of Isis, no curse lands while it lasts.
+	[[nodiscard]] bool IsisWarded() const { return isis_left_ms > 0; }
+	[[nodiscard]] int IsisWardLeftMs() const { return isis_left_ms; }
+	// Prays at the shrine: every curse lifted, the ward (re)started for ISIS_WARD_MS (twice with the Blessing of Isis
+	// skill). Its status line and the field note.
+	void Pray(WorldEvents& events);
+	void AdvanceIsisWard(int ms, WorldEvents& events); // its time runs out; the status box says when it ends
+	void EndIsisWard() { isis_left_ms = 0; }
 	// The venom amulet: the chance a weapon hit poisons the monster, and with which tier.
 	[[nodiscard]] int VenomPercent() const { return amulet.venomPercent; }
 	[[nodiscard]] PoisonTier VenomTier() const { return amulet.venomTier; }
@@ -161,7 +170,8 @@ class PlayerStats {
 	[[nodiscard]] int Shots(ItemKind weapon) const;
 	[[nodiscard]] ShotPace ShotRecoveryPace() const;
 	// Lays a curse (plan curses): its status line, the field note the first time. Disease keeps the HP's share of the
-	// max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true.
+	// max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true; false when the Protection of Isis
+	// wards it off (a line of its own, no curse, not counted).
 	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events);
 	void AdvanceCurses(int ms, WorldEvents& events); // the curses' time runs out, each with its status line
 	void EndCurses(); // death or a new game: all gone

@@ -66,6 +66,8 @@ constexpr Color LOST = {0.95f, 0.62f, 0.42f};
 constexpr Color POISON_DROPS[POISON_TIER_COUNT] = {{0.72f, 0.9f, 0.3f}, {0.35f, 0.78f, 0.2f}, {0.08f, 0.5f, 0.18f}};
 constexpr Color CURSE_FRAME_TOP = {0.52f, 0.22f, 0.62f}; // a curse tile's frame, so it does not read as a potion
 constexpr Color CURSE_FRAME_BOTTOM = {0.22f, 0.06f, 0.3f};
+constexpr Color ISIS_TOP = {0.98f, 0.84f, 0.3f}; // the Protection of Isis's card: yellow, where a curse is purple
+constexpr Color ISIS_BOTTOM = {0.78f, 0.56f, 0.1f};
 constexpr Color DAZE_FRAME_TOP = {0.95f, 0.78f, 0.36f}; // the daze tile's: not a curse, not a potion
 constexpr Color DAZE_FRAME_BOTTOM = {0.55f, 0.36f, 0.1f};
 constexpr Color RESIST_DROPS[2] = {{0.35f, 0.62f, 0.92f}, {0.12f, 0.22f, 0.78f}}; // lesser, greater (ITEMS)
@@ -209,9 +211,29 @@ void drawWaterBlessing(const PlayerHud::View& v) {
 	drop(r.cx(), r.y + 2.8f, 1.3f, WATER_DROP);
 }
 
-// The poison, resistance and water blessing tiles shown, left of the curses.
+// A running Protection of Isis (plan shrine-of-isis), right of the water blessing: a curse tile's size and layout, a
+// yellow card instead of the purple frame, her throne sign on it.
+void drawIsisWard(const PlayerHud::View& v, int icons) {
+	if (v.isisLeftMs <= 0)
+		return;
+	const Rect r = poisonRect(poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0) + (v.waterLeftMs > 0 ? 1 : 0));
+	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+	fillRect({r.x - 0.6f, r.y - 0.6f, r.w + 1.2f, r.h + 1.2f}, ISIS_BOTTOM, ISIS_BOTTOM, 1.f);
+	fillRect(r, ISIS_TOP, ISIS_BOTTOM, 1.f);
+	atlasIcon(
+		{r.x + 0.6f, r.y + 1.3f, r.w - 1.2f, r.h - 1.6f},
+		icons,
+		static_cast<int>(PlayerHud::Icon::IsisWard),
+		ICON_COLUMNS,
+		ICON_ROWS,
+		{1, 1, 1}
+	);
+	beginShapes();
+}
+
+// The poison, resistance, water blessing and Isis tiles shown, left of the curses.
 int potionTiles(const PlayerHud::View& v) {
-	return poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0) + (v.waterLeftMs > 0 ? 1 : 0);
+	return poisonTiles(v) + (v.resistLeftMs > 0 ? 1 : 0) + (v.waterLeftMs > 0 ? 1 : 0) + (v.isisLeftMs > 0 ? 1 : 0);
 }
 
 // The running curses right of the resistance, in Curse order: a stone tile in a purple frame with the curse's icon, one
@@ -310,6 +332,8 @@ void drawPoisonText(const PlayerHud::View& v, Font& small) {
 		tileSeconds(poisonRect(shown++), v.resistLeftMs, small);
 	if (v.waterLeftMs > 0)
 		tileSeconds(poisonRect(shown++), v.waterLeftMs, small);
+	if (v.isisLeftMs > 0)
+		tileSeconds(poisonRect(shown++), v.isisLeftMs, small);
 	for (int c = 0; c < CURSE_COUNT; c++)
 		if (v.curseLeftMs[c] > 0)
 			tileSeconds(poisonRect(shown++), v.curseLeftMs[c], small);
@@ -500,6 +524,7 @@ void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int 
 	drawPoison(view);
 	drawResist(view);
 	drawWaterBlessing(view);
+	drawIsisWard(view, icons);
 	drawCurses(view, icons);
 	drawDaze(view, icons);
 	drawHeka(view, now, skillIcons);

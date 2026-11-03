@@ -1,0 +1,22 @@
+# Plan shrine-of-isis: the Shrine of Isis in lvl18 before the mummy priest's teleporter (col 37, row 11). Cursed twice,
+# the player prays there: the curses lift, the Protection of Isis's yellow card shows on the HUD, a curse after it is
+# turned away.
+seed 1
+level 18 at 34 11
+god
+peace
+curse weakness greater
+curse insanity
+wait 10
+walk to 37.5
+wait 10
+expect curses >= 2
+screenshot shrine_cursed
+interact
+wait 10
+expect curses == 0
+screenshot prayed
+curse slowness
+wait 5
+expect curses == 0
+screenshot warded

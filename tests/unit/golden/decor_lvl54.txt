@@ -91,7 +91,7 @@
 10,8 surface 6/1/2 ladder 1/1
 10,9 surface 15/6/8 ladder 1/2
 1,10 surface 14/6/8
-2,10 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+2,10 surface 14/6/8 prop shrine_isis 0.000 torch fire torch 0.000,0.680,0.098
 3,10 surface 14/6/8 sand>
 4,10 surface 15/1/8
 5,10 surface 14/1/8 prop scrolls -0.032 decal 11 0.404,0.421

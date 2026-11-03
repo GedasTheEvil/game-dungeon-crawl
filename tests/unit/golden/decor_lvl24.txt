@@ -94,7 +94,7 @@
 13,9 surface 3/1/1 decal 14 0.610,0.375 torch fire torch 0.000,0.680,0.098
 14,9 surface 5/2/1 decal 1 0.307,0.512
 15,9 surface 3/0/1
-16,9 surface 5/0/1 decal 3 0.457,0.600
+16,9 surface 5/0/1 prop shrine_isis -0.000 decal 10 0.394,0.500
 17,9 surface 4/2/1 prop rubble 0.038 decal 7 0.582,0.576
 18,9 surface 5/2/1
 19,9 surface 3/0/1 decal 13m 0.495,0.225 torch fire torch 0.000,0.680,0.098

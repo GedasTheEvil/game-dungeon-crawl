@@ -181,8 +181,14 @@ constexpr std::array<const char*, static_cast<int>(FieldNote::RingFirst) - stati
 		"coffins",
 		"sandstorm",
 };
+// ... and after the rings', in FieldNote order.
+constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote::RingLast) - 1> AFTER_RING_SLUGS = {
+	"shrine-of-isis",
+};
 
 std::string fieldNoteKey(int note) {
+	if (const int after = note - static_cast<int>(FieldNote::RingLast) - 1; after >= 0)
+		return std::string("note.") + AFTER_RING_SLUGS[static_cast<size_t>(after)];
 	if (const int ring = note - static_cast<int>(FieldNote::RingFirst); ring >= 0)
 		return std::string("note.ring-") + ringGemSlug(static_cast<RingGem>(ring));
 	const int amulet = note - static_cast<int>(FieldNote::AmuletFirst);

@@ -122,7 +122,7 @@
 21,11 surface 0/2/0 decal 7 0.573,0.538
 22,11 surface 1/2/0 sand> torch fire torch 0.000,0.680,0.098
 23,11 surface 0/1/0 prop lampm -0.064 fire lamp 0.192,0.050,0.307
-24,11 surface 0/0/0 sand<
+24,11 surface 0/0/0 sand< prop shrine_isis 0.000
 25,11 surface 1/2/0 prop sarcophagusm -0.049 decal 11 0.607,0.452
 26,11 surface 0/2/0
 27,11 surface 0/0/0 sand> decal 11m 0.436,0.608

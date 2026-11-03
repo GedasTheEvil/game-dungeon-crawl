@@ -377,7 +377,7 @@
 30,31 surface 6/1/2 decal 15 0.381,0.526
 31,31 surface 7/1/2
 32,31 surface 6/1/2 prop potterym -0.059
-33,31 surface 7/2/2 sand< decal 14 0.584,0.375 torch fire torch 0.000,0.680,0.098
+33,31 surface 7/2/2 sand< prop shrine_isis -0.000 torch fire torch 0.000,0.680,0.098
 13,32 surface 3/1/1
 14,32 surface 3/2/1 ladder 1/1
 15,32 surface 5/1/1

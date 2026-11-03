@@ -206,6 +206,8 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.shotTooClose;
 	case WorldSound::HeadBump:
 		return sounds.headBump;
+	case WorldSound::ShrinePray:
+		return sounds.shrinePray;
 	}
 	return sounds.arrowHit;
 }

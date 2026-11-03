@@ -92,7 +92,7 @@
 34,11 surface 0/0/0 sand> prop osiris -0.036 decal 8m 0.537,0.538
 35,11 surface 0/1/0 decal 0 0.619,0.570
 36,11 surface 0/0/0 sand< ladder 0/4
-37,11 surface 1/0/0 torch fire torch 0.000,0.680,0.098
+37,11 surface 1/0/0 prop shrine_isis -0.000 torch fire torch 0.000,0.680,0.098
 38,11 surface 0/2/0
 1,12 surface 7/1/2 torch fire torch 0.000,0.680,0.098
 2,12 surface 6/2/2

@@ -38,6 +38,7 @@ struct SoundBank {
 	Sound wade, splash; // a step in half water, landing in it
 	Sound pageTurn; // the journal's paper rustle
 	Sound headBump; // the player's head on a low ceiling in a jump (plan subcell-physics)
+	Sound shrinePray; // a prayer at a Shrine of Isis (plan shrine-of-isis)
 	Sound dungThud; // a dung ball breaks (plan scarab-dung-ball)
 	Sound shotDry,
 		shotTooClose; // a ranged shot refused: none left, a monster too close (plan ranged-weaker-than-melee)

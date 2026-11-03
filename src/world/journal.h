@@ -179,8 +179,9 @@ enum class FieldNote : unsigned char {
 	// (ringNote).
 	RingFirst,
 	RingLast = RingFirst + RING_GEM_COUNT - 1,
+	ShrineOfIsis, // the first prayer at a Shrine of Isis (plan shrine-of-isis)
 };
-constexpr int FIELD_NOTE_COUNT = 57 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 58 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

@@ -44,9 +44,9 @@ constexpr int ZONE_FLOOR[] = {FLOOR_SLABS, FLOOR_SLABS, FLOOR_WETSTONE, FLOOR_SA
 constexpr int ZONE_CEILING[] =
 	{CEILING_SLABS, CEILING_SLABS, CEILING_WETSTONE, CEILING_SANDSTONE, CEILING_BASALT, CEILING_GRANITE};
 // Horizontal jitter per prop (tile units), from the extents decor.py prints, so props stay inside the tile.
-constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f,
-											 0.06f, 0.14f, 0.2f,  0.1f, 0.2f, 0.2f,	 0.2f, 0.2f, 0.1f,
-											 0.f,	0.08f, 0.12f, 0.1f, 0.2f, 0.f,	 0.f,  0.f,	 0.f};
+constexpr float DECOR_JITTER[DECOR_COUNT] = {0.f,	0.12f, 0.06f, 0.1f, 0.f,  0.15f, 0.2f, 0.1f, 0.1f, 0.06f,
+											 0.14f, 0.2f,  0.1f,  0.2f, 0.2f, 0.2f,	 0.2f, 0.1f, 0.f,  0.08f,
+											 0.12f, 0.1f,  0.2f,  0.f,	0.f,  0.f,	 0.f,  0.f};
 
 bool inBounds(int col, int row) { return LevelGrid::inBounds(col, row); }
 int cellIndex(int col, int row) { return row * LEVEL_WIDTH + col; }

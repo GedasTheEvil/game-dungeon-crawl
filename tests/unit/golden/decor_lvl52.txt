@@ -254,7 +254,7 @@
 10,18 surface 14/6/8 torch fire torch 0.000,0.680,0.098
 10,19 surface 14/1/8 torch fire torch 0.000,0.680,0.098
 22,19 surface 14/6/8 decal 11 0.582,0.569
-6,20 surface 14/1/8
+6,20 surface 14/1/8 prop shrine_isis 0.000
 7,20 surface 14/6/8 sand<>
 8,20 surface 15/1/8
 9,20 surface 14/6/8 sand< decal 7m 0.471,0.471

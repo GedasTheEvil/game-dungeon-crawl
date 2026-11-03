@@ -67,7 +67,7 @@
 25,6 surface 14/6/8 sand> decal 2 0.486,0.350 torch fire torch 0.000,0.680,0.098
 26,6 surface 14/1/8 prop brazier 0.064 decal 10 0.574,0.381 fire brazier 0.064,0.220,0.160
 27,6 surface 14/6/8 sand<
-28,6 surface 14/6/8 prop jackal -0.131
+28,6 surface 14/6/8 prop shrine_isis -0.000
 29,6 surface 14/1/8 ladder 1/3
 30,6 surface 14/6/8 sand> decal 11 0.449,0.537
 31,6 surface 14/1/8 decal 11m 0.487,0.444

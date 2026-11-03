@@ -65,6 +65,7 @@ PlayerHud::View playerHudView() {
 		view.poisonLeftMs[t] = stats.poison.LeftMs(static_cast<PoisonTier>(t));
 	view.resistLeftMs = stats.PotionResistLeftMs();
 	view.waterLeftMs = stats.WaterBlessingLeftMs();
+	view.isisLeftMs = stats.IsisWardLeftMs();
 	view.resistGreater = stats.PotionResistPercent() >= PotionEffect::GREATER_RESIST_PERCENT;
 	for (int c = 0; c < CURSE_COUNT; c++) {
 		view.curseLeftMs[c] = stats.curses.LeftMs(static_cast<Curse>(c));

@@ -504,7 +504,7 @@
 28,31 surface 11/4/6
 29,31 surface 10/4/6
 30,31 surface 11/4/6
-31,31 surface 10/4/6
+31,31 surface 10/4/6 prop shrine_isis -0.000
 3,32 surface 10/4/6
 4,32 surface 11/4/6 prop canopic -0.058
 5,32 surface 10/4/6

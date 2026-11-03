@@ -13,8 +13,9 @@ class Font;
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
 // (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets, the worn rings' gems and an
 // XP line. Above it, one poison drop per running tier (one, two or three pips) with its seconds left, a running
-// resistance potion's (one pip lesser, two greater), a running Blessing of Hapi (a blue-green drop), then each running
-// curse in a purple frame (one pip lesser, two greater), then the daze (plan screech-bite) in a sand-gold frame.
+// resistance potion's (one pip lesser, two greater), a running Blessing of Hapi (a blue-green drop), a running
+// Protection of Isis (her throne sign on a yellow card), then each running curse in a purple frame (one pip lesser, two
+// greater), then the daze (plan screech-bite) in a sand-gold frame.
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
@@ -39,6 +40,7 @@ enum class Icon : std::uint8_t {
 	Amulet,
 	Ring,
 	Daze,
+	IsisWard, // the Protection of Isis (plan shrine-of-isis): her throne sign
 	FirstWeapon = 8,
 	FirstAmulet = 21,
 	FirstCurse = 37,
@@ -83,6 +85,7 @@ struct View {
 	int resistLeftMs = 0; // a resistance potion's time left, 0: none
 	bool resistGreater = false; // the greater one
 	int waterLeftMs = 0; // the Blessing of Hapi's time left, 0: none (plan water-blessing-potion)
+	int isisLeftMs = 0; // the Protection of Isis's time left, 0: none (plan shrine-of-isis)
 	int curseLeftMs[CURSE_COUNT] = {}; // per curse, 0: not running
 	bool curseGreater[CURSE_COUNT] = {}; // at the greater grade
 	int dazeLeftMs = 0; // a screech's daze, 0: none (plan screech-bite)

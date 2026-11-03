@@ -132,6 +132,7 @@ void Player::die(WorldEvents& events) {
 	stats.poison.Cure();
 	stats.EndResistance();
 	stats.EndWaterBlessing();
+	stats.EndIsisWard();
 	stats.EndCurses();
 	burning.Douse();
 }
@@ -162,6 +163,7 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 void Player::UpdatePoison(WorldEvents& events) {
 	stats.AdvanceResistance(UPDATE_TICK_MS);
 	stats.AdvanceWaterBlessing(UPDATE_TICK_MS, events);
+	stats.AdvanceIsisWard(UPDATE_TICK_MS, events);
 	stats.AdvanceCurses(UPDATE_TICK_MS, events);
 	const int hp = stats.poison.Advance(UPDATE_TICK_MS, stats.CurrentMaxHP(), stats.PoisonFasterPercent());
 	if (hp <= 0 || !Alive() || god)
@@ -229,6 +231,7 @@ void Player::Reanimate() {
 	stats.poison.Cure();
 	stats.EndResistance();
 	stats.EndWaterBlessing();
+	stats.EndIsisWard();
 	setModelState(model.reference);
 	blood.Stop(); // a new or loaded game starts without the last game's splash
 }

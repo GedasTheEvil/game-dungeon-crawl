@@ -36,7 +36,7 @@ COLL = "decor_new"
 PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris",
          "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin",
          "coffin_large", "water_reeds", "water_weed", "water_pads", "water_lotus", "stargate", "stargate_track", "stargate_chevron",
-         "dial_device"]
+         "dial_device", "shrine_isis"]
 WATER_PROPS = {"water_reeds", "water_weed", "water_pads", "water_lotus"}  # stand in a basin (BASIN_Z), see build_env
 TEX_SIZE = 512
 TEX_SIZES = {"stargate": 1024}  # the props larger than the rest
@@ -46,7 +46,7 @@ UNLIT = {"stargate_chevron"}  # glowing: baked as its colours, no light (the eng
 PROP_SCALE = {"web": 1.2, "pottery": 1.4, "canopic": 1.5, "rubble": 1.3, "skeleton": 1.2, "brazier": 1.35, "lamp": 1.9, "scrolls": 1.6,
               "ushabti": 1.9, "cat": 1.3, "jackal": 1.3, "osiris": 1.4,
               "thoth_ibis_standing": 1.4, "thoth_ibis_seated": 1.4, "thoth_baboon_seated": 1.4, "thoth_baboon_standing": 1.4,
-              "sarcophagus": 1.3}
+              "sarcophagus": 1.3, "shrine_isis": 1.35}
 # Not enlarged (exact tile units): coffin (the mummy's, placed by the engine at mummy spawn tiles, see mummy.py COFFIN) and
 # coffin_large (the mummy priest's, see mummy_priest.py).
 SCALE_PIVOT = {"web": (-0.5, 0.0, 1.0)}  # the web grows out of its corner
@@ -1397,6 +1397,95 @@ def build_dial_device(b, M):
     b.add(put(ellipsoid((0, 0, 0.0), (0.04, 0.04, 0.03), n=18, rings=6)), M["dome"], "root")
 
 
+def isis_statue():
+    """Isis seated on a block throne on z = 0, facing -Y, hands on her knees: white linen sheath, yellow skin, a blue
+    and gold wig, the throne sign of her name on her head. Returns [(geo, mat)]."""
+    skin, dress = "coffin_yellow", "limestone_fresh"
+    y = 0.0
+    parts = [
+        (place(box(0.062, 0.05, 0.068), loc=(0, y + 0.012, 0.034)), "paint_red"),  # the throne
+        (place(box(0.066, 0.012, 0.11), loc=(0, y + 0.034, 0.055)), "paint_red"),  # its low back
+        (tube([((0, y, 0.07), 0.022, 0.018), ((0, y - 0.002, 0.1), 0.017, 0.013), ((0, y - 0.002, 0.135), 0.022, 0.015),
+               ((0, y - 0.001, 0.15), 0.025, 0.014)], sub=3, n=12, ref=V((0, -1, 0))), dress),
+        (rod((0, y, 0.15), (0, y - 0.001, 0.163), 0.0065, n=8), skin),  # neck
+        (ellipsoid((0, y - 0.004, 0.176), (0.0125, 0.0135, 0.015), n=12, rings=6), skin),
+        (ellipsoid((0, y + 0.003, 0.178), (0.016, 0.015, 0.018), n=12, rings=6), "thoth_wig"),
+        (ring((0, y - 0.002, 0.149), (0, -0.2, 1), 0.02, 0.013, 0.0028), "collar"),
+        (place(box(0.02, 0.016, 0.008), loc=(0, y + 0.002, 0.199)), "gold"),  # the throne sign: seat ...
+        (place(box(0.008, 0.016, 0.02), loc=(0.006, y + 0.002, 0.209)), "gold"),  # ... and its back
+    ]
+    for sx in (-1, 1):
+        x = sx * 0.012
+        parts += [
+            (rod((x, y + 0.004, 0.074), (x, y - 0.05, 0.074), 0.011, 0.009, n=8), dress),  # thigh
+            (rod((x, y - 0.052, 0.074), (x, y - 0.054, 0.008), 0.0085, 0.007, n=8), dress),  # shin
+            (ellipsoid((x, y - 0.06, 0.004), (0.006, 0.011, 0.004), n=8, rings=4), skin),  # foot
+            (rod((sx * 0.024, y, 0.143), (sx * 0.027, y - 0.012, 0.1), 0.0055, 0.005, n=6), skin),  # upper arm
+            (rod((sx * 0.027, y - 0.012, 0.1), (sx * 0.014, y - 0.044, 0.085), 0.005, 0.0045, n=6), skin),  # forearm
+            (ellipsoid((sx * 0.013, y - 0.05, 0.084), (0.005, 0.008, 0.003), n=6, rings=3), skin),  # hand
+            (rod((sx * 0.011, y - 0.006, 0.172), (sx * 0.013, y - 0.01, 0.14), 0.0048, 0.004, n=6), "thoth_wig"),  # lappet
+            (ellipsoid((sx * 0.0048, y - 0.0165, 0.178), (0.003, 0.0015, 0.0016), n=6, rings=3), "black"),  # eye
+        ]
+    return parts
+
+
+def wing(sx, z, length, tiers=3):
+    """A wing of Isis on the back wall (the plane y = y0 faces -Y): feather rows from the shoulder at x = 0 out
+    to sx * length, the lower rows longer. Returns [(geo, mat)], flat slabs to be moved onto the wall."""
+    up = rot(x=90)  # slab (x, y) -> wall (x, z), its thickness towards the camera
+    parts = []
+    for k in range(tiers):
+        top = z - 0.013 * k
+        reach = length * (0.55 + 0.45 * k / max(1, tiers - 1))
+        drop = 0.012 + 0.012 * k
+        pts = [(0.0, top), (sx * reach, top + 0.02 - 0.006 * k), (sx * reach, top + 0.02 - 0.006 * k - drop * 0.6),
+               (0.0, top - drop)]
+        if sx < 0:
+            pts.reverse()
+        parts.append((slab(pts, 0.004 + 0.001 * (tiers - k), up), ("gold", "paint_red", "regalia")[k % 3]))
+    return parts
+
+
+def build_shrine_isis(b, M):
+    """The Shrine of Isis (plan shrine-of-isis): a small limestone naos on a plinth, open to the camera, its cornice
+    and torus moulding painted; inside, against the blue back wall, Isis spreads her wings behind her seated statue.
+    In front an offering table with loaves, dates and a faience cup. The player prays here."""
+    stone, stone_hi = "limestone", "limestone_fresh"
+    b.add(place(box(0.36, 0.23, 0.05), loc=(0, -0.115, 0.025)), M["stone_dark"], "root")  # plinth
+    b.add(place(box(0.3, 0.2, 0.012), loc=(0, -0.105, 0.056)), M[stone], "root")  # the naos's floor
+    z0, z1, w, d = 0.062, 0.34, 0.14, 0.2
+    b.add(place(box(2 * w, 0.014, z1 - z0), loc=(0, -0.007, (z0 + z1) / 2)), M[stone], "root")  # back wall
+    b.add(place(box(2 * w - 0.03, 0.002, z1 - z0 - 0.02), loc=(0, -0.015, (z0 + z1) / 2)), M["paint_blue"], "root")
+    for sx in (-1, 1):
+        b.add(place(box(0.016, d, z1 - z0), loc=(sx * (w - 0.008), -d / 2, (z0 + z1) / 2)), M[stone], "root")  # side wall
+        b.add(place(box(0.024, 0.02, z1 - z0), loc=(sx * (w - 0.012), -d + 0.01, (z0 + z1) / 2)), M[stone_hi], "root")  # jamb
+        b.add(rod((sx * w, -d, z0), (sx * w, -d, z1), 0.008, n=8), M["regalia"], "root")  # torus moulding
+        add_parts(b, M, wing(sx, 0.0, 0.11), loc=(0, -0.016, 0.255))
+    b.add(rod((-w, -d, z1), (w, -d, z1), 0.008, n=8), M["regalia"], "root")
+    # The cavetto cornice: a band that leans out, under a flat top.
+    cornice = [(-w - 0.01, -d - 0.002), (w + 0.01, -d - 0.002), (w + 0.01, 0.0), (-w - 0.01, 0.0)]
+    b.add(slab(cornice, 0.012, loc=(0, 0, z1 + 0.004)), M["regalia"], "root")
+    flare = [(-w - 0.025, -d - 0.022), (w + 0.025, -d - 0.022), (w + 0.025, 0.0), (-w - 0.025, 0.0)]
+    b.add(slab(flare, 0.016, loc=(0, 0, z1 + 0.016)), M[stone], "root")
+    add_parts(b, M, isis_statue(), loc=(0, -0.075, z0), scale=1.15)
+    # The offering table (a hotep slab on a stand) before the shrine.
+    ty = -0.27
+    b.add(rod((0, ty, 0.0), (0, ty, 0.07), 0.02, 0.016, n=12), M[stone], "root")
+    b.add(place(box(0.13, 0.08, 0.012), loc=(0, ty, 0.076)), M[stone_hi], "root")
+    for k, x in enumerate((-0.04, -0.015)):
+        b.add(ellipsoid((x, ty + 0.01, 0.091), (0.014, 0.011, 0.008), n=10, rings=5), M["bread"], "root")
+    for k in range(4):
+        b.add(ellipsoid((0.022 + 0.008 * (k % 2), ty - 0.012 + 0.009 * (k // 2), 0.087 + 0.005 * (k == 3)),
+                        (0.005, 0.004, 0.004), n=6, rings=3), M["date"], "root")
+    b.add(revolve_geo_at((0.045, ty + 0.008, 0.082), [(0.0, 0.0), (0.006, 0.0), (0.011, 0.016), (0.0105, 0.017), (0.0, 0.004)]),
+          M["faience"], "root")
+    chips(b, M, ((-0.15, -0.26, 0.004), (0.16, -0.28, 0.005)), 110)
+
+
+def revolve_geo_at(loc, profile, n=14):
+    return place(revolve_geo(profile, n), loc=loc)
+
+
 BUILDERS = {
     "web": build_web,
     "pottery": build_pottery,
@@ -1427,6 +1516,7 @@ BUILDERS = {
     "stargate_track": build_stargate_track,
     "stargate_chevron": build_stargate_chevron,
     "dial_device": build_dial_device,
+    "shrine_isis": build_shrine_isis,
 }
 
 

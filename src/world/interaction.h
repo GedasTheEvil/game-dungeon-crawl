@@ -18,6 +18,7 @@ enum class Interaction : std::uint8_t {
 	Take, // the ankh; an open treasure container's item
 	Dial, // the Stargate, not dialling (plan stargate-chamber)
 	Press, // its dial device
+	Pray, // a Shrine of Isis (plan shrine-of-isis)
 };
 
 // The prompt's verb: "Open", "Pull", ...; empty for None.
@@ -47,6 +48,8 @@ constexpr const char* interactionVerb(Interaction verb) {
 		return "Dial";
 	case Interaction::Press:
 		return "Press";
+	case Interaction::Pray:
+		return "Pray";
 	}
 	return "";
 }

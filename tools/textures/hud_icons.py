@@ -3,7 +3,7 @@
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/ui/player_hud.h: the potion, amulet, ring and daze, then from cell 8 on the weapons in ItemKind order, then from cell
+src/ui/player_hud.h: the potion, amulet, ring, daze and the Isis ward, then from cell 8 on the weapons in ItemKind order, then from cell
 21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
@@ -656,11 +656,23 @@ def daze():
     return img
 
 
+def isis_ward():
+    """The Protection of Isis (plan shrine-of-isis): her throne sign (Gardiner Q1), the seat with its high back, in
+    lapis with gold edges, the small square of the seat's frame at its foot. Drawn on the HUD's yellow card."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    d.polygon([(130, 70), (250, 70), (250, 280), (400, 280), (400, 440), (130, 440)], fill=LAPIS, outline=INK, width=LINE)
+    d.rectangle([130, 280, 400, 300], fill=GOLD, outline=INK, width=LINE)  # the seat's edge
+    d.rectangle([300, 360, 370, 420], fill=GOLD, outline=INK, width=LINE)  # the frame's square
+    d.rectangle([110, 440, 420, 470], fill=GOLD, outline=INK, width=LINE)  # the base
+    return img
+
+
 CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
 # curses from cell 37 on (Icon::FirstCurse).
-ICONS = [potion, amulet, ring, daze, None, None, None, None,
+ICONS = [potion, amulet, ring, daze, isis_ward, None, None, None,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
          bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS
 

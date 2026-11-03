@@ -1,6 +1,6 @@
 # Head bump: a jump into a low ceiling hurts
 
-Status: draft 2026-11-03. Needs first: [subcell-physics](subcell-physics.md). From the user.
+Status: draft 2026-11-03. Needs first: [subcell-physics](solved/subcell-physics.md). From the user.
 
 Today a jump that meets a low ceiling (a solid sub-cell over the body, `Dungeon::ceilingAt`) stops the rise and plays
 `WorldSound::HeadBump` (`src/world/dungeon_base.cpp`, the jump step). Now the bump also hurts and can daze.

@@ -19,7 +19,7 @@ An open structure can carry a **shape** ([level-subcells](plan/solved/level-subc
 4 x 4 sub-cells, a quarter tile each way, and the shape is the mask of the solid ones (steps, stairs, low ceilings,
 crawl spaces). The game asks `solidAt`, `floorHeight` and `ceilingHeight` (`src/world/level.h`), never the bits.
 The game draws the solid sub-cells as blocks; the player is blocked by them, jumps onto a quarter step (not a half),
-bumps a low ceiling and stands on a step with a foot ([subcell-physics](plan/subcell-physics.md)); arrows and sunbeams
+bumps a low ceiling and stands on a step with a foot ([subcell-physics](plan/solved/subcell-physics.md)); arrows and sunbeams
 stop at them. Monsters and the checker still treat a shaped cell as open. The map screen draws its solid sub-cells.
 Test level: `tests/levels/subcells`.
 

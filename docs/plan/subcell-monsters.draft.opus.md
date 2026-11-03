@@ -1,6 +1,6 @@
 # Sub-cells: monsters on steps and in crawl spaces
 
-Status: draft 2026-11-02. Needs first: [subcell-physics](subcell-physics.md). From the user.
+Status: draft 2026-11-02. Needs first: [subcell-physics](solved/subcell-physics.md). From the user.
 
 Monsters move over steps and through crawl spaces by their size.
 

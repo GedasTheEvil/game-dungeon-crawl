@@ -1,5 +1,5 @@
 // Sub-cells (plan subcell-physics): the player walks, jumps and falls against the solid sub-cells of
-// tests/levels/subcells; arrows and sunbeams stop at them. The drawing: tests/scenarios/subcell_physics.txt.
+// tests/levels/subcells; arrows and sunbeams stop at them. The drawing: tests/scenarios/solved/subcell_physics.txt.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/world/sun_beam.h"

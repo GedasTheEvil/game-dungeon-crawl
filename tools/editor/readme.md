@@ -77,7 +77,7 @@ A shape painted on rock or deep water carves the cell open (`Empty`), unless it 
 shape`). Painting a structure keeps the shape; rock or deep water removes it. A right click picks the structure, and
 the shape's brush when it is one of the common shapes. The map draws the solid sub-cells in the rock's colour, the
 hover line shows the shape's mask. The game draws the solid sub-cells as blocks and the player walks and jumps
-against them ([subcell-physics](../../docs/plan/subcell-physics.md)); monsters and the checker still treat the cell as
+against them ([subcell-physics](../../docs/plan/solved/subcell-physics.md)); monsters and the checker still treat the cell as
 open.
 
 ### Decor and decal layers

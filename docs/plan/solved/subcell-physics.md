@@ -1,7 +1,7 @@
 # Sub-cells: player movement and drawing
 
-Status: implemented 2026-11-03, waiting for the user's play-test (`bin/game --play tests/play/subcell-physics.txt`).
-Was: draft 2026-11-02, needed [level-subcells](solved/level-subcells.md) and [floor-queries](solved/floor-queries.md)
+Status: solved 2026-11-03 (play-tested by the user). Was: implemented 2026-11-03.
+Was: draft 2026-11-02, needed [level-subcells](level-subcells.md) and [floor-queries](floor-queries.md)
 first. From the user.
 
 Implementer's choices:
@@ -26,7 +26,7 @@ Implementer's choices:
 * `isFloor` also counts a shaped cell with its top row all solid (`topRowSolid`), for monsters and the checker too.
 * Ladders, gates and doors in shaped cells are not stopped by the game; a ladder beside a step works by the body
   rules (climb above the step's top, step over). The checker's warning stays with
-  [subcell-checker](subcell-checker.draft.opus.md); not unit-tested.
+  [subcell-checker](../subcell-checker.draft.opus.md); not unit-tested.
 * Drawing (`Dungeon::drawShapeBlocks`): the front of each run of solid sub-cells along a row in one face, the cell's
   wall texture (its back wall's pattern continued), tops in its floor texture, undersides in its ceiling texture, sides
   in the wall texture; only faces next to an open sub-cell. In half water the bottom row reaches down to the basin
@@ -43,12 +43,12 @@ The player walks, jumps and falls against the solid sub-cells of a shaped cell, 
 ## Player
 
 * Collision against solid sub-cells, with the hitbox's half width (`Player::HalfWidth`, the green box of the F3 view;
-  whole cells keep `PLAYER_BODY_HALF_WIDTH`, 0.25 tiles) and height (about 0.375 tiles). No auto step-up: walking into a quarter step stops the player, a jump gets them onto it (from
+  walls and gates too, no longer `PLAYER_BODY_HALF_WIDTH`, 0.25 tiles) and height (about 0.375 tiles). No auto step-up: walking into a quarter step stops the player, a jump gets them onto it (from
   the user: parts you need to jump on).
 * Landing: a fall stops at the floor height under the player. Keep `FALL_MAX_STEP` below a quarter tile (today 0.3),
   so one tick never skips a step's floor; check the fall speed and fall damage stay as today.
 * Head room: a jump under a low ceiling stops at it (a bump sound); walking into an opening lower than the player is
-  blocked (crouching through comes with [crouch](crouch.draft.opus.md)).
+  blocked (crouching through comes with [crouch](../crouch.draft.opus.md)).
 * Walking off a step drops the player to the floor below: a short fall, no damage.
 * Ladders, gates and doors need a cell open from floor to ceiling; climbing off a ladder onto a step works if the
   step's top is free.
@@ -60,7 +60,7 @@ The player walks, jumps and falls against the solid sub-cells of a shaped cell, 
 * `Dungeon::Draw`: solid sub-cells drawn as blocks with the cell's wall texture (the zone look), their tops as floor,
   their undersides as ceiling; merge neighbours into one box where it is simple.
 * Decor, torches and decals of a shaped cell sit on its floor height or are left out where they do not fit (the
-  scatter skips them; a placed one the checker warns about in [subcell-checker](subcell-checker.draft.opus.md)).
+  scatter skips them; a placed one the checker warns about in [subcell-checker](../subcell-checker.draft.opus.md)).
 * Beams (`traceBeams`), arrows and thrown items: a solid sub-cell stops them where it is. Water fills a shaped cell
   above its floor.
 
@@ -68,6 +68,6 @@ The player walks, jumps and falls against the solid sub-cells of a shaped cell, 
 
 * Unit: blocked by a quarter step, a jump lands on it, cannot jump onto a half; a fall lands on a step; a jump stops
   at a low ceiling; an arrow stops at a block.
-* Scenario `tests/scenarios/subcell-physics` on `tests/levels/subcells`: screenshots of steps, a stair, a ledge lip,
+* Scenario `tests/scenarios/solved/subcell_physics.txt` on `tests/levels/subcells`: screenshots of steps, a stair, a ledge lip,
   a low ceiling.
-* Play script `tests/play/subcell-physics.txt`.
+* Play script `tests/play/subcell-physics.txt` (removed once solved).

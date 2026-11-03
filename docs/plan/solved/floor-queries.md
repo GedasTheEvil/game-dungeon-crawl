@@ -7,7 +7,7 @@ gameplay, visuals or levels (once implemented, straight to "solved/", docs/plans
 
 ## Why
 
-[subcell-physics](../subcell-physics.md) lets the player and monsters stand on a quarter step inside a cell.
+[subcell-physics](subcell-physics.md) lets the player and monsters stand on a quarter step inside a cell.
 Today the code assumes the floor of the player's cell is always the cell's bottom edge (`mapY` a whole row), and
 asks "is there a floor under this cell" inline, with the same expression in many files. Each place would need the
 sub-cell rule on its own. Name both now, behaviour unchanged, so the sub-cell drafts change two or three functions

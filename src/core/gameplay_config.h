@@ -94,6 +94,9 @@ constexpr float MONSTER_JUMP_TOUCHDOWN = 0.83f; // ... and touch it again
 constexpr float MONSTER_JUMP_HEIGHT = 12.f; // world units at the top of the arc
 constexpr int MONSTER_JUMP_COOLDOWN_MS = 2000; // from one take-off to the next
 constexpr int MONSTER_JUMP_MAX_GAP = 2; // cells of pits and traps a leap clears
+// Tiles a tick a monster's feet go up onto a step it jumped onto, or down off one (plan subcell-monsters): a quarter
+// step in about 6 ticks, inside its leap.
+constexpr float MONSTER_STEP_EASE = 0.04f;
 // A coward that cannot reach the player runs this far along its row (between the boxes): past the composite bow (4.0).
 constexpr float COWARD_SAFE_GAP = 4.5f;
 // Kiters (KiteRules, plan monster-kiting): the player counts as coming at one for KITE_CLOSING_MS after a step

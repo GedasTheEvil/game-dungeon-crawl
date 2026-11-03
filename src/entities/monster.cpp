@@ -34,6 +34,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	sink = 0.f;
 	swim = 0.f;
 	swimPlaced = false;
+	stepUp = 0.f;
+	stepPlaced = false;
 	facing = 0;
 	fleeDir = 0;
 	seenPlayerX = -1.f;
@@ -154,7 +156,16 @@ float Monster::floatLift() const { return floats() && inWater ? RenderConfig::WA
 
 float Monster::lift() const {
 	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim + floatLift() - sink + climbLift()) + emergeLift() +
-		   burrowLift();
+		   burrowLift() + stepLift();
+}
+
+float Monster::stepLift() const { return flies() ? 0.f : stepUp * RenderConfig::TILE_SIZE; }
+
+void Monster::SetStepFloor(float floor) {
+	if (!stepPlaced)
+		stepUp = floor;
+	stepPlaced = true;
+	stepUp = floor > stepUp ? std::min(floor, stepUp + MONSTER_STEP_EASE) : std::max(floor, stepUp - MONSTER_STEP_EASE);
 }
 
 bool Monster::LeavesChest() const {

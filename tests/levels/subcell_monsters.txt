@@ -1,0 +1,43 @@
+; Monsters against sub-cells (plan subcell-monsters; tests/unit/subcell_monsters_test.cpp,
+; tests/scenarios/subcell_monsters.txt): seven halls, each with a shaped cell at col 11. From the top: an Anubis at a
+; crawl space a quarter high (too large), a giant bat (too large) and a bat (small enough) at one, a rat at a quarter
+; step (a walker stops), a giant rat at one (a leaper jumps onto it), a mummy at a crawl space (too large) and a rat
+; at one (small enough).
+####################
+#.......n..#.......#
+####################
+#.........F#.......#
+####################
+#.........f#.......#
+####################
+#.......t..#.......#
+####################
+#.......T..#.......#
+####################
+#........u.#.......#
+####################
+#S......t..#.......#
+####################
+structure
+####################
+#..................#
+####################
+#..................#
+####################
+#..................#
+####################
+#..................#
+####################
+#..................#
+####################
+#..................#
+####################
+#..................#
+####################
+shape 11 14 fff0
+shape 11 12 fff0
+shape 11 10 fff0
+shape 11 8 000f
+shape 11 6 000f
+shape 11 4 fff0
+shape 11 2 fff0

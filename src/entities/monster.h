@@ -6,6 +6,7 @@
 #include "../core/gameplay_config.h"
 #include "../core/timer.h"
 #include "trap_hurt.h"
+#include "../world/climb_path.h"
 #include "../world/damage.h"
 #include "../world/items.h"
 #include "../world/level.h"
@@ -100,6 +101,10 @@ class Monster {
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
 	float swim = 0.f; // a swimmer in the water: world units it floats up off the floor (swimLift), eased
 	bool swimPlaced = false; // swim was set on the first Animate after the spawn
+	// On a step (plan subcell-monsters): tiles its feet stand over its row's floor, eased to the floor under its body
+	// (SetStepFloor); placed at once on the first call after the spawn.
+	float stepUp = 0.f;
+	bool stepPlaced = false;
 	float sink = 0.f; // world units it is drawn down into a water basin (Dungeon::WaterSink); < 0: up onto sand
 	TrapHurt trapHurt;
 	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
@@ -142,6 +147,7 @@ class Monster {
 	// World units off the row's floor: a flyer's height, a leap, a summon, a swim; < 0 down in a water basin.
 	[[nodiscard]] float lift() const;
 	[[nodiscard]] float climbLift() const; // world units up or down a ladder while climbing
+	[[nodiscard]] float stepLift() const; // world units up on a step: stepUp, 0 for a flyer
 	void showClimb(); // the climb clip's frame from its height (climbRise), as the player's
 
   public:
@@ -246,6 +252,12 @@ class Monster {
 	// given up (CLIMB_GIVE_UP_MS); false: no way, or given up.
 	void SawWay(int toCol, int toRow);
 	[[nodiscard]] bool HeadingFor(int& outCol, int& outRow) const;
+	// Its body against a cell's shape (plan subcell-monsters): its kind's height and step.
+	[[nodiscard]] BodyFit Body() const { return {type->heightQuarters, type->stepQuarters}; }
+	// Once a tick (Dungeon::UpdateMonsters): the floor under its body, tiles over its row's (Dungeon::monsterFloor).
+	// Its feet go there at MONSTER_STEP_EASE a tick: up a step it jumped onto, down off one.
+	void SetStepFloor(float floor);
+	[[nodiscard]] float StepUp() const { return stepUp; }
 	[[nodiscard]] float WalkStep() const; // tiles a walk step goes, slower or faster in half water (Wading)
 	// AdvancePlayback's speed of its walk clip: one stride (walkStride) per stride walked (plan walk-clip-stride).
 	[[nodiscard]] float WalkClipSpeed() const;
@@ -466,7 +478,7 @@ class Monster {
 	// World units off the row's floor it is drawn at: lift(), but a flyer not placed yet is drawn below the floor.
 	[[nodiscard]] float DrawnLift() const {
 		return (flies() ? flight.lift : leap.lift + swim + floatLift() - sink + climbLift()) + emergeLift() +
-			   burrowLift();
+			   burrowLift() + stepLift();
 	}
 	[[nodiscard]] float Tomb() const { return tomb; }
 	// Climbing: world units it is drawn towards the wall (< 0), so its grip meets the ladder's rails; 0 otherwise.

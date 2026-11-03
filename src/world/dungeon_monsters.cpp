@@ -23,17 +23,21 @@ void Dungeon::UpdateMonsters() {
 			markSlain(mon); // also a trap's or the poison's kill
 		if (std::optional<ItemKind> drop = mon.TakeDrop())
 			dropChest(mon, *drop);
+		// On a step (plan subcell-monsters): up out of the water basin, as the player.
+		const float stepFloor = mon.flies() ? 0.f : monsterFloor(mon);
+		mon.SetStepFloor(stepFloor);
 		auto waterAt = [&](float x) {
-			return !mon.flies() && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
+			return !mon.flies() && stepFloor <= 0.f && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
 		};
 		const bool onSand = mon.Type()->sandBurrow &&
 							inSand(MapAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row()));
 		const bool splashed = mon.SetInWater(
 			waterAt(mon.CentreX()),
 			waterAt(mon.HeadX()),
-			mon.flies() ? 0.f
-			: onSand	? -RenderConfig::SAND_BURROWER_LIFT
-						: WaterSink(mon.CentreX(), mon.Row())
+			mon.flies()		  ? 0.f
+			: onSand		  ? -RenderConfig::SAND_BURROWER_LIFT
+			: stepFloor > 0.f ? 0.f
+							  : WaterSink(mon.CentreX(), mon.Row())
 		);
 		if (splashed && !mon.flies()) // plan monster-water-splash: a big body splashes, a small one only wades
 			sim.events->Play(mon.HalfWidth() >= MONSTER_SPLASH_HALF_WIDTH ? WorldSound::Splash : WorldSound::Wade);
@@ -103,7 +107,8 @@ void Dungeon::UpdateMonsters() {
 				continue;
 			if (mon.StepDue())
 				mon.FollowBite(
-					walkerStops(mon, static_cast<int>(std::floor(mon.seekProbeX(mon.Facing())))),
+					walkerStops(mon, static_cast<int>(std::floor(mon.seekProbeX(mon.Facing())))) ||
+						stepAhead(mon, mon.Facing()) != StepAhead::Walk,
 					mapX,
 					mapY
 				);

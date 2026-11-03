@@ -8,8 +8,11 @@
 
 bool Dungeon::updateCharger(Monster& mon) {
 	if (mon.Charging()) {
-		const auto col = static_cast<int>(std::floor(mon.HeadX() + 0.05f * static_cast<float>(mon.ChargeDir())));
-		if (mon.UpdateCharge(walkerBlocked(col, mon.Row(), true), mapX, mapY) && mon.Type()->roar)
+		const float probe = mon.HeadX() + 0.05f * static_cast<float>(mon.ChargeDir());
+		const auto col = static_cast<int>(std::floor(probe));
+		// A step or a low opening stops the rush as a wall does (plan subcell-monsters).
+		const bool wall = walkerBlocked(col, mon.Row(), true) || stepAt(mon, probe) != StepAhead::Walk;
+		if (mon.UpdateCharge(wall, mapX, mapY) && mon.Type()->roar)
 			sandBurst(mon, *mon.Type()->roar);
 		return true;
 	}

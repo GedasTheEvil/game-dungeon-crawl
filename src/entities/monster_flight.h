@@ -29,6 +29,11 @@ struct FlightGoal {
 	// Provoked, with no way to the player (plan hit-wakes-monster): it keeps off its roost, away from them.
 	bool flee = false;
 	int fleeDir = 0; // the way it flies off while the player is near along the row, -1 / +1; 0: far enough, it hovers
+	// Shaped cells under its body and ahead of it (plan subcell-monsters): its flight band there, world units over its
+	// row's floor. It heads down under a low ceiling (its top at bandTop), up over a step (its feet at bandBottom);
+	// under its body alone (bodyBottom, bodyTop) the band holds it at once.
+	bool banded = false;
+	float bandBottom = 0.f, bandTop = 0.f, bodyBottom = 0.f, bodyTop = 0.f;
 };
 
 #endif

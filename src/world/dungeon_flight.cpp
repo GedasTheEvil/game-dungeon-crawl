@@ -2,6 +2,7 @@
 #include "dungeon.h"
 #include "../entities/player.h"
 #include "../core/gameplay_config.h"
+#include "../graphics/render_config.h"
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -104,9 +105,48 @@ bool Dungeon::InScreechCone(const Monster& mon, const ScreechRules& rules) const
 	return true;
 }
 //======================================================================================
+// Plan subcell-monsters: the floor and the ceiling of the shaped sub-cell columns under its body, and on to the probe
+// ahead of it; an opening ahead lower than the flyer is a wall.
+bool Dungeon::flightBand(const Monster& mon, float probe, FlightGoal& goal) const {
+	constexpr float INSET = 0.01f;
+	const float height = static_cast<float>(mon.Body().heightQuarters) * SUBCELL_SIZE;
+	const float left = mon.Left() + INSET, right = mon.Right() - INSET;
+	float bottom = 0.f, top = 1.f, bodyBottom = 0.f, bodyTop = 1.f;
+	bool wall = false;
+	const auto probeK = static_cast<int>(std::floor(probe * SUBCELLS));
+	for (auto k = static_cast<int>(std::floor(std::min(left, probe) * SUBCELLS));
+		 k <= static_cast<int>(std::floor(std::max(right, probe) * SUBCELLS));
+		 k++) {
+		const int col = k >= 0 ? k / SUBCELLS : -1;
+		if (!IsInBounds(col, mon.Row()) || !hasShape(MapAt(col, mon.Row())))
+			continue;
+		const Tile& t = MapAt(col, mon.Row());
+		const float x = (static_cast<float>(k - col * SUBCELLS) + 0.5f) * SUBCELL_SIZE;
+		const float floor = floorHeight(t, x), ceiling = ceilingHeight(t, x);
+		goal.banded = true;
+		bottom = std::max(bottom, floor);
+		top = std::min(top, ceiling);
+		if (k >= static_cast<int>(std::floor(left * SUBCELLS)) && k <= static_cast<int>(std::floor(right * SUBCELLS))) {
+			bodyBottom = std::max(bodyBottom, floor);
+			bodyTop = std::min(bodyTop, ceiling);
+		}
+		if (k == probeK && ceiling - floor < height - 1e-3f)
+			wall = true;
+	}
+	auto lift = [](float tiles) { return tiles >= 1.f ? BAT_CEILING : tiles * RenderConfig::TILE_SIZE; };
+	goal.bandBottom = bottom * RenderConfig::TILE_SIZE;
+	goal.bandTop = lift(top);
+	goal.bodyBottom = bodyBottom * RenderConfig::TILE_SIZE;
+	goal.bodyTop = lift(bodyTop);
+	return wall;
+}
+//======================================================================================
 void Dungeon::updateFlyer(Monster& mon) {
 	if (monstersStandDown())
 		return;
-	const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
-	mon.Fly(!IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY, flightGoal(mon));
+	const float probe = mon.flightProbeX();
+	const auto col = static_cast<int>(std::floor(probe));
+	FlightGoal goal = flightGoal(mon);
+	const bool low = flightBand(mon, probe, goal);
+	mon.Fly(low || !IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY, goal);
 }

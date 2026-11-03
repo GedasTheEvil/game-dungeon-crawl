@@ -169,7 +169,13 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 			enter(ModelState::Move);
 			break;
 		}
+	const bool banded = goal.banded && goal.toRow == row; // a low ceiling, a step (plan subcell-monsters)
+	const float top = (flight.phase == FlightPhase::Roost ? type->model.idleTop : type->model.referenceTop) * scale;
+	if (banded)
+		targetLift = std::clamp(targetLift, goal.bandBottom, std::max(goal.bandBottom, goal.bandTop - top));
 	flight.lift += (targetLift - flight.lift) * std::min(1.f, BAT_LIFT_RATE * dt);
+	if (banded)
+		flight.lift = std::clamp(flight.lift, goal.bodyBottom, std::max(goal.bodyBottom, goal.bodyTop - top));
 	// Through the floor into the row under it, or through the ceiling into the one above.
 	if (flight.lift < 0.f && goal.toRow < row) {
 		row--;

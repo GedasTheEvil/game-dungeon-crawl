@@ -9,16 +9,34 @@
 #include <array>
 #include <cstdint>
 
+// A monster's body against a cell's shape (plan subcell-monsters), from its kind (MonsterKind::heightQuarters,
+// stepQuarters): an opening lower than its height stops it, a rise over its step stops it.
+struct BodyFit {
+	int heightQuarters = 0; // 0: no body, shapes do not stop it (the old cell rules)
+	int stepQuarters = 0;
+};
+// The body at feet height h (tiles over the cell's bottom) steps into the sub-cell column `column` of cell t: no
+// higher a rise than its step, an opening at least its height (a ceiling under the cell's top counts).
+[[nodiscard]] bool columnFits(const Tile& t, int column, float h, BodyFit body);
+// The rise into that column over h, in tiles; <= 0 a level walk or a drop.
+[[nodiscard]] float columnRise(const Tile& t, int column, float h);
+// Walking across shaped cell (col, row) going dir (-1 / +1), from the floor of the cell it comes from at their border:
+// every sub-cell column fits the body. True for a cell with no shape, dir 0 or no body.
+[[nodiscard]] bool shapePasses(const Tile* cells, int col, int row, int dir, BodyFit body);
+
 // A walker cannot step into it: out of the level, solid (a wall, deep water, a closed gate), a trap unless it is
-// reckless, or no floor under it.
-[[nodiscard]] bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless = false);
+// reckless, or no floor under it; going dir with a body, a shape it does not pass (shapePasses).
+[[nodiscard]] bool
+walkerBlockedAt(const Tile* cells, int col, int row, bool reckless = false, int dir = 0, BodyFit body = {});
 // From blocked cell (col, row) on, going dir (-1 / +1): the first cell a leap lands on, past up to
 // MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
-[[nodiscard]] int leapLandingAt(const Tile* cells, int col, int row, int dir);
+// With a body: a shaped cell on the way that it does not pass going dir ends the leap (-1).
+[[nodiscard]] int leapLandingAt(const Tile* cells, int col, int row, int dir, BodyFit body = {});
 
 struct ClimbAbility {
 	bool reckless = false; // walks through traps
 	bool leaps = false; // a walk-jumper: leaps over gaps
+	BodyFit body{}; // its steps and the openings it fits (plan subcell-monsters)
 };
 
 // Steps from every cell to one goal cell (the player's), up to a cap. A step: to the next cell along a row, a rung up

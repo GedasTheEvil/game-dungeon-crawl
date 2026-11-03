@@ -149,7 +149,10 @@ class Dungeon {
 	// else moves it).
 	void updateWalker(Monster& mon);
 	void updateFlyer(Monster& mon);
+	// A flyer's band in the shaped cells round it (FlightGoal::banded); true: the opening ahead is lower than it.
+	[[nodiscard]] bool flightBand(const Monster& mon, float probe, FlightGoal& goal) const;
 	bool updateBurrower(Monster& mon);
+	[[nodiscard]] bool solidFloorAt(float x, int row) const; // a solid sub-cell at the bottom of (x, row)
 	bool updateCharger(Monster& mon);
 	// A burst of sand round mon (RoarRules): a charger's storm roar as its stun ends (plan hippo-boss), a sand
 	// burrower's spray as it comes up (plan worm-boss). The player on its row near it is hit, shoved away
@@ -194,6 +197,21 @@ class Dungeon {
 	// walkerBlocked for this walker, and a light shunner (MonsterKind::shunsLight) can't step into a lit cell either
 	// but its own.
 	[[nodiscard]] bool walkerStops(const Monster& mon, int col) const;
+	// walkerStops for a cell past the one its front is in: also a shape its body does not pass going dir
+	// (shapePasses, plan subcell-monsters).
+	[[nodiscard]] bool walkerStopsAhead(const Monster& mon, int col, int dir) const;
+	// Sub-cells (plan subcell-monsters). The floor under mon's body, in tiles over its row's floor: the highest solid
+	// sub-cell top under any part of it, a little in from its sides (as the player's foot on a step).
+	[[nodiscard]] float monsterFloor(const Monster& mon) const;
+	// What the sub-cell column at map x on its row asks of mon's body stepping into it: nothing, a hop (a rise within
+	// its kind's step), or a stop (a higher rise, an opening lower than its height).
+	enum class StepAhead : unsigned char { Walk, Hop, Stop };
+	[[nodiscard]] StepAhead stepAt(const Monster& mon, float x) const;
+	// stepAt the column its front steps into next going dir (its box edge and a walk step on).
+	[[nodiscard]] StepAhead stepAhead(const Monster& mon, int dir) const;
+	// A leaper at a step it can take going dir: it jumps onto it, its front landing in the middle of the step's column.
+	// False: no step there, or it cannot jump now.
+	bool hopOnto(Monster& mon, int dir);
 	// A light shunner keeps out of (col, its row): Lit, but a douser (MonsterKind::douseCells) heeds only the braziers
 	// and the sun; the torches and lamps it puts out before it reaches their light.
 	[[nodiscard]] bool shunned(const Monster& mon, int col) const;
@@ -203,7 +221,8 @@ class Dungeon {
 	[[nodiscard]] bool litBetween(const Monster& mon) const;
 	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
-	[[nodiscard]] int leapLanding(int col, int row, int dir) const;
+	// With a body (plan subcell-monsters): a shaped landing cell it passes going dir.
+	[[nodiscard]] int leapLanding(int col, int row, int dir, BodyFit body = {}) const;
 	[[nodiscard]] float leapTarget(const Monster& mon, int land, int dir) const; // map x of the landing, see Jump
 	// A pouncer (PounceRules) on the player's row, dir the way to them, in its band with the way clear: it leaps into
 	// bite reach of them. False: not now.

@@ -4,11 +4,16 @@
 #include "../core/gameplay_config.h"
 #include <cmath>
 
+// Plan subcell-monsters: a burrower does not come up under (or into) a solid sub-cell at the floor.
+bool Dungeon::solidFloorAt(float x, int row) const {
+	return subcellAt(x, static_cast<float>(row) + SUBCELL_SIZE / 2.f);
+}
+//======================================================================================
 bool Dungeon::burrowTarget(const Monster& mon, float& outX) const {
 	const int side = mon.CentreX() < mapX ? 1 : -1;
 	for (int s : {side, -side}) {
 		const float x = mapX + static_cast<float>(s) * BURROW_BEHIND;
-		if (!walkerBlocked(static_cast<int>(std::floor(x)), mon.Row(), true)) {
+		if (!walkerBlocked(static_cast<int>(std::floor(x)), mon.Row(), true) && !solidFloorAt(x, mon.Row())) {
 			outX = x;
 			return true;
 		}
@@ -33,12 +38,12 @@ bool Dungeon::sandTarget(const Monster& mon, float range, bool edge, float past,
 		const float beyond = mapX + static_cast<float>(dir) * past;
 		const auto beyondCol = static_cast<int>(std::floor(beyond));
 		outX = past > 0.f && sandTo(c, beyondCol) == beyondCol ? beyond : mapX;
-		return true;
+		return !solidFloorAt(outX, mon.Row());
 	}
 	if (!edge || c == playerCol) // in the air over its sand: it waits
 		return false;
 	outX = static_cast<float>(c) + 0.5f;
-	return true;
+	return !solidFloorAt(outX, mon.Row());
 }
 //======================================================================================
 bool Dungeon::updateBurrower(Monster& mon) {

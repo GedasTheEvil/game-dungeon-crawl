@@ -15,6 +15,52 @@ bool Dungeon::walkerStops(const Monster& mon, int col) const {
 	return mon.Type()->shunsLight && col != static_cast<int>(std::floor(mon.CentreX())) && shunned(mon, col);
 }
 //======================================================================================
+bool Dungeon::walkerStopsAhead(const Monster& mon, int col, int dir) const {
+	return walkerStops(mon, col) || !shapePasses(map, col, mon.Row(), dir, mon.Body());
+}
+//======================================================================================
+float Dungeon::monsterFloor(const Monster& mon) const {
+	constexpr float INSET = 0.01f;
+	const auto from = static_cast<int>(std::floor((mon.Left() + INSET) * SUBCELLS));
+	const auto to = static_cast<int>(std::floor((mon.Right() - INSET) * SUBCELLS));
+	float floor = 0.f;
+	for (int k = from; k <= to; k++) {
+		const int col = k >= 0 ? k / SUBCELLS : -1;
+		if (!IsInBounds(col, mon.Row()))
+			continue;
+		const Tile& t = MapAt(col, mon.Row());
+		if (hasShape(t))
+			floor = std::max(floor, floorHeight(t, (static_cast<float>(k - col * SUBCELLS) + 0.5f) * SUBCELL_SIZE));
+	}
+	return floor;
+}
+//======================================================================================
+Dungeon::StepAhead Dungeon::stepAt(const Monster& mon, float x) const {
+	const auto col = static_cast<int>(std::floor(x));
+	if (!IsInBounds(col, mon.Row()) || !hasShape(MapAt(col, mon.Row())))
+		return StepAhead::Walk;
+	const Tile& t = MapAt(col, mon.Row());
+	const int column = subcellOf(x - static_cast<float>(col));
+	const float h = monsterFloor(mon);
+	if (!columnFits(t, column, h, mon.Body()))
+		return StepAhead::Stop;
+	return columnRise(t, column, h) > SUBCELL_SIZE / 2.f ? StepAhead::Hop : StepAhead::Walk;
+}
+//======================================================================================
+Dungeon::StepAhead Dungeon::stepAhead(const Monster& mon, int dir) const {
+	return stepAt(mon, mon.seekProbeX(dir) + static_cast<float>(dir) * mon.WalkStep());
+}
+//======================================================================================
+bool Dungeon::hopOnto(Monster& mon, int dir) {
+	if (dir == 0 || stepAhead(mon, dir) != StepAhead::Hop || !mon.canJump())
+		return false;
+	const float probe = mon.seekProbeX(dir) + static_cast<float>(dir) * mon.WalkStep();
+	const float middle = (std::floor(probe * SUBCELLS) + 0.5f) * SUBCELL_SIZE; // of the step's column
+	const float centre = mon.CentreX() + (middle - mon.seekProbeX(dir));
+	mon.Jump(centre - static_cast<float>(mon.Col()) - 0.5f);
+	return true;
+}
+//======================================================================================
 bool Dungeon::shunned(const Monster& mon, int col) const { return Lit(col, mon.Row(), mon.Type()->douseCells == 0); }
 //======================================================================================
 // The nearer dark cell either way, short of a cell it can't walk on; on a tie, away from the player.
@@ -44,7 +90,9 @@ bool Dungeon::litBetween(const Monster& mon) const {
 	return false;
 }
 //======================================================================================
-int Dungeon::leapLanding(int col, int row, int dir) const { return leapLandingAt(map, col, row, dir); }
+int Dungeon::leapLanding(int col, int row, int dir, BodyFit body) const {
+	return leapLandingAt(map, col, row, dir, body);
+}
 //======================================================================================
 // The centre of the landing cell. On the player's cell: in reach of them, never past them, or the monster would turn
 // and leap back over the gap.
@@ -66,8 +114,10 @@ bool Dungeon::pounce(Monster& mon, int dir) {
 	if (gap < rules->minGap || gap > rules->maxGap)
 		return false;
 	const auto to = static_cast<int>(std::floor(mapX));
-	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir >= 0; col += dir)
-		if (walkerStops(mon, col))
+	const auto front = static_cast<int>(std::floor(mon.seekProbeX(dir)));
+	for (int col = front; (to - col) * dir >= 0; col += dir)
+		if (col == front ? walkerStops(mon, col) || stepAhead(mon, dir) != StepAhead::Walk
+						 : walkerStopsAhead(mon, col, dir))
 			return false;
 	const float stop = mon.HalfWidth() + sim.player->HalfWidth() + rules->landGap;
 	mon.Pounce(mapX - static_cast<float>(dir) * stop - static_cast<float>(mon.Col()) - 0.5f, dir);
@@ -77,10 +127,14 @@ bool Dungeon::pounce(Monster& mon, int dir) {
 bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 	const auto to = static_cast<int>(std::floor(mapX));
 	const bool leaps = ::leaps(mon.Type()->locomotion);
-	for (auto col = static_cast<int>(std::floor(mon.seekProbeX(dir))); (to - col) * dir > 0; col += dir) {
+	const auto front = static_cast<int>(std::floor(mon.seekProbeX(dir)));
+	for (int col = front; (to - col) * dir > 0; col += dir) {
+		// A step or an opening it does not pass ends the way; a leap is over a gap only.
+		if (col == front ? stepAhead(mon, dir) == StepAhead::Stop : !shapePasses(map, col, mon.Row(), dir, mon.Body()))
+			return false;
 		if (!walkerStops(mon, col))
 			continue;
-		const int land = leaps ? leapLanding(col, mon.Row(), dir) : -1;
+		const int land = leaps ? leapLanding(col, mon.Row(), dir, mon.Body()) : -1;
 		if (land < 0)
 			return false;
 		col = land;
@@ -97,7 +151,7 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 		return;
 	}
 	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
-	mon.Flee(walkerStops(mon, col), -dir);
+	mon.Flee(walkerStops(mon, col) || stepAhead(mon, -dir) != StepAhead::Walk, -dir);
 }
 //======================================================================================
 // Threatened: the player nearer than near and coming at it. Once it backs off, it goes on while they keep coming, so
@@ -134,7 +188,7 @@ std::optional<float> Dungeon::leapAwayTarget(const Monster& mon, int dir, bool t
 	const auto behind = static_cast<int>(std::floor(mon.seekProbeX(-dir) - static_cast<float>(dir) * (step + PROBE)));
 	if (!walkerBlocked(behind, mon.Row(), mon.reckless()) || isSolidTile(MapAt(behind, mon.Row())))
 		return std::nullopt; // cornered by a wall or another monster: it fights
-	const int land = leapLanding(behind, mon.Row(), -dir);
+	const int land = leapLanding(behind, mon.Row(), -dir, mon.Body());
 	if (land < 0)
 		return std::nullopt;
 	const float edge = static_cast<float>(dir < 0 ? land : land + 1); // where the ledge begins
@@ -172,7 +226,8 @@ float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 	const auto probes = static_cast<int>(room / PROBE);
 	for (int i = 1; i <= probes; i++) {
 		const auto col = static_cast<int>(std::floor(rear - static_cast<float>(dir * i) * PROBE));
-		if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && shunned(mon, col)))
+		if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && shunned(mon, col)) ||
+			stepAt(mon, rear - static_cast<float>(dir * i) * PROBE) != StepAhead::Walk)
 			return static_cast<float>(i - 1) * PROBE;
 	}
 	return room;
@@ -240,7 +295,7 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 		}
 		return false; // the walker's rules: chase along the row and bite
 	}
-	const ClimbAbility how{mon.reckless(), leaps(mon.Type()->locomotion)};
+	const ClimbAbility how{mon.reckless(), leaps(mon.Type()->locomotion), mon.Body()};
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
 	climbPath.Build(map, playerCol, playerRow, how, CLIMB_PATH_MAX);
 	if (climbPath.Steps(col, mon.Row()) > 0)
@@ -268,8 +323,14 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 			mon.WalkPath(step, true);
 		return true;
 	}
+	if (hopOnto(mon, step))
+		return true;
 	const auto probe = static_cast<int>(std::floor(mon.seekProbeX(step)));
-	mon.WalkPath(step, probe != col && probe != nextCol && !climbPath.Stands(probe, mon.Row()));
+	mon.WalkPath(
+		step,
+		(probe != col && probe != nextCol && !climbPath.Stands(probe, mon.Row())) ||
+			stepAhead(mon, step) != StepAhead::Walk
+	);
 	return true;
 }
 //======================================================================================
@@ -304,9 +365,12 @@ void Dungeon::updateWalker(Monster& mon) {
 	if (pounce(mon, dir))
 		return;
 	auto col = static_cast<int>(std::floor(mon.seekProbeX(dir)));
-	bool blocked = walkerStops(mon, col);
-	if (blocked && dir != 0 && mon.canJump()) {
-		int land = leapLanding(col, mon.Row(), dir);
+	const bool cellBlocked = walkerStops(mon, col);
+	if (!cellBlocked && hopOnto(mon, dir)) // a leaper onto a step (plan subcell-monsters)
+		return;
+	const bool blocked = cellBlocked || (dir != 0 && stepAhead(mon, dir) != StepAhead::Walk);
+	if (cellBlocked && dir != 0 && mon.canJump()) { // a leap over a gap
+		int land = leapLanding(col, mon.Row(), dir, mon.Body());
 		// Not while the player is in the gap: the rat would leap over them.
 		float gapFrom = static_cast<float>(dir > 0 ? col : land + 1);
 		float gapTo = static_cast<float>(dir > 0 ? land : col + 1);

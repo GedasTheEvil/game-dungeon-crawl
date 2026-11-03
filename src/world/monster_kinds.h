@@ -309,6 +309,12 @@ struct MonsterKind {
 	// Presses a dart trap's plate at DART_PLATE_WEIGHT and up (plan poison-dart-trap): 0 flyers, 1 small ones (rats,
 	// scarabs), 2-3 large ones, more for bosses. Later traps may want more.
 	int weight = 2;
+	// Its body against a cell's shape (plan subcell-monsters), in quarter tiles (sub-cells). Its height: at least its
+	// model's, more for a bulky one (wider than a quarter tile each side); an opening lower than it stops it. 1: a
+	// small one, it fits through a crawl space. Its step: the rise it jumps onto; a walker (0) stops at any, a leaper
+	// takes a quarter step (1), a leaping boss half a tile (2).
+	int heightQuarters = 2;
+	int stepQuarters = 0;
 	Wading wading = Wading::Slowed;
 	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
 	std::optional<PoisonTier> poison; // its bite or sting poisons the player

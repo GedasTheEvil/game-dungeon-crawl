@@ -1,0 +1,30 @@
+# Plan subcell-monsters: monsters against sub-cells, on tests/levels/subcell_monsters. An Anubis comes at the
+# player and stops at a crawl space, too large for it (its bolts splat on the rock over it); a rat runs through a
+# crawl space, a giant rat jumps onto a quarter step, a bat flies low through a crawl space. A unit test cannot look
+# at the drawing (tests/unit/subcell_monsters_test.cpp has the rules).
+seed 1
+god
+resolution 1024 768
+level tests/levels/subcell_monsters at 12 14
+wait 30
+hitboxes on
+wait 5s
+expect alive == 1
+camera -35 0
+screenshot anubis_stopped_at_crawl_space
+camera 0 0
+level tests/levels/subcell_monsters at 12 2
+wait 30
+hitboxes on
+wait 7s
+screenshot rat_through_crawl_space
+level tests/levels/subcell_monsters at 12 6
+wait 30
+hitboxes on
+wait 3500ms
+screenshot giant_rat_jumped_the_step
+level tests/levels/subcell_monsters at 12 10
+wait 30
+hold left 500ms
+wait 1s
+screenshot bat_into_crawl_space

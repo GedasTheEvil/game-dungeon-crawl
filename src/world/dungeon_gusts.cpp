@@ -80,9 +80,11 @@ void Dungeon::updateGusts() {
 		if (way == 0)
 			continue;
 		const float to = mon.CentreX() + static_cast<float>(way) * monsterStep;
-		const auto edge = static_cast<int>(std::floor(to + static_cast<float>(way) * mon.HalfWidth()));
-		// A walker stops where it would not walk (a wall, a drop, a trap), a flyer at a wall.
-		if (mon.flies() ? !isSolidTile(MapAt(edge, mon.Row())) : !walkerBlocked(edge, mon.Row()))
+		const float front = to + static_cast<float>(way) * mon.HalfWidth();
+		const auto edge = static_cast<int>(std::floor(front));
+		// A walker stops where it would not walk (a wall, a drop, a trap, a step), a flyer at a wall.
+		if (mon.flies() ? !isSolidTile(MapAt(edge, mon.Row()))
+						: !walkerBlocked(edge, mon.Row()) && stepAt(mon, front) == StepAhead::Walk)
 			mon.ShoveTo(to);
 	}
 }

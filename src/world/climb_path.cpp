@@ -1,5 +1,6 @@
 #include "climb_path.h"
 #include "../core/gameplay_config.h"
+#include <algorithm>
 #include <deque>
 
 namespace {
@@ -7,9 +8,40 @@ bool inBounds(int col, int row) { return col >= 0 && col < LEVEL_WIDTH && row >=
 const Tile& at(const Tile* cells, int col, int row) { return cells[row * LEVEL_WIDTH + col]; }
 size_t indexOf(int col, int row) { return static_cast<size_t>(row) * LEVEL_WIDTH + static_cast<size_t>(col); }
 bool ladderAt(const Tile* cells, int col, int row) { return inBounds(col, row) && at(cells, col, row).type == Ladder; }
+constexpr float FIT_EPSILON = 1e-3f;
+float columnX(int column) { return (static_cast<float>(column) + 0.5f) / SUBCELLS; }
 } // namespace
 
-bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless) {
+float columnRise(const Tile& t, int column, float h) { return floorHeight(t, columnX(column)) - h; }
+
+bool columnFits(const Tile& t, int column, float h, BodyFit body) {
+	if (body.heightQuarters <= 0 || !hasShape(t))
+		return true;
+	const float floor = floorHeight(t, columnX(column));
+	if (floor - h > static_cast<float>(body.stepQuarters) * SUBCELL_SIZE + FIT_EPSILON)
+		return false; // too high a rise
+	const float ceiling = ceilingHeight(t, columnX(column));
+	return ceiling >= 1.f - FIT_EPSILON ||
+		   ceiling - std::max(floor, h) >= static_cast<float>(body.heightQuarters) * SUBCELL_SIZE - FIT_EPSILON;
+}
+
+bool shapePasses(const Tile* cells, int col, int row, int dir, BodyFit body) {
+	if (dir == 0 || body.heightQuarters <= 0 || !inBounds(col, row) || !hasShape(at(cells, col, row)))
+		return true;
+	float h = 0.f; // the floor at the border: the edge column of a shaped cell it comes from
+	if (inBounds(col - dir, row) && hasShape(at(cells, col - dir, row)))
+		h = floorHeight(at(cells, col - dir, row), columnX(dir > 0 ? SUBCELLS - 1 : 0));
+	const Tile& t = at(cells, col, row);
+	for (int k = 0; k < SUBCELLS; k++) {
+		const int column = dir > 0 ? k : SUBCELLS - 1 - k;
+		if (!columnFits(t, column, h, body))
+			return false;
+		h = floorHeight(t, columnX(column));
+	}
+	return true;
+}
+
+bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless, int dir, BodyFit body) {
 	if (!inBounds(col, row))
 		return true;
 	const Tile& cell = at(cells, col, row);
@@ -24,17 +56,17 @@ bool walkerBlockedAt(const Tile* cells, int col, int row, bool reckless) {
 					  cell.fixture.type == PoisonDrip; // its puddle always poisons
 	if (trap && !reckless)
 		return true;
-	return !inBounds(col, row - 1) || !isFloor(at(cells, col, row - 1));
+	return !inBounds(col, row - 1) || !isFloor(at(cells, col, row - 1)) || !shapePasses(cells, col, row, dir, body);
 }
 
-int leapLandingAt(const Tile* cells, int col, int row, int dir) {
+int leapLandingAt(const Tile* cells, int col, int row, int dir, BodyFit body) {
 	if (!inBounds(col, row) || isSolidTile(at(cells, col, row)))
 		return -1; // a wall, not a gap
 	for (int k = 1; k <= MONSTER_JUMP_MAX_GAP; k++) {
 		const int c = col + dir * k;
-		if (!inBounds(c, row) || isSolidTile(at(cells, c, row)))
-			return -1;
-		if (!walkerBlockedAt(cells, c, row))
+		if (!inBounds(c, row) || isSolidTile(at(cells, c, row)) || !shapePasses(cells, c, row, dir, body))
+			return -1; // a wall, or a shape it does not pass: no leap over it
+		if (!walkerBlockedAt(cells, c, row, false, dir, body))
 			return c;
 	}
 	return -1;
@@ -49,11 +81,11 @@ bool ClimbMap::Stands(int col, int row) const {
 int ClimbMap::neighbours(int col, int row, int (&outCol)[4], int (&outRow)[4]) const {
 	int n = 0;
 	for (int dir : {-1, 1}) {
-		if (Stands(col + dir, row)) {
+		if (Stands(col + dir, row) && shapePasses(cells, col + dir, row, dir, how.body)) {
 			outCol[n] = col + dir;
 			outRow[n++] = row;
 		} else if (how.leaps && !ladderAt(cells, col, row) && walkerBlockedAt(cells, col + dir, row, how.reckless)) {
-			const int land = leapLandingAt(cells, col + dir, row, dir);
+			const int land = leapLandingAt(cells, col + dir, row, dir, how.body);
 			if (land >= 0 && Stands(land, row)) {
 				outCol[n] = land;
 				outRow[n++] = row;

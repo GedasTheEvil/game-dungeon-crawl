@@ -103,7 +103,7 @@ bin/game --no-sound --level 7            # the same, silent (any flag combines w
 number; after a map file or a generated level, whatever the dungeon's level number gives).
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
-`seed`, `god`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `firehit`, `prop`,
+`seed`, `god`, `peace`, `level`, `give`, `equip`, `wear`, `xp`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `firehit`, `prop`,
 `torch`, `mirror`, `container`, `riddles`, `inscriptions`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
@@ -126,6 +126,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `resolution W H` | Window size. Only before `level`. |
 | `seed N` | Seed of the game's random streams (`GameRandom`: loot, the riddle deck, clip start frames), applied at each `level`. Default 1. Each blood effect has its own stream. |
 | `god` | The player takes no damage (`Player::TakeHit`). Death tiles still kill. |
+| `peace` | The monsters leave the player alone, as after the win (`Dungeon::SetPeace`): no attack, step, shot or summon, so no hold, daze or curse either. Kept over `level`. For the scripts of `make paths`: the checker does not model the monsters. |
 | `level N` / `level path` / `level gen:SEED:D` / `level gen:SEED:D:ZONE` / `level gen:SEED:D:ZONE:boss` | Load campaign level N (`content/levels/lvlN`, [levels.md](levels.md)), any map file, or a generated level with that seed and difficulty 1-10 (with a zone's slug, `necropolis`: a zone level, [levels.md](levels.md#levelgen-random-levels); with `:boss` after it, the zone's boss level; a zone level carries its zone's inscriptions). The player starts fresh, like New Game. Required before gameplay commands. `... at COL ROW` starts in that cell instead of the entrance (on its floor; a cell sealed off from the entrance, like a boss room, too). |
 | `wait T` | Wait T ticks, or `500ms`, or `2s`. |
 | `waittraps COL N left\|right` | Wait until the player, walking from here that way at `WALK_SPEED`, gets through the run of N rhythm traps on their row from column COL (its leftmost) without one coming out on them (`rhythmRunClear`, as the checker's crossing walk, with a margin). Fails after 1200 ticks. `levelcheck --script` writes one before each run with wall spikes in it. |

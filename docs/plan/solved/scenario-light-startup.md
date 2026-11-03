@@ -41,7 +41,7 @@ without a `screenshot` go into batches (headless only), as many batches as the j
 Options 2 and 3 (skip the texture decode, faster PNG) not needed.
 
 * `make paths` scenario phase: ~56 s -> ~15 s (whole target 60 s -> 14.7 s). All 54 `result.txt` byte for byte the
-  same (27 still fail: [paths-failures](../paths-failures.draft.opus.md)).
+  same (27 still fail: [paths-failures](../paths-failures.md)).
 * The 147 solved scenarios with their `screenshot` lines cut, each alone vs through the batches: all 147
   `result.txt` the same (120 pass either way). Before the exit-4 rule `keyboard_menus` differed.
 * `make test`: passes, 20.7 s as before (its 3 scenarios take screenshots, run alone); its 12 screenshots identical.

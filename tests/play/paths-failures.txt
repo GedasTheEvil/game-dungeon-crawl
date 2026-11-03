@@ -1,0 +1,7 @@
+# Plan paths-failures, for `bin/game --play tests/play/paths-failures.txt`: campaign level 32 in god mode and peace (the
+# monsters leave you alone, none dies), so every monster slot fills on the way. Play it through to Sobek (the teleporter
+# on row 7 at the right, then the water on the bottom row): he must appear and fight, and his death open the boss gate.
+seed 1
+god
+peace
+level 32

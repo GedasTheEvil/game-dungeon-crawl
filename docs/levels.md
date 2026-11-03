@@ -52,7 +52,8 @@ stops the sprint; jumping is fine. Quicksand (`%`) looks like sand (a slow swirl
 sinks, slower each second, stuck after 3 s, hurt from 5 s (5% of the max HP a second); a jump frees them, for twice a
 jump's stamina. A sand fall (a rock fall with attribute 1, `&`) pours sand on whoever stands under it (40, a short slow)
 and turns its cell to sand. A sand worm placed in sand lies under it and comes up under the player. `levelcheck`
-counts sand and quicksand as a little more costly on the path, jumps a quicksand cell like a trap, and warns about
+counts sand and quicksand as a little more costly on the path, jumps a quicksand cell like a trap but never lands in
+quicksand nor walks on from quicksand into more of it (the walk there stops short of a cell), and warns about
 sand or quicksand not on a wall and a run of more than 2 quicksand cells.
 
 Sandstorm halls ([sandstorm-halls](plan/solved/sandstorm-halls.md)): a sand gust (`SandGust`, `{`, in the wall layer;

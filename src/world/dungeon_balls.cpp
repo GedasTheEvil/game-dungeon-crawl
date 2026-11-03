@@ -26,7 +26,7 @@ bool Dungeon::updateRoller(Monster& mon) {
 			);
 		return true;
 	}
-	if (won || mon.OnRungs() || !mon.canRoll(mapX, mapY) || !clearRow(mon.CentreX(), mapX, mon.Row()))
+	if (monstersStandDown() || mon.OnRungs() || !mon.canRoll(mapX, mapY) || !clearRow(mon.CentreX(), mapX, mon.Row()))
 		return false;
 	mon.StartRoll(mapX);
 	return true;

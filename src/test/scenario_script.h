@@ -15,6 +15,7 @@ enum class CommandType : unsigned char {
 	Resolution,
 	Seed,
 	God,
+	Peace,
 	Level,
 	Wait,
 	WaitTraps,

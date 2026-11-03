@@ -262,3 +262,15 @@ TEST_CASE("the Anubis's bolt lays palsy now and then, and the journal sees it") 
 	CHECK(world.player.stats.curses.Has(Curse::Palsy));
 	CHECK(world.Saw(MonsterAnubis, CreatureMove::Curse));
 }
+
+TEST_CASE("in peace (scenario `peace`, make paths) the mummy leaves the player alone: no blow, no curse") {
+	SimWorld world; // tests/levels/mummy: the mummy at col 10, in its coffin
+	world.dungeon.SetPeace(true);
+	REQUIRE(world.Load("tests/levels/mummy"));
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(9.1f));
+	const int hp = world.player.stats.CurrentHP();
+	world.Wait(6000);
+	CHECK(world.player.stats.CurrentHP() == hp);
+	CHECK_FALSE(world.player.stats.curses.Any());
+}

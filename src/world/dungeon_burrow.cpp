@@ -44,7 +44,7 @@ bool Dungeon::sandTarget(const Monster& mon, float range, bool edge, float past,
 bool Dungeon::updateBurrower(Monster& mon) {
 	const std::optional<SandBurrowRules>& sand = mon.Type()->sandBurrow;
 	if (sand && mon.UnderSand()) { // lying in wait under the sand since its spawn
-		if (float to = 0.f; !won && sandTarget(mon, sand->wakeRange, true, 0.f, to))
+		if (float to = 0.f; !monstersStandDown() && sandTarget(mon, sand->wakeRange, true, 0.f, to))
 			mon.Surge(to - static_cast<float>(mon.Col()) - 0.5f);
 		return true;
 	}
@@ -58,7 +58,7 @@ bool Dungeon::updateBurrower(Monster& mon) {
 		}
 		return true;
 	}
-	if (won || !mon.canDive(mapY))
+	if (monstersStandDown() || !mon.canDive(mapY))
 		return false;
 	if (sand) { // only through sand, from a little way off: near, it bites
 		const float past = sand->behind && mon.Dives() % 2 == 0 ? BURROW_BEHIND : 0.f; // every other dive, behind

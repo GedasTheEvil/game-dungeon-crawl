@@ -276,7 +276,7 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 // One step of a walker that is due: a climber's path, a kiter's back-off, a coward's flight, a leap over a gap, the
 // chase and the bite.
 void Dungeon::updateWalker(Monster& mon) {
-	if (!mon.Alive() || won || !mon.StepDue())
+	if (!mon.Alive() || monstersStandDown() || !mon.StepDue())
 		return;
 	int dir = mon.attackDirection(mapX, mapY);
 	if (followPath(mon, dir))

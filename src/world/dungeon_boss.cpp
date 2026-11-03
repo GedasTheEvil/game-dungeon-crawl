@@ -124,7 +124,7 @@ void Dungeon::updateBoss() {
 	while (bossFight.firstLeft > 0 && summonMinion(boss))
 		bossFight.firstLeft--;
 	int now = GameClock::now();
-	if (!boss.Alerted() || won || !sim.player->Alive() || now < bossFight.nextSummonMs)
+	if (!boss.Alerted() || monstersStandDown() || !sim.player->Alive() || now < bossFight.nextSummonMs)
 		return;
 	bossFight.nextSummonMs = now + rules.summonMs;
 	if (bossFight.summoned < rules.summonCap && LivingMinions() < rules.maxAlive && summonMinion(boss))

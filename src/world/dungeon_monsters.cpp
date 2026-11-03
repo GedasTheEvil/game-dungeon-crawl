@@ -88,18 +88,18 @@ void Dungeon::UpdateMonsters() {
 			continue;
 		}
 
-		if (mon.Alive() && !won && (mon.Lurk(mapX, mapY) || mon.Rising()))
+		if (mon.Alive() && !monstersStandDown() && (mon.Lurk(mapX, mapY) || mon.Rising()))
 			continue;
 		if (mon.Reeling()) // stunned (plan skill-stun): it stands, no step, no bite, no shot
 			continue;
 		if (mon.Alive() && mon.Alerted() &&
-			!won) // the Mother of Webs: the torches go out, the webs (plan camel-spider-boss)
+			!monstersStandDown()) // the Mother of Webs: the torches go out, the webs (plan camel-spider-boss)
 			updateSpinner(mon);
 		if (mon.Type()->kite)
 			mon.WatchPlayer(mapX);
 
 		if (mon.Biting()) { // the wind-up, then the bite or the miss (plan monster-attack-reach)
-			if (won)
+			if (monstersStandDown())
 				continue;
 			if (mon.StepDue())
 				mon.FollowBite(
@@ -124,8 +124,8 @@ void Dungeon::UpdateMonsters() {
 			(!mon.ShotReleased() || kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 || mon.OnRungs()))
 			continue;
 		// A kiter the player comes at backs off (or leaps away) first (plan monster-kiting).
-		if (!won && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) && clearRow(mon.HeadX(), mapX, mon.Row()) &&
-			kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 &&
+		if (!monstersStandDown() && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) &&
+			clearRow(mon.HeadX(), mapX, mon.Row()) && kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 &&
 			!leapAwayTarget(mon, mon.attackDirection(mapX, mapY))) {
 			mon.AttackRanged();
 			continue;
@@ -299,7 +299,25 @@ Monster* Dungeon::freeMonsterSlot() {
 	for (Monster& mon : monsters)
 		if (mon.Health() < 1 && &mon - monsters != bossFight.slot)
 			return &mon;
-	return nullptr;
+	// All slots taken by the living (a player who slips past them): the one farthest away, out of all sight, goes
+	// back to its spawn tile, to come out again once that is in view. Never the boss, a minion (it has no tile) or
+	// a monster whose tile no longer spawns it. Else a boss further on would never appear and its gates stay shut.
+	const CellRect sight = view().cells().grown(std::max(DRAWN_EXTRA_COLS, DRAWN_EXTRA_ROWS));
+	Monster* farthest = nullptr;
+	float farthestGap = 0.f;
+	for (Monster& mon : monsters) {
+		if (mon.Minion() || mon.Type()->isBoss() || sight.contains(mon.CentreX(), mon.Row()) ||
+			!IsInBounds(mon.Col(), mon.SpawnRow()) || MapAt(mon.Col(), mon.SpawnRow()).type != MonsterSpawn)
+			continue;
+		const float gap = std::hypot(mon.CentreX() - mapX, static_cast<float>(mon.Row()) - mapY);
+		if (gap > farthestGap) {
+			farthest = &mon;
+			farthestGap = gap;
+		}
+	}
+	if (farthest != nullptr)
+		farthest->Clear();
+	return farthest;
 }
 //======================================================================================
 void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {

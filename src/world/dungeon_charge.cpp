@@ -13,7 +13,7 @@ bool Dungeon::updateCharger(Monster& mon) {
 			sandBurst(mon, *mon.Type()->roar);
 		return true;
 	}
-	if (won || !mon.canCharge(mapX, mapY) || !clearRow(mon.HeadX(), mapX, mon.Row()))
+	if (monstersStandDown() || !mon.canCharge(mapX, mapY) || !clearRow(mon.HeadX(), mapX, mon.Row()))
 		return false;
 	mon.StartCharge(mapX);
 	return true;

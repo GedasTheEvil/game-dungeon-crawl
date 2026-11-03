@@ -16,6 +16,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"resolution", "resolution 800 600"},
 	{"seed", "seed 7"},
 	{"god", "god"},
+	{"peace", "peace"},
 	{"level", "level 3"},
 	{"wait", "wait 2s"},
 	{"waittraps", "waittraps 12 2 left"},

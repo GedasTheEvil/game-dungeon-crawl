@@ -212,19 +212,24 @@ class Walker {
 				continue;
 			int fallen = 0;
 			int to = settle(next, row, mask, fallen);
-			add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
+			// Quicksand slows the walk to nothing (QUICKSAND_STUCK_MS) before the player has crossed a cell of it: no
+			// walk on from quicksand into more of it, only the jump out (plan paths-failures).
+			const bool sinking = inQuicksand(here) && fallen == 0 && inQuicksand(grid.at(next, row));
+			if (!sinking)
+				add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
 
 			// Over one cell, a gap in the floor, a trap on it (a poison drip's puddle too) or quicksand, from a floor
 			// (a ladder's foot too, sand and quicksand), not out of half water. A jump from mid-ladder is not modelled:
 			// its reach depends on the walk key held during the jump. A rock fall is not jumped: the player passes
-			// through its cell either way, and it drops all the same.
+			// through its cell either way, and it drops all the same. Never into quicksand: the player would land
+			// deep in it, too far in to walk out (plan paths-failures).
 			const Tile nextTile = grid.at(next, row);
 			bool overHazard = fallen == 0 && (nextTile.type == Spike || nextTile.type == Death ||
 											  nextTile.fixture.type == PoisonDrip || inQuicksand(nextTile));
 			bool overGap = fallen > 0;
 			int far = col + 2 * dir;
 			if ((overGap || overHazard) && !inHalfWater(here) && floor(col, row - 1, mask) &&
-				LevelGrid::inBounds(far, row) && standable(far, row, mask))
+				LevelGrid::inBounds(far, row) && standable(far, row, mask) && !inQuicksand(grid.at(far, row)))
 				add(stateOf(far, row, touch(far, row, touch(next, row, mask))), COST_JUMP, Move::Jump);
 		}
 

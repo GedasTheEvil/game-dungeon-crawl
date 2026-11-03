@@ -398,13 +398,15 @@ bool parseCurse(const Args& args, Command& cmd) {
 }
 
 bool isSetupCommand(CommandType type) {
-	return type == CommandType::Resolution || type == CommandType::Seed || type == CommandType::God;
+	return type == CommandType::Resolution || type == CommandType::Seed || type == CommandType::God ||
+		   type == CommandType::Peace;
 }
 
 bool isPlaySetupCommand(CommandType type) {
 	switch (type) {
 	case CommandType::Seed:
 	case CommandType::God:
+	case CommandType::Peace:
 	case CommandType::Level:
 	case CommandType::Give:
 	case CommandType::Equip:
@@ -451,6 +453,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"resolution", CommandType::Resolution, parseResolution, "<width> <height>"},
 		{"seed", CommandType::Seed, numberAtLeast<0>, "<non-negative integer>"},
 		{"god", CommandType::God, noArgs, ""},
+		{"peace", CommandType::Peace, noArgs, ""},
 		{"level", CommandType::Level, parseLevel, "<number|path|gen:SEED:DIFFICULTY[:ZONE]> [at <col> <row>]"},
 		{"wait", CommandType::Wait, parseWaitArgs, "<ticks|Nms|Ns>"},
 		{"waittraps",

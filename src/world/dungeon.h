@@ -65,6 +65,9 @@ class Dungeon {
 	float mapX, mapY;
 	int levelNumber = 1; // the campaign level loaded (campaign.h); a level loaded by path keeps the last number
 	bool won = false; // the ankh was taken
+	bool peace = false; // scenario `peace`: the monsters leave the player alone (SetPeace)
+	// The monsters stand down: no attack, no step, no shot, no summon (after the win, or in peace).
+	[[nodiscard]] bool monstersStandDown() const { return won || peace; }
 	// Solid rock for the drawing: a wall, or outside the level.
 	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || isWall(MapAt(col, row)); }
 	// Round the camera: the player, or where a cut-scene's camera is (cutShot).
@@ -437,7 +440,9 @@ class Dungeon {
 	void drawWebs(); // the webs, the burning ones in flames; drawSummonEffects' frame
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
-	[[nodiscard]] Monster* freeMonsterSlot(); // an empty slot, else the slot of a dead monster; null if none
+	// An empty slot, else the slot of a dead monster, else that of the farthest monster out of sight (sent back to
+	// its spawn tile); null if none.
+	[[nodiscard]] Monster* freeMonsterSlot();
 	// The level's boss fight (at most one boss per level). Monsters are not saved: a load starts the fight over.
 	struct BossFight {
 		int slot = -1; // monsters[] index of the boss, -1: none in play
@@ -683,6 +688,9 @@ class Dungeon {
 	// The dung balls rolling, falling or broken (plan scarab-dung-ball), for the tests.
 	[[nodiscard]] const std::vector<DungBall>& Balls() const { return balls; }
 	void ClearWin() { won = false; } // a new game or a scenario level
+	// Scenario `peace` (make paths): the monsters stand down as after the win, so their holds, dazes and curses
+	// do not stop a script that plays the checker's path (the checker does not model them). Kept over level loads.
+	void SetPeace(bool on) { peace = on; }
 	// Puts prop `type` (DECOR_NAMES) on the cell, whatever the level's scatter picked (scenario `prop`). False if the
 	// cell is outside the level.
 	bool PlaceDecor(int col, int row, int type);

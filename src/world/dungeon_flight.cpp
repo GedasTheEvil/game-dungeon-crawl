@@ -105,7 +105,7 @@ bool Dungeon::InScreechCone(const Monster& mon, const ScreechRules& rules) const
 }
 //======================================================================================
 void Dungeon::updateFlyer(Monster& mon) {
-	if (won)
+	if (monstersStandDown())
 		return;
 	const auto col = static_cast<int>(std::floor(mon.flightProbeX()));
 	mon.Fly(!IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY, flightGoal(mon));

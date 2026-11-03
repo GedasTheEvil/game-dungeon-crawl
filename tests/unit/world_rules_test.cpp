@@ -4,6 +4,11 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/world/level_gen.h"
 #include "sim_world.h"
+#include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <set>
+#include <vector>
 
 TEST_CASE("a teleporter jumps the player to its partner and back; the sealed room holds the exit") {
 	SimWorld world; // tests/levels/teleport: row 2 -> row 4
@@ -534,4 +539,63 @@ TEST_CASE("using the exit gate emits the teleport sound") {
 		return e.kind == WorldEvent::Kind::Sound && e.sound == WorldSound::Teleport;
 	});
 	CHECK(heard);
+}
+
+TEST_CASE("the boss still appears when every monster slot holds a living monster, and one far away goes back") {
+	SimWorld world; // campaign level 32: more monsters than slots, Sobek on the last row (plan paths-failures)
+	world.player.god = true;
+	REQUIRE(world.Load(32));
+	int bossCol = -1;
+	int bossRow = -1;
+	std::vector<std::pair<int, int>> tiles; // the other monsters' spawn tiles
+	for (int row = 0; row < LEVEL_HEIGHT; row++)
+		for (int col = 0; col < LEVEL_WIDTH; col++) {
+			const Tile t = world.dungeon.Cell(col, row);
+			if (t.type != MonsterSpawn)
+				continue;
+			if (isBossMonster(t.attr)) {
+				bossCol = col;
+				bossRow = row;
+			} else
+				tiles.emplace_back(col, row);
+		}
+	REQUIRE(bossCol >= 0);
+	REQUIRE(tiles.size() >= MAX_MONSTERS);
+	// The player slipped past them all: every slot taken by the living, none of them a minion.
+	auto active = [&world] {
+		int n = 0;
+		for (int i = 0; i < MAX_MONSTERS; i++)
+			n += world.dungeon.Monsters()[i].Active() ? 1 : 0;
+		return n;
+	};
+	for (const auto& [col, row] : tiles)
+		if (active() < MAX_MONSTERS)
+			REQUIRE(world.dungeon.SpawnMonster(col, row));
+	REQUIRE(active() == MAX_MONSTERS);
+	REQUIRE(world.dungeon.PlacePlayer(bossCol, bossRow));
+	auto spawned = [&world] {
+		std::set<std::pair<int, int>> at;
+		for (int i = 0; i < MAX_MONSTERS; i++)
+			if (const Monster& mon = world.dungeon.Monsters()[i]; mon.Active())
+				at.emplace(mon.Col(), mon.SpawnRow());
+		return at;
+	};
+	const std::set<std::pair<int, int>> before = spawned();
+
+	CHECK(world.dungeon.SpawnMonster(bossCol, bossRow));
+	CHECK(world.dungeon.BossHealth() > 0);
+	CHECK(active() == MAX_MONSTERS);
+	// The slots (the boss's, its first minions') were those of monsters far out of sight; their tiles bring them
+	// back once in view.
+	const std::set<std::pair<int, int>> after = spawned();
+	std::vector<std::pair<int, int>> gone;
+	std::set_difference(before.begin(), before.end(), after.begin(), after.end(), std::back_inserter(gone));
+	CHECK_FALSE(gone.empty());
+	for (const auto& [col, row] : gone) {
+		CHECK(
+			std::hypot(static_cast<float>(col - bossCol), static_cast<float>(row - bossRow)) >
+			static_cast<float>(DRAWN_EXTRA_COLS)
+		);
+		CHECK(world.dungeon.Cell(col, row).type == MonsterSpawn);
+	}
 }

@@ -63,6 +63,7 @@ struct Runner {
 	Script script;
 	size_t next = 0;
 	bool god = false;
+	bool peace = false;
 	bool deathReported = false;
 
 	std::string outDir;
@@ -244,6 +245,7 @@ bool loadLevel(const Command& cmd) {
 	Game().dungeon.ClearWin();
 	Game().player->Reanimate();
 	Game().player->god = gRunner.god;
+	Game().dungeon.SetPeace(gRunner.peace);
 	if (cmd.b > 0.f) // a start cell other than the entrance
 		return Game().dungeon.PlacePlayer(static_cast<int>(cmd.b) - 1, cmd.ticks);
 	return true;
@@ -304,6 +306,11 @@ bool runInstant(const Command& cmd) {
 		gRunner.god = true;
 		if (Game().player)
 			Game().player->god = true;
+		report(cmd, true, "");
+		return true;
+	case CommandType::Peace:
+		gRunner.peace = true;
+		Game().dungeon.SetPeace(true);
 		report(cmd, true, "");
 		return true;
 	case CommandType::Level:

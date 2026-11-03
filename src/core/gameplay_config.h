@@ -2,8 +2,8 @@
 #define GAMEPLAY_CONFIG_H
 
 constexpr float PLAYER_SCALE = 15.f; // the archeologist model's scale
-// Walls and closed gates stop the player's centre this far off: wider than the hitbox the monsters and traps use
-// (Player::HalfWidth, 0.06 tiles, from the model), so the drawn figure never sinks into a wall.
+// Walls, gates and solid sub-cells stop the player at the hitbox (Player::HalfWidth, about 0.07 tiles, from the
+// model). This is a bound over it for compile-time margins: the time to walk through spikes, the level checker.
 constexpr float PLAYER_BODY_HALF_WIDTH = PLAYER_SCALE / 60.f;
 // Climbing up needs ladder this far above the player's feet (their height, roughly), so they stop with the head
 // below the top rung.

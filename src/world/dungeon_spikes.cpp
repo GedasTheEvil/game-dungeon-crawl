@@ -141,7 +141,7 @@ void Dungeon::stabWallSpikes(int col, int row) {
 				sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
 				sim.player->Poison(PoisonTier::Weak, *sim.events, sim.random->gameplay);
 			}
-		if (const auto x = outOfSpikes(col, row, mapX, PLAYER_BODY_HALF_WIDTH))
+		if (const auto x = outOfSpikes(col, row, mapX, half))
 			mapX = *x;
 	}
 	for (Monster& mon : monsters)

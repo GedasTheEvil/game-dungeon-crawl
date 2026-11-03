@@ -317,7 +317,7 @@ bool Dungeon::Move(float dirX, float dirY) {
 	if (dirX != 0) {
 		playerFacing = dirX > 0 ? 1 : -1;
 		const int dir = dirX > 0 ? 1 : -1;
-		const float probeX = mapX + dirX + static_cast<float>(dir) * PLAYER_BODY_HALF_WIDTH;
+		const float probeX = mapX + dirX + static_cast<float>(dir) * sim.player->HalfWidth();
 		if (!bodyBlocked(mapX + dirX, dir, mapY))
 			mapX += dirX;
 		else if (Map(probeX, mapY).type == Gate)
@@ -429,10 +429,9 @@ bool Dungeon::playerOnStep() const { return floorUnder(mapX, mapY) > std::floor(
 float Dungeon::subcellReach() const { return sim.player->HalfWidth() - FOOT_INSET; }
 //======================================================================================
 bool Dungeon::bodyBlocked(float toX, int dir, float y) const {
-	const float side = static_cast<float>(dir);
-	if (isSolidTile(Map(mapX, y)) || isSolidTile(Map(toX + side * PLAYER_BODY_HALF_WIDTH, y)))
+	const float edge = toX + static_cast<float>(dir) * sim.player->HalfWidth();
+	if (isSolidTile(Map(mapX, y)) || isSolidTile(Map(edge, y)))
 		return true;
-	const float edge = toX + side * sim.player->HalfWidth();
 	const float feet = y + SUBCELL_TOUCH, head = y + PLAYER_BODY_HEIGHT - SUBCELL_TOUCH;
 	for (const float x : {mapX, (mapX + edge) / 2.f, edge})
 		for (const float h : {feet, (feet + head) / 2.f, head})

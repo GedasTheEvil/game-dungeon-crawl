@@ -115,7 +115,8 @@ TEST_CASE(
 	REQUIRE(world.WalkTo(4.6f));
 	waitFor(world, 5, 2, SpikeState::Extended);
 	world.HoldWalk(1, 300); // a wall
-	CHECK(world.X() < 5.f - PLAYER_BODY_HALF_WIDTH + 0.01f);
+	CHECK(world.X() < 5.f - world.player.HalfWidth() + 0.01f);
+	CHECK(world.X() > 5.f - world.player.HalfWidth() - 0.03f); // up to the hitbox
 	world.facing = 1;
 	world.Jump(); // no clearance: the spikes fill the corridor
 	world.HoldWalk(1, 500);
@@ -134,7 +135,7 @@ TEST_CASE(
 	CHECK(world.Told("Spikes shoot out of the wall"));
 	CHECK(world.Hp() == 50 - SPIKES_STAB_DAMAGE);
 	CHECK(world.player.stats.poison.Mask() == 1); // weak
-	CHECK(world.X() > 6.f + PLAYER_BODY_HALF_WIDTH); // shoved out on the near side
+	CHECK(world.X() > 6.f + world.player.HalfWidth()); // shoved out on the near side
 	world.Wait(SPIKES_OUT_MS[0]);
 	CHECK(world.Hp() > 50 - SPIKES_STAB_DAMAGE - 5); // one stab, then only the weak poison
 }
@@ -157,7 +158,7 @@ TEST_CASE("the trap ward wards off the wall spikes' stab and its poison") {
 	waitFor(world, 5, 2, SpikeState::Extended);
 	CHECK(world.Hp() == 50);
 	CHECK(world.player.stats.poison.Mask() == 0);
-	CHECK(world.X() < 5.f - PLAYER_BODY_HALF_WIDTH); // shoved out all the same
+	CHECK(world.X() < 5.f - world.player.HalfWidth()); // shoved out all the same
 }
 
 TEST_CASE("a monster standing in the wall spikes as they come out is stabbed and shoved out") {

@@ -334,9 +334,6 @@ constexpr int GUST_LEFT = SPIKE_SPEED_COUNT;
 inline bool isSolidTile(const Tile& t) {
 	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open) || spikesOut(t.fixture);
 }
-// The cell under an open one carries a creature standing there (plan floor-queries): the one place that says what a
-// creature stands on. Today any solid cell; sub-cells (a cell with its top row solid) change it here.
-[[nodiscard]] inline bool isFloor(const Tile& t) { return isSolidTile(t); }
 
 // The shape queries (plan level-subcells): the game code asks these, not the mask's bits. A position in the cell is in
 // tiles from its bottom left corner, 0 to 1 (1 counts as the last sub-cell). They read the structure and the shape
@@ -370,6 +367,16 @@ inline bool isSolidTile(const Tile& t) {
 	const int col = subcellOf(x);
 	return static_cast<float>(nextSubcellRow(t, col, nextSubcellRow(t, col, 0, false), true)) * SUBCELL_SIZE;
 }
+// A shaped cell's top row of sub-cells is all solid: whatever is in the cell above stands on it.
+[[nodiscard]] inline bool topRowSolid(const Tile& t) {
+	constexpr std::uint16_t TOP_ROW = 0xf000;
+	return hasShape(t) && (t.shape & TOP_ROW) == TOP_ROW;
+}
+
+// The cell under an open one carries a creature standing there (plan floor-queries): the one place that says what a
+// creature stands on. Any solid cell, or a shaped one with its top row solid (plan subcell-physics). The player also
+// stands on a sub-cell inside a cell, or on a top row solid only in part (Dungeon::floorUnder).
+[[nodiscard]] inline bool isFloor(const Tile& t) { return isSolidTile(t) || topRowSolid(t); }
 
 // What a level says about itself, besides its cells (the file's lines before the layers).
 constexpr int NO_ZONE = -1;

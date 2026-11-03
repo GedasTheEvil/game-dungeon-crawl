@@ -186,6 +186,8 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, const ZoneLook& loo
 				continue;
 			}
 
+			if (hasShape(tile)) // a shaped cell's blocks leave no room (plan subcell-physics): only a placed prop
+				continue;
 			if (inHalfWater(tile)) {
 				placed += scatterWaterProp(cells, seed, tier, i, j, cell) ? 1 : 0;
 				continue;
@@ -315,9 +317,9 @@ bool placedTorchAhead(const Tile* cells, int col, int row) {
 }
 
 // Torches hang on the back wall at head height, spaced along each row. Cells with a fire of their own (brazier, oil
-// lamp), the gates and ladders and deep water (plan no-torches-under-water) are skipped; over half water the flame
-// clears the surface. The decal layer's torches (plan placed-decor) hang where it says, whatever the rules; the random
-// ones keep the gap to them.
+// lamp), the gates and ladders, deep water (plan no-torches-under-water) and shaped cells (their blocks stand in front
+// of the wall, plan subcell-physics) are skipped; over half water the flame clears the surface. The decal layer's
+// torches (plan placed-decor) hang where it says, whatever the rules; the random ones keep the gap to them.
 int scatterTorches(const Tile* cells, uint32_t seed, uint32_t torchPercent, const DecorCell* decor, bool* torch) {
 	int placed = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++) {
@@ -335,7 +337,7 @@ int scatterTorches(const Tile* cells, uint32_t seed, uint32_t torchPercent, cons
 			}
 			const int8_t prop = decor[cellIndex(i, j)].type;
 			const int decal = tile.dressing.decal; // a placed free decal takes the middle of the wall
-			if (isWall(tile) || tile.structure == Structure::DeepWater || !tileDef(tile.type).torch ||
+			if (isWall(tile) || hasShape(tile) || tile.structure == Structure::DeepWater || !tileDef(tile.type).torch ||
 				!tileDef(tile.fixture.type).torch || torchless(prop) || i - lastTorch <= TORCH_MIN_GAP ||
 				(decal >= 0 && DECAL_DEFS[decal].anchor == DecalAnchor::Free) || placedTorchAhead(cells, i, j))
 				continue;
@@ -372,8 +374,8 @@ void placeDecal(DecalCell& cell, int type, bool mirror, uint32_t h) {
 	}
 }
 
-// One decal at most per cell with a visible back wall. Runs after the props and torches so floor decals can avoid
-// cells that already have a prop, free ones a torch.
+// One decal at most per cell with a visible back wall, none at random in a shaped cell (plan subcell-physics). Runs
+// after the props and torches so floor decals can avoid cells that already have a prop, free ones a torch.
 int scatterDecals(
 	const Tile* cells,
 	uint32_t seed,
@@ -398,7 +400,7 @@ int scatterDecals(
 				placed++;
 				continue;
 			}
-			if (isWall(tile) || !tileDef(tile.type).decals || !tileDef(tile.fixture.type).decals)
+			if (isWall(tile) || hasShape(tile) || !tileDef(tile.type).decals || !tileDef(tile.fixture.type).decals)
 				continue;
 			if (h % 100 >= DECAL_CHANCE_PERCENT)
 				continue;

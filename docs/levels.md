@@ -18,8 +18,10 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 An open structure can carry a **shape** ([level-subcells](plan/solved/level-subcells.md)): the cell splits into
 4 x 4 sub-cells, a quarter tile each way, and the shape is the mask of the solid ones (steps, stairs, low ceilings,
 crawl spaces). The game asks `solidAt`, `floorHeight` and `ceilingHeight` (`src/world/level.h`), never the bits.
-Until [subcell-physics](plan/subcell-physics.draft.opus.md) the game draws and walks a shaped cell as open and the
-checker treats it so; the map screen draws its solid sub-cells. Test level: `tests/levels/subcells`.
+The game draws the solid sub-cells as blocks; the player is blocked by them, jumps onto a quarter step (not a half),
+bumps a low ceiling and stands on a step with a foot ([subcell-physics](plan/subcell-physics.md)); arrows and sunbeams
+stop at them. Monsters and the checker still treat a shaped cell as open. The map screen draws its solid sub-cells.
+Test level: `tests/levels/subcells`.
 
 Two more say how the cell is dressed ([placed-decor](plan/solved/placed-decor.md)), each unset (the game scatters
 it as on any level), bare (none) or one picked with its mirror, whatever the depth:

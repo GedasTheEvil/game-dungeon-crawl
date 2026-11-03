@@ -1,6 +1,6 @@
 # Crouch: crawl spaces and ducking attacks
 
-Status: draft 2026-11-02. Needs first: [subcell-physics](subcell-physics.draft.opus.md). From the user.
+Status: draft 2026-11-02. Needs first: [subcell-physics](subcell-physics.md). From the user.
 
 A new action: the player crouches to pass under a low ceiling (a crawl space) and to duck high attacks.
 

@@ -188,23 +188,23 @@ TEST_CASE("the test level tests/levels/subcells: its shapes load, the checker pa
 	REQUIRE(loadLevelFile("tests/levels/subcells", grid, &version).empty());
 	CHECK(version == LEVEL_VERSION);
 	CHECK(grid.at(3, 2).shape == 0x000f); // a quarter step
-	CHECK(grid.at(10, 2).shape == 0x08ce); // the stair
-	CHECK(grid.at(15, 2).shape == 0xfff0); // the crawl space
-	CHECK(grid.at(19, 2).shape == 0x0008); // a lip
-	CHECK(grid.at(22, 2).structure == Structure::HalfWater);
-	CHECK(grid.at(22, 2).shape == 0x000f);
-	CHECK(grid.at(23, 2).structure == Structure::Sand);
+	CHECK(grid.at(8, 2).shape == 0x08ce); // the stair
+	CHECK(grid.at(25, 2).shape == 0xfff0); // the crawl space
+	CHECK(grid.at(10, 2).shape == 0x0008); // a lip
+	CHECK(grid.at(19, 2).structure == Structure::HalfWater);
+	CHECK(grid.at(19, 2).shape == 0x000f);
+	CHECK(grid.at(22, 2).structure == Structure::Sand);
 	CHECK_FALSE(hasShape(grid.at(2, 2)));
 	const LevelReport report = checkLevel(grid);
 	CHECK(report.valid);
 	CHECK(report.warnings.empty());
-	CHECK(renderLevel(grid, nullptr).find("#.._.__._.___.____.__.-;..#") != std::string::npos);
+	CHECK(renderLevel(grid, nullptr).find("#..____.____.____.~-~,;..__.#") != std::string::npos);
 
-	SimWorld world; // the game carries the shapes, through a save too; until subcell-physics they walk as open
+	SimWorld world; // the game carries the shapes, through a save too
 	REQUIRE(world.Load("tests/levels/subcells"));
-	CHECK(world.dungeon.Cell(10, 2).shape == 0x08ce);
-	REQUIRE(world.WalkTo(24.5f));
+	CHECK(world.dungeon.Cell(8, 2).shape == 0x08ce);
+	REQUIRE(world.dungeon.PlacePlayer(23, 2));
 	world.SaveAndLoad();
-	CHECK(world.dungeon.Cell(10, 2).shape == 0x08ce);
-	CHECK(world.dungeon.Cell(22, 2).shape == 0x000f);
+	CHECK(world.dungeon.Cell(8, 2).shape == 0x08ce);
+	CHECK(world.dungeon.Cell(19, 2).shape == 0x000f);
 }

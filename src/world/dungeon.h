@@ -280,6 +280,7 @@ class Dungeon {
 	void addLights(const CellRect& drawn);
 	void drawFires(const CellRect& drawn);
 	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
+	void drawShapeBlocks(int i, int j, float basinFloor); // a shaped cell's solid sub-cells (plan subcell-physics)
 	CellRect drawnCells; // the cells the last Draw drew, for DrawWater
 	void pushLevelFrame() const; // Draw's frame: the view's first cell at the origin, scrolled with the player
 	void drawWaterCell(int i, int j, float x, float y);
@@ -293,8 +294,15 @@ class Dungeon {
 	void drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const;
 	Tile Map(float x, float y) const;
 	// The player's body, stepping sideways so its side reaches probeX at map height y, hits something solid: the cell
-	// the player is in or the one at the side (plan floor-queries).
+	// the player is in or the one at the side (plan floor-queries), or a solid sub-cell from the centre to probeX, from
+	// the feet to the head (plan subcell-physics). The side the body leaves is not asked: it can step out of one.
 	[[nodiscard]] bool bodyBlocked(float probeX, float y) const;
+	// The map y of the ceiling the player's head at feet height y meets (plan subcell-physics): a solid cell over the
+	// centre, a solid sub-cell over the body; none if the head is free.
+	[[nodiscard]] std::optional<float> ceilingAt(float y) const;
+	// The player stands on a sub-cell's top inside their cell, over the cell's bottom (a step): out of the water
+	// basin and the sand under it.
+	[[nodiscard]] bool playerOnStep() const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp, drawn in dungeon_render_mechanisms.cpp).
 	struct Motion {
 		int cell; // map index
@@ -745,9 +753,15 @@ class Dungeon {
 	// World units the player is drawn down into a water basin (WaterSink, less while above the floor: a fall, a jump),
 	// or into quicksand (QuicksandSink), or the sand of a swallow (SwallowSink).
 	[[nodiscard]] float PlayerSink() const;
-	// The map y of the floor the player at (x, y) would stand on in their cell, if the cell has one (isFloor under
-	// it): today the cell's bottom edge, floor(y). Sub-cells will raise it inside the cell (plan floor-queries).
+	// The map y of the floor the player at (x, y) stands on or falls onto (floorBelow); floor(y) where there is none
+	// (plan floor-queries).
 	[[nodiscard]] float floorUnder(float x, float y) const;
+	// The floor under the player at (x, y), at most a cell under y's (plan subcell-physics): the top of the cell under
+	// y's if it is a floor (isFloor, under the body's centre x), or of a solid sub-cell at or under y, under any part
+	// of the body (a foot on a step carries the player). None over a shaft.
+	[[nodiscard]] std::optional<float> floorBelow(float x, float y) const;
+	// A solid sub-cell of a shaped cell at map (x, y) (plan subcell-physics); whole solid cells are isSolidTile's.
+	[[nodiscard]] bool subcellAt(float x, float y) const;
 	// How far the player is above floorUnder: in a jump, a fall, up a ladder (plan floor-queries).
 	[[nodiscard]] float heightOverFloor() const;
 	// World units the player has sunk into quicksand: down to QUICKSAND_SINK_DEPTH tiles as they get stuck.
@@ -872,6 +886,8 @@ class Dungeon {
 	[[nodiscard]] bool PlayerInBlaze() const; // the player stands in a burning floor cell, not in the air
 	// Monster shots in flight or waiting in a volley (plan babi-boss); big: only the big coals.
 	[[nodiscard]] int ShotCount(bool big = false) const;
+	// Unit tests: the map x where the missiles stuck in a wall, the floor or a solid sub-cell are.
+	[[nodiscard]] std::vector<float> StuckMissileXs() const;
 	// A beam of sunlight runs through (col, row) now (plan sunlight-mirrors); it counts as light for Lit too.
 	[[nodiscard]] bool Sunlit(int col, int row) const {
 		return IsInBounds(col, row) && sunlit[static_cast<size_t>(MapIndex(col, row))] != 0;

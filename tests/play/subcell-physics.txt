@@ -1,0 +1,8 @@
+# Plan subcell-physics, for `bin/game --play tests/play/subcell-physics.txt`: tests/levels/subcells, a hall of steps.
+# Walk right: a quarter step (col 3, jump onto it), a half step (col 4) and three quarters (col 5), each a jump from the
+# one before; a stair down (col 6) and up (col 8, a jump per quarter), a half step (col 9) a jump from the floor cannot
+# reach; two lips (cols 10-11); a ceiling three quarters up (cols 13-14, a jump bumps your head) and half up (15-16);
+# a step in half water (col 19) and in sand (col 22); past the exit (col 24) a crawl space you cannot enter standing.
+seed 1
+level tests/levels/subcells
+god

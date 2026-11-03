@@ -8,6 +8,8 @@ constexpr float PLAYER_BODY_HALF_WIDTH = PLAYER_SCALE / 60.f;
 // Climbing up needs ladder this far above the player's feet (their height, roughly), so they stop with the head
 // below the top rung.
 constexpr float PLAYER_CLIMB_HEADROOM = PLAYER_SCALE / 40.f;
+// The player's body against the solid sub-cells of a shaped cell (plan subcell-physics): its height, about 0.375 tiles.
+constexpr float PLAYER_BODY_HEIGHT = PLAYER_CLIMB_HEADROOM;
 // Update() runs once a tick (game.cpp's timer, the scenario tick). A held walk key moves the player once a tick
 // (stepHeldWalk), so the walk speed is WALK_SPEED on every machine, not the key repeat rate.
 constexpr int UPDATE_TICK_MS = 16;
@@ -35,7 +37,9 @@ constexpr int FALL_TICK_MS = 40;
 
 constexpr float FALL_STEP = 0.03f; // initial fall speed, grows by FALL_GRAVITY_STEP each tick
 constexpr float FALL_GRAVITY_STEP = JUMP_GRAVITY_STEP;
-constexpr float FALL_MAX_STEP = 0.3f; // < 1 tile, so one tick never skips a floor
+// < 1 tile, so one tick never skips a floor; a step's floor inside a cell neither: the landing looks a cell down from
+// where the tick starts (Dungeon::floorBelow).
+constexpr float FALL_MAX_STEP = 0.3f;
 constexpr float FALL_START_THRESHOLD = 0.03f;
 
 // An inscription translated gives this part of a riddle's reward (plan inscription-xp).

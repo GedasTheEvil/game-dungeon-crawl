@@ -1113,7 +1113,7 @@ class LevelBuilder {
 			if (!freeCell(col, y))
 				return -1;
 		for (int x = col + dir; x != wing.end + dir; x += dir)
-			if (blocksBeam(g.at(x, hall.row)))
+			if (blocksBeam(g.at(x, hall.row), dir > 0 ? BeamDir::Right : BeamDir::Left))
 				return -1;
 		return col;
 	}

@@ -121,8 +121,14 @@ void Dungeon::drawSunBeams() {
 							   : wallTile();
 		if (ahead.type == Gate && beamDy(s.out) == 0) // the portcullis stands in the middle of its cell
 			centrePoint(next, x, y);
-		else
+		else {
 			edgePoint(s.cell, s.out, x, y);
+			if (shapeStopsBeam(ahead, s.out)) { // on into a shaped cell, up to its solid sub-cell
+				const float reach = beamReach(ahead, s.out);
+				x += reach * static_cast<float>(beamDx(s.out));
+				y += reach * static_cast<float>(beamDy(s.out));
+			}
+		}
 		lineTo(x, y, static_cast<uint32_t>(s.cell) * 7U);
 		glowAt(x, y, 18.f, 0.6f); // where it falls on the rock
 	}

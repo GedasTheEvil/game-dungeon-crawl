@@ -86,7 +86,7 @@ class Walker {
 		std::vector<std::vector<MirrorSetting>> ways;
 		const std::vector<char> lit = sunlitCells(
 			grid.cells,
-			[&](int cell) { return blocksBeam(cell, mask); },
+			[&](int cell, BeamDir way) { return blocksBeam(cell, mask, way); },
 			[&](int cell) { return reach[cell] != 0; },
 			&ways
 		);
@@ -102,12 +102,12 @@ class Walker {
 		return out;
 	}
 
-	// The beam stops in the cell with these colours open (blocksBeam).
-	[[nodiscard]] bool blocksBeam(int cell, int mask) const {
+	// The beam going way stops in the cell with these colours open (blocksBeam).
+	[[nodiscard]] bool blocksBeam(int cell, int mask, BeamDir way) const {
 		const Tile& t = grid.cells[cell];
 		if (t.type == Gate)
 			return gateState(t) == GateState::Closed && (mask & bitOf(t.attr)) == 0;
-		return isSolidStructure(t.structure);
+		return isSolidStructure(t.structure) || shapeStopsBeam(t, way);
 	}
 
 	// In level data a gate is closed (0) or open: the game opens one saved mid-motion (2) on load.
@@ -705,12 +705,14 @@ int checkSunBeams(const LevelGrid& grid, LevelReport& r) {
 		return 0;
 	const std::vector<char> anyWay = sunlitCells(
 		grid.cells,
-		[&](int cell) { return isSolidStructure(grid.cells[cell].structure); },
+		[&](int cell, BeamDir way) {
+			return isSolidStructure(grid.cells[cell].structure) || shapeStopsBeam(grid.cells[cell], way);
+		},
 		[](int) { return true; }
 	);
 	const std::vector<char> atStart = sunlitCells(
 		grid.cells,
-		[&](int cell) { return blocksBeam(grid.cells[cell]); },
+		[&](int cell, BeamDir way) { return blocksBeam(grid.cells[cell], way); },
 		[](int) { return false; }
 	);
 	int lit = 0;

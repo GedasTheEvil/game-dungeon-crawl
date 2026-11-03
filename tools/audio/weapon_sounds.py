@@ -11,7 +11,8 @@ sling_release.wav (the cord's snap, the stone whizzing off), throw.wav (an arm's
 javelin), stone_hit.wav (a blunt missile on a body), stone_wall.wav (a stone or stick clacking off stone),
 axe_hit.wav (a heavy chop: the blade bites in), mace_hit.wav (stone on bone: a deep crunch), shot_dry.wav (no shot
 left: a dry click), shot_too_close.wav (a monster too close to shoot: a dull knock), dagger_swing.wav (short, light), axe_swing.wav
-(heavier than the sword), characters/archeologist_dodge.wav (the player ducks a blow).
+(heavier than the sword), characters/archeologist_dodge.wav (the player ducks a blow), characters/archeologist_bump.wav
+(the head knocks on a low stone ceiling in a jump).
 Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like mechanism_sounds.py.
 """
@@ -270,6 +271,16 @@ def dodge():
     return normalize(out, -7)
 
 
+def bump():
+    """The head knocks on a low stone ceiling in a jump: a dull knock on stone, a little grit trickling off."""
+    out = np.zeros(int(0.3 * SR))
+    place(out, thud(180, 90, 0.12, 0.03), 0.0, 1.0)
+    place(out, burst(0.025, 900, 3000, 0.006), 0.0, 0.35)
+    for k, at in enumerate((0.05, 0.09, 0.14)):  # grit off the ceiling
+        place(out, burst(0.02, 2500, 7000, 0.004), at, 0.12 / (k + 1))
+    return normalize(out, -8)
+
+
 # Paths under media/sounds/.
 SOUNDS = {
     "items/club_swing": club_swing, "items/club_hit": club_hit, "items/sword_swing": sword_swing,
@@ -279,6 +290,7 @@ SOUNDS = {
     "items/throw": throw, "items/stone_hit": stone_hit, "items/stone_wall": stone_wall, "items/axe_hit": axe_hit,
     "items/mace_hit": mace_hit, "items/shot_dry": shot_dry, "items/shot_too_close": shot_too_close,
     "items/dagger_swing": dagger_swing, "items/axe_swing": axe_swing, "characters/archeologist_dodge": dodge,
+    "characters/archeologist_bump": bump,
 }
 
 

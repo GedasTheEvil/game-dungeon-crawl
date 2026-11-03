@@ -46,7 +46,7 @@ void Dungeon::updateShove() {
 	const float step = std::min(shove.left, SHOVE_SPEED * static_cast<float>(UPDATE_TICK_MS) / 1000.f);
 	const float to = mapX + static_cast<float>(shove.dir) * step;
 	const float probe = to + static_cast<float>(shove.dir) * PLAYER_BODY_HALF_WIDTH;
-	if (isSolidTile(Map(probe, mapY))) {
+	if (bodyBlocked(probe, mapY)) {
 		shove = Shove{};
 		return;
 	}

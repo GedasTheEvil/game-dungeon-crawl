@@ -1,0 +1,39 @@
+# Plan subcell-physics (tests/levels/subcells): the solid sub-cells drawn as blocks of the wall stone, tops as floor,
+# undersides as ceiling; the player blocked by a quarter step, a jump onto it, the stair down, a ledge lip, the low
+# ceilings and the crawl space, a step in half water. A unit test cannot look at the drawing.
+seed 1
+god
+resolution 1024 768
+level tests/levels/subcells
+wait 30
+hold right 2s
+expect x < 2.76
+expect y < 2.01
+hitboxes on
+screenshot at_the_step
+jump
+hold right 1s
+expect y > 2.24
+expect y < 2.26
+screenshot on_the_step
+hitboxes off
+level tests/levels/subcells at 5 2
+wait 30
+walk to 7.5
+wait 30
+expect y < 2.01
+screenshot stair_down_stair_up_lips
+level tests/levels/subcells at 13 2
+wait 30
+screenshot low_ceilings
+jump
+wait 6
+screenshot bump
+level tests/levels/subcells at 20 2
+wait 30
+screenshot water_sand
+level tests/levels/subcells at 24 2
+wait 30
+hold right 1s
+expect x < 24.76
+screenshot crawl_space

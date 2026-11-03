@@ -362,6 +362,7 @@ void loadSounds(SoundBank& sounds) {
 	sounds.chevronFail.Load(MEDIA_DIR "sounds/mechanisms/chevron_fail.wav");
 	sounds.dialPress.Load(MEDIA_DIR "sounds/mechanisms/dial_press.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/characters/archeologist_dodge.wav");
+	sounds.headBump.Load(MEDIA_DIR "sounds/characters/archeologist_bump.wav");
 	sounds.powerCharge.Load(MEDIA_DIR "sounds/items/power_charge.wav");
 	sounds.powerSwing.Load(MEDIA_DIR "sounds/items/power_swing.wav");
 	sounds.powerHit.Load(MEDIA_DIR "sounds/items/power_hit.wav");

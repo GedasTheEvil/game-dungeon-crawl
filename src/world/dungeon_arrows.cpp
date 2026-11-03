@@ -207,7 +207,8 @@ void Dungeon::updateMissiles() {
 										  RenderConfig::WATER_BASIN_DEPTH / RenderConfig::TILE_SIZE;
 			if (a.fire && y - static_cast<float>(row) < 0.5f) // low over the floor: a web there burns
 				burnWeb(MapIndex(col, row));
-			if (isSolidTile(MapAt(col, row)) && !inBasin) {
+			// A solid sub-cell (plan subcell-physics) takes it where it is, in a basin too.
+			if ((isSolidTile(MapAt(col, row)) && !inBasin) || subcellAt(x, y)) {
 				a.stuckMs = now; // the tip in the wall or the floor
 				sim.events->Play(rules.wall);
 				gone = !rules.sticks && !rules.returns;
@@ -232,6 +233,14 @@ void Dungeon::updateMissiles() {
 		}
 		it = gone ? missiles.erase(it) : it + 1;
 	}
+}
+//======================================================================================
+std::vector<float> Dungeon::StuckMissileXs() const {
+	std::vector<float> xs;
+	for (const Missile& a : missiles)
+		if (a.stuckMs >= 0)
+			xs.push_back(a.endX);
+	return xs;
 }
 //======================================================================================
 bool Dungeon::clearRow(float fromX, float toX, int row) const {
@@ -314,7 +323,7 @@ void Dungeon::updateShots() {
 				break;
 			}
 			const std::optional<RangedRules>& rules = v.from->ranged;
-			if (isSolidTile(MapAt(col, row))) {
+			if (isSolidTile(MapAt(col, row)) || subcellAt(v.x, v.y)) {
 				v.splatMs = now;
 				if (v.big && rules && rules->volley) // on the floor, or at the foot of a wall
 					blazeAt(v.x - v.vx * ARROW_STEP_S, v.y - v.vy * ARROW_STEP_S, rules->volley->blazeMs);

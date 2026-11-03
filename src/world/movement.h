@@ -7,6 +7,7 @@
 // (19 instead of 18 from rows 1 to 3); the arc here is the intended one.
 
 #include "../core/gameplay_config.h"
+#include "level.h"
 
 namespace Jump {
 struct Arc {
@@ -40,5 +41,12 @@ constexpr float WALKING_REACH = ARC.drift + WALK_SPEED * static_cast<float>(ARC.
 static_assert(Jump::ARC.peak < 1.f, "the checker assumes a jump cannot step up onto a ledge one cell high");
 static_assert(Jump::ARC.drift > 0.5f, "the checker assumes a jump clears a one-cell gap");
 static_assert(Jump::WALKING_REACH > 1.5f, "a walking jump from the middle of a cell clears a one-cell gap");
+// Sub-cells (plan subcell-physics): the steps a jump gets the player onto, in a room a cell high.
+static_assert(Jump::ARC.peak > SUBCELL_SIZE, "a jump gets the player onto a quarter step");
+static_assert(Jump::ARC.peak < 2.f * SUBCELL_SIZE, "a jump does not get the player onto a half step");
+static_assert(Jump::ARC.peak + PLAYER_BODY_HEIGHT < 1.f, "a jump from the floor does not reach a ceiling a cell up");
+static_assert(2.f * SUBCELL_SIZE + PLAYER_BODY_HEIGHT < 1.f, "the player stands on a half step under that ceiling");
+static_assert(PLAYER_BODY_HEIGHT > SUBCELL_SIZE, "the player does not fit a crawl space a quarter high standing");
+static_assert(PLAYER_BODY_HEIGHT < 2.f * SUBCELL_SIZE, "the player walks under a ceiling half a cell up");
 
 #endif

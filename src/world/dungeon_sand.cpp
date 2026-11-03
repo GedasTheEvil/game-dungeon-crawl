@@ -9,7 +9,7 @@
 
 bool Dungeon::PlayerInSand() const {
 	const JumpState& jump = sim.player->jump;
-	return !jump.jumping && !jump.falling && inSand(Map(mapX, mapY));
+	return !jump.jumping && !jump.falling && inSand(Map(mapX, mapY)) && !playerOnStep(); // a step stands on the sand
 }
 //======================================================================================
 // Sinking: the longer the player stands in quicksand, the slower the walk (PlayerWalkFactor), stuck at

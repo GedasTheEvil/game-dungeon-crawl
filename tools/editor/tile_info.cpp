@@ -175,8 +175,8 @@ CellHint describeShape(int brush, std::uint16_t shape) {
 				 (whole ? std::string(" (shape ") + mask + ")" : "");
 	hint.description = brush >= 0 ? SHAPE_BRUSHES[brush].description
 								  : "A shape painted by hand: the solid sub-cells as drawn on the map.";
-	hint.description += " A cell is 4 x 4 sub-cells, a quarter tile each way; the game draws a shaped cell as open "
-						"until sub-cell physics come (plan subcell-physics).";
+	hint.description += " A cell is 4 x 4 sub-cells, a quarter tile each way: the player jumps onto a quarter step, "
+						"not a half; monsters still walk the cell as open.";
 	hint.attribute = unusedField();
 	hint.value = unusedField();
 	return hint;

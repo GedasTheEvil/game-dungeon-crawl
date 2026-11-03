@@ -26,9 +26,28 @@ constexpr int BEAM_DIRS = 4;
 [[nodiscard]] inline BeamDir mirrorDir(const Tile& t) { return beamDir(t.value); }
 inline void turnMirror(Tile& t) { t.value = static_cast<int>(clockwise(mirrorDir(t))); }
 
-// Stops the beam: rock, deep water, a gate not fully open. The game's rule; the checker's gates follow its mask.
-[[nodiscard]] inline bool blocksBeam(const Tile& t) {
-	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open);
+// A beam crosses a cell along its middle: a row at half its height, a column at half its width (the drawing's
+// BEAM_HEIGHT). How far into a shaped cell a beam going `way` gets before a solid sub-cell on that line (plan
+// subcell-physics), in tiles; 1: it goes through.
+[[nodiscard]] inline float beamReach(const Tile& t, BeamDir way) {
+	if (!hasShape(t))
+		return 1.f;
+	const bool forward = beamDx(way) + beamDy(way) > 0;
+	for (int k = 0; k < SUBCELLS; k++) {
+		const int along = forward ? k : SUBCELLS - 1 - k;
+		if (beamDy(way) == 0 ? subcellSolid(t, along, SUBCELLS / 2) : subcellSolid(t, SUBCELLS / 2, along))
+			return static_cast<float>(k) * SUBCELL_SIZE;
+	}
+	return 1.f;
+}
+// The beam going `way` does not get through the cell: a solid sub-cell on its line.
+[[nodiscard]] inline bool shapeStopsBeam(const Tile& t, BeamDir way) { return beamReach(t, way) < 1.f; }
+
+// Stops the beam going `way` into the cell: rock, deep water, a gate not fully open, a solid sub-cell on its line. The
+// game's rule; the checker's gates follow its mask.
+[[nodiscard]] inline bool blocksBeam(const Tile& t, BeamDir way) {
+	return isSolidStructure(t.structure) || (t.type == Gate && gateState(t) != GateState::Open) ||
+		   shapeStopsBeam(t, way);
 }
 
 // One cell a beam lights. in: the way it travels into the cell (a light shaft: its own way); out: the way it leaves
@@ -42,8 +61,8 @@ struct BeamStep {
 	bool ends;
 };
 
-// cell (an index) stops the beam.
-using BeamBlock = std::function<bool(int cell)>;
+// cell (an index) stops the beam going way into it.
+using BeamBlock = std::function<bool(int cell, BeamDir way)>;
 
 // The beams of every light shaft in cells (a whole level), as the mirrors stand: each shaft's steps, from the shaft's
 // cell on, then the next shaft's. A beam that comes back into a cell the way it went before is a loop: it ends there.

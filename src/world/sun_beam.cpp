@@ -30,7 +30,7 @@ std::vector<BeamStep> traceBeams(const Tile* cells, const BeamBlock& blocked) {
 				}
 			}
 			const int next = stepFrom(cell, out);
-			const bool ends = next < 0 || blocked(next) || seen[cell * BEAM_DIRS + static_cast<int>(out)] != 0;
+			const bool ends = next < 0 || blocked(next, out) || seen[cell * BEAM_DIRS + static_cast<int>(out)] != 0;
 			steps.push_back({cell, in, out, ends});
 			if (ends)
 				break;
@@ -98,7 +98,7 @@ std::vector<char> sunlitCells(
 			if (mirror ? (out == opposite(in) || (!free(cell) && out != mirrorDir(t))) : out != in)
 				continue;
 			const int next = stepFrom(cell, out);
-			if (next >= 0 && !blocked(next))
+			if (next >= 0 && !blocked(next, out))
 				push(state(next, out), s);
 		}
 	}

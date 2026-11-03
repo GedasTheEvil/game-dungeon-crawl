@@ -16,6 +16,11 @@
 
 namespace {
 constexpr float LADDER_REACH = 0.2f; // closer to LADDER_GRIP_X than this (tiles), the player holds on to the ladder
+// Sub-cells (plan subcell-physics): a body touching a sub-cell's face is not in it; the feet that stand on a step reach
+// this far in from the body's sides, so a side touching a step's wall does not carry the player.
+constexpr float SUBCELL_TOUCH = 1e-3f;
+constexpr float FOOT_INSET = 0.01f;
+constexpr float FOOT_REACH = PLAYER_BODY_HALF_WIDTH - FOOT_INSET;
 } // namespace
 
 bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < MAP_WIDTH && row >= 0 && row < MAP_HEIGHT; }
@@ -38,7 +43,7 @@ bool Dungeon::PlacePlayer(int col, int row) {
 		(MapAt(col, row).type != Ladder && !isFloor(MapAt(col, row - 1))))
 		return false;
 	mapX = static_cast<float>(col) + 0.5f;
-	mapY = static_cast<float>(row);
+	mapY = static_cast<float>(row) + floorHeight(MapAt(col, row), 0.5f); // on a step in a shaped cell
 	resetPlayerMotion();
 	exploreAroundPlayer();
 	return true;
@@ -85,14 +90,14 @@ void Dungeon::UpdateMovementState() {
 		const float nearestFloor = floorUnder(mapX, mapY + FALL_START_THRESHOLD);
 		if (std::fabs(mapY - nearestFloor) < FALL_START_THRESHOLD)
 			mapY = nearestFloor;
-		if (heightOverFloor() > FALL_START_THRESHOLD || !isFloor(Map(mapX, mapY - 1))) {
+		if (heightOverFloor() > FALL_START_THRESHOLD || !floorBelow(mapX, mapY)) {
 			JumpState& jump = sim.player->jump;
 			if (jump.fall_inc.TimePassed()) {
-				const float floorY = floorUnder(mapX, mapY);
+				const std::optional<float> floorY = floorBelow(mapX, mapY);
 				mapY -= jump.fall_velocity;
-				if (mapY < floorY && isFloor(Map(mapX, floorY - 1))) {
-					mapY = floorY; // landed: don't sink into the floor tile
-					if (inHalfWater(Map(mapX, mapY)))
+				if (floorY && mapY < *floorY) {
+					mapY = *floorY; // landed: don't sink into the floor tile
+					if (inHalfWater(Map(mapX, mapY)) && !playerOnStep())
 						sim.events->Play(WorldSound::Splash);
 				}
 				jump.fall_velocity = std::min(jump.fall_velocity + FALL_GRAVITY_STEP, FALL_MAX_STEP);
@@ -106,21 +111,31 @@ void Dungeon::UpdateMovementState() {
 		}
 	}
 
-	if (sim.player->jump.jumping) {
-		if (sim.player->jump.jump_inc.TimePassed()) {
-			if (sim.player->jump.dir_x != 0)
-				Move(sim.player->jump.dir_x * sim.player->jump.speed, 0);
+	JumpState& jump = sim.player->jump;
+	if (jump.jumping && jump.jump_inc.TimePassed()) {
+		if (jump.dir_x != 0)
+			Move(jump.dir_x * jump.speed, 0);
 
-			mapY += sim.player->jump.velocity;
-			sim.player->jump.velocity -= JUMP_GRAVITY_STEP;
-
-			if (sim.player->jump.velocity <= 0 && mapY <= sim.player->jump.start_y) {
-				mapY = sim.player->jump.start_y;
-				sim.player->jump.jumping = false;
-				sim.player->jump.falling = false;
-				if (inHalfWater(Map(mapX, mapY)))
-					sim.events->Play(WorldSound::Splash);
+		const float from = mapY;
+		mapY += jump.velocity;
+		jump.velocity -= JUMP_GRAVITY_STEP;
+		// The head meets a low ceiling (plan subcell-physics): the rise stops under it, the fall begins.
+		if (mapY > from)
+			if (const std::optional<float> ceiling = ceilingAt(mapY)) {
+				mapY = std::max(from, *ceiling - PLAYER_BODY_HEIGHT);
+				jump.velocity = std::min(jump.velocity, 0.f);
+				sim.events->Play(WorldSound::HeadBump);
 			}
+		// Coming down onto a step higher than the take-off, or back to the take-off height (then a fall, over a
+		// lower floor).
+		const std::optional<float> step = floorBelow(mapX, from);
+		const bool onStep = step && *step > jump.start_y + SUBCELL_TOUCH && mapY <= *step;
+		if (jump.velocity <= 0 && (onStep || mapY <= jump.start_y)) {
+			mapY = onStep ? *step : jump.start_y;
+			jump.jumping = false;
+			jump.falling = false;
+			if (inHalfWater(Map(mapX, mapY)) && !playerOnStep())
+				sim.events->Play(WorldSound::Splash);
 		}
 	}
 }
@@ -356,7 +371,7 @@ bool Dungeon::Move(float dirX, float dirY) {
 //======================================================================================
 bool Dungeon::PlayerWading() const {
 	const JumpState& jump = sim.player->jump;
-	return !jump.jumping && !jump.falling && inHalfWater(Map(mapX, mapY));
+	return !jump.jumping && !jump.falling && inHalfWater(Map(mapX, mapY)) && !playerOnStep();
 }
 //======================================================================================
 bool Dungeon::dryOpen(int col, int row) const {
@@ -379,15 +394,55 @@ float Dungeon::WaterSink(float x, int row) const {
 float Dungeon::PlayerSink() const {
 	const auto row = static_cast<int>(std::floor(mapY));
 	const float above = heightOverFloor(); // in the air over the floor: sinks as it comes down
-	return WaterSink(mapX, row) * std::clamp(1.f - above, 0.f, 1.f) + QuicksandSink() + SwallowSink();
+	const float water = playerOnStep() ? 0.f : WaterSink(mapX, row); // a step stands up out of the basin
+	return water * std::clamp(1.f - above, 0.f, 1.f) + QuicksandSink() + SwallowSink();
 }
 //======================================================================================
-float Dungeon::floorUnder(float /*x*/, float y) const { return std::floor(y); }
+bool Dungeon::subcellAt(float x, float y) const {
+	const auto col = static_cast<int>(std::floor(x)), row = static_cast<int>(std::floor(y));
+	if (!IsInBounds(col, row))
+		return false;
+	const Tile& t = map[MapIndex(col, row)];
+	return hasShape(t) && solidAt(t, x - static_cast<float>(col), y - static_cast<float>(row));
+}
+//======================================================================================
+// From the sub-cell row whose top is at y (or the first under it) down to the bottom row of the cell under y's.
+std::optional<float> Dungeon::floorBelow(float x, float y) const {
+	const auto row = static_cast<int>(std::floor(y));
+	for (auto k = static_cast<int>(std::floor((y + SUBCELL_TOUCH) * SUBCELLS)) - 1; k >= (row - 1) * SUBCELLS; k--) {
+		const float top = static_cast<float>(k + 1) * SUBCELL_SIZE;
+		const float mid = top - SUBCELL_SIZE / 2.f;
+		if (k == row * SUBCELLS - 1 && isFloor(Map(x, static_cast<float>(row - 1))))
+			return top;
+		if (subcellAt(x, mid) || subcellAt(x - FOOT_REACH, mid) || subcellAt(x + FOOT_REACH, mid))
+			return top;
+	}
+	return std::nullopt;
+}
+//======================================================================================
+float Dungeon::floorUnder(float x, float y) const { return floorBelow(x, y).value_or(std::floor(y)); }
 //======================================================================================
 float Dungeon::heightOverFloor() const { return mapY - floorUnder(mapX, mapY); }
 //======================================================================================
+bool Dungeon::playerOnStep() const { return floorUnder(mapX, mapY) > std::floor(mapY) + SUBCELL_TOUCH; }
+//======================================================================================
 bool Dungeon::bodyBlocked(float probeX, float y) const {
-	return isSolidTile(Map(mapX, y)) || isSolidTile(Map(probeX, y));
+	if (isSolidTile(Map(mapX, y)) || isSolidTile(Map(probeX, y)))
+		return true;
+	const float feet = y + SUBCELL_TOUCH, head = y + PLAYER_BODY_HEIGHT - SUBCELL_TOUCH;
+	for (const float x : {mapX, (mapX + probeX) / 2.f, probeX})
+		for (const float h : {feet, (feet + head) / 2.f, head})
+			if (subcellAt(x, h))
+				return true;
+	return false;
+}
+//======================================================================================
+std::optional<float> Dungeon::ceilingAt(float y) const {
+	const float head = y + PLAYER_BODY_HEIGHT;
+	if (isSolidTile(Map(mapX, head)) || subcellAt(mapX, head) || subcellAt(mapX - FOOT_REACH, head) ||
+		subcellAt(mapX + FOOT_REACH, head))
+		return std::floor(head * SUBCELLS) / SUBCELLS;
+	return std::nullopt;
 }
 //======================================================================================
 void Dungeon::StartJump(int dir) {
@@ -492,8 +547,7 @@ bool Dungeon::JumpAllowed() {
 bool Dungeon::PlayerOnLadder() const {
 	if (lostGrip || Map(mapX, mapY).type != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
 		return false;
-	const bool floorBelow = isFloor(Map(mapX, mapY - 1));
-	return !floorBelow || heightOverFloor() >= STANDING_EPSILON;
+	return !floorBelow(mapX, mapY) || heightOverFloor() >= STANDING_EPSILON;
 }
 //======================================================================================
 float Dungeon::ClimbPhase() const { return mapY + CLIMB_SIDE_RATE * mapX; }

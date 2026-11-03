@@ -12,7 +12,7 @@ float vectorDeg(float x, float y) { return std::atan2(-x, y) * 57.29578f; } // f
 } // namespace
 
 void Dungeon::traceSunBeams() {
-	sunBeams = traceBeams(map, [this](int cell) { return blocksBeam(map[cell]); });
+	sunBeams = traceBeams(map, [this](int cell, BeamDir way) { return blocksBeam(map[cell], way); });
 	std::fill(sunlit.begin(), sunlit.end(), 0);
 	for (const BeamStep& s : sunBeams)
 		sunlit[static_cast<size_t>(s.cell)] = 1;

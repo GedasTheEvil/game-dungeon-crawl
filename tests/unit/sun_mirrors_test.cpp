@@ -37,7 +37,7 @@ bool lit(const std::vector<BeamStep>& steps, int cell) {
 }
 
 auto gameBlock(const LevelGrid& grid) {
-	return [&grid](int cell) { return blocksBeam(grid.cells[cell]); };
+	return [&grid](int cell, BeamDir way) { return blocksBeam(grid.cells[cell], way); };
 }
 } // namespace
 

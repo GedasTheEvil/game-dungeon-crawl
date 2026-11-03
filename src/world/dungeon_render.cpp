@@ -160,6 +160,8 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		tex.ceilingTex[cell.ceiling].Bind();
 		quad(n, v, st);
 	}
+	if (hasShape(MapAt(i, j)))
+		drawShapeBlocks(i, j, b);
 	if (inSand(MapAt(i, j)))
 		drawSandDrift(i, j);
 	if (const int side = windbreakSide(i, j); side != 0) {
@@ -167,6 +169,76 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		drawWindbreak(side, isRock(i, j - 1), isRock(i, j + 1));
 	}
 	glColor3f(1, 1, 1);
+}
+//======================================================================================
+// A shaped cell's solid sub-cells (plan subcell-physics): blocks of the cell's wall stone through the cell's depth, the
+// front one face per run along a sub-cell row. Only the faces next to an open sub-cell (of this cell or a neighbour)
+// are drawn: the tops as floor, the undersides as ceiling, the sides as wall; the back wall is behind them. In a basin
+// the bottom row reaches down to its floor (basinFloor, world units under the row).
+void Dungeon::drawShapeBlocks(int i, int j, float basinFloor) {
+	constexpr float T = RenderConfig::TILE_SIZE;
+	constexpr float S = T / SUBCELLS;
+	DecorSet& tex = sim.assets->decor;
+	const SurfaceCell& cell = decoration.surface[MapIndex(i, j)];
+	const Tile tile = MapAt(i, j);
+	// A sub-cell of this cell, or of a neighbour for a column or row one past the edge; rock outside the level.
+	auto solid = [&](int c, int r) {
+		const int ci = i + (c < 0 ? -1 : (c >= SUBCELLS ? 1 : 0));
+		const int rj = j + (r < 0 ? -1 : (r >= SUBCELLS ? 1 : 0));
+		return !IsInBounds(ci, rj) || subcellSolid(MapAt(ci, rj), (c + SUBCELLS) % SUBCELLS, (r + SUBCELLS) % SUBCELLS);
+	};
+	const float w0 = cell.wallMirror ? 1.f : 0.f;
+	const float w1 = 1.f - w0;
+	for (int r = 0; r < SUBCELLS; r++) {
+		const float y0 = r == 0 ? basinFloor : static_cast<float>(r) * S;
+		const float y1 = static_cast<float>(r + 1) * S;
+		for (int c = 0; c < SUBCELLS; c++) {
+			if (!subcellSolid(tile, c, r))
+				continue;
+			const float x0 = static_cast<float>(c) * S;
+			const float x1 = x0 + S;
+			if (!solid(c, r + 1)) {
+				const float n[3] = {0, 1, 0};
+				const float v[4][3] = {{x0, y1, 0}, {x1, y1, 0}, {x1, y1, -T}, {x0, y1, -T}};
+				const float st[4][2] = {{x0 / T, 0}, {x1 / T, 0}, {x1 / T, 1}, {x0 / T, 1}};
+				tex.floorTex[cell.floor].Bind();
+				quad(n, v, st);
+			}
+			if (!solid(c, r - 1)) {
+				const float n[3] = {0, -1, 0};
+				const float v[4][3] = {{x0, y0, 0}, {x1, y0, 0}, {x1, y0, -T}, {x0, y0, -T}};
+				const float st[4][2] = {{x0 / T, 0}, {x1 / T, 0}, {x1 / T, 1}, {x0 / T, 1}};
+				tex.ceilingTex[cell.ceiling].Bind();
+				quad(n, v, st);
+			}
+			tex.wallTex[cell.wall].Bind();
+			for (const int side : {-1, 1}) {
+				if (solid(c + side, r))
+					continue;
+				const float x = side < 0 ? x0 : x1;
+				const float n[3] = {static_cast<float>(side), 0, 0};
+				const float v[4][3] = {{x, y0, -T}, {x, y0, 0}, {x, y1, 0}, {x, y1, -T}};
+				const float st[4][2] = {{w0, y0 / T}, {w1, y0 / T}, {w1, y1 / T}, {w0, y1 / T}};
+				quad(n, v, st);
+			}
+		}
+		for (int c = 0; c < SUBCELLS;) { // the front, one face per run
+			if (!subcellSolid(tile, c, r)) {
+				c++;
+				continue;
+			}
+			const int start = c;
+			while (c < SUBCELLS && subcellSolid(tile, c, r))
+				c++;
+			const float x0 = static_cast<float>(start) * S;
+			const float x1 = static_cast<float>(c) * S;
+			const float n[3] = {0, 0, 1};
+			const float v[4][3] = {{x0, y0, 0}, {x1, y0, 0}, {x1, y1, 0}, {x0, y1, 0}};
+			const float st[4][2] = {{x0 / T, y0 / T}, {x1 / T, y0 / T}, {x1 / T, y1 / T}, {x0 / T, y1 / T}};
+			tex.wallTex[cell.wall].Bind();
+			quad(n, v, st);
+		}
+	}
 }
 //======================================================================================
 // The container (containers.h) in its stance, at its frame of the opening clip; once open, the item turns over it
@@ -543,13 +615,19 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
 			drawCellSurfaces(i, j); // outside the level: rock
 			if (IsInBounds(i, j)) {
+				const Tile tile = MapAt(i, j);
+				// What stands in a shaped cell stands on the floor under its middle (plan subcell-physics).
+				const float raised = hasShape(tile) ? floorHeight(tile, 0.5f) * RenderConfig::TILE_SIZE : 0.f;
 				drawDecalTile(i, j);
+				glPushMatrix();
+				glTranslatef(0, raised, 0);
 				drawDecorTile(i, j);
+				glPopMatrix();
 				drawTorchTile(i, j);
 				// What stands in half water stands on the basin floor; a ladder runs on up out of it.
-				const bool sunk = inHalfWater(MapAt(i, j)) && MapAt(i, j).type != Ladder;
+				const bool sunk = inHalfWater(tile) && tile.type != Ladder && raised == 0.f;
 				glPushMatrix();
-				glTranslatef(0, sunk ? -RenderConfig::WATER_BASIN_DEPTH : 0.f, 0);
+				glTranslatef(0, tile.type == Ladder ? 0.f : (sunk ? -RenderConfig::WATER_BASIN_DEPTH : raised), 0);
 				drawTileContent(i, j);
 				glPopMatrix();
 			}

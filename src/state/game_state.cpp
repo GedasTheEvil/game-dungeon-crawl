@@ -204,6 +204,8 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.shotDry;
 	case WorldSound::ShotTooClose:
 		return sounds.shotTooClose;
+	case WorldSound::HeadBump:
+		return sounds.headBump;
 	}
 	return sounds.arrowHit;
 }

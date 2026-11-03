@@ -12,14 +12,14 @@ Implementer's choices:
   otherwise).
 * The shape queries read the structure and the shape only (gates and wall spikes stay `isSolidTile`'s). `isFloor`,
   `floorUnder`, `heightOverFloor`, `bodyBlocked` and the checker are unchanged: a shaped cell walks and checks as open
-  until [subcell-physics](../subcell-physics.draft.opus.md). So does "an object or fixture in a shaped cell stands on the
+  until [subcell-physics](../subcell-physics.md). So does "an object or fixture in a shaped cell stands on the
   floor under the cell's middle": it needs the drawing (`floorHeight(t, 0.5f)` is the height), left to that plan.
 * Editor: the shape brushes sit in the structure palette after the six structures (no seventh layer button: the
   button row is full). "Ledge lip" became `Lip L` / `Lip R`: a rim a quarter high and wide at the cell's edge.
 * Every campaign level converted to v6 (`levelconvert`: a `shapes 0` line; it also put a few hand-ordered list lines
   in file order).
 
-The first of the sub-cell drafts; the others build on it: [subcell-physics](../subcell-physics.draft.opus.md),
+The first of the sub-cell drafts; the others build on it: [subcell-physics](../subcell-physics.md),
 [crouch](../crouch.draft.opus.md), [subcell-monsters](../subcell-monsters.draft.opus.md),
 [subcell-checker](../subcell-checker.draft.opus.md), [subcell-campaign](../subcell-campaign.draft.opus.md).
 
@@ -71,7 +71,7 @@ A cell splits into **4 x 4 = 16 sub-cells**, a quarter tile each way. A quarter 
   sub-cells; readme updated. The structure drawing in `content/levels/` shows a shaped cell with a free glyph
   (AGENTS.md, Glyphs).
 * Map screen (`src/ui/map_view.cpp`): draw the solid sub-cells at the map's cell size.
-* Drawing in the game comes with [subcell-physics](../subcell-physics.draft.opus.md); until then the game draws a shaped
+* Drawing in the game comes with [subcell-physics](../subcell-physics.md); until then the game draws a shaped
   cell as open.
 
 ## Tests

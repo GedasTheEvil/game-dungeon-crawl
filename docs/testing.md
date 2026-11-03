@@ -72,9 +72,11 @@ other measuring recipes: [performance-testing.md](performance-testing.md).
 - One tick = 16 ms of game time. Each tick runs due commands, then `Update()`, then `Draw()`.
   All `timer` objects read the virtual clock, so a script with the same seed gives the same
   frames on every run.
-- Ticks run back to back, not every 16 ms of real time. Only frames with a screenshot are drawn in full; the
-  others run `Draw()` with a 1x1 scissor (the UI screens advance their own animations there, such as the
-  inventory's turntable; the game world moves in `Update()` only), so the screenshots are the same.
+- Ticks run back to back, not every 16 ms of real time. Only frames with a screenshot are drawn in full. In a
+  script without a `screenshot` (the path scripts) the other frames on the gameplay and death screens skip `Draw()`
+  (this made `make paths` ~25x faster, [plan](plan/solved/scenario-skip-world-draw.md)); in a script with one
+  (particles and easing advance in `Draw()`) and on the UI screens they run `Draw()` with a 1x1 scissor (the UI
+  screens advance their own animations there, such as the inventory's turntable).
   `SCENARIO_DRAW_ALL=1` (set by `HEADLESS=0`) draws every frame at the normal pace, to watch a run.
 - Window size comes from `resolution` (default 1280x720).
 

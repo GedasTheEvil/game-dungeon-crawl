@@ -1,6 +1,6 @@
 # `make paths`: half the campaign levels fail their path script
 
-Status: draft 2026-11-03. Needs first: [scenario-skip-world-draw](scenario-skip-world-draw.draft.sonet.md) (a run
+Status: draft 2026-11-03. Needs first: [scenario-skip-world-draw](solved/scenario-skip-world-draw.md) (a run
 takes ~1 min instead of ~23). From the user; found by [paths-speed](solved/paths-speed.md).
 
 ## Problem

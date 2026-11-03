@@ -73,6 +73,7 @@ struct Runner {
 	int executed = 0;
 	std::vector<std::string> failures;
 
+	bool hasScreenshots = false; // the script takes a screenshot: blind frames still draw the world
 	size_t playSetup = 0; // play mode: the setup commands still to run (all of them, until the first frame)
 	bool playPending = false;
 };
@@ -742,6 +743,11 @@ bool Scenario::load(const char* path) {
 		fprintf(stderr, "%s\n", error.c_str());
 	if (!errors.empty())
 		return false;
+	gRunner.hasScreenshots = std::any_of(
+		gRunner.script.commands.begin(),
+		gRunner.script.commands.end(),
+		[](const Command& cmd) { return cmd.type == CommandType::Screenshot; }
+	);
 
 	std::filesystem::path scriptPath(path);
 	gRunner.outDir = "tests/out/" + scriptPath.stem().string();
@@ -843,17 +849,23 @@ void Scenario::tick() {
 
 		runCommands();
 		Update();
-		// Frames without a screenshot still run Draw (the UI screens advance their own animations there, such as the
-		// inventory's turntable; the game world does not) but fill one pixel: software GL under Xvfb spends nearly all
-		// its time on fill. SCENARIO_DRAW_ALL=1 (HEADLESS=0) draws them in full.
+		// Frames without a screenshot ("blind") of a script that takes none (the path scripts) on the gameplay screens
+		// skip Draw: the world moves in Update, and software GL under Xvfb transforms every animated model even with
+		// the fill cut (plan scenario-skip-world-draw). Scripts with a screenshot keep the draw (particles and
+		// easing advance there, the screenshots would differ). The other screens still run Draw with a 1x1 scissor:
+		// they advance their own animations there (the inventory's turntable). SCENARIO_DRAW_ALL=1 (HEADLESS=0)
+		// draws every frame in full.
 		const bool blind = gRunner.pendingShot.empty() && !gRunner.drawAll;
-		if (blind) {
-			glEnable(GL_SCISSOR_TEST);
-			glScissor(0, 0, 1, 1);
+		const Screen screen = Game().ui.screen;
+		if (!blind || gRunner.hasScreenshots || (screen != Screen::Gameplay && screen != Screen::Death)) {
+			if (blind) {
+				glEnable(GL_SCISSOR_TEST);
+				glScissor(0, 0, 1, 1);
+			}
+			Draw();
+			if (blind)
+				glDisable(GL_SCISSOR_TEST);
 		}
-		Draw();
-		if (blind)
-			glDisable(GL_SCISSOR_TEST);
 		checkDeath();
 
 		if (!gRunner.pendingShot.empty()) {

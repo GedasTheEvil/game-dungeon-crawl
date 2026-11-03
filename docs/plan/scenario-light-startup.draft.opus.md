@@ -1,6 +1,6 @@
 # Scenarios: cut the startup that dominates once the world draw is gone
 
-Status: draft 2026-11-03. Needs first: [scenario-skip-world-draw](scenario-skip-world-draw.draft.sonet.md). From
+Status: draft 2026-11-03. Needs first: [scenario-skip-world-draw](solved/scenario-skip-world-draw.md). From
 [paths-speed](solved/paths-speed.md) (measured there).
 
 ## Problem

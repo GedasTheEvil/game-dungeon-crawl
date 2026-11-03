@@ -1,6 +1,6 @@
 # Scenarios: no world draw in frames without a screenshot
 
-Status: draft 2026-11-03, needs nothing first. From [paths-speed](solved/paths-speed.md) (measured there).
+Status: solved 2026-11-03. Was: draft 2026-11-03, needs nothing first. From [paths-speed](paths-speed.md) (measured there).
 
 ## Problem
 
@@ -31,3 +31,12 @@ without the draw. The whole `make paths` scenario phase went from 1395 s to 52 s
    wall time of the scenario phase, before and after (`SCENARIO_TIMES`, docs/performance-testing.md). Goal: under
    60 s, from ~1400 s.
 3. `make test` wall time before and after (a secondary gain).
+
+## Result (2026-11-03)
+
+* Check 1: skipping the draw in every script changed 2 screenshots of tomb_curse (`004_opened`, `005_jars`, ~6400
+  pixels each; deterministic, so real state in Draw). Fallback applied: scripts with a `screenshot` keep the blind draw
+  (`Runner::hasScreenshots`); with it all 12 screenshots of `make test` are pixel-identical to before.
+* Check 2: `make paths` result files identical (27 of 54 fail before and after, see paths-failures). Scenario phase
+  1278 s (whole `make paths` 21m18) -> ~55 s (whole 1m00 with the build).
+* Check 3: `make test` 21.1 s -> 20.4 s (only 3 scenarios run, all with screenshots: no gain expected).

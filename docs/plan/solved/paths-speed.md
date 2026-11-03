@@ -69,7 +69,7 @@ instrumented runner that became `SCENARIO_TIMES` and `tools/profile_game.sh`
 The ideas weighed:
 
 * Faster than real time: already so; the draw is what made a tick cost ~10 ms. Draft
-  [scenario-skip-world-draw](../scenario-skip-world-draw.draft.sonet.md): 1395 s -> ~52 s.
+  [scenario-skip-world-draw](scenario-skip-world-draw.md): 1395 s -> ~52 s.
 * Several levels per process, lighter startup: worth it after the draw fix. Draft
   [scenario-light-startup](../scenario-light-startup.draft.opus.md): ~52 s -> under 25 s.
 * Shorter scripts (2014 `wait`/`waittraps` lines, a 4 s stamina wait before every jump): no draft. Without the draw

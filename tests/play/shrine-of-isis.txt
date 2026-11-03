@@ -1,8 +1,0 @@
-# Plan shrine-of-isis, for `bin/game --play tests/play/shrine-of-isis.txt`: lvl18, three cells left of the Shrine of
-# Isis before the mummy priest's teleporter, cursed with greater weakness and insanity. Walk right onto the shrine and
-# Pray (E): the curses lift, the yellow card with Isis's throne sign counts down 2 minutes; take the teleporter and let
-# the priest curse you: "Isis turns the curse away" until the card runs out.
-seed 1
-level 18 at 34 11
-curse weakness greater
-curse insanity

@@ -239,7 +239,7 @@ ring platform at the near end. Its name gate is a ring platform too, sealed by t
 over it. Dialling the ring lights six chevrons, the seventh will not lock; the first dial gives a
 riddle's XP and a field note, the dial device another note.
 
-Shrines of Isis ([shrine-of-isis](plan/shrine-of-isis.md)), placed props: 13, about one level in four, on the levels
+Shrines of Isis ([shrine-of-isis](plan/solved/shrine-of-isis.md)), placed props: 13, about one level in four, on the levels
 with the most curse sources (cursing monsters by their chance, trapped treasure): lvl9, 14, 18 (before the mummy
 priest's teleporter), 24, 29, 32, 38, 41, 45, 47, 50, 52, 54 (before the teleporter to Anubis). Each on a floor cell
 four or more cells from a monster, at a wing's end or off the path where the hall allows.

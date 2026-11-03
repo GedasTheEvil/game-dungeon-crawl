@@ -1,6 +1,6 @@
 # Status cards: one painted background per kind, the icon on top
 
-Status: draft 2026-11-03, needs [shrine-of-isis](shrine-of-isis.md) first (its yellow Isis card is one
+Status: draft 2026-11-03, needs [shrine-of-isis](solved/shrine-of-isis.md) first (its yellow Isis card is one
 of the backgrounds). From the user.
 
 ## Idea (from the user)

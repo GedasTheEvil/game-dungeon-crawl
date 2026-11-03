@@ -1,6 +1,6 @@
 # Shrine of Isis: lift curses, then ward them off
 
-Status: draft 2026-11-02, needs nothing first. From the user.
+Status: solved 2026-11-03 (play-tested by the user). Was: draft 2026-11-02, needs nothing first. From the user.
 
 ## Idea (from the user)
 
@@ -10,7 +10,7 @@ gets a protection from curses for 2 minutes: the Blessing of Isis (renamed to Pr
 ## Plan
 
 * New tile/object: the shrine. Pick a free level glyph (AGENTS.md, Glyphs). Procedural Blender 5 model
-  ([modeling.md](../modeling.md)): a small Isis shrine (naos with a winged Isis relief or a seated Isis statue,
+  ([modeling.md](../../modeling.md)): a small Isis shrine (naos with a winged Isis relief or a seated Isis statue,
   offering table). Add to the editor tile info and the glossary.
 * Interact verb "Pray" (`Interaction`, `Dungeon::InteractVerb`, interact prompt). On use:
   * clear every active curse (`Curses`), greater ones too;
@@ -32,7 +32,7 @@ gets a protection from curses for 2 minutes: the Blessing of Isis (renamed to Pr
   rule (from the user: the new rules replace the old ones).
 * Journal field note on the first use (`FieldNote`, `journal_text.cpp`).
 * Tests: unit test (curses cleared, ward blocks a curse, ward expires after 2 min, ends on death, a second prayer clears and restarts);
-  play script `tests/play/shrine-of-isis.txt` (curse the player, stand by a shrine).
+  play script (curse the player, stand by a shrine), removed once play-tested; scenario `tests/scenarios/solved/shrine_of_isis.txt`.
 
 ## Open points
 

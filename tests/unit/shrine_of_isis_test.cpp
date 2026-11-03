@@ -46,7 +46,7 @@ TEST_CASE("Protection of Isis: no curse lands, of any kind or grade, from a mons
 	Player player;
 	WorldEvents events;
 	player.stats.Pray(events);
-	events.Take();
+	static_cast<void>(events.Take());
 	const int cursed = player.stats.run.cursed;
 	for (int c = 0; c < CURSE_COUNT; c++) {
 		CHECK_FALSE(player.stats.LayCurse(static_cast<Curse>(c), CurseGrade::Lesser, events));

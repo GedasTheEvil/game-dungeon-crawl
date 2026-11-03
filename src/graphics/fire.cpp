@@ -490,12 +490,11 @@ float SunBeam::strength(float progress) {
 	return 1.f - f * f * (3.f - 2.f * f);
 }
 
-void SunBeam::draw(float x, float y, float z, float progress) {
+void SunBeam::draw(float x, float y, float z, float progress, Tint tint) {
 	constexpr float HEIGHT = 160.f; // well above the top of the screen, the ceiling hides the rest
 	constexpr int MOTES = 40;
 	constexpr float RISE_MS = 1100.f;
 	constexpr float RISE = 45.f;
-	constexpr float R = 1.f, G = 0.83f, B = 0.45f; // warm sunlight
 	float s = strength(progress);
 	if (s <= 0.f)
 		return;
@@ -531,12 +530,12 @@ void SunBeam::draw(float x, float y, float z, float progress) {
 			float w0 = l.halfWidth * narrow * (1.f - 0.25f * ROW_Y[r] / HEIGHT);
 			float w1 = l.halfWidth * narrow * (1.f - 0.25f * ROW_Y[r + 1] / HEIGHT);
 			float k0 = l.bright * ROW_K[r] * s, k1 = l.bright * ROW_K[r + 1] * s;
-			glColor4f(R * k0, G * k0, B * k0, 1);
+			glColor4f(tint.r * k0, tint.g * k0, tint.b * k0, 1);
 			glTexCoord2f(0, 0.5f);
 			glVertex3f(x - bx * w0, y + ROW_Y[r], z - bz * w0);
 			glTexCoord2f(1, 0.5f);
 			glVertex3f(x + bx * w0, y + ROW_Y[r], z + bz * w0);
-			glColor4f(R * k1, G * k1, B * k1, 1);
+			glColor4f(tint.r * k1, tint.g * k1, tint.b * k1, 1);
 			glTexCoord2f(1, 0.5f);
 			glVertex3f(x + bx * w1, y + ROW_Y[r + 1], z + bz * w1);
 			glTexCoord2f(0, 0.5f);
@@ -546,7 +545,7 @@ void SunBeam::draw(float x, float y, float z, float progress) {
 	// Pool of light on the floor.
 	float pool = 0.6f * s;
 	float px = 18.f * narrow, pz = 9.f * narrow;
-	glColor4f(R * pool, G * pool, B * pool, 1);
+	glColor4f(tint.r * pool, tint.g * pool, tint.b * pool, 1);
 	glTexCoord2f(0, 0);
 	glVertex3f(x - px, y + 0.3f, z - pz);
 	glTexCoord2f(0, 1);
@@ -569,7 +568,7 @@ void SunBeam::draw(float x, float y, float z, float progress) {
 		float size = 0.7f + 1.1f * unit01(mix(h));
 		float a = s * std::fmin(1.f, p * 5.f) * (1.f - p); // fade in, then out towards the top
 		float h2 = size / 2.f;
-		glColor4f(R * a, G * a, B * 0.8f * a, 1);
+		glColor4f(tint.r * a, tint.g * a, tint.b * 0.8f * a, 1);
 		glTexCoord2f(0, 0);
 		glVertex3f(cx - (rx + ux) * h2, cy - (ry + uy) * h2, cz - (rz + uz) * h2);
 		glTexCoord2f(1, 0);

@@ -38,3 +38,8 @@ gets a protection from curses for 2 minutes: the Blessing of Isis (renamed to Pr
 
 * Should the Blessing of Isis skill make the ward last longer (e.g. 4 min)? Implementer's choice; it would mirror
   Favour of Hapi lengthening the Blessing of Hapi.
+
+## After the play-test
+
+* A prayer also starts a light-blue beam of light on the player, the level up's sun beam in Isis's tint
+  (`SunBeam::ISIS_LIGHT`, `PlayerStats::PrayedMs`, from the user).

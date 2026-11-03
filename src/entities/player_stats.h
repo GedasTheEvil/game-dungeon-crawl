@@ -48,6 +48,7 @@ class PlayerStats {
 	bool sprinting = false; // shift held and the player moved last tick: stamina drains
 	bool charging = false; // a power hit is being charged (Player::StartCharge): no regen, no sprint
 	std::optional<int> level_up_ms; // game clock time of the last level up, for the sun beam
+	std::optional<int> prayed_ms; // ... of the last prayer at a Shrine of Isis, for its blue beam (plan shrine-of-isis)
 	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
 
 	bool AdvanceLevel(WorldEvents& events);
@@ -91,6 +92,7 @@ class PlayerStats {
 	[[nodiscard]] int CurrentLevel() const { return level; }
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }
+	[[nodiscard]] std::optional<int> PrayedMs() const { return prayed_ms; }
 	[[nodiscard]] bool Alive() const { return HP > 0; }
 	[[nodiscard]] float HealthRatio() const;
 	// XP total at which the player reaches `lvl` (level 2 at 1000).

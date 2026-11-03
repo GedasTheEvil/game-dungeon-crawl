@@ -1,5 +1,5 @@
 # Plan shrine-of-isis: the Shrine of Isis in lvl18 before the mummy priest's teleporter (col 37, row 11). Cursed twice,
-# the player prays there: the curses lift, the Protection of Isis's yellow card shows on the HUD, a curse after it is
+# the player prays there: the curses lift, a light-blue beam falls on them, the Protection of Isis's yellow card shows on the HUD, a curse after it is
 # turned away.
 seed 1
 level 18 at 34 11
@@ -16,6 +16,8 @@ interact
 wait 10
 expect curses == 0
 screenshot prayed
+wait 300ms
+screenshot beam
 curse slowness
 wait 5
 expect curses == 0

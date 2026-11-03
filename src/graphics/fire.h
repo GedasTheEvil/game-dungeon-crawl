@@ -96,10 +96,15 @@ void draw(float x, float y, float z, float strength);
 // Level-up blessing: a shaft of sunlight falls on the player, gold motes rise through it. Stateless like the fire.
 namespace SunBeam {
 constexpr int DURATION_MS = 1600;
+struct Tint {
+	float r, g, b;
+};
+constexpr Tint SUNLIGHT = {1.f, 0.83f, 0.45f}; // the level up's warm beam
+constexpr Tint ISIS_LIGHT = {0.55f, 0.8f, 1.f}; // a prayer at a Shrine of Isis (plan shrine-of-isis): light blue
 // 0..1..0 brightness over the effect, progress 0..1.
 float strength(float progress);
 // (x, y, z) = the player's feet in local space. Call after the opaque scene, like the fire.
-void draw(float x, float y, float z, float progress);
+void draw(float x, float y, float z, float progress, Tint tint = SUNLIGHT);
 // A shaft of daylight through a crack in the ceiling (plan desert-chapter): steady and faint, from the ceiling a tile
 // above (x, y, z) down to that floor point, dust motes drifting in it.
 void shaft(float x, float y, float z, uint32_t seed);

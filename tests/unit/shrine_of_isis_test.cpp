@@ -71,6 +71,7 @@ TEST_CASE("Protection of Isis: lasts 2 minutes, then curses land again; a second
 	player.stats.Pray(events);
 	CHECK(player.stats.IsisWardLeftMs() == ISIS_WARD_MS);
 	CHECK(ISIS_WARD_MS == 120000);
+	CHECK(player.stats.PrayedMs() == GameClock::now()); // its blue beam starts
 	player.stats.AdvanceIsisWard(90000, events);
 	CHECK(player.stats.IsisWardLeftMs() == 30000);
 	player.stats.AdvanceIsisWard(30000, events);

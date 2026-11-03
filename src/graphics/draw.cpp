@@ -47,9 +47,9 @@ ScreenPoint toScreen(double x, double y, double z) {
 	return {static_cast<float>((wx - viewport[0]) / viewport[2]), static_cast<float>((wy - viewport[1]) / viewport[3])};
 }
 
-// Progress 0..1 of the level-up sun beam, or none when it is not showing.
-std::optional<float> sunBeamProgress() {
-	std::optional<int> at = Game().player->stats.LevelUpMs();
+// Progress 0..1 of a beam started at `at` (the level up's sun beam, a prayer's blue one), or none when it is not
+// showing.
+std::optional<float> beamProgress(std::optional<int> at) {
 	if (!at || !Game().player->Alive())
 		return std::nullopt;
 	float p = static_cast<float>(GameClock::now() - *at) / static_cast<float>(SunBeam::DURATION_MS);
@@ -243,16 +243,13 @@ void drawGameplay() {
 		Lighting::add(0, 16, -22, Lighting::PLAYER, 0);
 	if (Game().player->burning.Any())
 		Lighting::add(playerX, playerY + 16, PLAYER_FLAMES_Z, PLAYER_BURNING_LIGHT, 1);
-	const std::optional<float> sunBeam = sunBeamProgress();
-	if (sunBeam) {
-		const float k = SunBeam::strength(*sunBeam);
-		Lighting::add(
-			playerX,
-			playerY + 45,
-			-30,
-			{1.f * k, 0.83f * k, 0.45f * k, 150.f, 0.f},
-			0
-		); // the beam lights the room
+	const std::optional<float> sunBeam = beamProgress(Game().player->stats.LevelUpMs());
+	const std::optional<float> isisBeam = beamProgress(Game().player->stats.PrayedMs()); // plan shrine-of-isis
+	// The beam lights the room; a prayer's beam over a level up's: the newer one.
+	if (const std::optional<float> lit = isisBeam ? isisBeam : sunBeam) {
+		const float k = SunBeam::strength(*lit);
+		const SunBeam::Tint c = isisBeam ? SunBeam::ISIS_LIGHT : SunBeam::SUNLIGHT;
+		Lighting::add(playerX, playerY + 45, -30, {c.r * k, c.g * k, c.b * k, 150.f, 0.f}, 0);
 	}
 
 	glPushMatrix();
@@ -298,6 +295,8 @@ void drawGameplay() {
 		);
 	if (Game().player->Alive() && sunBeam)
 		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
+	if (Game().player->Alive() && isisBeam)
+		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *isisBeam, SunBeam::ISIS_LIGHT);
 	Lighting::end();
 	MotionFx::setCentre(chest.x, chest.y);
 	Ink::end();

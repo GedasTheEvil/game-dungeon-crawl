@@ -316,6 +316,7 @@ void PlayerStats::Pray(WorldEvents& events) {
 	const bool lifted = curses.Any();
 	EndCurses();
 	isis_left_ms = ISIS_WARD_MS * (heka.Has(SkillId::BlessingOfIsis) ? 2 : 1);
+	prayed_ms = GameClock::now();
 	events.Status(
 		StatusTone::Good,
 		"%sIsis shelters me from curses for %d min",
@@ -403,6 +404,7 @@ void PlayerStats::LoadDump(std::istream& f) {
 	walked = false;
 	sprinting = false;
 	level_up_ms.reset();
+	prayed_ms.reset();
 	stamina_refused_ms.reset();
 	stamina_regen_timer.Reset();
 	stamina_sprint_drain_timer.Reset();

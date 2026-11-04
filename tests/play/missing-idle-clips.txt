@@ -1,9 +1,0 @@
-# Plan missing-idle-clips, for `bin/game --play tests/play/missing-idle-clips.txt`: tests/levels/idle_rooted, a plant and
-# an egg cluster standing dormant (the bloom half closed and nodding, a slow pulse up the eggs). Walk up: the plant
-# wakes on its first bite (its awake loop). The walkers' idle clips (they stand on them when blocked on your row):
-# `bin/model-viewer media/models/monsters/rat_idle.md3` (and scarab_, worm_, anubis_, scorpion_idle.md3).
-seed 1
-god
-level tests/levels/idle_rooted
-torch 6 on
-torch 8 on

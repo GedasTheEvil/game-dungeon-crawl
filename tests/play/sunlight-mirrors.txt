@@ -1,6 +1,0 @@
-# Plan sunlight-mirrors, for `bin/game --play tests/play/sunlight-mirrors.txt`: tests/levels/mirrors. A shaft of
-# sunlight falls through a crack at col 3 onto the mirror under it, which points left; turn it (E) a quarter at a time
-# until its pointer shows east: the beam lights the red sun disc at col 8, the red gate at col 10 opens. In the
-# campaign Seth's desert (levels 33-37) has them: a mirror under a light shaft at a wing's end opens a gate.
-seed 1
-level tests/levels/mirrors

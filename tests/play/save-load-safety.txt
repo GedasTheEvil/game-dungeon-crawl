@@ -1,7 +1,0 @@
-# Plan save-load-safety, for `bin/game --play tests/play/save-load-safety.txt`: level 6 at character level 3. Esc, Save
-# Game: a slot shows the level, the zone, the character level and the play time; a used slot asks before it is
-# overwritten, its cross before it is deleted (or Delete on it). Walk a few seconds, then Esc: Load Game and Main Menu
-# ask, as play since the last save would be lost. From the main menu New Game asks while an autosave exists.
-seed 1
-level 6
-xp 3000

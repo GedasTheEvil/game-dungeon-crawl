@@ -1,8 +1,0 @@
-# Plan weapon-compare-speed, for `bin/game --play tests/play/weapon-compare-speed.txt`: tests/levels/empty_row, the club
-# in hand and the sword, khopesh and bow in the pack. Open the inventory (I) and select each: the "Speed" row (attacks
-# per second) and its difference to the club, green faster, red slower.
-seed 1
-level tests/levels/empty_row
-give melee 1
-give melee 4
-give ranged 0

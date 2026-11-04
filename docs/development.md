@@ -191,7 +191,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Game loop, frame drawing | `state/game_loop.cpp`, `graphics/draw.cpp` |
 | Blood splashes | `entities/particles.*` (motion), `graphics/particles_draw.*` |
 | Scenario commands | `test/scenario*.cpp` |
-| Plans: status, rename, solve | `tools/plan.py` ([plans.md](plans.md)) |
+| Plans: status, next, play-test, rename, solve, reject, lint | `tools/plan.py`, its tests `tools/plan_test.py` ([plans.md](plans.md)) |
 
 ## Tests
 
@@ -201,8 +201,9 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
 
 ## Code quality tools
 
-* `make check`: builds, rewrites markdown links to plans that moved (`tools/plan.py links`), then `format`,
-  `format-check`, `tidy` and `unit`, in order. Run it before each commit.
+* `make check`: builds, rewrites markdown links to plans that moved (`tools/plan.py links`), checks the plans' names
+  and Status lines (`plan.py lint`) and runs the plan tool's tests, then `format`, `format-check`, `tidy` and `unit`,
+  in order. Run it before each commit.
 * `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about
   it. `.clang-format` aligns nothing across lines (trailing comments, line continuations), so a diff shows only the
   lines that changed. A call too long for one line gets one argument per line and the `)` on its own line (the same

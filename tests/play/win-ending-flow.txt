@@ -1,7 +1,0 @@
-# Plan win-ending-flow, for `bin/game --play tests/play/win-ending-flow.txt`: a campaign run on level 54, in the ankh's
-# room two cells left of it. Walk right, take the ankh (E): the name entry (Esc asks first), the epilogue in the journal,
-# then the Hall of Records. F5 does nothing once won.
-seed 1
-god
-level 54 at 24 2
-campaign

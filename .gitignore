@@ -11,3 +11,6 @@ __pycache__/
 .directory
 media/sounds/music/soundtrack.ogg
 /build/
+
+# Written by tools/plan.py board
+docs/plan/BOARD.md

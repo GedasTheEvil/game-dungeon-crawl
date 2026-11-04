@@ -1,9 +1,0 @@
-# Plan sandstorm-halls, for `bin/game --play tests/play/sandstorm-halls.txt`: lvl34, the Buried Gate, in its sandstorm
-# hall on row 31, at its west end (col 17). The wind blows to the left, against you: every 7 s the hiss rises and grit
-# skitters along the floor, then a 2 s gust of sand pushes you back faster than you walk, thickens the haze and drowns
-# the other sounds. Cross a run of three in the calm, wait out the gust behind the next pillar (cols 21, 25). The
-# giant scorpions stand their ground; arrows drift. Lvl33 row 40 (sand) and lvl36 row 15 (slow gusts) have the others.
-seed 1
-level 34 at 17 31
-xp 600000
-give ranged 1

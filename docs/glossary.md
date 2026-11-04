@@ -302,10 +302,16 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | Term | In game | Meaning | Code |
 |---|---|---|---|
 | checker | | `bin/levelcheck`: can a level be finished, how big and hard is it; campaign levels pass with no warnings | `src/world/level_check.h` |
-| draft plan | | an idea for later, `docs/plan/<slug>.draft.<model>.md` (`sonet` simple, `opus` complex) | `docs/plan` |
+| draft plan | | an idea for later, `docs/plan/<slug>.<kind>.draft.<model>.md` (`sonet` simple, `opus` complex) ([plans.md](plans.md)) | `docs/plan`, `tools/plan.py` |
+| plan kind | | `bug`, `feature` or `tooling`, in a plan's file name; no kind: an old plan, a feature. Bugs come first in `plan.py status` and `next`, a tooling plan skips the play-test | `tools/plan.py` |
+| plan size | | `size S` (an hour or less), `M` (a few hours), `L` (a day or more) in a draft's Status line; also `prio high` / `low` | `tools/plan.py` |
 | effects stream | | the random stream for what only shows (a clip's start frame); never shifts the game's rolls | `GameRandom` |
 | gameplay stream | | the random stream for what changes the game: loot, riddles, poison rolls | `GameRandom` |
-| implemented plan | | a plan done but not confirmed by the user, `docs/plan/<slug>.md` | `docs/plan` |
+| implemented plan | | a plan done but not confirmed by the user, `docs/plan/<slug>.<kind>.md` | `docs/plan` |
+| play script | | `tests/play/<plan-slug>.txt`: setup commands for `bin/game --play`, so the user play-tests an implemented plan right at the feature; removed when it is solved | `tests/play` |
+| play-test checklist | | a plan's `## Play-test` section: what the user does and should see, printed by `plan.py playtest` | `tools/plan.py` |
+| rework | | an implemented plan that failed a play-test: `plan.py reject` (or `verdict`) adds a `## Play-test feedback` round of `- [ ]` items; ticked `- [x]` when fixed | `tools/plan.py` |
+| verdict | | the user's play-test reply, `ok SLUG` / `no SLUG: note`, fed to `plan.py verdict`: solves or rejects | `tools/plan.py` |
 | scenario | | a script in `tests/scenarios/` that drives the game and takes screenshots | `Scenario`, `docs/testing.md` |
 | play mode | | `--level` / `--play`: a normal hand-played game started on a level or a scenario's setup commands, menu skipped | `Scenario::loadPlay`, `docs/testing.md` |
 | setup commands | | the leading scenario commands that only set the game up (`level`, `give`, `god`, ...); `--play` runs them at once | `playSetup`, `docs/testing.md` |

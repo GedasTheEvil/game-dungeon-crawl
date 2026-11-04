@@ -54,9 +54,11 @@ sense. The same goes for draft plans: a plan that gives a base monster an abilit
 ## Plans
 Writing, refining, reporting on, implementing or solving a plan: read [docs/plans.md](docs/plans.md) first
 (lifecycle, model tags and who implements, draft format, plan names in code, play-test commands, moving to "solved/").
-When the user leaves an idea for later, save it as `docs/plan/<idea-slug>.draft.<model>.md`.
-Never rename or move a plan by hand: `tools/plan.py move <slug> ...`. "Draft status", "what next": start from
-`tools/plan.py status` (ready, blocked, on hold, waiting for a play-test), then read only the drafts you weigh.
+When the user leaves an idea for later, save it with `tools/plan.py new <idea-slug> --kind bug|feature|tooling --model
+opus|sonet --size S|M|L Title` (`docs/plan/<idea-slug>.<kind>.draft.<model>.md`). Never rename or move a plan by hand:
+`tools/plan.py move <slug> ...`. "Draft status": `tools/plan.py status`; "what next": `tools/plan.py next`; "what do I
+play-test": `tools/plan.py playtest`; the user's play-test reply: `tools/plan.py verdict`. Then read only the drafts you
+weigh.
 New draft plans can arrive (and get committed) at any time, also in parallel with other work. They are not blocking:
 ignore them, don't stop or change the current task because of them, and don't include them in your own commits.
 

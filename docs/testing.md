@@ -109,7 +109,8 @@ other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ..
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
 `--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.
 `tests/play/` holds play-test scripts for plans waiting for the user's play-test, one per plan (`<plan-slug>.txt`),
-for `--play` only; `make test` does not run them.
+for `--play` only; `make test` does not run them. `tools/plan.py solve` removes a plan's script
+([plans.md](plans.md#solved)).
 `bin/game SCENARIO.txt` (no flag) is the scenario run described above; it is always silent.
 
 ## Commands

@@ -194,9 +194,12 @@ tidy-all: layers
 
 # `make check`: everything a change needs before its commit, in order. Formats the code (never by hand), then checks
 # it is stable, then tidy on the changed sources, then the unit tests. Scenarios stay `make test`. Links to plans that
-# moved are rewritten first (tools/plan.py), a link it cannot fix fails.
+# moved are rewritten first (tools/plan.py), a link it cannot fix fails; then the plans' names and Status lines
+# (plan.py lint) and the plan tool's own tests.
 check: all
 	@./tools/plan.py links
+	@./tools/plan.py lint
+	@python3 -I tools/plan_test.py
 	@$(MAKE) --no-print-directory format
 	@$(MAKE) --no-print-directory format-check
 	@$(MAKE) --no-print-directory tidy

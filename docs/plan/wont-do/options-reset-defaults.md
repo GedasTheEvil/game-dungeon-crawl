@@ -1,6 +1,6 @@
 # Options: "Reset to defaults" on the Display and Sound tabs
 
-Status: draft 2026-11-04, needs nothing first. From the user: a reset to defaults button in the settings.
+Status: Won't do 2026-11-04: only the Controls reset was wanted, and it already exists. Was: draft 2026-11-04, needs nothing first. From the user: a reset to defaults button in the settings.
 
 Sonnet: copies the Controls tab's existing button to the other two tabs.
 
@@ -19,12 +19,12 @@ defaults". Display and Sound have no reset.
   default-constructed values, **except the window size and fullscreen**: keep those as they are. Those defaults
   depend on the machine, and a reset that drops a fullscreen player into an 800x500 window is a surprise. Reset by
   assigning a default-constructed struct and copying the kept fields back, so rows added later (plans
-  [settings-extras](settings-extras.draft.opus.md), [controls-smoothing](controls-smoothing.draft.opus.md)) are
+  [settings-extras](../settings-extras.draft.opus.md), [controls-smoothing](../controls-smoothing.draft.opus.md)) are
   covered without touching the reset.
 * Sound: `Settings::Sound{}`.
 * Then `ApplySettings(true)` (saves the file, applies the volumes / toon / ...), and a toast: "Display reset to the
   defaults" / "Sound reset to the defaults".
-* Reachable by the keyboard like the Controls button ([keyboard-menus](solved/keyboard-menus.md)): the focus walks
+* Reachable by the keyboard like the Controls button ([keyboard-menus](../solved/keyboard-menus.md)): the focus walks
   onto it after the last row, and Enter / Space / interact presses it.
 * Mouse hover, press and the hint line work as on the Controls button.
 * No confirmation dialog, the same as Controls.

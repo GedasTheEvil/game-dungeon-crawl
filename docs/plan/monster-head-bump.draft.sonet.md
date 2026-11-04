@@ -1,10 +1,10 @@
 # Monster head bump: jumping monsters hit low ceilings too
 
-Status: draft 2026-11-03. Needs first: [head-bump](head-bump.draft.sonet.md),
+Status: draft 2026-11-03. Needs first: [head-bump](head-bump.md),
 [subcell-monsters](solved/subcell-monsters.md). From the user.
 
 A monster's jump (a walk-jumper's leap, a pounce: `Monster::Jump`, `Monster::UpdateJump`) that meets a low ceiling
-stops its rise like the player's ([head-bump](head-bump.draft.sonet.md)) and hurts it the same way. A trick for the
+stops its rise like the player's ([head-bump](head-bump.md)) and hurts it the same way. A trick for the
 player: wait under a low ceiling and let a pouncer leap into it.
 
 * The rise stops under the ceiling, the arc turns into a fall; where it lands follows (a pounce falls short of the

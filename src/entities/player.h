@@ -140,6 +140,11 @@ class Player {
 	void Blind(int ms, WorldEvents& events);
 	// A screech (plan giant-bat-screech): dazed for ms, at least what is left of an earlier one.
 	void Daze(int ms, WorldEvents& events);
+	// A knock on the head (plan head-bump; a jump into a low ceiling, shared with monster-head-bump and
+	// ceiling-spikes): the larger of HEAD_BUMP_MIN_HP and HEAD_BUMP_MAX_HP_PCT % of the max HP straight off the HP (no
+	// armour, no resistance; none in god mode), a grunt, and HEAD_BUMP_DAZE_PCT % of the time (rolled on rng) a daze of
+	// HEAD_BUMP_DAZE_MIN_MS .. HEAD_BUMP_DAZE_MAX_MS. Can kill. Returns the HP lost.
+	int HeadBump(WorldEvents& events, Rng& rng);
 	// Once a tick, after UpdateBurning: the blind's and the daze's time run, the blind's BLIND_WATER_FACTOR times as
 	// fast in water.
 	void UpdateSenses();

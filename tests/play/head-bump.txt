@@ -1,0 +1,5 @@
+# Plan head-bump, for `bin/game --play tests/play/head-bump.txt`: tests/levels/subcells, you start at col 15 under a
+# ceiling half up. Jump (space): the head knocks, 5 HP off (5% of the max HP at a high level) and half the time a 1 to
+# 2 s daze (stars, half speed, no jump). The ceiling three quarters up (cols 13, 14) is only a graze: a knock, no hurt.
+seed 1
+level tests/levels/subcells at 15 2

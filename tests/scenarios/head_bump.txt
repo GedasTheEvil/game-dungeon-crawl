@@ -1,0 +1,11 @@
+# Plan head-bump (tests/levels/subcells): a jump under the low ceiling (col 15) costs 5 HP and may daze; the stars of the daze and the HUD tile (forced here with `daze`, the roll is in tests/unit/subcell_physics_test.cpp). A unit test cannot look at the drawing.
+seed 1
+resolution 1024 768
+level tests/levels/subcells at 15 2
+wait 30
+jump
+wait 6
+expect hp < 50
+daze 1500
+wait 10
+screenshot dazed_by_the_bump

@@ -404,6 +404,17 @@ constexpr float DAZE_ROLL = 4.f;
 constexpr float DAZE_SWAY = 2.5f;
 constexpr int DAZE_CLEAR_MS = 300;
 
+// A head bump (plan head-bump, Player::HeadBump): a jump into a low ceiling, or any knock on the head, costs the larger
+// of HEAD_BUMP_MIN_HP and HEAD_BUMP_MAX_HP_PCT % of the max HP (no armour, no resistance) and daze for
+// HEAD_BUMP_DAZE_MIN_MS .. HEAD_BUMP_DAZE_MAX_MS, HEAD_BUMP_DAZE_PCT % of the time. A jump only hurts when it rises
+// faster than HEAD_BUMP_MIN_RISE at the ceiling; a graze only knocks.
+constexpr int HEAD_BUMP_MIN_HP = 5;
+constexpr int HEAD_BUMP_MAX_HP_PCT = 5;
+constexpr int HEAD_BUMP_DAZE_PCT = 50;
+constexpr int HEAD_BUMP_DAZE_MIN_MS = 1000;
+constexpr int HEAD_BUMP_DAZE_MAX_MS = 2000;
+constexpr float HEAD_BUMP_MIN_RISE = JUMP_INITIAL_VELOCITY / 3.f;
+
 // Melee reach (a weapon's range / 10 tiles) is from the player's box edge to the monster's near edge. A monster
 // whose far edge is this far behind the player's centre is still hit.
 constexpr float MELEE_REACH_BEHIND = 0.1f;

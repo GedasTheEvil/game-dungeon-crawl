@@ -130,6 +130,7 @@ void Dungeon::UpdateMovementState() {
 
 		const float from = mapY;
 		mapY += jump.velocity;
+		const float rise = jump.velocity;
 		jump.velocity -= JUMP_GRAVITY_STEP;
 		// The head meets a low ceiling (plan subcell-physics): the rise stops under it, the fall begins.
 		if (mapY > from)
@@ -137,6 +138,8 @@ void Dungeon::UpdateMovementState() {
 				mapY = std::max(from, *ceiling - playerBodyHeight());
 				jump.velocity = std::min(jump.velocity, 0.f);
 				sim.events->Play(WorldSound::HeadBump);
+				if (rise > HEAD_BUMP_MIN_RISE) // a graze only knocks (plan head-bump)
+					sim.player->HeadBump(*sim.events, sim.random->gameplay);
 			}
 		// Coming down onto a step higher than the take-off, or back to the take-off height (then a fall, over a
 		// lower floor).

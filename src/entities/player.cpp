@@ -207,6 +207,30 @@ void Player::Daze(int ms, WorldEvents& events) {
 	dazeMs = std::max(dazeMs, ms);
 }
 
+int Player::HeadBump(WorldEvents& events, Rng& rng) {
+	if (!Alive())
+		return 0;
+	events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Attack); // the grunt (the player has no hurt sound)
+	const bool daze = rng.percent(HEAD_BUMP_DAZE_PCT);
+	const int dazeMs = rng.range(HEAD_BUMP_DAZE_MIN_MS, HEAD_BUMP_DAZE_MAX_MS); // always rolled: a steady stream
+	int lost = 0;
+	if (!god) { // the daze also lands in god mode, as a screech's does
+		const int hp = std::max(HEAD_BUMP_MIN_HP, stats.CurrentMaxHP() * HEAD_BUMP_MAX_HP_PCT / 100);
+		lost = std::min(hp, stats.CurrentHP());
+		stats.run.damageTaken += lost;
+		stats.LoseHP(hp);
+		blood.Splash(static_cast<int>(scale));
+		events.Note(FieldNote::Health);
+		if (!Alive()) {
+			die(events);
+			return lost;
+		}
+	}
+	if (daze)
+		Daze(dazeMs, events);
+	return lost;
+}
+
 void Player::UpdateSenses() {
 	blindMs = std::max(0, blindMs - UPDATE_TICK_MS * (inWater ? BLIND_WATER_FACTOR : 1));
 	dazeMs = std::max(0, dazeMs - UPDATE_TICK_MS);

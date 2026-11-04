@@ -205,3 +205,70 @@ TEST_CASE("a shaped cell's top row all solid is a floor for the cell above") {
 	CHECK_FALSE(topRowSolid(wallTile())); // a wall is a floor as a solid cell
 	CHECK(isFloor(wallTile()));
 }
+
+// Head bump (plan head-bump): the jump under the half-up ceiling (col 15) hurts, the three-quarter one (col 13) only
+// grazes; Player::HeadBump is the shared damage and daze.
+namespace {
+int bumpJump(SimWorld& world, int col) {
+	REQUIRE(world.Load("tests/levels/subcells"));
+	REQUIRE(world.dungeon.PlacePlayer(col, ROW));
+	world.Tick();
+	const int before = world.player.stats.CurrentHP();
+	world.Jump();
+	world.Wait(1500);
+	return before - world.player.stats.CurrentHP();
+}
+} // namespace
+
+TEST_CASE("a jump into a low ceiling costs 5 HP, 15 at 300 max HP; a graze or an open hall costs nothing") {
+	SimWorld world;
+	CHECK(bumpJump(world, 15) == HEAD_BUMP_MIN_HP); // half up: the head hits it still rising fast
+	CHECK(heard(world, WorldSound::HeadBump));
+	CHECK(world.player.Alive());
+
+	SimWorld high;
+	REQUIRE(high.Load("tests/levels/subcells"));
+	high.player.stats.AddMaxHP(500); // 50 -> 300, healed
+	REQUIRE(high.dungeon.PlacePlayer(15, ROW));
+	high.Tick();
+	high.Jump();
+	high.Wait(1500);
+	CHECK(high.player.stats.CurrentHP() == 285);
+
+	SimWorld graze; // three quarters up: the top of the jump only just reaches it (a knock, no hurt)
+	CHECK(bumpJump(graze, 13) == 0);
+	CHECK(heard(graze, WorldSound::HeadBump));
+
+	SimWorld open;
+	CHECK(bumpJump(open, 2) == 0);
+}
+
+TEST_CASE("the daze rolls about half the time, 1 to 2 s; a bump at 5 HP or less kills; a dazed player cannot jump") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/subcells"));
+	WorldEvents events;
+	Rng rng(7);
+	int dazed = 0;
+	const int rolls = 400;
+	for (int i = 0; i < rolls; i++) {
+		world.player.stats.HealFully();
+		world.player.dazeMs = 0;
+		CHECK(world.player.HeadBump(events, rng) == HEAD_BUMP_MIN_HP);
+		if (world.player.Dazed()) {
+			dazed++;
+			CHECK(world.player.dazeMs >= HEAD_BUMP_DAZE_MIN_MS);
+			CHECK(world.player.dazeMs <= HEAD_BUMP_DAZE_MAX_MS);
+		}
+	}
+	CHECK(dazed > rolls * 40 / 100);
+	CHECK(dazed < rolls * 60 / 100);
+
+	world.player.dazeMs = 1500;
+	world.Jump();
+	CHECK_FALSE(world.player.jump.jumping);
+
+	world.player.stats.HealFully();
+	world.player.stats.LoseHP(world.player.stats.CurrentHP() - HEAD_BUMP_MIN_HP);
+	world.player.HeadBump(events, rng);
+	CHECK_FALSE(world.player.Alive());
+}

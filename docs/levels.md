@@ -33,7 +33,7 @@ not one flat floor with nothing over it (on a flat step it stands on the step); 
 sub-cell hides (a floor decal: the bottom row, a ceiling one: the top row, any other and a torch: the middle).
 A large monster does not reach the path through a crawl space it does not fit (the difficulty's monsters near).
 
-Ceiling traps ([ceiling-spikes](plan/ceiling-spikes.md)): ceiling spikes (`"`) and a ceiling death trap (`'`), in the
+Ceiling traps ([ceiling-spikes](plan/solved/ceiling-spikes.md)): ceiling spikes (`"`) and a ceiling death trap (`'`), in the
 wall layer of a shaped cell, hang from every underside of its solid sub-cells over open space in it. A walk under them
 is safe, a jump into them costs a walk over the floor kind: a "never jump here" the player reads off the ceiling, and
 a lure for pouncers. Only on a cell with a ceiling a jump reaches (the loader and the checker reject any other); the

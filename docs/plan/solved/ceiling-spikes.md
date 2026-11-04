@@ -1,7 +1,7 @@
 # Ceiling spikes: the floor spike traps on a low ceiling, they hurt whoever jumps into them
 
-Status: implemented 2026-11-04, waits for the play-test (`bin/game --play tests/play/ceiling-spikes.txt`). Was: draft 2026-11-03. Needs first: [head-bump](solved/head-bump.md),
-[monster-head-bump](solved/monster-head-bump.md). From the user.
+Status: solved 2026-11-04 (play-tested by the user). Was: implemented 2026-11-04, waits for the play-test (play script removed). Was: draft 2026-11-03. Needs first: [head-bump](head-bump.md),
+[monster-head-bump](monster-head-bump.md). From the user.
 
 New traps: spikes on the underside of a low ceiling. Walking under it is safe; a jump into it hurts (from the user).
 It makes "don't jump here" a rule the player reads off the ceiling, and a lure for jumping monsters.
@@ -26,16 +26,16 @@ The floor's spike traps turned upside down (from the user): two kinds, as on the
   A monster takes what it takes walking through the floor kind (`TrapHurt`), scaled the same way.
 * No head bump damage or daze roll on top: the spikes replace the bump. Any contact counts, no velocity threshold:
   the tips reach down.
-* Walking, crouching ([crouch](solved/crouch.md)) and standing under it are safe.
+* Walking, crouching ([crouch](crouch.md)) and standing under it are safe.
 * Sound: the floor spikes' stab, not the knock.
 * Look: the floor spikes' and the death trap's models turned 180 degrees, on each underside, drawn with the sub-cell
   boxes. If a model does not fit a quarter-tile underside, scale it in its Blender 5 script
-  ([modeling.md](../modeling.md), notes in [remodeling.md](../remodeling.md)). Visible from the ground, so the player
+  ([modeling.md](../../modeling.md), notes in [remodeling.md](../../remodeling.md)). Visible from the ground, so the player
   can see it before a jump.
 * Monsters: cowards (`Courage`) do not jump under it; the reckless and the ones in a pounce do (the lure). Bosses as
   their kin.
-* Levels: none required. The [subcell-checker](solved/subcell-checker.md) must warn if the only way on is a jump
-  under spikes (forced damage). Add a few to the campaign only with [subcell-campaign](subcell-campaign.md).
+* Levels: none required. The [subcell-checker](subcell-checker.md) must warn if the only way on is a jump
+  under spikes (forced damage). Add a few to the campaign only with [subcell-campaign](../subcell-campaign.md).
 
 Implementer's choices:
 
@@ -65,8 +65,8 @@ Implementer's choices:
   way to the exit jumps into ceiling spikes"), `LevelReport::pathCeilingSpikes`. The other jumps need a cell of head
   room, so they never touch one.
 * Test level: `tests/levels/ceiling_spikes` (its own, not `tests/levels/subcells`: its tests stay as they are).
-  Unit tests `tests/unit/ceiling_spikes_test.cpp`, scenario `tests/scenarios/ceiling_spikes.txt`, play script
-  `tests/play/ceiling-spikes.txt`.
+  Unit tests `tests/unit/ceiling_spikes_test.cpp`, scenario `tests/scenarios/solved/ceiling_spikes.txt`, play script
+  `tests/play/ceiling-spikes.txt` (removed once solved).
 
 ## Tests
 
@@ -74,5 +74,5 @@ Implementer's choices:
   strong poison; a walk under them does not; a pouncing monster
   takes the hit; a coward does not jump there; the loader rejects spikes with no reachable underside.
 * Scenario on `tests/levels/subcells`: screenshots of the spikes from below and of a jump into them.
-* Play script `tests/play/ceiling-spikes.txt`.
+* Play script `tests/play/ceiling-spikes.txt` (removed once solved).
 * Glossary: "ceiling spikes", "ceiling death trap" (and extend "trap").

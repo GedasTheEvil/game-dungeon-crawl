@@ -1,5 +1,5 @@
-; Ceiling spikes (plan ceiling-spikes; tests/unit/ceiling_spikes_test.cpp, tests/scenarios/ceiling_spikes.txt,
-; tests/play/ceiling-spikes.txt). Row 2, the player's hall: ceiling spikes three quarters up (col 4) and a ceiling death
+; Ceiling spikes (plan ceiling-spikes; tests/unit/ceiling_spikes_test.cpp, tests/scenarios/solved/ceiling_spikes.txt).
+; Row 2, the player's hall: ceiling spikes three quarters up (col 4) and a ceiling death
 ; trap half up (col 7), each a shaped cell under rock, the exit at col 10. Row 5: a giant rat (T, col 12) and ceiling
 ; spikes three quarters up over cols 11-17 (the player placed at col 15 by the test: the rat pounces into them). Row 8:
 ; a giant rat (T, col 4) before a floor spike trap (col 6) it leaps over, the ceiling over cols 5-7 three quarters up

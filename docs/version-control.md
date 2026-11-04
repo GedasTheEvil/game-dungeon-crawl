@@ -6,7 +6,8 @@ Git in this repo. What an agent may do without asking (commits, worktrees) and w
 ## Branches and commits
 
 Trunk-based: `master` is the only long-lived branch and the only one that gets pushed. Run `make check` before each
-commit.
+commit. Opus models push `master` after each commit (or after the merge of a worktree task), without asking; other
+models ask first.
 
 ## Worktrees
 

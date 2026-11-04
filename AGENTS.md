@@ -62,8 +62,10 @@ ignore them, don't stop or change the current task because of them, and don't in
 In this project, commit your changes yourself when a task is done, without asking. Parallel tasks may run in a git
 worktree on a short-lived task branch, without asking. Branches, finishing a worktree task (rebase, merge, cleanup):
 read [docs/version-control.md](docs/version-control.md) first.
+Opus models: after committing to `master`, push it to `origin` without asking (never force-push). Other models still
+ask before pushing.
 This overrides the global "no git actions" and "no worktrees" rules for these steps only.
-Still ask before other git actions (push, rewriting `master` history, config, other branches).
+Still ask before other git actions (rewriting `master` history, config, other branches).
 
 ## Old save games
 This game has no real players yet. Old saves can mostly be ignored.

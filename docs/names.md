@@ -43,7 +43,7 @@ A name without an `A:` line is skipped. Use plain ASCII: the fonts have no other
 ## Checking a file
 
 The game log (`game.log`) lists every problem as `file:line: message` and the count, for example
-`Loaded 30 royal names`.
+`Loaded 58 royal names`.
 
 `levelcheck` warns about a name gate without a name cartouche or a cartouche without a gate, more than one of either on a
 level, a cartouche next to its gate or out of reach while the gate is sealed, a gate the player cannot walk back to

@@ -16,7 +16,7 @@ ends. Do not write a wait loop around it.
 ## The game and the editor
 
 `bin/game` ignores SIGTERM and plays music. Run it as `xvfb-run -a timeout -k 5 N bin/game --no-sound ...`, with
-`timeout` inside `xvfb-run` (AGENTS.md, Scenario tests). The same goes for `bin/editor`.
+`timeout` inside `xvfb-run` (AGENTS.md, Scenario tests). `bin/editor` has no sound and no flags: `xvfb-run -a timeout -k 5 N bin/editor [level file]`.
 
 ## Finding leftovers
 

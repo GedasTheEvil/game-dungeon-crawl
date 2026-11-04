@@ -81,8 +81,8 @@ own (vignette 20, canvas without margins).
 
 `ui::titleBar(title, 80, caption, reach)`: caption in `GOLD` at baseline 88, a `GOLD_DIM` 2 px rule either side
 at y 91.5 with big diamonds at the ends and small ones next to the text. Reach from centre: 44 for a narrow panel
-(main menu, credits) and the screens with tabs (inventory, journal), 58 for the menu's wide sub-screens, 72 on the
-riddle.
+(main menu, credits), 58 for the menu's wide sub-screens, 72 on the riddle, `SCREEN_TABS_TITLE_REACH` (33) on the
+screens with tabs (inventory, journal, Heka).
 
 ### Panel
 
@@ -314,8 +314,10 @@ value rows (Run and Fights; Slain; Explored, Potions, Skills; the time per level
 ends with "+ n more" on its last row. The footer names the run's date and version. Esc or Back goes back to the list,
 the sort kept.
 
-Win entry: over the won game (the HUD hidden meanwhile), a panel `{36, 3, 88, 27}` under the win picture's text: the
-run summary in `body` `GOLD`, a `WELL` name field with a `GOLD` frame and a blinking caret, the key hint.
+Win entry: over the won game dimmed (black, alpha 0.55; the HUD hidden meanwhile), a `panel` `{36, 30, 88, 40}`:
+"The Ankh of Life" in `title` `GOLD_BRIGHT`, the run summary in `body` `GOLD`, a `small` label over a `WELL` name field
+with a `GOLD` frame and a blinking caret, the key hint at the panel's foot. Esc asks (confirm box) before skipping the
+record.
 
 ### Confirm box
 

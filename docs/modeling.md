@@ -6,7 +6,7 @@ texture and clips from code: the script is the source. How the original models w
 
 ## Blender
 Always use Blender 5: `/home/gediminas.skucas/Apps/blender-5.2.2-linux-x64/blender` (`blender` below means that
-one). Never use the system `blender` (v4.0). The `blender` MCP server needs Blender 5 running with the MCP add-on
+one). Never use the system `blender` (5.0.1, not the pinned 5.2.2). The `blender` MCP server needs Blender 5 running with the MCP add-on
 started (port 9876).
 
 ## Steps
@@ -53,7 +53,7 @@ started (port 9876).
   finish_mesh, uv_unwrap, bake_texture, metal, export_files. Model scripts import it (with `importlib.reload` for live iteration).
 * Rebuild all game files of a model: `blender -b --python tools/blender/models/<name>.py -- --export`
   (writes `media/models/<category>/<name>{,_att,_die,...}.md3`, `media/textures/<category>/<name>.png`, saves `tools/blender/models/<name>.blend`;
-  the rig-less `lotus.py` and `ushabti.py` save none).
+  the rig-less `lotus.py`, `ushabti.py`, `mimic_jar.py` and `rings.py` save none).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
 * `bin/model-viewer <file.md3> [seconds] [options]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
   Space cycles the model's clips, T its textures, L the lighting (flat, the game's with the player's light, toon with
@@ -73,9 +73,9 @@ started (port 9876).
   min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `LoadClips` in `src/entities/model_info.cpp`),
   so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
   Single-file models (items, props) are centred on their own frame 0.
-* Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, Rise, AttackRanged, one file per clip. The file list (`ClipFiles` in
+* Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, Rise, AttackRanged, Crouch, CrouchWalk, CrouchDown, one file per clip. The file list (`ClipFiles` in
   `src/entities/model_info.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
-  clips and stands in for a missing optional clip. `ClipFilesOf` picks a monster's list by its `locomotion` and `ranged` in `KINDS`.
+  clips and stands in for a missing optional clip. `ClipFilesOf` picks a monster's list by its `roll`, `sandBurrow`, `locomotion` and `ranged` in `KINDS`.
   `MONSTER_CLIPS`: `<name>.md3` Move, `_att` Attack, `_die` Die, optional `_idle` Idle, optional `_jump` Jump (plays once), optional `_climb` Climb.
   `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`, `_crouch`, `_crouch_walk`, `_crouch_down`.
 * The player: `archeologist.md3` = idle (standing), `archeologist_walk.md3` = walk cycle (while moving),
@@ -97,16 +97,18 @@ started (port 9876).
   clip stands in and the monster walks on the spot, so every monster has one (`tests/unit/model_info_test.cpp`).
   The mimic (`AMBUSH_CLIPS`) requires `_idle` (the closed chest) and uses it as the reference clip; the cursed mimic
   (`AMBUSH_HOP_CLIPS`, files `mimic_cursed*`) the same, its move clip a hop, plus an optional `_jump`.
-  Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's, giant scarab's and cursed mimic's leap) and `media/sounds/<category>/<name>_jump.wav`.
-  Optional `<name>_climb.md3` (loops, back to the camera; rat, scorpion, mummy, mummy priest, Anubis).
+  Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's, giant scarab's, cursed mimic's and Babi's leap) and `media/sounds/<category>/<name>_jump.wav`.
+  Optional `<name>_climb.md3` (loops, back to the camera; rat, scorpion, mummy, mummy priest, Anubis, baboon, Babi).
   The mummy (`ENTOMBED_CLIPS`) adds a required `_idle` (dormant in its coffin) and `_rise` (`ModelState::Rise`, suffix `_rise`, plays once:
   its wake clip, climbing out; the last frame is walk frame 0). The cobra (`COILED_CLIPS`), the blue lotus and the ushabti
   (`FLOATING_CLIPS`) require `_idle` and `_rise` too.
+  The sand burrowers (`SAND_BURROWER_CLIPS`, `MonsterKind::sandBurrow`: worm, Rerek) have an optional `_rise` (bursting
+  out of the sand, played backwards to dive).
   A ranged attack: walkers and the mummy priest (`RANGED_CLIPS`, `ENTOMBED_RANGED_CLIPS`) play `_att` once as the ranged clip;
   the cobra (`COILED_CLIPS`) and the baboon (`THROWER_CLIPS`, `RangedRules::ownClip`) have their own `_att_ranged` (plays once),
   and so do the rollers (`ROLLER_CLIPS`, `MonsterKind::roll`: the giant scarab's and Khepri's dung ball, `scarab.py`). Sound `media/sounds/<category>/<name>_att_ranged.wav`.
 * Any frame count per file; the engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
-* Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for monsters and the player (the mimics 1024x512, the lotus and the ushabti 512x512).
+* Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for monsters and the player (the chest mimics 1024x512; the mimic jar, the lotus and the ushabti 512x512).
   Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
 * Metal (plan metallic-shading): a palette colour wrapped in `common.metal((r, g, b)[, strength])` is metal. `make_material`
   keeps the strengths on the material, `bake_texture` bakes them in a second pass and writes them to the alpha
@@ -136,14 +138,14 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `archeologist.py` | the player | humanoid turned 180 by the rig, root height from the lowest point, climb on IK targets |
 | `mummy.py` | mummy | humanoid with cloth strips (verlet), idle in a coffin and a rise clip |
 | `mummy_priest.py` | mummy priest (mummy boss) | a subclass of `mummy.py`'s `Mummy`: own head, props and poses; staff bone keyed per clip; ranged clip `--measure` |
-| `worm.py` | worm | surface of revolution, spine posed from a curve, hinged jaws |
-| `cobra.py` | cobra | tube along a spine chain posed by heading / elevation / roll, ranged clip |
+| `worm.py` | worm, Rerek | surface of revolution, spine posed from a curve, hinged jaws |
+| `cobra.py` | cobra, giant cobra, Apep | tube along a spine chain posed by heading / elevation / roll, ranged clip |
 | `rat.py` | rat, giant rat | quadruped: one loft over bones, trot with two-bone IK, FK tail on the floor, jump, climb |
 | `crocodile.py` | crocodile, Sobek | `rat.py` style, idle floated at the water surface |
-| `hippo.py` | hippo | `crocodile.py` style: barrel body, huge hinged jaw (the yawn), ear bones, idle with only eyes, ears and nostrils on top |
-| `scarab.py` | scarab, giant scarab | six legs, rigid parts per bone, analytic IK, tripod gait, jump |
+| `hippo.py` | hippo, Seth | `crocodile.py` style: barrel body, huge hinged jaw (the yawn), ear bones, idle with only eyes, ears and nostrils on top |
+| `scarab.py` | scarab, giant scarab, Khepri | six legs, rigid parts per bone, analytic IK, tripod gait, jump |
 | `scorpion.py` | scorpion, giant, queen | eight legs, FK tail blended between poses, climb |
-| `camel_spider.py` | camel spider | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |
+| `camel_spider.py` | camel spider, Mother of Webs | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |
 | `baboon.py` | baboon, Babi (`--boss`: reshaped, own files) | `rat.py` style quadruped (loft over bones, two-bone IK legs, FK tail, climb) with world-point hand targets (rearing, raised hands), a mane loft with flat locks, a prop bone scaled to zero (the coal); ranged clip `--measure` |
 | `bat.py` | bat, giant, vampire | flying: FK deformation matrices, membrane grids, hanging idle |
 | `mimic.py` | mimic, cursed mimic | ambush monster built on an item's mesh (`items.build_chest`); `--cursed`: own move (hop) and jump clips, the texture recoloured by colour class |
@@ -156,8 +158,10 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `rings.py` | ring band and gem (all 18 rings) | two models from one origin, the second drawn see-through over the first (`Item::loadPart`); a texture per metal, the gem baked pale and tinted by the engine |
 | `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table, coffin (and its cursed texture) | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
-| `decor.py` | corridor and water decorations, torch, coffins, the Stargate (ring, track, lit chevron) and its dial device | static, tile units, lighting baked in (the lit chevron unlit) |
+| `decor.py` | corridor and water decorations, broken statues, torch, coffins, the Shrine of Isis, the Stargate (ring, track, lit chevron) and its dial device | static, tile units, lighting baked in (the lit chevron unlit) |
 | `ladder.py` | ladder pieces | stackable pieces in tile units |
-| `mechanism.py` | key, gate, lever, rock, crack, dart trap, wall spikes, fire vent, ring platform, its housing and ring | static, one texture per lock colour |
+| `mechanism.py` | key, gate, lever, rock, crack, dart trap (pressure plate, dart holes), wall spikes and their slots, fire vent, sun disc, mirror (stand, mirror, pointer), ring platform, its housing and ring | static, one texture per lock colour |
 
-Generated textures (no model): `tools/textures/decals.py`, `surfaces.py`, `hud_icons.py`.
+Generated textures (no model): `tools/textures/decals.py`, `surfaces.py`; the UI sheets `hud_icons.py`,
+`skill_icons.py`, `status_cards.py`, `journal_book.py`, `expedition_page.py`, `ribbon.py`, `inscriptions.py` (the
+hieroglyph sheet) and `font_sheet.py`.

@@ -18,8 +18,9 @@ the tools below do that.
 ## Tools
 
 * `SCENARIO_TIMES=file tools/run_scenarios.sh ...` (also through `make`, e.g. `SCENARIO_TIMES=/tmp/t.tsv make paths`):
-  one tab-separated line per scenario, slowest first: seconds waited at the load gate, seconds run (startup and
-  play; a batched script's has no startup, its wait is its batch's), the last tick, PASS/FAIL. The last lines print the sums, the mean ms per tick and the load gate's report
+  a header row, then one tab-separated line per scenario, slowest first: name, seconds waited at the load gate, seconds
+  run (startup and play; a batched script's has no startup, its wait is its batch's), the last tick, PASS/FAIL. The run
+  prints the sums, the mean ms per tick and the load gate's report
   (peak parallel games, seconds held back, minimum idle cores and free memory).
 * `tools/profile_game.sh [-t s] [-n lines] [-o file.perf] scenario.txt`: one game under `perf record -g` (Xvfb,
   `--no-sound`, a time limit, one llvmpipe thread). Prints the wall time, the result line, the share per library and

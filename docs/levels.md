@@ -11,7 +11,8 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 * **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`, `Sand`, `Quicksand`. A cell blocks when it is `Wall` or
   `DeepWater`.
 * **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes,
-  sun disc (the wall types, `isWallType` in `src/world/level.h`).
+  sun disc, fire vent, poison drip, sand gust, ceiling spikes, ceiling death trap (the wall types, `isWallType` in
+  `src/world/level.h`).
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
   trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
 
@@ -53,13 +54,14 @@ Rules and the editor's palettes: [tools/editor/readme.md](../tools/editor/readme
 Fixtures and objects stand in `Empty`, `HalfWater`, `Sand` or `Quicksand`. A cell can hold one of each: an inscription over a chest, a
 lever behind a monster spawn. Interact takes the chest first, then the fixture (pull the lever, read the inscription)
 with the next press, then a mirror (turn it); a gate (exit, teleporter) comes last. Wall spikes block their cell when out, so `levelcheck` warns
-about a monster spawn, ladder, gate, door or treasure in front of them; a key or a floor trap there is fine. The map
+about a monster spawn, ladder, gate, door, treasure (trapped too) or mirror in front of them; a key or a floor trap there is fine. The map
 screen shows one symbol a cell, the object's, else the fixture's.
 
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
 cannot sprint or jump while standing in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both) (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
-floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (the crocodile, a
-swimmer, 2.5 times its land speed; `Wading` and `KINDS` in `src/world/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
+floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (a swimmer: the
+crocodile and Sobek 2.5 times their land speed, the hippo and Seth 3, the cobras and Apep 1.25; `waterSpeed`,
+`Wading` and `KINDS` in `src/world/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
 work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
 deep water not under water, a ladder that goes down into water (one may start in it), a crocodile, hippo, Sobek or Seth not
 in or next to water and a lotus not in half water.
@@ -156,7 +158,7 @@ The campaign's zones (decided 2026-10-21; `ZONES`, `ZONE_FAUNA`, `ZONE_TERRAIN`,
 | 6 | Serpent temple | 23-27 | cobras, giant cobras | dart plates, rhythm traps | Apep |
 | **Act III: the river and the sands** |||||
 | 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras | deep water, swimming, Hapi potions | Sobek |
-| 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, hippos at the oasis | sand, sandstorm halls, mirrors and sun discs | Seth |
+| 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, sand worms, hippos at the oasis | sand, sandstorm halls, mirrors and sun discs | Seth |
 | 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](plan/solved/worm-boss.md)) |
 | **Act IV: the Duat** (dark granite) |||||
 | 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](plan/solved/baboon.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge | Babi ([babi-boss](plan/solved/babi-boss.md)) |
@@ -288,7 +290,8 @@ make level-tools
 bin/levelcheck content/levels/lvl*                   # report per level, then a ranking, easiest first
 bin/levelcheck --map content/levels/lvl3             # plus the map with the path drawn as '*'
 bin/levelcheck --legend                      # the map's characters, with the tile each one stands for
-bin/levelconvert content/levels/lvl*                 # rewrite v1 to v3 level files as v4 (v4 files are left alone)
+bin/levelcheck --quiet content/levels/lvl*           # no report, only the exit code (and --script)
+bin/levelconvert content/levels/lvl*                 # rewrite older level files (v1 to v5) as v6 (v6 files are left alone)
 bin/levelcheck --script tests/out/paths content/levels/lvl*   # a scenario per level that plays the path
 ```
 
@@ -327,7 +330,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap or spikes or jump into ceiling spikes, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a poison drip without a floor under it or a ceiling over it, in water or with an object in its puddle (but a key or a page), a run of rhythm traps (wall spikes, fire vents, poison drips) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v4, a placed prop, decal or torch that does not fit ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), the sub-cell rules above, a poisoner (scorpion, cobra), a poison drip or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
+| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap or spikes or jump into ceiling spikes, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, the sandstorm rules above, a ring platform paired with a plain teleporter or without rock above it, a campaign level without a title, a monster spawn, ladder, gate, door, treasure or mirror in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a poison drip without a floor under it or a ceiling over it, in water or with an object in its puddle (but a key or a page), a run of rhythm traps (wall spikes, fire vents, poison drips) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v6, a placed prop, decal or torch that does not fit (a water prop out of half water too) ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), the sub-cell rules above, a poisoner (scorpion, cobra), a poison drip or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
 to it (2 cells along the row), a name gate not reached back from its cartouche. With the files: an inscription whose text id has no text in `content/inscriptions/`, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
@@ -340,11 +343,12 @@ one-way drop. The bottom of a spike pit counts as a death, not as a softlock.
 
 Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1 per spike, 4 per death trap,
 3 per rock fall, 2 per dart plate, 1.5 per wall spikes, fire vent or poison drip cell and 1.2 per jump on the path, 0.8 per gate and per mirror
-turn, and 1 more for a jump over a death pit.
+turn, 0.2 per quarter step and 0.1 per crawled sub-cell, 1 per sand fall, 1.5 per quicksand cell, 0.02 per sand cell,
+0.3 per sand gust, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
-giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, mimic jar 1.5, Seth 16, baboon 5.5, Rerek 16.5, Mother of Webs 12, Babi 16; a kiter's threat x1.15):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, mimic jar 1.5, Seth 16, baboon 5.5, Rerek 16.5, Mother of Webs 12, Babi 16; a kiter's threat x1.15, a swimmer in half water x1.1):
 the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
-rats, scorpions, mummies, Anubis and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
+rats, scorpions, mummies, Anubis, baboons and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.
 
@@ -377,14 +381,14 @@ The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
    falls (only under a one-cell ceiling), monsters and treasure. The mix grows with the difficulty. Monster types
    unlock with the difficulty and the weak ones give way to their giant kin: rat and scarab 1-5, bat 2-6,
    worm 3-7, plant from 3, camel spider 3-8, giant rat from 4, giant scarab from 5, giant bat and living ushabti from 6,
-   mummy from 7, Anubis from 9.
+   mummy from 7, Anubis and baboon from 9.
    At most 4 + 2 × difficulty monsters. Weapon chests come in by depth like in the campaign: club and dagger, the
    short sword and spear from difficulty 3, the khopesh from 5, the axes and the mace from 7; self-bow and sling, the
    throwing stick and javelin from 4, the composite bow from 7.
    From difficulty 2, 15% of the treasure chests are mimics, drawn from a separate random stream; from difficulty 8,
-   30% of the mimics are cursed. Most seeds
+   30% of the mimics are cursed; from difficulty 6, 30% of the other mimics are mimic jars. Most seeds
    keep their layout; where a mimic changes the difficulty score, the generator may pick another candidate.
-   A mimic is `M` in the legend; the draft map shows it as a chest. A giant scarab is `k`, the boss scarab `K`, the vampire bat `V`, the Anubis boss `N`, a mummy `u`, a boss gate `Z`, a teleporter `O`, a name gate `!`, a ring platform `0`, a name cartouche `:`, a light shaft `l`, a mirror `(`, a sun disc `a`.
+   A mimic is `M` in the legend; the draft map shows it as a chest. Every glyph: `bin/levelcheck --legend`.
 
 Each candidate goes through `checkLevel`. The generator only keeps a level that is valid and has no warnings
 (so no softlocks, and every key, lever and treasure is in reach). Of up to 80 candidates it returns the one whose
@@ -437,8 +441,8 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    its hole starts on dry floor) nor on a ladder's top. In a zone with mirrors, 60% of the gates are opened by a sun
    disc at the end of a wing in a tall hall: a light shaft in the hall's top row falls on a mirror pointing back up
    at it (it catches the beam), the player turns it to the disc.
-7. **Monsters.** From the zone's set (`ZONE_FAUNA`, `src/world/campaign.h`; step 3), the target campaign's
-   ([Zones](#zones)), each by its weight: crocodiles, hippos and lotuses only in half water and likelier there, sand
+7. **Monsters.** From the zone's set (`ZONE_FAUNA`, `src/world/campaign.h`; step 3; the zone table
+   above, [Zones](#zones)), each by its weight: crocodiles, hippos and lotuses only in half water and likelier there, sand
    worms three times likelier on a drift (they lie under it), camel spiders three times likelier in a dark hall and
    a quarter as likely in a lit one (in a zone with dark halls). Half the mummies lie between decoy coffins (a coffin
    with a sleeping mummy, `DECOR_COFFIN_MUMMY`, either side), every living ushabti among decor ushabti. The share of
@@ -474,7 +478,8 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    `src/world/campaign.h`: none in the first two zones, two in the web halls where they come in, three from the land
    of Sokar on), each a chest that held a plain potion (health, stamina, might, armour). Weapon chests come in by the
    difficulty as on a test level (`WeaponDef::generatedFrom`).
-12. **Carried content** (step 8; `GenOptions`, levelgen's `--texts`, `--lore`, `--page`, `--title`, `--stargate`). The
+12. **Carried content** (step 8; `GenOptions`, levelgen's `--texts`, `--lore`, `--page`, `--title`, `--stargate`, `--finale`). With `--finale` (the campaign's last
+   level, with `--boss`) the ankh behind the boss gate wins the game: no exit (a rare chest in its place), no last gate. The
    inscriptions on the halls of the route, between where it comes in and leaves (on the way): the ids given, else 2
    or 3 (1 or 2 in the tomb entrance) of the zone's texts in `content/inscriptions/rebuild.txt` (`ZONE_TEXT_FIRST`,
    `src/world/level_gen.h`), at most one with a boon; the hints bound to one thing stay out (the ring transporter's,
@@ -514,7 +519,8 @@ The drawing is the object layer. A line `structure` can follow it with a second 
 structure: `#` wall, `.` empty, `~` half water, `=` deep water, `,` sand, `%` quicksand. Then `#` and `.` in the first drawing just mean no
 object. Without it, the structure follows from the object drawing: `#` wall, anything else empty. A line `wall` can
 follow (after the structure drawing, if any) with the wall drawing, the same rows: the fixtures (`/` lever, `i`
-inscription, `|` wall spikes, `+` fire vent, `,` poison drip, or a `def` of a wall type), `#` and `.` for none. A wall glyph in the object drawing goes
+inscription, `:` name cartouche, `|` wall spikes, `+` fire vent, `,` poison drip, `{` sand gust, `"` ceiling spikes,
+`'` ceiling death trap, `a` sun disc, or a `def` of a wall type), `#` and `.` for none. A wall glyph in the object drawing goes
 to the wall layer too, so a fixture alone in its cell needs no wall drawing. `levelcheck --map` shows a cell's fixture
 where it has no object, prints the structure drawing after the map when the level has water, then the wall drawing
 when it has fixtures. `levelcheck --legend` marks the wall types (`wall:`). A level with placed props gets a `decor`

@@ -65,7 +65,7 @@ Potions, amulets and weapon upgrades hide in chests, coffers, baskets, canopic j
 chest is just a chest.
 
 **Die, and try again.** The game saves by itself at the start of each level, after each answered riddle and each slain
-boss. When you die, Retry starts from that autosave, and Continue in the main menu does the same. Win the game to enter your name in
+boss. When you die, Retry loads your newest save (the autosave, a quick save or a save slot), and Continue in the main menu does the same. Win the game to enter your name in
 the Hall of Records.
 
 ## Play
@@ -82,8 +82,8 @@ The game runs on Linux. Build it (see [docs/development.md](docs/development.md)
 | Interact: pick up, lever, riddle | `E`, `F12`                | Middle |
 | Look around                      | `PgUp` `PgDn`, `Home` `End` | Move |
 | Next melee / ranged weapon       | `1` `2`                   |        |
-| Drink healing / stamina potion   | `H` `0`                   |        |
-| Drink antidote (when poisoned)   | `=`                       |        |
+| Drink healing / stamina potion   | `3` `4`, `H` `0`          |        |
+| Drink antidote (when poisoned)   | `5`, `=`                  |        |
 | Stamina skills on / off          | `Q`                       |        |
 | Inventory                        | `I`                       |        |
 | Draft map                        | `M`                       |        |
@@ -91,6 +91,7 @@ The game runs on Linux. Build it (see [docs/development.md](docs/development.md)
 | Heka (skills)                    | `K`                       |        |
 | Menu / back                      | `Esc`                     |        |
 | Cartoon shading                  | `F1`                      |        |
+| Quick save / quick load          | `F5` `F9`                 |        |
 
 These are the defaults: Options > Controls changes them (all but `Esc` and the F-keys). Options also has the
 window size, fullscreen, the frame rate, the graphics effects and the volumes. The choices are kept in `saves/settings.ini`

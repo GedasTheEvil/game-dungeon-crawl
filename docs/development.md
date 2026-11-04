@@ -33,8 +33,8 @@ read their file arguments from the current directory.
   [--armor A] [--might M] [--hp P] [--difficulty D]` (one monster against a player of that level: tank in melee, kite
   with the bow, run past; HP lost as a share of max HP, seconds to the kill, potions drunk), `bin/balance table [--gear
   gen|play]` (every zone's monsters and boss against its player), `bin/balance curve` (the target campaign generated:
-  XP and gear per level), `bin/balance today` (the same for `content/levels/`), `bin/balance tune` (each monster's
-  HP and damage for its class's target in its first zone), `bin/balance home "giant rat" [--monster-hp HP]
+  XP and gear per level), `bin/balance today` (the same for `content/levels/`), `bin/balance tune [gen]` (each monster's
+  HP and damage for its class's target in its first zone; play gear unless `gen`), `bin/balance home "giant rat" [--monster-hp HP]
   [--monster-damage D] [--minions N]` (one monster against the player of its first zone, with stats to try); any of
   them with `--amulet ID` (its place among the amulets) wears that amulet in every fight. The fights run in the unit
   tests'
@@ -46,7 +46,7 @@ read their file arguments from the current directory.
 * `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
 * `bin/` - the game, the tools and the unit test runner (not tracked by git).
 * `build/` - object files and libraries (not tracked by git).
-* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), scenario runner script, `profile_game.sh` ([performance-testing.md](performance-testing.md)), the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts).
+* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), the balance sim (`balance/`), scenario runner script, `profile_game.sh` ([performance-testing.md](performance-testing.md)), the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, its tests `plan_test.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts).
 * `tests/` - unit tests (`unit/`), scenario scripts (`scenarios/`), play scripts (`play/`), test levels (`levels/`), riddles (`riddles/`), inscriptions (`inscriptions/`) and save games (`saves/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
 
@@ -59,14 +59,14 @@ base, level, sim, render.
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|
 | `build/libbase.a` | `core/timer` (the game clock), `core/logger`, `core/paths` | no GL; every library may include it | everything below |
-| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, model viewer, level tools, unit tests |
-| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/monster_<locomotion>` (burrow, charge, climb, flight, leap), `entities/monster_grab` (holds), `entities/monster_reach` (the bite's reach), `entities/monster_roll` (the dung ball's windup), `entities/figures` (the toon scale), `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, unit tests |
-| `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `graphics/render_target`, `graphics/motion_fx`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
+| `build/liblevel.a` | `world/level`, `world/level_check`, `world/level_gen`, `world/campaign`, `world/items`, `world/item_bag`, `world/quick_potion`, `world/loot`, `world/progression`, `world/tile_defs`, `world/monster_kinds`, `world/decor_scatter`, `entities/player_stats`, ... (`LEVEL_LIB_SOURCES`) | no GL | game, editor, model viewer, level tools, balance sim, unit tests |
+| `build/libsim.a` | the dungeon's rules (`world/dungeon_*.cpp` but `dungeon_render*`), `entities/monster`, `entities/monster_ai`, `entities/monster_<locomotion>` (burrow, charge, climb, flight, leap), `entities/monster_grab` (holds), `entities/monster_reach` (the bite's reach), `entities/monster_roll` (the dung ball's windup), `entities/figures` (the toon scale), `entities/player`, `entities/particles` (the blood's motion), `entities/md3_mesh` (the model files), `entities/model_info` (the clips and frame 0 extents the sim reads) (`SIM_LIB_SOURCES`) | no GL | game, editor, model viewer, balance sim, unit tests |
+| `build/librender.a` | `graphics/textures`, `graphics/font`, `graphics/animated_model`, `graphics/shader`, `graphics/lighting`, `graphics/ink`, `graphics/render_target`, `graphics/motion_fx`, `graphics/inscription_draw`, `ui/ui_draw`, stb | GL allowed | game, editor, model viewer |
 
 No library uses SDL or `Game()`, and a library file only includes headers of its own library and of the ones under it.
 `make layers` (`tools/check_layers.sh`) checks this; `make tidy` runs it first. To move a file into a library, add it to
 `BASE_LIB_SOURCES`, `LEVEL_LIB_SOURCES`, `SIM_LIB_SOURCES` or `RENDER_LIB_SOURCES` in the makefile (a header-only file
-to `LEVEL_LIB_HEADERS`).
+to `BASE_LIB_HEADERS`, `LEVEL_LIB_HEADERS` or `SIM_LIB_HEADERS`).
 
 The world and the entities (`src/world/dungeon*`, `src/entities/`) have no `Game()` and no screens; `make layers` checks
 that too (`tools/check_sim.sh`). The dungeon draws itself only in `src/world/dungeon_render*.cpp` (in the game, not
@@ -93,6 +93,9 @@ The facts live in one table each; the compiler and the unit tests point at the r
   its vessel. A weapon also needs its HUD icon (`tools/textures/hud_icons.py`, in `ItemKind` order).
 * **Amulet type:** a value in `AmuletType`, its four `ItemKind` values and a row in `AMULET_TYPES`
   (`src/world/items.cpp`: model, amounts, texts); its bonus in `amuletBonus`.
+* **Ring gem:** a value in `RingGem`, its three `ItemKind` values (copper, silver, gold) and a row in `RING_GEMS`
+  (`src/world/items.cpp`: names, slug, label, colour); its effect line in `ringEffect`, its bonus in `RingBonus` /
+  `ringBonus` (`world/items.*`); models `tools/blender/models/rings.py`.
 * **Lock colour:** a row in `LOCK_COLOURS` (`level.h`) and its textures.
 * Then the docs: the unit tests (`tests/unit/docs_test.cpp`) fail until `tools/editor/readme.md` and
   `docs/levels.md` list it.
@@ -101,10 +104,12 @@ The facts live in one table each; the compiler and the unit tests point at the r
 
 * `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle) and, by kind, `_jump`, `_climb`, `_rise`, `_att_ranged` (`entities/model_info.h`).
 * `media/textures/<category>/`, `media/textures/fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `media/models/` plus `ui`, `dungeon`, `effects`.
-* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_att_ranged`, `_die`, `_jump`, `_wake`, `_roar`; weapons `_swing`, `_hit`; the game logs a warning for a monster sound the code can play but has no file, `playsSound` in `world/monster_kinds.cpp`), `mechanisms/`, `items/`, `water/`, `ui/`, and `music/`: `menu.ogg` (start menu, death and win screens) and `<zone slug>.ogg` (a zone's levels, slugs in `ZONE_INFO`, `world/campaign.h`; a copy or symlink shares a track), `soundtrack.ogg` (not tracked by git) where a file is missing or a level has no zone (`world/zone_music.h`, plan zone-music). The menu and zone tracks are CC0, fetched and loudness-normalised by `tools/audio/zone_music.py` (its table names each source; it writes `music/CREDITS.md`). `tools/audio/*.py` synthesize most of them, one script per monster or group (weapons, mechanisms, containers, water, ...).
+* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_att_ranged`, `_die`, `_jump`, `_wake`, `_roar`; weapons `_swing`, `_hit`; the game logs a warning for a monster sound the code can play but has no file, `playsSound` in `world/monster_kinds.cpp`), `mechanisms/`, `items/`, `water/`, `ui/`, `ambience/` (a zone's ambient loop, `ZoneLook::ambience` in `world/zone_look.h`, made by `tools/audio/zone_ambience.py`), and `music/`: `menu.ogg` (start menu, death and win screens) and `<zone slug>.ogg` (a zone's levels, slugs in `ZONE_INFO`, `world/campaign.h`; a copy or symlink shares a track), `soundtrack.ogg` (not tracked by git) where a file is missing or a level has no zone (`world/zone_music.h`, plan zone-music). The menu and zone tracks are CC0, fetched and loudness-normalised by `tools/audio/zone_music.py` (its table names each source; it writes `music/CREDITS.md`). `tools/audio/*.py` synthesize most of them, one script per monster or group (weapons, mechanisms, containers, water, ...).
 * `content/levels/` - campaign levels, edited with the level editor.
 * `content/riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
 * `content/names/` - the royal names of the name gates. See [names.md](names.md).
+* `content/inscriptions/` - the wall inscriptions' texts. See [inscriptions.md](inscriptions.md).
+* `content/texts/` - the player-facing prose (field notes, diary, lore). See [texts.md](texts.md).
 * `saves/` - save games (not tracked by git).
 
 Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`; see [modeling.md](modeling.md).
@@ -163,12 +168,16 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Keys, gates, levers, rock falls | `world/dungeon_mechanisms.cpp`, drawn in `world/dungeon_render_mechanisms.cpp` |
 | The Stargate chamber: the dial, the chevrons, the reward, the drawing | `world/dungeon_stargate.cpp` (`Dungeon::startDial`, `updateDial`, `ChevronGlow`), drawn by `Dungeon::drawStargate` (`world/dungeon_render_decor.cpp`), props `DECOR_STARGATE`, `DECOR_DIAL` (`world/decor.h`); models `tools/blender/models/decor.py`, sounds `tools/audio/ring_sounds.py`; placed by levelgen `--stargate` (`placeTeleporterRoom`) |
 | Ring platforms (ring transporter): the rings' travel, the flash, the drawing, the checker's rules | `RING_PLATFORM` (`world/level.h`), `Dungeon::startTravel` / `updateTravel` / `RingDrop` (`world/dungeon_interact.cpp`), `Dungeon::drawRingPlatformTile` (`world/dungeon_render_mechanisms.cpp`), the flash in `graphics/draw.cpp`, `checkTeleporters` (`world/level_check.cpp`); models `tools/blender/models/mechanism.py`, sounds `tools/audio/ring_sounds.py` |
-| Cut-scenes: the far gates shown, the camera's way, skip; the look | `world/dungeon_cutscene.cpp` (`CutShot`), drawn by `graphics/draw.cpp` (the camera, the HUD hidden) and `graphics/motion_fx.*` (tint, vignette, bars); skip in `input/input.cpp` |
+| Cut-scenes: the far gates shown, the camera's way, skip; the look | `world/dungeon_cutscene.cpp` (the camera's way in a `CutShot`, `world/dungeon.h`), drawn by `graphics/draw.cpp` (the camera, the HUD hidden) and `graphics/motion_fx.*` (tint, vignette, bars); skip in `input/input.cpp` |
 | Dart traps | `world/dungeon_darts.*` (`DartTraps`) |
 | Trapped chests, tomb curses | rolls `RollChestTrap`, `RollTrappedChestLoot` (`world/loot.*`), the traps `Dungeon::springChestTrap` (`world/dungeon_chest_traps.cpp`), the tell and the gas drawn in `world/dungeon_render.cpp`, numbers `CHEST_*` (`core/gameplay_config.h`) |
 | Sunlight mirrors: the beam's way, turning a mirror, lighting a sun disc, the sun burn, the checker's search | `world/sun_beam.*` (`traceBeams`, `sunlitCells`), `world/dungeon_sun.cpp`, drawn in `world/dungeon_render_sun.cpp` (`SunBeam::ray` in `graphics/fire.*`); `checkSunBeams`, `Walker::turns` in `world/level_check.cpp` |
 | Sandstorm halls: the gusts' push, the haze and the muffle, the arrows' drift, the blown sand and the pillars, the checker's runs | `world/dungeon_gusts.cpp`, the cycle in `world/spike_cycle.h`, the drift in `world/dungeon_arrows.cpp`, drawn by `Dungeon::drawGusts` / `drawWindbreak` (`world/dungeon_render_sand.cpp`, `Grit::gust` in `graphics/fire.*`), the fog in `graphics/draw.cpp`, the muffle in `GameState::ApplyWorldEvents`; `checkSandGusts`, `gustsCrossable` in `world/level_check.cpp`; sounds `tools/audio/sand_sounds.py` |
-| Wall spikes and fire vents (rhythm traps): cycle, stab, jet, checker walk | `world/spike_cycle.h`, `world/dungeon_spikes.cpp` (the jet's hit: `Dungeon::updateTraps`, `Monster::StandInFire`), drawn in `world/dungeon_render_mechanisms.cpp`; `wallSpikesCrossable` in `world/level_check.cpp` |
+| Wall spikes and fire vents (rhythm traps): cycle, stab, jet, checker walk | `world/spike_cycle.h`, `world/dungeon_spikes.cpp` (`Dungeon::updateRhythmTraps`, `stabWallSpikes`), the jet's hit `Dungeon::updateTraps` (`world/dungeon_base.cpp`) and `Monster::StandInFire` (`entities/monster.cpp`), drawn in `world/dungeon_render_mechanisms.cpp`; `wallSpikesCrossable` in `world/level_check.cpp` |
+| Poison drips: the lump, the drop, the puddle | `Dungeon::updateDrips`, `inFallingDrip`, `inPuddle` (`world/dungeon_spikes.cpp`), drawn by `Dungeon::drawPoisonDrips` (`world/dungeon_render_drips.cpp`) |
+| Sand and quicksand: the walk in sand, the sinking, the sand fall | `world/dungeon_sand.cpp` (`Dungeon::PlayerInSand`, `updateQuicksand`, `landSandFall`) |
+| Webs (the Mother of Webs): spinning, the slow, cutting and burning | `world/dungeon_webs.cpp` (`Dungeon::updateWebs`, `updateSpinner`, `cutWebs`, `burnWeb`), drawn by `Dungeon::drawWebs` (`world/dungeon_render_webs.cpp`) |
+| Burning floor (Babi's coal) | `world/dungeon_blaze.cpp` (`Dungeon::PlaceBlaze`, `updateBlazes`, `PlayerInBlaze`), drawn by `Dungeon::drawBlazes` (`world/dungeon_render_blaze.cpp`) |
 | Expedition pages: pickup, texts, the journal page, placement | `Dungeon::updateMechanisms` (`world/dungeon_mechanisms.cpp`), drawn by `Dungeon::drawPageTile` (`world/dungeon_render_mechanisms.cpp`), the skeleton in `scatterProps` (`world/decor_scatter.cpp`), texts `content/texts/expedition.txt` (`expeditionPageText`, `world/journal_text.cpp`), `JournalScreen::DrawExpedition`, texture `tools/textures/expedition_page.py`; [levels.md](levels.md) lists the levels |
 | Inscriptions: texts, reading, the plates and the hieroglyph sheet | `world/inscriptions.*` (data `content/inscriptions/*.txt`, [inscriptions.md](inscriptions.md)), `Dungeon::readInscription` in `world/dungeon_interact.cpp`, the layout `world/inscription_layout.*`, drawn by `graphics/inscription_draw.*` from `world/dungeon_render_decor.cpp` and `JournalScreen::DrawInscription`, plates and sheet baked by `tools/textures/inscriptions.py` |
 | Decoration (props, decals, torches) | `world/decor*.h`, `world/decor_scatter.cpp`, `world/dungeon_decor.cpp`, `world/dungeon_render_decor.cpp`; placed by the decor and decal layers (`Dressing`, `world/level.h`), checked by `checkDressing` (`world/level_check.cpp`), painted with `tools/editor/dressing_brush.h`; the decoy drawn by `Dungeon::drawDecoys` (`world/dungeon_render_effects.cpp`) |
@@ -183,6 +192,9 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Quick save (F5) and quick load (F9) | `GameState::Quicksave` / `LoadQuicksave`, the keys in `specialKeyPressed` (`input/input.cpp`), the Load list in `ui/menu.cpp` |
 | Autosave, death screen, Continue | `GameState::Autosave` / `CountDeath` (`state/game_state.cpp`), the safe moments `AutosaveMoment` (`world/world_events.h`) and `Dungeon::PlayerInDanger` (`world/dungeon_monsters.cpp`), `ui/death_screen.*`, the Load list and Continue in `ui/menu.cpp`, the newest save `GameState::LatestSave` / `SaveSlots::PickLatest` |
 | Models, textures, sounds loaded once | `state/assets.cpp` |
+| Zone looks: stone, decor set, light, haze, ambient loop, the level banner | `ZONE_LOOKS`, `levelLook` (`world/zone_look.h`), `Dungeon::Look`, the loop played in `state/game_loop.cpp`, the banner `ui/zone_banner.*` |
+| Options and the settings file | `Settings` (`state/settings_ini.*`, the file `state/settings.*`, [settings.md](settings.md)), the Options rows in `ui/menu.cpp` |
+| Frame rate cap | `graphics/frame_rate.*` (`FrameRate::set`, `idle`), `frameRedrawDue` (`state/settings_ini.*`) |
 | Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (data `world/journal.*`, its words: creature moves, field notes, diary `world/journal_text.*`, the prose in `content/texts/`; the new game's prologue `GameState::NewGame`), `ui/map_view.*`, `ui/skills_*`, `ui/menu.*`, `ui/riddle.*` |
 | Player-facing prose: field notes, diary, expedition pages, creature moves, monster notes, skill and item lore | `content/texts/*.txt` ([texts.md](texts.md)), read by `gameText` (`world/texts.*`); the keys asked in `world/journal_text.cpp`, `world/skills.cpp`, `world/items.cpp` |
 | HUD | `ui/player_hud*`, `ui/boss_bar.*`, `ui/status_box.*`, `ui/level_gem.*` |
@@ -191,7 +203,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Game loop, frame drawing | `state/game_loop.cpp`, `graphics/draw.cpp` |
 | Blood splashes | `entities/particles.*` (motion), `graphics/particles_draw.*` |
 | Scenario commands | `test/scenario*.cpp` |
-| Plans: status, next, play-test, rename, solve, reject, lint | `tools/plan.py`, its tests `tools/plan_test.py` ([plans.md](plans.md)) |
+| Plans: new, status, next, play-test, verdict, move, solve, reject, hold, lint, links, board | `tools/plan.py`, its tests `tools/plan_test.py` ([plans.md](plans.md)) |
 
 ## Tests
 

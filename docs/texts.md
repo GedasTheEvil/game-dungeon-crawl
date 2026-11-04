@@ -8,7 +8,7 @@ that asks for its key.
 
 | File | Texts | Asked for by |
 |---|---|---|
-| `journal.txt` | `[note.<slug>]` the field notes (`title`, `text`), in `FieldNote` order; `[diary.<page>]` the prologue (`title`, `p1`..`p3`) | `fieldNoteText`, `diaryText` (`world/journal_text.cpp`) |
+| `journal.txt` | `[note.<slug>]` the field notes (`title`, `text`), in `FieldNote` order; `[diary.<page>]` the prologue and the epilogue (`title`, `p1`..`p3`), in `DiaryPage` order | `fieldNoteText`, `diaryText` (`world/journal_text.cpp`) |
 | `expedition.txt` | `[page.<n>]` the earlier expedition's notebook (`heading`, `text`), n the Page tile's value | `expeditionPageText` |
 | `moves.txt` | `[move.<move>]` one sentence per `CreatureMove`: `text`, or a variant chosen by the monster's rules (a summon's kind, a curse's name, one monster's own) | `creatureMoveNote` |
 | `monsters.txt` | `[monster.<label>]` `note`: the journal description after the first kill | `monsterNote` |

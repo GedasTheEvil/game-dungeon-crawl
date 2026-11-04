@@ -36,6 +36,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   scarab's and Khepri's dung ball ([scarab-dung-ball](plan/solved/scarab-dung-ball.md)); `--export-clip SUFFIX` writes one clip
   without baking. The ball is `items.py`'s `dung_ball`. Bakes `scarab.png` and `scarab_giant.png`
   (obsidian and carnelian, red eyes) on the same UVs; `SCARAB_TEX=giant` shows the giant one in review renders.
+  `--boss-texture` bakes only `scarab_boss.png` (Khepri: deep lapis and gold, gold eyes).
 * `tools/blender/models/rat.py` - quadruped example: one loft from rump to nose blended over hips/chest/head bones, trot gait
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. The jump clip (`rat_jump.md3`, 10 frames, plays once: crouch, push-off,
@@ -180,7 +181,8 @@ conventions, steps). New model notes go in the script's docstring, not here.
   over the head and screeches, hurls it overarm: release frame 8 = 0.615, releaseY 1.371, releaseAhead 0.589 from
   `-- --measure`), die 28 (collapses onto its side), idle 32 (`_idle`: sits on its haunches, both hands raised to the sun),
   climb 16 (hand over hand, two rungs a cycle; climbRise / climbGrip printed for `KIND_SCALE`, 24: change it with the
-  `KINDS` scale and `-- --export-climb`). One texture, `baboon.png`; a boss texture (Babi) can be baked on the same UVs.
+  `KINDS` scale and `-- --export-climb`). One texture, `baboon.png`; `--boss` builds Babi reshaped, with its own files
+  (`babi*.md3`, `babi.png`).
   Sounds: `tools/audio/baboon_sounds.py` (`media/sounds/monsters/baboon_{wake,att,att_ranged,die}.wav`: two wa-hoo barks;
   snarl, yelp, snap; a rising shriek, the throw's whoosh at the release; a scream breaking into grunts).
 * `tools/blender/models/ushabti.py` - the living ushabti (plan living-ushabti), faces -Y, rotA 0: the overseer of the decor
@@ -259,11 +261,11 @@ conventions, steps). New model notes go in the script's docstring, not here.
   `gold` yellow amber; only gems and painted accents differ). `-- --export` writes `media/models/mechanisms/<model>.md3` +
   `media/textures/mechanisms/<model>[_<colour>].png`; `--review out.png` (textured with `--bake` or `--export`) renders colour line-ups
   (`out.png`, `out_small.png`) and two corridor shots from the game camera (`out_corridor{1,2}.png`); `--only key,gate`.
-* `tools/blender/models/items.py` - the weapons (club, dagger, short sword (`sword`), khopesh, epsilon and duckbill axes, mace, spear, self-bow (`bow`), composite bow, sling, throwing stick, javelin), the missiles in flight (arrow, sling stone), the six potion vessels, the treasure chest and the eleven amulets
+* `tools/blender/models/items.py` - the weapons (club, dagger, short sword (`sword`), khopesh, epsilon and duckbill axes, mace, spear, self-bow (`bow`), composite bow, sling, throwing stick, javelin), the missiles in flight (arrow, sling stone), the six potion vessels, the treasure chest and the sixteen amulets
   (`amulet_<type>`, one per `AmuletType`, all its tiers share it: a short cord loop with a gold bail and a pendant in
   the x-z plane facing -Y; strength a jackal's fang, armor a bronze scarab, health a carnelian ib heart, poison a gold
   scorpion, traps the eye of Horus, blunt the djed pillar, slash the tyet knot, pierce the shen ring, regeneration a
-  faience lotus, venom Wadjet's uraeus (a rearing cobra, hood to the front), fire Ra's sun disc between cow horns; their HUD icons in `tools/textures/hud_icons.py` match), real sizes in
+  faience lotus, venom Wadjet's uraeus (a rearing cobra, hood to the front), fire Ra's sun disc between cow horns; plus crushing, cleaving, piercing, shots and quick shots; their HUD icons in `tools/textures/hud_icons.py` match), real sizes in
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom, flat faces in the x-z plane; the bow's back bulges to +x. The engine holds the weapon in the fist nearer the camera
   (`PlayerView::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length
@@ -305,9 +307,9 @@ conventions, steps). New model notes go in the script's docstring, not here.
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
   `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
   Placement: `scatterDecals` in `src/world/decor_scatter.cpp` (35% of cells with a visible back wall, one decal per cell).
-* `tools/textures/surfaces.py` - cell surfaces in `media/textures/dungeon/` (RGB 512 px, mipmapped): 8 walls (painted plaster, worn,
-  broken to stone; dressed stone, cracked, sand-drifted; rough rock, strata), 3 floors (slabs, sand, cracked), 3 ceilings (stars
-  over paint, slabs over stone, rough rock), `rock.png` (solid cells, one image over 2x2 cells). Order = `*_STYLE_NAMES` in
+* `tools/textures/surfaces.py` - cell surfaces in `media/textures/dungeon/` (RGB 512 px, mipmapped): 16 walls (painted plaster, worn,
+  broken to stone; dressed stone, cracked, sand-drifted; rough rock, strata; sandstone, granite, basalt, wet stone and
+  their variants), 7 floors, 9 ceilings, `rock.png` (solid cells, one image over 2x2 cells). Order = `*_STYLE_NAMES` in
   `src/world/decor.h`. Variants of a kind share their base and fade their own detail out at the edges, so they tile in any
   order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `scatterSurfaces` in `src/world/decor_scatter.cpp` (per row
   of open cells: rough rock, or dressed stone cut into painted / bare stretches; all rough in the cave tier, less and
@@ -323,23 +325,24 @@ conventions, steps). New model notes go in the script's docstring, not here.
 
 ## Frame counts and sizes
 * Frame counts per file (Anubis 26 + climb 24 + idle 36, worm 32/32/40 + rise 20 + idle 40, scarab 24/26/32 + jump 10 + roll 15 + idle 32, plant 32/26/36 + idle 40, rat 24/24/30 + jump 10 + climb 16 + idle 32, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24 + crouch 32 + crouch walk 16 + crouch down 6, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24 + idle 40, egg cluster 24/16/20 + idle 40).
-* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, hippo 9.6k tris ~2.0-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
+* Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, hippo 9.6k tris ~2.0-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 226 model files in total (all models, also the newer ones).
 
 ## Status
 Paths relative to `media/models/` and `media/textures/`. UI screens are in `media/textures/ui/`, dungeon wall textures in `media/textures/dungeon/`, `plasma.png` in `media/textures/effects/`.
+The table covers the original remodel only; newer models are in the [modeling.md](modeling.md#model-scripts) table.
 
 | Model | Files | Texture | Status |
 |---|---|---|---|
 | Anubis, Anubis boss (monsters) | `monsters/anubis{,_att,_die,_climb,_idle}.md3` | `monsters/anubis.png`, `monsters/anubis_boss.png` | remodelled (the boss uses the same files with its own texture) |
-| Worm (monster) | `monsters/worm{,_att,_die,_rise,_idle}.md3` | `monsters/worm.png` | remodelled (man-eating worm) |
-| Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump,_att_ranged,_idle}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png` | remodelled (golden Scarabaeus sacer; the giant scarab uses the same files with its own texture) |
+| Worm (monster) | `monsters/worm{,_att,_die,_rise,_idle}.md3` | `monsters/worm.png`, `monsters/worm_rerek.png` | remodelled (man-eating worm; Rerek, the boss, uses the same files with its own texture) |
+| Scarab, giant scarab (monsters) | `monsters/scarab{,_att,_die,_jump,_att_ranged,_idle}.md3` | `monsters/scarab.png`, `monsters/scarab_giant.png`, `monsters/scarab_boss.png` | remodelled (golden Scarabaeus sacer; the giant scarab and Khepri use the same files with their own textures) |
 | Rat, giant rat (monsters) | `monsters/rat{,_att,_die,_jump,_climb,_idle}.md3` | `monsters/rat.png`, `monsters/rat_giant.png` | new (tomb rat; the giant rat uses the same files with its own texture) |
 | Bat, giant bat, vampire bat (monsters) | `monsters/bat{,_att,_die,_idle}.md3` | `monsters/bat.png`, `monsters/bat_giant.png`, `monsters/bat_vampire.png` | new (tomb bat; the giant bat and the vampire bat boss use the same files with their own textures) |
 | Mimic, cursed mimic (monsters) | `monsters/mimic{,_att,_die,_idle}.md3`, `monsters/mimic_cursed{,_att,_die,_idle,_jump}.md3` | `monsters/mimic.png`, `monsters/mimic_cursed.png` | new (treasure chest with fangs and tongue; idle = the chest item; the cursed one dark, hops) |
 | Mummy (monster) | `monsters/mummy{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy.png` | new (linen-wrapped corpse; dormant in its coffin, climbs out with `_rise`) |
 | Mummy priest (mummy boss) | `monsters/mummy_priest{,_att,_die,_idle,_rise,_climb}.md3` | `monsters/mummy_priest.png` | new (`mummy.py` subclassed: priest with an ankh staff, in a large coffin) |
-| Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png` | new (Nile crocodile; idle = lying flat, lurks floating at the water surface) |
-| Hippo (monster) | `monsters/hippo{,_att,_die,_idle}.md3` | `monsters/hippo.png` | new (hippopotamus; idle = lying low, lurks with only eyes, ears and nostrils above the water) |
+| Crocodile (monster) | `monsters/crocodile{,_att,_die,_idle}.md3` | `monsters/crocodile.png`, `monsters/crocodile_sobek.png` | new (Nile crocodile; Sobek, the boss, has its own texture; idle = lying flat, lurks floating at the water surface) |
+| Hippo (monster) | `monsters/hippo{,_att,_die,_idle}.md3` | `monsters/hippo.png`, `monsters/hippo_seth.png` | new (hippopotamus; Seth, the boss, has its own texture; idle = lying low, lurks with only eyes, ears and nostrils above the water) |
 | Baboon (monster) | `monsters/baboon{,_att,_att_ranged,_die,_idle,_climb}.md3` | `monsters/baboon.png` | new (hamadryas baboon; throws a burning coal; idle = sitting, greeting the sun) |
 | Scorpion (monster) | `monsters/scorpion{,_att,_die,_climb,_idle}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
 | Plant (monster) | `monsters/plant{,_att,_die,_idle}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = the awake loop, idle = dormant) |
@@ -349,7 +352,7 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |
 | Items: the 13 weapons, arrow, sling stone, chest | `items/club.md3`, ..., `items/treasure_chest.md3` | `items/club.png`, ..., `items/treasure_chest.png` | remodelled (static, `items.py`; the bow has 8 draw frames) |
 | Potions (6 vessels, 11 potions) | `items/potion_<model>.md3` | `items/potion_<kind>.png` | new (static, `items.py`; a texture per potion, [potion textures](plan/solved/potion-textures.md)) |
-| Amulets (11 types) | `items/amulet_<type>.md3` | `items/amulet_<type>.png` | new (static, `items.py`) |
+| Amulets (16 types) | `items/amulet_<type>.md3` | `items/amulet_<type>.png` | new (static, `items.py`) |
 | Spikes trap, death trap | `traps/spikes.md3` | `traps/spikes.png` | remodelled (static, `props.py`) |
 | Corridor decorations (15 props) | `decorations/decor_<name>.md3` | `decorations/decor_<name>.png` | new (static, `decor.py`) |
 | Water props (4) | `decorations/decor_water_<name>.md3` | `decorations/decor_water_<name>.png` | new (static, `decor.py`; half water only, swayed / bobbed by the engine) |
@@ -362,4 +365,4 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Falling rock, ceiling crack | `mechanisms/rock.md3`, `mechanisms/ceiling_crack.md3` | `mechanisms/rock.png`, `mechanisms/ceiling_crack.png` | new (static, `mechanism.py`) |
 | Dart trap plate, dart holes | `mechanisms/pressure_plate.md3`, `mechanisms/dart_holes.md3` | `mechanisms/pressure_plate.png`, `mechanisms/dart_holes.png` | new (static, `mechanism.py`; the darts are the arrow model) |
 | Wall decals (16) | - | `decorations/decals.png` | new (generated, `tools/textures/decals.py`) |
-| Walls, floors, ceilings, rock (15) | - | `dungeon/<style>.png` | new (generated, `tools/textures/surfaces.py`) |
+| Walls, floors, ceilings, rock (33) | - | `dungeon/<style>.png` | new (generated, `tools/textures/surfaces.py`) |

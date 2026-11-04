@@ -1,4 +1,4 @@
-; Rooted monsters dormant on their idle clips (plan missing-idle-clips, tests/scenarios/missing_idle_clips.txt): a plant
+; Rooted monsters dormant on their idle clips (plan missing-idle-clips, tests/scenarios/solved/missing_idle_clips.txt): a plant
 ; (col 6) and an egg cluster (col 8) in sight of the player, out of the plant's reach.
 ############
 #S...p.e..E#

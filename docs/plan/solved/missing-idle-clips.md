@@ -29,7 +29,7 @@ pauses; check which). The giant kin on those models share the gap.
   start dormant on `_idle` and stay on it on the player's row until they have bitten or been hit (`Monster::Seek`),
   then show the walk file as their awake loop.
 * Tests: `model_info_test` (every monster model has `_idle`), `clip_state_test` (tests/levels/idle_clips: seven
-  monsters walled off on the player's row stand on their own idle clip). Screenshots: `tests/scenarios/missing_idle_clips.txt`
+  monsters walled off on the player's row stand on their own idle clip). Screenshots: `tests/scenarios/solved/missing_idle_clips.txt`
   (the dormant plant); review renders and model-viewer shots of each clip checked by eye (floor contact, loop seam,
   no foot slide).
 * Play-test: `bin/game --play tests/play/missing-idle-clips.txt`.

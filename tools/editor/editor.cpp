@@ -72,7 +72,7 @@ constexpr Rect ZONE_BUTTON = {108.5f, 8.2f, 23.f, 4.1f}; // the level's zone (Le
 constexpr Rect SAVE_BUTTON = {132.5f, 8.2f, 10.f, 4.1f};
 constexpr Rect LOAD_BUTTON = {143.8f, 8.2f, 10.f, 4.1f};
 
-constexpr int PALETTE_COLUMNS = 9; // 3 rows hold the decor layer's 27 slots
+constexpr int PALETTE_COLUMNS = 9; // 4 rows hold the decor layer's 30 slots
 constexpr float SLOT_W = 7.2f;
 constexpr float SLOT_H = 7.6f;
 constexpr float SLOT_GAP = 0.6f;

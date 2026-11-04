@@ -694,10 +694,26 @@ def prop_dial_device():  # its dial device: a pedestal, a tilted round top with 
     save(img, "prop_dial_device.png")
 
 
+def prop_shrine_isis():  # plan shrine-of-isis: a naos with Isis seated in it, an offering table before it
+    img, d = canvas(GOLD, 30)
+    floor(d)
+    d.rectangle(p(10, 10, 48, FLOOR_Y), fill=STONE, outline=STONE_DARK, width=SS)  # the naos
+    d.rectangle(p(8, 6, 50, 12), fill=GOLD_DIM, outline=BRONZE_DARK, width=SS)  # its cornice
+    d.rectangle(p(16, 16, 42, FLOOR_Y), fill=BLACK)  # the open shrine
+    d.rectangle(p(24, 38, 36, FLOOR_Y), fill=GOLD_DIM)  # the throne
+    poly(d, [(26, 26), (34, 26), (36, 44), (24, 44)], LINEN, LINEN_DARK, 1)  # Isis seated
+    d.ellipse(p(26, 18, 34, 27), fill=WOOD, outline=BRONZE_DARK, width=SS)  # her head
+    poly(d, [(27, 18), (27, 13), (33, 13), (33, 18)], GOLD)  # the throne sign
+    d.rectangle(p(46, 46, 58, 49), fill=GOLD, outline=BRONZE_DARK, width=SS)  # the offering table
+    d.rectangle(p(50, 49, 54, FLOOR_Y), fill=BRONZE)
+    d.ellipse(p(48, 41, 52, 46), fill=RED_LIGHT)  # an offering
+    save(img, "prop_shrine_isis.png")
+
+
 def props():
     for f in (prop_web, prop_pottery, prop_canopic, prop_rubble, prop_sand, prop_skeleton, prop_brazier, prop_lamp,
               prop_scrolls, prop_ushabti, prop_cat, prop_jackal, prop_osiris, prop_sarcophagus, prop_water_reeds,
-              prop_water_weed, prop_water_pads, prop_water_lotus, prop_stargate, prop_dial_device):
+              prop_water_weed, prop_water_pads, prop_water_lotus, prop_stargate, prop_dial_device, prop_shrine_isis):
         f()
     prop_thoth("thoth_ibis_standing", ibis, False)
     prop_thoth("thoth_ibis_seated", ibis, True)

@@ -50,6 +50,6 @@ Opus: new container kinds and maybe a model. Left from [treasure-containers](tre
   container's smashed jar). Sounds: `tools/audio/tomb_curse_sounds.py`.
 * Tests: `tests/unit/tomb_curse_test.cpp` (the coffin's shares and stances, the inscribed share over the campaign, the
   curse, the ward, the bonus, the trapped coffin, the tell, the mimic jar's lurk, wake, smashed jar and its save,
-  levelgen), the scenario `tests/scenarios/tomb_curse.txt` (screenshots), level `tests/levels/tomb_curse`.
+  levelgen), the scenario `tests/scenarios/solved/tomb_curse.txt` (screenshots), level `tests/levels/tomb_curse`.
 
 Left out: the canopic jar as a mimic (the sealed pot it is); boss rule: no boss has the mimic as its kin.

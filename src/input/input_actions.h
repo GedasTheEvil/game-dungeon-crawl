@@ -28,8 +28,12 @@ void executeGameplayAction(GameplayAction action);
 // The walk keys held down (MoveLeft, MoveRight, MoveDown, MoveUp; other actions are ignored). Update() moves the
 // player one step a tick while one is held (stepHeldWalk).
 void setWalkHeld(GameplayAction move, bool held);
-void releaseWalk();
+void releaseWalk(); // the look keys too
 void stepHeldWalk();
+// Once a tick in the game (plan controls-smoothing): the look keys held turn the camera, an idle peek eases back.
+void stepCameraLook();
+// The cursor hidden over the game, shown on the menu and every other screen.
+void followCursor();
 
 // Power hit (plan skill-power-hit): once a tick, the charge drains; the attack key let go since the last tick swings
 // it. Waiting for the tick lets a key repeat's release and press (X sends both) cancel out.

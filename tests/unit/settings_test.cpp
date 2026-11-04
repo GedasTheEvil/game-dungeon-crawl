@@ -26,14 +26,26 @@ TEST_CASE("an empty file gives the defaults") {
 	CHECK(s.graphics.motionEffects);
 	CHECK_FALSE(s.graphics.toon);
 	CHECK(s.graphics.cutScenes);
+	CHECK(s.graphics.cameraRecenter);
 	CHECK(s.sound.music == 80);
 	CHECK(s.controls == Bindings{});
+}
+
+TEST_CASE("the quick potions sit on the number row by the weapons, the old keys second") {
+	const Bindings controls;
+	CHECK(formatBinding(controls.Of(BindAction::EquipMelee)) == "1");
+	CHECK(formatBinding(controls.Of(BindAction::EquipRanged)) == "2");
+	CHECK(formatBinding(controls.Of(BindAction::QuickHeal)) == "3, h");
+	CHECK(formatBinding(controls.Of(BindAction::QuickStamina)) == "4, 0");
+	CHECK(formatBinding(controls.Of(BindAction::QuickAntidote)) == "5, equals");
+	CHECK(keyCap(*controls.Of(BindAction::QuickHeal).First()) == "3");
 }
 
 TEST_CASE("sections, keys, comments and booleans") {
 	Settings s = parse(
 		"; comment\n# another\n\n[display]\n window_width = 1280 \nwindow_height=720\nfullscreen = on\n"
 		"[Graphics]\nmotion_effects = 0\ntoon = true\nblood = off\nlight_flicker = no\ncut_scenes = off\n"
+		"camera_recenter = off\n"
 		"[sound]\nmusic_volume = 0\neffects_volume = 55\r\n"
 	);
 	CHECK(s.display.width == 1280);
@@ -44,6 +56,7 @@ TEST_CASE("sections, keys, comments and booleans") {
 	CHECK_FALSE(s.graphics.blood);
 	CHECK_FALSE(s.graphics.lightFlicker);
 	CHECK_FALSE(s.graphics.cutScenes);
+	CHECK_FALSE(s.graphics.cameraRecenter);
 	CHECK(s.sound.music == 0);
 	CHECK(s.sound.effects == 55);
 }

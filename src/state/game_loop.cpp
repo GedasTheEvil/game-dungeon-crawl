@@ -106,6 +106,7 @@ void tick() {
 	}
 
 	stepHeldWalk();
+	stepCameraLook();
 	Game().dungeon.Update();
 	Game().player->rotA = Game().camera.rotW;
 
@@ -147,6 +148,7 @@ void tick() {
 } // namespace
 
 void Update() {
+	followCursor();
 	tick();
 	if (Game().cacheLoaded) {
 		Game().ui.winEntry.Follow();

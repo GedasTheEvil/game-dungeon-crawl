@@ -1,0 +1,18 @@
+# Plan controls-smoothing, for `bin/game --play tests/play/controls-smoothing.txt`: tests/levels/fire, a short sword, two
+# potions of each quick kind, the mummy in its coffin at col 13 (walk east to wake it). Feel:
+# * a click attacks (LMB) or jumps (RMB) as the button goes down, not on its release;
+# * Home / End / PgUp / PgDn held turn the view smoothly at a steady speed, whatever the key repeat;
+# * the cursor is hidden over the game, shown in the menu and the inventory;
+# * the view turned by the mouse or the look keys eases back to straight ahead about 1.5 s after you stop
+#   (Options > Display > Camera recentre off: it stays);
+# * 3 / 4 / 5 drink a healing / stamina potion / an antidote (H, 0, = still do); the HUD cards show 3 and 4.
+# An old saves/settings.ini keeps the old potion keys: delete its quick_* lines (or Reset to defaults in Options).
+seed 1
+level tests/levels/fire
+give melee 1
+equip short_sword
+give potion 0 2
+give potion 5 2
+give potion 7 2
+hurt 30
+poison weak

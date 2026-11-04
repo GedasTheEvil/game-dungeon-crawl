@@ -63,6 +63,7 @@ std::vector<Key> keysOf(Settings& s) {
 		{"graphics", "blood", K::Bool, 0, 0, &s.graphics.blood, nullptr},
 		{"graphics", "light_flicker", K::Bool, 0, 0, &s.graphics.lightFlicker, nullptr},
 		{"graphics", "cut_scenes", K::Bool, 0, 0, &s.graphics.cutScenes, nullptr},
+		{"graphics", "camera_recenter", K::Bool, 0, 0, &s.graphics.cameraRecenter, nullptr},
 		{"sound", "music_volume", K::Int, 0, 100, nullptr, &s.sound.music},
 		{"sound", "effects_volume", K::Int, 0, 100, nullptr, &s.sound.effects},
 	};
@@ -156,6 +157,7 @@ std::string writeSettings(const Settings& settings) {
 	out << "blood = " << onOff(settings.graphics.blood) << "\n";
 	out << "light_flicker = " << onOff(settings.graphics.lightFlicker) << "\n";
 	out << "cut_scenes = " << onOff(settings.graphics.cutScenes) << "\n";
+	out << "camera_recenter = " << onOff(settings.graphics.cameraRecenter) << "\n";
 	out << "\n; Volumes 0-100.\n[sound]\n";
 	out << "music_volume = " << settings.sound.music << "\n";
 	out << "effects_volume = " << settings.sound.effects << "\n";

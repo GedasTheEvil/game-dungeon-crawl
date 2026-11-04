@@ -32,6 +32,7 @@ toon = off              ; cel bands and ink outlines (F1)
 blood = on              ; blood splashes
 light_flicker = on      ; torches, braziers and lamps flicker
 cut_scenes = on         ; the view goes to a far gate a lever or a boss's death opens
+camera_recenter = on    ; a look around (mouse, look keys) eases back to straight ahead when left alone
 
 [sound]
 music_volume = 80       ; 0-100
@@ -59,15 +60,15 @@ same input on two actions is a warning: the first action in the list below keeps
 | `sprint` | `shift, right_shift` | Sprint while held |
 | `attack` | `v, enter, mouse_left` | Attack |
 | `interact` | `e, f12, mouse_middle` | Pick up, pull a lever, answer a riddle |
-| `look_left` | `home` | Turn the camera |
+| `look_left` | `home` | Turn the camera while held (the mouse turns it too); with `camera_recenter` on, the view eases back once left alone |
 | `look_right` | `end` | |
 | `look_up` | `page_up` | |
 | `look_down` | `page_down` | |
 | `equip_melee` | `1` | Take the next melee weapon held, in inventory order |
 | `equip_ranged` | `2` | Take the next ranged weapon held |
-| `quick_heal` | `h` | Drink a healing potion |
-| `quick_stamina` | `0` | Drink a stamina potion |
-| `quick_antidote` | `equals` | Drink an antidote (only while poisoned) |
+| `quick_heal` | `3, h` | Drink a healing potion |
+| `quick_stamina` | `4, 0` | Drink a stamina potion |
+| `quick_antidote` | `5, equals` | Drink an antidote (only while poisoned) |
 | `stamina_skills` | `q` | Switch the learnt stamina skills on / off (flaming arrows) |
 | `inventory` | `i` | Open / close the inventory |
 | `map` | `m` | Open / close the draft map |

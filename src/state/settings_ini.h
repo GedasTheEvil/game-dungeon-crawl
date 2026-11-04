@@ -26,6 +26,7 @@ struct Settings {
 		bool blood = true; // the blood splashes
 		bool lightFlicker = true; // torches, braziers and lamps flicker
 		bool cutScenes = true; // the camera shows a gate a lever opened off the screen (plan cinematic-effects)
+		bool cameraRecenter = true; // a mouse or look-key peek eases back when left alone (plan controls-smoothing)
 	} graphics;
 	struct Sound {
 		int music = 80; // volume 0-100

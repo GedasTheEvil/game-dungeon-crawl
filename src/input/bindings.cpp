@@ -138,9 +138,10 @@ Bindings::Bindings() {
 	set(BindAction::LookDown, sp(PAGE_DOWN), none(), none());
 	set(BindAction::EquipMelee, ch('1'), none(), none());
 	set(BindAction::EquipRanged, ch('2'), none(), none());
-	set(BindAction::QuickHeal, ch('h'), none(), none());
-	set(BindAction::QuickStamina, ch('0'), none(), none());
-	set(BindAction::QuickAntidote, ch('='), none(), none());
+	// 1-5 read as one hotbar under the left hand: melee, ranged, heal, stamina, antidote (plan controls-smoothing).
+	set(BindAction::QuickHeal, ch('3'), ch('h'), none());
+	set(BindAction::QuickStamina, ch('4'), ch('0'), none());
+	set(BindAction::QuickAntidote, ch('5'), ch('='), none());
 	set(BindAction::StaminaSkills, ch('q'), none(), none());
 	set(BindAction::Inventory, ch('i'), none(), none());
 	set(BindAction::Map, ch('m'), none(), none());

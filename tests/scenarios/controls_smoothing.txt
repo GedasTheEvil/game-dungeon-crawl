@@ -1,0 +1,26 @@
+# Plan controls-smoothing: the attack button acts when it goes down, like its key; coming up it runs nothing. A click
+# whose down went to a screen (the inventory) runs nothing in the game on its up.
+seed 1
+god
+level tests/levels/fire
+wait 30
+walk right 1
+give melee 1
+equip short_sword
+wait 5
+press 50 50
+wait 2
+expect attacking == 1
+wait 90
+expect attacking == 0
+release 50 50
+wait 2
+expect attacking == 0
+key i
+wait 5
+press 50 50
+key i
+wait 2
+release 50 50
+wait 2
+expect attacking == 0

@@ -1,6 +1,6 @@
 # Controls smoothing: mouse on press, smooth look keys, quick keys by the hand, camera peek
 
-Status: draft 2026-11-04, needs nothing first. From the user: a controls analysis (QWERTY keyboard + mouse), smooth
+Status: implemented 2026-11-04, waiting for the play-test (`bin/game --play tests/play/controls-smoothing.txt`). Was: draft 2026-11-04, needs nothing first. From the user: a controls analysis (QWERTY keyboard + mouse), smooth
 and easy to use. Opus: input timing, camera feel and defaults in one go.
 
 ## Analysis
@@ -78,3 +78,16 @@ Not problems: Interact's second key F12 and MMB are odd but harmless extras. V /
 * Unit: new defaults (`Bindings` default table).
 * Play-test script `tests/play/controls-smoothing.txt`: a level with a monster and potions in the inventory, to feel
   the click timing, the look keys, the 3-5 drinks and the camera easing back.
+
+## Done
+
+* Mouse: every bound button acts on the down, its up only lets go (`processMouse`). Scenario
+  `tests/scenarios/controls_smoothing.txt`: LMB down swings at once, the up runs nothing, a down on the inventory
+  then the screen closed runs nothing.
+* Look keys held, `CameraLook` (`src/input/camera_look.h`, pure, `tests/unit/camera_look_test.cpp`):
+  `CAMERA_LOOK_KEY_SPEED` 60°/s, `stepCameraLook` once a tick; `CAMERA_ROTATE_STEP` dropped.
+* Defaults: heal `3, h`, stamina `4, 0`, antidote `5, equals` (settings test, docs/settings.md).
+* Cursor hidden over the game while alive and not won (`followCursor`, each Update, set on change only).
+* Recentre after 1.5 s idle, time constant 160 ms (settled ~0.5 s); skipped in cut-scenes (the tick returns before
+  it). Setting `camera_recenter` in `[graphics]`, Options > Display > Camera recentre (Display rows 5.04 high to fit
+  ten). Off in scenarios, so `camera` + screenshot stays put.

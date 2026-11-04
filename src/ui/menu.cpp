@@ -66,7 +66,7 @@ constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be 
 
 // Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
 constexpr float OPTION_TOP = 71.5f;
-constexpr float OPTION_H = 5.6f; // nine Display rows above the panel's bottom edge
+constexpr float OPTION_H = 5.04f; // ten Display rows above the panel's bottom edge
 constexpr float SWITCH_W = 22.f;
 constexpr float CHOICE_W = 30.f;
 constexpr float SLIDER_W = 44.f;
@@ -201,6 +201,7 @@ enum class OptionId : std::uint8_t {
 	Blood,
 	LightFlicker,
 	CutScenes,
+	CameraRecenter,
 	Music,
 	Effects
 };
@@ -212,7 +213,7 @@ struct OptionRow {
 	const char* hint;
 };
 
-constexpr std::array<OptionRow, 9> DISPLAY_ROWS = {{
+constexpr std::array<OptionRow, 10> DISPLAY_ROWS = {{
 	{OptionId::WindowSize, OptionKind::Choice, "Window size", "Click for the next size, or drag the window"},
 	{OptionId::Fullscreen, OptionKind::Switch, "Fullscreen", "The whole screen, no window frame"},
 	{OptionId::AnimationRate,
@@ -225,6 +226,7 @@ constexpr std::array<OptionRow, 9> DISPLAY_ROWS = {{
 	{OptionId::Blood, OptionKind::Switch, "Blood", "Blood splashes of hits and deaths"},
 	{OptionId::LightFlicker, OptionKind::Switch, "Light flicker", "Torches, braziers and lamps flicker"},
 	{OptionId::CutScenes, OptionKind::Switch, "Cut-scenes", "The view goes to a far gate as it opens"},
+	{OptionId::CameraRecenter, OptionKind::Switch, "Camera recentre", "A look around eases back when left alone"},
 }};
 constexpr std::array<OptionRow, 2> SOUND_ROWS = {{
 	{OptionId::Music, OptionKind::Slider, "Music volume", "The soundtrack"},
@@ -268,6 +270,8 @@ bool& switchOf(OptionId id) {
 		return s.graphics.lightFlicker;
 	case OptionId::CutScenes:
 		return s.graphics.cutScenes;
+	case OptionId::CameraRecenter:
+		return s.graphics.cameraRecenter;
 	default:
 		return s.graphics.motionEffects;
 	}

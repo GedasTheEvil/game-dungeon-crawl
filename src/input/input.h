@@ -33,7 +33,6 @@ const int MOUSE_MIDDLE_BUTTON = 1;
 const int MOUSE_RIGHT_BUTTON = 2;
 const int MOUSE_WHEEL_UP = 3; // freeglut reports the wheel as buttons 3 and 4
 const int MOUSE_WHEEL_DOWN = 4;
-const float CAMERA_ROTATE_STEP = 2.5f;
 const float CAMERA_ROTATE_LIMIT_X = 30.0f;
 const float CAMERA_ROTATE_LIMIT_Y = 10.0f;
 const float MOUSE_LOOK_SENSITIVITY = 0.08f;

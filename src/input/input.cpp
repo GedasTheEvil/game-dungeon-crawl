@@ -9,10 +9,12 @@
 #include "input.h"
 #include "input_actions.h"
 #include "mouse_look.h"
+#include "camera_look.h"
 #include "../ui/screen_state.h"
 
 namespace {
 MouseLook mouseLook;
+CameraLook cameraLook; // the look keys held, the time since the last look input
 // The walk keys held down, in GameplayAction order from MoveLeft.
 std::array<bool, 4> walkHeld{};
 // This press of the attack key was refused on a ladder and told so: the key repeat does not tell it again.
@@ -97,10 +99,12 @@ class PlayerActionController {
 		}
 	}
 
+	// The mouse turned the camera.
 	static void applyCameraDelta(float deltaX, float deltaY) {
-		Game().camera.rotM += deltaX;
-		Game().camera.rotN += deltaY;
-		clampCamera();
+		const CameraLook::Angles turned = CameraLook::Clamp({Game().camera.rotM + deltaX, Game().camera.rotN + deltaY});
+		Game().camera.rotM = turned.m;
+		Game().camera.rotN = turned.n;
+		cameraLook.Looked();
 	}
 
 	static void toggleStaminaSkills() {
@@ -246,20 +250,6 @@ class PlayerActionController {
 		else
 			weapon->swingSound.Play();
 	}
-
-	static void clampCamera() {
-		if (Game().camera.rotM > CAMERA_ROTATE_LIMIT_X)
-			Game().camera.rotM = CAMERA_ROTATE_LIMIT_X;
-
-		if (Game().camera.rotM < -CAMERA_ROTATE_LIMIT_X)
-			Game().camera.rotM = -CAMERA_ROTATE_LIMIT_X;
-
-		if (Game().camera.rotN > CAMERA_ROTATE_LIMIT_Y)
-			Game().camera.rotN = CAMERA_ROTATE_LIMIT_Y;
-
-		if (Game().camera.rotN < -CAMERA_ROTATE_LIMIT_Y)
-			Game().camera.rotN = -CAMERA_ROTATE_LIMIT_Y;
-	}
 };
 } // namespace
 
@@ -275,6 +265,7 @@ void setWalkHeld(GameplayAction move, bool held) {
 
 void releaseWalk() {
 	walkHeld.fill(false);
+	cameraLook.Release();
 	Game().player->crouchHeld = false;
 }
 
@@ -286,6 +277,26 @@ void stepHeldWalk() {
 			PlayerActionController::execute(
 				static_cast<GameplayAction>(static_cast<size_t>(GameplayAction::MoveLeft) + i)
 			);
+}
+
+void stepCameraLook() {
+	Camera& camera = Game().camera;
+	const CameraLook::Angles angles = cameraLook.Step(
+		{camera.rotM, camera.rotN},
+		UPDATE_TICK_MS,
+		Game().settings.graphics.cameraRecenter
+	);
+	camera.rotM = angles.m;
+	camera.rotN = angles.n;
+}
+
+void followCursor() {
+	static int shown = -1;
+	const int cursor = Game().ui.screen == Screen::Gameplay && ScreenState::IsGameplayInteractionAllowed(Game())
+						   ? GLUT_CURSOR_NONE
+						   : GLUT_CURSOR_LEFT_ARROW;
+	if (cursor != std::exchange(shown, cursor))
+		glutSetCursor(cursor);
 }
 
 void releaseAttack() {
@@ -363,23 +374,21 @@ std::string equipKeysCap() {
 }
 
 namespace {
-// Held as long as the input is down; the other actions run once a press.
-bool isHeld(BindAction action) { return action == BindAction::Sprint || isMove(gameplayActionOf(action)); }
-
-// Look keys turn the camera a step a press (the key repeat turns it on).
-bool look(BindAction action) {
+// The look keys are held: stepCameraLook turns the camera each tick while one is down (plan controls-smoothing).
+// False: not a look key.
+bool look(BindAction action, bool down) {
 	switch (action) {
 	case BindAction::LookLeft:
-		PlayerActionController::applyCameraDelta(-CAMERA_ROTATE_STEP, 0);
+		cameraLook.Hold(CameraLook::Dir::Left, down);
 		return true;
 	case BindAction::LookRight:
-		PlayerActionController::applyCameraDelta(CAMERA_ROTATE_STEP, 0);
+		cameraLook.Hold(CameraLook::Dir::Right, down);
 		return true;
 	case BindAction::LookUp:
-		PlayerActionController::applyCameraDelta(0, CAMERA_ROTATE_STEP);
+		cameraLook.Hold(CameraLook::Dir::Up, down);
 		return true;
 	case BindAction::LookDown:
-		PlayerActionController::applyCameraDelta(0, -CAMERA_ROTATE_STEP);
+		cameraLook.Hold(CameraLook::Dir::Down, down);
 		return true;
 	default:
 		return false;
@@ -428,7 +437,7 @@ bool pressBinding(BindAction action) {
 	}
 	if (screen != Screen::Gameplay)
 		return false;
-	if (look(action) || !ScreenState::IsGameplayInteractionAllowed(Game()))
+	if (look(action, true) || !ScreenState::IsGameplayInteractionAllowed(Game()))
 		return true;
 	GameplayAction gameplay = gameplayActionOf(action);
 	if (isMove(gameplay))
@@ -440,6 +449,8 @@ bool pressBinding(BindAction action) {
 
 // Released on every screen: a walk key let go in the inventory must not keep walking afterwards.
 void releaseBinding(BindAction action) {
+	if (look(action, false))
+		return;
 	if (action == BindAction::Attack)
 		releaseAttack();
 	if (action == BindAction::Sprint)
@@ -611,9 +622,9 @@ void processMouse(int button, int state, int x, int y) {
 		return;
 	}
 
-	// A held action (walk, sprint) lets go on every screen, like its key.
+	// A bound button comes up on every screen, like its key: a walk or the sprint lets go, a power hit's charge swings.
 	std::optional<BindAction> action = bound(InputKey::Mouse(button));
-	if (action && state == GLUT_UP && isHeld(*action))
+	if (action && state == GLUT_UP)
 		releaseBinding(*action);
 
 	if (ScreenTabs::Has(Game().ui.screen) && ScreenTabs::Mouse(button, state, x, y))
@@ -637,22 +648,10 @@ void processMouse(int button, int state, int x, int y) {
 		return;
 	}
 
-	// The attack button down starts a power hit's charge (plan skill-power-hit), up swings it; without one the click
-	// attacks when it comes up, as below.
-	if (action == BindAction::Attack && Game().ui.screen == Screen::Gameplay) {
-		if (state == GLUT_DOWN) {
-			attackRefusalTold = false;
-			if (ScreenState::IsGameplayInteractionAllowed(Game()) && PlayerActionController::tryCharge())
-				Game().ApplyWorldEvents();
-			return;
-		}
-		if (Game().player->Charging()) {
-			releaseBinding(*action);
-			return;
-		}
-	}
-	// Held actions start when the button goes down, the others run when it comes up: each click is a press.
-	if (action && Game().ui.screen == Screen::Gameplay && (state == GLUT_DOWN) == isHeld(*action)) {
+	// A bound button acts when it goes down, like its key (plan controls-smoothing): the jump, the interact, the
+	// attack (with a power hit: the charge starts, the release above swings it). A down on a screen went to it above,
+	// and the up only lets go: a click that closes a screen runs nothing in the game.
+	if (action && state == GLUT_DOWN && Game().ui.screen == Screen::Gameplay) {
 		if (*action == BindAction::Attack)
 			attackRefusalTold = false;
 		pressBinding(*action);

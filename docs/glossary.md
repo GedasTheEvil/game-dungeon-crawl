@@ -292,6 +292,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | name list | | the royal names of the name gates, `content/names/*.txt` ([names](names.md)); each run gives every level its own (the run's name seed) | `NameList`, `RoyalName`, `RunStats::nameSeed` |
 | run statistics | | what a run did since New Game (kills, potions, play time, exploration, damage, times poisoned and cursed, deaths), kept in the save | `RunStats` |
 | win entry | | the name field over the won game; Enter records the run, Esc skips | `WinEntry` |
+| camera peek | Camera recentre (Options) | the view turned off straight ahead by the mouse or the look keys (held: a steady turn), at most 30° sideways and 10° up / down; with Camera recentre on it eases back 1.5 s after the last look input ([controls-smoothing](plan/controls-smoothing.md)) | `CameraLook`, `stepCameraLook`, `CAMERA_LOOK_KEY_SPEED`, `CAMERA_RECENTER_DELAY_MS` |
 
 ## Tooling
 

@@ -342,6 +342,10 @@ bool runInstant(const Command& cmd) {
 		Game().player->stats.SetSprintRequested(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return true;
+	case CommandType::Crouch: // the crouch key down / up (plan crouch)
+		Game().player->crouchHeld = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return true;
 	case CommandType::Motion: // Options > Display > Motion effects
 		Game().settings.graphics.motionEffects = cmd.a > 0.5f;
 		Game().dungeon.SetMotionEffects(cmd.a > 0.5f);

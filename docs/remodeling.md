@@ -71,6 +71,11 @@ conventions, steps). New model notes go in the script's docstring, not here.
   Mummy sounds: `tools/audio/mummy_sounds.py` (`media/sounds/monsters/mummy_{wake,att,die}.wav`).
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.
+  The crouch (plan crouch, `crouch_pose`, angles in `CROUCH`): down on bent knees, the trunk bent over them, the head up,
+  the fists raised in front (the held weapon follows them); its top 0.56 of the idle's (the game's crouched hitbox 0.55).
+  Clips `_crouch` (32, the idle's breath), `_crouch_walk` (16, a duck walk: each leg in turn forward and up) and
+  `_crouch_down` (6, idle frame 0 to crouch frame 0; the game sets its frame from `Player::crouchPhase`, backwards to
+  stand up). Exported without a re-bake: the new files' UVs are the committed texture's.
 * `tools/blender/models/mummy.py` - entombed monster: anubis-style humanoid in spiral bandages (pattern-uv material), loose strips as
   two-bone chains run by a verlet pass (gravity, lag, floor, coffin). Clips: walk (stiff shamble, arms reaching; frame 0 centred on
   x = y = 0, the reference), attack (two-handed overhead smash), die (folds forward, root squashed into a heap), idle (`_idle`: on its
@@ -317,7 +322,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 
 ## Frame counts and sizes
-* Frame counts per file (Anubis 26 + climb 24 + idle 36, worm 32/32/40 + rise 20 + idle 40, scarab 24/26/32 + jump 10 + roll 15 + idle 32, plant 32/26/36 + idle 40, rat 24/24/30 + jump 10 + climb 16 + idle 32, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24 + idle 40, egg cluster 24/16/20 + idle 40).
+* Frame counts per file (Anubis 26 + climb 24 + idle 36, worm 32/32/40 + rise 20 + idle 40, scarab 24/26/32 + jump 10 + roll 15 + idle 32, plant 32/26/36 + idle 40, rat 24/24/30 + jump 10 + climb 16 + idle 32, bat 12/12/24 + idle 24, mimic 32/22/30 + idle 42, cursed mimic 10/22/30 + idle 42 + jump 10, archeologist 32/20/30 + jump 10 + climb 24 + crouch 32 + crouch walk 16 + crouch down 6, mummy 24/22/30 + idle 32 + rise 26 + climb 24, mummy priest 24/26/30 + idle 32 + rise 26 + climb 24, crocodile 24/22/30 + idle 32, hippo 24/24/30 + idle 32, scorpion 24/24/30 + climb 24 + idle 40, egg cluster 24/16/20 + idle 40).
 * Sizes: Anubis 8.2k tris ~1.5 MB/file, worm 6.4k tris ~1.7-2.1 MB/file, scarab 12.5k tris ~2.3-3.0 MB/file (jump 1.1 MB), plant 10.9k tris ~2.5-3.3 MB/file, rat 5.8k tris ~1.1-1.4 MB/file (jump 0.5 MB), bat 6.2k tris ~0.64-1.17 MB/file, mimic 12.2k tris ~2.3-4.2 MB/file, archeologist 7.3k tris ~1.1-1.7 MB/file (jump 0.6 MB), mummy 5.7k tris ~1.0-1.5 MB/file, mummy priest 8.5k tris ~1.7-2.2 MB/file, crocodile 7.8k tris ~1.8-2.6 MB/file, hippo 9.6k tris ~2.0-2.6 MB/file, scorpion 10.5k tris ~2.1-2.5 MB/file; items 1.2-4.5k tris 32-143 KB (arrow 0.6k tris 16 KB, bow 2.3k tris 8 frames 170 KB), ladder pieces 5-9.4k tris 156-294 KB, gateway 23k tris 615 KB, teleporter 11.7k tris 307 KB, other props 1.5-2.5k tris 37-89 KB; 94 model files in total.
 
 ## Status
@@ -338,7 +343,7 @@ Paths relative to `media/models/` and `media/textures/`. UI screens are in `medi
 | Baboon (monster) | `monsters/baboon{,_att,_att_ranged,_die,_idle,_climb}.md3` | `monsters/baboon.png` | new (hamadryas baboon; throws a burning coal; idle = sitting, greeting the sun) |
 | Scorpion (monster) | `monsters/scorpion{,_att,_die,_climb,_idle}.md3` | `monsters/scorpion.png` | new (Egyptian deathstalker; the sting is the hit) |
 | Plant (monster) | `monsters/plant{,_att,_die,_idle}.md3` | `monsters/plant.png` | remodelled (tomb lotus in a painted jar; walk file = the awake loop, idle = dormant) |
-| Player | `characters/archeologist{,_walk,_die,_jump,_climb}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
+| Player | `characters/archeologist{,_walk,_die,_jump,_climb,_crouch,_crouch_walk,_crouch_down}.md3` | `characters/archeologist.png` | remodelled (archaeologist with fedora) |
 | Gateway ("sphinx"), ankh, question mark | `props/{sphinx,ankh,questionmark}.md3` | `props/{sphinx,ankh,questionmark}.png` | remodelled (static, `props.py`) |
 | Teleporter gate ("columns") | `props/columns.md3` | `props/columns.png` | remodelled (static, `props.py`; Door, gate type 5, plasma quad between the columns) |
 | Ladders (2 styles x 5 pieces) | `ladders/ladder_<style>_<piece>.md3` | `ladders/ladder_<style>_<piece>.png` | new (static, `ladder.py`) |

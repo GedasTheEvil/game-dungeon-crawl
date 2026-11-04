@@ -70,7 +70,9 @@ void Player::SetModel(const ModelInfo& info) {
 
 float Player::HalfWidth() const { return model.HalfWidth() * scale * Figures::Scale() / RenderConfig::TILE_SIZE; }
 
-float Player::Height() const { return model.referenceTop * scale * Figures::Scale() / RenderConfig::TILE_SIZE; }
+float Player::StandingHeight() const { return model.referenceTop * scale * Figures::Scale() / RenderConfig::TILE_SIZE; }
+
+float Player::Height() const { return StandingHeight() * (crouched ? CROUCH_HEIGHT_FACTOR : 1.f); }
 
 // The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.
 void Player::Animate() {
@@ -83,7 +85,7 @@ void Player::Animate() {
 		setModelState(ModelState::Die);
 	blood.Explode();
 	blood.Fall();
-	if (state != ModelState::Climb) // the climb frame follows the height (showClimb)
+	if (state != ModelState::Climb && state != ModelState::CrouchDown) // their frame follows the height / the phase
 		model.Advance(state, playback);
 	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
 }
@@ -232,6 +234,8 @@ void Player::Reanimate() {
 	stats.EndResistance();
 	stats.EndWaterBlessing();
 	stats.EndIsisWard();
+	crouched = false;
+	crouchPhase = 0.f;
 	setModelState(model.reference);
 	blood.Stop(); // a new or loaded game starts without the last game's splash
 }
@@ -244,4 +248,18 @@ void Player::showClimb(float phase) {
 	int frames = climb.frames;
 	float frame = std::min(phase - std::floor(phase), 1.f) * static_cast<float>(frames);
 	playback[static_cast<int>(ModelState::Climb)] = {std::min(frame, static_cast<float>(frames) - 0.001f), 0};
+}
+
+void Player::UpdateCrouchPose(bool walking) {
+	const float step = static_cast<float>(UPDATE_TICK_MS) / static_cast<float>(CROUCH_TRANSITION_MS);
+	crouchPhase = std::clamp(crouchPhase + (crouched ? step : -step), 0.f, 1.f);
+	const ClipInfo& down = model.Clip(ModelState::CrouchDown);
+	if (crouchPhase > 0.f && crouchPhase < 1.f && down.present) {
+		state = ModelState::CrouchDown;
+		const float last = static_cast<float>(down.frames - 1);
+		playback[static_cast<int>(ModelState::CrouchDown)] = {crouchPhase * last, 0};
+	} else if (crouched)
+		setModelState(walking ? ModelState::CrouchWalk : ModelState::Crouch);
+	else if (crouchPosed())
+		setModelState(walking ? ModelState::Move : ModelState::Idle);
 }

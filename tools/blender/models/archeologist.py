@@ -15,6 +15,9 @@ The player's files are used differently from monsters:
   archeologist_climb.md3 climbing a ladder, back to the camera (rotA = 180). The game sets the frame from the height,
                          one cycle per tile, so it runs backwards going down and holds when the player stops (see
                          CLIMB_GRIP_Y).
+  archeologist_crouch.md3, _crouch_walk.md3  crouched still and the duck walk (plan crouch; top 0.56 of the idle's),
+  archeologist_crouch_down.md3  standing to crouched; the game sets the frame from the crouch's phase, backwards to
+                         stand up.
 The weapon is held in the fist nearer the camera (the engine finds the most forward corners at 50-85 % of the idle
 height, Player::findFists), so the fists stay raised in front of the chest at ~3/4 of the height
 in every clip. Every frame the root is moved so the lowest point (the hat excluded) touches the floor.
@@ -39,6 +42,8 @@ from common import REPO, Builder, chain_weights, ellipsoid, loft, smoothstep, tu
 COLL = "archeologist_new"
 CLIPS = [("archeologist_idle", "", 32), ("archeologist_walk", "_walk", 20), ("archeologist_die", "_die", 30), ("archeologist_jump", "_jump", 10)]
 CLIMB = ("archeologist_climb", "_climb", 24)
+# The crouch (plan crouch): still, the duck walk, standing to crouched (the game sets its frame from the crouch's phase).
+CROUCH_CLIPS = [("archeologist_crouch", "_crouch", 32), ("archeologist_crouch_walk", "_crouch_walk", 16), ("archeologist_crouch_down", "_crouch_down", 6)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0, 0.98), "ortho": 2.4, "res": (360, 440)}
 
@@ -554,6 +559,43 @@ def jump_poses():
     return [(0, push), (2, rise), (4, tuck), (6, reach), (8, touch), (9, crouch)]
 
 
+def crouch_pose(t=0.0, walk=0.0, breath=0.0):
+    """Down on bent knees, the trunk bent forward over them, the head up to look ahead, the fists raised in front.
+    walk: the duck walk's stride at phase t (0..1), each leg in turn a little forward and up; breath: the idle's."""
+    a = math.sin(2 * math.pi * t)
+    lift_R = max(0.0, math.sin(2 * math.pi * t)) * walk
+    lift_L = max(0.0, -math.sin(2 * math.pi * t)) * walk
+    return add(pose(), pelvis=(CROUCH["pelvis"], 0, 3 * a * walk), spine=(CROUCH["spine"], 0, -2 * a * walk),
+               chest=(CROUCH["chest"] + 1.5 * breath, 0, -2 * a * walk), neck=(CROUCH["neck"], 0, 0), head=(CROUCH["head"], 0, 0),
+               thigh_R=(CROUCH["thigh"] + 10 * a * walk + 6 * lift_R, 0, -4), shin_R=(CROUCH["shin"] - 10 * lift_R, 0, 0),
+               foot_R=(CROUCH["foot"] - 10 * a * walk, 0, 0),
+               thigh_L=(CROUCH["thigh"] - 10 * a * walk + 6 * lift_L, 0, 4), shin_L=(CROUCH["shin"] - 10 * lift_L, 0, 0),
+               foot_L=(CROUCH["foot"] + 10 * a * walk, 0, 0),
+               upperarm_R=(CROUCH["upperarm"] + 2 * breath, 0, 0), upperarm_L=(CROUCH["upperarm"] + 2 * breath, 0, 0),
+               forearm_R=(CROUCH["forearm"], 0, 0), forearm_L=(CROUCH["forearm"], 0, 0))
+
+
+# Angles added on READY for the crouch (degrees, the conventions above).
+CROUCH = {"pelvis": -30, "spine": -12, "chest": -10, "neck": 16, "head": 28, "thigh": 125, "shin": -150, "foot": 55,
+          "upperarm": -10, "forearm": 25}
+
+
+def crouch_poses():
+    frames = CROUCH_CLIPS[0][2]
+    return [(f, crouch_pose(breath=math.sin(4 * math.pi * f / frames))) for f in range(0, frames + 1, 2)]
+
+
+def crouch_walk_poses():
+    frames = CROUCH_CLIPS[1][2]
+    return [(f, crouch_pose(t=f / frames, walk=1.0)) for f in range(0, frames + 1, 2)]
+
+
+def crouch_down_poses():
+    """Idle frame 0 to crouch frame 0, eased; the game plays it backwards to stand up."""
+    last = CROUCH_CLIPS[2][2] - 1
+    return [(0, idle_poses()[0][1]), (last, crouch_pose())]
+
+
 # Climbing: hands and feet driven by IK targets (empties parented to the rig, rig space before its 180 degree turn,
 # so the ladder is at +Y). Diagonal gait: the left hand reaches up with the right foot while the other pair pulls.
 # The player climbs ~1.5 tiles (~19 rungs) a second, so the limbs cannot stay on the rungs; one cycle spans a tile.
@@ -740,6 +782,21 @@ def make_actions(rig, obj, hat_verts):
         if name == "archeologist_die":
             drop_hat(rig, obj, hat_verts)
         acts[name] = act
+    for (name, _, frames), poses in zip(CROUCH_CLIPS, (crouch_poses(), crouch_walk_poses(), crouch_down_poses())):
+        act = bpy.data.actions.get(name)
+        if act:
+            bpy.data.actions.remove(act)
+        act = bpy.data.actions.new(name)
+        act.use_fake_user = True
+        rig.animation_data.action = act
+        key_ik(rig, False)
+        for f, p in poses:
+            key_pose(rig, p, f)
+        looping = name != "archeologist_crouch_down"
+        if looping:
+            make_cyclic(rig, act)
+        floor_fix(rig, obj, frames + (1 if looping else 0), skip)
+        acts[name] = act
     name, _, frames = CLIMB
     act = bpy.data.actions.get(name)
     if act:
@@ -788,7 +845,7 @@ def build(bake=True, tex_path=None):
 
 
 def export(models_dir=None):
-    common.export_files(bpy.data.objects["archeologist_new"], bpy.data.objects["archeologist_rig"], "archeologist", CLIPS + [CLIMB], "characters", models_dir)
+    common.export_files(bpy.data.objects["archeologist_new"], bpy.data.objects["archeologist_rig"], "archeologist", CLIPS + [CLIMB] + CROUCH_CLIPS, "characters", models_dir)
 
 
 if __name__ == "__main__" and "--" in sys.argv:

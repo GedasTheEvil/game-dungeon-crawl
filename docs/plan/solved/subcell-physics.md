@@ -48,7 +48,7 @@ The player walks, jumps and falls against the solid sub-cells of a shaped cell, 
 * Landing: a fall stops at the floor height under the player. Keep `FALL_MAX_STEP` below a quarter tile (today 0.3),
   so one tick never skips a step's floor; check the fall speed and fall damage stay as today.
 * Head room: a jump under a low ceiling stops at it (a bump sound); walking into an opening lower than the player is
-  blocked (crouching through comes with [crouch](../crouch.draft.opus.md)).
+  blocked (crouching through comes with [crouch](../crouch.md)).
 * Walking off a step drops the player to the floor below: a short fall, no damage.
 * Ladders, gates and doors need a cell open from floor to ceiling; climbing off a ladder onto a step works if the
   step's top is free.

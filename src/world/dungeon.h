@@ -81,6 +81,10 @@ class Dungeon {
 	void resetPlayerMotion(); // the player was placed on a level: no jump or fall carries over
 	void exploreAroundPlayer();
 	void UpdateMovementState();
+	// Once a tick (plan crouch): the down key held crouches the player on the floor (not in a ladder's cell, where it
+	// climbs down, nor in a jump or a fall); let go, they stand up once there is room over the crouched body
+	// (roomToStand).
+	void updateCrouch();
 	void UpdateMonsters();
 	bool PickUp(); // not the car... just take an item away; false if there is none
 	// Treasure containers (plan treasure-containers, containers.h): what was done to the one in each cell.
@@ -325,6 +329,11 @@ class Dungeon {
 	// The map y of the ceiling the player's head at feet height y meets (plan subcell-physics): a solid cell over the
 	// centre, a solid sub-cell over the body; none if the head is free.
 	[[nodiscard]] std::optional<float> ceilingAt(float y) const;
+	// The player's body height against the shapes: PLAYER_BODY_HEIGHT, crouched CROUCH_HEIGHT_FACTOR of it.
+	[[nodiscard]] float playerBodyHeight() const;
+	// Nothing solid over the crouched body up to the standing head: no solid cell over the centre, no solid sub-cell
+	// from side to side (a little in).
+	[[nodiscard]] bool roomToStand() const;
 	// The player stands on a sub-cell's top inside their cell, over the cell's bottom (a step): out of the water
 	// basin and the sand under it.
 	[[nodiscard]] bool playerOnStep() const;
@@ -758,7 +767,8 @@ class Dungeon {
 	[[nodiscard]] bool PlayerInQuicksand() const { return PlayerInSand() && inQuicksand(Map(mapX, mapY)); }
 	// How long the player has been sinking in quicksand, ms; 0 out of it.
 	[[nodiscard]] int PlayerSunkMs() const { return sunkMs; }
-	// A walk step may sprint: not wading (without the Favour or the Blessing of Hapi), not in sand, not dazed.
+	// A walk step may sprint: not wading (without the Favour or the Blessing of Hapi), not in sand, not dazed, not
+	// crouched.
 	[[nodiscard]] bool PlayerCanSprint() const;
 	// Wading with the skill and the potion: the sprint drains the stamina at WADE_SPRINT_DRAIN_BOTH.
 	[[nodiscard]] bool PlayerHalvedWadeDrain() const {
@@ -768,8 +778,8 @@ class Dungeon {
 	// WATER_JUMP_HINT_MS).
 	bool JumpAllowed();
 	// No new attack while hanging on a ladder (PlayerOnLadder): both hands are on the rungs, nor in a crocodile's jaws
-	// (PlayerHeldBy). A swing already under way finishes. tell: say why ("Hands on the rungs"), once per press of the
-	// key.
+	// (PlayerHeldBy), nor crouched (plan crouch). A swing already under way finishes. tell: say why ("Hands on the
+	// rungs"), once per press of the key.
 	bool AttackAllowed(bool tell);
 	// The monster that holds the player (Monster::Holding, plans crocodile-hold-bite, giant-scorpion-grab); null if
 	// none. Held, the player cannot walk, jump, sprint, drink or open a screen; attack only a scorpion's claws.

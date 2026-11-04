@@ -119,6 +119,10 @@ void tick() {
 			Game().player->rotA = PLAYER_CLIMB_ROT;
 		} else if (Game().timers.idleModel.TimePassed())
 			Game().player->setModelState(ModelState::Idle);
+		if (!climbing && !Game().player->jump.jumping) { // plan crouch: the crouch's clips over the idle and the walk
+			const ModelState shown = Game().player->State();
+			Game().player->UpdateCrouchPose(shown == ModelState::Move || shown == ModelState::CrouchWalk);
+		}
 
 		updateAttack();
 	}

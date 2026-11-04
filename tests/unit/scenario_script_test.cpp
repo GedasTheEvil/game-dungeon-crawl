@@ -23,6 +23,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"walk", "walk right 2.5"},
 	{"hold", "hold left 500ms"},
 	{"sprint", "sprint on"},
+	{"crouch", "crouch on"},
 	{"motion", "motion off"},
 	{"jump", "jump"},
 	{"attack", "attack"},

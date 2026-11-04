@@ -78,7 +78,20 @@ Dungeon::Dungeon() {
 	mapY = 0;
 }
 //======================================================================================
+void Dungeon::updateCrouch() {
+	Player& player = *sim.player;
+	if (!player.Alive()) {
+		player.crouched = false;
+		return;
+	}
+	if (player.crouchHeld && !player.crouched)
+		player.crouched = !player.jump.jumping && !player.jump.falling && Map(mapX, mapY).type != Ladder;
+	else if (!player.crouchHeld && player.crouched)
+		player.crouched = !roomToStand();
+}
+//======================================================================================
 void Dungeon::UpdateMovementState() {
+	updateCrouch();
 	if (sim.player->Dazed() && PlayerOnLadder()) { // a screech: the hands let go (plan giant-bat-screech)
 		lostGrip = true;
 		sim.events->Status("%s", "Your hands let go of the rungs");
@@ -121,7 +134,7 @@ void Dungeon::UpdateMovementState() {
 		// The head meets a low ceiling (plan subcell-physics): the rise stops under it, the fall begins.
 		if (mapY > from)
 			if (const std::optional<float> ceiling = ceilingAt(mapY)) {
-				mapY = std::max(from, *ceiling - PLAYER_BODY_HEIGHT);
+				mapY = std::max(from, *ceiling - playerBodyHeight());
 				jump.velocity = std::min(jump.velocity, 0.f);
 				sim.events->Play(WorldSound::HeadBump);
 			}
@@ -324,7 +337,8 @@ bool Dungeon::Move(float dirX, float dirY) {
 			bumpGate(static_cast<int>(probeX), static_cast<int>(mapY));
 	}
 
-	if (lostGrip || sim.player->Dazed()) // no grip on the rungs (plan giant-bat-screech)
+	if (lostGrip || sim.player->Dazed() ||
+		sim.player->crouched) // no grip on the rungs (plan giant-bat-screech), no climb crouched
 		dirY = 0.f;
 	if (dirY > 0) {
 		if (Map(mapX, mapY).type == Ladder && Map(mapX, mapY + dirY + PLAYER_CLIMB_HEADROOM).type == Ladder)
@@ -432,7 +446,7 @@ bool Dungeon::bodyBlocked(float toX, int dir, float y) const {
 	const float edge = toX + static_cast<float>(dir) * sim.player->HalfWidth();
 	if (isSolidTile(Map(mapX, y)) || isSolidTile(Map(edge, y)))
 		return true;
-	const float feet = y + SUBCELL_TOUCH, head = y + PLAYER_BODY_HEIGHT - SUBCELL_TOUCH;
+	const float feet = y + SUBCELL_TOUCH, head = y + playerBodyHeight() - SUBCELL_TOUCH;
 	for (const float x : {mapX, (mapX + edge) / 2.f, edge})
 		for (const float h : {feet, (feet + head) / 2.f, head})
 			if (subcellAt(x, h))
@@ -440,8 +454,22 @@ bool Dungeon::bodyBlocked(float toX, int dir, float y) const {
 	return false;
 }
 //======================================================================================
+float Dungeon::playerBodyHeight() const {
+	return sim.player->crouched ? CROUCH_HEIGHT_FACTOR * PLAYER_BODY_HEIGHT : PLAYER_BODY_HEIGHT;
+}
+//======================================================================================
+bool Dungeon::roomToStand() const {
+	const float low = mapY + CROUCH_HEIGHT_FACTOR * PLAYER_BODY_HEIGHT,
+				head = mapY + PLAYER_BODY_HEIGHT - SUBCELL_TOUCH;
+	for (const float h : {low, (low + head) / 2.f, head}) // a whole cell over the centre only, as ceilingAt
+		if (isSolidTile(Map(mapX, h)) || subcellAt(mapX - subcellReach(), h) || subcellAt(mapX, h) ||
+			subcellAt(mapX + subcellReach(), h))
+			return false;
+	return true;
+}
+//======================================================================================
 std::optional<float> Dungeon::ceilingAt(float y) const {
-	const float head = y + PLAYER_BODY_HEIGHT;
+	const float head = y + playerBodyHeight();
 	if (isSolidTile(Map(mapX, head)) || subcellAt(mapX, head) || subcellAt(mapX - subcellReach(), head) ||
 		subcellAt(mapX + subcellReach(), head))
 		return std::floor(head * SUBCELLS) / SUBCELLS;
@@ -451,7 +479,7 @@ std::optional<float> Dungeon::ceilingAt(float y) const {
 void Dungeon::StartJump(int dir) {
 	Player& player = *sim.player;
 	if (player.jump.jumping || player.jump.falling || !player.Alive() || won || PlayerHeldBy() != nullptr ||
-		player.Dazed())
+		player.Dazed() || player.crouched)
 		return;
 	if (!JumpAllowed())
 		return;
@@ -478,6 +506,11 @@ bool Dungeon::AttackAllowed(bool tell) {
 			sim.events->Status("%s", "Held fast in its jaws");
 		return false;
 	}
+	if (sim.player->crouched) { // plan crouch: no strike back from a duck
+		if (tell)
+			sim.events->Status("%s", "Stand up to strike");
+		return false;
+	}
 	if (!PlayerOnLadder())
 		return true;
 	if (tell)
@@ -495,11 +528,12 @@ bool Dungeon::PlayerWaterBlessed() const {
 //======================================================================================
 float Dungeon::PlayerWalkFactor() const {
 	const float daze = sim.player->Dazed() ? DAZE_WALK_FACTOR : 1.f;
-	return daze * groundWalkFactor();
+	const float crouch = sim.player->crouched ? CROUCH_WALK_FACTOR : 1.f;
+	return daze * crouch * groundWalkFactor();
 }
 //======================================================================================
 bool Dungeon::PlayerCanSprint() const {
-	return (!PlayerWading() || PlayerWadesFree()) && !PlayerInSand() && !sim.player->Dazed();
+	return (!PlayerWading() || PlayerWadesFree()) && !PlayerInSand() && !sim.player->Dazed() && !sim.player->crouched;
 }
 //======================================================================================
 float Dungeon::groundWalkFactor() const {
@@ -520,7 +554,7 @@ float Dungeon::groundWalkFactor() const {
 }
 //======================================================================================
 float Dungeon::PlayerSprintMultiplier(float sprint) const {
-	if (PlayerInSand() || sim.player->Dazed())
+	if (PlayerInSand() || sim.player->Dazed() || sim.player->crouched)
 		return 1.f;
 	if (!PlayerWading())
 		return sprint;

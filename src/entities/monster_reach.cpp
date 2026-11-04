@@ -78,13 +78,15 @@ bool Monster::Reaches(float px, float py, int dir) const {
 	const Player& player = *links.player;
 	const float left = px - player.HalfWidth();
 	const float right = px + player.HalfWidth();
-	const float top = py + player.Height();
+	// A crouch (plan crouch) ducks a high swing; a low bite or a body blow finds the crouched player all the same.
+	const bool ducked = player.crouched && type->melee.height == AttackHeight::High;
+	const float top = py + player.StandingHeight();
 	// Its body off the row's floor, not down in a water basin: the player's box does not sink either.
 	const float bottom = BottomY() + sink / RenderConfig::TILE_SIZE;
 	const float height = TopY() - BottomY();
 	if (left <= Right() && right >= Left() && py <= bottom + height && top >= bottom)
 		return true; // in its body: no safe spot inside it
-	if (dir == 0)
+	if (dir == 0 || ducked)
 		return false;
 	const BiteCone cone = Reach();
 	const float mouthX = dir > 0 ? Right() : Left();

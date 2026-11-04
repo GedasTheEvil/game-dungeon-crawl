@@ -48,5 +48,7 @@ static_assert(Jump::ARC.peak + PLAYER_BODY_HEIGHT < 1.f, "a jump from the floor 
 static_assert(2.f * SUBCELL_SIZE + PLAYER_BODY_HEIGHT < 1.f, "the player stands on a half step under that ceiling");
 static_assert(PLAYER_BODY_HEIGHT > SUBCELL_SIZE, "the player does not fit a crawl space a quarter high standing");
 static_assert(PLAYER_BODY_HEIGHT < 2.f * SUBCELL_SIZE, "the player walks under a ceiling half a cell up");
+static_assert(CROUCH_HEIGHT_FACTOR * PLAYER_BODY_HEIGHT < SUBCELL_SIZE, "the crouched player fits a crawl space");
+static_assert(CROUCH_HEIGHT_FACTOR < SHOT_CHEST, "a shot aimed at the standing chest flies over the crouched player");
 
 #endif

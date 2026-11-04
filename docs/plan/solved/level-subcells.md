@@ -20,7 +20,7 @@ Implementer's choices:
   in file order).
 
 The first of the sub-cell drafts; the others build on it: [subcell-physics](subcell-physics.md),
-[crouch](../crouch.draft.opus.md), [subcell-monsters](subcell-monsters.md),
+[crouch](../crouch.md), [subcell-monsters](subcell-monsters.md),
 [subcell-checker](../subcell-checker.draft.opus.md), [subcell-campaign](../subcell-campaign.draft.opus.md).
 
 ## Idea (from the user)

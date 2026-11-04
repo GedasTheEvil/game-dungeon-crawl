@@ -78,7 +78,7 @@ constexpr ActionInfo ACTIONS[BIND_ACTION_COUNT] = {
 	{"move_left", "Move left"},
 	{"move_right", "Move right"},
 	{"climb_up", "Climb up"},
-	{"climb_down", "Climb down"},
+	{"climb_down", "Down: climb, crouch"},
 	{"jump", "Jump"},
 	{"sprint", "Sprint (hold)"},
 	{"attack", "Attack"},

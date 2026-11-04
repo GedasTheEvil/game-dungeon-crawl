@@ -54,7 +54,7 @@ same input on two actions is a warning: the first action in the list below keeps
 | `move_left` | `a, left` | Move left |
 | `move_right` | `d, right` | Move right |
 | `climb_up` | `w, up` | Climb up a ladder |
-| `climb_down` | `s, down` | Climb down a ladder |
+| `climb_down` | `s, down` | Climb down a ladder; off a ladder, crouch while held: under a crawl space, ducking high swings and shots ([plan](plan/crouch.md)) |
 | `jump` | `space, mouse_right` | Jump |
 | `sprint` | `shift, right_shift` | Sprint while held |
 | `attack` | `v, enter, mouse_left` | Attack |

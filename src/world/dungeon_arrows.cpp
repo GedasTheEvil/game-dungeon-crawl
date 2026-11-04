@@ -294,8 +294,6 @@ int Dungeon::ShotCount(bool big) const {
 //======================================================================================
 void Dungeon::updateShots() {
 	const int now = GameClock::now();
-	const float half = sim.player->HalfWidth();
-	const float height = sim.player->Height();
 	for (auto it = shots.begin(); it != shots.end();) {
 		MonsterShot& v = *it;
 		if (v.splatMs >= 0) {
@@ -329,7 +327,7 @@ void Dungeon::updateShots() {
 					blazeAt(v.x - v.vx * ARROW_STEP_S, v.y - v.vy * ARROW_STEP_S, rules->volley->blazeMs);
 				break;
 			}
-			if (rules && sim.player->Alive() && std::fabs(v.x - mapX) <= half && v.y >= mapY && v.y <= mapY + height) {
+			if (rules && sim.player->Alive() && sim.player->Covers(mapX, mapY, v.x, v.y)) {
 				const RangedRules& ranged = *rules;
 				const bool dodged = sim.player->Dodges(*sim.events, sim.random->gameplay);
 				if (v.big && ranged.volley)

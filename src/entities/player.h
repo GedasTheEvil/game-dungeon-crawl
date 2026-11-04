@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <cmath>
 #include "model_info.h"
 #include "particles.h"
 #include "player_stats.h"
@@ -91,9 +92,28 @@ class Player {
 	void SetModel(const ModelInfo& info); // the clips and measures of its model; standing
 	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (the drawing only shows them)
 	[[nodiscard]] bool Alive() const { return stats.Alive(); }
-	// Hitbox round mapX, like Monster::HalfWidth: half width and height in map units (from the idle clip).
+	// Hitbox round mapX, like Monster::HalfWidth: half width and height in map units (from the idle clip). Crouched,
+	// the height is CROUCH_HEIGHT_FACTOR of the standing one.
 	[[nodiscard]] float HalfWidth() const;
 	[[nodiscard]] float Height() const;
+	[[nodiscard]] float StandingHeight() const;
+	// A missile at map (x, y) is in the hitbox of the player standing at (px, py): a crouched one ducks under a high
+	// shot.
+	[[nodiscard]] bool Covers(float px, float py, float x, float y) const {
+		return std::fabs(x - px) <= HalfWidth() && y >= py && y <= py + Height();
+	}
+	// Crouch (plan crouch): the down key held (not saved), and the crouch itself, which Dungeon::updateCrouch sets:
+	// also with the key up while the ceiling is too low to stand. crouchPhase runs 0 (standing) .. 1 (down) over
+	// CROUCH_TRANSITION_MS, for the stand-to-crouch clip.
+	bool crouchHeld = false;
+	bool crouched = false;
+	float crouchPhase = 0.f;
+	// Once a tick: crouchPhase a tick nearer to crouched. The crouch clip (idle or walk) once down, the stand-to-crouch
+	// clip on the way (frame from the phase, the clock does not advance it).
+	void UpdateCrouchPose(bool walking);
+	[[nodiscard]] bool crouchPosed() const {
+		return state == ModelState::Crouch || state == ModelState::CrouchWalk || state == ModelState::CrouchDown;
+	}
 	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost), but not its fire share (playerHitDamage),
 	// which sets the player burning for burnMs, in god mode too. No damage in the scenario god mode.
 	// Returns the HP lost (never more than it had): 0 in god mode or when already dead. The first hit writes the

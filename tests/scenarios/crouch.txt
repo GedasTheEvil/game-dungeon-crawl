@@ -1,0 +1,29 @@
+# Plan crouch (tests/levels/subcells): the crouch poses (on the way down, still, the duck walk) and the crawl space a
+# quarter high (cols 25-26) passed crouched; with the key up under it the player stays down, past it they stand up.
+# The rules: tests/unit/crouch_test.cpp.
+seed 1
+god
+resolution 1024 768
+level tests/levels/subcells at 24 2
+wait 30
+hold right 1s
+expect x < 24.94
+crouch on
+wait 6
+screenshot going_down
+wait 30
+expect crouched == 1
+hitboxes on
+screenshot crouched
+hitboxes off
+walk to 25.5
+screenshot crawl_space
+crouch off
+wait 30
+expect crouched == 1
+hold right 300ms
+screenshot crouch_walk
+walk to 27.5
+wait 30
+expect crouched == 0
+screenshot standing_past_it

@@ -10,6 +10,12 @@ constexpr float PLAYER_BODY_HALF_WIDTH = PLAYER_SCALE / 60.f;
 constexpr float PLAYER_CLIMB_HEADROOM = PLAYER_SCALE / 40.f;
 // The player's body against the solid sub-cells of a shaped cell (plan subcell-physics): its height, about 0.375 tiles.
 constexpr float PLAYER_BODY_HEIGHT = PLAYER_CLIMB_HEADROOM;
+// Crouch (plan crouch): the body and the hitbox are CROUCH_HEIGHT_FACTOR of the standing ones (0.206 tiles: under a
+// crawl space a quarter high; the hitbox's top under SHOT_CHEST, so a shot aimed at the standing chest flies over). The
+// walk is CROUCH_WALK_FACTOR of the walk speed; the stand-to-crouch clip takes CROUCH_TRANSITION_MS either way.
+constexpr float CROUCH_HEIGHT_FACTOR = 0.55f;
+constexpr float CROUCH_WALK_FACTOR = 1.f / 3.f;
+constexpr int CROUCH_TRANSITION_MS = 200;
 // Update() runs once a tick (game.cpp's timer, the scenario tick). A held walk key moves the player once a tick
 // (stepHeldWalk), so the walk speed is WALK_SPEED on every machine, not the key repeat rate.
 constexpr int UPDATE_TICK_MS = 16;

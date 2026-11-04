@@ -263,6 +263,10 @@ struct GenPick {
 	int weight = 0;
 };
 
+// The height band of its melee attack (plan crouch): a high swing misses a crouched player, a low bite or a body blow
+// hits them all the same. A boss's is its kin's.
+enum class AttackHeight : unsigned char { Low, Body, High };
+
 // Where its bite reaches (Monster::Reaches, plan monster-attack-reach): a cone from its mouth on the front edge of its
 // box, along its facing; the player's box touching it or its body is bitten. Low ones (a rat, a scarab) bite low and a
 // jump clears them; tall ones strike from up high.
@@ -270,9 +274,12 @@ struct MeleeReach {
 	float slack = MELEE_REACH_SLACK; // tiles past the gap it bites from (MONSTER_BITE_REACH, ROOTED_BITE_REACH)
 	float halfAngleDeg = MELEE_REACH_HALF_ANGLE;
 	float mouthY = 0.5f; // of its height (BottomY .. TopY): the cone's origin
+	AttackHeight height = AttackHeight::Body;
 };
-// Tall walkers strike from up high: the mummy's arms, the Anubis's and the ushabti's blows.
-constexpr MeleeReach HIGH_BLOW = {MELEE_REACH_SLACK, 50.f, 0.75f};
+// Tall walkers strike from up high: the mummy's arms, the Anubis's and the ushabti's blows. A crouch ducks them.
+constexpr MeleeReach HIGH_BLOW = {MELEE_REACH_SLACK, 50.f, 0.75f, AttackHeight::High};
+// Small ones bite at the feet (a rat, a scarab, a crocodile's snap): a crouch does not duck them.
+constexpr MeleeReach LOW_BITE = {MELEE_REACH_SLACK, MELEE_REACH_HALF_ANGLE, 0.5f, AttackHeight::Low};
 
 constexpr Rgb RED_BLOOD = {0.7f, 0.1f, 0.1f};
 

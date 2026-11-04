@@ -17,9 +17,12 @@ enum class ModelState : unsigned char {
 	Jump = 4,
 	Climb = 5,
 	Rise = 6,
-	AttackRanged = 7
+	AttackRanged = 7,
+	Crouch = 8, // the player crouched, still (plan crouch)
+	CrouchWalk = 9,
+	CrouchDown = 10 // standing to crouched; its frame follows Player::crouchPhase
 };
-constexpr int MODEL_STATE_COUNT = 8;
+constexpr int MODEL_STATE_COUNT = 11;
 
 // AdvancePlayback steps a clip every FRAME_STEP_MS, on the first tick past it: FRAME_STEP_PERIOD_MS on 16 ms ticks,
 // more when the game's ticks run late. BlendOf spreads a step over the last one's length, so a fast clip (a walk of
@@ -167,13 +170,17 @@ inline const ClipFiles FLOATING_CLIPS = {
 	{ModelState::Idle, "_idle", true, true},
 	{ModelState::Rise, "_rise", true, false}
 };
-// The player: <name>.md3 idle (standing), _walk, _die, optional _jump and _climb. No attack clip (the weapon swings).
+// The player: <name>.md3 idle (standing), _walk, _die, optional _jump, _climb and the crouch's _crouch (still),
+// _crouch_walk and _crouch_down (standing to crouched). No attack clip (the weapon swings).
 inline const ClipFiles PLAYER_CLIPS = {
 	{ModelState::Idle, "", true, true},
 	{ModelState::Move, "_walk", true, true},
 	{ModelState::Die, "_die", true, false},
 	{ModelState::Jump, "_jump", false, false},
-	{ModelState::Climb, "_climb", false, true}
+	{ModelState::Climb, "_climb", false, true},
+	{ModelState::Crouch, "_crouch", false, true},
+	{ModelState::CrouchWalk, "_crouch_walk", false, true},
+	{ModelState::CrouchDown, "_crouch_down", false, false}
 };
 
 // The clip files of a monster kind: by how it moves, and whether it has a ranged attack.

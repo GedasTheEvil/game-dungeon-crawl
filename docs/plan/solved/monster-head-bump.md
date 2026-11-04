@@ -1,14 +1,14 @@
 # Monster head bump: jumping monsters hit low ceilings too
 
-Status: implemented 2026-11-04, waits for the play-test (`bin/game --play tests/play/monster-head-bump.txt`). Was: draft 2026-11-03. Needed first: [head-bump](solved/head-bump.md),
-[subcell-monsters](solved/subcell-monsters.md). From the user.
+Status: solved 2026-11-04 (play-tested by the user). Was: implemented 2026-11-04, waits for the play-test (`bin/game --play tests/play/monster-head-bump.txt`). Was: draft 2026-11-03. Needed first: [head-bump](head-bump.md),
+[subcell-monsters](subcell-monsters.md). From the user.
 
 A monster's jump (a walk-jumper's leap, a pounce: `Monster::Jump`, `Monster::UpdateJump`) that meets a low ceiling
-stops its rise like the player's ([head-bump](solved/head-bump.md)) and hurts it the same way. A trick for the
+stops its rise like the player's ([head-bump](head-bump.md)) and hurts it the same way. A trick for the
 player: wait under a low ceiling and let a pouncer leap into it.
 
 * The rise stops under the ceiling, the arc turns into a fall; where it lands follows (a pounce falls short of the
-  player). Its height comes from its kind ([subcell-monsters](solved/subcell-monsters.md)).
+  player). Its height comes from its kind ([subcell-monsters](subcell-monsters.md)).
 * Damage: the head bump's rule on the monster's max HP (the larger of 5 HP and 5% of it), straight off the HP.
   Only a real bump, by the same velocity threshold as the player's.
 * 50% chance of a stun for 1 to 2 s: `Monster::StunHit` (plan skill-stun), so a boss gets its shorter stun and its
@@ -18,7 +18,7 @@ player: wait under a low ceiling and let a pouncer leap into it.
   Exception: a monster that already bumped under this ceiling in the last few seconds does not pounce there again
   (pick a short memory), so a fight is not a free stun loop.
 * Bosses (AGENTS.md, Boss abilities): a boss jumps and bumps as its kin. Not an ability, so no stronger version.
-* Flyers do not bump: a low ceiling lowers their flight band ([subcell-monsters](solved/subcell-monsters.md)).
+* Flyers do not bump: a low ceiling lowers their flight band ([subcell-monsters](subcell-monsters.md)).
 
 Implementer's choices:
 
@@ -33,7 +33,7 @@ Implementer's choices:
 * Memory: `MONSTER_HEAD_BUMP_MEMORY_MS` (6 s) after a bump, no pounce while the monster still stands under a low
   ceiling (`Dungeon::pounce`).
 * Tests: `tests/unit/monster_head_bump_test.cpp` on `tests/levels/monster_head_bump`; scenario
-  `tests/scenarios/monster_head_bump.txt`.
+  `tests/scenarios/solved/monster_head_bump.txt`.
 
 ## Tests
 

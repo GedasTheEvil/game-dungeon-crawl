@@ -21,7 +21,7 @@ Today a jump that meets a low ceiling (a solid sub-cell over the body, `Dungeon:
 * A pain grunt on a hurting bump, besides the knock (reuse the player's hurt sound).
 * A status line "You bump your head" on a hurting bump (from the user's play-test); a graze only knocks.
 * Write the damage and daze roll as one function a monster bump and a spiked ceiling can share
-  ([monster-head-bump](../monster-head-bump.md), [ceiling-spikes](../ceiling-spikes.draft.opus.md)).
+  ([monster-head-bump](monster-head-bump.md), [ceiling-spikes](../ceiling-spikes.draft.opus.md)).
 
 ## Tests
 

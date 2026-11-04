@@ -1,7 +1,7 @@
 # Ceiling spikes: the floor spike traps on a low ceiling, they hurt whoever jumps into them
 
 Status: draft 2026-11-03. Needs first: [head-bump](solved/head-bump.md),
-[monster-head-bump](monster-head-bump.md). From the user.
+[monster-head-bump](solved/monster-head-bump.md). From the user.
 
 New traps: spikes on the underside of a low ceiling. Walking under it is safe; a jump into it hurts (from the user).
 It makes "don't jump here" a rule the player reads off the ceiling, and a lure for jumping monsters.

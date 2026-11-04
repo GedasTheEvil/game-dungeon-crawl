@@ -46,7 +46,8 @@ struct CellPos {
 
 // How the player gets into a path cell from the one before it. Crawl: crouched into a crawl space, Step: a jump up onto
 // a quarter step (plan subcell-checker).
-enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport, Turn, Crawl, Step };
+// SpikedStep: a Step whose jump touches ceiling spikes or a ceiling death trap (plan ceiling-spikes).
+enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport, Turn, Crawl, Step, SpikedStep };
 
 struct LevelReport {
 	bool valid = false;
@@ -93,6 +94,7 @@ struct LevelReport {
 	int pathLength = 0; // moves
 	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0, pathTurns = 0;
 	int pathSteps = 0, pathCrawls = 0; // quarter steps jumped onto, sub-cells crawled (plan subcell-checker)
+	int pathCeilingSpikes = 0; // of those steps, the ones jumped into a ceiling trap (plan ceiling-spikes)
 	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathWallSpikes = 0, pathGates = 0,
 		pathMonsters = 0;
 	int pathSandFalls = 0, pathSand = 0, pathQuicksand = 0; // pathRockFalls counts no sand falls

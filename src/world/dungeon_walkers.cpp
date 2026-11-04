@@ -39,19 +39,62 @@ float Dungeon::monsterFloor(const Monster& mon) const {
 // The lowest solid sub-cell of a shaped cell over its body, above its head at rest. A whole wall tile over it does
 // not count (plan monster-head-bump): the halls' own ceilings are no low ceiling, or Babi (3 quarters tall) would bump
 // in every one-tile room.
-float Dungeon::leapRoom(const Monster& mon) const {
-	constexpr float INSET = 0.01f;
-	constexpr int REACH = 3; // sub-cells above the head a leap can come to
-	const float head = static_cast<float>(mon.Row()) + monsterFloor(mon) +
-					   static_cast<float>(mon.Body().heightQuarters) * SUBCELL_SIZE;
+namespace {
+constexpr float LEAP_INSET = 0.01f;
+constexpr int LEAP_REACH = 3; // sub-cells above the head a leap can come to
+} // namespace
+
+float Dungeon::leapHead(const Monster& mon) const {
+	return static_cast<float>(mon.Row()) + monsterFloor(mon) +
+		   static_cast<float>(mon.Body().heightQuarters) * SUBCELL_SIZE;
+}
+
+std::optional<Dungeon::LeapCeiling> Dungeon::leapCeiling(const Monster& mon) const {
+	const float head = leapHead(mon);
 	const auto first = static_cast<int>(std::lround(head * SUBCELLS));
-	for (int k = first; k < first + REACH; k++) {
+	for (int k = first; k < first + LEAP_REACH; k++) {
 		const float y = (static_cast<float>(k) + 0.5f) * SUBCELL_SIZE;
-		for (const float x : {mon.Left() + INSET, mon.CentreX(), mon.Right() - INSET})
+		for (const float x : {mon.Left() + LEAP_INSET, mon.CentreX(), mon.Right() - LEAP_INSET})
 			if (subcellAt(x, y))
-				return (static_cast<float>(k) * SUBCELL_SIZE - head) * RenderConfig::TILE_SIZE;
+				return LeapCeiling{(static_cast<float>(k) * SUBCELL_SIZE - head) * RenderConfig::TILE_SIZE, x, y};
 	}
-	return NO_CEILING;
+	return std::nullopt;
+}
+
+float Dungeon::leapRoom(const Monster& mon) const {
+	const std::optional<LeapCeiling> ceiling = leapCeiling(mon);
+	return ceiling ? ceiling->room : NO_CEILING;
+}
+//======================================================================================
+int Dungeon::leapCeilingTrap(const Monster& mon) const {
+	const std::optional<LeapCeiling> ceiling = leapCeiling(mon);
+	if (!ceiling)
+		return NoObject;
+	const Tile t = Map(ceiling->x, ceiling->y);
+	return spikedSubcell(t, ceiling->x - std::floor(ceiling->x), ceiling->y - std::floor(ceiling->y)) ? t.fixture.type
+																									  : NoObject;
+}
+//======================================================================================
+// Each sub-cell column the body sweeps from here to toX, up to the first solid sub-cell in a leap's reach over the
+// head at the take-off.
+bool Dungeon::leapUnderSpikes(const Monster& mon, float toX) const {
+	const float shift = toX + static_cast<float>(mon.Col()) + 0.5f - mon.CentreX(); // Jump's toX is tile-local
+	const float from = std::min(mon.Left(), mon.Left() + shift) + LEAP_INSET;
+	const float to = std::max(mon.Right(), mon.Right() + shift) - LEAP_INSET;
+	const auto first = static_cast<int>(std::lround(leapHead(mon) * SUBCELLS));
+	const auto probes = static_cast<int>(std::ceil((to - from) / (SUBCELL_SIZE / 2.f)));
+	for (int p = 0; p <= probes; p++) {
+		const float at = std::min(from + static_cast<float>(p) * SUBCELL_SIZE / 2.f, to);
+		for (int k = first; k < first + LEAP_REACH; k++) {
+			const float y = (static_cast<float>(k) + 0.5f) * SUBCELL_SIZE;
+			if (!subcellAt(at, y))
+				continue;
+			if (spikedSubcell(Map(at, y), at - std::floor(at), y - std::floor(y)))
+				return true;
+			break;
+		}
+	}
+	return false;
 }
 //======================================================================================
 Dungeon::StepAhead Dungeon::stepAt(const Monster& mon, float x) const {
@@ -76,7 +119,10 @@ bool Dungeon::hopOnto(Monster& mon, int dir) {
 	const float probe = mon.seekProbeX(dir) + static_cast<float>(dir) * mon.WalkStep();
 	const float middle = (std::floor(probe * SUBCELLS) + 0.5f) * SUBCELL_SIZE; // of the step's column
 	const float centre = mon.CentreX() + (middle - mon.seekProbeX(dir));
-	mon.Jump(centre - static_cast<float>(mon.Col()) - 0.5f);
+	const float toX = centre - static_cast<float>(mon.Col()) - 0.5f;
+	if (shunsLeap(mon, toX)) // a coward does not hop up under ceiling spikes (plan ceiling-spikes)
+		return false;
+	mon.Jump(toX);
 	return true;
 }
 //======================================================================================
@@ -223,7 +269,7 @@ std::optional<float> Dungeon::leapAwayTarget(const Monster& mon, int dir, bool t
 //======================================================================================
 bool Dungeon::leapAway(Monster& mon, int dir, bool threatened) {
 	const std::optional<float> to = leapAwayTarget(mon, dir, threatened);
-	if (!to)
+	if (!to || shunsLeap(mon, *to - static_cast<float>(mon.Col()) - 0.5f))
 		return false;
 	mon.Jump(*to - static_cast<float>(mon.Col()) - 0.5f);
 	sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::LeapAway);
@@ -345,7 +391,7 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 	const int step = nextCol > col ? 1 : -1;
 	if (std::abs(nextCol - col) > 1) { // a leap over a gap
 		const int rungsTo = MapAt(nextCol, mon.Row()).type == Ladder ? climbEnd(nextCol, mon.Row()) : mon.Row();
-		if (!mon.canJump())
+		if (!mon.canJump() || shunsLeap(mon, static_cast<float>(nextCol - mon.Col())))
 			mon.WalkPath(step, true);
 		else if (rungsTo != mon.Row()) // the way climbs on from there: the paws catch the rungs in the air
 			mon.LeapToRungs(nextCol, rungsTo);
@@ -404,8 +450,9 @@ void Dungeon::updateWalker(Monster& mon) {
 		// Not while the player is in the gap: the rat would leap over them.
 		float gapFrom = static_cast<float>(dir > 0 ? col : land + 1);
 		float gapTo = static_cast<float>(dir > 0 ? land : col + 1);
-		if (land >= 0 && (mapX < gapFrom || mapX >= gapTo)) {
-			mon.Jump(leapTarget(mon, land, dir) - static_cast<float>(mon.Col()) - 0.5f);
+		const float toX = land >= 0 ? leapTarget(mon, land, dir) - static_cast<float>(mon.Col()) - 0.5f : 0.f;
+		if (land >= 0 && (mapX < gapFrom || mapX >= gapTo) && !shunsLeap(mon, toX)) {
+			mon.Jump(toX);
 			return;
 		}
 	}

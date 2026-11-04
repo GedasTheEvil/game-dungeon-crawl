@@ -71,6 +71,11 @@ enum DungeonTileType : unsigned char {
 	// their own (spike_cycle.h), pushing the player and light monsters downwind. b = speed | the way it blows
 	// (gustSpeed, gustDir), c = phase | live state, as WallSpikes. A cell of the hall without one is a shelter.
 	SandGust = 24,
+	// The floor's spike traps on the underside of a shaped cell's low ceiling (plan ceiling-spikes): every underside
+	// of a solid sub-cell over open space in the cell (ceilingUndersides) carries spikes. Walking under them is safe;
+	// a jump into them hurts as a walk over the floor kind. In the wall layer, as the poison drip's lump; b, c unused.
+	CeilingSpikes = 25,
+	CeilingDeath = 26, // the death trap's spikes on a ceiling: its tips poison strongly
 };
 // The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
 constexpr int EXPEDITION_PAGE_COUNT = 24;
@@ -78,8 +83,10 @@ constexpr int EXPEDITION_PAGE_COUNT = 24;
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {
 	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc || type == FireVent ||
-		   type == PoisonDrip || type == SandGust;
+		   type == PoisonDrip || type == SandGust || type == CeilingSpikes || type == CeilingDeath;
 }
+// Ceiling spikes or a ceiling death trap (plan ceiling-spikes).
+[[nodiscard]] constexpr bool isCeilingTrap(int type) { return type == CeilingSpikes || type == CeilingDeath; }
 // The rhythm traps (plans rhythm-traps, fire-jet-trap, poison-drip-trap): wall spikes, fire vents and poison drips, on
 // the same cycle (spike_cycle.h).
 [[nodiscard]] constexpr bool isRhythmTrap(int type) {
@@ -371,6 +378,19 @@ inline bool isSolidTile(const Tile& t) {
 [[nodiscard]] inline bool topRowSolid(const Tile& t) {
 	constexpr std::uint16_t TOP_ROW = 0xf000;
 	return hasShape(t) && (t.shape & TOP_ROW) == TOP_ROW;
+}
+
+// The undersides of a shaped cell's solid sub-cells over an open one in the cell (plan ceiling-spikes), a mask as
+// Tile::shape: where a ceiling trap's spikes hang. The bottom row has none (it hangs over the cell below).
+[[nodiscard]] inline std::uint16_t ceilingUndersides(const Tile& t) {
+	if (!hasShape(t))
+		return NO_SHAPE;
+	return static_cast<std::uint16_t>(t.shape & ~(t.shape << SUBCELLS) & ~((1u << SUBCELLS) - 1));
+}
+// A head at (x, y) in cell t (in tiles from its bottom left corner, as solidAt) is in a sub-cell with ceiling spikes
+// on its underside.
+[[nodiscard]] inline bool spikedSubcell(const Tile& t, float x, float y) {
+	return isCeilingTrap(t.fixture.type) && (ceilingUndersides(t) & subcellBit(subcellOf(x), subcellOf(y))) != 0;
 }
 
 // The cell under an open one carries a creature standing there (plan floor-queries): the one place that says what a

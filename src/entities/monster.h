@@ -423,6 +423,12 @@ class Monster {
 	// A hard bump: HEAD_BUMP's damage straight off the HP (a kill gives no XP), its daze rolled as a stun that begins
 	// at the landing (StunHit: a boss's shorter, with its cooldown). Returns the HP lost.
 	int HeadBump(Rng& rng);
+	// A leap into a ceiling trap (plan ceiling-spikes), instead of the bump: what a walk through the floor kind deals
+	// it (TrapHurt's ramp over its crossing at its walk speed, cut by trapDamagePct), the death trap's strong poison;
+	// no stun. Remembered as a bump (BumpedLately). Returns the HP lost.
+	int CeilingSpikes(bool death, Rng& rng);
+	// TrapHurt hits a walk through a floor trap takes it: its box (TRAP_BOX_FORGIVE in) across the tile at its walk.
+	[[nodiscard]] int TrapCrossHits() const;
 	// It bumped its head lately (MONSTER_HEAD_BUMP_MEMORY_MS): Dungeon::pounce does not leap again under a ceiling.
 	[[nodiscard]] bool BumpedLately() const { return GameClock::now() < leap.bumpMemoryMs; }
 	// From the front edge of the player's box, facing dir (-1 / +1), to this box's near edge; < 0: they overlap.

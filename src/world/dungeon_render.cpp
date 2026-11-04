@@ -372,6 +372,36 @@ void Dungeon::DrawTrapTile(bool isDeathTrap) {
 	glPopMatrix();
 }
 //======================================================================================
+// A ceiling trap (plan ceiling-spikes): the floor trap's model upside down on each underside (ceilingUndersides), a
+// row of them along the cell's depth, a quarter tile wide; the death trap's tips longer.
+void Dungeon::drawCeilingTrap(int i, int j) {
+	constexpr float S = RenderConfig::TILE_SIZE / SUBCELLS;
+	const Tile tile = MapAt(i, j);
+	const bool death = tile.fixture.type == CeilingDeath;
+	Trap& trap = death ? *sim.assets->traps.deathTrap : *sim.assets->traps.spikes;
+	const float stretch = death ? CEILING_DEATH_STRETCH : CEILING_SPIKES_STRETCH;
+	const std::uint16_t undersides = ceilingUndersides(tile);
+	for (int r = 1; r < SUBCELLS; r++)
+		for (int c = 0; c < SUBCELLS; c++) {
+			if ((undersides & subcellBit(c, r)) == 0)
+				continue;
+			for (int k = 0; k < CEILING_TRAP_ROWS; k++) {
+				glPushMatrix();
+				// Trap::Show sets the model 30 units back: these sit along the depth, a step apart, round its middle.
+				const float depth = RenderConfig::TILE_SIZE / CEILING_TRAP_ROWS;
+				glTranslatef(
+					(static_cast<float>(c) + 0.5f) * S,
+					static_cast<float>(r) * S,
+					30.f - (static_cast<float>(k) + 0.5f) * depth
+				);
+				glRotatef(180.f, 0, 0, 1); // upside down, the tips to the floor
+				glScalef(1.f, stretch, 1.f);
+				trap.Show(S);
+				glPopMatrix();
+			}
+		}
+}
+//======================================================================================
 void Dungeon::drawPortal(const float normal[3], const float v[4][3], bool red, float alpha) const {
 	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
 	const float st[4][2] = {{px, 0}, {px, 1}, {px + 1, 1}, {px + 1, 0}};
@@ -494,6 +524,10 @@ void Dungeon::drawFixture(int i, int j) {
 	case SunDisc:
 		drawSunDiscTile(i, j);
 		break;
+	case CeilingSpikes:
+	case CeilingDeath:
+		drawCeilingTrap(i, j);
+		break;
 	default: // none, or not a wall type: the reader keeps those out of the wall layer
 		break;
 	}
@@ -548,6 +582,8 @@ void Dungeon::drawTileContent(int i, int j) {
 	case FireVent:
 	case PoisonDrip: // drawn after the opaque scene (drawPoisonDrips)
 	case SandGust: // the blown sand after the opaque scene too (drawGusts)
+	case CeilingSpikes:
+	case CeilingDeath:
 	case LightShaft: // nothing but its beam and the glow where it comes in (drawSunBeams)
 		break;
 	case Mirror:

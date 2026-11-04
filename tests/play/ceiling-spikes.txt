@@ -1,0 +1,11 @@
+# Plan ceiling-spikes, for `bin/game --play tests/play/ceiling-spikes.txt`: tests/levels/ceiling_spikes, 1000 max HP, a
+# short sword. You stand under ceiling spikes (three quarters up, cols 11-17) with a giant rat (col 12) three tiles
+# left: it pounces at you into the spikes (the stab, no stun) and loses what a walk through the floor spikes costs it.
+# Jump yourself: "Spikes in the ceiling!", 200 HP (a walk over the floor spikes, through armour), no bump, no daze.
+# Walking and crouching under them are safe. The ceiling death trap (400 HP and strong poison) is in the entrance hall:
+# `bin/game --level tests/levels/ceiling_spikes`, col 7.
+seed 1
+level tests/levels/ceiling_spikes at 15 5
+gear 0 0 1900
+give melee 1
+equip short_sword

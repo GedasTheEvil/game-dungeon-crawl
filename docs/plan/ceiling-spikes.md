@@ -1,6 +1,6 @@
 # Ceiling spikes: the floor spike traps on a low ceiling, they hurt whoever jumps into them
 
-Status: draft 2026-11-03. Needs first: [head-bump](solved/head-bump.md),
+Status: implemented 2026-11-04, waits for the play-test (`bin/game --play tests/play/ceiling-spikes.txt`). Was: draft 2026-11-03. Needs first: [head-bump](solved/head-bump.md),
 [monster-head-bump](solved/monster-head-bump.md). From the user.
 
 New traps: spikes on the underside of a low ceiling. Walking under it is safe; a jump into it hurts (from the user).
@@ -36,6 +36,37 @@ The floor's spike traps turned upside down (from the user): two kinds, as on the
   their kin.
 * Levels: none required. The [subcell-checker](solved/subcell-checker.md) must warn if the only way on is a jump
   under spikes (forced damage). Add a few to the campaign only with [subcell-campaign](subcell-campaign.md).
+
+Implementer's choices:
+
+* Two fixture types, `CeilingSpikes` (25, glyph `"`) and `CeilingDeath` (26, glyph `'`); attribute and value unused.
+  The undersides: `ceilingUndersides` (`level.h`), the bottom row never (it hangs over the cell below). Reachable
+  (`jumpReachesUnderside`, `movement.h`): the open run under an underside is lower than the jump's top head
+  (`Jump::ARC.peak + PLAYER_BODY_HEIGHT`); in one cell that is any underside, so the rule only rejects a cell with
+  none (no shape, a step only). The loader (`readLevel`) and the checker (an error) reject it; the editor shows the
+  checker's error.
+* Player: `Dungeon::ceilingTrapAt` asks `ceilingAt`'s three points for a spiked sub-cell; `ceilingSpikesHit` deals
+  `TrapBell::crossHundredths` through `TrapDamage` (the trap ward helps) and `TakeHit(..., ignoreArmor)`, as the floor
+  crossing; the death trap's strong poison and its venom line. Status "Spikes in the ceiling!", the grunt.
+* Sound: the floor spikes have no sound of their own (a walk over them is silent); the stab is the wall spikes'
+  `WorldSound::SpikeThunk`.
+* Monster: `Monster::CeilingSpikes`: `TrapHurt::rampTotal` of `TrapCrossHits` (its box, `TRAP_BOX_FORGIVE` in, across
+  a tile at its walk speed, at `TRAP_HURT_INTERVAL_MS`), cut by `trapDamagePct`; strong poison for the death trap; no
+  stun; remembered as a bump (`bumpMemoryMs`), so no second pounce under it at once. The ceiling is `leapRoom`'s
+  (`Dungeon::leapCeiling`, `leapCeilingTrap`).
+* Cowards: `Dungeon::leapUnderSpikes` sweeps the sub-cell columns from the take-off to the landing for a spiked
+  underside first in a leap's reach over the head; a coward does not hop up, leap a gap, leap away or leap on its
+  path there (`shunsLeap`). A pounce ignores it (the lure). Bosses as their kin: no boss rule.
+* Look: the floor trap's model a quarter tile wide (`Trap::Show(size)`, no Blender change: the engine scales a model
+  by its largest side anyway), `CEILING_TRAP_ROWS` (4) along the depth on each underside, the tips stretched
+  (`CEILING_SPIKES_STRETCH` 1.5, the death trap's `CEILING_DEATH_STRETCH` 2.5, so it reads as the bigger one).
+* Checker: a jump onto a quarter step whose arc reaches a spiked underside (the sub-cell over `STEP_ROOM`, at the
+  take-off or the step) is `PathMove::SpikedStep`, `COST_CEILING_SPIKES` 30 on top; on the path it warns ("the only
+  way to the exit jumps into ceiling spikes"), `LevelReport::pathCeilingSpikes`. The other jumps need a cell of head
+  room, so they never touch one.
+* Test level: `tests/levels/ceiling_spikes` (its own, not `tests/levels/subcells`: its tests stay as they are).
+  Unit tests `tests/unit/ceiling_spikes_test.cpp`, scenario `tests/scenarios/ceiling_spikes.txt`, play script
+  `tests/play/ceiling-spikes.txt`.
 
 ## Tests
 

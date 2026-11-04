@@ -135,6 +135,21 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 true,
 	 true,
 	 '{'},
+	{"CeilingSpikes",
+	 "Ceiling trap: the floor spikes on the underside of a low ceiling, on every solid sub-cell of the cell's shape "
+	 "over open space in it. Walking, crouching and standing under them are safe; a jump into them (the player's or "
+	 "a monster's) costs a walk over the floor spikes, through armour, instead of a head bump. Cowardly monsters do "
+	 "not jump there, the reckless and the pouncing ones do. Only on a shaped cell with a ceiling a jump reaches (the "
+	 "loader rejects any other); the checker warns when the only way on jumps into them.",
+	 true,
+	 true,
+	 '"'},
+	{"CeilingDeath",
+	 "Ceiling trap: the death trap on the underside of a low ceiling, as ceiling spikes; a jump into it costs a walk "
+	 "over the death trap and its tips poison strongly.",
+	 true,
+	 true,
+	 '\''},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -195,6 +210,8 @@ std::vector<GlyphDef> buildLegend() {
 		{'+', {FireVent, 0, 0}, "fire vent (normal speed, phase 0; others: 'def')"},
 		{',', {PoisonDrip, 0, 0}, "poison drip (normal speed, phase 0; others: 'def')"},
 		{'{', {SandGust, 0, 0}, "sand gust (normal speed, blows right, phase 0; others: 'def')"},
+		{'"', {CeilingSpikes, 0, 0}, "ceiling spikes (under a shaped cell's low ceiling)"},
+		{'\'', {CeilingDeath, 0, 0}, "ceiling death trap (under a shaped cell's low ceiling)"},
 		{'l', {LightShaft, 0, 0}, "light shaft (beam down; other ways: 'def')"},
 		{'(', {Mirror, 0, 0}, "mirror (pointing down; other ways: 'def')"},
 		{'a', {SunDisc, 1, 0}, "sun disc (red; other colours: 'def')"},

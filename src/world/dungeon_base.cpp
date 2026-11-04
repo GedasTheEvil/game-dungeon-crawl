@@ -135,11 +135,16 @@ void Dungeon::UpdateMovementState() {
 		// The head meets a low ceiling (plan subcell-physics): the rise stops under it, the fall begins.
 		if (mapY > from)
 			if (const std::optional<float> ceiling = ceilingAt(mapY)) {
+				const int spikes = ceilingTrapAt(mapY);
 				mapY = std::max(from, *ceiling - playerBodyHeight());
 				jump.velocity = std::min(jump.velocity, 0.f);
-				sim.events->Play(WorldSound::HeadBump);
-				if (rise > HEAD_BUMP_MIN_RISE) // a graze only knocks (plan head-bump)
-					sim.player->HeadBump(*sim.events, sim.random->gameplay);
+				if (spikes != NoObject) // any touch: the tips reach down (plan ceiling-spikes)
+					ceilingSpikesHit(spikes);
+				else {
+					sim.events->Play(WorldSound::HeadBump);
+					if (rise > HEAD_BUMP_MIN_RISE) // a graze only knocks (plan head-bump)
+						sim.player->HeadBump(*sim.events, sim.random->gameplay);
+				}
 			}
 		// Coming down onto a step higher than the take-off, or back to the take-off height (then a fall, over a
 		// lower floor).
@@ -494,6 +499,38 @@ std::optional<float> Dungeon::ceilingAt(float y) const {
 		subcellAt(mapX + subcellReach(), head))
 		return std::floor(head * SUBCELLS) / SUBCELLS;
 	return std::nullopt;
+}
+//======================================================================================
+int Dungeon::ceilingTrapAt(float y) const {
+	const float head = y + playerBodyHeight();
+	for (const float x : {mapX, mapX - subcellReach(), mapX + subcellReach()}) {
+		const Tile t = Map(x, head);
+		if (spikedSubcell(t, x - std::floor(x), head - std::floor(head)))
+			return t.fixture.type;
+	}
+	return NoObject;
+}
+//======================================================================================
+void Dungeon::ceilingSpikesHit(int trap) {
+	Player& player = *sim.player;
+	sim.events->Play(WorldSound::SpikeThunk); // the stab, not the knock
+	if (!player.Alive())
+		return;
+	const bool death = trap == CeilingDeath;
+	PlayerStats& stats = player.stats;
+	sim.events->PlayCharacter(PLAYER_CHARACTER, CharacterSound::Attack); // the grunt, as a head bump's
+	sim.events->Status("Spikes in the ceiling!");
+	const int cross = TrapBell::crossHundredths(
+		death ? DEATH_TRAP_CROSS_HP : SPIKES_CROSS_HP,
+		death ? DEATH_TRAP_CROSS_PERCENT : SPIKES_CROSS_PERCENT,
+		stats.CurrentMaxHP()
+	);
+	if (const int dmg = stats.TrapDamage(cross / 100); dmg > 0)
+		player.TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events, true);
+	if (death && player.Alive()) {
+		sim.events->Status("The spike tips are wet with venom.");
+		player.Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
+	}
 }
 //======================================================================================
 void Dungeon::StartJump(int dir) {

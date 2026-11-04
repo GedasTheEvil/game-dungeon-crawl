@@ -37,6 +37,24 @@ constexpr Arc ARC = arc();
 constexpr float WALKING_REACH = ARC.drift + WALK_SPEED * static_cast<float>(ARC.ms()) / 1000.f;
 } // namespace Jump
 
+// A ceiling trap (plan ceiling-spikes) needs an underside (ceilingUndersides) a jump from the floor under it reaches:
+// the open run under it starts on a solid sub-cell or the cell's bottom, and is lower than the head at the jump's top.
+// The loader rejects one with none.
+[[nodiscard]] inline bool jumpReachesUnderside(const Tile& t) {
+	const std::uint16_t under = ceilingUndersides(t);
+	for (int col = 0; col < SUBCELLS; col++)
+		for (int row = 1; row < SUBCELLS; row++) {
+			if ((under & subcellBit(col, row)) == 0)
+				continue;
+			int floor = row;
+			while (floor > 0 && !subcellSolid(t, col, floor - 1))
+				floor--;
+			if (static_cast<float>(row - floor) * SUBCELL_SIZE < Jump::ARC.peak + PLAYER_BODY_HEIGHT)
+				return true;
+		}
+	return false;
+}
+
 // The checker's walker (level_check.cpp) moves by whole cells and relies on these.
 static_assert(Jump::ARC.peak < 1.f, "the checker assumes a jump cannot step up onto a ledge one cell high");
 static_assert(Jump::ARC.drift > 0.5f, "the checker assumes a jump clears a one-cell gap");

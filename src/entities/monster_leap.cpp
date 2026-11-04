@@ -1,6 +1,7 @@
 // Walk-jumpers: the leap over a gap of pits and traps. Where it lands: Dungeon::leapLanding (dungeon_walkers.cpp).
 #include "monster.h"
 #include <algorithm>
+#include <cmath>
 #include "player.h"
 #include "../world/journal.h"
 #include "../core/gameplay_config.h"
@@ -111,4 +112,22 @@ int Monster::HeadBump(Rng& rng) {
 	if (Alive() && roll.daze)
 		leap.bumpStunMs = roll.ms;
 	return lost;
+}
+
+int Monster::TrapCrossHits() const {
+	const float tilesPerSecond = std::max(0.01f, WalkStep() * 1000.f / static_cast<float>(MONSTER_STEP_PERIOD_MS));
+	const float way = 1.f + 2.f * HalfWidth() * (1.f - TRAP_BOX_FORGIVE);
+	return static_cast<int>(std::ceil(way / tilesPerSecond * 1000.f / static_cast<float>(TRAP_HURT_INTERVAL_MS)));
+}
+
+int Monster::CeilingSpikes(bool death, Rng& rng) {
+	if (!Alive())
+		return 0;
+	const int before = health;
+	sound(CharacterSound::Attack); // the grunt, as a bump's
+	leap.bumpMemoryMs = GameClock::now() + MONSTER_HEAD_BUMP_MEMORY_MS;
+	TrapHit(TrapHurt::rampTotal(TrapCrossHits()));
+	if (death)
+		TakePoison(PoisonTier::Strong, false, rng);
+	return before - health;
 }

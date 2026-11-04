@@ -22,6 +22,14 @@ struct TrapHurt {
 		lastHitMs = now;
 		return 1 + streak++ / TRAP_DAMAGE_RAMP_HITS;
 	}
+	// What hits() TrapHurt hits in a row deal together, the ramp from the start (plan ceiling-spikes: a monster's
+	// whole crossing at once).
+	[[nodiscard]] static constexpr int rampTotal(int hits) {
+		int total = 0;
+		for (int k = 0; k < hits; k++)
+			total += 1 + k / TRAP_DAMAGE_RAMP_HITS;
+		return total;
+	}
 };
 
 // Crossing a spike or death trap (the player): a bell curve of damage over its hitbox, the offset from its middle in

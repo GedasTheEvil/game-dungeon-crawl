@@ -1,6 +1,7 @@
 #include "level.h"
 #include "decor.h"
 #include "campaign.h"
+#include "movement.h"
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -165,6 +166,16 @@ std::string readMeta(std::istream& in, LevelMeta& meta) {
 	return "";
 }
 
+// A ceiling trap (plan ceiling-spikes) only on a shaped cell with an underside a jump reaches.
+std::string checkCeilingTraps(const Tile* cells) {
+	for (int i = 0; i < CELLS; i++)
+		if (isCeilingTrap(cells[i].fixture.type) && !jumpReachesUnderside(cells[i]))
+			return std::string(cells[i].fixture.type == CeilingDeath ? "ceiling death trap" : "ceiling spikes") +
+				   " at " + std::to_string(i % LEVEL_WIDTH) + " " + std::to_string(i / LEVEL_WIDTH) +
+				   ": no low ceiling in the cell's shape a jump reaches";
+	return "";
+}
+
 std::string readDcLevel(std::istream& in, Tile* cells, int& version, LevelMeta& meta) {
 	int width = 0, height = 0;
 	if (!(in >> version >> width >> height))
@@ -218,7 +229,9 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version, LevelMeta& 
 	error = readDecor(in, cells);
 	if (error.empty())
 		error = readDecals(in, cells);
-	return error.empty() && version >= 6 ? readShapes(in, cells, shaped) : error;
+	if (error.empty() && version >= 6)
+		error = readShapes(in, cells, shaped);
+	return error.empty() ? checkCeilingTraps(cells) : error;
 }
 } // namespace
 

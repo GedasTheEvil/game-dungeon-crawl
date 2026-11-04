@@ -1,0 +1,16 @@
+# Plan ceiling-spikes (tests/levels/ceiling_spikes): the ceiling spikes (col 4) and the ceiling death trap (col 7) seen
+# from below, then a jump into the spikes at 1000 max HP (the damage and the poison: tests/unit/ceiling_spikes_test.cpp).
+# A unit test cannot look at the drawing.
+seed 1
+resolution 1024 768
+level tests/levels/ceiling_spikes at 6 2
+wait 30
+screenshot from_below
+level tests/levels/ceiling_spikes at 4 2
+gear 0 0 1900
+wait 30
+expect maxhp == 1000
+jump
+wait 20
+expect hp <= 800
+screenshot jump_into_spikes

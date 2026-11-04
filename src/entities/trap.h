@@ -15,7 +15,8 @@ class Trap {
 	float scale = 3;
 
 	Trap();
-	void Show();
+	void Show() { Show(scale); }
+	void Show(float size); // at that scale (a ceiling trap's, plan ceiling-spikes)
 	bool loadModel(const char filename[], const Texture& texture, bool compile = true);
 };
 

@@ -85,6 +85,7 @@ class PathScript {
 				climb(cur.row > r.path[i - 1].row ? 1 : -1);
 				break;
 			case PathMove::Step: // onto a quarter step (plan subcell-checker): a jump, the walk on
+			case PathMove::SpikedStep: // the same, into ceiling spikes (plan ceiling-spikes)
 			case PathMove::Jump:
 				flushWalk();
 				// The checker does not count stamina; the script waits for a jump's worth (out of quicksand,
@@ -350,7 +351,12 @@ void printReport(const Entry& e, bool map) {
 			r.pathTurns
 		);
 	if (r.pathSteps + r.pathCrawls > 0) // plan subcell-checker
-		printf("   sub-cells: %d quarter steps, %d crawled\n", r.pathSteps, r.pathCrawls);
+		printf(
+			"   sub-cells: %d quarter steps (%d into ceiling spikes), %d crawled\n",
+			r.pathSteps,
+			r.pathCeilingSpikes,
+			r.pathCrawls
+		);
 	printf("   difficulty: %.1f\n", r.difficulty);
 	if (map)
 		printf("%s", renderLevel(e.grid, &r).c_str());

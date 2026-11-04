@@ -50,6 +50,7 @@ constexpr int COST_STEP = 3; // a jump onto a quarter step: short, no gap under 
 constexpr int COST_CRAWL = 1; // per sub-cell crawled: the crouched walk is a third of the walk (plan crouch)
 constexpr int COST_SPIKE = 30; // a walk over it costs SPIKES_CROSS_HP: deadly early on, jump it
 constexpr int COST_DEATH = 30;
+constexpr int COST_CEILING_SPIKES = 30; // a jump into them costs a walk over the floor kind (plan ceiling-spikes)
 constexpr int COST_ROCK_FALL = 15;
 constexpr int COST_DART_PLATE = 8;
 constexpr int COST_WALL_SPIKES = 6; // the wait for the safe window, the risk of misjudging it
@@ -349,10 +350,11 @@ class Walker {
 		auto add = [&](int to, int base, Move move) {
 			if (to == NONE || to == state)
 				return;
+			const bool step = move == Move::Step || move == Move::SpikedStep;
 			const bool along = move == Move::Walk || move == Move::Drop || move == Move::Jump || move == Move::Crawl ||
-							   move == Move::Step;
+							   step;
 			const bool inCell = along && cellOf(to) == cell;
-			const int walk = inCell && move != Move::Jump && move != Move::Step ? COST_MOVE : 0;
+			const int walk = inCell && move != Move::Jump && !step ? COST_MOVE : 0;
 			out.push_back({to, base - walk + (inCell ? 0 : hazardCost(cellOf(to))), move});
 		};
 
@@ -421,7 +423,19 @@ class Walker {
 			if (!open(next, y + k, mask))
 				return;
 		int fallen = 0;
-		add(settle(next, y + 1, mask, fallen), COST_STEP, Move::Step);
+		// The arc's head reaches into the sub-cell over STEP_ROOM: ceiling spikes there are jumped into.
+		const bool spiked = spikedAt(x, y + STEP_ROOM) || spikedAt(next, y + STEP_ROOM);
+		add(settle(next, y + 1, mask, fallen),
+			COST_STEP + (spiked ? COST_CEILING_SPIKES : 0),
+			spiked ? Move::SpikedStep : Move::Step);
+	}
+
+	// Sub-cell (x, y) is the underside of a ceiling trap's cell (plan ceiling-spikes).
+	[[nodiscard]] bool spikedAt(int x, int y) const {
+		if (!subInBounds(x, y))
+			return false;
+		const Tile& t = grid.cells[subCell(x, y)];
+		return isCeilingTrap(t.fixture.type) && (ceilingUndersides(t) & subcellBit(x % SUBCELLS, y % SUBCELLS)) != 0;
 	}
 
 	// Up to JUMP_SUBCELLS along the row, from a floor: over a gap or a trap (jumpedOver), landing on a floor no higher
@@ -864,6 +878,11 @@ void checkShapes(const LevelGrid& grid, LevelReport& r) {
 		const Tile t = grid.cells[cell];
 		if (t.shape != NO_SHAPE && !takesShape(t.structure))
 			r.warnings.push_back("a shape in " + std::string(structureDef(t.structure).name) + " at " + at(cell));
+		if (isCeilingTrap(t.fixture.type) && !jumpReachesUnderside(t)) // as the loader (plan ceiling-spikes)
+			r.errors.push_back(
+				std::string(tileDef(t.fixture.type).name) + " at " + at(cell) +
+				": no low ceiling in the cell's shape a jump reaches"
+			);
 		if (!hasShape(t))
 			continue;
 		const std::string name = tileDef(t.type).name;
@@ -1460,10 +1479,12 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		const int cell = walker.cellOf(states[i]);
 		// The sub-cells walked inside a shaped cell are one path cell; a crawl in it makes the way in one.
 		const Move inCell = prevMove[states[i]];
-		r.pathSteps += i > 0 && inCell == Move::Step ? 1 : 0;
+		const bool step = inCell == Move::Step || inCell == Move::SpikedStep;
+		r.pathSteps += i > 0 && step ? 1 : 0;
+		r.pathCeilingSpikes += i > 0 && inCell == Move::SpikedStep ? 1 : 0;
 		r.pathCrawls += i > 0 && inCell == Move::Crawl ? 1 : 0;
 		if (i > 0 && cell == r.path.back().row * LEVEL_WIDTH + r.path.back().col &&
-			(inCell == Move::Walk || inCell == Move::Crawl || inCell == Move::Drop || inCell == Move::Step)) {
+			(inCell == Move::Walk || inCell == Move::Crawl || inCell == Move::Drop || step)) {
 			if (inCell == Move::Crawl && r.pathMoves.back() == Move::Walk)
 				r.pathMoves.back() = Move::Crawl;
 			continue;
@@ -1512,6 +1533,8 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.warnings.emplace_back("the only way to the exit walks over a death trap");
 	if (r.pathSpikes > 0) // a crossing costs SPIKES_CROSS_HP: deadly early on
 		r.warnings.emplace_back("the only way to the exit walks over spikes");
+	if (r.pathCeilingSpikes > 0) // a jump into them costs a walk over the floor kind (plan ceiling-spikes)
+		r.warnings.emplace_back("the only way to the exit jumps into ceiling spikes");
 	if (r.pathDartPlates > 0 && !antidote)
 		r.warnings.emplace_back("a dart trap on the path but no antidote in reach");
 

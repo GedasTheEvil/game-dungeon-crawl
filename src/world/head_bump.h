@@ -2,7 +2,7 @@
 #define HEAD_BUMP_H
 
 // The head bump's one rule (plans head-bump, monster-head-bump): what a knock on the head costs and whether it dazes.
-// Shared by Player::HeadBump and Monster::HeadBump (and the spiked ceiling to come).
+// Shared by Player::HeadBump and Monster::HeadBump; under a ceiling trap the spikes replace it (plan ceiling-spikes).
 
 #include <algorithm>
 #include "rng.h"

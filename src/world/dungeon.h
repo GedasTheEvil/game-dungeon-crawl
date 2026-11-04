@@ -212,6 +212,21 @@ class Dungeon {
 	[[nodiscard]] float monsterFloor(const Monster& mon) const;
 	// World units from its head, at rest, up to the ceiling over its body (NO_CEILING: none within a leap's reach).
 	[[nodiscard]] float leapRoom(const Monster& mon) const;
+	// leapRoom's ceiling: the room in world units, the map point found solid (plan ceiling-spikes reads its cell).
+	struct LeapCeiling {
+		float room, x, y;
+	};
+	[[nodiscard]] std::optional<LeapCeiling> leapCeiling(const Monster& mon) const;
+	[[nodiscard]] float leapHead(const Monster& mon) const; // map y of its head at rest
+	// The ceiling trap (CeilingSpikes, CeilingDeath) leapRoom's ceiling is, NoObject for none (plan ceiling-spikes).
+	[[nodiscard]] int leapCeilingTrap(const Monster& mon) const;
+	// A leap of mon from where it stands to toX (tile-local, as Monster::Jump) would pass under a ceiling trap in a
+	// leap's reach over its head: a coward does not take it, a reckless one does (plan ceiling-spikes).
+	[[nodiscard]] bool leapUnderSpikes(const Monster& mon, float toX) const;
+	// leapUnderSpikes for a monster that shuns it (not reckless).
+	[[nodiscard]] bool shunsLeap(const Monster& mon, float toX) const {
+		return !mon.reckless() && leapUnderSpikes(mon, toX);
+	}
 	// What the sub-cell column at map x on its row asks of mon's body stepping into it: nothing, a hop (a rise within
 	// its kind's step), or a stop (a higher rise, an opening lower than its height).
 	enum class StepAhead : unsigned char { Walk, Hop, Stop };
@@ -304,6 +319,7 @@ class Dungeon {
 	};
 	std::vector<ItemPartDraw> itemParts; // this frame's, from DrawTreasureTile
 	void DrawTrapTile(bool isDeathTrap);
+	void drawCeilingTrap(int i, int j); // CeilingSpikes, CeilingDeath (plan ceiling-spikes)
 	void drawDecorTile(int i, int j);
 	void drawDecalTile(int i, int j);
 	void drawTorchTile(int i, int j);
@@ -334,6 +350,12 @@ class Dungeon {
 	// The map y of the ceiling the player's head at feet height y meets (plan subcell-physics): a solid cell over the
 	// centre, a solid sub-cell over the body; none if the head is free.
 	[[nodiscard]] std::optional<float> ceilingAt(float y) const;
+	// The ceiling trap (CeilingSpikes, CeilingDeath) the player's head at feet height y touches at ceilingAt's points,
+	// NoObject for none (plan ceiling-spikes).
+	[[nodiscard]] int ceilingTrapAt(float y) const;
+	// A jump into a ceiling trap: a whole walk over the floor kind (TrapBell::crossHundredths) through armour, the
+	// death trap's strong poison; it replaces the head bump (plan ceiling-spikes).
+	void ceilingSpikesHit(int trap);
 	// The player's body height against the shapes: PLAYER_BODY_HEIGHT, crouched CROUCH_HEIGHT_FACTOR of it.
 	[[nodiscard]] float playerBodyHeight() const;
 	// Nothing solid over the crouched body up to the standing head: no solid cell over the centre, no solid sub-cell

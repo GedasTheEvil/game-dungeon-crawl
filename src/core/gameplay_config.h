@@ -60,6 +60,11 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 // (Dungeon::updateTraps).
 constexpr float SPIKES_SCALE = 16.f;
 constexpr float DEATH_TRAP_SCALE = 40.f;
+// Ceiling traps (plan ceiling-spikes, Dungeon::drawCeilingTrap): the spikes' model a quarter tile wide, this many
+// along the cell's depth on each underside, its height stretched (the death trap's tips longer).
+constexpr int CEILING_TRAP_ROWS = 4;
+constexpr float CEILING_SPIKES_STRETCH = 1.5f;
+constexpr float CEILING_DEATH_STRETCH = 2.5f;
 // The player and the reckless walkers touch a spike or death trap with their box (plan trap-player-box), less this
 // share of their half width on each side: grazing its edge doesn't count.
 constexpr float TRAP_BOX_FORGIVE = 0.25f;

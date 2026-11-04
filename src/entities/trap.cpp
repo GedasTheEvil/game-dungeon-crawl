@@ -3,11 +3,11 @@
 
 Trap::Trap() : mdl(std::make_shared<AnimatedModel>()) {}
 
-void Trap::Show() {
+void Trap::Show(float size) {
 	glPushMatrix();
 	glTranslatef(0, 0, -30);
 	glPushMatrix();
-	glScalef(scale, scale, scale);
+	glScalef(size, size, size);
 	if (tex != nullptr)
 		tex->Bind();
 	mdl->Show();

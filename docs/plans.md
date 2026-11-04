@@ -8,6 +8,7 @@ idea as a draft, never rename by hand, drafts that arrive mid-task) are in [AGEN
 `<slug>.draft.<model>.md` → implemented `<slug>.md` → user-confirmed `solved/<slug>.md`. A draft the user drops goes
 to `wont-do/<slug>.md` instead ([Won't do](#wont-do)).
 `tools/plan.py move <slug> implemented|solved|wont-do|draft-opus|draft-sonet` renames a plan and rewrites every link.
+Links inside solved and won't-do plans are not checked (`tools/plan.py links`, `make check`): they are history.
 
 ## Plans in code
 

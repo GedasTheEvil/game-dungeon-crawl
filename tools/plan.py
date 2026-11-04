@@ -6,6 +6,7 @@
                                       (git mv), rewrites every markdown link to it and the links inside it, lists its
                                       scenarios; solved: its Status line starts "solved <today>. Was: ..."
     tools/plan.py links               fixes markdown links to plans that moved, fails on the ones it cannot fix
+                                      (not in solved/ and wont-do/ plans: those are history, their links may rot)
 
 A plan is found by its slug: <slug>.draft.<model>.md, <slug>.md, solved/<slug>.md or wont-do/<slug>.md in docs/plan/.
 """
@@ -45,9 +46,11 @@ def slug_of(name):
 
 
 def markdown_files():
+    """Every markdown file whose links are kept up to date. Closed plans (solved, won't do) are history: not checked."""
     skip = {".git", "external", "build", "bin", ".claude", "tests"}
     for dirpath, dirnames, filenames in os.walk(ROOT):
-        dirnames[:] = [d for d in dirnames if d not in skip and not d.startswith(".")]
+        dirnames[:] = [d for d in dirnames if d not in skip and not d.startswith(".")
+                       and Path(dirpath) / d not in CLOSED]
         for f in filenames:
             if f.endswith(".md"):
                 yield Path(dirpath) / f

@@ -79,6 +79,9 @@ class Dungeon {
 	Tile MapAt(int col, int row) const;
 	void SetMapBAtPlayer(int value);
 	void resetPlayerMotion(); // the player was placed on a level: no jump or fall carries over
+	// Up or down pressed in a jump on its way down through a ladder cell (plan jump-onto-ladder): the hands catch the
+	// rungs, the jump ends at that height. False: no catch, the press does not climb in the air.
+	bool catchRungs();
 	void exploreAroundPlayer();
 	void UpdateMovementState();
 	// Once a tick (plan crouch): the down key held crouches the player on the floor (not in a ladder's cell, where it

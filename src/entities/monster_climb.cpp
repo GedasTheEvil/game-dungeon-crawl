@@ -20,10 +20,10 @@ void Monster::WalkPath(int dir, bool blocked) {
 	enter(ModelState::Move);
 }
 
-void Monster::StartClimb(int ladderCol, int toRow) {
+void Monster::StartClimb(int ladderCol, int toRow, float fromY) {
 	x = static_cast<float>(ladderCol - col);
 	climb.toRow = toRow;
-	climb.y = 0.f;
+	climb.y = fromY;
 	enter(ModelState::Climb);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Climb);
 }

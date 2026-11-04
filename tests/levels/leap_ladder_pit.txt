@@ -1,0 +1,9 @@
+; Babi (col 3) on the lower floor; spikes (cols 9-10) and a pit (col 11) before a ladder (col 12) that hangs over the
+; pit, no floor under its lowest rung: three cells out, only Babi's leap catches its rungs, a giant rat's does not
+; (plan jump-onto-ladder, tests/unit/jump_onto_ladder_test.cpp).
+####################
+#S..........H.....E#
+############H#######
+#..].....^^.H......#
+###########..#######
+####################

@@ -317,7 +317,12 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 		}
 		return false; // the walker's rules: chase along the row and bite
 	}
-	const ClimbAbility how{mon.reckless(), leaps(mon.Type()->locomotion), mon.Body()};
+	const ClimbAbility how{
+		mon.reckless(),
+		leaps(mon.Type()->locomotion),
+		mon.Body(),
+		MONSTER_JUMP_MAX_GAP + (mon.Type()->isBoss() ? BOSS_LEAP_CATCH_EXTRA : 0)
+	};
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
 	climbPath.Build(map, playerCol, playerRow, how, CLIMB_PATH_MAX);
 	if (climbPath.Steps(col, mon.Row()) > 0)
@@ -339,10 +344,13 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 	}
 	const int step = nextCol > col ? 1 : -1;
 	if (std::abs(nextCol - col) > 1) { // a leap over a gap
-		if (mon.canJump())
-			mon.Jump(static_cast<float>(nextCol - mon.Col()));
-		else
+		const int rungsTo = MapAt(nextCol, mon.Row()).type == Ladder ? climbEnd(nextCol, mon.Row()) : mon.Row();
+		if (!mon.canJump())
 			mon.WalkPath(step, true);
+		else if (rungsTo != mon.Row()) // the way climbs on from there: the paws catch the rungs in the air
+			mon.LeapToRungs(nextCol, rungsTo);
+		else
+			mon.Jump(static_cast<float>(nextCol - mon.Col()));
 		return true;
 	}
 	if (hopOnto(mon, step))

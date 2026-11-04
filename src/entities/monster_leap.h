@@ -15,6 +15,10 @@ struct Leap {
 	float bumpAir = -1.f, bumpLift = 0.f;
 	int bumpStunMs = 0;
 	int bumpMemoryMs = -1; // GameClock time until which the last bump is remembered (no pounce under a ceiling)
+	// A leap at a ladder's rungs (plan jump-onto-ladder): over the ladder's column at air share catchAir, the climb
+	// to catchToRow begins at the arc's height. catchCol < 0: a plain leap.
+	int catchCol = -1, catchToRow = -1;
+	float catchAir = 0.f;
 };
 
 // What a tick of a leap did to the ceiling (Monster::UpdateJump).

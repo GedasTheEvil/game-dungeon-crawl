@@ -245,7 +245,8 @@ class Monster {
 	void SetOnRungs(bool onRungs) { rungs = onRungs; }
 	// Climbers: from the ladder in column ladderCol (its centre there) up or down to toRow, then UpdateClimb each
 	// step until there.
-	void StartClimb(int ladderCol, int toRow);
+	// fromY: tiles over the row's floor it starts at (a leap that caught the rungs).
+	void StartClimb(int ladderCol, int toRow, float fromY = 0.f);
 	void UpdateClimb();
 	void DropTo(int floorRow); // killed on the rungs: falls down to the floor of floorRow
 	// Climbers: one step along its path, dir -1 / +1 (as Seek, but the way is the path's); blocked: it stands.
@@ -410,6 +411,9 @@ class Monster {
 	[[nodiscard]] float flightProbeX() const; // map x the flyer checks for walls
 	// Walk-jumpers: leap to tile-local x toX (see Dungeon::leapTarget), then move along the arc until landed.
 	void Jump(float toX);
+	// A leap whose arc catches the rungs of the ladder in column ladderCol, then the climb to toRow (plan
+	// jump-onto-ladder; the boss's nearer the arc's top).
+	void LeapToRungs(int ladderCol, int toRow);
 	// A Jump at the player that way (dir), then no pounce for the cooldown (PounceRules).
 	void Pounce(float toX, int dir);
 	// px: the player's map x, a pounce lands short of them. room: world units from its head, at rest, to the ceiling

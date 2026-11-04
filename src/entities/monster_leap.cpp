@@ -5,6 +5,7 @@
 #include "../world/journal.h"
 #include "../core/gameplay_config.h"
 #include "../world/head_bump.h"
+#include "../graphics/render_config.h"
 
 bool Monster::canJump() const {
 	return leaps(type->locomotion) && health > 0 && !jumping() && GameClock::now() >= leap.readyMs;
@@ -32,9 +33,19 @@ void Monster::Jump(float toX) {
 	leap.bumpAir = -1.f;
 	leap.bumpStunMs = 0;
 	leap.pounceDir = 0;
+	leap.catchCol = -1;
 	enter(ModelState::Jump);
 	sound(CharacterSound::Jump);
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Leap);
+}
+
+void Monster::LeapToRungs(int ladderCol, int toRow) {
+	const float air = type->isBoss() ? BOSS_LEAP_CATCH_AIR : LEAP_CATCH_AIR;
+	const auto middle = static_cast<float>(ladderCol - col); // tile-local
+	Jump(x + (middle - x) / air); // over the ladder's middle at that share of the flight
+	leap.catchCol = ladderCol;
+	leap.catchToRow = toRow;
+	leap.catchAir = air;
 }
 
 LeapBump Monster::UpdateJump(float px, float room) {
@@ -72,6 +83,20 @@ LeapBump Monster::UpdateJump(float px, float room) {
 		leap.lift = leap.bumpLift * (1.f - u * u);
 	} else
 		leap.lift = std::min(arc, room);
+	if (leap.catchCol >= 0 && air >= leap.catchAir) { // over the ladder: the paws catch the rungs
+		const float from = leap.lift / RenderConfig::TILE_SIZE;
+		const int ladderCol = leap.catchCol;
+		leap.catchCol = -1;
+		leap.lift = 0.f;
+		leap.startMs = -1;
+		if (Alive()) {
+			StartClimb(ladderCol, leap.catchToRow, from);
+			if (leap.bumpStunMs > 0) // a bump on the way: dazed on the rungs
+				StunHit(leap.bumpStunMs, false);
+		} else
+			x = static_cast<float>(ladderCol - col); // killed in the air: it drops down the shaft from there
+		leap.bumpStunMs = 0;
+	}
 	return bump;
 }
 

@@ -1,0 +1,8 @@
+; A giant rat (col 3) on the lower floor, spikes (cols 9-10) right before the foot of a ladder (col 11) up to the
+; upper floor: chasing the player up, the rat leaps the spikes and catches the rungs in the air (plan
+; jump-onto-ladder, tests/unit/jump_onto_ladder_test.cpp).
+####################
+#S.........H......E#
+###########H########
+#..T.....^^H.......#
+####################

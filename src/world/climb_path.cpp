@@ -72,13 +72,28 @@ int leapLandingAt(const Tile* cells, int col, int row, int dir, BodyFit body) {
 	return -1;
 }
 
+int leapCatchAt(const Tile* cells, int col, int row, int dir, int reach, BodyFit body) {
+	if (!inBounds(col, row) || isSolidTile(at(cells, col, row)))
+		return -1;
+	for (int k = 1; k <= reach; k++) {
+		const int c = col + dir * k;
+		if (!inBounds(c, row) || isSolidTile(at(cells, c, row)) || !shapePasses(cells, c, row, dir, body))
+			return -1;
+		if (ladderAt(cells, c, row) && (ladderAt(cells, c, row + 1) || ladderAt(cells, c, row - 1)))
+			return c;
+		if (!walkerBlockedAt(cells, c, row, false, dir, body))
+			return -1; // a floor first: the leap lands there
+	}
+	return -1;
+}
+
 bool ClimbMap::Stands(int col, int row) const {
 	if (!inBounds(col, row) || isSolidTile(at(cells, col, row)))
 		return false;
 	return ladderAt(cells, col, row) || !walkerBlockedAt(cells, col, row, how.reckless);
 }
 
-int ClimbMap::neighbours(int col, int row, int (&outCol)[4], int (&outRow)[4]) const {
+int ClimbMap::neighbours(int col, int row, int (&outCol)[NEIGHBOURS_MAX], int (&outRow)[NEIGHBOURS_MAX]) const {
 	int n = 0;
 	for (int dir : {-1, 1}) {
 		if (Stands(col + dir, row) && shapePasses(cells, col + dir, row, dir, how.body)) {
@@ -90,6 +105,12 @@ int ClimbMap::neighbours(int col, int row, int (&outCol)[4], int (&outRow)[4]) c
 				outCol[n] = land;
 				outRow[n++] = row;
 			}
+			// A ladder over the gap: the leap catches its rungs (plan jump-onto-ladder).
+			if (const int grab = leapCatchAt(cells, col + dir, row, dir, how.catchReach, how.body);
+				grab >= 0 && grab != land) {
+				outCol[n] = grab;
+				outRow[n++] = row;
+			}
 		}
 	}
 	if (ladderAt(cells, col, row))
@@ -97,6 +118,18 @@ int ClimbMap::neighbours(int col, int row, int (&outCol)[4], int (&outRow)[4]) c
 			if (ladderAt(cells, col, row + dir)) {
 				outCol[n] = col;
 				outRow[n++] = row + dir;
+			}
+	// The way back of a leap that catches these rungs: the path is built from the goal, its steps must go both ways.
+	if (how.leaps && ladderAt(cells, col, row))
+		for (int dir : {-1, 1})
+			for (int k = 2; k <= how.catchReach + 1; k++) {
+				const int from = col - dir * k; // the take-off cell, the leap going dir
+				if (inBounds(from, row) && !ladderAt(cells, from, row) && Stands(from, row) &&
+					leapCatchAt(cells, from + dir, row, dir, how.catchReach, how.body) == col) {
+					outCol[n] = from;
+					outRow[n++] = row;
+					break;
+				}
 			}
 	return n;
 }
@@ -115,7 +148,7 @@ void ClimbMap::Build(const Tile* grid, int goalCol, int goalRow, ClimbAbility ab
 		const int step = steps[static_cast<size_t>(cell)];
 		if (step >= maxSteps)
 			continue;
-		int cols[4], rows[4];
+		int cols[NEIGHBOURS_MAX], rows[NEIGHBOURS_MAX];
 		const int n = neighbours(cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, cols, rows);
 		for (int k = 0; k < n; k++) {
 			const size_t next = indexOf(cols[k], rows[k]);
@@ -133,7 +166,7 @@ bool ClimbMap::Next(int col, int row, int& outCol, int& outRow) const {
 	const int here = Steps(col, row);
 	if (here <= 0)
 		return false;
-	int cols[4], rows[4];
+	int cols[NEIGHBOURS_MAX], rows[NEIGHBOURS_MAX];
 	const int n = neighbours(col, row, cols, rows);
 	for (int k = 0; k < n; k++)
 		if (Steps(cols[k], rows[k]) == here - 1) {

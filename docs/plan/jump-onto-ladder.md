@@ -1,6 +1,6 @@
 # Jump onto a ladder: up or down grabs the rungs
 
-Status: draft 2026-11-04, needs nothing first. Edge-case fix for the player; leaping climbers (giant rat, Babi)
+Status: implemented 2026-11-04, waiting for the play-test (`bin/game --play tests/play/jump-onto-ladder.txt`). Was: draft 2026-11-04, needs nothing first. Edge-case fix for the player; leaping climbers (giant rat, Babi)
 catch the rungs mid-leap too.
 
 ## Problem
@@ -82,3 +82,23 @@ does not climb. Scenario with a screenshot of the catch (no pop to the floor).
 
 Play-test script `tests/play/jump-onto-ladder.txt`: start next to a ladder, a floor or two of rungs above, and a
 giant rat across a gap from the ladder's foot.
+
+## Done
+
+* Player: `Dungeon::Move` calls `catchRungs` when up / down is pressed in a jump; it catches only on the way down
+  (`velocity <= 0`) in a `Ladder` cell, ends the jump where it is and moves `mapX` just into `LADDER_REACH` of the grip
+  (the climb's pull does the rest). Otherwise a press in a jump no longer climbs: the jump owns `mapY` (no shudder).
+* Monsters: `ClimbMap` gets a catch step, `leapCatchAt`: a ladder cell over the gap whose rungs go on (a ladder over a
+  pit), plus the way back on the ladder cell (the path is built from the goal). That also fixed a gap: before, no
+  leaper's path reached a ladder's foot across a gap (a ladder cell never leapt), so climbers never took that way.
+  `followPath`: a leap whose next cell is a ladder the path climbs on is `Monster::LeapToRungs`; over the ladder's
+  middle at `LEAP_CATCH_AIR` (0.7) of the flight the leap ends and `StartClimb` begins at the arc's height. Babi:
+  `BOSS_LEAP_CATCH_AIR` 0.55 (higher, near the top) and one cell more reach (`BOSS_LEAP_CATCH_EXTRA`), then the boss
+  climb speed. Killed in the air: it ends on the ladder's middle and drops down the shaft; a head bump on the way:
+  the stun starts on the rungs.
+* Campaign check: no campaign ladder has an open cell under its lowest rung, so there the monster catch only shows at
+  a ladder's foot across a gap. All levels pass levelcheck with no warnings.
+* Tests: `tests/unit/jump_onto_ladder_test.cpp` (player catch, no catch without up, jump off with up held; giant rat
+  catches at the arc's height on the ladder's middle and reaches the upper floor, giant scarab stays below; the
+  ladder over a pit three cells out: only Babi's path and leap reach it). Levels `tests/levels/leap_ladder*`.
+  Screenshots: `tests/scenarios/jump_onto_ladder.txt` (the rat comes up the shaft in the climb pose, no pop).

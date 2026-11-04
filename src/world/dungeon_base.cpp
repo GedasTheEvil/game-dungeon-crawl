@@ -343,6 +343,8 @@ bool Dungeon::Move(float dirX, float dirY) {
 	if (lostGrip || sim.player->Dazed() ||
 		sim.player->crouched) // no grip on the rungs (plan giant-bat-screech), no climb crouched
 		dirY = 0.f;
+	if (dirY != 0.f && sim.player->jump.jumping && !catchRungs())
+		dirY = 0.f; // the jump's rise and fall own mapY: a climb against it shook the camera
 	if (dirY > 0) {
 		if (Map(mapX, mapY).type == Ladder && Map(mapX, mapY + dirY + PLAYER_CLIMB_HEADROOM).type == Ladder)
 			mapY += dirY;
@@ -384,6 +386,21 @@ bool Dungeon::Move(float dirX, float dirY) {
 		sim.events->Play(WorldSound::Wade);
 	}
 	return moved;
+}
+//======================================================================================
+bool Dungeon::catchRungs() {
+	JumpState& jump = sim.player->jump;
+	if (jump.velocity > 0.f || Map(mapX, mapY).type != Ladder) // rising: a jump off the rungs with up held goes on
+		return false;
+	jump.jumping = false;
+	jump.falling = false;
+	jump.velocity = 0.f;
+	jump.fall_velocity = FALL_STEP;
+	jump.dir_x = 0.f;
+	// In reach of the rungs at once (PlayerOnLadder); the climb's pull brings the hands to the grip.
+	const float grip = std::floor(mapX) + LADDER_GRIP_X;
+	mapX = std::clamp(mapX, grip - LADDER_REACH, grip + LADDER_REACH);
+	return true;
 }
 //======================================================================================
 bool Dungeon::PlayerWading() const {

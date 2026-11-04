@@ -1,0 +1,40 @@
+# Plan jump-onto-ladder (tests/levels/leap_ladder): the giant rat (col 3) sees the player on the lower floor, then
+# chases them up the ladder (col 11). It leaps the spikes at the ladder's foot and its paws catch the rungs in the air;
+# the climb goes on from the arc's height, no pop down to the floor first. The player waits by the ladder's top.
+resolution 1600 1200
+seed 1
+god
+level tests/levels/leap_ladder at 7 2
+wait 40
+expect nearest > 0
+walk to 11.45
+walk up 1.1
+wait 4
+screenshot s01
+wait 4
+screenshot s02
+wait 4
+screenshot s03
+wait 4
+screenshot s04
+wait 4
+screenshot s05
+wait 4
+screenshot s06
+wait 4
+screenshot s07
+wait 4
+screenshot s08
+wait 4
+screenshot s09
+wait 4
+screenshot s10
+wait 4
+screenshot s11
+wait 4
+screenshot s12
+walk up 0.9
+walk to 12.3
+wait 1s
+screenshot rat_up
+dump

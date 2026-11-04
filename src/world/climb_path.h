@@ -6,6 +6,7 @@
 // bottom), so the sim and the unit tests share it.
 
 #include "level.h"
+#include "../core/gameplay_config.h"
 #include <array>
 #include <cstdint>
 
@@ -32,11 +33,17 @@ walkerBlockedAt(const Tile* cells, int col, int row, bool reckless = false, int 
 // MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 // With a body: a shaped cell on the way that it does not pass going dir ends the leap (-1).
 [[nodiscard]] int leapLandingAt(const Tile* cells, int col, int row, int dir, BodyFit body = {});
+// From blocked cell (col, row) on, going dir: a ladder cell over the gap, up to reach cells on, whose rungs go on up
+// or down, before any cell a leap would land on (plan jump-onto-ladder): a leaper catches its rungs in the air. -1:
+// none (a wall, a shape it does not pass, or floor first).
+[[nodiscard]] int leapCatchAt(const Tile* cells, int col, int row, int dir, int reach, BodyFit body = {});
 
 struct ClimbAbility {
 	bool reckless = false; // walks through traps
 	bool leaps = false; // a walk-jumper: leaps over gaps
 	BodyFit body{}; // its steps and the openings it fits (plan subcell-monsters)
+	// A leaper's leap catches the rungs of a ladder over the gap up to this many cells out (plan jump-onto-ladder).
+	int catchReach = MONSTER_JUMP_MAX_GAP;
 };
 
 // Steps from every cell to one goal cell (the player's), up to a cap. A step: to the next cell along a row, a rung up
@@ -56,8 +63,10 @@ class ClimbMap {
 	const Tile* cells = nullptr;
 	ClimbAbility how;
 
-	// The cells one step from (col, row), at most 4; returns how many.
-	int neighbours(int col, int row, int (&outCol)[4], int (&outRow)[4]) const;
+	// Along the row and leaps either way (2 each), up and down a ladder, the leaps that catch its rungs (one a side).
+	static constexpr int NEIGHBOURS_MAX = 6;
+	// The cells one step from (col, row), at most NEIGHBOURS_MAX; returns how many.
+	int neighbours(int col, int row, int (&outCol)[NEIGHBOURS_MAX], int (&outRow)[NEIGHBOURS_MAX]) const;
 };
 
 #endif

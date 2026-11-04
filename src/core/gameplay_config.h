@@ -124,6 +124,12 @@ constexpr float CLIMB_SPEED_FACTOR = 0.8f;
 constexpr float BOSS_CLIMB_SPEED_FACTOR = 1.f;
 constexpr float CLIMBER_THREAT_FACTOR = 1.05f;
 constexpr float CLIMBER_FALL_STEP = 0.15f; // tiles a tick a climber killed on the rungs drops
+// A leaping climber whose path climbs a ladder across a gap catches the rungs in the air (plan jump-onto-ladder): over
+// the ladder's middle at this share of the leap's flight (0.5 the top of the arc). The boss's nearer the top, higher,
+// and from one cell farther.
+constexpr float LEAP_CATCH_AIR = 0.7f;
+constexpr float BOSS_LEAP_CATCH_AIR = 0.55f;
+constexpr int BOSS_LEAP_CATCH_EXTRA = 1;
 // A swimmer (Wading::Swimmer: the crocodile, the hippo) that spawns in half water (plan monster-balance): there the
 // player wades at half speed and cannot sprint, jump or back off, so the checker scores it a little higher.
 constexpr float SWIMMER_IN_WATER_THREAT_FACTOR = 1.1f;

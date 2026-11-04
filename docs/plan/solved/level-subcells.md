@@ -21,7 +21,7 @@ Implementer's choices:
 
 The first of the sub-cell drafts; the others build on it: [subcell-physics](subcell-physics.md),
 [crouch](crouch.md), [subcell-monsters](subcell-monsters.md),
-[subcell-checker](subcell-checker.md), [subcell-campaign](../subcell-campaign.draft.opus.md).
+[subcell-checker](subcell-checker.md), [subcell-campaign](../subcell-campaign.md).
 
 ## Idea (from the user)
 

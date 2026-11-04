@@ -174,10 +174,10 @@
 28,45 surface 6/1/2 prop pottery -0.069 decal 5 0.569,0.625
 29,45 surface 7/1/2 decal 2m 0.448,0.350
 30,45 surface 6/1/2
-31,45 surface 7/1/2 decal 13m 0.511,0.225 torch fire torch 0.000,0.680,0.098
+31,45 surface 7/1/2
 32,45 surface 6/1/2
 33,45 surface 6/1/2 decal 1m 0.619,0.587
 34,45 surface 6/1/2
-35,45 surface 6/1/2
+35,45 surface 6/1/2 torch fire torch 0.000,0.680,0.098
 36,45 surface 6/1/2 prop web 0.000
 37,45 surface 7/1/2

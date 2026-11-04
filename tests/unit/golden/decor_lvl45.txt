@@ -311,8 +311,8 @@
 21,23 surface 12/5/7 decal 0 0.683,0.471
 22,23 surface 13/5/7 decal 11 0.622,0.601
 23,23 surface 12/5/7
-24,23 surface 13/5/7 decal 8m 0.592,0.594
-25,23 surface 12/5/7 decal 11m 0.496,0.569
+24,23 surface 13/5/7
+25,23 surface 12/5/7
 26,23 surface 13/5/7 prop shrine_isis -0.000 decal 11m 0.549,0.383
 27,23 surface 12/5/7 decal 2 0.645,0.350 torch fire torch 0.000,0.680,0.098
 28,23 surface 13/5/7 prop thoth_ibis_seatedm -0.078
@@ -547,7 +547,7 @@
 25,38 surface 12/5/7
 26,38 surface 12/5/7
 27,38 surface 12/5/7
-28,38 surface 12/5/7 prop osirism -0.010
+28,38 surface 12/5/7
 29,38 surface 13/5/7
 30,38 surface 12/5/7 decal 9m 0.645,0.357
 31,38 surface 13/5/7
@@ -590,8 +590,8 @@
 26,41 surface 6/1/2 prop skeleton 0.032 decal 11 0.456,0.473
 27,41 surface 6/1/2
 28,41 surface 6/1/2
-29,41 surface 7/1/2 decal 10 0.257,0.613
-30,41 surface 6/1/2 prop brazier 0.091 fire brazier 0.091,0.220,0.160
+29,41 surface 7/1/2
+30,41 surface 6/1/2
 31,41 surface 6/1/2
 32,41 surface 6/1/2 prop brazierm -0.090 decal 8m 0.428,0.422 fire brazier -0.090,0.220,0.160
 33,41 surface 6/1/2 ladder 0/3

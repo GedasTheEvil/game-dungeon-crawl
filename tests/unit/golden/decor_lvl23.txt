@@ -48,7 +48,7 @@
 11,5 surface 3/1/1 decal 13 0.261,0.225 torch fire torch 0.000,0.680,0.098
 12,5 surface 3/1/1
 13,5 surface 3/1/1
-14,5 surface 2/1/0m prop sarcophagusm 0.067
+14,5 surface 2/1/0m
 15,5 surface 0/0/0 sand<>
 16,5 surface 0/1/0
 17,5 surface 0/1/0 prop cat 0.136
@@ -124,7 +124,7 @@
 8,9 surface 0/2/0 sand>
 9,9 surface 0/1/0
 10,9 surface 0/2/0
-11,9 surface 0/1/0 prop lamp -0.075 fire lamp -0.331,0.050,0.307
+11,9 surface 0/1/0
 12,9 surface 1/0/0 sand< prop brazierm 0.077 fire brazier 0.077,0.220,0.160
 13,9 surface 0/0/0 ladder 1/4
 14,9 surface 0/0/0 sand>
@@ -619,7 +619,7 @@
 20,42 surface 4/2/1 sand<
 21,42 surface 3/0/1
 22,42 surface 4/0/1
-23,42 surface 3/0/1 sand> decal 2m 0.456,0.350
+23,42 surface 3/0/1 sand>
 24,42 surface 4/1/1 decal 11 0.537,0.488
 25,42 surface 5/0/1 sand<
 26,42 surface 3/0/1 prop lampm -0.081 decal 8 0.457,0.523 fire lamp 0.175,0.050,0.307

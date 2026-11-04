@@ -458,9 +458,9 @@
 19,33 surface 10/4/6 decal 10 0.440,0.433
 20,33 surface 10/4/6 prop jackalm -0.059 decal 15m 0.262,0.540
 21,33 surface 10/4/6
-22,33 surface 10/4/6 prop cat -0.070
-23,33 surface 10/4/6 prop osiris -0.053 decal 15 0.694,0.548
-24,33 surface 10/4/6 decal 7m 0.622,0.559
+22,33 surface 10/4/6
+23,33 surface 10/4/6
+24,33 surface 10/4/6
 25,33 surface 10/4/6
 26,33 surface 11/4/6 torch fire torch 0.000,0.680,0.098
 27,33 surface 10/4/6

@@ -229,7 +229,7 @@
 13,17 surface 14/6/8 torch fire torch 0.000,0.680,0.098
 14,17 surface 14/1/8 prop canopicm 0.054 decal 11m 0.526,0.615
 15,17 surface 14/6/8 sand<>
-16,17 surface 14/1/8 prop osiris -0.095
+16,17 surface 14/1/8
 17,17 surface 14/6/8 sand<
 18,17 surface 15/6/8 torch fire torch 0.000,0.680,0.098
 19,17 surface 14/6/8
@@ -637,10 +637,10 @@
 26,43 surface 6/1/2 prop sarcophagusm -0.066
 27,43 surface 6/1/2 torch fire torch 0.000,0.680,0.098
 28,43 surface 6/1/2 decal 8m 0.572,0.612
-29,43 surface 6/1/2 prop osirism -0.059
-30,43 surface 7/1/2 prop sarcophagusm 0.047
-31,43 surface 6/1/2 decal 10 0.466,0.507
-32,43 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+29,43 surface 6/1/2
+30,43 surface 7/1/2
+31,43 surface 6/1/2
+32,43 surface 6/1/2
 33,43 surface 7/1/2
 2,44 surface 6/1/2
 3,44 surface 6/1/2 decal 8m 0.573,0.574

@@ -35,7 +35,7 @@ The floor's spike traps turned upside down (from the user): two kinds, as on the
 * Monsters: cowards (`Courage`) do not jump under it; the reckless and the ones in a pounce do (the lure). Bosses as
   their kin.
 * Levels: none required. The [subcell-checker](solved/subcell-checker.md) must warn if the only way on is a jump
-  under spikes (forced damage). Add a few to the campaign only with [subcell-campaign](subcell-campaign.draft.opus.md).
+  under spikes (forced damage). Add a few to the campaign only with [subcell-campaign](subcell-campaign.md).
 
 ## Tests
 

@@ -344,7 +344,7 @@
 34,23 surface 5/2/1 prop rubblem 0.092
 35,23 surface 3/2/1
 36,23 surface 3/0/1
-37,23 surface 3/2/1 sand> prop web -0.000
+37,23 surface 3/2/1 sand>
 38,23 surface 3/1/1 prop skeleton 0.000 decal 11m 0.479,0.512
 15,24 surface 0/2/0
 2,25 surface 4/0/1
@@ -476,10 +476,9 @@
 24,33 surface 6/1/2
 25,33 surface 7/2/2 sand<>
 26,33 surface 6/1/2 ladder 1/4
-27,33 surface 7/1/2 decal 11m 0.485,0.602
-28,33 surface 6/2/2 sand<> prop sarcophagus -0.061 torch fire torch 0.000,0.680,0.098
-29,33 surface 7/1/2 decal 11 0.379,0.480
-30,33 surface 6/1/2 ladder 0/4m
+27,33 surface 7/1/2
+28,33 surface 6/2/2 sand<>
+29,33 surface 7/1/2
 6,34 surface 0/2/0 decal 1m 0.281,0.524
 7,34 surface 0/2/0 torch fire torch 0.000,0.680,0.098
 8,34 surface 1/1/0
@@ -504,7 +503,7 @@
 27,34 surface 0/2/0
 28,34 surface 1/0/0
 29,34 surface 0/1/0
-30,34 surface 0/0/0 ladder 0/3
+30,34 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 31,34 surface 0/0/0 sand>
 32,34 surface 1/1/0 decal 7m 0.600,0.589
 33,34 surface 0/1/0
@@ -638,7 +637,7 @@
 10,44 surface 4/0/1 sand< torch fire torch 0.000,0.680,0.098
 11,44 surface 2/0/0m
 12,44 surface 0/0/0 sand> decal 0m 0.553,0.429
-13,44 surface 1/1/0 prop thoth_baboon_standingm -0.040 decal 8 0.458,0.548
+13,44 surface 1/1/0
 14,44 surface 0/0/0
 15,44 surface 0/0/0
 16,44 surface 0/0/0 torch fire torch 0.000,0.680,0.098

@@ -305,9 +305,9 @@
 21,22 surface 1/1/0 decal 13m 0.459,0.225
 22,22 surface 0/0/0 sand<> prop sand 0.000
 23,22 surface 0/1/0 prop sarcophagus -0.022 decal 0m 0.500,0.462
-24,22 surface 1/0/0 sand< torch fire torch 0.000,0.680,0.098
+24,22 surface 1/0/0 sand<
 25,22 surface 0/0/0
-26,22 surface 1/2/0 decal 11 0.455,0.471
+26,22 surface 1/2/0
 27,22 surface 0/0/0 sand> prop lamp -0.063 fire lamp -0.319,0.050,0.307
 28,22 surface 0/1/0
 29,22 surface 0/0/0 sand< decal 8 0.446,0.558
@@ -603,7 +603,7 @@
 8,41 surface 7/2/2 sand< decal 14m 0.588,0.375
 9,41 surface 6/2/2 sand> prop canopicm -0.052
 10,41 surface 7/1/2
-11,41 surface 6/2/2 sand<> torch fire torch 0.000,0.680,0.098
+11,41 surface 6/2/2 sand<>
 12,41 surface 7/1/2
 13,41 surface 6/1/2 prop thoth_baboon_standingm -0.165 decal 10 0.483,0.454
 14,41 surface 6/1/2

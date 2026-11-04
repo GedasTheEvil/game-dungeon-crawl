@@ -210,6 +210,19 @@ TEST_CASE("level 4 from its entrance to its exit: Khepri's room, the key behind 
 	world.player.god = true;
 	REQUIRE(world.Load(4));
 	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(15.45f)); // over the dais (plan subcell-campaign): a step, a half step, a step
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(17.45f));
+	world.Wait(500);
+	world.Wait(4000);
+	world.Jump();
+	REQUIRE(world.WalkTo(18.45f));
+	world.Wait(500);
+	REQUIRE(world.WalkTo(19.45f));
+	world.Wait(1500);
+	REQUIRE(world.WalkTo(20.45f));
+	world.Wait(1500);
 	REQUIRE(world.WalkTo(21.45f));
 	REQUIRE(world.Climb(-2.97f));
 	REQUIRE(world.WalkTo(20.45f));

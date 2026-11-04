@@ -43,7 +43,7 @@
 13,5 surface 0/1/0 torch fire torch 0.000,0.680,0.098
 14,5 surface 0/1/0 decal 13 0.417,0.225
 15,5 surface 1/0/0 sand<
-16,5 surface 0/0/0 prop lamp -0.070 fire lamp -0.326,0.050,0.307
+16,5 surface 0/0/0
 17,5 surface 0/0/0 prop skeleton 0.143 decal 15 0.426,0.370
 18,5 surface 0/2/0 torch fire torch 0.000,0.680,0.098
 19,5 surface 1/0/0 decal 10 0.474,0.554
@@ -596,7 +596,7 @@
 3,41 surface 0/2/0 decal 14m 0.396,0.375 torch fire torch 0.000,0.680,0.098
 4,41 surface 0/0/0 prop rubble -0.100
 5,41 surface 0/0/0
-6,41 surface 1/0/0 prop osirism 0.011
+6,41 surface 1/0/0
 7,41 surface 0/2/0
 8,41 surface 0/2/0 decal 10m 0.528,0.444
 9,41 surface 1/0/0

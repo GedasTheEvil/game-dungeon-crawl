@@ -578,8 +578,8 @@
 15,36 surface 10/4/6 prop jackalm 0.154
 16,36 surface 11/4/6
 17,36 surface 10/4/6 prop ushabtim 0.047
-18,36 surface 10/4/6 prop potterym -0.012
-19,36 surface 10/4/6 prop catm 0.036
+18,36 surface 10/4/6
+19,36 surface 10/4/6
 20,36 surface 11/4/6
 21,36 surface 10/4/6
 22,36 surface 10/4/6
@@ -694,7 +694,7 @@
 27,41 surface 10/4/6
 28,41 surface 11/4/6
 29,41 surface 10/4/6
-30,41 surface 10/4/6 prop ushabti 0.034 decal 6 0.479,0.575
+30,41 surface 10/4/6
 31,41 surface 10/4/6
 32,41 surface 10/4/6 decal 12 0.496,0.350
 33,41 surface 11/4/6

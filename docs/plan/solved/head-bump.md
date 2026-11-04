@@ -1,6 +1,6 @@
 # Head bump: a jump into a low ceiling hurts
 
-Status: implemented 2026-11-04, waits for the play-test (`bin/game --play tests/play/head-bump.txt`). Was: draft 2026-11-03. Needs first: [subcell-physics](solved/subcell-physics.md). From the user.
+Status: solved 2026-11-04 (play-tested by the user). Was: implemented 2026-11-04, waits for the play-test (play script removed). Was: draft 2026-11-03. Needs first: [subcell-physics](subcell-physics.md). From the user.
 
 Today a jump that meets a low ceiling (a solid sub-cell over the body, `Dungeon::ceilingAt`) stops the rise and plays
 `WorldSound::HeadBump` (`src/world/dungeon_base.cpp`, the jump step). Now the bump also hurts and can daze.
@@ -19,8 +19,9 @@ Today a jump that meets a low ceiling (a solid sub-cell over the body, `Dungeon:
 * Once per jump: the rise ends at the bump, so it cannot repeat in the same jump. A dazed player cannot jump, so no
   chain of bumps while dazed.
 * A pain grunt on a hurting bump, besides the knock (reuse the player's hurt sound).
+* A status line "You bump your head" on a hurting bump (from the user's play-test); a graze only knocks.
 * Write the damage and daze roll as one function a monster bump and a spiked ceiling can share
-  ([monster-head-bump](monster-head-bump.draft.sonet.md), [ceiling-spikes](ceiling-spikes.draft.opus.md)).
+  ([monster-head-bump](../monster-head-bump.draft.sonet.md), [ceiling-spikes](../ceiling-spikes.draft.opus.md)).
 
 ## Tests
 

@@ -1,8 +1,0 @@
-# Plan crouch, for `bin/game --play tests/play/crouch.txt`: tests/levels/subcells, god mode, at the exit (col 24).
-# Hold S (or arrow down) to crouch, walk right through the crawl space (cols 25-26) at a third of the speed; let go of C under it and
-# the player stays down, past it they stand up. Crouched: no jump, no sprint, no attack ("Stand up to strike"). The
-# ducking of high swings (mummies, Anubis guards, ushabti) and of shots aimed before the duck: from `bin/game --level 4`.
-seed 1
-god
-level tests/levels/subcells at 24 2
-give melee club

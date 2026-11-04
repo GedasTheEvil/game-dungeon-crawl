@@ -1,7 +1,7 @@
 # Crouch: crawl spaces and ducking attacks
 
-Status: implemented 2026-11-04, waiting for the play-test (`bin/game --play tests/play/crouch.txt`). Was: draft
-2026-11-02, needed [subcell-physics](solved/subcell-physics.md) first. From the user.
+Status: solved 2026-11-04 (play-tested by the user). Was: implemented 2026-11-04, waiting for the play-test (play script removed). Was: draft
+2026-11-02, needed [subcell-physics](subcell-physics.md) first. From the user.
 
 Implementer's choices:
 
@@ -37,8 +37,8 @@ A new action: the player crouches to pass under a low ceiling (a crawl space) an
   stand, the player stays crouched when the key is let go.
 * No stamina cost for crouching (from the user).
 * No attacks while crouched, melee or ranged (from the user). Interact works crouched.
-* Archeologist clips in Blender 5 ([modeling.md](../modeling.md)): crouch idle, crouch walk, and stand to crouch and
-  back. Notes in [remodeling.md](../remodeling.md).
+* Archeologist clips in Blender 5 ([modeling.md](../../modeling.md)): crouch idle, crouch walk, and stand to crouch and
+  back. Notes in [remodeling.md](../../remodeling.md).
 
 ## Ducking (from the user: missiles and high swings)
 
@@ -56,5 +56,5 @@ A new action: the player crouches to pass under a low ceiling (a crawl space) an
   when crouched, a low bite hits; crouched walk is a third of the walk speed; no attack and no stamina drain while
   crouched.
 * Scenario with screenshots of the crouch poses and a crawl space on `tests/levels/subcells`.
-* Play script `tests/play/crouch.txt`.
+* Play script `tests/play/crouch.txt` (removed once solved).
 * Glossary: "crouch", "crawl space" if not added yet, "attack height".

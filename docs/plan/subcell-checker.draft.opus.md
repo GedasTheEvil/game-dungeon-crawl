@@ -1,6 +1,6 @@
 # Sub-cells: the level checker
 
-Status: draft 2026-11-02. Needs first: [crouch](crouch.md) and
+Status: draft 2026-11-02. Needs first: [crouch](solved/crouch.md) and
 [subcell-monsters](solved/subcell-monsters.md). From the user.
 
 The checker's walker (`src/world/level_check.cpp`) moves by whole cells; it learns the sub-cell moves.

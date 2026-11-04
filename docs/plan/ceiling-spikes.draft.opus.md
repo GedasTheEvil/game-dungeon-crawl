@@ -1,6 +1,6 @@
 # Ceiling spikes: the floor spike traps on a low ceiling, they hurt whoever jumps into them
 
-Status: draft 2026-11-03. Needs first: [head-bump](head-bump.md),
+Status: draft 2026-11-03. Needs first: [head-bump](solved/head-bump.md),
 [monster-head-bump](monster-head-bump.draft.sonet.md). From the user.
 
 New traps: spikes on the underside of a low ceiling. Walking under it is safe; a jump into it hurts (from the user).
@@ -26,7 +26,7 @@ The floor's spike traps turned upside down (from the user): two kinds, as on the
   A monster takes what it takes walking through the floor kind (`TrapHurt`), scaled the same way.
 * No head bump damage or daze roll on top: the spikes replace the bump. Any contact counts, no velocity threshold:
   the tips reach down.
-* Walking, crouching ([crouch](crouch.md)) and standing under it are safe.
+* Walking, crouching ([crouch](solved/crouch.md)) and standing under it are safe.
 * Sound: the floor spikes' stab, not the knock.
 * Look: the floor spikes' and the death trap's models turned 180 degrees, on each underside, drawn with the sub-cell
   boxes. If a model does not fit a quarter-tile underside, scale it in its Blender 5 script

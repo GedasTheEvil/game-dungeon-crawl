@@ -224,6 +224,7 @@ TEST_CASE("a jump into a low ceiling costs 5 HP, 15 at 300 max HP; a graze or an
 	SimWorld world;
 	CHECK(bumpJump(world, 15) == HEAD_BUMP_MIN_HP); // half up: the head hits it still rising fast
 	CHECK(heard(world, WorldSound::HeadBump));
+	CHECK(world.Told("You bump your head"));
 	CHECK(world.player.Alive());
 
 	SimWorld high;
@@ -237,6 +238,7 @@ TEST_CASE("a jump into a low ceiling costs 5 HP, 15 at 300 max HP; a graze or an
 
 	SimWorld graze; // three quarters up: the top of the jump only just reaches it (a knock, no hurt)
 	CHECK(bumpJump(graze, 13) == 0);
+	CHECK_FALSE(graze.Told("You bump your head")); // a graze only knocks
 	CHECK(heard(graze, WorldSound::HeadBump));
 
 	SimWorld open;

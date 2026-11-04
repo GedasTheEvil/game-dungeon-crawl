@@ -211,6 +211,7 @@ int Player::HeadBump(WorldEvents& events, Rng& rng) {
 	if (!Alive())
 		return 0;
 	events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Attack); // the grunt (the player has no hurt sound)
+	events.Status("You bump your head");
 	const bool daze = rng.percent(HEAD_BUMP_DAZE_PCT);
 	const int dazeMs = rng.range(HEAD_BUMP_DAZE_MIN_MS, HEAD_BUMP_DAZE_MAX_MS); // always rolled: a steady stream
 	int lost = 0;

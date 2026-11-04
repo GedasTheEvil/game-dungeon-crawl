@@ -134,7 +134,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `walk to X` | Walk along the row until the player's map x reaches X, whichever way it is. Fails like `walk` when blocked. `levelcheck --script` uses it, so its steps do not add up errors. |
 | `hold left\|right\|up\|down T` | Hold the walk key for T (ticks, `500ms`, `2s`), whether the player moves or not. Never fails: for walking into a wall. |
 | `sprint on\|off` | Shift down / up (sprint). It stays down until `sprint off`. |
-| `crouch on\|off` | The down key held / let go off a ladder ([plan](plan/crouch.md)): the player crouches on the floor, and stays down with the key up under a ceiling too low to stand. |
+| `crouch on\|off` | The down key held / let go off a ladder ([plan](plan/solved/crouch.md)): the player crouches on the floor, and stays down with the key up under a ceiling too low to stand. |
 | `jump`, `attack`, `interact` | Same as the key press (interact = open a chest, take its item once open (a second press, after its clip), a riddle, ...). |
 | `attack up` | The attack key let go: a [power hit](plan/solved/skill-power-hit.md)'s charge (begun by `attack` with the skill and the stamina-skill toggle on) swings on the next tick. |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |

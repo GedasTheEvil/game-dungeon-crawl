@@ -1,6 +1,7 @@
 # Level editor
 
-`make editor`, then `make run-editor`. The editor runs from the repo root.
+`make editor`, then `make run-editor` (or `make run-editor LEVEL=content/levels/lvl3`, or `bin/editor <file>`: opens any
+level file, relative to where you run it, and `Save` writes back to it). The editor runs from the repo root.
 
 ## Screen layout
 
@@ -116,7 +117,9 @@ lamp or a Thoth statue.
 3. Paint on the grid.
 4. Click the name field, type a name (max. 32 characters: letters, digits, `_`, `-`, `.`).
 5. Click `Save` (`Ctrl+S`). The file goes to `tools/editor/saved/<name>`. `Load` (`Ctrl+O`) reads the same path.
-6. Copy the file to `content/levels/lvlN`. The game starts on `content/levels/lvl1` and each exit loads `lvl<N+1>`.
+6. Optional: copy the file to `content/levels/lvlN`, or open the campaign file (`bin/editor content/levels/lvlN`) and save it in
+   place. Typing a new name in the name field drops the opened path: `Save` and `Load` use `tools/editor/saved/<name>` again.
+   A file that does not load, or more than one argument, exits 1 with a message on stderr. The game starts on `content/levels/lvl1` and each exit loads `lvl<N+1>`.
 
 Limits: attribute max. 3 digits, value max. 4 digits, digits only.
 A new map is all `Wall`. You carve the playable space out of it: paint `Empty` structure, or paint objects (they

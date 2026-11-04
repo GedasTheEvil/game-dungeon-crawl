@@ -11,6 +11,7 @@
 #include "../../src/world/decor.h"
 #include "../../src/world/level.h"
 #include "../../src/world/level_check.h"
+#include <filesystem>
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <cmath>
@@ -214,6 +215,7 @@ class Editor {
 	void mouseDrag(int x, int y);
 	void mouseMove(int x, int y);
 	void keyPressed(unsigned char key);
+	void open(const std::string& path);
 	void specialKeyPressed(int key);
 
   private:
@@ -225,6 +227,7 @@ class Editor {
 	int decal = PLACED_UNSET; // the decal layer's (dressing_brush.h)
 	bool mirror = false; // of the prop or decal
 	std::string attributeText, valueText, name;
+	std::string openedPath; // the file given on the command line: Save and Load use it until the name is typed
 	Mode mode = Mode::Paint;
 	Layer layer = Layer::Objects;
 	Field field = Field::None;
@@ -292,6 +295,8 @@ class Editor {
 	void pick(CellPos cell);
 	void save();
 	void load();
+	std::string loadPath(const std::string& path);
+	std::string levelPath() const;
 	void nextZone();
 	void showStatus(const std::string& text, bool error);
 	void typeInto(std::string& text, unsigned char key, size_t maxLength, bool digitsOnly);
@@ -623,8 +628,10 @@ void Editor::keyPressed(unsigned char key) {
 		typeInto(attributeText, key, ATTRIBUTE_DIGITS, true);
 	else if (field == Field::Value)
 		typeInto(valueText, key, VALUE_DIGITS, true);
-	else
+	else {
 		typeInto(name, key, NAME_LENGTH, false);
+		openedPath.clear();
+	}
 }
 
 void Editor::specialKeyPressed(int key) {
@@ -739,11 +746,26 @@ void Editor::save() {
 		showStatus("Enter a level name first", true);
 		return;
 	}
-	std::string path = "tools/editor/saved/" + name;
+	std::string path = levelPath();
 	if (saveLevelFile(path.c_str(), grid))
 		showStatus("Saved to " + path, false);
 	else
 		showStatus("Cannot write " + path, true);
+}
+
+std::string Editor::levelPath() const { return openedPath.empty() ? "tools/editor/saved/" + name : openedPath; }
+
+// Reads the file into the grid: the error, empty when it loaded.
+std::string Editor::loadPath(const std::string& path) {
+	auto loaded = std::make_unique<LevelGrid>();
+	std::string error = loadLevelFile(path.c_str(), *loaded);
+	if (!error.empty())
+		return error;
+	grid = *loaded;
+	reportStale = true;
+	checked = {};
+	showStatus("Loaded from " + path, false);
+	return "";
 }
 
 void Editor::load() {
@@ -751,17 +773,18 @@ void Editor::load() {
 		showStatus("Enter a level name first", true);
 		return;
 	}
-	std::string path = "tools/editor/saved/" + name;
-	auto loaded = std::make_unique<LevelGrid>();
-	std::string error = loadLevelFile(path.c_str(), *loaded);
-	if (!error.empty()) {
+	const std::string path = levelPath();
+	const std::string error = loadPath(path);
+	if (!error.empty())
 		showStatus(path + ": " + error, true);
+}
+
+// The command line file: loaded, remembered, its file name in the name field.
+void Editor::open(const std::string& path) {
+	if (!loadPath(path).empty())
 		return;
-	}
-	grid = *loaded;
-	reportStale = true;
-	checked = {};
-	showStatus("Loaded from " + path, false);
+	openedPath = path;
+	name = std::filesystem::path(path).filename().string().substr(0, NAME_LENGTH);
 }
 
 // None, then the zones in campaign order (ZoneId), then none again.
@@ -1424,13 +1447,29 @@ std::unique_ptr<Editor> editor;
 } // namespace
 
 int main(int argc, char* argv[]) {
+	glutInit(&argc, argv); // strips GLUT's own options from argv
+	if (argc > 2) {
+		fprintf(stderr, "Usage: %s [level file]\n", argv[0]);
+		return 1;
+	}
+	std::string levelFile;
+	if (argc == 2) {
+		levelFile = std::filesystem::absolute(argv[1]).string(); // before enterRootDir changes the directory
+		auto probe = std::make_unique<LevelGrid>();
+		const std::string error = loadLevelFile(levelFile.c_str(), *probe);
+		if (!error.empty()) {
+			fprintf(stderr, "%s: %s\n", argv[1], error.c_str());
+			return 1;
+		}
+	}
 	Paths::enterRootDir();
-	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(START_WIDTH, START_HEIGHT);
 	glutCreateWindow("Dungeon Editor");
 
 	editor = std::make_unique<Editor>();
+	if (!levelFile.empty())
+		editor->open(levelFile);
 	glutDisplayFunc([] { editor->draw(); });
 	glutIdleFunc([] { glutPostRedisplay(); });
 	glutReshapeFunc([](int w, int h) { editor->resize(w, h); });

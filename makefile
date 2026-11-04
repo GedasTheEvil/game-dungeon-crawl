@@ -209,7 +209,7 @@ $(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
 
 run-editor: $(EDITOR)
-	$(EDITOR)
+	$(EDITOR) $(LEVEL)
 
 model-viewer: $(VIEWER)
 

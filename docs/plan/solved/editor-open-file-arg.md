@@ -1,6 +1,6 @@
 # Editor: open a level file from the command line
 
-Status: draft 2026-11-01, needs nothing first. From the user.
+Status: solved 2026-11-04. Was: draft 2026-11-01, needs nothing first. From the user.
 
 ## Problem
 

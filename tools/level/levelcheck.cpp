@@ -70,6 +70,12 @@ class PathScript {
 				waitForGusts(r.path[i - 1], cur);
 				walkTo(target);
 				break;
+			case PathMove::Crawl: // into a crawl space (plan subcell-checker): down, through it, the key let go (the
+								  // player stays down under the low ceiling until there is room to stand)
+				line("crouch on");
+				walkTo(target);
+				line("crouch off");
+				break;
 			case PathMove::Drop:
 				walkTo(target);
 				line("wait 1500ms");
@@ -78,6 +84,7 @@ class PathScript {
 				flushWalk();
 				climb(cur.row > r.path[i - 1].row ? 1 : -1);
 				break;
+			case PathMove::Step: // onto a quarter step (plan subcell-checker): a jump, the walk on
 			case PathMove::Jump:
 				flushWalk();
 				// The checker does not count stamina; the script waits for a jump's worth (out of quicksand,
@@ -342,6 +349,8 @@ void printReport(const Entry& e, bool map) {
 			r.pathSandGusts,
 			r.pathTurns
 		);
+	if (r.pathSteps + r.pathCrawls > 0) // plan subcell-checker
+		printf("   sub-cells: %d quarter steps, %d crawled\n", r.pathSteps, r.pathCrawls);
 	printf("   difficulty: %.1f\n", r.difficulty);
 	if (map)
 		printf("%s", renderLevel(e.grid, &r).c_str());

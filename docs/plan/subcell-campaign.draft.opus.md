@@ -1,6 +1,6 @@
 # Sub-cells in the campaign
 
-Status: draft 2026-11-02. Needs first: [subcell-checker](subcell-checker.draft.opus.md). From the user: the
+Status: draft 2026-11-02. Needs first: [subcell-checker](solved/subcell-checker.md). From the user: the
 sub-cell drafts use a test level only; the campaign gets steps and crawl spaces here.
 
 * Pick levels where steps make the route more interesting: a stepped hall, a stair up to a ledge, a crawl space as a

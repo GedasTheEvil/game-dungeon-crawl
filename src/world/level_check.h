@@ -26,6 +26,12 @@
 //   - sand gusts (plan sandstorm-halls) push the player downwind, never for good: a cost on the path. Each run of them
 //     must be crossable against the wind between gusts and blow the player into nothing worse than rock or a floor,
 //     checked on its own (checkSandGusts).
+//   - sub-cells (plan subcell-checker): a shaped cell is walked by its standing places, sub-cells over solid ones
+//   (every
+//     other cell is one place, as before): a quarter step is jumped onto (from beside it, or over water or a gap),
+//     half a tile is too high, walking off a step drops, an opening a quarter high is crawled through, a gap is jumped
+//     from a step as from the floor; jumps need the head room of their arc. A large monster does not reach the path
+//     through a crawl space (MonsterKind::heightQuarters).
 // A Death cell with no way out (a spike pit) kills the player; any other dead end is a softlock.
 
 #include "level.h"
@@ -38,8 +44,9 @@ struct CellPos {
 	int row = -1;
 };
 
-// How the player gets into a path cell from the one before it.
-enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport, Turn };
+// How the player gets into a path cell from the one before it. Crawl: crouched into a crawl space, Step: a jump up onto
+// a quarter step (plan subcell-checker).
+enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport, Turn, Crawl, Step };
 
 struct LevelReport {
 	bool valid = false;
@@ -85,6 +92,7 @@ struct LevelReport {
 	std::vector<std::vector<MirrorSetting>> pathTurnWays;
 	int pathLength = 0; // moves
 	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0, pathTurns = 0;
+	int pathSteps = 0, pathCrawls = 0; // quarter steps jumped onto, sub-cells crawled (plan subcell-checker)
 	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathWallSpikes = 0, pathGates = 0,
 		pathMonsters = 0;
 	int pathSandFalls = 0, pathSand = 0, pathQuicksand = 0; // pathRockFalls counts no sand falls

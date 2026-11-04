@@ -26,7 +26,7 @@ Implementer's choices:
 * `isFloor` also counts a shaped cell with its top row all solid (`topRowSolid`), for monsters and the checker too.
 * Ladders, gates and doors in shaped cells are not stopped by the game; a ladder beside a step works by the body
   rules (climb above the step's top, step over). The checker's warning stays with
-  [subcell-checker](../subcell-checker.draft.opus.md); not unit-tested.
+  [subcell-checker](subcell-checker.md); not unit-tested.
 * Drawing (`Dungeon::drawShapeBlocks`): the front of each run of solid sub-cells along a row in one face, the cell's
   wall texture (its back wall's pattern continued), tops in its floor texture, undersides in its ceiling texture, sides
   in the wall texture; only faces next to an open sub-cell. In half water the bottom row reaches down to the basin
@@ -60,7 +60,7 @@ The player walks, jumps and falls against the solid sub-cells of a shaped cell, 
 * `Dungeon::Draw`: solid sub-cells drawn as blocks with the cell's wall texture (the zone look), their tops as floor,
   their undersides as ceiling; merge neighbours into one box where it is simple.
 * Decor, torches and decals of a shaped cell sit on its floor height or are left out where they do not fit (the
-  scatter skips them; a placed one the checker warns about in [subcell-checker](../subcell-checker.draft.opus.md)).
+  scatter skips them; a placed one the checker warns about in [subcell-checker](subcell-checker.md)).
 * Beams (`traceBeams`), arrows and thrown items: a solid sub-cell stops them where it is. Water fills a shaped cell
   above its floor.
 

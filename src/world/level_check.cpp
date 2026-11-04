@@ -1,4 +1,5 @@
 #include "level_check.h"
+#include "climb_path.h"
 #include "decor_scatter.h"
 #include "movement.h"
 #include "inscriptions.h"
@@ -17,12 +18,36 @@
 namespace {
 constexpr int MASKS = 1 << BOSS_LOCK; // lock colours opened so far, the boss lock too
 constexpr int CELLS = LEVEL_WIDTH * LEVEL_HEIGHT;
-constexpr int STATES = CELLS * MASKS;
 constexpr int NONE = -1;
+// The level in sub-cells (plan subcell-checker): X across, Y up, SUBCELLS of each per cell.
+constexpr int SUB_WIDTH = LEVEL_WIDTH * SUBCELLS;
+constexpr int SUB_HEIGHT = LEVEL_HEIGHT * SUBCELLS;
+constexpr int SUBS_PER_CELL = SUBCELLS * SUBCELLS;
+// A jump over a gap a cell wide: from a cell's last sub-cell column over the next cell into the first one of the cell
+// after (Jump::ARC's drift and the walk carry the player past 1.5 tiles, movement.h).
+constexpr int JUMP_SUBCELLS = SUBCELLS + 1;
+// Head room in sub-cells over the feet: a jump over a gap needs the whole arc (a bump cuts it short), a jump onto a
+// quarter step the body over a quarter's rise.
+constexpr int JUMP_ROOM = 4;
+constexpr int STEP_ROOM = 3;
+static_assert(
+	Jump::ARC.peak + PLAYER_BODY_HEIGHT <= static_cast<float>(JUMP_ROOM) * SUBCELL_SIZE,
+	"a jump's head stays in JUMP_ROOM sub-cells"
+);
+static_assert(
+	SUBCELL_SIZE + PLAYER_BODY_HEIGHT <= static_cast<float>(STEP_ROOM) * SUBCELL_SIZE,
+	"onto a quarter step the head stays in STEP_ROOM sub-cells"
+);
+static_assert(
+	PLAYER_BODY_HEIGHT <= 2.f * SUBCELL_SIZE,
+	"the player stands in two sub-cells, crouched in one (movement.h)"
+);
 
 // Path costs: the cheapest path avoids hazards when there is a way around them.
 constexpr int COST_MOVE = 2;
 constexpr int COST_JUMP = 4;
+constexpr int COST_STEP = 3; // a jump onto a quarter step: short, no gap under it
+constexpr int COST_CRAWL = 1; // per sub-cell crawled: the crouched walk is a third of the walk (plan crouch)
 constexpr int COST_SPIKE = 30; // a walk over it costs SPIKES_CROSS_HP: deadly early on, jump it
 constexpr int COST_DEATH = 30;
 constexpr int COST_ROCK_FALL = 15;
@@ -45,16 +70,102 @@ struct Edge {
 	Move move;
 };
 
-int stateOf(int col, int row, int mask) { return (row * LEVEL_WIDTH + col) * MASKS + mask; }
-int cellOf(int state) { return state / MASKS; }
+int nodeOf(int state) { return state / MASKS; }
 int maskOf(int state) { return state % MASKS; }
 int bitOf(int colour) { return isGateColour(colour) ? 1 << (colour - 1) : 0; }
+int subCell(int x, int y) { return (y / SUBCELLS) * LEVEL_WIDTH + x / SUBCELLS; }
+bool subInBounds(int x, int y) { return x >= 0 && x < SUB_WIDTH && y >= 0 && y < SUB_HEIGHT; }
+
+// A fine cell (plan subcell-checker) is walked by its sub-cells: a shaped one, or one over a shaped cell whose top row
+// is solid in part (the player stands on the solid sub-cells and falls by the open ones). A ladder's cell is not (a
+// ladder in a shape is warned about, checkShapes).
+bool fineCell(const LevelGrid& grid, int cell) {
+	const Tile t = grid.cells[cell];
+	if (t.type == Ladder || isSolidStructure(t.structure))
+		return false;
+	if (hasShape(t))
+		return true;
+	constexpr std::uint16_t TOP_ROW = 0xf000;
+	const Tile below = grid.at(cell % LEVEL_WIDTH, cell / LEVEL_WIDTH - 1);
+	const int top = below.shape & TOP_ROW;
+	return hasShape(below) && top != 0 && top != TOP_ROW;
+}
+
+// The walker's places. A cell is one node, as before shapes; a fine cell has one node per standing place: a sub-cell
+// open over a solid one, or on the cell's bottom row (whether the cell below carries it depends on the gates). The
+// cell's own node goes unused then.
+class Nodes {
+  public:
+	explicit Nodes(const LevelGrid& grid) : sub(static_cast<size_t>(CELLS) * SUBS_PER_CELL, NONE), fineCells(CELLS, 0) {
+		for (int cell = 0; cell < CELLS; cell++) {
+			nodeCell.push_back(cell);
+			place.push_back(0);
+		}
+		for (int cell = 0; cell < CELLS; cell++) {
+			if (!fineCell(grid, cell))
+				continue;
+			fineCells[cell] = 1;
+			const Tile t = grid.cells[cell];
+			for (int q = 0; q < SUBCELLS; q++)
+				for (int s = 0; s < SUBCELLS; s++)
+					if (!subcellSolid(t, s, q) && (q == 0 || subcellSolid(t, s, q - 1))) {
+						sub[subIndex(cell, s, q)] = static_cast<int>(nodeCell.size());
+						nodeCell.push_back(cell);
+						place.push_back(s + SUBCELLS * q);
+					}
+		}
+	}
+
+	[[nodiscard]] int count() const { return static_cast<int>(nodeCell.size()); }
+	[[nodiscard]] int cell(int node) const { return nodeCell[node]; }
+	[[nodiscard]] bool fine(int node) const { return node >= CELLS; }
+	// The node of the place at sub-cell (x, y): its cell's for a cell that is not fine, NONE for no standing place.
+	[[nodiscard]] int at(int x, int y) const {
+		if (!subInBounds(x, y))
+			return NONE;
+		const int cell = subCell(x, y);
+		const int fineNode = sub[subIndex(cell, x % SUBCELLS, y % SUBCELLS)];
+		return fineCells[cell] != 0 ? fineNode : cell;
+	}
+	// Where the player stands at the node, leaving it going dir: a cell's node stands at its side.
+	[[nodiscard]] int x(int node, int dir) const {
+		const int col = nodeCell[node] % LEVEL_WIDTH;
+		return col * SUBCELLS + (fine(node) ? place[node] % SUBCELLS : (dir > 0 ? SUBCELLS - 1 : 0));
+	}
+	[[nodiscard]] int y(int node) const {
+		return nodeCell[node] / LEVEL_WIDTH * SUBCELLS + (fine(node) ? place[node] / SUBCELLS : 0);
+	}
+	// The nodes standing in the cell.
+	[[nodiscard]] std::vector<int> of(int cell) const {
+		if (fineCells[cell] == 0)
+			return {cell};
+		std::vector<int> out;
+		for (int k = 0; k < SUBS_PER_CELL; k++)
+			if (const int node = sub[static_cast<size_t>(cell) * SUBS_PER_CELL + k]; node != NONE)
+				out.push_back(node);
+		return out;
+	}
+
+  private:
+	std::vector<int> nodeCell; // by node
+	std::vector<int> place; // by node: a fine one's sub-cell, s + SUBCELLS * q
+	std::vector<int> sub; // by cell and sub-cell: the fine node, or NONE
+	std::vector<char> fineCells; // by cell
+
+	[[nodiscard]] static size_t subIndex(int cell, int s, int q) {
+		return static_cast<size_t>(cell) * SUBS_PER_CELL + static_cast<size_t>(s + SUBCELLS * q);
+	}
+};
 
 class Walker {
   public:
 	// sealed: the name gates (plan secret-name-gates) do not teleport, as before the name is spoken.
 	explicit Walker(const LevelGrid& grid, bool teleports = true, bool sealed = false)
-		: grid(grid), pairs(grid.cells), teleports(teleports), sealed(sealed) {}
+		: grid(grid), nodes(grid), pairs(grid.cells), teleports(teleports), sealed(sealed) {}
+
+	[[nodiscard]] const Nodes& places() const { return nodes; }
+	[[nodiscard]] int states() const { return nodes.count() * MASKS; }
+	[[nodiscard]] int cellOf(int state) const { return nodes.cell(nodeOf(state)); }
 
 	// Turning the mirror in the player's cell (plan sunlight-mirrors): a sun disc of a colour not open yet that a beam
 	// can light, the player setting the mirrors they reach from here with the colours they have (sunlitCells), and one
@@ -70,17 +181,19 @@ class Walker {
 			return found->second;
 		const int mask = maskOf(state);
 		std::vector<char> reach(CELLS, 0); // with the colours kept: what a key there opens does not count
-		std::vector<int> stack = {cellOf(state)};
-		reach[cellOf(state)] = 1;
+		std::vector<char> seen(nodes.count(), 0);
+		std::vector<int> stack = {nodeOf(state)};
+		seen[nodeOf(state)] = 1;
 		std::vector<Edge> edges;
 		while (!stack.empty()) {
-			const int cell = stack.back();
+			const int node = stack.back();
 			stack.pop_back();
-			successors(cell * MASKS + mask, edges, false);
+			reach[nodes.cell(node)] = 1;
+			successors(node * MASKS + mask, edges, false);
 			for (const Edge& e : edges)
-				if (reach[cellOf(e.to)] == 0) {
-					reach[cellOf(e.to)] = 1;
-					stack.push_back(cellOf(e.to));
+				if (seen[nodeOf(e.to)] == 0) {
+					seen[nodeOf(e.to)] = 1;
+					stack.push_back(nodeOf(e.to));
 				}
 		}
 		std::vector<std::vector<MirrorSetting>> ways;
@@ -118,18 +231,47 @@ class Walker {
 		return isSolidTile(t);
 	}
 
-	// The cell carries the player standing over it (isFloor), with the gates as in solid.
-	[[nodiscard]] bool floor(int col, int row, int mask) const {
-		Tile t = grid.at(col, row);
-		if (t.type == Gate)
-			return gateState(t) == GateState::Closed && (mask & bitOf(t.attr)) == 0;
-		return isFloor(t);
+	// Sub-cell (x, y) is open: in the level, its cell not solid, the sub-cell not in the cell's shape.
+	[[nodiscard]] bool open(int x, int y, int mask) const {
+		if (!subInBounds(x, y) || solid(x / SUBCELLS, y / SUBCELLS, mask))
+			return false;
+		return !subcellSolid(grid.cells[subCell(x, y)], x % SUBCELLS, y % SUBCELLS);
 	}
 
-	[[nodiscard]] bool standable(int col, int row, int mask) const {
-		if (!LevelGrid::inBounds(col, row) || solid(col, row, mask))
+	// The player stands at sub-cell (x, y): open, over a solid sub-cell (a whole solid cell, isFloor, is solid in
+	// every one) or in a ladder's cell.
+	[[nodiscard]] bool stands(int x, int y, int mask) const {
+		return open(x, y, mask) && (grid.cells[subCell(x, y)].type == Ladder || !open(x, y - 1, mask));
+	}
+
+	// Standing there, the player has head room only crouched: a crawl space (plan crouch).
+	[[nodiscard]] bool crawl(int x, int y, int mask) const { return !open(x, y + 1, mask); }
+
+	// On the cell's bottom: in its water or sand, not on a step (Dungeon::playerOnStep).
+	[[nodiscard]] static bool atBottom(int y) { return y % SUBCELLS == 0; }
+	[[nodiscard]] bool inQuicksandAt(int x, int y) const {
+		return atBottom(y) && inQuicksand(grid.cells[subCell(x, y)]);
+	}
+
+	// A floor at or under sub-cell (x, y) down to its cell's bottom: else a gap, the fall goes under the row.
+	[[nodiscard]] bool floorInRow(int x, int y, int mask) const {
+		for (int down = y; down >= y - y % SUBCELLS; down--)
+			if (!open(x, down, mask))
+				return false;
+			else if (stands(x, down, mask))
+				return true;
+		return false;
+	}
+
+	// A jump takes off here: from a floor (a ladder's foot too), with room sub-cells of head room, not out of half
+	// water. A jump from mid-ladder is not modelled: its reach depends on the walk key held during the jump.
+	[[nodiscard]] bool takesOff(int x, int y, int mask, int room) const {
+		if (open(x, y - 1, mask) || (atBottom(y) && inHalfWater(grid.cells[subCell(x, y)])))
 			return false;
-		return grid.at(col, row).type == Ladder || floor(col, row - 1, mask);
+		for (int k = 1; k < room; k++)
+			if (!open(x, y + k, mask))
+				return false;
+		return true;
 	}
 
 	// Picks up what the player touches in this cell. Reaching the boss counts as killing it: the boss gates open.
@@ -140,18 +282,29 @@ class Walker {
 		return t.type == Key && isLockColour(t.attr) ? mask | bitOf(t.attr) : mask; // no key opens the boss lock
 	}
 
-	// Falls from an open cell until a floor or a ladder stops the player. NONE if the fall leaves the level.
-	[[nodiscard]] int settle(int col, int row, int mask, int& rowsFallen) const {
-		rowsFallen = 0;
-		mask = touch(col, row, mask);
-		while (!standable(col, row, mask)) {
-			row--;
-			rowsFallen++;
-			if (row < 0 || solid(col, row, mask))
+	// Falls from open sub-cell (x, y) until a floor or a ladder stops the player. NONE if the fall goes under minY (out
+	// of the level for 0). fallen: sub-cells.
+	[[nodiscard]] int settle(int x, int y, int mask, int& fallen, int minY = 0) const {
+		fallen = 0;
+		if (!open(x, y, mask))
+			return NONE;
+		mask = touch(x / SUBCELLS, y / SUBCELLS, mask);
+		while (!stands(x, y, mask)) {
+			y--;
+			fallen++;
+			if (y < minY || !open(x, y, mask))
 				return NONE;
-			mask = touch(col, row, mask);
+			if (y % SUBCELLS == SUBCELLS - 1)
+				mask = touch(x / SUBCELLS, y / SUBCELLS, mask);
 		}
-		return stateOf(col, row, mask);
+		const int node = nodes.at(x, y);
+		return node == NONE ? NONE : node * MASKS + mask;
+	}
+
+	// Into a cell at its bottom row, in its middle (the entrance, a teleporter's partner).
+	[[nodiscard]] int settleCell(int col, int row, int mask) const {
+		int fallen = 0;
+		return settle(col * SUBCELLS + SUBCELLS / 2, row * SUBCELLS, mask, fallen);
 	}
 
 	[[nodiscard]] int hazardCost(int cell) const {
@@ -178,79 +331,147 @@ class Walker {
 		return spikes;
 	}
 
+	// A trap jumped over rather than walked into: spikes, a death trap, a poison drip's puddle, quicksand.
+	[[nodiscard]] static bool jumpedOver(const Tile& t) {
+		return t.type == Spike || t.type == Death || t.fixture.type == PoisonDrip || inQuicksand(t);
+	}
+
 	void successors(int state, std::vector<Edge>& out, bool turning = true) const {
 		out.clear();
-		int cell = cellOf(state);
-		int mask = maskOf(state);
-		int col = cell % LEVEL_WIDTH;
-		int row = cell / LEVEL_WIDTH;
-		Tile here = grid.at(col, row);
+		const int node = nodeOf(state);
+		const int cell = nodes.cell(node);
+		const int mask = maskOf(state);
+		const int col = cell % LEVEL_WIDTH;
+		const int row = cell / LEVEL_WIDTH;
+		const Tile here = grid.at(col, row);
 
+		// A move inside the cell costs no walk and no hazard (the player is in it already); the walk's extras stay.
 		auto add = [&](int to, int base, Move move) {
-			if (to != NONE && to != state)
-				out.push_back({to, base + hazardCost(cellOf(to)), move});
+			if (to == NONE || to == state)
+				return;
+			const bool along = move == Move::Walk || move == Move::Drop || move == Move::Jump || move == Move::Crawl ||
+							   move == Move::Step;
+			const bool inCell = along && cellOf(to) == cell;
+			const int walk = inCell && move != Move::Jump && move != Move::Step ? COST_MOVE : 0;
+			out.push_back({to, base - walk + (inCell ? 0 : hazardCost(cellOf(to))), move});
 		};
 
 		const Fixture& lever = here.fixture;
 		if (lever.type == Lever && isLockColour(lever.attr) && !leverPulled(lever)) // a pulled lever opens nothing
-			add(stateOf(col, row, mask | bitOf(lever.attr)), COST_MOVE, Move::Pull);
+			add(node * MASKS + (mask | bitOf(lever.attr)), COST_MOVE, Move::Pull);
 		if (turning && here.type == Mirror)
 			for (const Turn& turn : turns(state))
-				add(stateOf(col, row, mask | bitOf(turn.colour)), COST_TURN, Move::Turn);
-
+				add(node * MASKS + (mask | bitOf(turn.colour)), COST_TURN, Move::Turn);
 		if (teleports && isTeleporter(here) && !(sealed && isNameGate(here))) {
 			int to = pairs.Partner(cell);
-			if (to != NONE) {
-				int fallen = 0;
-				add(settle(to % LEVEL_WIDTH, to / LEVEL_WIDTH, mask, fallen), COST_TELEPORT, Move::Teleport);
-			}
+			if (to != NONE)
+				add(settleCell(to % LEVEL_WIDTH, to / LEVEL_WIDTH, mask), COST_TELEPORT, Move::Teleport);
 		}
 
 		for (int dir : {-1, 1}) {
-			int next = col + dir;
-			if (!LevelGrid::inBounds(next, row) || solid(next, row, mask))
-				continue;
-			int fallen = 0;
-			int to = settle(next, row, mask, fallen);
-			// Quicksand slows the walk to nothing (QUICKSAND_STUCK_MS) before the player has crossed a cell of it: no
-			// walk on from quicksand into more of it, only the jump out (plan paths-failures).
-			const bool sinking = inQuicksand(here) && fallen == 0 && inQuicksand(grid.at(next, row));
-			if (!sinking)
-				add(to, COST_MOVE + fallen, fallen > 0 ? Move::Drop : Move::Walk);
-
-			// Over one cell, a gap in the floor, a trap on it (a poison drip's puddle too) or quicksand, from a floor
-			// (a ladder's foot too, sand and quicksand), not out of half water. A jump from mid-ladder is not modelled:
-			// its reach depends on the walk key held during the jump. A rock fall is not jumped: the player passes
-			// through its cell either way, and it drops all the same. Never into quicksand: the player would land
-			// deep in it, too far in to walk out (plan paths-failures).
-			const Tile nextTile = grid.at(next, row);
-			bool overHazard = fallen == 0 && (nextTile.type == Spike || nextTile.type == Death ||
-											  nextTile.fixture.type == PoisonDrip || inQuicksand(nextTile));
-			bool overGap = fallen > 0;
-			int far = col + 2 * dir;
-			if ((overGap || overHazard) && !inHalfWater(here) && floor(col, row - 1, mask) &&
-				LevelGrid::inBounds(far, row) && standable(far, row, mask) && !inQuicksand(grid.at(far, row)))
-				add(stateOf(far, row, touch(far, row, touch(next, row, mask))), COST_JUMP, Move::Jump);
+			const int x = nodes.x(node, dir);
+			const int y = nodes.y(node);
+			walk(x, y, dir, mask, add);
+			if (here.type == Ladder) // off a ladder onto a step beside it: up to the step's height, then over
+				for (int q = 1; q < SUBCELLS; q++)
+					if (stands(x + dir, y + q, mask)) {
+						int fallen = 0;
+						add(settle(x + dir, y + q, mask, fallen),
+							COST_MOVE + (crawl(x + dir, y + q, mask) ? COST_CRAWL : 0),
+							crawl(x + dir, y + q, mask) ? Move::Crawl : Move::Walk);
+					}
+			jump(x, y, dir, mask, add);
 		}
 
 		if (here.type == Ladder) {
 			for (int dy : {-1, 1})
 				if (grid.at(col, row + dy).type == Ladder)
-					add(stateOf(col, row + dy, touch(col, row + dy, mask)), COST_MOVE, Move::Climb);
+					add((cell + dy * LEVEL_WIDTH) * MASKS + touch(col, row + dy, mask), COST_MOVE, Move::Climb);
 		}
 	}
 
   private:
 	const LevelGrid& grid;
+	Nodes nodes;
 	TeleportPairs pairs;
 	bool teleports;
 	bool sealed;
 	mutable std::map<int, std::vector<Turn>> turnCache; // by state
+
+	// One sub-cell along the row from (x, y): a walk (a crawl into a crawl space, a drop off an edge), or a jump up
+	// onto a quarter step (no higher: Jump::ARC, movement.h).
+	template <typename Add> void walk(int x, int y, int dir, int mask, Add& add) const {
+		const int next = x + dir;
+		if (open(next, y, mask)) {
+			int fallen = 0;
+			const int to = settle(next, y, mask, fallen);
+			// Quicksand slows the walk to nothing (QUICKSAND_STUCK_MS) before the player has crossed a cell of it: no
+			// walk on from quicksand into more of it, only the jump out (plan paths-failures).
+			if (to == NONE || (fallen == 0 && inQuicksandAt(x, y) && inQuicksandAt(next, y)))
+				return;
+			const bool crawling = fallen == 0 && crawl(next, y, mask);
+			add(to,
+				COST_MOVE + (fallen + SUBCELLS - 1) / SUBCELLS + (crawling ? COST_CRAWL : 0),
+				fallen > 0 ? Move::Drop : (crawling ? Move::Crawl : Move::Walk));
+			return;
+		}
+		if (!takesOff(x, y, mask, STEP_ROOM))
+			return;
+		for (int k = 1; k < STEP_ROOM; k++)
+			if (!open(next, y + k, mask))
+				return;
+		int fallen = 0;
+		add(settle(next, y + 1, mask, fallen), COST_STEP, Move::Step);
+	}
+
+	// Up to JUMP_SUBCELLS along the row, from a floor: over a gap or a trap (jumpedOver), landing on a floor no higher
+	// than the take-off and no lower than its cell's bottom (a jump off a step lands on the floor beside it); or onto
+	// a quarter step past the next sub-cell (over water, say: the arc's feet are over a quarter from about a third of a
+	// tile out to past a cell, Jump::ARC). A rock fall is not jumped: the player passes through its cell either way,
+	// and it drops all the same. Never into quicksand: the player would land deep in it, too far in to walk out (plan
+	// paths-failures).
+	template <typename Add> void jump(int x, int y, int dir, int mask, Add& add) const {
+		if (!takesOff(x, y, mask, JUMP_ROOM))
+			return;
+		const int start = subCell(x, y);
+		bool gap = false;
+		int trapCell = NONE; // the last cell with a trap jumped over
+		int passed = mask; // with the keys touched on the way
+		for (int k = 1; k <= JUMP_SUBCELLS; k++) {
+			const int at = x + dir * k;
+			if (!open(at, y, mask)) {
+				bool room = k >= 2;
+				for (int h = 1; h < JUMP_ROOM; h++)
+					room = room && open(at, y + h, mask);
+				int fallen = 0;
+				if (room)
+					add(settle(at, y + 1, passed, fallen), COST_JUMP, Move::Step);
+				return;
+			}
+			if (!open(at, y + 1, mask))
+				return;
+			const int cell = subCell(at, y);
+			if (k >= 2 && (gap || (trapCell != NONE && trapCell != cell)) && !inQuicksandAt(at, y)) {
+				int fallen = 0;
+				const int to = settle(at, y, passed, fallen, y - y % SUBCELLS);
+				if (to != NONE && !inQuicksandAt(at, y - fallen))
+					add(to, COST_JUMP, Move::Jump);
+			}
+			for (int h = 2; h < JUMP_ROOM; h++)
+				if (!open(at, y + h, mask))
+					return;
+			if (!floorInRow(at, y, mask))
+				gap = true;
+			else if (cell != start && jumpedOver(grid.cells[cell]))
+				trapCell = cell;
+			passed = touch(at / SUBCELLS, y / SUBCELLS, passed);
+		}
+	}
 };
 
 // States the walker reaches from the start states.
 std::vector<char> reachableStates(const Walker& walker, const std::vector<int>& startStates) {
-	std::vector<char> seen(STATES, 0);
+	std::vector<char> seen(walker.states(), 0);
 	std::vector<int> stack = startStates;
 	for (int state : startStates)
 		seen[state] = 1;
@@ -268,17 +489,17 @@ std::vector<char> reachableStates(const Walker& walker, const std::vector<int>& 
 	return seen;
 }
 
-std::vector<char> cellsOf(const std::vector<char>& states) {
+std::vector<char> cellsOf(const Walker& walker, const std::vector<char>& states) {
 	std::vector<char> cells(CELLS, 0);
-	for (int state = 0; state < STATES; state++)
+	for (int state = 0; state < walker.states(); state++)
 		if (states[state] != 0)
-			cells[cellOf(state)] = 1;
+			cells[walker.cellOf(state)] = 1;
 	return cells;
 }
 
 // Cells the walker reaches from the start state (any opened colours).
 std::vector<char> reachableCells(const Walker& walker, int startState) {
-	return cellsOf(reachableStates(walker, {startState}));
+	return cellsOf(walker, reachableStates(walker, {startState}));
 }
 
 bool isGoal(const Tile& t) { return t.type == Ankh || (t.type == Door && t.attr == GateExit); }
@@ -475,6 +696,24 @@ bool scatterOwnsProp(const LevelGrid& grid, int col, int row) {
 		   (kind != nullptr && (kind->locomotion == Locomotion::Entombed || kind->locomotion == Locomotion::Figurine));
 }
 
+// A shaped cell's floor for a placed prop (plan subcell-checker): the same height in every sub-cell column, in
+// quarters, with nothing solid over it; -1 when it is not flat. A cell with no shape: 0.
+int flatFloor(const Tile& t) {
+	const int floor = nextSubcellRow(t, 0, 0, false);
+	for (int s = 0; s < SUBCELLS; s++)
+		if (nextSubcellRow(t, s, 0, false) != floor || nextSubcellRow(t, s, floor, true) != SUBCELLS)
+			return -1;
+	return floor;
+}
+
+// The sub-cells of the back wall a decal or a torch is drawn on, by its anchor; a solid sub-cell there hides it.
+std::uint16_t decalSubcells(DecalAnchor anchor) {
+	constexpr std::uint16_t BOTTOM_ROW = 0x000f;
+	constexpr std::uint16_t TOP_ROW = 0xf000;
+	constexpr std::uint16_t MIDDLE = 0x0660; // the middle two columns of the middle two rows
+	return anchor == DecalAnchor::Floor ? BOTTOM_ROW : (anchor == DecalAnchor::Ceiling ? TOP_ROW : MIDDLE);
+}
+
 void checkPlacedProp(const LevelGrid& grid, int cell, LevelReport& r) {
 	const int col = cell % LEVEL_WIDTH;
 	const int row = cell / LEVEL_WIDTH;
@@ -493,7 +732,10 @@ void checkPlacedProp(const LevelGrid& grid, int cell, LevelReport& r) {
 		r.warnings.push_back(what + " is a water prop out of half water");
 	if (!isWaterProp(prop) && (t.structure == Structure::HalfWater || t.structure == Structure::DeepWater))
 		r.warnings.push_back(what + " stands in water");
-	if (!isWaterProp(prop) && prop != DECOR_WEB && !isWall(grid.at(col, row - 1)))
+	const int step = flatFloor(t);
+	if (step < 0)
+		r.warnings.push_back(what + " does not fit the cell's shape: its floor is not flat, or rock is over it");
+	if (!isWaterProp(prop) && prop != DECOR_WEB && !isWall(grid.at(col, row - 1)) && step <= 0)
 		r.warnings.push_back(what + " has no floor under it");
 	if (prop == DECOR_WEB && !isWall(grid.at(col, row + 1)))
 		r.warnings.push_back(what + " has no ceiling");
@@ -523,6 +765,8 @@ void checkPlacedDecal(const LevelGrid& grid, int cell, LevelReport& r) {
 			r.warnings.push_back(what + " grows from the floor: no floor, in water or sand, or behind a prop");
 		if (anchor == DecalAnchor::Free && torch)
 			r.warnings.push_back(what + " is behind the torch");
+		if (hasShape(t) && (t.shape & decalSubcells(anchor)) != 0)
+			r.warnings.push_back(what + " is hidden by the cell's shape");
 	}
 	if (!torch)
 		return;
@@ -533,6 +777,8 @@ void checkPlacedDecal(const LevelGrid& grid, int cell, LevelReport& r) {
 		r.warnings.push_back(what + " is in deep water");
 	else if (!tileDef(t.type).torch || !tileDef(t.fixture.type).torch)
 		r.warnings.push_back(what + " is on a cell that takes no torch");
+	if (hasShape(t) && (t.shape & decalSubcells(DecalAnchor::Free)) != 0)
+		r.warnings.push_back(what + " is hidden by the cell's shape");
 	if (d.prop == DECOR_BRAZIER || d.prop == DECOR_LAMP || isThoth(d.prop) || d.prop == DECOR_STARGATE)
 		r.warnings.push_back(what + " is over a " + DECOR_NAMES[d.prop]);
 }
@@ -596,6 +842,105 @@ void checkSand(const LevelGrid& grid, LevelReport& r) {
 	}
 }
 
+// The sub-cell rows a standing player needs over the floor (PLAYER_BODY_HEIGHT; crouched, one).
+constexpr int STAND_ROWS = 2;
+
+// The player stands at the middle of shaped cell t, under the cell above: a chest there is opened standing.
+bool roomToStand(const Tile& t, const Tile& above) {
+	for (int s = 1; s <= 2; s++) {
+		const int floor = nextSubcellRow(t, s, 0, false);
+		const int ceiling = nextSubcellRow(t, s, floor, true);
+		const int over = ceiling == SUBCELLS && !isSolidTile(above) ? STAND_ROWS : 0; // the room goes on above
+		if (ceiling - floor + over >= STAND_ROWS)
+			return true;
+	}
+	return false;
+}
+
+// Sub-cells (plan subcell-checker): a shape only in an open structure (a Wall or DeepWater cell ignores it); a ladder,
+// gate or door needs its cell open from floor to ceiling, a chest room to stand at it.
+void checkShapes(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		const Tile t = grid.cells[cell];
+		if (t.shape != NO_SHAPE && !takesShape(t.structure))
+			r.warnings.push_back("a shape in " + std::string(structureDef(t.structure).name) + " at " + at(cell));
+		if (!hasShape(t))
+			continue;
+		const std::string name = tileDef(t.type).name;
+		if (t.type == Ladder || t.type == Gate || t.type == Door)
+			r.warnings.push_back(
+				name + " in a shaped cell at " + at(cell) + ": it needs the cell open from floor to ceiling"
+			);
+		else if (isTreasure(t) && !roomToStand(t, grid.at(cell % LEVEL_WIDTH, cell / LEVEL_WIDTH + 1)))
+			r.warnings.push_back(name + " at " + at(cell) + " without room to stand at it");
+	}
+}
+
+// What hurts the player who walks into the cell, by name; empty for nothing.
+std::string trapIn(const Tile& t) {
+	if (t.type == Spike || t.type == Death || t.type == DartPlate ||
+		(t.type == RockFall && rockState(t) == RockState::Armed))
+		return tileDef(t.type).name;
+	return isRhythmTrap(t.fixture.type) ? tileDef(t.fixture.type).name : "";
+}
+
+// A crawl space does not end at a drop of a cell or more, or at a trap: crouched, the player comes out into it
+// unawares (plan subcell-checker).
+void checkCrawlEnds(const LevelGrid& grid, const Walker& walker, LevelReport& r) {
+	constexpr int MASK = 0; // the gates closed: a gate beside a crawl space is no drop
+	const Nodes& nodes = walker.places();
+	std::set<int> warned;
+	for (int node = CELLS; node < nodes.count(); node++) {
+		const int x = nodes.x(node, 1);
+		const int y = nodes.y(node);
+		if (!walker.stands(x, y, MASK) || !walker.crawl(x, y, MASK))
+			continue;
+		for (int dir : {-1, 1}) {
+			const int next = x + dir;
+			if (!walker.open(next, y, MASK) || (walker.stands(next, y, MASK) && walker.crawl(next, y, MASK)))
+				continue; // a wall, or the crawl space goes on
+			int fallen = 0;
+			const int to = walker.settle(next, y, MASK, fallen);
+			const std::string into = to == NONE || fallen >= SUBCELLS ? std::string("a drop")
+																	  : trapIn(grid.cells[walker.cellOf(to)]);
+			if (!into.empty() && warned.insert(nodes.cell(node)).second)
+				r.warnings.push_back("the crawl space at " + at(nodes.cell(node)) + " ends at " + into);
+		}
+	}
+}
+
+// The top of a step two or three quarters high (more than a jump) beside a floor the player reaches is reached some
+// other way, a ladder or a drop onto it (plan subcell-checker).
+void checkStepTops(const Walker& walker, const std::vector<char>& expanded, LevelReport& r) {
+	constexpr int MASK = MASKS - 1; // the gates open: the shape alone
+	const Nodes& nodes = walker.places();
+	std::vector<char> reached(nodes.count(), 0);
+	for (int state = 0; state < walker.states(); state++)
+		if (expanded[state] != 0)
+			reached[nodeOf(state)] = 1;
+	std::set<int> warned;
+	for (int node = CELLS; node < nodes.count(); node++) {
+		const int x = nodes.x(node, 1);
+		const int y = nodes.y(node);
+		if (reached[node] != 0 || !walker.stands(x, y, MASK))
+			continue;
+		for (int dir : {-1, 1})
+			for (int rise = 2; rise < SUBCELLS; rise++) {
+				const int beside = nodes.at(x + dir, y - rise);
+				if (beside == NONE || reached[beside] == 0 || !walker.stands(x + dir, y - rise, MASK))
+					continue;
+				bool face = true; // the step's side, from the floor beside it up to its top
+				for (int k = 1; k <= rise; k++)
+					face = face && !walker.open(x, y - k, MASK);
+				if (face && warned.insert(nodes.cell(node)).second)
+					r.warnings.push_back(
+						"the step at " + at(nodes.cell(node)) + " is out of reach: " + std::to_string(rise) +
+						" quarters over the floor beside it, more than a jump, and no other way onto it"
+					);
+			}
+	}
+}
+
 // Only the game makes a dead gate, from an answered riddle gate (GateEmpty); in level data it has no purpose.
 void checkDeadGates(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
@@ -639,10 +984,11 @@ void checkWayBackToNameGate(
 	LevelReport& r
 ) {
 	std::vector<int> atCartouche;
-	for (int mask = 0; mask < MASKS; mask++)
-		if (sealedStates[cartouche * MASKS + mask] != 0)
-			atCartouche.push_back(cartouche * MASKS + mask);
-	const std::vector<char> back = cellsOf(reachableStates(sealedWalker, atCartouche));
+	for (int node : sealedWalker.places().of(cartouche))
+		for (int mask = 0; mask < MASKS; mask++)
+			if (sealedStates[node * MASKS + mask] != 0)
+				atCartouche.push_back(node * MASKS + mask);
+	const std::vector<char> back = cellsOf(sealedWalker, reachableStates(sealedWalker, atCartouche));
 	for (int gate = 0; gate < CELLS; gate++)
 		if (isNameGate(grid.cells[gate]) && back[gate] == 0)
 			r.warnings.push_back(
@@ -665,7 +1011,7 @@ void checkNameGates(const LevelGrid& grid, int startState, LevelReport& r) {
 		return;
 	const Walker sealedWalker(grid, true, true);
 	const std::vector<char> sealedStates = reachableStates(sealedWalker, {startState});
-	const std::vector<char> sealed = cellsOf(sealedStates);
+	const std::vector<char> sealed = cellsOf(sealedWalker, sealedStates);
 	const std::vector<char> open = reachableCells(Walker(grid), startState);
 	for (int cell = 0; cell < CELLS; cell++) {
 		const Tile t = grid.cells[cell];
@@ -846,10 +1192,35 @@ void checkSandGusts(const LevelGrid& grid, LevelReport& r) {
 		}
 }
 
+// A monster spawned at (spawnCol, row) walks to col along the row, unless a shape on the way stops its body (plan
+// subcell-checker: a large one does not follow through a crawl space).
+bool monsterReaches(const LevelGrid& grid, int spawnCol, int row, int col) {
+	const MonsterKind* kind = monsterKind(grid.at(spawnCol, row).attr);
+	if (kind == nullptr)
+		return true;
+	const BodyFit body{kind->heightQuarters, kind->stepQuarters};
+	const int dir = col > spawnCol ? 1 : -1;
+	for (int c = spawnCol + dir; c != col + dir; c += dir)
+		if (!shapePasses(grid.cells, c, row, dir, body))
+			return false;
+	return true;
+}
+
+// The monster spawns (cells) within MONSTER_REACH of the path along its rows that can reach it.
+std::set<int> monstersNear(const LevelGrid& grid, const std::vector<CellPos>& path) {
+	std::set<int> near;
+	for (const CellPos& p : path)
+		for (int dx = -MONSTER_REACH; dx <= MONSTER_REACH; dx++)
+			if (grid.at(p.col + dx, p.row).type == MonsterSpawn && monsterReaches(grid, p.col + dx, p.row, p.col))
+				near.insert(p.row * LEVEL_WIDTH + p.col + dx);
+	return near;
+}
+
 float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	float score = 0.04f * static_cast<float>(r.pathLength);
 	score += 1.0f * static_cast<float>(r.pathSpikes) + 4.f * static_cast<float>(r.pathDeathTraps);
 	score += 3.f * static_cast<float>(r.pathRockFalls) + 1.2f * static_cast<float>(r.pathJumps);
+	score += 0.2f * static_cast<float>(r.pathSteps) + 0.1f * static_cast<float>(r.pathCrawls); // plan subcell-checker
 	score += 1.f * static_cast<float>(r.pathSandFalls) + 1.5f * static_cast<float>(r.pathQuicksand);
 	score += 0.02f * static_cast<float>(r.pathSand);
 	score += 2.f * static_cast<float>(r.pathDartPlates);
@@ -859,13 +1230,7 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 	score += 0.8f * static_cast<float>(r.pathTurns); // a light puzzle on the way
 
 	// Monsters near the path count fully, the rest of the level a little (the player may go looking for loot).
-	std::set<int> near;
-	for (const CellPos& p : r.path)
-		for (int dx = -MONSTER_REACH; dx <= MONSTER_REACH; dx++) {
-			Tile t = grid.at(p.col + dx, p.row);
-			if (t.type == MonsterSpawn)
-				near.insert(p.row * LEVEL_WIDTH + p.col + dx);
-		}
+	const std::set<int> near = monstersNear(grid, r.path);
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
 		if (t.type != MonsterSpawn)
@@ -942,6 +1307,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkWallSpikes(grid, r);
 	checkSandGusts(grid, r);
 	checkDressing(grid, r);
+	checkShapes(grid, r);
 	const int litAtStart = checkSunBeams(grid, r);
 
 	if (r.entrances == 0)
@@ -959,8 +1325,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	}
 
 	Walker walker(grid);
-	int fallen = 0;
-	int startState = walker.settle(r.start.col, r.start.row, litAtStart, fallen);
+	const int startState = walker.settleCell(r.start.col, r.start.row, litAtStart);
 	if (startState == NONE) {
 		r.errors.emplace_back("the entrance has no floor below it");
 		return r;
@@ -969,17 +1334,19 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	// Dijkstra over (cell, opened colours), keeping the edges for the backward pass.
 	checkBossRoom(grid, startState, r);
 	checkNameGates(grid, startState, r);
+	checkCrawlEnds(grid, walker, r);
 
-	std::vector<int> dist(STATES, NONE);
-	std::vector<int> prev(STATES, NONE);
-	std::vector<Move> prevMove(STATES, Move::Start);
-	std::vector<std::vector<int>> incoming(STATES);
+	const int stateCount = walker.states();
+	std::vector<int> dist(stateCount, NONE);
+	std::vector<int> prev(stateCount, NONE);
+	std::vector<Move> prevMove(stateCount, Move::Start);
+	std::vector<std::vector<int>> incoming(stateCount);
 	using Item = std::pair<int, int>; // cost, state
 	std::priority_queue<Item, std::vector<Item>, std::greater<>> open;
 	dist[startState] = 0;
 	open.push({0, startState});
 	std::vector<Edge> edges;
-	std::vector<char> expanded(STATES, 0);
+	std::vector<char> expanded(stateCount, 0);
 	while (!open.empty()) {
 		auto [cost, state] = open.top();
 		open.pop();
@@ -1002,11 +1369,11 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	// Reachable cells and the cheapest goal state.
 	std::vector<char> cellReached(CELLS, 0);
 	int goal = NONE;
-	for (int s = 0; s < STATES; s++) {
+	for (int s = 0; s < stateCount; s++) {
 		if (expanded[s] == 0)
 			continue;
-		cellReached[cellOf(s)] = 1;
-		if (isGoal(grid.cells[cellOf(s)]) && (goal == NONE || dist[s] < dist[goal]))
+		cellReached[walker.cellOf(s)] = 1;
+		if (isGoal(grid.cells[walker.cellOf(s)]) && (goal == NONE || dist[s] < dist[goal]))
 			goal = s;
 	}
 	bool poisoners = false;
@@ -1039,6 +1406,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 				std::string(t.fixture.type == Lever ? "lever" : "inscription") + " out of reach at " + at(cell)
 			);
 	}
+	checkStepTops(walker, expanded, r);
 	if (r.treasures > r.reachableTreasures)
 		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");
 
@@ -1050,10 +1418,10 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	}
 
 	// Backwards from every goal state: reachable states that cannot get there are softlocks.
-	std::vector<char> canFinish(STATES, 0);
+	std::vector<char> canFinish(stateCount, 0);
 	std::vector<int> stack;
-	for (int s = 0; s < STATES; s++)
-		if (expanded[s] != 0 && isGoal(grid.cells[cellOf(s)])) {
+	for (int s = 0; s < stateCount; s++)
+		if (expanded[s] != 0 && isGoal(grid.cells[walker.cellOf(s)])) {
 			canFinish[s] = 1;
 			stack.push_back(s);
 		}
@@ -1068,12 +1436,13 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	}
 	std::vector<char> softCell(CELLS, 0);
 	int example = NONE;
-	for (int s = 0; s < STATES; s++)
-		if (expanded[s] != 0 && canFinish[s] == 0 && grid.cells[cellOf(s)].type != Death && softCell[cellOf(s)] == 0) {
-			softCell[cellOf(s)] = 1;
+	for (int s = 0; s < stateCount; s++)
+		if (expanded[s] != 0 && canFinish[s] == 0 && grid.cells[walker.cellOf(s)].type != Death &&
+			softCell[walker.cellOf(s)] == 0) {
+			softCell[walker.cellOf(s)] = 1;
 			r.softlockCells++;
 			if (example == NONE)
-				example = cellOf(s);
+				example = walker.cellOf(s);
 		}
 	if (r.softlockCells > 0)
 		r.warnings.push_back(
@@ -1088,7 +1457,17 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	std::reverse(states.begin(), states.end());
 	int gateColours = 0;
 	for (size_t i = 0; i < states.size(); i++) {
-		int cell = cellOf(states[i]);
+		const int cell = walker.cellOf(states[i]);
+		// The sub-cells walked inside a shaped cell are one path cell; a crawl in it makes the way in one.
+		const Move inCell = prevMove[states[i]];
+		r.pathSteps += i > 0 && inCell == Move::Step ? 1 : 0;
+		r.pathCrawls += i > 0 && inCell == Move::Crawl ? 1 : 0;
+		if (i > 0 && cell == r.path.back().row * LEVEL_WIDTH + r.path.back().col &&
+			(inCell == Move::Walk || inCell == Move::Crawl || inCell == Move::Drop || inCell == Move::Step)) {
+			if (inCell == Move::Crawl && r.pathMoves.back() == Move::Walk)
+				r.pathMoves.back() = Move::Crawl;
+			continue;
+		}
 		r.path.push_back({cell % LEVEL_WIDTH, cell / LEVEL_WIDTH});
 		r.pathMoves.push_back(prevMove[states[i]]);
 		Tile t = grid.cells[cell];
@@ -1127,12 +1506,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.keysNeeded += (gateColours >> c) & 1;
 	r.pathBoss = (gateColours & bitOf(BOSS_LOCK)) != 0;
 
-	std::set<int> monstersNear;
-	for (const CellPos& p : r.path)
-		for (int dx = -MONSTER_REACH; dx <= MONSTER_REACH; dx++)
-			if (grid.at(p.col + dx, p.row).type == MonsterSpawn)
-				monstersNear.insert(p.row * LEVEL_WIDTH + p.col + dx);
-	r.pathMonsters = static_cast<int>(monstersNear.size());
+	r.pathMonsters = static_cast<int>(monstersNear(grid, r.path).size());
 
 	if (r.pathDeathTraps > 0)
 		r.warnings.emplace_back("the only way to the exit walks over a death trap");

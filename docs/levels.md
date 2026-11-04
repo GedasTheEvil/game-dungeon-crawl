@@ -20,8 +20,18 @@ An open structure can carry a **shape** ([level-subcells](plan/solved/level-subc
 crawl spaces). The game asks `solidAt`, `floorHeight` and `ceilingHeight` (`src/world/level.h`), never the bits.
 The game draws the solid sub-cells as blocks; the player is blocked by them, jumps onto a quarter step (not a half),
 bumps a low ceiling and stands on a step with a foot ([subcell-physics](plan/solved/subcell-physics.md)); arrows and sunbeams
-stop at them. Monsters and the checker still treat a shaped cell as open. The map screen draws its solid sub-cells.
-Test level: `tests/levels/subcells`.
+stop at them. Monsters take steps and crawl spaces by their size ([subcell-monsters](plan/solved/subcell-monsters.md)).
+The map screen draws its solid sub-cells. Test level: `tests/levels/subcells`.
+
+Sub-cell rules (the checker, [subcell-checker](plan/solved/subcell-checker.md)): `levelcheck` walks a shaped cell by
+its sub-cells (below, "Sub-cells"). It warns about a shape in a wall or deep water cell; a ladder, gate or door
+(entrance, exit, teleporter) in a shaped cell (they need the cell open from floor to ceiling); a chest with no room
+to stand at it (half a tile over its floor in the cell's middle); a step two or three quarters high whose top nothing
+reaches (no jump gets there: give it a ladder or a way down onto it); a crawl space that ends at a drop of a cell or
+more, or at a trap (spikes, a death trap, a dart plate, a rock fall, a rhythm trap); a placed prop on a shape that is
+not one flat floor with nothing over it (on a flat step it stands on the step); a placed decal or torch a solid
+sub-cell hides (a floor decal: the bottom row, a ceiling one: the top row, any other and a torch: the middle).
+A large monster does not reach the path through a crawl space it does not fit (the difficulty's monsters near).
 
 Two more say how the cell is dressed ([placed-decor](plan/solved/placed-decor.md)), each unset (the game scatters
 it as on any level), bare (none) or one picked with its mirror, whatever the depth:
@@ -294,13 +304,23 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
 - A teleporter (Door, gate type 5) jumps to the other teleporter with the same pair id, both ways. A name gate (a
   teleporter whose value has `NAME_SEAL`, 256, added to its pair id) too, but the exit, the keys, the levers and its
   name cartouche must also be found with it sealed, and the name gate reached back from the cartouche.
+- Sub-cells ([subcell-checker](plan/solved/subcell-checker.md)): a shaped cell (or one over a top row solid in part)
+  is walked by its standing places, a sub-cell over a solid one; every other cell stays one place, so a level with no
+  shapes checks as before. The player stands in two sub-cells, crouched in one: walking into an opening a quarter high
+  is a crawl (slower, a higher cost). A jump gets onto a quarter step from the sub-cell beside it, or from up to 5
+  sub-cells away over water or a gap (the arc's feet are over a quarter from a third of a tile out); never onto half
+  a tile. Walking off a step is a drop. A gap a cell wide is jumped from a step as from the floor, landing on the floor
+  beyond it no lower than the take-off's cell. Jumps need head room: the whole arc (a cell over the feet) over a gap,
+  three quarters onto a step. On a step in half water the player is out of it and may jump. A ladder's cell is
+  climbed off onto a step beside it at any height in the cell. The path lists cells; `sub-cells:` counts the quarter
+  steps jumped onto and the sub-cells crawled, and `--script` crouches through a crawl.
 
 It reports:
 
 | Item | Meaning |
 |---|---|
 | errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap or spikes, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a poison drip without a floor under it or a ceiling over it, in water or with an object in its puddle (but a key or a page), a run of rhythm traps (wall spikes, fire vents, poison drips) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v4, a placed prop, decal or torch that does not fit ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), a poisoner (scorpion, cobra), a poison drip or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
+| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap or spikes, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, a monster spawn, ladder, gate, door or treasure in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a poison drip without a floor under it or a ceiling over it, in water or with an object in its puddle (but a key or a page), a run of rhythm traps (wall spikes, fire vents, poison drips) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v4, a placed prop, decal or torch that does not fit ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), the sub-cell rules above, a poisoner (scorpion, cobra), a poison drip or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
 to it (2 cells along the row), a name gate not reached back from its cartouche. With the files: an inscription whose text id has no text in `content/inscriptions/`, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |

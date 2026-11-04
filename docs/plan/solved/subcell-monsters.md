@@ -29,7 +29,7 @@ Implementer's choices:
   ahead lower than its height is a wall. A bat flies low through a crawl space, a giant bat turns there.
 * Burrowers: no dive comes up into a solid sub-cell at the floor (`Dungeon::solidFloorAt`), in sand too. Swimmers,
   figurines, rooted ones: no change. Ladders in shaped cells and the level checker: no change
-  ([subcell-checker](../subcell-checker.draft.opus.md)).
+  ([subcell-checker](subcell-checker.md)).
 * Tests: `tests/unit/subcell_monsters_test.cpp` on a new level, `tests/levels/subcell_monsters` (seven halls). The
   scenario `tests/scenarios/solved/subcell_monsters.txt` uses it too, not `tests/levels/subcells`: an Anubis in its dead end
   is hidden behind the crawl space's rock from the only side the player can stand on.

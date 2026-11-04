@@ -92,7 +92,7 @@ note: A servant figure, buried to answer for the dead when the gods call them to
 note: Some chests bite. Some bite the mind. The dark ones with the purple glow in the lock: leave them shut.
 
 [monster.mimic-jar]
-note: Set had a whole household. This one kept the beer cold and the fangs in the neck. Break the next sealed jar
+note: Seth had a whole household. This one kept the beer cold and the fangs in the neck. Break the next sealed jar
 	from arm's length.
 
 [monster.seth]

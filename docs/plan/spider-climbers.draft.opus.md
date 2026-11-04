@@ -31,7 +31,7 @@ same model.
 * Weak and fast: a few hits of the starting weapon kill it, a small bite (suggest poison, weak), low threat and xp.
   Climbs and shuns the light like its big kin.
 * Comes in groups (2 to 4 per spawn), early levels; sizes its `generated` range against the balance sim.
-* When [subcell-monsters](subcell-monsters.md) lands: the tiny spider fits through crawl spaces, the
+* When [subcell-monsters](solved/subcell-monsters.md) lands: the tiny spider fits through crawl spaces, the
   camel spider does not.
 * Journal: a field note entry like the other monsters.
 

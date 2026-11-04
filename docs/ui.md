@@ -352,7 +352,7 @@ of it, and under them a gem per worn ring (left hand, then right), a lozenge in 
 panel's right end, the Heka key under it. Once flaming arrows is learnt, a small tile with a flame (lapis while the
 stamina-skill key, default Q, has the skills on, stone while off) sits right of the stamina bar, the key left of it; a
 skill refused for lack of stamina blinks it red. Above the panel, one status card per running effect
-([plan](plan/curse-blessing-cards.md), `src/ui/status_list.*`, `drawStatuses`): a painted background by kind from
+([plan](plan/solved/curse-blessing-cards.md), `src/ui/status_list.*`, `drawStatuses`): a painted background by kind from
 `media/textures/ui/status_cards.png` (`tools/textures/status_cards.py`, one 128 px cell per `StatusKind`: blessing yellow,
 condition grey, curse purple; the frames differ in brightness too), the icon on it (tinted for the white drop), a pip per
 tier or grade in the bottom strip, the seconds under it. Flashes and pulses are additive

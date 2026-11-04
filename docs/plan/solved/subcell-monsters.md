@@ -1,6 +1,6 @@
 # Sub-cells: monsters on steps and in crawl spaces
 
-Status: implemented 2026-11-03. Was: draft 2026-11-02, needed [subcell-physics](solved/subcell-physics.md) first.
+Status: solved 2026-11-04 (play-tested by the user). Was: implemented 2026-11-03. Was: draft 2026-11-02, needed [subcell-physics](subcell-physics.md) first.
 From the user.
 
 Implementer's choices:
@@ -29,9 +29,9 @@ Implementer's choices:
   ahead lower than its height is a wall. A bat flies low through a crawl space, a giant bat turns there.
 * Burrowers: no dive comes up into a solid sub-cell at the floor (`Dungeon::solidFloorAt`), in sand too. Swimmers,
   figurines, rooted ones: no change. Ladders in shaped cells and the level checker: no change
-  ([subcell-checker](subcell-checker.draft.opus.md)).
+  ([subcell-checker](../subcell-checker.draft.opus.md)).
 * Tests: `tests/unit/subcell_monsters_test.cpp` on a new level, `tests/levels/subcell_monsters` (seven halls). The
-  scenario `tests/scenarios/subcell_monsters.txt` uses it too, not `tests/levels/subcells`: an Anubis in its dead end
+  scenario `tests/scenarios/solved/subcell_monsters.txt` uses it too, not `tests/levels/subcells`: an Anubis in its dead end
   is hidden behind the crawl space's rock from the only side the player can stand on.
 
 Monsters move over steps and through crawl spaces by their size.
@@ -54,4 +54,4 @@ Monsters move over steps and through crawl spaces by their size.
 * Unit: a rat passes a crawl space, a mummy stops; a leaper jumps a step, a walker stops; a boss jumps higher than
   its kin where set.
 * Scenario on `tests/levels/subcells`: a large chaser stopped at a crawl space.
-* Play script `tests/play/subcell-monsters.txt`.
+* Play script `tests/play/subcell-monsters.txt` (removed once solved).

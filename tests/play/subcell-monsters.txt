@@ -1,8 +1,0 @@
-# Plan subcell-monsters, play-test on tests/levels/subcell_monsters: seven halls one over the other, each with a
-# shaped cell at col 11; you start right of it. Change ROW in the `level` line for another hall:
-#   2 a rat runs through a crawl space a quarter high     4 a mummy stops at one (wake it first: `at 10 4`)
-#   6 a giant rat jumps onto a quarter step               8 a rat does not
-#  10 a bat flies low through a crawl space              12 a giant bat does not
-#  14 an Anubis stops at a crawl space
-god
-level tests/levels/subcell_monsters at 13 2

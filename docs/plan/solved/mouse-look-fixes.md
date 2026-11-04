@@ -1,6 +1,6 @@
 # Mouse look fixes
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-04 (play-tested by the user). Was: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
 
 ## Problems
 

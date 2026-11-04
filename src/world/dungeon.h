@@ -207,6 +207,8 @@ class Dungeon {
 	// Sub-cells (plan subcell-monsters). The floor under mon's body, in tiles over its row's floor: the highest solid
 	// sub-cell top under any part of it, a little in from its sides (as the player's foot on a step).
 	[[nodiscard]] float monsterFloor(const Monster& mon) const;
+	// World units from its head, at rest, up to the ceiling over its body (NO_CEILING: none within a leap's reach).
+	[[nodiscard]] float leapRoom(const Monster& mon) const;
 	// What the sub-cell column at map x on its row asks of mon's body stepping into it: nothing, a hop (a rise within
 	// its kind's step), or a stop (a higher rise, an opening lower than its height).
 	enum class StepAhead : unsigned char { Walk, Hop, Stop };

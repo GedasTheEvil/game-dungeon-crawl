@@ -1,0 +1,11 @@
+; Monster head bump (plan monster-head-bump; tests/unit/monster_head_bump_test.cpp, tests/scenarios/monster_head_bump.txt):
+; two halls, a ceiling three quarters up over cols 11-17 (a shaped cell each, rock above). Lower hall, row 2: the
+; player (S, col 15) under it, a giant rat (T, col 12) three tiles left. Upper hall, row 5: Khepri (K, boss, col 12),
+; the player placed at col 15 by the test.
+######################
+#...........K.._____..#
+######################
+######################
+######################
+#...........T..S...E.#
+######################

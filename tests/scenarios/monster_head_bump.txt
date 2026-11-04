@@ -1,0 +1,18 @@
+# Plan monster-head-bump: on tests/levels/monster_head_bump a giant rat pounces at the player under a low ceiling
+# (three quarters up): the arc stops at the rock, the rat loses HP (the head bump's rule) and may stand stunned, the
+# stars over its head. A unit test cannot look at the drawing (tests/unit/monster_head_bump_test.cpp has the rules).
+seed 1
+god
+resolution 1024 768
+level tests/levels/monster_head_bump
+wait 30
+hitboxes on
+camera -20 0
+wait 1500ms
+screenshot rat_before_the_pounce
+wait 700ms
+screenshot rat_in_the_pounce
+wait 600ms
+screenshot rat_after_the_bump
+wait 2s
+expect alive == 1

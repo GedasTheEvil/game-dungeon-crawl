@@ -64,7 +64,11 @@ void Dungeon::UpdateMonsters() {
 		}
 
 		if (mon.jumping()) { // lands even if killed in the air
-			mon.UpdateJump(mapX);
+			if (const LeapBump bump = mon.UpdateJump(mapX, leapRoom(mon)); bump != LeapBump::None && mon.Alive()) {
+				sim.events->Play(WorldSound::HeadBump); // plan monster-head-bump
+				if (bump == LeapBump::Hard)
+					mon.HeadBump(sim.random->gameplay);
+			}
 			continue;
 		}
 

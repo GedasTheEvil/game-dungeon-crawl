@@ -413,7 +413,11 @@ constexpr int HEAD_BUMP_MAX_HP_PCT = 5;
 constexpr int HEAD_BUMP_DAZE_PCT = 50;
 constexpr int HEAD_BUMP_DAZE_MIN_MS = 1000;
 constexpr int HEAD_BUMP_DAZE_MAX_MS = 2000;
-constexpr float HEAD_BUMP_MIN_RISE = JUMP_INITIAL_VELOCITY / 3.f;
+constexpr float HEAD_BUMP_MIN_RISE_FRACTION = 1.f / 3.f; // of the take-off velocity
+constexpr float HEAD_BUMP_MIN_RISE = JUMP_INITIAL_VELOCITY * HEAD_BUMP_MIN_RISE_FRACTION;
+// A monster's leap (plan monster-head-bump) meets a low ceiling by the same rule; after a bump it does not pounce
+// under that ceiling again for this long, so a fight is not a free stun loop.
+constexpr int MONSTER_HEAD_BUMP_MEMORY_MS = 6000;
 
 // Melee reach (a weapon's range / 10 tiles) is from the player's box edge to the monster's near edge. A monster
 // whose far edge is this far behind the player's centre is still hit.

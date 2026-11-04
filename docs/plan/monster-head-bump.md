@@ -1,6 +1,6 @@
 # Monster head bump: jumping monsters hit low ceilings too
 
-Status: draft 2026-11-03. Needs first: [head-bump](solved/head-bump.md),
+Status: implemented 2026-11-04, waits for the play-test (`bin/game --play tests/play/monster-head-bump.txt`). Was: draft 2026-11-03. Needed first: [head-bump](solved/head-bump.md),
 [subcell-monsters](solved/subcell-monsters.md). From the user.
 
 A monster's jump (a walk-jumper's leap, a pounce: `Monster::Jump`, `Monster::UpdateJump`) that meets a low ceiling
@@ -19,6 +19,21 @@ player: wait under a low ceiling and let a pouncer leap into it.
   (pick a short memory), so a fight is not a free stun loop.
 * Bosses (AGENTS.md, Boss abilities): a boss jumps and bumps as its kin. Not an ability, so no stronger version.
 * Flyers do not bump: a low ceiling lowers their flight band ([subcell-monsters](solved/subcell-monsters.md)).
+
+Implementer's choices:
+
+* Only a shaped cell's sub-cells are a low ceiling for a monster (`Dungeon::leapRoom`), not a whole wall tile over the
+  hall: else Babi (3 quarters tall, arc 0.3 tile) bumped in every one-tile room (the Babi arena test caught it).
+* The bump caps the arc at the room over the head and the leap falls from there (`Monster::UpdateJump`, returns
+  `LeapBump`); the leap's x still runs on, so a pounce lands where it would have (the player's gap rule holds). Hard:
+  rise speed there above `HEAD_BUMP_MIN_RISE_FRACTION` (a third) of the take-off's, as the player's.
+* The damage and the daze roll are `head_bump.h`, shared with `Player::HeadBump`. The stun begins at the landing
+  (`StunHit` refuses a leaping monster). No kind has a hurt sound: the grunt is its attack sound, as the player's.
+* The sound has no place (the sound bank has no positional audio): it plays whenever an active monster bumps.
+* Memory: `MONSTER_HEAD_BUMP_MEMORY_MS` (6 s) after a bump, no pounce while the monster still stands under a low
+  ceiling (`Dungeon::pounce`).
+* Tests: `tests/unit/monster_head_bump_test.cpp` on `tests/levels/monster_head_bump`; scenario
+  `tests/scenarios/monster_head_bump.txt`.
 
 ## Tests
 

@@ -51,6 +51,8 @@ struct MonsterLinks {
 
 // A monster on the level. Map units are tiles; x is relative to the spawn tile's column.
 // The player position (px, py) is in map units, like Dungeon's.
+constexpr float NO_CEILING = 1e9f; // Monster::UpdateJump: no ceiling within a leap's reach
+
 class Monster {
   private:
 	const MonsterType* type = nullptr; // nullptr: an empty slot
@@ -410,7 +412,15 @@ class Monster {
 	void Jump(float toX);
 	// A Jump at the player that way (dir), then no pounce for the cooldown (PounceRules).
 	void Pounce(float toX, int dir);
-	void UpdateJump(float px); // px: the player's map x, a pounce lands short of them
+	// px: the player's map x, a pounce lands short of them. room: world units from its head, at rest, to the ceiling
+	// over its body (NO_CEILING: none): the rise stops there (plan monster-head-bump) and the arc turns into a fall.
+	// Hard: it rose fast into it, Dungeon then calls HeadBump; Knock: a graze.
+	LeapBump UpdateJump(float px, float room);
+	// A hard bump: HEAD_BUMP's damage straight off the HP (a kill gives no XP), its daze rolled as a stun that begins
+	// at the landing (StunHit: a boss's shorter, with its cooldown). Returns the HP lost.
+	int HeadBump(Rng& rng);
+	// It bumped its head lately (MONSTER_HEAD_BUMP_MEMORY_MS): Dungeon::pounce does not leap again under a ceiling.
+	[[nodiscard]] bool BumpedLately() const { return GameClock::now() < leap.bumpMemoryMs; }
 	// From the front edge of the player's box, facing dir (-1 / +1), to this box's near edge; < 0: they overlap.
 	[[nodiscard]] float MeleeGap(float px, int dir) const;
 	// In reach of a melee attack: MeleeGap at most reach tiles, not behind the player (MELEE_REACH_BEHIND), on

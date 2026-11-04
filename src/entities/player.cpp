@@ -3,6 +3,7 @@
 #include <cmath>
 #include "figures.h"
 #include "../core/gameplay_config.h"
+#include "../world/head_bump.h"
 #include "../graphics/render_config.h"
 
 int powerHitBonusPercent(int points) {
@@ -212,11 +213,10 @@ int Player::HeadBump(WorldEvents& events, Rng& rng) {
 		return 0;
 	events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Attack); // the grunt (the player has no hurt sound)
 	events.Status("You bump your head");
-	const bool daze = rng.percent(HEAD_BUMP_DAZE_PCT);
-	const int dazeMs = rng.range(HEAD_BUMP_DAZE_MIN_MS, HEAD_BUMP_DAZE_MAX_MS); // always rolled: a steady stream
+	const HeadBumpDaze roll = rollHeadBumpDaze(rng);
 	int lost = 0;
 	if (!god) { // the daze also lands in god mode, as a screech's does
-		const int hp = std::max(HEAD_BUMP_MIN_HP, stats.CurrentMaxHP() * HEAD_BUMP_MAX_HP_PCT / 100);
+		const int hp = headBumpHp(stats.CurrentMaxHP());
 		lost = std::min(hp, stats.CurrentHP());
 		stats.run.damageTaken += lost;
 		stats.LoseHP(hp);
@@ -227,8 +227,8 @@ int Player::HeadBump(WorldEvents& events, Rng& rng) {
 			return lost;
 		}
 	}
-	if (daze)
-		Daze(dazeMs, events);
+	if (roll.daze)
+		Daze(roll.ms, events);
 	return lost;
 }
 

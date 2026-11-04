@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include "climb_path.h"
+#include "../graphics/render_config.h"
 
 bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walkerBlockedAt(map, col, row, reckless); }
 //======================================================================================
@@ -33,6 +34,24 @@ float Dungeon::monsterFloor(const Monster& mon) const {
 			floor = std::max(floor, floorHeight(t, (static_cast<float>(k - col * SUBCELLS) + 0.5f) * SUBCELL_SIZE));
 	}
 	return floor;
+}
+//======================================================================================
+// The lowest solid sub-cell of a shaped cell over its body, above its head at rest. A whole wall tile over it does
+// not count (plan monster-head-bump): the halls' own ceilings are no low ceiling, or Babi (3 quarters tall) would bump
+// in every one-tile room.
+float Dungeon::leapRoom(const Monster& mon) const {
+	constexpr float INSET = 0.01f;
+	constexpr int REACH = 3; // sub-cells above the head a leap can come to
+	const float head = static_cast<float>(mon.Row()) + monsterFloor(mon) +
+					   static_cast<float>(mon.Body().heightQuarters) * SUBCELL_SIZE;
+	const auto first = static_cast<int>(std::lround(head * SUBCELLS));
+	for (int k = first; k < first + REACH; k++) {
+		const float y = (static_cast<float>(k) + 0.5f) * SUBCELL_SIZE;
+		for (const float x : {mon.Left() + INSET, mon.CentreX(), mon.Right() - INSET})
+			if (subcellAt(x, y))
+				return (static_cast<float>(k) * SUBCELL_SIZE - head) * RenderConfig::TILE_SIZE;
+	}
+	return NO_CEILING;
 }
 //======================================================================================
 Dungeon::StepAhead Dungeon::stepAt(const Monster& mon, float x) const {
@@ -119,6 +138,9 @@ bool Dungeon::pounce(Monster& mon, int dir) {
 		if (col == front ? walkerStops(mon, col) || stepAhead(mon, dir) != StepAhead::Walk
 						 : walkerStopsAhead(mon, col, dir))
 			return false;
+	// It bumped its head lately and is still under a low ceiling (plan monster-head-bump): no second bump at once.
+	if (mon.BumpedLately() && leapRoom(mon) < MONSTER_JUMP_HEIGHT)
+		return false;
 	const float stop = mon.HalfWidth() + sim.player->HalfWidth() + rules->landGap;
 	mon.Pounce(mapX - static_cast<float>(dir) * stop - static_cast<float>(mon.Col()) - 0.5f, dir);
 	return true;

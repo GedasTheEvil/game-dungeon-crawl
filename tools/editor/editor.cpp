@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <memory>
@@ -62,6 +63,9 @@ constexpr Rect ATTRIBUTE_BOX = {102.f, 45.f, 14.f, 4.5f};
 constexpr Rect VALUE_BOX = {134.f, 45.f, 18.f, 4.5f};
 constexpr Rect MIRROR_BUTTON = {RIGHT_CX - 9.f, 45.f, 18.f, 4.5f}; // in the decor and decal layers, instead of them
 constexpr Rect HINT_PANEL = {RIGHT_X, 16.f, RIGHT_W, 25.5f};
+// The papyrus text under the rule: it scrolls (mouse wheel) when it is longer than this.
+constexpr Rect HINT_TEXT_AREA = {HINT_PANEL.x, HINT_PANEL.y + 1.2f, HINT_PANEL.w, HINT_PANEL.h - 11.4f};
+constexpr float HINT_SCROLL_STEP = 2.8f * 2; // two lines a wheel notch
 constexpr Rect LEVEL_PANEL = {RIGHT_X, 6.5f, RIGHT_W, 7.5f};
 constexpr Rect NAME_BOX = {86.5f, 8.f, 21.f, 4.5f};
 constexpr Rect ZONE_BUTTON = {108.5f, 8.2f, 23.f, 4.1f}; // the level's zone (LevelMeta): click or Z for the next
@@ -259,7 +263,10 @@ class Editor {
 	bool hasPropIcon[DECOR_COUNT] = {};
 	Texture torchIcon, noTorchIcon, bareIcon, decalAtlas;
 	Texture wallTexture, papyrus;
-	Font title, heading, body, small, tiny;
+	Font title, heading, body, small, tiny, tinier; // tinier: a palette name too long for tiny
+	float hintScroll = 0.f; // how far the papyrus text is scrolled up (canvas units), 0: its top shows
+	float hintScrollMax = 0.f; // how far it can scroll: its overflow, measured by the last drawHint
+	std::string hintShown; // what the papyrus showed last: a new hint starts at its top
 
 	[[nodiscard]] Tile brush() const { return {tile, parseNumber(attributeText), parseNumber(valueText)}; }
 	// The palette's id in the current layer: a structure number, a tile type, a prop or a decal brush.
@@ -286,7 +293,8 @@ class Editor {
 	void zoomTo(int zoom);
 	void centerOnMinimap(float x, float y);
 	void beginMapClip() const;
-	static void endMapClip();
+	void beginClip(const Rect& r) const;
+	static void endClip();
 	void drawMinimap();
 
 	void setMode(Mode m);
@@ -323,11 +331,14 @@ class Editor {
 	void drawCell(const Tile& t, const Rect& r, float structureAlpha, float wallAlpha, float objectAlpha);
 };
 
+constexpr const char* SMALL_FONT = MEDIA_DIR "textures/fonts/dejavu-condensed-bold.png";
+
 Editor::Editor() {
 	title.Load(MEDIA_DIR "textures/fonts/parchment.png", 6.f, 0.26f, true);
 	heading.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.6f, 0.12f, true);
 	body.Load(MEDIA_DIR "textures/fonts/parchment.png", 2.7f, 0.08f, true);
-	small.Load(MEDIA_DIR "textures/fonts/parchment.png", 2.3f, 0.06f, true);
+	// The small text in a sans-serif built for small sizes, mipmapped: parchment's thin strokes break up this small.
+	small.Load(SMALL_FONT, 2.3f, 0.06f, true, TexFilter::Mipmapped);
 	wallTexture.LoadPNG(MEDIA_DIR "textures/ui/scarab_slate.png", TexFilter::Flat);
 	papyrus.LoadPNG(MEDIA_DIR "textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	for (int type = 0; type < TILE_TYPE_COUNT; type++) {
@@ -339,7 +350,8 @@ Editor::Editor() {
 		if (!hasIcon[type])
 			fprintf(stderr, "Cannot load %s\n", path.c_str());
 	}
-	tiny.Load(MEDIA_DIR "textures/fonts/parchment.png", 1.9f, 0.05f, true);
+	tiny.Load(SMALL_FONT, 1.9f, 0.05f, true, TexFilter::Mipmapped);
+	tinier.Load(SMALL_FONT, 1.6f, 0.03f, true, TexFilter::Mipmapped);
 	for (int d = 0; d < DECOR_COUNT; d++) {
 		std::string path = std::string("tools/editor/icons/prop_") + DECOR_NAMES[d] + ".png";
 		hasPropIcon[d] = propIcons[d].LoadPNG(path.c_str(), TexFilter::Flat) != 0;
@@ -438,6 +450,11 @@ void Editor::centerOnMinimap(float x, float y) {
 void Editor::wheel(int button) {
 	const bool forward = button == 3 || button == 5; // up, left
 	const int modifiers = glutGetModifiers();
+	if (HINT_PANEL.contains(pointerX, pointerY)) { // scrolls the papyrus text
+		if (button == 3 || button == 4)
+			hintScroll = std::clamp(hintScroll + (forward ? -HINT_SCROLL_STEP : HINT_SCROLL_STEP), 0.f, hintScrollMax);
+		return;
+	}
 	if ((modifiers & GLUT_ACTIVE_CTRL) != 0) {
 		zoomTo(view.zoom() + (button == 3 ? 1 : (button == 4 ? -1 : 0)));
 		return;
@@ -982,20 +999,23 @@ void Editor::drawCell(const Tile& t, const Rect& r, float structureAlpha, float 
 }
 
 // The map is drawn clipped to the map area: zoomed, the cells reach past it.
-void Editor::beginMapClip() const {
+void Editor::beginMapClip() const { beginClip(MAP_AREA); }
+
+// Draws only inside r (canvas units) until endClip.
+void Editor::beginClip(const Rect& r) const {
 	Rect area = visibleArea();
 	auto px = [&](float x) { return static_cast<float>(winW) * (x - area.x) / area.w; };
 	auto py = [&](float y) { return static_cast<float>(winH) * (y - area.y) / area.h; };
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(
-		static_cast<int>(std::floor(px(MAP_AREA.x))),
-		static_cast<int>(std::floor(py(MAP_AREA.y))),
-		static_cast<int>(std::ceil(px(MAP_AREA.x + MAP_AREA.w) - px(MAP_AREA.x))),
-		static_cast<int>(std::ceil(py(MAP_AREA.y + MAP_AREA.h) - py(MAP_AREA.y)))
+		static_cast<int>(std::floor(px(r.x))),
+		static_cast<int>(std::floor(py(r.y))),
+		static_cast<int>(std::ceil(px(r.x + r.w) - px(r.x))),
+		static_cast<int>(std::ceil(py(r.y + r.h) - py(r.y)))
 	);
 }
 
-void Editor::endMapClip() { glDisable(GL_SCISSOR_TEST); }
+void Editor::endClip() { glDisable(GL_SCISSOR_TEST); }
 
 void Editor::drawMap() {
 	beginShapes();
@@ -1029,7 +1049,7 @@ void Editor::drawMap() {
 		float y = view.cellRect(0, row).y;
 		line(MAP_AREA.x, y, MAP_AREA.x + MAP_AREA.w, y, BLACK, row % 5 == 0 ? 0.8f : 0.45f, 1.f);
 	}
-	endMapClip();
+	endClip();
 }
 
 // Zoomed only: the whole map's structure, small, with a frame for the window. Click or drag to move the window.
@@ -1110,7 +1130,7 @@ void Editor::drawMapOverlay() {
 		strokeRect(r.inset(-0.15f), GOLD_BRIGHT, 1.f, 1.5f);
 	}
 
-	endMapClip();
+	endClip();
 
 	// Cursor readout above the map.
 	beginText();
@@ -1279,7 +1299,8 @@ void Editor::drawPalette() {
 							: layer == Layer::Decor					   ? propLabel(id)
 							: layer == Layer::Decals				   ? decalLabel(id)
 																	   : tileInfo(id).name;
-		textCentered(tiny, r.cx(), r.y + 0.4f, label, selected || hover ? GOLD : Color{0.78f, 0.64f, 0.40f});
+		Font& labelFont = tiny.TextWidth(label) <= r.w - 0.4f ? tiny : tinier;
+		textCentered(labelFont, r.cx(), r.y + 0.4f, label, selected || hover ? GOLD : Color{0.78f, 0.64f, 0.40f});
 		beginShapes();
 	}
 
@@ -1363,7 +1384,14 @@ void Editor::drawHint() {
 		snprintf(sub, sizeof(sub), "%s", mode == Mode::Check ? "Brush. Click a cell to inspect it" : "Brush");
 	textCentered(small, cx, HINT_PANEL.y + HINT_PANEL.h - 8.2f, sub, INK_RED);
 
-	float y = HINT_PANEL.y + HINT_PANEL.h - 12.6f;
+	std::string shown = hint.title + sub + hint.description;
+	if (shown != hintShown) {
+		hintShown = shown;
+		hintScroll = 0.f;
+	}
+	beginClip(HINT_TEXT_AREA);
+	const float top = HINT_PANEL.y + HINT_PANEL.h - 12.6f;
+	float y = top + hintScroll;
 	for (const std::string& l : wrap(body, hint.description, width)) {
 		text(body, x, y, l.c_str(), INK);
 		y -= 2.8f;
@@ -1373,8 +1401,21 @@ void Editor::drawHint() {
 		drawFieldHint(y, "Attribute", hint.attribute);
 		drawFieldHint(y, "Value", hint.value);
 	}
+	endClip();
+	// The text ends at y (the next line's quad bottom): the overflow is what reaches below the text area.
+	hintScrollMax = std::max(0.f, HINT_TEXT_AREA.y + 0.6f - (y - hintScroll + 1.f));
+	hintScroll = std::min(hintScroll, hintScrollMax);
 
 	beginShapes();
+	if (hintScrollMax > 0.f) { // the scroll bar: where the shown part sits in the whole text
+		const float whole = HINT_TEXT_AREA.h + hintScrollMax;
+		const float barX = HINT_PANEL.x + HINT_PANEL.w - 2.4f;
+		const float trackTop = HINT_TEXT_AREA.y + HINT_TEXT_AREA.h;
+		line(barX, HINT_TEXT_AREA.y, barX, trackTop, INK_FADED, 0.5f, 1.f);
+		const float thumbH = HINT_TEXT_AREA.h * HINT_TEXT_AREA.h / whole;
+		const float thumbTop = trackTop - HINT_TEXT_AREA.h * hintScroll / whole;
+		fillRect({barX - 0.35f, thumbTop - thumbH, 0.7f, thumbH}, INK_RED, INK_RED, 0.8f);
+	}
 	float ruleY = HINT_PANEL.y + HINT_PANEL.h - 9.2f;
 	line(HINT_PANEL.x + 8, ruleY, HINT_PANEL.x + HINT_PANEL.w - 8, ruleY, INK_FADED, 0.8f, 1.f);
 	diamond(cx, ruleY, 0.6f, INK_RED, 1.f);

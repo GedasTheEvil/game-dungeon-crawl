@@ -227,6 +227,149 @@ def inscription():  # a cartouche on its bar: three signs, sun, water, reed
     save(img, "inscription.png")
 
 
+# ---- the later fixtures and objects (plan editor-icons-and-small-font) ----------------------------------------------
+
+POISON = (90, 200, 70)
+POISON_DARK = (40, 120, 36)
+SAND = (214, 176, 110)
+SAND_DARK = (150, 112, 60)
+BEAM = (255, 240, 170)
+
+
+def wall_spikes():  # the back wall slab, three spikes shot out sideways, green poison tips
+    img, d = canvas(POISON, 30)
+    d.rectangle(p(4, 6, 18, 58), fill=STONE, outline=STONE_DARK, width=SS)
+    for y in (14, 32, 50):
+        d.ellipse(p(14, y - 4, 20, y + 4), fill=OPEN)  # its hole
+        poly(d, [(17, y - 5), (56, y), (17, y + 5)], GOLD_DIM)
+        poly(d, [(17, y), (56, y), (17, y + 5)], BRONZE)  # shaded side
+        poly(d, [(45, y - 1.4), (56, y), (45, y + 1.4)], POISON)
+    save(img, "wall_spikes.png")
+
+
+def sun_disc():  # a gold disc with rays on the back wall, a lapis gem at its heart (it opens gates, as a lever)
+    img, d = canvas(GOLD, 70)
+    for k in range(12):
+        a = math.radians(k * 30)
+        d.line(p(32 + 16 * math.cos(a), 32 + 16 * math.sin(a), 32 + 27 * math.cos(a), 32 + 27 * math.sin(a)),
+               fill=GOLD, width=3 * SS)
+    d.ellipse(p(15, 15, 49, 49), fill=GOLD, outline=BRONZE_DARK, width=SS)
+    d.ellipse(p(19, 19, 45, 45), outline=GOLD_LIGHT, width=SS)
+    d.ellipse(p(25, 25, 39, 39), fill=LAPIS, outline=BRONZE_DARK, width=SS)
+    d.ellipse(p(28, 28, 32, 32), fill=LAPIS_LIGHT)
+    save(img, "sun_disc.png")
+
+
+def fire_vent():  # a vent slot low in the back wall, a jet of fire rising
+    img, d = canvas(RED_LIGHT, 60)
+    floor(d)
+    d.rectangle(p(14, 44, 50, 56), fill=STONE, outline=STONE_DARK, width=SS)
+    d.rectangle(p(20, 47, 44, 53), fill=BLACK)  # the slot
+    for x in (26, 32, 38):
+        d.line(p(x, 47, x, 53), fill=STONE_DARK, width=SS)  # its grille
+    poly(d, [(18, 46), (22, 24), (26, 32), (30, 6), (36, 26), (40, 16), (46, 46)], RED_LIGHT)
+    poly(d, [(24, 46), (28, 28), (32, 20), (36, 30), (40, 46)], GOLD)
+    poly(d, [(28, 46), (32, 32), (36, 46)], GOLD_LIGHT)
+    save(img, "fire_vent.png")
+
+
+def drop(d, cx, cy, r, fill):
+    poly(d, [(cx - r * 0.9, cy), (cx, cy - r * 2.2), (cx + r * 0.9, cy)], fill)
+    d.ellipse(p(cx - r, cy - r, cx + r, cy + r), fill=fill)
+
+
+def poison_drip():  # a lump of venom under a cracked ceiling, drops falling into a green puddle
+    img, d = canvas(POISON, 40)
+    d.rectangle(p(0, 0, 64, 12), fill=STONE, outline=STONE_DARK, width=SS)
+    d.line(p(20, 12, 26, 6, 32, 9, 40, 3), fill=OPEN, width=2 * SS, joint="curve")
+    d.chord(p(22, 4, 42, 22), 0, 180, fill=POISON, outline=POISON_DARK, width=SS)  # the lump
+    drop(d, 32, 30, 3, POISON)
+    drop(d, 32, 42, 2.2, POISON)
+    floor(d)
+    d.ellipse(p(14, 50, 50, 58), fill=POISON_DARK, outline=POISON, width=SS)  # the puddle
+    save(img, "poison_drip.png")
+
+
+def sand_gust():  # a wall slot blowing curved streaks of sand sideways, grit along the floor
+    img, d = canvas(SAND, 40)
+    floor(d)
+    d.rectangle(p(2, 14, 12, 50), fill=STONE, outline=STONE_DARK, width=SS)
+    for y, length, c in ((20, 46, SAND), (30, 52, SAND_DARK), (40, 44, SAND)):
+        d.line(p(12, y, 12 + length * 0.35, y - 3, 12 + length * 0.7, y + 2, 12 + length, y - 2), fill=c,
+               width=3 * SS, joint="curve")
+        d.arc(p(8 + length, y - 8, 16 + length, y), 300, 120, fill=c, width=2 * SS)  # the curl at its end
+    for x in (20, 30, 38, 46, 54):
+        d.ellipse(p(x - 1.2, 51, x + 1.2, 53.4), fill=SAND_DARK)
+    save(img, "sand_gust.png")
+
+
+def ceiling_spikes(name, tall):  # the floor spikes upside down, on the underside of a low ceiling
+    img, d = canvas(RED, 35 if tall else 25)
+    d.rectangle(p(4, 6, 60, 12), fill=STONE_DARK)
+    count = 4 if tall else 6
+    tip_y = 50 if tall else 30
+    w = 56 / count
+    for i in range(count):
+        x0 = 4 + i * w
+        cx = x0 + w / 2
+        poly(d, [(x0 + 1, 12), (cx, tip_y), (x0 + w - 1, 12)], GOLD_DIM)
+        poly(d, [(cx, tip_y), (x0 + w - 1, 12), (cx, 12)], BRONZE)
+        tip = (tip_y - 12) * 0.28
+        half = (w / 2 - 1) * 0.28
+        poly(d, [(cx - half, tip_y - tip), (cx, tip_y), (cx + half, tip_y - tip)], RED_LIGHT if tall else RED)
+    floor(d)  # the floor below: the trap hangs over open space
+    save(img, name)
+
+
+def light_shaft():  # sunlight through a crack in the rock, a pale beam going down
+    img, d = canvas(BEAM, 45)
+    d.rectangle(p(0, 0, 64, 14), fill=STONE, outline=STONE_DARK, width=SS)
+    poly(d, [(26, 0), (30, 6), (28, 14), (36, 14), (34, 6), (38, 0)], OPEN)  # the crack
+    beam = Image.new("RGBA", (S, S), BEAM + (0,))
+    mask = Image.new("L", (S, S), 0)
+    poly(ImageDraw.Draw(mask), [(28, 14), (36, 14), (44, 62), (20, 62)], 150)
+    poly(ImageDraw.Draw(mask), [(30, 14), (34, 14), (36, 62), (28, 62)], 230)  # the bright core
+    mask = mask.filter(ImageFilter.GaussianBlur(SS))
+    beam.paste(Image.new("RGBA", (S, S), BEAM + (255,)), (0, 0), mask)
+    img.alpha_composite(beam)
+    d = ImageDraw.Draw(img)
+    for x, y in ((26, 30), (37, 40), (31, 52)):  # dust in the beam
+        d.ellipse(p(x - 0.8, y - 0.8, x + 0.8, y + 0.8), fill=GOLD_LIGHT)
+    save(img, "light_shaft.png")
+
+
+def mirror():  # a bronze disc on a stand
+    img, d = canvas(GOLD, 40)
+    floor(d)
+    d.rectangle(p(30, 36, 34, 56), fill=BRONZE, outline=BRONZE_DARK, width=SS)  # the stand
+    poly(d, [(22, 56), (42, 56), (36, 50), (28, 50)], BRONZE, BRONZE_DARK, 1)
+    d.ellipse(p(14, 4, 50, 40), fill=GOLD_DIM, outline=BRONZE_DARK, width=2 * SS)
+    d.ellipse(p(18, 8, 46, 36), fill=GOLD)
+    d.chord(p(18, 8, 46, 36), 200, 290, fill=GOLD_LIGHT)  # the shine
+    d.line(p(24, 30, 40, 14), fill=GOLD_LIGHT, width=SS)
+    save(img, "mirror.png")
+
+
+def page():  # a torn papyrus sheet lying on a skull
+    img, d = canvas(GOLD, 35)
+    floor(d)
+    d.ellipse(p(36, 38, 56, 56), fill=BONE, outline=BONE_DARK, width=SS)  # the skull behind it
+    d.ellipse(p(44, 43, 49, 48), fill=BLACK)
+    pts = [(8, 18), (40, 12), (44, 22), (41, 30), (46, 40), (14, 50), (12, 40), (9, 34), (11, 26)]  # torn edges
+    poly(d, pts, (220, 200, 150), BRONZE, 1)
+    for k in range(4):  # lines of writing
+        y = 22 + k * 6
+        d.line(p(14, y + 2 - k * 0.2, 36, y - 3.5 + k * 0.4), fill=BRONZE_DARK, width=SS)
+    save(img, "page.png")
+
+
+def later_tiles():
+    for f in (wall_spikes, sun_disc, fire_vent, poison_drip, sand_gust, light_shaft, mirror, page):
+        f()
+    ceiling_spikes("ceiling_spikes.png", tall=False)
+    ceiling_spikes("ceiling_death.png", tall=True)
+
+
 # ---- the decor and decal layers (plan placed-decor): one icon per prop (prop_<DECOR_NAMES>.png), the torch, bare --
 
 FLOOR_Y = 56  # the props stand on it
@@ -583,4 +726,5 @@ if __name__ == "__main__":
     rockfall()
     inscription()
     dartplate()
+    later_tiles()
     props()

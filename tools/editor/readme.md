@@ -14,6 +14,7 @@ level file, relative to where you run it, and `Save` writes back to it). The edi
   three rows of nine), then the `Attribute` and `Value` fields (fixtures and objects), or the `Mirror` button (props
   and decals, key `M`).
 * Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
+  A text longer than the papyrus scrolls: the mouse wheel over it; a red bar on its right shows where you are.
   Numbers that mean nothing to the game show in red.
 * Right, bottom: the level name field, the level's zone (click it or press `Z` for the next one; saved in the file,
   it sets the level's stone, decor, light and sound in the game, [zone-looks](../../docs/plan/solved/zone-looks.md)) and the
@@ -126,9 +127,13 @@ A new map is all `Wall`. You carve the playable space out of it: paint `Empty` s
 carve their cell).
 
 Tile and prop icons (`prop_<name>.png`, `torch.png`, `no_torch.png`, `bare.png`) are PNG files in
-`tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow); the decals show their cell of the game's
+`tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow; a tile's file is the `icon` in
+`src/world/tile_defs.cpp`, every tile but `None`, `Unknown` and the structures has one,
+[editor-icons-and-small-font](../../docs/plan/solved/editor-icons-and-small-font.md)); the decals show their cell of the game's
 `media/textures/decorations/decals.png`. Fonts and backgrounds come from the game's `media/textures/fonts/` and
-`media/textures/ui/`.
+`media/textures/ui/`: the title, headings and body text are parchment, as in the game; the small text (palette names,
+the readout, the hints, the footer) is DejaVu Sans Condensed Bold (`dejavu-condensed-bold.png`, loaded mipmapped so it
+stays sharp this small). A palette name too wide for its tile is drawn a size smaller.
 
 ## Structure reference
 

@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <map>
 #include <string>
+#include <utility>
 #include "../core/logger.h"
 
 #pragma GCC diagnostic push
@@ -63,14 +64,14 @@ struct FontSheet {
 };
 
 namespace {
-// The sheet of a font file, loaded on first use and kept while a font holds it.
-std::shared_ptr<const FontSheet> loadSheet(const char* filename) {
-	static std::map<std::string, std::weak_ptr<const FontSheet>> sheets;
-	std::weak_ptr<const FontSheet>& cached = sheets[filename];
+// The sheet of a font file and filter, loaded on first use and kept while a font holds it.
+std::shared_ptr<const FontSheet> loadSheet(const char* filename, TexFilter filter) {
+	static std::map<std::pair<std::string, TexFilter>, std::weak_ptr<const FontSheet>> sheets;
+	std::weak_ptr<const FontSheet>& cached = sheets[{filename, filter}];
 	if (auto shared = cached.lock())
 		return shared;
 	auto sheet = std::make_shared<FontSheet>();
-	if (!sheet->texture.LoadPNG(filename, TexFilter::Flat))
+	if (!sheet->texture.LoadPNG(filename, filter))
 		LOG_ERRORF("graphics", "Could not load font texture: %s", filename);
 	sheet->measured = measureGlyphs(filename, SHEET_GLYPHS, sheet->left, sheet->right);
 	cached = sheet;
@@ -111,11 +112,14 @@ float Font::TextWidth(const char* text) const {
 	return width;
 }
 //=================================================================================================================
-void Font::Load(const char filename[], float size, float spacing, bool proportional) // Build Our Font Display List
-{
+void Font::Load(const char filename[], float size, float spacing, bool proportional) {
+	Load(filename, size, spacing, proportional, TexFilter::Flat);
+}
+//=================================================================================================================
+void Font::Load(const char filename[], float size, float spacing, bool proportional, TexFilter filter) {
 	static_assert(GLYPHS == SHEET_GLYPHS);
 	base = static_cast<int>(glGenLists(GLYPHS)); // Creating 95 Display Lists
-	sheet = loadSheet(filename);
+	sheet = loadSheet(filename, filter);
 	const float* left = sheet->left;
 	const float* right = sheet->right;
 	if (proportional && !sheet->measured) {

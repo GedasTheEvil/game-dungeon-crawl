@@ -429,6 +429,10 @@ the journal's stamped page and catalogue numbers: `media/textures/fonts/courier.
 height at any size; parchment, kalam and courier are 2048, so big text stays sharp; impact is 512; `--stroke` thickens thin
 strokes). The TTFs stay outside the repo: Kalam from Google Fonts (`ofl/kalam/Kalam-Regular.ttf`), Courier 10 Pitch from
 `xfonts-scalable` (`/usr/share/fonts/X11/Type1/c0419bt_.pfb`).
+`Font::Load` takes an optional `TexFilter` last: `Flat` (the default) for text drawn at about its sheet size or
+larger, `Mipmapped` for text drawn much smaller than its sheet cells, where thin strokes would break up (the level
+editor's small text, `media/textures/fonts/dejavu-condensed-bold.png`, DejaVu Sans Condensed Bold, licence
+`media/textures/fonts/dejavu-LICENSE.txt`).
 Each screen loads four sizes on its first frame (fonts need the GL context):
 
 | Font | `Load(file, size, spacing, true)` | Use |

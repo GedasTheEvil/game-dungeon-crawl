@@ -1,6 +1,9 @@
 #ifndef FONT_H
 #define FONT_H
+#include <cstdint>
 #include <memory>
+
+enum class TexFilter : std::uint8_t; // textures.h
 
 struct FontSheet; // font.cpp: a sheet's texture and glyph edges, shared by every size loaded from it
 
@@ -26,8 +29,11 @@ class Font {
 	Font& operator=(const Font&) = delete;
 	// Monospaced: every glyph advances size / 2 + spacing.
 	// Proportional: each glyph advances its own inked width + spacing (measured from the texture).
-	// Fonts of one file share its texture while any of them lives.
+	// Fonts of one file and filter share its texture while any of them lives. Flat (the default) suits text drawn
+	// at about its sheet size or larger; Mipmapped keeps thin strokes whole when the text is drawn much smaller than
+	// its sheet cells (the level editor's small text).
 	void Load(const char filename[], float size = 12, float spacing = 0, bool proportional = false);
+	void Load(const char filename[], float size, float spacing, bool proportional, TexFilter filter);
 	void print(float x, float y, const char* string, ...);
 	[[nodiscard]] float TextWidth(const char* text) const;
 	// print() puts the quad bottom at y: the baseline is Baseline() above it, the cap top CapHeight() above that.

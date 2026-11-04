@@ -72,32 +72,37 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "floor under it and a wall above it.",
 	 false,
 	 false,
-	 '|'},
+	 '|',
+	 "wall_spikes.png"},
 	{"LightShaft",
 	 "Sunlight through a crack in the rock: a beam runs from here through open cells until rock or a closed gate stops "
 	 "it. Attribute: its way (0 down, 1 left, 2 up, 3 right). Put rock behind it (above it for a beam down).",
 	 true,
 	 true,
-	 'l'},
+	 'l',
+	 "light_shaft.png"},
 	{"Mirror",
 	 "A bronze mirror on a stand: a beam that falls on it goes on the way it points. Interact turns it a quarter turn "
 	 "clockwise. Value: the way it points (0 down, 1 left, 2 up, 3 right).",
 	 true,
 	 true,
-	 '('},
+	 '(',
+	 "mirror.png"},
 	{"SunDisc",
 	 "A sun disc on the back wall. A beam on it lights it for good and opens every gate of its colour, as a lever. "
 	 "Attribute: the lock colour.",
 	 false,
 	 false,
-	 'a'},
+	 'a',
+	 "sun_disc.png"},
 	{"Page",
 	 "A torn page of the earlier expedition's notebook, on a skeleton; picked up on touch, it goes into the journal. "
 	 "Attribute: the page number, 1 to 18, in order of depth over the campaign. Optional: keep it off the exit path "
 	 "(only the last one lies on it). Put a floor under it.",
 	 true,
 	 true,
-	 '='},
+	 '=',
+	 "page.png"},
 	{"TrappedTreasure",
 	 "A treasure (attribute and value: the item) whose opening sets off a trap: poison darts, a puff of poison gas, a "
 	 "curse or a scarab swarm, by depth; canopic jars and pottery jars curse. Half of them hold the item and one bonus "
@@ -113,7 +118,8 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "Value: phase, 0 to 7 eighths of the cycle. Put a floor under it.",
 	 false,
 	 false,
-	 '+'},
+	 '+',
+	 "fire_vent.png"},
 	{"PoisonDrip",
 	 "Rhythm and floor trap: a green puddle on the floor that poisons whoever steps in (weak; a jump clears it), and "
 	 "a lump of venom on the ceiling over it that swells and falls into it on the wall spikes' cycle: whoever is in "
@@ -122,7 +128,8 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "it and a ceiling over it.",
 	 false,
 	 true,
-	 ','},
+	 ',',
+	 "poison_drip.png"},
 	{"SandGust",
 	 "A sandstorm hall's wind: gusts of sand blow along the row through the cell, 2 s of every 7 s (fast: 1.6 of 5.6 "
 	 "s, slow: 2.4 of 8.4 s); the hiss rises and grit skitters along the floor 1.2 s before. A gust pushes the player "
@@ -134,7 +141,8 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "checker wants each run crossed against the wind in one calm and nothing to fall or step into downwind.",
 	 true,
 	 true,
-	 '{'},
+	 '{',
+	 "sand_gust.png"},
 	{"CeilingSpikes",
 	 "Ceiling trap: the floor spikes on the underside of a low ceiling, on every solid sub-cell of the cell's shape "
 	 "over open space in it. Walking, crouching and standing under them are safe; a jump into them (the player's or "
@@ -143,13 +151,15 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 "loader rejects any other); the checker warns when the only way on jumps into them.",
 	 true,
 	 true,
-	 '"'},
+	 '"',
+	 "ceiling_spikes.png"},
 	{"CeilingDeath",
 	 "Ceiling trap: the death trap on the underside of a low ceiling, as ceiling spikes; a jump into it costs a walk "
 	 "over the death trap and its tips poison strongly.",
 	 true,
 	 true,
-	 '\''},
+	 '\'',
+	 "ceiling_death.png"},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{

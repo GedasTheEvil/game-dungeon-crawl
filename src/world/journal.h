@@ -168,7 +168,7 @@ enum class FieldNote : unsigned char {
 	// found (amuletNote).
 	AmuletFirst,
 	AmuletLast = AmuletFirst + AMULET_TYPE_COUNT - 1,
-	// Saved by number: new notes go here, after the amulets'.
+	// Saved by number: new notes go at the end, after the rings' and the Shrine of Isis.
 	Stun, // the first monster stunned (plan skill-stun)
 	Rings, // the first ride on a ring platform (plan ring-transporter)
 	Stargate, // the Stargate dialled the first time (plan stargate-chamber), with its XP
@@ -180,8 +180,17 @@ enum class FieldNote : unsigned char {
 	RingFirst,
 	RingLast = RingFirst + RING_GEM_COUNT - 1,
 	ShrineOfIsis, // the first prayer at a Shrine of Isis (plan shrine-of-isis)
+	// Plan journal-field-notes-gaps: a rhythm trap seen at work (out or about to be, in view), each skill written on
+	// learning.
+	WallSpikes,
+	FireJets,
+	PoisonDrips,
+	Dodge,
+	PowerHit,
+	FlamingArrows,
+	WordsOfThoth,
 };
-constexpr int FIELD_NOTE_COUNT = 58 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 65 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

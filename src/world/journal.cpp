@@ -96,9 +96,18 @@ std::optional<FieldNote> skillNote(SkillId skill) {
 		return FieldNote::FavourOfHapi;
 	case SkillId::BlessingOfIsis:
 		return FieldNote::BlessingOfIsis;
-	default:
+	case SkillId::Dodge:
+		return FieldNote::Dodge;
+	case SkillId::PowerHit:
+		return FieldNote::PowerHit;
+	case SkillId::FlamingArrows:
+		return FieldNote::FlamingArrows;
+	case SkillId::Hieroglyphs:
+		return FieldNote::WordsOfThoth;
+	case SkillId::Stun: // its note comes with the first stunned monster
 		return std::nullopt;
 	}
+	return std::nullopt;
 }
 
 FieldNote damageNote(DamageType type) {

@@ -16,11 +16,16 @@ JournalRiddle riddle(const char* question) {
 }
 } // namespace
 
-TEST_CASE("skills with a field note: Serket's favour, Sharp eye, Favour of Hapi, Blessing of Isis") {
+TEST_CASE("every skill but Stun has a field note, written on learning") {
 	CHECK(skillNote(SkillId::SerketsFavour) == FieldNote::SerketsFavour);
 	CHECK(skillNote(SkillId::SharpEye) == FieldNote::SharpEye);
 	CHECK(skillNote(SkillId::FavourOfHapi) == FieldNote::FavourOfHapi);
 	CHECK(skillNote(SkillId::BlessingOfIsis) == FieldNote::BlessingOfIsis);
+	CHECK(skillNote(SkillId::Dodge) == FieldNote::Dodge);
+	CHECK(skillNote(SkillId::PowerHit) == FieldNote::PowerHit);
+	CHECK(skillNote(SkillId::FlamingArrows) == FieldNote::FlamingArrows);
+	CHECK(skillNote(SkillId::Hieroglyphs) == FieldNote::WordsOfThoth);
+	CHECK_FALSE(skillNote(SkillId::Stun).has_value()); // its note is the first stunned monster's
 	Journal j;
 	j.LearnNote(*skillNote(SkillId::FavourOfHapi));
 	j.LearnNote(*skillNote(SkillId::BlessingOfIsis));

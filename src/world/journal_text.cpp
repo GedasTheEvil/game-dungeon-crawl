@@ -42,7 +42,7 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		case Summon::Hatch:
 			return moveText("summon", "hatch");
 		case Summon::Wall:
-			return moveText("summon", t.boss.smallMinion != 0 ? "wall-servants" : "wall");
+			return moveText("summon", "wall-servants");
 		}
 		break;
 	case CreatureMove::Heal:
@@ -184,6 +184,13 @@ constexpr std::array<const char*, static_cast<int>(FieldNote::RingFirst) - stati
 // ... and after the rings', in FieldNote order.
 constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote::RingLast) - 1> AFTER_RING_SLUGS = {
 	"shrine-of-isis",
+	"wall-spikes",
+	"fire-jets",
+	"poison-drips",
+	"dodge",
+	"power-hit",
+	"flaming-arrows",
+	"words-of-thoth",
 };
 
 std::string fieldNoteKey(int note) {

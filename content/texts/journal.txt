@@ -398,6 +398,51 @@ text: A little shrine in the rock, Isis on her throne inside, her wings spread o
 	none would take: the next one slid off like water. It does not last, two minutes or so, but she does not tire of
 	being asked. She hid her son from Set in the marshes; she can hide one archaeologist for a moment.
 
+[note.wall-spikes]
+title: Wall spikes
+text: Spikes in the wall, tipped with venom, and they keep time like a priest at a drum. A scrape just before, then
+	they thunk out and stand there; while they are out they are a wall, and whoever is in their cell gets stabbed,
+	poisoned, and shoved out. Jumping does nothing, sprinting only shortens the walk. Stand clear, wait for them to
+	draw in, cross. Several in a row are out of step on purpose: find the gap they share. A trap ward amulet takes
+	the edge off the stab.
+
+[note.fire-jets]
+title: Fire jets
+text: A vent low in the wall glows and hisses, and then a jet of fire goes up through its cell. It burns hard for as
+	long as I stand in it, a jump over it included, and does not stop me from walking in. The beat is the same as the
+	spikes': watch the glow, cross in the quiet. A fire guard amulet helps.
+
+[note.poison-drips]
+title: Poison drips
+text: A green puddle on the floor that poisons whoever wades in (a jump clears it), and over it a lump of venom on
+	the ceiling. A creak, and the lump falls: it hits, and poisons worse than the puddle, and a jump does not save me
+	from it. Something on the ceiling has been saving that for me. Go round the puddle if there is room, cross the
+	cell when the lump is back up.
+
+[note.dodge]
+title: Dodge
+text: I am quicker than I look. About one blow in ten, a bite, a claw, a dart, a spike, finds only the air where I
+	was. No damage, and no poison with it. It is luck, not a shield: never count on it.
+
+[note.power-hit]
+title: Power hit
+text: Hold the attack and wind up: a melee blow let go after the wind-up hits harder, the longer I held it, but each
+	moment costs stamina, and a quarter of my stamina is the most a blow will take. While I hold, nothing regrows and
+	I cannot sprint. A tap is a plain swing, free. Q turns it on and off with the other stamina skills.
+
+[note.flaming-arrows]
+title: Flaming arrows
+text: Sekhmet's flame on the arrowhead. With the stamina skills on (Q), each arrow costs a tenth of my stamina and
+	hits two fifths harder, the extra as fire: it sets the target burning and gets past what shrugs off an ordinary
+	arrow. With too little stamina the arrow flies plain, and the sign on the screen blinks. A brazier's flame is free
+	and needs no skill.
+
+[note.words-of-thoth]
+title: Words of Thoth
+text: The carved words on the walls were pictures yesterday. Now they are sentences. Thoth keeps his writing for
+	those who ask, and every inscription I read pays me in experience, the ones I passed before as well. They are
+	mostly warnings and gifts. Mostly.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

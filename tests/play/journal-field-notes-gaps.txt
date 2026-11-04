@@ -1,0 +1,9 @@
+# Plan journal-field-notes-gaps, for `bin/game --play tests/play/journal-field-notes-gaps.txt`: tests/levels/wall_spikes
+# with 4 heka free (the `learn` command skips the field note, so learn on the Heka page, K: Dodge, Power hit, Flaming
+# arrows, Words of Thoth; each writes its note on learning). The wall spikes ahead write theirs when they first come
+# out (or twitch) in view. Read the Notes in the journal (J). The fire jets and the poison drips write theirs on
+# tests/levels/fire_vents and tests/levels/poison_drips.
+seed 1
+level tests/levels/wall_spikes
+god
+heka 4

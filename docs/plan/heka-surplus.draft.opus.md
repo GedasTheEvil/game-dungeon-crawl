@@ -98,7 +98,7 @@ mapping); a regroup by kind is the implementer's choice (old saves can be ignore
 ## Also
 
 * Glossary rows for the seven skills, the skill names row, the heka row (Anubis gives none).
-* Field notes for the new skills if the other skills have them (see [journal-field-notes-gaps](journal-field-notes-gaps.draft.sonet.md)).
+* Field notes for the new skills if the other skills have them (see [journal-field-notes-gaps](journal-field-notes-gaps.md)).
 * Tests: unit tests per stat skill (the stat with and without it, save/load), the jump reach unchanged with the
   speed skill, Anubis gives no heka; a scenario screenshot of the Heka screen and of the Seshat map and trap
   outlines.

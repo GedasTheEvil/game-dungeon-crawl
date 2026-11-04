@@ -27,6 +27,12 @@ void Dungeon::updateRhythmTraps() {
 		setSpikeState(t, is);
 		const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
 		const bool heard = v.contains(static_cast<float>(col) + 0.5f, row);
+		if (heard && is != SpikeState::Retracted && t.type != SandGust) // the first one seen at work: its field note
+			sim.events->Note(
+				t.type == FireVent	   ? FieldNote::FireJets
+				: t.type == PoisonDrip ? FieldNote::PoisonDrips
+									   : FieldNote::WallSpikes
+			);
 		if (t.type == SandGust) { // plan sandstorm-halls: the wind's rise and its gust (dungeon_gusts.cpp)
 			rise = rise || (heard && is == SpikeState::Telegraph);
 			gust = gust || (heard && is == SpikeState::Extended);

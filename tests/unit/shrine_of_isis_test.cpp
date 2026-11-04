@@ -113,8 +113,8 @@ TEST_CASE("Protection of Isis: ends on death, kept over a save and load") {
 	CHECK_FALSE(world.player.stats.IsisWarded());
 }
 
-TEST_CASE("Shrine of Isis: its field note is the last, saved by number, with a text") {
-	CHECK(static_cast<int>(FieldNote::ShrineOfIsis) + 1 == FIELD_NOTE_COUNT);
+TEST_CASE("Shrine of Isis: its field note follows the rings', saved by number, with a text") {
+	CHECK(static_cast<int>(FieldNote::ShrineOfIsis) == static_cast<int>(FieldNote::RingLast) + 1);
 	CHECK(std::string(fieldNoteText(FieldNote::ShrineOfIsis).title) == "The Shrine of Isis");
 	CHECK(std::string(fieldNoteText(FieldNote::ShrineOfIsis).text) != "");
 }

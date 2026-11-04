@@ -21,7 +21,6 @@ drop: Calls its kind down from the ceiling.
 coffin: The dead climb out of their coffins at its call.
 hatch: Her young hatch from the egg clusters around her.
 wall-servants: His statues and his servants step out of the stone at his call.
-wall: His statues step out of the stone at his call.
 
 [move.heal]
 text: Heals as it bites.
@@ -64,7 +63,6 @@ disease: Its bite curses: a sickness eats my health.
 slowness: Its bite curses: my legs turn to stone.
 palsy: Its bolt curses: my hands shake too much to aim.
 insanity: Its bite curses: my mind clouds over.
-touch: Its touch curses.
 
 [move.bloom]
 text: Floats among the lotus flowers, rears up when I come near.

@@ -1,11 +1,11 @@
 # Controls smoothing: mouse on press, smooth look keys, quick keys by the hand, camera peek
 
-Status: implemented 2026-11-04, waiting for the play-test (`bin/game --play tests/play/controls-smoothing.txt`). Was: draft 2026-11-04, needs nothing first. From the user: a controls analysis (QWERTY keyboard + mouse), smooth
+Status: solved 2026-11-04 (play-tested by the user). Was: implemented 2026-11-04, waiting for the play-test (`bin/game --play tests/play/controls-smoothing.txt`). Was: draft 2026-11-04, needs nothing first. From the user: a controls analysis (QWERTY keyboard + mouse), smooth
 and easy to use. Opus: input timing, camera feel and defaults in one go.
 
 ## Analysis
 
-Defaults (`Bindings::Bindings`, `src/input/bindings.cpp`; table in [settings.md](../settings.md#controls)) checked
+Defaults (`Bindings::Bindings`, `src/input/bindings.cpp`; table in [settings.md](../../settings.md#controls)) checked
 against the genre on keyboard + mouse: Dead Cells (WASD / arrows, Space jump, LMB / RMB weapons, F heal, R interact,
 Tab map), Blasphemous (Space jump, F flask, E interact, I inventory, M map), Terraria (H quick heal, J quick mana,
 1-0 hotbar, wheel cycles the hotbar).
@@ -82,7 +82,7 @@ Not problems: Interact's second key F12 and MMB are odd but harmless extras. V /
 ## Done
 
 * Mouse: every bound button acts on the down, its up only lets go (`processMouse`). Scenario
-  `tests/scenarios/controls_smoothing.txt`: LMB down swings at once, the up runs nothing, a down on the inventory
+  `tests/scenarios/solved/controls_smoothing.txt`: LMB down swings at once, the up runs nothing, a down on the inventory
   then the screen closed runs nothing.
 * Look keys held, `CameraLook` (`src/input/camera_look.h`, pure, `tests/unit/camera_look_test.cpp`):
   `CAMERA_LOOK_KEY_SPEED` 60°/s, `stepCameraLook` once a tick; `CAMERA_ROTATE_STEP` dropped.

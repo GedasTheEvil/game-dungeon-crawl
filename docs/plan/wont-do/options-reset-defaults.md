@@ -19,7 +19,7 @@ defaults". Display and Sound have no reset.
   default-constructed values, **except the window size and fullscreen**: keep those as they are. Those defaults
   depend on the machine, and a reset that drops a fullscreen player into an 800x500 window is a surprise. Reset by
   assigning a default-constructed struct and copying the kept fields back, so rows added later (plans
-  [settings-extras](../settings-extras.draft.opus.md), [controls-smoothing](../controls-smoothing.md)) are
+  [settings-extras](../settings-extras.draft.opus.md), [controls-smoothing](../solved/controls-smoothing.md)) are
   covered without touching the reset.
 * Sound: `Settings::Sound{}`.
 * Then `ApplySettings(true)` (saves the file, applies the volumes / toon / ...), and a toast: "Display reset to the

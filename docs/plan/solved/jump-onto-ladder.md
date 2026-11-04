@@ -1,6 +1,6 @@
 # Jump onto a ladder: up or down grabs the rungs
 
-Status: implemented 2026-11-04, waiting for the play-test (`bin/game --play tests/play/jump-onto-ladder.txt`). Was: draft 2026-11-04, needs nothing first. Edge-case fix for the player; leaping climbers (giant rat, Babi)
+Status: solved 2026-11-04 (play-tested by the user). Was: implemented 2026-11-04, waiting for the play-test (`bin/game --play tests/play/jump-onto-ladder.txt`). Was: draft 2026-11-04, needs nothing first. Edge-case fix for the player; leaping climbers (giant rat, Babi)
 catch the rungs mid-leap too.
 
 ## Problem
@@ -101,4 +101,4 @@ giant rat across a gap from the ladder's foot.
 * Tests: `tests/unit/jump_onto_ladder_test.cpp` (player catch, no catch without up, jump off with up held; giant rat
   catches at the arc's height on the ladder's middle and reaches the upper floor, giant scarab stays below; the
   ladder over a pit three cells out: only Babi's path and leap reach it). Levels `tests/levels/leap_ladder*`.
-  Screenshots: `tests/scenarios/jump_onto_ladder.txt` (the rat comes up the shaft in the climb pose, no pop).
+  Screenshots: `tests/scenarios/solved/jump_onto_ladder.txt` (the rat comes up the shaft in the climb pose, no pop).

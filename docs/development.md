@@ -1,6 +1,6 @@
 # Development
 
-Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git workflow: [version-control.md](version-control.md).
+Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git workflow: [version-control.md](version-control.md). Hanging shells and waits: [stuck-processes.md](stuck-processes.md).
 
 ## Requirements
 

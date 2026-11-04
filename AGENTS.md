@@ -3,6 +3,8 @@ After writing the code, run `make check`: it builds, fixes links to moved plans,
 the changed files and the unit tests. Never format by hand: `make format` does it. Every warning `make tidy` prints is
 yours (the tree has none): fix it. Code style, false positives: [docs/development.md](docs/development.md#build-and-run).
 Where is X: [docs/development.md](docs/development.md#where-is-x).
+Waiting for a long command, or a shell that seems to hang: [docs/stuck-processes.md](docs/stuck-processes.md). Never
+wait with a `pgrep -f` loop.
 
 ## Glossary
 Unsure of a term, or naming a new thing: grep [docs/glossary.md](docs/glossary.md) (one row per term, no need to read it all). Add new terms there.

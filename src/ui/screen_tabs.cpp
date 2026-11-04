@@ -34,6 +34,8 @@ void Draw() {
 	const int open = tabOf(Game().ui.screen);
 	if (open < 0)
 		return;
+	if (Game().ui.screen != Screen::Journal) // switched away from the journal by its tabs: what it showed was seen
+		Game().ui.journal.SeeShown();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	ui::Rect area = visibleArea();
@@ -41,7 +43,13 @@ void Draw() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
-	ui::screenTabs(Game().assets.fonts.hudSmall, static_cast<ui::ScreenTab>(open), tabs.hovered, tabs.pressed);
+	ui::screenTabs(
+		Game().assets.fonts.hudSmall,
+		static_cast<ui::ScreenTab>(open),
+		tabs.hovered,
+		tabs.pressed,
+		Game().journal.AnyNew()
+	);
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);

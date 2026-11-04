@@ -205,6 +205,13 @@ the open spread (`EDGE_STEP` per page edge). An empty section has no ribbon (it 
 is written; Up / Down skip it; the book never opens on it, [plan](plan/solved/journal-hide-empty-ribbons.md)). Its letter (D, M, R, F, I, E, L) in `PAPER` on the open and the hovered one; the
 hovered one shows its name on a dark label on its page. Page turn arrows in `PENCIL` in the bottom corners.
 
+New entries ([journal-new-mark](plan/solved/journal-new-mark.md)): an entry written or filled in since its page was last shown
+(`Journal::IsNew`, saved) has a `newMark` (a `NEW_RED` dot with a dark rim) and "new" in `handSmall` in the page's top
+inner corner, its section's ribbon a dot too, the J screen tab one in its corner. Over the game, while anything is new, a
+stone tile with the book icon and a dot sits right of the HUD panel, the Journal key under it. An entry counts as seen
+once its spread is left (a turn, another tab, the book closed: `JournalScreen::SeeShown`). The first kill of a kind
+posts "Journal: <name>, photo and HP noted"; the first weapon type and venom tried already post their lines.
+
 On the pages: page numbers stamped in `INK_RED` in the top outer corner (`media/textures/fonts/courier.png`), the level pencilled
 above; underlined headings and the text in `INK_BLUE`; pencil (`PENCIL`, alpha 0.7) for what matters less (hints,
 captions of sketches). Creature pages have a margin column of labels (`SEEN`, `SAW`, `KILLED` in red, `TRIED`) and a

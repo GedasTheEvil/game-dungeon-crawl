@@ -1,0 +1,21 @@
+# Plan journal-new-mark: a rat seen is new in the journal: a book tile right of the HUD, a red mark on the J tab,
+# the creatures' ribbon and the page. Closed again, the HUD mark is gone.
+seed 1
+god
+level tests/levels/rats
+wait 30
+screenshot hud_new
+key j
+wait 5
+screenshot book_new
+key j
+wait 5
+screenshot hud_seen
+key j
+wait 5
+screenshot book_seen
+key down
+wait 60
+key j
+wait 5
+screenshot hud_all_seen

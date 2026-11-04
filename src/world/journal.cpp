@@ -1,6 +1,7 @@
 #include "journal.h"
 #include <algorithm>
 #include <iomanip>
+#include <limits>
 
 namespace {
 constexpr const char* TAG = "journal";
@@ -8,8 +9,8 @@ constexpr const char* TAG = "journal";
 // damage type (older field notes are dropped: their numbers meant other notes), 6: and the inscriptions read, 7: and
 // whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one), 9: and each
 // inscription's boon, 10: and its name cartouche picture, 11: and the diary pages, 12: and the
-// expedition's pages
-constexpr int VERSION = 13;
+// expedition's pages, 14: and the new entries
+constexpr int VERSION = 14;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
@@ -19,6 +20,7 @@ constexpr int PICTURE_VERSION = 10;
 constexpr int DIARY_VERSION = 11;
 constexpr int PAGES_VERSION = 12;
 constexpr int GLYPHS_VERSION = 13; // a name cartouche's signs instead of its picture
+constexpr int NEW_MARKS_VERSION = 14;
 constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
@@ -47,6 +49,7 @@ size_t Journal::MeetRiddle(const JournalRiddle& riddle) {
 		if (riddles[i].SameRiddle(riddle))
 			return i;
 	riddles.push_back(riddle);
+	markNew(JournalPart::Riddles, static_cast<int>(riddles.size() - 1));
 	return riddles.size() - 1;
 }
 
@@ -67,7 +70,33 @@ JournalCreature& Journal::creature(int type, int level) {
 	c.type = type;
 	c.level = level;
 	creatures.push_back(c);
+	markNew(JournalPart::Creatures, type);
 	return creatures.back();
+}
+
+bool Journal::KillCreature(int type, int level) {
+	JournalCreature& c = creature(type, level);
+	if (c.killed)
+		return false;
+	c.killed = true;
+	markNew(JournalPart::Creatures, type);
+	return true;
+}
+
+void Journal::HitByCreature(int type, int level) {
+	JournalCreature& c = creature(type, level);
+	if (c.hitBy)
+		return;
+	c.hitBy = true;
+	markNew(JournalPart::Creatures, type);
+}
+
+void Journal::SeeMove(int type, int level, CreatureMove move) {
+	JournalCreature& c = creature(type, level);
+	if (c.Saw(move))
+		return;
+	c.moves |= 1U << static_cast<unsigned>(move);
+	markNew(JournalPart::Creatures, type);
 }
 
 bool Journal::TryDamage(int type, int level, DamageType damage) {
@@ -75,6 +104,7 @@ bool Journal::TryDamage(int type, int level, DamageType damage) {
 	if (c.Tried(damage))
 		return false;
 	c.tried |= 1U << static_cast<unsigned>(damage);
+	markNew(JournalPart::Creatures, type);
 	return true;
 }
 
@@ -83,6 +113,7 @@ bool Journal::TryPoison(int type, int level) {
 	if (c.TriedPoison())
 		return false;
 	c.tried |= JournalCreature::TRIED_POISON;
+	markNew(JournalPart::Creatures, type);
 	return true;
 }
 
@@ -127,19 +158,25 @@ FieldNote damageNote(DamageType type) {
 FieldNote potionNote(ItemKind potion) { return potionDef(potion).note; }
 
 void Journal::LearnNote(FieldNote note) {
-	if (std::find(notes.begin(), notes.end(), note) == notes.end())
-		notes.push_back(note);
+	if (std::find(notes.begin(), notes.end(), note) != notes.end())
+		return;
+	notes.push_back(note);
+	markNew(JournalPart::FieldNotes, static_cast<int>(note));
 }
 
 bool Journal::ReadInscription(const JournalInscription& inscription) {
-	for (JournalInscription& i : inscriptions)
+	for (size_t at = 0; at < inscriptions.size(); at++) {
+		JournalInscription& i = inscriptions[at];
 		if (i.SameInscription(inscription)) {
 			if (i.translated || !inscription.translated)
 				return false;
 			i = inscription;
+			markNew(JournalPart::Inscriptions, static_cast<int>(at));
 			return true;
 		}
+	}
 	inscriptions.push_back(inscription);
+	markNew(JournalPart::Inscriptions, static_cast<int>(inscriptions.size() - 1));
 	return true;
 }
 
@@ -152,17 +189,22 @@ const JournalInscription* Journal::FindInscription(const JournalInscription& ins
 
 std::vector<Boon> Journal::TranslateInscriptions() {
 	std::vector<Boon> boons;
-	for (JournalInscription& i : inscriptions)
+	for (size_t at = 0; at < inscriptions.size(); at++) {
+		JournalInscription& i = inscriptions[at];
 		if (!i.translated) {
 			i.translated = true;
 			boons.push_back(i.boon);
+			markNew(JournalPart::Inscriptions, static_cast<int>(at));
 		}
+	}
 	return boons;
 }
 
 void Journal::WriteDiary(DiaryPage page) {
-	if (std::find(diary.begin(), diary.end(), page) == diary.end())
-		diary.push_back(page);
+	if (std::find(diary.begin(), diary.end(), page) != diary.end())
+		return;
+	diary.push_back(page);
+	markNew(JournalPart::Diary, static_cast<int>(page));
 }
 
 bool Journal::FindPage(int number, int level) {
@@ -174,8 +216,35 @@ bool Journal::FindPage(int number, int level) {
 	if (at != pages.end() && at->number == number)
 		return false;
 	pages.insert(at, {number, level});
+	markNew(JournalPart::Expedition, number);
 	return true;
 }
+
+int Journal::keyOf(JournalPart part, size_t index) const {
+	switch (part) {
+	case JournalPart::Diary:
+		return index < diary.size() ? static_cast<int>(diary[index]) : -1;
+	case JournalPart::Creatures:
+		return index < creatures.size() ? creatures[index].type : -1;
+	case JournalPart::FieldNotes:
+		return index < notes.size() ? static_cast<int>(notes[index]) : -1;
+	case JournalPart::Expedition:
+		return index < pages.size() ? pages[index].number : -1;
+	case JournalPart::Riddles:
+	case JournalPart::Inscriptions:
+		break;
+	}
+	return static_cast<int>(index);
+}
+
+bool Journal::IsNew(JournalPart part, size_t index) const { return fresh.count({part, keyOf(part, index)}) > 0; }
+
+bool Journal::AnyNew(JournalPart part) const {
+	auto at = fresh.lower_bound({part, std::numeric_limits<int>::min()});
+	return at != fresh.end() && at->first == part;
+}
+
+void Journal::MarkSeen(JournalPart part, size_t index) { fresh.erase({part, keyOf(part, index)}); }
 
 void Journal::Begin() {
 	Clear();
@@ -219,57 +288,77 @@ void Journal::Dump(std::ostream& out) const {
 	for (const ExpeditionPage& p : pages)
 		out << ' ' << p.number << ' ' << p.level;
 	out << '\n';
+	out << fresh.size();
+	for (const auto& [part, key] : fresh)
+		out << ' ' << static_cast<int>(part) << ' ' << key;
+	out << '\n';
 }
 
 void Journal::Load(std::istream& in) {
 	Clear();
+	const int version = loadEntries(in);
+	fresh.clear(); // the entries were written anew: only the saved marks count
+	size_t count = 0;
+	if (version < NEW_MARKS_VERSION || !(in >> count))
+		return;
+	for (size_t i = 0; i < count; i++) {
+		int part = 0;
+		int key = 0;
+		if (!(in >> part >> key))
+			return;
+		if (part >= 0 && part < JOURNAL_PART_COUNT)
+			markNew(static_cast<JournalPart>(part), key);
+	}
+}
+
+int Journal::loadEntries(std::istream& in) {
 	std::string tag;
 	int version = 0;
 	size_t count = 0;
 	if (!(in >> tag) || tag != TAG || !(in >> version >> count) || version < 1 || version > VERSION)
-		return;
+		return 0;
 	for (size_t i = 0; i < count; i++) {
 		JournalRiddle r;
 		if (!(in >> std::quoted(r.theme)) || !readLines(in, r.question) || !readLines(in, r.answers) ||
 			!(in >> std::quoted(r.hint) >> r.level >> r.lateXP >> r.hintShown >> r.solved >> r.solvedLate >>
 			  std::quoted(r.written)))
-			return; // a broken tail: keep what was read
+			return version; // a broken tail: keep what was read
 		riddles.push_back(r);
 	}
 	if (version < 2 || !(in >> count))
-		return;
+		return version;
 	for (size_t i = 0; i < count; i++) {
 		JournalCreature c;
 		if (!(in >> c.type >> c.level >> c.killed >> c.hitBy >> c.moves) || (version >= 4 && !(in >> c.tried)))
-			return;
+			return version;
 		if (version < FIRE_VERSION && (c.tried & OLD_TRIED_POISON) != 0)
 			c.tried = (c.tried & ~OLD_TRIED_POISON) | JournalCreature::TRIED_POISON;
 		creatures.push_back(c);
 	}
 	if (version < 3 || !(in >> count))
-		return;
+		return version;
 	if (version < NOTES_PER_KIND_VERSION)
-		return;
+		return version;
 	for (size_t i = 0; i < count; i++) {
 		int note = 0;
 		if (!(in >> note))
-			return;
+			return version;
 		if (note >= 0 && note < FIELD_NOTE_COUNT)
 			LearnNote(static_cast<FieldNote>(note));
 	}
 	if (version < INSCRIPTIONS_VERSION || !(in >> count))
-		return;
+		return version;
 	for (size_t i = 0; i < count; i++) {
 		JournalInscription e;
 		if (!(in >> e.id >> e.level >> std::quoted(e.title)) || !readLines(in, e.text) ||
 			!(in >> std::quoted(e.note)) || (version >= TRANSLATED_VERSION && !(in >> e.translated)))
-			return;
+			return version;
 		int kind = 0;
 		if (version >= BOON_VERSION && !(in >> kind >> e.boon.amount))
-			return;
+			return version;
 		int picture = 0; // an old name cartouche's picture: its signs did not spell the name, dropped
 		if (version >= GLYPHS_VERSION ? !readLines(in, e.glyphs) : version >= PICTURE_VERSION && !(in >> picture))
-			return;
+			return version;
 		if (kind > 0 && kind < BOON_KIND_COUNT && e.boon.amount > 0)
 			e.boon.kind = static_cast<BoonKind>(kind);
 		else
@@ -277,20 +366,21 @@ void Journal::Load(std::istream& in) {
 		inscriptions.push_back(e);
 	}
 	if (version < DIARY_VERSION || !(in >> count))
-		return;
+		return version;
 	for (size_t i = 0; i < count; i++) {
 		int page = 0;
 		if (!(in >> page))
-			return;
+			return version;
 		if (page >= 0 && page < DIARY_PAGE_COUNT)
 			WriteDiary(static_cast<DiaryPage>(page));
 	}
 	if (version < PAGES_VERSION || !(in >> count))
-		return;
+		return version;
 	for (size_t i = 0; i < count; i++) {
 		ExpeditionPage p;
 		if (!(in >> p.number >> p.level))
-			return;
+			return version;
 		FindPage(p.number, p.level);
 	}
+	return version;
 }

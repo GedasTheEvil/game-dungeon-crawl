@@ -12,6 +12,7 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 
 // The archaeologist's journal ([J]): a cloth-bound field notebook open on two grid pages, a coloured ribbon bookmark
@@ -30,6 +31,9 @@ class JournalScreen {
 	// (EndDiary).
 	void OpenDiary(const char* closes);
 	void EndDiary() { closesTo = nullptr; }
+	// New entries (plan journal-new-mark): the ones on the spreads shown since the last call are seen now. Called on
+	// turning away from a spread and once the book is closed.
+	void SeeShown();
 	// The arrows and the bound move keys turn pages and switch sections; Enter / Space / Interact focus and press the
 	// riddle Answer buttons (Navigate).
 	void KeyPressed(unsigned char key);
@@ -84,6 +88,8 @@ class JournalScreen {
 	std::array<RenderTarget, PAGE_SLOTS> pages; // drawn each frame, then laid on the book or bent
 	bool pagesFailed = false; // no framebuffers: the pages are drawn straight onto the book, turns are instant
 	const char* closesTo = nullptr; // opened on the diary, not closed yet: what the close key does (OpenDiary)
+	// The new entries on the open spread, shown and so seen once it is left (SeeShown); section and index.
+	std::vector<std::pair<Section, int>> shownNew;
 	// The log section's pages, laid out each frame from Game().messages (PaginateLog): its lines, wrapped.
 	struct LogEntry {
 		std::vector<std::string> lines;

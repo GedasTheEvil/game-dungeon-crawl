@@ -209,3 +209,59 @@ TEST_CASE("the win writes the epilogue after the prologue, once (plan win-ending
 	CHECK(std::string(diaryText(DiaryPage::Dawn).title) == "The twelfth hour");
 	CHECK(diaryText(DiaryPage::Dawn).paragraphs[2] != nullptr);
 }
+
+TEST_CASE("an entry is new until its page is seen (plan journal-new-mark)") {
+	Journal j;
+	CHECK_FALSE(j.AnyNew());
+	j.SeeCreature(3, 1);
+	CHECK(j.IsNew(JournalPart::Creatures, 0));
+	j.MarkSeen(JournalPart::Creatures, 0);
+	CHECK_FALSE(j.AnyNew());
+	j.SeeCreature(3, 1); // seen again: nothing new on the page
+	j.SeeMove(3, 1, CreatureMove::Leap);
+	CHECK(j.IsNew(JournalPart::Creatures, 0)); // a move written down
+	j.MarkSeen(JournalPart::Creatures, 0);
+	j.SeeMove(3, 1, CreatureMove::Leap);
+	CHECK_FALSE(j.AnyNew());
+	CHECK(j.KillCreature(3, 1)); // the photo
+	CHECK_FALSE(j.KillCreature(3, 1));
+	CHECK(j.AnyNew(JournalPart::Creatures));
+	CHECK_FALSE(j.AnyNew(JournalPart::FieldNotes));
+
+	j.LearnNote(FieldNote::Keys);
+	j.LearnNote(FieldNote::Health);
+	j.MarkSeen(JournalPart::FieldNotes, 0);
+	CHECK_FALSE(j.IsNew(JournalPart::FieldNotes, 0));
+	CHECK(j.IsNew(JournalPart::FieldNotes, 1));
+}
+
+TEST_CASE("a page found before others keeps its own new mark") {
+	Journal j;
+	j.FindPage(5, 4);
+	j.MarkSeen(JournalPart::Expedition, 0);
+	j.FindPage(2, 6); // goes in front of page 5
+	CHECK(j.IsNew(JournalPart::Expedition, 0));
+	CHECK_FALSE(j.IsNew(JournalPart::Expedition, 1));
+}
+
+TEST_CASE("the new marks survive a save and load; older saves have none") {
+	Journal j;
+	j.SeeCreature(3, 1);
+	j.SeeCreature(4, 1);
+	j.LearnNote(FieldNote::Keys);
+	j.MarkSeen(JournalPart::Creatures, 0);
+	std::stringstream s;
+	j.Dump(s);
+	Journal loaded;
+	loaded.Load(s);
+	CHECK_FALSE(loaded.IsNew(JournalPart::Creatures, 0));
+	CHECK(loaded.IsNew(JournalPart::Creatures, 1));
+	CHECK(loaded.IsNew(JournalPart::FieldNotes, 0));
+
+	std::stringstream old("journal 13 0\n1\n3 1 0 0 0 0\n1 4\n0\n0\n0\n");
+	Journal oldJournal;
+	oldJournal.Load(old);
+	REQUIRE(oldJournal.Creatures().size() == 1);
+	REQUIRE(oldJournal.Notes().size() == 1);
+	CHECK_FALSE(oldJournal.AnyNew());
+}

@@ -72,6 +72,10 @@ struct View {
 	std::string staminaSkillKey;
 	bool hekaWaiting = false; // a heka to spend on a skill: a pulsing tile with the Heka key
 	std::string hekaKey;
+	// Something new in the journal (plan journal-new-mark): a book tile with a red mark right of the panel, the
+	// Journal key under it.
+	bool journalNew = false;
+	std::string journalKey;
 };
 
 // Once a game tick: the health bar's lost part follows the player's health (it holds, then drains).

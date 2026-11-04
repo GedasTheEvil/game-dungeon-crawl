@@ -40,6 +40,7 @@ constexpr Color PANEL_BOTTOM = {0.08f, 0.06f, 0.045f};
 constexpr Color BLACK = {0.f, 0.f, 0.f};
 constexpr Color INK = {0.24f, 0.14f, 0.07f};
 constexpr Color INK_RED = {0.62f, 0.17f, 0.08f};
+constexpr Color NEW_RED = {0.9f, 0.16f, 0.08f}; // newMark
 constexpr Color INK_GREEN = {0.16f, 0.45f, 0.12f};
 constexpr Color INK_FADED = {0.52f, 0.40f, 0.26f};
 // The archaeologist's own pencil: the draft map's sketch, the journal's handwriting.
@@ -70,6 +71,8 @@ void triangle(float x0, float y0, float x1, float y1, float x2, float y2, Color 
 // Band around `inner`, `grow` wide, fading from alphaIn at the rect to alphaOut at the outer edge.
 void ring(const Rect& inner, float grow, Color c, float alphaIn, float alphaOut);
 void ellipse(float x, float y, float rx, float ry, Color c, float alpha);
+// Something new to read in the journal (plan journal-new-mark): a red dot with a dark rim, centred on (x, y).
+void newMark(float x, float y, float radius);
 // Framed panel: gradient fill, bronze outer frame, thin gold inner line and gold corner studs. frameAlpha fades
 // the frame and studs too (the gameplay status box fades out).
 void panel(const Rect& r, float alpha, float frameAlpha = 1.f);
@@ -113,8 +116,11 @@ void textCenteredIn(Font& font, const Rect& r, const char* str, Color c, float a
 std::vector<std::string> wrap(const Font& font, const std::string& text, float width);
 
 // ---- screen tabs (their layout: ui_layout.h) ----
-// hovered / held: a tab index or -1. The hovered tab's name shows on a label to the left of the strip.
-void screenTabs(Font& small, ScreenTab open, int hovered, int held);
+// hovered / held: a tab index or -1. The hovered tab's name shows on a label to the left of the strip. The journal's
+// tab has a newMark while `journalNew`.
+void screenTabs(Font& small, ScreenTab open, int hovered, int held, bool journalNew);
+// A tab's flat icon centred on (cx, cy), `size` its half width; the HUD's journal mark uses the book.
+void tabIcon(ScreenTab tab, float cx, float cy, float size, Color c);
 
 void beginShapes();
 void beginText();

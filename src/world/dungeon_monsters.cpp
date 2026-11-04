@@ -433,7 +433,8 @@ void Dungeon::markSlain(const Monster& mon) {
 void Dungeon::rewardKill(Monster& mon) {
 	markSlain(mon);
 	const MonsterType& type = *mon.Type();
-	sim.journal->KillCreature(type.id, levelNumber);
+	if (sim.journal->KillCreature(type.id, levelNumber)) // plan journal-new-mark
+		sim.events->Status("Journal: %s, photo and HP noted", type.name);
 	sim.player->stats.run.Slay(type.id);
 	const int xp = mon.Minion() ? MinionXP(type.xp) : type.xp;
 	sim.events->Status("Gained %d XP", xp);

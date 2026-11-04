@@ -41,6 +41,9 @@ constexpr float POISON_STEP = 9.f;
 constexpr float CARD_MARGIN = 0.6f; // the status card's frame outside its tile
 // The waiting heka, above the panel's right end: clear of the poison and resistance tiles.
 constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISON_Y, 6.f, 6.f};
+// New in the journal: right of the panel, level with its top.
+constexpr Rect JOURNAL_TILE =
+	{PlayerHud::PANEL.x + PlayerHud::PANEL.w + 1.5f, PlayerHud::PANEL.y + PlayerHud::PANEL.h - 6.f, 6.f, 6.f};
 constexpr Rect STAMINA_SKILL_SIGN = {51.f, 13.6f, 3.6f, 3.6f}; // right of the stamina bar, under the health numbers
 constexpr Color FLAME = {0.98f, 0.45f, 0.1f};
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
@@ -177,6 +180,17 @@ void drawHeka(const PlayerHud::View& v, int now, int skillIcons) {
 	tile(r, TileStyle::Lapis, false, false);
 	atlasIcon(r.inset(0.5f), skillIcons, HEKA_ICON, SKILL_ICON_COLUMNS, SKILL_ICON_ROWS, {1, 1, 1});
 	beginShapes();
+}
+
+// Something new in the journal: a stone tile with the book, a red mark in its corner.
+void drawJournalNew(const PlayerHud::View& v) {
+	if (!v.journalNew)
+		return;
+	const Rect& r = JOURNAL_TILE;
+	fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+	tile(r, TileStyle::Stone, false, false);
+	tabIcon(ScreenTab::Journal, r.cx(), r.cy(), 1.9f, GOLD);
+	newMark(r.x + r.w - 0.9f, r.y + r.h - 0.9f, 1.5f);
 }
 
 // The stamina-skill toggle's sign: a flame on a lapis tile while on, on stone while off; a refused skill blinks it red.
@@ -398,6 +412,7 @@ void draw(
 	drawXp(view);
 	drawStatuses(view, icons, statusCards);
 	drawHeka(view, now, skillIcons);
+	drawJournalNew(view);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlotIcon(view.slots[i], slotRect(i), icons);
@@ -422,6 +437,10 @@ void draw(
 			view.staminaSkillKey.c_str(),
 			view.staminaSkillOn ? GOLD_BRIGHT : LABEL_DIM
 		);
+	if (view.journalNew && !view.journalKey.empty()) {
+		textCentered(small, JOURNAL_TILE.cx() + 0.2f, JOURNAL_TILE.y - 3.6f, view.journalKey.c_str(), BLACK);
+		textCentered(small, JOURNAL_TILE.cx(), JOURNAL_TILE.y - 3.4f, view.journalKey.c_str(), GOLD_BRIGHT);
+	}
 	if (view.hekaWaiting && !view.hekaKey.empty()) {
 		textCentered(small, HEKA_TILE.cx() + 0.2f, HEKA_TILE.y - 3.6f, view.hekaKey.c_str(), BLACK);
 		textCentered(small, HEKA_TILE.cx(), HEKA_TILE.y - 3.4f, view.hekaKey.c_str(), GOLD_BRIGHT);

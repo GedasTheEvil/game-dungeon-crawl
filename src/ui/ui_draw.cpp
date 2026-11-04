@@ -71,6 +71,12 @@ void ring(const Rect& inner, float grow, Color c, float alphaIn, float alphaOut)
 	glEnd();
 }
 
+void newMark(float x, float y, float radius) {
+	ellipse(x, y, radius, radius, BLACK, 0.8f);
+	ellipse(x, y, radius * 0.72f, radius * 0.72f, NEW_RED, 1.f);
+	ellipse(x - radius * 0.2f, y + radius * 0.2f, radius * 0.25f, radius * 0.25f, {1.f, 0.7f, 0.6f}, 0.8f);
+}
+
 void ellipse(float x, float y, float rx, float ry, Color c, float alpha) {
 	constexpr int SEGMENTS = 32;
 	glBegin(GL_TRIANGLE_FAN);
@@ -145,7 +151,8 @@ constexpr const char* TAB_KEYS[SCREEN_TAB_COUNT] = {"I", "M", "J", "K"};
 
 void bar(float x0, float y0, float x1, float y1, Color c) { fillRect({x0, y0, x1 - x0, y1 - y0}, c, c, 1.f); }
 
-// Flat glyphs in a 2s x 2s box round (cx, cy), like the menu's icons.
+} // namespace
+
 void tabIcon(ScreenTab tab, float cx, float cy, float s, Color c) {
 	switch (tab) {
 	case ScreenTab::Inventory: // a chest: lid, body and the lock between them
@@ -170,9 +177,8 @@ void tabIcon(ScreenTab tab, float cx, float cy, float s, Color c) {
 		break;
 	}
 }
-} // namespace
 
-void screenTabs(Font& small, ScreenTab open, int hovered, int held) {
+void screenTabs(Font& small, ScreenTab open, int hovered, int held, bool journalNew) {
 	beginShapes();
 	for (int tab = 0; tab < SCREEN_TAB_COUNT; tab++) {
 		bool active = static_cast<int>(open) == tab;
@@ -184,6 +190,8 @@ void screenTabs(Font& small, ScreenTab open, int hovered, int held) {
 		beginText();
 		textMiddle(small, r.x + 6.4f, r.cy(), TAB_KEYS[tab], isHovered ? TEXT_HOVER : GOLD);
 		beginShapes();
+		if (journalNew && static_cast<ScreenTab>(tab) == ScreenTab::Journal)
+			newMark(r.x + r.w - 1.f, r.y + r.h - 1.f, 1.3f);
 	}
 	if (hovered < 0)
 		return;

@@ -254,6 +254,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | level | Lv | (weapon) a weapon's level, raised by copies found. Not the map level or the player's level | `ItemBag::Level`, `upgradeCost` |
 | expedition page | Expedition | a torn page of the earlier expedition's notebook (D. J.), on a skeleton, picked up on touch; 18 over the campaign, in the journal's Expedition section ([expedition-notes](plan/solved/expedition-notes.md)) | `Page`, `ExpeditionPage`, `Journal::FindPage`, `expeditionPageText` |
 | note | Field notes | a journal entry on a game rule, written the first time it matters | `FieldNote` |
+| new entry | new | a journal entry written or filled in since its page was last shown; a red dot on the page, its ribbon, the J tab and the HUD ([journal-new-mark](plan/solved/journal-new-mark.md)) | `Journal::IsNew`, `JournalPart`, `ui::newMark`, `JournalScreen::SeeShown` |
 | potion | | drunk from the inventory or a quick key | `PotionDef` |
 | glass shell | | a glass potion vessel's see-through glass (flask, lotus jar, cobra vial), its own model drawn over the opaque bits and the liquid inside ([potion-glass-vessels](plan/solved/potion-glass-vessels.md)) | `PotionModelDef::glass`, `PartStyle::Glass`, `Item::loadPart` |
 | antidote | Antidote | the potion that cures poison; the checker wants one where something poisons | `ItemKind::Antidote` |

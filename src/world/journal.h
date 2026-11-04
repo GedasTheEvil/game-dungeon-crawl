@@ -10,6 +10,7 @@
 #include <istream>
 #include <optional>
 #include <ostream>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -225,6 +226,10 @@ struct ExpeditionPage {
 	int level = 0; // campaign level where it was found
 };
 
+// The journal's sections with entries, in the book's order (JournalScreen::Section starts with them).
+enum class JournalPart : unsigned char { Diary, Creatures, Riddles, FieldNotes, Inscriptions, Expedition };
+constexpr int JOURNAL_PART_COUNT = 6;
+
 // One tenth of the gate's reward (riddleXP), at least 50.
 [[nodiscard]] int lateRiddleXP(int gateXP);
 
@@ -239,11 +244,10 @@ class Journal {
 
 	// A monster seen on screen; each of the others sees it too. Creatures keep the order they were first seen in.
 	void SeeCreature(int type, int level) { creature(type, level); }
-	void KillCreature(int type, int level) { creature(type, level).killed = true; }
-	void HitByCreature(int type, int level) { creature(type, level).hitBy = true; }
-	void SeeMove(int type, int level, CreatureMove move) {
-		creature(type, level).moves |= 1U << static_cast<unsigned>(move);
-	}
+	// True the first time: its name, photo and HP are written down.
+	bool KillCreature(int type, int level);
+	void HitByCreature(int type, int level);
+	void SeeMove(int type, int level, CreatureMove move);
 	// Hit with a weapon of this main type. True the first time: a new note.
 	bool TryDamage(int type, int level, DamageType damage);
 	// Poisoned by the player (it took or not). True the first time: a new note.
@@ -272,6 +276,13 @@ class Journal {
 	bool FindPage(int number, int level);
 	[[nodiscard]] const std::vector<ExpeditionPage>& Pages() const { return pages; }
 
+	// New entries (plan journal-new-mark): an entry written or filled in since its page was last shown is new, until
+	// the screen marks it seen. Saved. Index: in the part's list (Creatures(), Notes(), ...).
+	[[nodiscard]] bool IsNew(JournalPart part, size_t index) const;
+	[[nodiscard]] bool AnyNew(JournalPart part) const;
+	[[nodiscard]] bool AnyNew() const { return !fresh.empty(); }
+	void MarkSeen(JournalPart part, size_t index);
+
 	// A new game: an empty journal with the prologue written, and the screen asked to open it (plan journal-intro).
 	void Begin();
 	// True once after Begin: the game opens the journal on the Diary. A loaded journal never asks.
@@ -284,6 +295,7 @@ class Journal {
 		inscriptions.clear();
 		diary.clear();
 		pages.clear();
+		fresh.clear();
 		introPending = false;
 	}
 
@@ -298,9 +310,17 @@ class Journal {
 	std::vector<JournalInscription> inscriptions;
 	std::vector<DiaryPage> diary;
 	std::vector<ExpeditionPage> pages;
+	// The new entries: a part and its entry's key, one that stays when entries are added (keyOf).
+	std::set<std::pair<JournalPart, int>> fresh;
 	bool introPending = false; // not saved
 
 	JournalCreature& creature(int type, int level);
+	// The entry's key: a creature's type, a note's or diary page's number, an expedition page's number; the index for
+	// riddles and inscriptions (their lists only grow at the end).
+	[[nodiscard]] int keyOf(JournalPart part, size_t index) const;
+	void markNew(JournalPart part, int key) { fresh.emplace(part, key); }
+	// The entries of Load, without the new marks; returns the save's version, 0 for none.
+	int loadEntries(std::istream& in);
 };
 
 #endif

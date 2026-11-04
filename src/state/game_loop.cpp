@@ -90,6 +90,7 @@ void tick() {
 		return;
 	}
 	Game().ui.journal.EndDiary(); // the journal opened on the diary was closed: no close hint any more
+	Game().ui.journal.SeeShown(); // and the new entries it showed were seen
 
 	// A cut-scene (plan cinematic-effects): the world stands still, the player and the clocks too, only its gates move.
 	// No key repeat meanwhile, so a key held down from before does not skip it.

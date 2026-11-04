@@ -48,6 +48,7 @@ constexpr float RIBBON_TEX_LEN = 16.f; // the ribbon in the texture; shorter one
 constexpr float RIBBON_TEX_W = RIBBON_TEX_LEN + RIBBON_SHADOW; // the texture: the ribbon and its shadow
 constexpr float RIBBON_DEPTH_MAX = EDGE_LINES * EDGE_STEP; // the deepest page edge
 constexpr float RIBBON_OVERHANG = RIBBON_LEN - RIBBON_IN + RIBBON_DEPTH_MAX + RIBBON_SHADOW; // past a turning page
+constexpr float RIBBON_NEW_AT = 9.5f; // a section with new entries: the mark on its ribbon, in from the end
 constexpr float RIBBON_RIDE_EASE = 0.3f; // of a turn: a riding ribbon slides in to the page, and out at the end
 
 constexpr float CORNER = 7.f; // page turn corners
@@ -65,6 +66,11 @@ constexpr const char* HAND_FONT = MEDIA_DIR
 constexpr const char* STAMP_FONT = MEDIA_DIR
 	"textures/fonts/courier.png"; // Courier 10 Pitch (Bitstream, media/textures/fonts/courier-LICENSE.txt)
 constexpr float FADED = 0.7f; // alpha of pencil notes that matter less
+constexpr float NEW_IN = 4.5f; // a new entry's mark: in from the spine, below the page top, its dot's radius
+constexpr float NEW_TOP = 4.f;
+constexpr float NEW_DOT = 1.1f;
+static_assert(static_cast<int>(JournalScreen::Section::Expedition) == static_cast<int>(JournalPart::Expedition));
+static_assert(JOURNAL_PART_COUNT == static_cast<int>(JournalScreen::Section::Log));
 
 constexpr float NUMBER_TOP = 5.8f; // page number baseline below the page top
 constexpr float XREF_TOP = 2.9f; // the pencilled level above it
@@ -315,7 +321,14 @@ bool JournalScreen::CanAnswer(int side) const {
 
 void JournalScreen::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
 
+void JournalScreen::SeeShown() {
+	for (const auto& [s, index] : shownNew)
+		Game().journal.MarkSeen(static_cast<JournalPart>(s), static_cast<size_t>(index));
+	shownNew.clear();
+}
+
 void JournalScreen::OpenDiary(const char* closes) {
+	SeeShown();
 	turn = {};
 	pointer.Clear();
 	section = Section::Diary;
@@ -343,6 +356,7 @@ void JournalScreen::GoTo(Opening to) {
 }
 
 void JournalScreen::StartTurn(Opening to, bool dragged) {
+	SeeShown(); // leaving the open spread
 	Opening from = Open();
 	if (pagesFailed) { // nothing to bend: straight there
 		section = to.section;
@@ -754,6 +768,23 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 	if (!xref.empty())
 		text(handTiny, outer(handTiny, xref), top - XREF_TOP, xref.c_str(), PENCIL, FADED);
 	beginShapes();
+	// A new entry: a red dot and "new" in the top inner corner, until the spread is left.
+	if (at.section != Section::Log && Game().journal.IsNew(static_cast<JournalPart>(at.section), page)) {
+		float dotX = side == 0 ? p.x + p.w - NEW_IN : p.x + NEW_IN;
+		newMark(dotX, top - NEW_TOP, NEW_DOT);
+		beginText();
+		const float w = handSmall.TextWidth("new");
+		text(
+			handSmall,
+			side == 0 ? dotX - NEW_DOT - 0.8f - w : dotX + NEW_DOT + 0.8f,
+			top - NEW_TOP - 1.f,
+			"new",
+			NEW_RED
+		);
+		beginShapes();
+		if (live && std::find(shownNew.begin(), shownNew.end(), std::pair{at.section, page}) == shownNew.end())
+			shownNew.emplace_back(at.section, page);
+	}
 
 	switch (at.section) {
 	case Section::Diary:
@@ -852,6 +883,8 @@ void JournalScreen::DrawRibbon(int ribbon, bool left, float depth, bool open, bo
 	::ribbon(r, left, hovered ? darker(look.colour, 1.25f) : look.colour);
 	if (open) // tucked in between the open pages
 		fillRect({left ? r.x + r.w - 1.f : r.x, r.y, 1.f, r.h}, BLACK, BLACK, 0.25f);
+	if (ribbon < JOURNAL_PART_COUNT && Game().journal.AnyNew(static_cast<JournalPart>(ribbon)))
+		newMark(left ? r.x + RIBBON_NEW_AT : r.x + r.w - RIBBON_NEW_AT, r.cy(), 1.1f);
 	if (open || hovered) { // its letter, written on the ribbon end
 		beginText();
 		float x = left ? r.x + 6.2f - handSmall.TextWidth(look.letter) : r.x + r.w - 6.2f;

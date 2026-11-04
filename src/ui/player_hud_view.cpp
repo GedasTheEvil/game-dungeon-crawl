@@ -70,5 +70,7 @@ PlayerHud::View playerHudView() {
 	view.staminaSkillKey = keyCapOf(BindAction::StaminaSkills);
 	view.hekaWaiting = stats.heka.Free() > 0;
 	view.hekaKey = keyCapOf(BindAction::Skills);
+	view.journalNew = Game().journal.AnyNew();
+	view.journalKey = keyCapOf(BindAction::Journal);
 	return view;
 }

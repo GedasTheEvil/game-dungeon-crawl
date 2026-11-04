@@ -212,7 +212,7 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 
 Polished by hand after generating: the bronze sword on lvl3; no mimic on lvl1 (page 3 tells of the biting chest),
 rats there; lvl2 a scarab more; lvl5 three of its worms bats; lvl7's crocodile moved off the way into a pool with a
-chest past it.
+chest past it; lvl37 the one amulet of regeneration (plan regeneration-amulet-source), a chest at (9,2) beside the monster at the west end of the row 2 wing.
 
 Ring platforms ([ring-transporter](plan/solved/ring-transporter.md), `0`, value pair id + `RING_PLATFORM`), placed by hand:
 lvl17 the first, at a wing's end to a sealed room with a chest, the ring's text (`RING_TEXT`, "The ring of seven") on

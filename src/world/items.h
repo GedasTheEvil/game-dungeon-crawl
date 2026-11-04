@@ -73,7 +73,7 @@ enum class ItemKind : std::uint8_t {
 	PierceWardMinor,
 	PierceWardNormal,
 	PierceWardGrand,
-	RegenerationNormal, // regeneration has no lesser or minor tier
+	RegenerationNormal, // no lesser or minor tier; one lies on lvl37, bosses drop it
 	RegenerationGrand,
 	VenomLesser, // plan venom-amulet
 	VenomMinor,

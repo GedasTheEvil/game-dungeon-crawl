@@ -1,8 +1,0 @@
-; tests/levels/leap_ladder in an open hall, for the screenshots of tests/scenarios/jump_onto_ladder.txt: a giant rat
-; (col 3), spikes (cols 9-10) before a ladder (col 11) up to a ledge (cols 12-18); the air left of the ladder lets the
-; camera show the lower floor while the player is on the rungs (plan jump-onto-ladder).
-####################
-#S.........H......E#
-#..........H########
-#..T.....^^H.......#
-####################

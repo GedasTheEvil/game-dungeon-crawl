@@ -120,6 +120,8 @@ TEST_CASE("a v3 level loads with every cell unset and scatters as before") {
 		const std::string file = campaignLevelFile(n);
 		LevelGrid v4;
 		REQUIRE(loadLevelFile(file.c_str(), v4).empty());
+		for (Tile& t : v4.cells) // v3 has no shapes (v6 on, plan subcell-campaign)
+			t.shape = NO_SHAPE;
 		std::istringstream in(asV3(v4));
 		LevelGrid v3;
 		int version = 0;

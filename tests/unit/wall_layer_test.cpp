@@ -72,6 +72,8 @@ TEST_CASE("v2 to v3: every campaign level's wall types move to the wall layer, c
 		int version = 0;
 		REQUIRE(loadLevelFile(campaignLevelFile(n).c_str(), v3, &version).empty());
 		CHECK_MESSAGE(version == LEVEL_VERSION, "lvl", n);
+		for (Tile& t : v3.cells) // v2 has no shapes (v6 on, plan subcell-campaign)
+			t.shape = NO_SHAPE;
 		std::istringstream in(asV2(v3.cells));
 		LevelGrid v2;
 		REQUIRE(readLevel(in, v2.cells, &version).empty());

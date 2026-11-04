@@ -157,8 +157,8 @@
 10,30 surface 6/1/2 prop lampm 0.049 fire lamp 0.305,0.050,0.307
 11,30 surface 7/1/2 prop rubble 0.044
 12,30 surface 6/1/2
-13,30 surface 7/2/2 sand<> prop lampm -0.092 fire lamp 0.164,0.050,0.307
-14,30 surface 6/1/2 decal 12 0.445,0.350
+13,30 surface 7/2/2 sand<>
+14,30 surface 6/1/2
 15,30 surface 7/1/2
 16,30 surface 6/2/2 sand<> decal 10m 0.347,0.610
 17,30 surface 6/1/2

@@ -49,7 +49,7 @@ void Dungeon::Interact() {
 		break;
 	case Interaction::Open:
 		if (const int slot = ambushHere(); slot >= 0)
-			monsters[slot].Spring(); // the Chest of Set: opened like a chest, it bites
+			monsters[slot].Spring(); // the Chest of Seth: opened like a chest, it bites
 		else
 			openContainer();
 		break;

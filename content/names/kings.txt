@@ -45,7 +45,7 @@ G: G25 N35 M17 X1 N5
 A: akhenaten
 A: akhenaton
 A: echnaton
-N: One god, one city, one very short dynasty.
+N: One god, one city, one very short revolution.
 
 name: Nefertiti
 G: F35 X1 M18 X1 B1
@@ -72,7 +72,7 @@ name: Seti
 G: C7 X1 Z4
 A: seti
 A: sethos
-N: His tomb is the longest in the valley. Bring sandwiches.
+N: His tomb is the longest decorated one in the valley. Bring sandwiches.
 
 name: Merneptah
 G: U6 N35 Q3 X1 V28
@@ -146,7 +146,7 @@ name: Nectanebo
 G: Aa1 M3 X1 V30 I9
 A: nectanebo
 A: nakhtnebef
-N: The last native pharaoh. After him, the Persians.
+N: Nectanebo I. His grandson, the second, was the last native king.
 
 name: Cleopatra
 G: V31 E23 M17 Q3 G1
@@ -295,7 +295,7 @@ N: Patron of Ptahhotep, who wrote advice for everyone.
 name: Merenre
 G: N5 U6 N35
 A: merenre
-N: Sent Harkhuf south, who came back with a dancing pygmy.
+N: Sent Harkhuf south, three times. The pygmy came later.
 
 name: Intef
 G: M17 N35 X1 I9

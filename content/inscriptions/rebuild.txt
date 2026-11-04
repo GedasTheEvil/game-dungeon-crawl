@@ -267,10 +267,10 @@ N: The cat of Ra. I will not pet it.
 # ---- zone 5: Scorpion nest (scorpions, giant scorpions, poison drips, antidotes)
 
 id: 80
-title: Serqet who makes the throat breathe
+title: Serket who makes the throat breathe
 style: stela
 G: I2 Q3 D21 G17 M17 O1 N35 D36 Z1 X1 N5 Z2
-T: Serqet, mistress of the scorpions, you who make the throat breathe.
+T: Serket, mistress of the scorpions, you who make the throat breathe.
 T: Her bite is a fire, but her hand heals what her sting has done.
 T: He who has her favour breathes when others choke.
 T: He who has not, drinks the antidote, or does not drink again.
@@ -512,7 +512,7 @@ title: Wenamun's letter
 style: stela
 G: N35 A1 M17 O1 Z1 Q3 N5 P1 D21 N25 G1 Z2
 T: I came to Byblos in a ship and the prince would not see me.
-T: He sent word: "Leave my harbour." I stayed nineteen days.
+T: He sent word: "Leave my harbour." I stayed twenty-nine days.
 T: The god's messenger is not a beggar, though he sits like one.
 T: In the end I got my cedar.
 N: Wenamun, the world's most patient, and most put-upon, ambassador.
@@ -559,7 +559,7 @@ id: 111
 title: The granite of Aswan
 style: column
 G: O1 N37 Z1 N29 D36
-T: Granite is cut at Aswan, cut with fire and ram.
+T: Granite is cut at Aswan, pounded out with balls of dolerite.
 T: What the mason has made he has made for the dead:
 T: the stone shall stand when the king is dust.
 boon: armor 1
@@ -609,7 +609,7 @@ title: The lake of fire
 style: stela
 G: Q7 N35 N35 Z1 N5 D21 O1 M17 X1 Q3 G17 Z2
 T: There is a lake of fire in the Duat, and the dead must cross it.
-T: Two baboons guard the shore, and the flame is their breath.
+T: Four baboons guard the shore, one at each corner, and the flame is their breath.
 T: He who is justified is cooled by the water; he who is not is burnt.
 T: The blessed step into the water and are made well.
 N: Fire everywhere. And the water is the refuge. I will remember where the water is.
@@ -655,11 +655,11 @@ id: 121
 title: The Book of Gates, the lake
 style: stela
 G: N5 N14 N1 N35 Q7 Z1 O1 D21 Z2 M17 G1 X1
-T: The lake of the tenth hour is a lake of flame.
+T: The lake of the third hour is a lake of flame.
 T: The gods of this hour pour water upon it for the sun god's boat.
 T: The boat moves through, and the lake does not burn it.
 T: Then the boat is hauled up out of the flame.
-N: The Book of Gates, the tenth hour. Even the sun needs help here.
+N: The Book of Gates, the lake of fire. Even the sun needs help here.
 
 id: 122
 title: The heat of Babi
@@ -735,7 +735,7 @@ id: 129
 title: The mummy's linen
 style: row
 G: S29 N35 D21 Z1 M17 A1
-T: Seventy days the body lay in natron, and seventy days it was wrapped.
+T: Seventy days in all: forty the body lay in natron, and the rest it was wrapped.
 T: The linen carries the name of the one in it.
 T: Linen burns, and what was a man comes out of it.
 N: Mummification took 70 days. Fire takes seconds. Pick the faster one.

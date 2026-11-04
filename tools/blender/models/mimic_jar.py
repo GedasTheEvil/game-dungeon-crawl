@@ -1,5 +1,5 @@
 """Procedural mimic jar (plan tomb-curse-containers): a monster that passes for the sealed pottery jar container until
-the player opens it or hits it, smaller and weaker than the Chest of Set.
+the player opens it or hits it, smaller and weaker than the Chest of Seth.
 
     MCP:  p = ".../tools/blender/models/mimic_jar.py"; g = {"__file__": p, "__name__": "mimic_jar"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](obj)

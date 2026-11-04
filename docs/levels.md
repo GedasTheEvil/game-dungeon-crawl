@@ -106,7 +106,7 @@ The levels are grouped into zones ([campaign-zones](plan/solved/campaign-zones.m
 too (`zone SLUG`, `LevelMeta`; the editor's zone button): the game dresses and lights the level by the file's zone, a
 unit test checks it is the one of the level's range. A level without one (`zone none`, a test or generated level)
 keeps the tombs' look. A zone is a run of levels with its own stone, main monsters, new mechanic and, mostly,
-a boss. Each zone is one hour of Ra's night journey through the Duat (the Book of Gates); its title names the hour and
+a boss. Each zone is one hour of Ra's night journey through the Duat (a blend: the hours follow the Amduat, the gate titles are in the style of the Book of Gates); its title names the hour and
 its gate: "The Fourth Hour: the Gate of the Priests" (`zoneTitle`, the hour is the zone's place in the target table).
 A zone's boss is the kin of its monsters (AGENTS.md, Boss abilities).
 
@@ -173,7 +173,7 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 16 | The Scribes' Hall: Anubis 2, mimic 1, giant scarab 5, mummy 8, ushabti 10, mimic jar 1. 2 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The instruction of Ptahhotep; The scribe's wish; The song of the harper. |
 | 17 | The Hall of Purification: Anubis 3, mimic 1, giant scarab 2, mummy 14, ushabti 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The temple cat; Not dying a second time (a life boon); The negative confession. |
 | 18 | The Tomb of the High Priest: The High Priest, the fourth boss. Anubis 3, giant scarab 2, mummy 17, mummy priest 1, ushabti 9, mimic jar 1. 1 key, 2 levers, 1 riddle gate. Expedition page 11. Inscriptions: The might of the king (a might boon). |
-| 19 | The Gate of Serqet: Mimic 3, giant scarab 4, scorpion 22, giant scorpion 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: A spell against stings; The drip from the ceiling; Serqet who makes the throat breathe. |
+| 19 | The Gate of Serket: Mimic 3, giant scarab 4, scorpion 22, giant scorpion 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: A spell against stings; The drip from the ceiling; Serket who makes the throat breathe. |
 | 20 | The Weeping Roof: Mimic 2, giant scarab 6, scorpion 11, giant scorpion 18. 2 keys, 1 riddle gate, a name gate to a secret room. Expedition page 12. Inscriptions: The nest of eggs; The breath of life (a life boon); Serket. |
 | 21 | The Hall of Antidotes: Mimic 3, giant scarab 3, scorpion 23, giant scorpion 8. 1 key, 1 lever, 1 riddle gate. Inscriptions: The healer's rule; The scorpion charm. |
 | 22 | The Nest of the Queen: The scorpion queen between her egg clusters, the fifth boss. Mimic 2, giant scarab 5, scorpion 19, giant scorpion 10, egg cluster 2, scorpion queen 1. 3 keys, 1 riddle gate. Expedition page 13. Inscriptions: The overseer's letter. |

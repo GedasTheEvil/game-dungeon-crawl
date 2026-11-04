@@ -11,7 +11,7 @@
 // alone. Models: media/models/items/<model>.md3, the chest built by tools/blender/models/items.py (the mimic copies
 // it), the others by containers.py: frame 0 closed, the last frame open, the clip runs over openMs.
 enum class Container : uint8_t {
-	Chest, // the wooden chest: the mimic (Chest of Set) passes for one, so every depth keeps plenty of them
+	Chest, // the wooden chest: the mimic (Chest of Seth) passes for one, so every depth keeps plenty of them
 	Coffer, // painted, a gabled lid
 	Basket, // reed, a lid
 	Canopic, // four jars, the sons of Horus: their heads lift off

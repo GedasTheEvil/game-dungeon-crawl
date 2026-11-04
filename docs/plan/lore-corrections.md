@@ -1,6 +1,6 @@
 # Lore corrections
 
-Status: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: implemented 2026-11-04. Skipped (debatable): Seth's Mace and Jackal Tooth renames (item names, many references), id 49 (Horus version is correct), Hunro (low confidence). Play-test: read journal notes hour 3, 5-12 (`bin/game --level 19`), the Babi zone, Khepri's note. Was: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
 
 Text-only fixes against Egyptian sources. Keep the notebook voice ([texts.md](../texts.md)); change the fact, not the
 style. Grep every name to catch all copies (readme, `content/`, `src/` strings, docs).

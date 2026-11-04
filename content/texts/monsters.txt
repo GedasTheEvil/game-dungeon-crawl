@@ -32,7 +32,7 @@ note: Not every chest in this tomb holds treasure. Ask Osiris.
 note: A shell like a shield, and it jumps.
 
 [monster.boss-scarab]
-note: The mother of the scarabs. Her young come when she calls.
+note: The lord of the scarabs, who made himself. His young come when he calls.
 
 [monster.vampire-bat]
 note: Grown fat on blood. Every bite makes it stronger.
@@ -65,10 +65,10 @@ note: Leathery eggs glued in resin. Something moves inside. Smash them before th
 note: Serket herself, or her daughter. Her sting burns like fire, and her eggs are everywhere.
 
 [monster.apep]
-note: The serpent of chaos, who swallows the sun each night. The sand is his road.
+note: The serpent of chaos, who would swallow the sun, and fails every night. The sand is his road.
 
 [monster.sobek]
-note: The lord of the Nile, green as the river. He charges like a flood; let the wall stop him.
+note: The lord of the waters, green as the river. He charges like a flood; let the wall stop him.
 
 [monster.lotus]
 note: Pretty, blue, and it wants my leg. One bite and I could sleep for a week. Odysseus's men ate the lotus; this
@@ -78,7 +78,7 @@ note: Pretty, blue, and it wants my leg. One bite and I could sleep for a week. 
 note: He read the curses at the funerals. He still knows them all. The dead rise at his word.
 
 [monster.camel-spider]
-note: Ten legs, jaws like shears, and faster than I can run. The soldiers' stories say it chases your shadow. Not
+note: Eight legs and two that only look like legs, jaws like shears, and faster than I can run. The soldiers' stories say it chases your shadow. Not
 	venomous, they say. It does not need to be. It spins no webs. So who made these?
 
 [monster.hippo]

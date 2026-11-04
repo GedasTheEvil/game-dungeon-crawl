@@ -60,7 +60,7 @@ constexpr ZoneInfo ZONE_INFO[ZONE_ID_COUNT] = {
 	{"bat_galleries", "Bat galleries", "the Gate of the Bats", ZoneStone::Limestone, ZoneMechanic::Levers},
 	{"web_halls", "Web halls", "the Gate of the Webs", ZoneStone::Limestone, ZoneMechanic::Dark},
 	{"priests_quarter", "Priests' quarter", "the Gate of the Priests", ZoneStone::Plaster, ZoneMechanic::Inscriptions},
-	{"scorpion_nest", "Scorpion nest", "the Gate of Serqet", ZoneStone::Plaster, ZoneMechanic::Poison},
+	{"scorpion_nest", "Scorpion nest", "the Gate of Serket", ZoneStone::Plaster, ZoneMechanic::Poison},
 	{"serpent_temple", "Serpent temple", "the Gate of the Serpent", ZoneStone::Plaster, ZoneMechanic::Darts},
 	{"cisterns_of_sobek", "Cisterns of Sobek", "the Gate of Sobek", ZoneStone::WetStone, ZoneMechanic::Water},
 	{"seths_desert", "Seth's desert", "the Gate of Seth", ZoneStone::Sandstone, ZoneMechanic::Sand},

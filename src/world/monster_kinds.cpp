@@ -466,9 +466,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// Scale and yaw of the treasure chest item: idle, it looks just like one.
 	{.id = MonsterMimic,
 	 .glyph = 'M',
-	 .name = "Chest of Set",
+	 .name = "Chest of Seth",
 	 .label = "mimic",
-	 .description = "Chest of Set, a treasure chest until the player comes near",
+	 .description = "Chest of Seth, a treasure chest until the player comes near",
 	 .threat = 2.f, // hits hard, but does not move
 	 .model = "monsters/mimic",
 	 .texture = "monsters/mimic",
@@ -1111,9 +1111,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	// Hand-placed on levels 25-34 beside plain mimics; levelgen turns some of its mimics into it (CURSED_MIMIC_*).
 	{.id = MonsterCursedMimic,
 	 .glyph = 'x',
-	 .name = "Cursed chest of Set",
+	 .name = "Cursed chest of Seth",
 	 .label = "cursed mimic",
-	 .description = "Cursed chest of Set, a dark treasure chest until the player comes near; hops, its bite maddens",
+	 .description = "Cursed chest of Seth, a dark treasure chest until the player comes near; hops, its bite maddens",
 	 .threat = 4.f, // hits hard, follows over pits, and insanity locks the map
 	 .model = "monsters/mimic_cursed",
 	 .texture = "monsters/mimic_cursed",
@@ -1327,14 +1327,14 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbGrip = 0.0427f,
 	 .kin = MonsterBaboon,
 	 .boss = {MonsterBaboon, 2, 2, 5000, 8, 0, Summon::DigOut}},
-	// The mimic jar (plan tomb-curse-containers): the Chest of Set's smaller kin in the tombs, a sealed pottery jar
+	// The mimic jar (plan tomb-curse-containers): the Chest of Seth's smaller kin in the tombs, a sealed pottery jar
 	// (the container's scale and yaw) until opened or hit; it bites where it stands. Killed, it leaves its smashed jar
 	// with a potion. Hand-placed in the tomb zones; levelgen turns some of the mimics there into it (jarPercent).
 	{.id = MonsterMimicJar,
 	 .glyph = '}',
-	 .name = "Jar of Set",
+	 .name = "Jar of Seth",
 	 .label = "mimic jar",
-	 .description = "Jar of Set, a sealed pottery jar until the player opens it or hits it, then bites",
+	 .description = "Jar of Seth, a sealed pottery jar until the player opens it or hits it, then bites",
 	 .threat = 1.5f, // the mimic's ambush, a weaker bite
 	 .model = "monsters/mimic_jar",
 	 .texture = "monsters/mimic_jar",

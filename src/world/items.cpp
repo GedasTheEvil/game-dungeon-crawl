@@ -238,7 +238,7 @@ constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
 		  .note = FieldNote::Armor,
 		  .generatedWeight = 10}},
 	{.file = {ItemType::POTION, 4},
-	 .text = {"Breath of Osiris", "Life", "life", "Max health +5%, full heal"},
+	 .text = {"Breath of Amun", "Life", "life", "Max health +5%, full heal"},
 	 .potion =
 		 {.gain = {.maxHpPercent = PotionEffect::LIFE_MAX_HP_PERCENT},
 		  .model = PotionModel::Ankh,

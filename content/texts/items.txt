@@ -71,7 +71,7 @@ lore1: Skin as hard as
 lore2: temple granite.
 
 [item.life]
-lore1: The breath of Osiris,
+lore1: The breath of Amun,
 lore2: sealed in a flask.
 
 [item.small-stamina]

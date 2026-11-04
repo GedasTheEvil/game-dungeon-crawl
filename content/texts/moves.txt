@@ -88,7 +88,7 @@ text: Stunned against the wall, he gets up roaring a storm of sand. Do not stand
 text: Keeps its distance: backs off when I come at it, throws from afar. Corner it, or run it down.
 
 [move.roll-ball]
-burning: She turns her back on me and rolls a burning sun along the floor, as she rolls the sun across the sky. A
+burning: He turns his back on me and rolls a burning sun along the floor, as he rolls the sun across the sky. A
 	jump clears it.
 text: It rolls its dinner at me. I am not sure whose dinner. A jump clears it.
 

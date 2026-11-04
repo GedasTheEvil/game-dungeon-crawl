@@ -72,8 +72,8 @@ title: Granite of Ptah
 text: Ptah's granite: my skin becomes hard as a temple wall, and every blow hurts a little less, forever.
 
 [note.life]
-title: Breath of Osiris
-text: The breath of Osiris: more health forever, and all my wounds close at once.
+title: Breath of Amun
+text: The breath of Amun: more health forever, and all my wounds close at once.
 
 [note.antidote]
 title: Milk of Renenutet
@@ -221,8 +221,8 @@ text: Bats, and a smell of old leather. The wall says the second hour is the wat
 
 [note.hour-3]
 title: The Third Hour
-text: The dark thickens, and the walls are hung with webs. The third hour is the hour of the judging of Osiris. I am
-	being judged by spiders. I keep a torch close.
+text: The dark thickens, and the walls are hung with webs. The third hour is the hour of the waters of Osiris. I am
+	being judged by spiders anyway. I keep a torch close.
 
 [note.hour-4]
 title: The Fourth Hour
@@ -231,33 +231,33 @@ text: The priests' quarter. Ra's boat has to be towed over sand here, says the w
 
 [note.hour-5]
 title: The Fifth Hour
-text: The cavern of Sokar's secret, the wall says, and in my private chapter: the cavern of Serqet's scorpions. I do
+text: The cavern of Sokar's secret, the wall says, and in my private chapter: the cavern of Serket's scorpions. I do
 	not like her sense of humour. I count my antidotes.
 
 [note.hour-6]
 title: The Sixth Hour
-text: The midnight of the journey: Ra and Osiris meet in the dark, and the serpents come to watch. The wall says:
+text: The midnight of the journey: Ra and Osiris meet in the dark, and the serpents come to watch. Apep is beaten back here. The wall says:
 	the dead are made new here. I will settle for staying the same.
 
 [note.hour-7]
 title: The Seventh Hour
-text: Apep waits here, says the wall. I wish the wall were wrong. The seventh hour is the hour of the great serpent
-	and of water: the boat is hauled through the cisterns. So am I.
+text: The seventh hour, says the wall: Apep lies on a sandbank, having drunk the river, and the magic of Isis and Seth
+	and the spells of Serket bind him. Mehen coils round Ra. The boat is hauled through the cisterns. So am I.
 
 [note.hour-8]
 title: The Eighth Hour
-text: Sand again, red and endless. Seth stands in the prow of the boat and drives the serpent back with his spear.
+text: Sand again, red and endless. Seth stands in the prow of the boat, and the serpent is driven back with spear and spell.
 	The wall says the dead here are clothed. I would settle for a hat.
 
 [note.hour-9]
 title: The Ninth Hour
-text: The land of Sokar, where the ground gives way and the worms sleep. The ninth hour feeds the dead with grain,
+text: The ground gives way and the worms sleep. Sokar's land lay hours back, says the wall, but this one is no firmer. The ninth hour feeds the dead with grain,
 	the wall says. I would be glad of a sandwich. I would be gladder of a floor.
 
 [note.hour-10]
 title: The Tenth Hour
-text: A lake of fire, and baboons on its shore. In the tenth hour the lake is cooled for the boat of Ra, so there
-	must be water somewhere. I look for it first. Everything else second.
+text: A lake of fire, and baboons on its shore. The tenth hour is water and the rescue of the drowned, says the wall, so
+	there must be water somewhere. I look for it first. Everything else second.
 
 [note.hour-11]
 title: The Eleventh Hour
@@ -266,8 +266,8 @@ text: The necropolis. Every trap I have met, in one place, and the road to the l
 
 [note.hour-12]
 title: The Twelfth Hour
-text: The hall of the scales, the last hour. Ra is born again at its far end, says the wall. I have a feeling that
-	something here will weigh my heart. I did bring it. Let me be light.
+text: The last hour. Ra passes through the serpent and comes out as Khepri at dawn, says the wall. The scales are in my
+	private chapter, and I have a feeling that something here will weigh my heart. I did bring it. Let me be light.
 
 # The amulet notes (plan amulet-extras): one per AmuletType in order, [note.<amulet model>], the numbers
 # of the four tiers.

@@ -88,7 +88,7 @@ constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {
 	 0.005f,
 	 20,
 	 "nest",
-	 "the scorpion queen, the daughter of Serqet"},
+	 "the scorpion queen, the daughter of Serket"},
 	// Serpent temple: braziers, cats against the serpents, the eye of Horus.
 	{{0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 3, 1, 1, 1, 0, 0, 0, 1},
 	 {1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 3, 1, 0, 1, 2, 1},
@@ -133,7 +133,7 @@ constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {
 	 0.007f,
 	 10,
 	 "fire",
-	 "Babi, the eater of hearts"},
+	 "Babi, the eater of entrails"},
 	// Necropolis: coffins, jars of the dead, guardians, writing.
 	{{1, 1, 4, 1, 0, 1, 1, 1, 1, 2, 1, 2, 2, 1, 0, 0, 0, 4},
 	 {1, 1, 1, 0, 0, 1, 1, 3, 3, 3, 1, 1, 0, 0, 0, 0},

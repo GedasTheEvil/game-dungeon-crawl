@@ -142,15 +142,23 @@ class Dungeon {
 	// The Wisdom of Seshat and Disarm trap (plan heka-surplus, dungeon_seshat.cpp): the level's sealed rooms
 	// (secretRooms, found on load), put on the draft map with the player near; the red contour's strength, 0 .. 1, by
 	// the player's distance (1 up to OUTLINE_FADE tiles before `far`, 0 from it): a closed trapped container's, a
-	// disguised mimic's. drawContour draws it (dungeon_render_outlines.cpp) round what `draw` shows with the given
-	// texture (the plain white one), after the thing itself.
+	// disguised mimic's. queueContour keeps it, with the modelview matrix of now, for drawContours after the opaque
+	// scene (dungeon_render_outlines.cpp): the rim round what `draw` shows with the given texture (the plain white
+	// one).
 	std::vector<std::vector<int>> secrets;
 	void findSecretRooms();
 	void revealSecretRooms();
 	[[nodiscard]] float outlineNear(float col, float row, float far) const;
 	[[nodiscard]] float containerOutlineAt(int cell) const;
 	[[nodiscard]] float mimicOutline(const Monster& mon) const;
-	void drawContour(float strength, const std::function<void(int texture)>& draw) const;
+	struct Contour {
+		std::array<float, 16> modelview;
+		float strength;
+		std::function<void(int texture)> draw;
+	};
+	std::vector<Contour> contours; // this frame's, drawn and cleared by drawContours
+	void queueContour(float strength, std::function<void(int texture)> draw);
+	void drawContours();
 	[[nodiscard]] bool containerShows(int cell) const; // opened and its clip played: the item shows
 	// 0 closed .. 1 open, the cell's clip.
 	[[nodiscard]] float containerOpening(int cell) const;

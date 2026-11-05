@@ -264,7 +264,10 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	}
 	container.Draw(containerOpening(cell));
 	if (const float near = containerOutlineAt(cell); near > 0.f) // Disarm trap (plan heka-surplus)
-		drawContour(near, [&](int texture) { container.Draw(containerOpening(cell), texture); });
+		queueContour(near, [&container, yaw = look.yaw, pose = containerOpening(cell)](int texture) {
+			container.rotA = yaw; // the prototype is shared: its angle is only borrowed
+			container.Draw(pose, texture);
+		});
 	// A cursed coffin's execration text (plan tomb-curse-containers): its red lid over the plain one, only up close.
 	if (const float text = coffinTell(cell); text > 0.f) {
 		Item& cursed = *sim.assets->items.cursedCoffin;
@@ -703,6 +706,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawSunBeams();
 	drawContainerEffects();
 	drawItemParts();
+	drawContours(); // Disarm trap's (plan heka-surplus)
 	drawBurning();
 	drawPowerSpark();
 	drawStunStars();

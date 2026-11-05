@@ -197,7 +197,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 | Frame rate cap | `graphics/frame_rate.*` (`FrameRate::set`, `idle`), `frameRedrawDue` (`state/settings_ini.*`) |
 | Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (data `world/journal.*`, its words: creature moves, field notes, diary `world/journal_text.*`, the prose in `content/texts/`; the new game's prologue `GameState::NewGame`), `ui/map_view.*`, `ui/skills_*`, `ui/menu.*`, `ui/riddle.*` |
 | Player-facing prose: field notes, diary, expedition pages, creature moves, monster notes, skill and item lore | `content/texts/*.txt` ([texts.md](texts.md)), read by `gameText` (`world/texts.*`); the keys asked in `world/journal_text.cpp`, `world/skills.cpp`, `world/items.cpp` |
-| HUD | `ui/player_hud*`, `ui/boss_bar.*`, `ui/status_box.*`, `ui/level_gem.*` |
+| HUD (the quick slots: weapon, potions, antidote, amulet; the XP line and the level badge) | `ui/player_hud*` (`playerHudView` fills the slots), `ui/boss_bar.*`, `ui/status_box.*`, `ui/level_gem.*` |
 | A status effect on the HUD (blessing, condition or curse card): a cell in `tools/textures/hud_icons.py` (the icon; run it), an `Icon` entry (`ui/hud_icon.h`), one `Add` in `statusList` (`ui/status_list.cpp`: kind, icon, tint, pips, time left); no draw code. Cards: `tools/textures/status_cards.py` | `ui/status_list.*`, `drawStatuses` (`ui/player_hud.cpp`) |
 | Keys and mouse | `input/input.cpp`, `input/bindings.*`, `input/input_actions.h`; the camera peek and the look keys `input/camera_look.h`, the hidden cursor `followCursor` |
 | Game loop, frame drawing | `state/game_loop.cpp`, `graphics/draw.cpp` |

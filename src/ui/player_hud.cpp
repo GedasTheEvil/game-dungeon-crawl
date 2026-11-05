@@ -12,17 +12,18 @@ using namespace ui;
 
 namespace {
 // ---- layout ----
-constexpr Rect HEALTH_BAR = {10.f, 18.4f, 27.f, 2.6f};
-constexpr Rect STAMINA_BAR = {10.f, 15.6f, 27.f, 1.6f};
+constexpr float WIDER = 8.2f; // one more quick slot (the antidote, plan hud-antidote-and-level) than the old layout
+constexpr Rect HEALTH_BAR = {10.f, 18.4f, 27.f + WIDER, 2.6f};
+constexpr Rect STAMINA_BAR = {10.f, 15.6f, 27.f + WIDER, 1.6f};
 constexpr float ICON_X = 6.3f; // heart and bolt, left of the bars
-constexpr float NUMBERS_X = 39.f; // "96 / 134"
+constexpr float NUMBERS_X = 39.f + WIDER; // "96 / 134"
 constexpr float NUMBERS_DROP = 2.5f; // pen y below the bar centre, so the digits sit in the middle
 constexpr float SLOT_X = 5.f; // first quick slot
 constexpr float SLOT_Y = 8.2f;
 constexpr float SLOT_SIZE = 6.6f;
 constexpr float SLOT_STEP = 8.2f;
 constexpr float CAP_Y = 4.6f; // key cap under each slot
-constexpr float SOCKET_X = 40.5f; // first key socket centre, right of the amulet slot
+constexpr float SOCKET_X = 40.5f + WIDER; // first key socket centre, right of the amulet slot
 constexpr float SOCKET_STEP = 4.5f;
 constexpr float SOCKET_Y = 11.5f;
 constexpr float SOCKET_SIZE = 1.9f;
@@ -33,7 +34,8 @@ constexpr float RING_SIZE = 1.25f;
 constexpr float SHOT_PIP_STEP = 1.25f; // a ranged weapon's shots over its slot
 constexpr float SHOT_PIP_SIZE = 0.52f;
 constexpr int SHOT_PIP_ROW = 6; // pips in one row, more go in two
-constexpr Rect XP_LINE = {4.f, 2.9f, 52.f, 0.7f};
+constexpr Rect XP_LINE = {4.f, 2.9f, 52.f + WIDER - 4.f, 0.7f};
+constexpr float LEVEL_X = XP_LINE.x + XP_LINE.w + 4.5f; // the character level's badge centre, right of the XP line
 constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // the poison tiles, above the panel
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
 constexpr float POISON_SIZE = 6.f;
@@ -44,7 +46,8 @@ constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISO
 // New in the journal: right of the panel, level with its top.
 constexpr Rect JOURNAL_TILE =
 	{PlayerHud::PANEL.x + PlayerHud::PANEL.w + 1.5f, PlayerHud::PANEL.y + PlayerHud::PANEL.h - 6.f, 6.f, 6.f};
-constexpr Rect STAMINA_SKILL_SIGN = {51.f, 13.6f, 3.6f, 3.6f}; // right of the stamina bar, under the health numbers
+constexpr Rect STAMINA_SKILL_SIGN =
+	{51.f + WIDER, 13.6f, 3.6f, 3.6f}; // right of the stamina bar, under the health numbers
 constexpr Color FLAME = {0.98f, 0.45f, 0.1f};
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
 constexpr float ICON_INSET = 0.3f; // the icon in its slot
@@ -55,6 +58,7 @@ constexpr int ICON_ROWS = 6;
 constexpr float LOW_HEALTH = 0.25f; // under this the health bar pulses
 constexpr int REFUSED_FLASH_MS = 600;
 constexpr int DRINK_FLASH_MS = 500;
+constexpr float POISON_BLINK_RATE = 0.008f; // radians per ms: the antidote slot while poisoned
 
 using PlayerHud::BLOOD_BOTTOM;
 using PlayerHud::BLOOD_TOP;
@@ -249,8 +253,9 @@ void drawRings(const PlayerHud::View& v) {
 	}
 }
 
-constexpr int SLOT_COUNT = 4;
-constexpr int AMULET_SLOT = 3;
+constexpr int SLOT_COUNT = PlayerHud::SLOT_COUNT;
+constexpr int ANTIDOTE_SLOT = PlayerHud::ANTIDOTE_SLOT;
+constexpr int AMULET_SLOT = PlayerHud::AMULET_SLOT;
 // The amulet slot only while one is worn; the others always (an empty potion slot shows none is left).
 bool shown(const PlayerHud::View& v, int i) { return i != AMULET_SLOT || v.slots[i].icon != PlayerHud::Icon::None; }
 
@@ -261,6 +266,12 @@ Rect badgeRect(const Rect& slot) { return {slot.x + slot.w - 3.1f, slot.y + slot
 Rect capRect(const Rect& slot, Font& small, const char* key) {
 	float w = small.TextWidth(key) + CAP_PAD;
 	return {slot.cx() - w / 2, CAP_Y, w, CAP_H};
+}
+
+// A slot that calls for its key (the antidote while poisoned): a green ring that blinks on and off.
+void drawCall(const Rect& r, int now) {
+	const float blink = 0.5f + 0.5f * std::sin(static_cast<float>(now) * POISON_BLINK_RATE);
+	additiveRing(r, 2.2f, PlayerHud::POISON_TOP, 0.9f * blink);
 }
 
 void drawSlot(const PlayerHud::Slot& s, const Rect& r, Font& small) {
@@ -362,7 +373,13 @@ void drawKeys(const PlayerHud::View& v) {
 	}
 }
 
-void drawXp(const PlayerHud::View& v) {
+Rect levelBadge(Font& small, const char* level) {
+	const float w = small.TextWidth(level) + CAP_PAD;
+	return {LEVEL_X - w / 2, XP_LINE.cy() - CAP_H / 2, w, CAP_H};
+}
+
+// The XP line, the character level's number in a badge at its right end (plan hud-antidote-and-level).
+void drawXp(const PlayerHud::View& v, Font& small, const char* level) {
 	fillRect(XP_LINE, TROUGH, TROUGH, 0.9f);
 	fillRect(
 		{XP_LINE.x, XP_LINE.y, XP_LINE.w * std::clamp(v.xpRatio, 0.f, 1.f), XP_LINE.h},
@@ -370,6 +387,9 @@ void drawXp(const PlayerHud::View& v) {
 		GOLD_DIM,
 		1.f
 	);
+	const Rect badge = levelBadge(small, level);
+	fillRect(badge, BADGE, BADGE, 0.85f);
+	strokeRect(badge, GOLD, 1.f, 1.f);
 }
 } // namespace
 
@@ -404,12 +424,16 @@ void draw(
 	drawHealth(view, now);
 	drawStamina(view);
 	drawStaminaSkill(view);
+	if (view.poisoned && view.slots[ANTIDOTE_SLOT].icon != Icon::None)
+		drawCall(slotRect(ANTIDOTE_SLOT), now);
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlot(view.slots[i], slotRect(i), small);
 	drawKeys(view);
 	drawRings(view);
-	drawXp(view);
+	char level[12];
+	snprintf(level, sizeof(level), "%d", view.level);
+	drawXp(view, small, level);
 	drawStatuses(view, icons, statusCards);
 	drawHeka(view, now, skillIcons);
 	drawJournalNew(view);
@@ -428,6 +452,8 @@ void draw(
 	for (int i = 0; i < SLOT_COUNT; i++)
 		if (shown(view, i))
 			drawSlotText(view.slots[i], slotRect(i), small);
+	const Rect badge = levelBadge(small, level);
+	textCentered(small, badge.cx(), badge.cy() - CAP_PEN_DROP + 0.5f, level, GOLD_BRIGHT);
 	drawStatusSeconds(view, small);
 	if (view.staminaSkillShown && !view.staminaSkillKey.empty())
 		textCentered(

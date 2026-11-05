@@ -1,0 +1,23 @@
+# HUD antidote slot and character level (plan hud-antidote-and-level): the fifth quick slot with its key cap and
+# count, blinking while poisoned; the level number right of the XP line; the widened panel at small window sizes.
+seed 1
+god
+level tests/levels/classic1
+give potion 1 2
+give potion 6 1
+give potion 7 3
+give amulet 8
+wear lesser_amulet_of_health
+xp 2500
+wait 30
+screenshot full
+poison weak
+wait 10
+screenshot poisoned_a
+wait 25
+screenshot poisoned_b
+expect poison > 0
+key =
+wait 3
+screenshot drunk
+expect poison == 0

@@ -13,14 +13,14 @@
 class Font;
 
 // The player's HUD panel, bottom left: health (with a trailing "lost" part after a hit), stamina, the quick slots
-// (weapon in hand, the potions H and 0 would drink) with their key caps, the key sockets, the worn rings' gems and an
-// XP line. Above it, one status card per running effect (plan curse-blessing-cards, status_list.h): a painted
-// background by kind (blessing yellow, condition grey, curse purple), the effect's icon on it, pips for the tier or
-// grade and the seconds left under it; then the waiting heka.
+// (weapon in hand, the potions H and 0 would drink, the antidote) with their key caps, the key sockets, the worn rings'
+// gems and an XP line with the character level. Above it, one status card per running effect (plan
+// curse-blessing-cards, status_list.h): a painted background by kind (blessing yellow, condition grey, curse purple),
+// the effect's icon on it, pips for the tier or grade and the seconds left under it; then the waiting heka.
 namespace PlayerHud {
 // Panel size on screen: the layout is in panel units on a canvas 100 / SCALE high (square units, x from the left).
 constexpr float SCALE = 0.85f;
-constexpr ui::Rect PANEL = {1.5f, 1.5f, 58.f, 21.5f};
+constexpr ui::Rect PANEL = {1.5f, 1.5f, 66.2f, 21.5f};
 // The health bar's fill, the boss bar's too: blood, green while poisoned.
 constexpr ui::Color BLOOD_TOP = {0.85f, 0.14f, 0.08f};
 constexpr ui::Color BLOOD_BOTTOM = {0.45f, 0.05f, 0.03f};
@@ -50,6 +50,10 @@ struct Slot {
 	bool shotTooClose = false;
 };
 
+constexpr int SLOT_COUNT = 5;
+constexpr int ANTIDOTE_SLOT = 3;
+constexpr int AMULET_SLOT = 4;
+
 struct View {
 	int hp = 0, maxHp = 1;
 	int stamina = 0, maxStamina = 1;
@@ -57,7 +61,8 @@ struct View {
 	float xpRatio = 0.f; // progress to the next level, 0..1
 	int keysHeld = 0; // bit (colour - 1) per key held
 	int levelKeys = 0; // bit (colour - 1) per key on the level: one socket each
-	Slot slots[4]; // weapon, healing potion, stamina potion, worn amulet
+	Slot slots[SLOT_COUNT]; // weapon, healing potion, stamina potion, antidote, worn amulet
+	int level = 1; // the character level, its number right of the XP line
 	// The worn rings (plan ring-accessories), left and right hand: a gem each in its colour, under the key sockets.
 	bool ringWorn[HAND_COUNT] = {};
 	ui::Color ringGem[HAND_COUNT] = {};

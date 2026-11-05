@@ -142,6 +142,7 @@ void Inventory::Reset() {
 	Select(itemIndex(ItemKind::Club));
 	toast = ui::Toast{};
 	quickDrinkMs.reset();
+	antidoteMs.reset();
 	saneWeapon.reset();
 }
 
@@ -294,6 +295,7 @@ void Inventory::QuickAntidote() {
 		Game().ShowStatus("%s", block == UseBlock::NotPoisoned ? "You are not poisoned" : "No antidote left");
 		return;
 	}
+	antidoteMs = GameClock::now();
 	Game().ShowStatus("%s", DrinkPotion(ItemKind::Antidote).c_str());
 }
 

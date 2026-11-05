@@ -1,0 +1,13 @@
+# HUD antidote slot and level (plan hud-antidote-and-level) at a 320x200 window: the widened panel fits.
+resolution 320 200
+seed 1
+god
+level tests/levels/classic1
+give potion 1 2
+give potion 6 1
+give potion 7 3
+give amulet 8
+wear lesser_amulet_of_health
+xp 2500
+wait 30
+screenshot full

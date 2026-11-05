@@ -21,6 +21,21 @@ PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
 	return slot;
 }
 
+// The antidote's slot (plan hud-antidote-and-level): its count, empty when none is left; the HUD blinks it while the
+// player is poisoned and has one.
+PlayerHud::Slot antidoteSlot() {
+	const Inventory& inventory = *Game().ui.inventory;
+	PlayerHud::Slot slot;
+	slot.key = keyCapOf(BindAction::QuickAntidote);
+	if (const int count = inventory.Count(ItemKind::Antidote); count > 0) {
+		slot.icon = PlayerHud::Icon::Potion;
+		slot.tint = Inventory::PotionColor(ItemKind::Antidote);
+		slot.count = count;
+	}
+	if (std::optional<int> drunk = inventory.AntidoteMs())
+		slot.flashAgeMs = GameClock::now() - *drunk;
+	return slot;
+}
 } // namespace
 
 PlayerHud::View playerHudView() {
@@ -33,6 +48,7 @@ PlayerHud::View playerHudView() {
 	if (std::optional<int> refused = stats.StaminaRefusedMs())
 		view.staminaRefusedAgeMs = GameClock::now() - *refused;
 	view.xpRatio = stats.LevelProgress();
+	view.level = stats.CurrentLevel();
 	view.keysHeld = Game().dungeon.KeysHeld();
 	view.levelKeys = Game().dungeon.LevelKeys();
 	view.slots[0].icon = PlayerHud::weaponIcon(Game().ui.inventory->EquippedKind());
@@ -49,11 +65,12 @@ PlayerHud::View playerHudView() {
 	}
 	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(BindAction::QuickHeal));
 	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(BindAction::QuickStamina));
+	view.slots[PlayerHud::ANTIDOTE_SLOT] = antidoteSlot();
 	if (std::optional<ItemKind> worn = Game().ui.inventory->Bag().Worn()) {
 		constexpr const char* TIERS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
 		const Amulet amulet = amuletOf(*worn);
-		view.slots[3].icon = PlayerHud::amuletIcon(amulet.type);
-		view.slots[3].badge = TIERS[static_cast<size_t>(amulet.tier)];
+		view.slots[PlayerHud::AMULET_SLOT].icon = PlayerHud::amuletIcon(amulet.type);
+		view.slots[PlayerHud::AMULET_SLOT].badge = TIERS[static_cast<size_t>(amulet.tier)];
 	}
 	for (int hand = 0; hand < HAND_COUNT; hand++)
 		if (std::optional<ItemKind> ring = Game().ui.inventory->Bag().RingOn(static_cast<Hand>(hand))) {

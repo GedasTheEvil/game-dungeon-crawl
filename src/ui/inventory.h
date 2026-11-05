@@ -42,6 +42,7 @@ class Inventory {
 	// Last quick drink (H / 0 in game), for the cooldown and the HUD slot flash.
 	std::optional<int> quickDrinkMs;
 	QuickKind quickDrinkKind = QuickKind::Health;
+	std::optional<int> antidoteMs; // the last antidote drunk with its key, for the HUD slot flash
 	// The weapon in hand when insanity put the club there (FollowInsanity); a load forgets it.
 	std::optional<ItemKind> saneWeapon;
 
@@ -138,6 +139,7 @@ class Inventory {
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind) const;
 	// Game clock time of the last quick drink of that kind, for the HUD flash.
 	[[nodiscard]] std::optional<int> QuickDrinkMs(QuickKind kind) const;
+	[[nodiscard]] std::optional<int> AntidoteMs() const { return antidoteMs; }
 	Item* Equipped() { return Model(bag.Equipped()); }
 	[[nodiscard]] ItemKind EquippedKind() const { return bag.Equipped(); }
 	[[nodiscard]] static ui::Color PotionColor(ItemKind potion); // the potion icons' tint (HUD quick slot)

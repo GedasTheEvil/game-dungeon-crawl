@@ -1,0 +1,36 @@
+# Plan lore-additions: the journal pages of the longest changed inscriptions fit (Mehen on 91, the boatman's spell
+# on 99, Meskhetyu on 127; a chest under that one and its find take the first presses).
+seed 1
+god
+peace
+level 26 at 7 39
+heka 1
+learn words_of_thoth
+wait 30
+interact
+wait 5
+expect journal_inscriptions == 1
+level 31 at 18 12
+wait 30
+interact
+wait 5
+expect journal_inscriptions == 2
+level 48 at 32 4
+wait 30
+interact
+wait 2s
+interact
+wait 1s
+interact
+wait 5
+expect journal_inscriptions == 3
+key j
+wait 5
+key up
+wait 45
+key up
+wait 45
+screenshot pages_mehen_boatman
+key right
+wait 45
+screenshot page_stars

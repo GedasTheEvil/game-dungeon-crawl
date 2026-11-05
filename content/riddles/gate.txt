@@ -1,6 +1,11 @@
 # Old riddles, the kind a sphinx would ask. Format: docs/riddles.md.
 theme: Riddle of the Sphinx
 
+Q: My makers called me shesep-ankh, the living image:
+Q: the face of a king on the body of a ______.
+A: lion
+H: The king of beasts.
+
 Q: How many hounds guard this gate?
 A: 2
 A: two

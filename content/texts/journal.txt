@@ -266,8 +266,9 @@ text: The necropolis. Every trap I have met, in one place, and the road to the l
 
 [note.hour-12]
 title: The Twelfth Hour
-text: The last hour. Ra passes through the serpent and comes out as Khepri at dawn, says the wall. The scales are in my
-	private chapter, and I have a feeling that something here will weigh my heart. I did bring it. Let me be light.
+text: The last hour. Ra passes through the serpent Life of the Gods, ankh-netjeru, tail to mouth, and comes out as
+	Khepri at dawn, says the wall. The ankh again, in the serpent's own name. The scales are in my private chapter, and
+	I have a feeling that something here will weigh my heart. I did bring it. Let me be light.
 
 # The amulet notes (plan amulet-extras): one per AmuletType in order, [note.<amulet model>], the numbers
 # of the four tiers.

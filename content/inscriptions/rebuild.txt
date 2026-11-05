@@ -42,6 +42,7 @@ G: A1 V30 W22 D21 Z1 O1
 T: Absent from work: Paneb, brewing beer for the god.
 T: Absent: Amennakht, his wife is ill.
 T: Absent: Hunro, he was embalming his brother.
+T: Absent: Pendua, stung by a scorpion.
 N: Even tomb builders called in sick. I find that comforting.
 
 id: 57
@@ -175,7 +176,8 @@ style: row
 G: S29 N35 M17 Z2 A1 Z1
 T: The weavers work from dawn until the lamps go out.
 T: Their fingers are cut by the thread, their backs are bent.
-T: Yet the spider has finer linen than we.
+T: Tayt wove the linen that wraps the dead, and she is a goddess;
+T: yet the spider has finer linen than we.
 N: A scribe's joke about spiders. The spiders have not seen the joke.
 
 id: 71
@@ -380,6 +382,7 @@ T: The fire-spitting serpent sits on the brow of the king.
 T: She burns the enemies of Ra, she hisses at the dark.
 T: Not every serpent is a servant. Learn the difference.
 T: The servants do not strike you.
+T: In the seventh hour coiled Mehen guards Ra's boat from Apep.
 N: The sacred cobra bites the other side. Not mine.
 
 id: 92
@@ -453,9 +456,11 @@ id: 99
 title: The boatman's fee
 style: row
 G: P1 P8 N35 Z1 A1
+T: O Mahaf, wake Aqen for me: bring me the boat.
+T: Tell me my name, say the mast and the sail of the boat.
 T: Pay the ferryman with a word, and the boat will carry you.
 T: Pay him with a lie, and the boat is the last thing you see.
-N: I paid with a word. I had no other coin.
+N: Book of the Dead, spell 99. I paid with a word: no other coin.
 
 id: 101
 title: The hippopotamus and the king
@@ -717,6 +722,7 @@ title: The ring of the stars
 style: stela
 G: N14 N14 N14 N14 N14 N14 N14 O1 Z1 N5 D21 Q3
 T: Seven stars have seven names and the ring has seven marks.
+T: Meskhetyu, the foreleg of Seth, never sets in the north.
 T: Say the names in the order of the sky, and the sky opens.
 T: What the priests started, the necropolis ended.
 T: The way is open for the one who knows the order.

@@ -142,7 +142,7 @@
 14,10 surface 6/1/2
 15,10 surface 6/1/2
 16,10 surface 6/1/2
-17,10 surface 6/1/2 decal 5m 0.428,0.625
+17,10 surface 6/1/2
 18,10 surface 6/1/2
 19,10 surface 6/1/2 decal 0 0.336,0.506
 20,10 surface 6/1/2 decal 0 0.611,0.562

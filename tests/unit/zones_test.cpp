@@ -109,7 +109,8 @@ TEST_CASE("the campaign's levels (plan denser-levels): the zone's monsters, its 
 						 (t.attr == MonsterCursedMimic && fauna.cursedPercent > 0) ||
 						 (t.attr == MonsterMimicJar && fauna.jarPercent > 0) ||
 						 (t.attr == zone.boss && n == zone.last) ||
-						 (zone.boss != 0 && n == zone.last && t.attr == monsterKind(zone.boss)->boss.nest); // her eggs
+						 // Her eggs: by her, and nests on her zone's other levels (plan level-content-gaps).
+						 (zone.boss != 0 && t.attr == monsterKind(zone.boss)->boss.nest);
 			for (const ZoneMonster& m : fauna.monsters)
 				inSet = inSet || (m.type != 0 && m.type == t.attr);
 			CHECK(inSet);

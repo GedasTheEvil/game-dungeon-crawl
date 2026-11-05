@@ -1,0 +1,22 @@
+# Plan level-content-gaps: lvl40's two-mirror puzzle in the game. The beam from the east wall's shaft ends at the first
+# mirror (col 30); turned left it runs on to the second (col 17, quicksand east of it: come from the west); turned up
+# there, it lights the green disc over it.
+seed 1
+god
+peace
+level 40 at 31 9
+wait 30
+screenshot beam_at_first_mirror
+mirror 30 9 left
+level 40 at 15 9
+mirror 30 9 left
+wait 30
+screenshot beam_at_second_mirror
+walk to 17.5
+interact
+wait 1s
+interact
+wait 2s
+walk to 15.5
+wait 30
+screenshot disc_lit

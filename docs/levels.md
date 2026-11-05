@@ -187,7 +187,7 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 6 | The Hall of Echoes: Giant rat 4, bat 5, giant bat 1, mimic 2. 1 key, 1 riddle gate, a name gate to a secret room. Expedition page 5. Inscriptions: The words of Isis; Tireless legs (a stamina boon). |
 | 7 | The Flooded Stretch: The first crocodile in a pool off the way, skippable. Worm 1, giant rat 2, bat 4, giant bat 2, mimic 1, crocodile 1. 1 key, 1 riddle gate. Inscriptions: The Shipwrecked Sailor; The shallow water. |
 | 8 | The Roost Stair: Worm 2, giant rat 2, bat 6, giant bat 6. 1 key, 1 riddle gate, a name gate to a secret room. Expedition page 6. Inscriptions: The sealed treasury; The bats of the night. |
-| 9 | The Roost of Shezmu: The Bat of Shezmu, the second boss. Worm 1, giant rat 7, bat 5, giant bat 4, vampire bat 1. 1 key, 1 lever, 1 riddle gate. Expedition page 7. Inscriptions: The wheel of the day. |
+| 9 | The Roost of Shezmu: The Bat of Shezmu, the second boss. Worm 1, giant rat 7, bat 5, giant bat 4, vampire bat 1. 1 key, 1 lever, 1 riddle gate. Expedition page 7. Inscriptions: The wheel of the day; Shezmu, lord of the press (by the teleporter to his roost). |
 | 10 | The Hall of Webs: Giant rat 2, mimic 2, giant scarab 8, camel spider 14, tiny spider 6. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The spider's net; The torch of the night watch; The priest's cell. |
 | 11 | The Dark Gallery: Mimic 2, giant scarab 7, camel spider 18, tiny spider 7. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The chest and its guard; The sleeper at the door; The djed pillar (a armor boon). |
 | 12 | The Two Shafts: The first route fork. Giant rat 3, mimic 6, giant scarab 5, camel spider 20, tiny spider 6. 1 key, 1 lever, 1 riddle gate. Expedition page 8. Inscriptions: The weaver's complaint; The riddle of the house. |
@@ -198,8 +198,8 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 17 | The Hall of Purification: Anubis 3, mimic 1, giant scarab 2, mummy 14, ushabti 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The temple cat; Not dying a second time (a life boon); The negative confession, a cursed coffin beside it. |
 | 18 | The Tomb of the High Priest: The High Priest, the fourth boss. Anubis 3, giant scarab 2, mummy 17, mummy priest 1, ushabti 9, mimic jar 1. 1 key, 2 levers, 1 riddle gate. Expedition page 11. Inscriptions: The might of the king (a might boon). A cursed coffin among the sleepers and canopic jars of the upper burial chamber. |
 | 19 | The Gate of Serket: Mimic 3, giant scarab 4, scorpion 22, giant scorpion 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: A spell against stings; The drip from the ceiling; Serket who makes the throat breathe. |
-| 20 | The Weeping Roof: Mimic 2, giant scarab 6, scorpion 11, giant scorpion 18. 2 keys, 1 riddle gate, a name gate to a secret room. Expedition page 12. Inscriptions: The nest of eggs; The breath of life (a life boon); Serket. |
-| 21 | The Hall of Antidotes: Mimic 3, giant scarab 3, scorpion 23, giant scorpion 8. 1 key, 1 lever, 1 riddle gate. Inscriptions: The healer's rule; The scorpion charm. |
+| 20 | The Weeping Roof: Mimic 2, giant scarab 6, scorpion 11, giant scorpion 18, egg cluster 3 (a nest, no queen to hatch it). 2 keys, 1 riddle gate, a name gate to a secret room. Expedition page 12. Inscriptions: The nest of eggs; The breath of life (a life boon); Serket. |
+| 21 | The Hall of Antidotes: Mimic 3, giant scarab 3, scorpion 23, giant scorpion 8, egg cluster 2. 1 key, 1 lever, 1 riddle gate. Inscriptions: The healer's rule; The scorpion charm. |
 | 22 | The Nest of the Queen: The scorpion queen between her egg clusters, the fifth boss. Mimic 2, giant scarab 5, scorpion 19, giant scorpion 10, egg cluster 2, scorpion queen 1. 3 keys, 1 riddle gate. Expedition page 13. Inscriptions: The overseer's letter. |
 | 23 | The Gate of the Serpent: Giant bat 4, mimic 7, cobra 15, giant cobra 13. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The darts of the floor; The room of the kas; Spell against the serpent. |
 | 24 | The Spitting Wall: Giant bat 4, mimic 1, crocodile 1, cobra 17, giant cobra 13. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 14. Inscriptions: The granite will not fall (a armor boon); The spitting wall; The scribe's secret. |
@@ -213,12 +213,12 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 32 | The Lake of Sobek: Sobek in his lake, the seventh boss. Giant bat 6, mimic 1, crocodile 11, giant cobra 14, sobek 1, lotus 1, hippo 2. 2 keys, 2 levers, 1 riddle gate. Expedition page 17. Inscriptions: Sobek, the green one; Hymn to Sobek. |
 | 33 | The Gate of Seth: Worm 11, mimic 3, giant scorpion 17, camel spider 16, hippo 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. A sandstorm hall. Inscriptions: The red land; The water carriers; Sinuhe in the desert. |
 | 34 | The Buried Gate: Worm 11, giant scorpion 22, camel spider 14. 1 key, 1 lever, 1 sun disc, 1 riddle gate, a name gate to a secret room. A sandstorm hall. Expedition page 18. Inscriptions: The heat of the day; The servant of Seth; The mirror of Ra. |
-| 35 | The Hall of Drifts: Worm 1, mimic 4, giant scorpion 22, camel spider 15, hippo 1. 3 keys, 1 riddle gate. Inscriptions: Montu, the lord of the strong arm (a might boon); Wenamun's letter. |
+| 35 | The Hall of Drifts: Worm 1, mimic 4, giant scorpion 22, camel spider 15, hippo 1. 2 keys, 1 sun disc (a light shaft in the side wall), 1 riddle gate. Inscriptions: Montu, the lord of the strong arm (a might boon); Wenamun's letter. |
 | 36 | The Sand Stair: Worm 4, mimic 2, giant scorpion 15, camel spider 19, hippo 1, cursed mimic 1. 1 key, 1 lever, 1 sun disc, 1 riddle gate. A sandstorm hall. Inscriptions: The sand that swallows; Seth in the prow; The water of the oasis. |
 | 37 | Seth's Oasis: Seth in his oasis pool, the eighth boss. Worm 11, mimic 3, giant scorpion 15, camel spider 11, seth 1. 3 keys, 1 sun disc, 1 riddle gate. Expedition page 19. Inscriptions: The first harpoon (a might boon); The red hippopotamus. |
-| 38 | The Gate of Sokar: Worm 29, giant scorpion 4, camel spider 9. 2 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 20. Inscriptions: The Book of Gates; The ways of Rosetau; Sokar of the dark land. |
+| 38 | The Gate of Sokar: Worm 29, giant scorpion 4, camel spider 9. 2 keys, 1 sun disc (two mirrors, the beam through the green gate), 1 riddle gate, a name gate to a secret room. Expedition page 20. Inscriptions: The Book of Gates; The ways of Rosetau; Sokar of the dark land. |
 | 39 | The Two Drifts: The second route fork. Worm 25, mimic 1, giant scorpion 5, camel spider 13. 2 keys, 1 lever, 1 riddle gate. Inscriptions: The deep drift; The worms of Sokar. |
-| 40 | The Falling Sands: Worm 29, giant scorpion 5, camel spider 13. 1 key, 2 levers, 1 riddle gate. Expedition page 21. Inscriptions: The granite of Aswan (a armor boon); The sand falls. |
+| 40 | The Falling Sands: Worm 29, giant scorpion 5, camel spider 13. 1 key, 1 lever, 1 sun disc (two mirrors, the disc high over the second), 1 riddle gate. Expedition page 21. Inscriptions: The granite of Aswan (a armor boon); The sand falls. |
 | 41 | The Den of Rerek: Rerek under his sand, the ninth boss. Worm 25, mimic 4, giant scorpion 4, camel spider 14, cursed mimic 1, rerek 1. 4 keys, 1 riddle gate. Inscriptions: Spider in the dark; The djed of Osiris (a armor boon); The craftsman's prayer. |
 | 42 | The Gate of Fire: Giant bat 13, mimic 2, giant cobra 14, cursed mimic 1, baboon 14. 1 key, 2 levers, 1 riddle gate. Expedition page 22. Inscriptions: The lake of fire; The baboons of the lake. |
 | 43 | The Burning Shore: The third route fork. Giant bat 7, mimic 2, giant cobra 14, baboon 16. 2 keys, 1 lever, 1 riddle gate. Inscriptions: The burning ground; The fiery cobras. |
@@ -523,6 +523,13 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    under the ceiling of the web halls' dark halls. The braziers, the dark halls' torches and the figures round the
    mummies and ushabti came with steps 2 and 3.
 
+
+## Single cells by hand
+
+`tools/level/lvledit.py LEVEL OP...` sets or clears one cell's object or back-wall fixture in place (`obj COL ROW TYPE
+ATTR VALUE`, `wall ...`, `noobj COL ROW`, `nowall COL ROW`; `show COL ROW` prints the cell), the columns and rows as
+`levelcheck --map` prints them, the type numbers from `levelcheck --legend`. The rest of the file stays as it is: a
+quick edit of a campaign level without the editor. Run `levelcheck` after.
 
 ## Test levels from ASCII
 

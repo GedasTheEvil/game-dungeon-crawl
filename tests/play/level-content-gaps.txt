@@ -1,0 +1,7 @@
+# Plan level-content-gaps, for `bin/game --play tests/play/level-content-gaps.txt`: lvl40's hall of the green lever,
+# now a two-mirror puzzle. A light shaft in the east wall (col 38) shines west along the floor onto the first mirror
+# (col 30), which sends it into the floor. Turn it once (left): the beam runs on to the second mirror (col 17). Turn
+# that one twice (up): the beam climbs to the green sun disc high on the wall over it, the green gates open.
+seed 1
+level 40 at 31 9
+god

@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
 					g.meaning
 				);
 			for (int d = 0; d < DECOR_COUNT; d++) // the --map decor and decal drawings (plan placed-decor)
-				printf("prop %c %d %s\n", 'a' + d, d, DECOR_NAMES[d]);
+				printf("prop %c %d %s\n", decorGlyph(d), d, DECOR_NAMES[d]);
 			for (int d = 0; d < DECAL_COUNT; d++)
 				printf("decal %c %d %s\n", 'a' + d, d, DECAL_DEFS[d].name);
 			return 0;

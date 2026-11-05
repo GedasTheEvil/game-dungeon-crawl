@@ -158,7 +158,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `rings.py` | ring band and gem (all 18 rings) | two models from one origin, the second drawn see-through over the first (`Item::loadPart`); a texture per metal, the gem baked pale and tinted by the engine |
 | `containers.py` | treasure containers: coffer, basket, canopic jars, sealed jar, offering table, coffin (and its cursed texture) | items in metres, the opening clip as shape keys: rigid parts moved per frame (lids, heads, shards), a cloth surface |
 | `props.py` | gateway, ankh, question mark, spikes, teleporter | static props in tile units |
-| `decor.py` | corridor and water decorations, broken statues, torch, coffins, the Shrine of Isis, the Stargate (ring, track, lit chevron) and its dial device | static, tile units, lighting baked in (the lit chevron unlit) |
+| `decor.py` | corridor and water decorations, broken statues, torch, coffins, the shrines of the gods (`naos` and a statue per god: Isis, Montu, Ptah, Amun, Serket), the Stargate (ring, track, lit chevron) and its dial device | static, tile units, lighting baked in (the lit chevron unlit) |
 | `ladder.py` | ladder pieces | stackable pieces in tile units |
 | `mechanism.py` | key, gate, lever, rock, crack, dart trap (pressure plate, dart holes), wall spikes and their slots, fire vent, sun disc, mirror (stand, mirror, pointer), ring platform, its housing and ring | static, one texture per lock colour |
 

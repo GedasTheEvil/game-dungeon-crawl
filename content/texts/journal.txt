@@ -100,7 +100,7 @@ text: The guardian's heka, the magic the gods hold, went into me. It tastes of r
 [note.serkets-favour]
 title: Serket's favour
 text: Serket likes me. Her children still bite, but they hurt me less: every poison on me lasts half as long, with
-	the same damage each second.
+	the same damage each second. At her shrine she listens twice as long: four minutes without venom.
 
 [note.sharp-eye]
 title: Sharp eye
@@ -484,6 +484,30 @@ text: I see the threads now. Four times in five a trapped chest, jar or coffin o
 title: Quiver of Neith
 text: Neith counts my arrows. She counts better than I do: two in five more in every bow, sling and javelin
 	bundle, and the spent ones come back a quarter sooner. Satet's quiver and Bastet's cat still add their own.
+
+[note.shrine-of-montu]
+title: The Shrine of Montu
+text: Another little naos, this one painted red. Montu stands in it with a falcon's head and the sun on it, his
+	khopesh raised. Thebes prayed to him before a war. I prayed before the next hall, and my arm felt ten years
+	younger: Might up by five, for two minutes. Then it was my own arm again. He does not mind being asked twice.
+
+[note.shrine-of-ptah]
+title: The Shrine of Ptah
+text: Ptah of Memphis in his skullcap, wrapped like a mummy, holding his sceptre with the djed pillar on it. He
+	made the world by speaking it; he made my skin harder by my asking. Armor up by five for two minutes. The
+	craftsmen's god keeps his work short and good.
+
+[note.shrine-of-amun]
+title: The Shrine of Amun
+text: Amun the hidden one, blue-skinned on his throne, the tall plumes on his head, rams on the wall behind him.
+	I asked him for breath and got it: every wound closed, and for two minutes more life in me than I have. When
+	it ends the extra goes, but the healing stays. The king of the gods is generous with those who kneel.
+
+[note.shrine-of-serket]
+title: The Shrine of Serket
+text: Serket with her scorpion on her head, its tail curled over her brow. Her priests treated stings and snakebites;
+	she still does. The poison in me went at once, and for two minutes nothing with a sting could make it stay.
+	Her children bite me as before, they just don't matter.
 
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the

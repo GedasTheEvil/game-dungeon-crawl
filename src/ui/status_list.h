@@ -5,6 +5,7 @@
 #include "../world/curses.h"
 #include "../world/poison.h"
 #include "../world/rgb.h"
+#include "../world/shrines.h"
 #include <array>
 
 class PlayerStats;
@@ -14,7 +15,7 @@ class PlayerStats;
 // order) with the effect's icon on it.
 //
 // The kind follows what the effect does to the player:
-// * Blessing, yellow-gold: any good effect. Hapi, the Protection of Isis, the resistance potion.
+// * Blessing, yellow-gold: any good effect. Hapi, the gods' blessings, the resistance potion.
 // * Condition, neutral grey: a bad effect that is easy to end (an antidote, water, a short wait). Poison, burning,
 // daze.
 // * Curse, purple: a bad effect that is almost incurable (only a prayer at a Shrine of Isis lifts it).
@@ -31,7 +32,7 @@ struct Status {
 };
 
 // Fixed size, no allocation per frame: all the blessings, poison tiers, burning, daze and curses at once.
-constexpr int MAX_STATUSES = 3 + POISON_TIER_COUNT + 2 + CURSE_COUNT;
+constexpr int MAX_STATUSES = 2 + GOD_COUNT + POISON_TIER_COUNT + 2 + CURSE_COUNT;
 struct StatusList {
 	std::array<Status, MAX_STATUSES> items{};
 	int count = 0;
@@ -41,9 +42,9 @@ struct StatusList {
 	}
 };
 
-// The running effects in display order: blessings (resistance, Hapi, Isis), then conditions (poison weak first,
-// burning, daze), then curses in Curse order, so the row reads by colour. burningLeftMs: Player::burning, dazeMs:
-// Player::dazeMs.
+// The running effects in display order: blessings (resistance, Hapi, the gods in God order), then conditions (poison
+// weak first, burning, daze), then curses in Curse order, so the row reads by colour. burningLeftMs: Player::burning,
+// dazeMs: Player::dazeMs.
 [[nodiscard]] StatusList statusList(const PlayerStats& stats, int burningLeftMs, int dazeMs);
 
 #endif

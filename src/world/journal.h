@@ -7,6 +7,7 @@
 #include "items.h"
 #include "level.h"
 #include "skills.h"
+#include "shrines.h"
 #include <istream>
 #include <optional>
 #include <ostream>
@@ -199,8 +200,13 @@ enum class FieldNote : unsigned char {
 	WisdomOfSeshat,
 	DisarmTrap,
 	QuiverOfNeith,
+	// Plan shrines-of-the-gods: the first prayer at each god's shrine, in God order after Isis (shrineNote).
+	ShrineOfMontu,
+	ShrineOfPtah,
+	ShrineOfAmun,
+	ShrineOfSerket,
 };
-constexpr int FIELD_NOTE_COUNT = 73 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 77 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);
@@ -215,6 +221,12 @@ constexpr int FIELD_NOTE_COUNT = 73 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 }
 [[nodiscard]] constexpr FieldNote ringNote(RingGem gem) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::RingFirst) + static_cast<int>(gem));
+}
+// The note of the first prayer at the god's shrine.
+[[nodiscard]] constexpr FieldNote shrineNote(God g) {
+	if (g == God::Isis)
+		return FieldNote::ShrineOfIsis;
+	return static_cast<FieldNote>(static_cast<int>(FieldNote::ShrineOfMontu) + static_cast<int>(g) - 1);
 }
 [[nodiscard]] constexpr FieldNote curseNote(Curse c) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::CurseWeakness) + static_cast<int>(c));

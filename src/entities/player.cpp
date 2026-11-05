@@ -135,7 +135,7 @@ void Player::die(WorldEvents& events) {
 	stats.poison.Cure();
 	stats.EndResistance();
 	stats.EndWaterBlessing();
-	stats.EndIsisWard();
+	stats.EndBlessings();
 	stats.EndCurses();
 	burning.Douse();
 }
@@ -152,6 +152,10 @@ bool Player::Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng) {
 void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 	if (!Alive())
 		return;
+	if (stats.Blessed(God::Serket)) { // plan shrines-of-the-gods: no poison lands, from any source
+		events.Status(StatusTone::Good, "Serket turns the venom away");
+		return;
+	}
 	if (stats.PoisonResistPercent() > 0 && rng.percent(stats.PoisonResistPercent())) {
 		events.Status(stats.PotionResistPercent() > 0 ? "You resist the poison" : "Your amulet wards off the poison");
 		return;
@@ -166,7 +170,7 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 void Player::UpdatePoison(WorldEvents& events) {
 	stats.AdvanceResistance(UPDATE_TICK_MS);
 	stats.AdvanceWaterBlessing(UPDATE_TICK_MS, events);
-	stats.AdvanceIsisWard(UPDATE_TICK_MS, events);
+	stats.AdvanceBlessings(UPDATE_TICK_MS, events);
 	stats.AdvanceCurses(UPDATE_TICK_MS, events);
 	const int hp = stats.poison.Advance(UPDATE_TICK_MS, stats.CurrentMaxHP(), stats.PoisonFasterPercent());
 	if (hp <= 0 || !Alive() || god)
@@ -254,11 +258,11 @@ void Player::Reanimate() {
 	swingPower = 0;
 	stats.SetCharging(false);
 	stats.EndCurses();
+	stats.EndBlessings(); // before the heal: Amun's raised max goes first
 	stats.HealFully();
 	stats.poison.Cure();
 	stats.EndResistance();
 	stats.EndWaterBlessing();
-	stats.EndIsisWard();
 	crouched = false;
 	crouchPhase = 0.f;
 	setModelState(model.reference);

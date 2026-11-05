@@ -263,6 +263,13 @@ with the most curse sources (cursing monsters by their chance, trapped treasure)
 priest's teleporter), 24, 29, 32, 38, 41, 45, 47, 50, 52, 54 (before the teleporter to Anubis). Each on a floor cell
 four or more cells from a monster, at a wing's end or off the path where the hall allows.
 
+The shrines of the other gods ([shrines-of-the-gods](plan/shrines-of-the-gods.feature.md)), four each, at most one shrine of any god
+a level (Isis included; a soft rule, the checker does not warn), on the same kind of cell. Montu before a boss or a
+hard level: lvl13 (by the Mother of Webs's teleporter), 27 (Apep), 37 (Seth), 53 (before Anubis's level). Ptah before
+a hard fight: lvl11, 17 (before the mummy priest's level), 35, 44 (before Babi's level). Amun at a side branch's end:
+lvl7, 16, 31, 48. Serket among poisoners: lvl21 (scorpions), 25 (cobras), 34 (giant scorpions), 43 (giant cobras).
+The checker does not count on the blessings: they are optional and run out on the walk.
+
 Monsters by zone (`ZONE_FAUNA`): the zone table above. Weak monsters give way to their giant kin: no rats, scarabs or
 small bats after the bat galleries, except a boss's minions. Each level with a poisoner (plants, scorpions, cobras,
 dart plates, poison drips) has an antidote in reach (the checker warns otherwise) and a lesser resistance potion, from
@@ -530,7 +537,7 @@ inscription, `:` name cartouche, `|` wall spikes, `+` fire vent, `,` poison drip
 to the wall layer too, so a fixture alone in its cell needs no wall drawing. `levelcheck --map` shows a cell's fixture
 where it has no object, prints the structure drawing after the map when the level has water, then the wall drawing
 when it has fixtures. `levelcheck --legend` marks the wall types (`wall:`). A level with placed props gets a `decor`
-drawing (`a` + the prop's index, `-` bare), one with placed decals or torches a `decals` drawing (`a` + the decal's
+drawing (`a` + the prop's index, the god shrines `M` `P` `A` `S`, `-` bare), one with placed decals or torches a `decals` drawing (`a` + the decal's
 index, upper case with a torch, `t` a torch alone, `-` bare or no torch); `--legend` ends with their `prop` and `decal`
 lines. The ASCII sources have no decor or decal drawings: the editor paints them. A `shape COL ROW MASK` line gives a
 cell its shape (plan level-subcells; MASK as in the level file, rock turns empty); the built file draws it with its

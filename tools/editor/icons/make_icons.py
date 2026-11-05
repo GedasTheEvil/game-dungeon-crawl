@@ -710,11 +710,62 @@ def prop_shrine_isis():  # plan shrine-of-isis: a naos with Isis seated in it, a
     save(img, "prop_shrine_isis.png")
 
 
+def god_shrine(name, wall, statue):
+    """Plan shrines-of-the-gods: the Isis shrine's naos with the god's wall colour, its statue drawn by statue(d)."""
+    img, d = canvas(GOLD, 30)
+    floor(d)
+    d.rectangle(p(10, 10, 48, FLOOR_Y), fill=STONE, outline=STONE_DARK, width=SS)  # the naos
+    d.rectangle(p(8, 6, 50, 12), fill=GOLD_DIM, outline=BRONZE_DARK, width=SS)  # its cornice
+    d.rectangle(p(16, 16, 42, FLOOR_Y), fill=wall)  # the open shrine, its back wall painted
+    statue(d)
+    d.rectangle(p(46, 46, 58, 49), fill=GOLD, outline=BRONZE_DARK, width=SS)  # the offering table
+    d.rectangle(p(50, 49, 54, FLOOR_Y), fill=BRONZE)
+    d.ellipse(p(48, 41, 52, 46), fill=RED_LIGHT)  # an offering
+    save(img, "prop_shrine_" + name + ".png")
+
+
+def montu(d):  # falcon-headed, a red sun disc with two plumes, the khopesh raised
+    poly(d, [(26, 28), (32, 28), (33, FLOOR_Y), (25, FLOOR_Y)], LINEN, LINEN_DARK, 1)
+    d.ellipse(p(25, 21, 33, 29), fill=WOOD, outline=BRONZE_DARK, width=SS)
+    poly(d, [(32, 24), (36, 26), (32, 27)], GOLD)  # the beak
+    poly(d, [(26, 21), (27, 13), (29, 21)], GOLD)  # the plumes
+    poly(d, [(29, 21), (31, 13), (32, 21)], GOLD)
+    d.ellipse(p(26, 15, 32, 21), fill=RED_LIGHT, outline=BRONZE_DARK, width=SS)  # the sun disc
+    poly(d, [(34, 34), (38, 24), (40, 20), (37, 26), (35, 35)], GATE_GREY, BRONZE_DARK, 1)  # the khopesh
+
+
+def ptah(d):  # mummiform, a blue skullcap, green face, the was-djed sceptre
+    poly(d, [(25, 27), (33, 27), (32, FLOOR_Y), (26, FLOOR_Y)], LINEN, LINEN_DARK, 1)
+    d.ellipse(p(25, 19, 33, 28), fill=(70, 150, 80), outline=BRONZE_DARK, width=SS)
+    d.chord(p(25, 18, 33, 26), 180, 360, fill=LAPIS)  # the skullcap
+    d.rectangle(p(28, 28, 30, 50), fill=GOLD)  # the sceptre
+    d.rectangle(p(26, 30, 32, 32), fill=GOLD)
+
+
+def amun(d):  # seated, blue skin, the tall double plume
+    d.rectangle(p(24, 38, 36, FLOOR_Y), fill=GOLD_DIM)  # the throne
+    poly(d, [(26, 28), (34, 28), (36, 44), (24, 44)], LAPIS_LIGHT, LAPIS, 1)
+    d.ellipse(p(26, 21, 34, 29), fill=LAPIS_LIGHT, outline=BRONZE_DARK, width=SS)
+    poly(d, [(27, 21), (28, 10), (30, 21)], RED)  # the plumes
+    poly(d, [(30, 21), (32, 10), (33, 21)], GOLD)
+
+
+def serket(d):  # standing in a white sheath, a scorpion on her head
+    poly(d, [(26, 28), (32, 28), (34, FLOOR_Y), (24, FLOOR_Y)], LINEN, LINEN_DARK, 1)
+    d.ellipse(p(25, 20, 33, 29), fill=WOOD, outline=BRONZE_DARK, width=SS)
+    d.ellipse(p(26, 15, 32, 20), fill=GOLD, outline=BRONZE_DARK, width=SS)  # the scorpion
+    d.line(p(29, 15, 29, 12, 32, 11), fill=GOLD, width=2 * SS)  # its tail
+
+
 def props():
     for f in (prop_web, prop_pottery, prop_canopic, prop_rubble, prop_sand, prop_skeleton, prop_brazier, prop_lamp,
               prop_scrolls, prop_ushabti, prop_cat, prop_jackal, prop_osiris, prop_sarcophagus, prop_water_reeds,
               prop_water_weed, prop_water_pads, prop_water_lotus, prop_stargate, prop_dial_device, prop_shrine_isis):
         f()
+    god_shrine("montu", (150, 40, 30), montu)
+    god_shrine("ptah", (40, 100, 55), ptah)
+    god_shrine("amun", (170, 120, 45), amun)
+    god_shrine("serket", (30, 22, 18), serket)
     prop_thoth("thoth_ibis_standing", ibis, False)
     prop_thoth("thoth_ibis_seated", ibis, True)
     prop_thoth("thoth_baboon_seated", baboon, True)

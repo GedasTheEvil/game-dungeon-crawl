@@ -279,7 +279,7 @@
 8,19 surface 8/1/5 ladder 0/1
 30,19 surface 8/1/3
 31,19 surface 8/1/3 prop rubblem 0.093
-32,19 surface 8/3/3 sand<> decal 5m 0.606,0.625 torch fire torch 0.000,0.680,0.098
+32,19 surface 8/3/3 sand<> prop shrine_ptah 0.000 decal 5m 0.606,0.625 torch fire torch 0.000,0.680,0.098
 33,19 surface 9/1/3 prop sandm -0.000
 34,19 surface 8/3/5 sand<>
 35,19 surface 9/1/5 ladder 1/4

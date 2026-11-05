@@ -213,7 +213,7 @@
 15,16 surface 3/1/1 ladder 0/0m
 15,17 surface 7/1/2 ladder 0/2
 2,18 surface 3/2/1 torch fire torch 0.000,0.680,0.098
-3,18 surface 3/0/1 decal 13m 0.294,0.225
+3,18 surface 3/0/1 prop shrine_ptah -0.000 decal 0m 0.350,0.453
 4,18 surface 3/2/1 decal 13m 0.265,0.225
 5,18 surface 3/2/1
 6,18 surface 5/0/1 sand>

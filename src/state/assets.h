@@ -14,6 +14,7 @@
 #include "../world/inscription_layout.h"
 #include "../world/items.h"
 #include "../world/level.h"
+#include "../world/shrines.h"
 #include <array>
 #include <functional>
 #include <memory>
@@ -38,7 +39,7 @@ struct SoundBank {
 	Sound wade, splash; // a step in half water, landing in it
 	Sound pageTurn; // the journal's paper rustle
 	Sound headBump; // the player's head on a low ceiling in a jump (plan subcell-physics)
-	Sound shrinePray; // a prayer at a Shrine of Isis (plan shrine-of-isis)
+	Sound shrinePray[GOD_COUNT]; // a prayer at a god's shrine, by God (plans shrine-of-isis, shrines-of-the-gods)
 	Sound dungThud; // a dung ball breaks (plan scarab-dung-ball)
 	Sound shotDry,
 		shotTooClose; // a ranged shot refused: none left, a monster too close (plan ranged-weaker-than-melee)

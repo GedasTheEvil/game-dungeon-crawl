@@ -36,7 +36,7 @@ COLL = "decor_new"
 PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris",
          "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin",
          "coffin_large", "water_reeds", "water_weed", "water_pads", "water_lotus", "stargate", "stargate_track", "stargate_chevron",
-         "dial_device", "shrine_isis"]
+         "dial_device", "shrine_isis", "shrine_montu", "shrine_ptah", "shrine_amun", "shrine_serket"]
 WATER_PROPS = {"water_reeds", "water_weed", "water_pads", "water_lotus"}  # stand in a basin (BASIN_Z), see build_env
 TEX_SIZE = 512
 TEX_SIZES = {"stargate": 1024}  # the props larger than the rest
@@ -46,7 +46,8 @@ UNLIT = {"stargate_chevron"}  # glowing: baked as its colours, no light (the eng
 PROP_SCALE = {"web": 1.2, "pottery": 1.4, "canopic": 1.5, "rubble": 1.3, "skeleton": 1.2, "brazier": 1.35, "lamp": 1.9, "scrolls": 1.6,
               "ushabti": 1.9, "cat": 1.3, "jackal": 1.3, "osiris": 1.4,
               "thoth_ibis_standing": 1.4, "thoth_ibis_seated": 1.4, "thoth_baboon_seated": 1.4, "thoth_baboon_standing": 1.4,
-              "sarcophagus": 1.3, "shrine_isis": 1.35}
+              "sarcophagus": 1.3, "shrine_isis": 1.35,
+              "shrine_montu": 1.35, "shrine_ptah": 1.35, "shrine_amun": 1.35, "shrine_serket": 1.35}
 # Not enlarged (exact tile units): coffin (the mummy's, placed by the engine at mummy spawn tiles, see mummy.py COFFIN) and
 # coffin_large (the mummy priest's, see mummy_priest.py).
 SCALE_PIVOT = {"web": (-0.5, 0.0, 1.0)}  # the web grows out of its corner
@@ -117,6 +118,16 @@ COL = {
     "chevron_lit": (1.0, 0.50, 0.12),
     "chevron_core": (1.0, 0.86, 0.55),
     "dome": (0.60, 0.05, 0.03),
+    "wall_montu": (0.46, 0.10, 0.06),
+    "wall_ptah": (0.10, 0.32, 0.17),
+    "wall_amun": (0.70, 0.50, 0.14),
+    "wall_serket": (0.07, 0.055, 0.045),
+    "skin_male": (0.48, 0.22, 0.10),
+    "falcon": (0.26, 0.18, 0.09),
+    "falcon_light": (0.72, 0.64, 0.50),
+    "ptah_green": (0.18, 0.48, 0.26),
+    "lapis": (0.06, 0.14, 0.52),
+    "amun_blue": (0.12, 0.26, 0.66),
 }
 
 
@@ -198,6 +209,18 @@ def materials():
         "chevron_lit": ("solid", "chevron_lit"),
         "chevron_core": ("solid", "chevron_core"),
         "dome": ("solid", "dome"),
+        "wall_montu": ("solid", "wall_montu"),
+        "wall_ptah": ("solid", "wall_ptah"),
+        "wall_amun": ("solid", "wall_amun"),
+        "wall_serket": ("solid", "wall_serket"),
+        "skin_male": ("solid", "skin_male"),
+        "falcon": ("solid", "falcon"),
+        "falcon_light": ("solid", "falcon_light"),
+        "ptah_green": ("solid", "ptah_green"),
+        "lapis": ("solid", "lapis"),
+        "amun_blue": ("solid", "amun_blue"),
+        "shroud": stripes("v", 0.01, [(3, "limestone_fresh"), (1, "eye_white")], "LINEAR"),
+        "plume_amun": stripes("v", 0.008, [(1, "paint_red"), (1, "gold"), (1, "lapis")]),
     }
     return {name: common.make_material("decor_" + name, spec, COL) for name, spec in specs.items()}
 
@@ -1446,28 +1469,28 @@ def wing(sx, z, length, tiers=3):
     return parts
 
 
-def build_shrine_isis(b, M):
-    """The Shrine of Isis (plan shrine-of-isis): a small limestone naos on a plinth, open to the camera, its cornice
-    and torus moulding painted; inside, against the blue back wall, Isis spreads her wings behind her seated statue.
-    In front an offering table with loaves, dates and a faience cup. The player prays here."""
+def naos(b, M, wall, emblem):
+    """A shrine's naos (plans shrine-of-isis, shrines-of-the-gods): a small limestone naos on a plinth, open to the
+    camera, its cornice and torus moulding painted, the back wall painted in the god's colour (`wall`, a material) with
+    the god's emblem on it (`emblem`: [(geo, mat)] on the wall plane y = 0, its relief towards -Y, z from the floor).
+    In front an offering table with loaves, dates and a faience cup. The god's statue goes in at STATUE_Y, NAOS_FLOOR."""
     stone, stone_hi = "limestone", "limestone_fresh"
     b.add(place(box(0.36, 0.23, 0.05), loc=(0, -0.115, 0.025)), M["stone_dark"], "root")  # plinth
     b.add(place(box(0.3, 0.2, 0.012), loc=(0, -0.105, 0.056)), M[stone], "root")  # the naos's floor
-    z0, z1, w, d = 0.062, 0.34, 0.14, 0.2
+    z0, z1, w, d = NAOS_FLOOR, 0.34, 0.14, 0.2
     b.add(place(box(2 * w, 0.014, z1 - z0), loc=(0, -0.007, (z0 + z1) / 2)), M[stone], "root")  # back wall
-    b.add(place(box(2 * w - 0.03, 0.002, z1 - z0 - 0.02), loc=(0, -0.015, (z0 + z1) / 2)), M["paint_blue"], "root")
+    b.add(place(box(2 * w - 0.03, 0.002, z1 - z0 - 0.02), loc=(0, -0.015, (z0 + z1) / 2)), M[wall], "root")
     for sx in (-1, 1):
         b.add(place(box(0.016, d, z1 - z0), loc=(sx * (w - 0.008), -d / 2, (z0 + z1) / 2)), M[stone], "root")  # side wall
         b.add(place(box(0.024, 0.02, z1 - z0), loc=(sx * (w - 0.012), -d + 0.01, (z0 + z1) / 2)), M[stone_hi], "root")  # jamb
         b.add(rod((sx * w, -d, z0), (sx * w, -d, z1), 0.008, n=8), M["regalia"], "root")  # torus moulding
-        add_parts(b, M, wing(sx, 0.0, 0.11), loc=(0, -0.016, 0.255))
+    add_parts(b, M, emblem, loc=(0, -0.016, 0))
     b.add(rod((-w, -d, z1), (w, -d, z1), 0.008, n=8), M["regalia"], "root")
     # The cavetto cornice: a band that leans out, under a flat top.
     cornice = [(-w - 0.01, -d - 0.002), (w + 0.01, -d - 0.002), (w + 0.01, 0.0), (-w - 0.01, 0.0)]
     b.add(slab(cornice, 0.012, loc=(0, 0, z1 + 0.004)), M["regalia"], "root")
     flare = [(-w - 0.025, -d - 0.022), (w + 0.025, -d - 0.022), (w + 0.025, 0.0), (-w - 0.025, 0.0)]
     b.add(slab(flare, 0.016, loc=(0, 0, z1 + 0.016)), M[stone], "root")
-    add_parts(b, M, isis_statue(), loc=(0, -0.075, z0), scale=1.15)
     # The offering table (a hotep slab on a stand) before the shrine.
     ty = -0.27
     b.add(rod((0, ty, 0.0), (0, ty, 0.07), 0.02, 0.016, n=12), M[stone], "root")
@@ -1480,6 +1503,296 @@ def build_shrine_isis(b, M):
     b.add(revolve_geo_at((0.045, ty + 0.008, 0.082), [(0.0, 0.0), (0.006, 0.0), (0.011, 0.016), (0.0105, 0.017), (0.0, 0.004)]),
           M["faience"], "root")
     chips(b, M, ((-0.15, -0.26, 0.004), (0.16, -0.28, 0.005)), 110)
+
+
+NAOS_FLOOR = 0.062  # the naos's floor, where the statue stands
+STATUE_Y = -0.075  # the statue's place, between the back wall and the opening
+EMBLEM_X, EMBLEM_Z = 0.085, 0.245  # the emblem pair beside the statue's head, on the back wall
+
+
+def relief(pts, thick=0.004):
+    """A flat convex slab on the wall plane: pts (x, z), its thickness towards -Y (the camera)."""
+    return slab(pts, thick, rot(x=90))
+
+
+def disc(c, r, thick=0.003):
+    """A round relief on the wall plane, centre c (x, z)."""
+    return ellipsoid((c[0], -thick, c[1]), (r, thick, r), n=16, rings=6)
+
+
+def emblem_pair(fn):
+    """fn(sx) -> [(geo, mat)] around (0, 0) on the wall plane; one each side of the statue, mirrored by sx."""
+    parts = []
+    for sx in (-1, 1):
+        parts += [(place(geo, loc=(sx * EMBLEM_X, 0, EMBLEM_Z)), mat) for geo, mat in fn(sx)]
+    return parts
+
+
+def sun_emblem(sx):
+    """Montu's sun disc, a uraeus rearing at its foot."""
+    arc = [(0.029 * math.cos(math.radians(a)), -0.004, 0.029 * math.sin(math.radians(a))) for a in range(200, 345, 15)]
+    return [(disc((0, 0), 0.026, 0.004), "gold"), (disc((0, 0), 0.016, 0.0055), "paint_red"),
+            (curve(arc, 0.003, ref=V((0, -1, 0))), "regalia"),
+            (ellipsoid((0.028, -0.006, -0.004), (0.004, 0.003, 0.006), n=8, rings=4), "regalia")]
+
+
+def djed_emblem(sx):
+    """Ptah's djed pillar: a shaft on a flared foot, four crossbars and a capital on top."""
+    parts = [(relief([(-0.006, -0.045), (0.006, -0.045), (0.006, 0.02), (-0.006, 0.02)]), "gold"),
+             (relief([(-0.012, -0.05), (0.012, -0.05), (0.007, -0.042), (-0.007, -0.042)], 0.005), "gold"),
+             (relief([(-0.01, 0.044), (0.01, 0.044), (0.01, 0.052), (-0.01, 0.052)], 0.005), "gold")]
+    for k in range(4):
+        z = 0.022 + 0.0055 * k
+        parts.append((relief([(-0.018, z), (0.018, z), (0.018, z + 0.0035), (-0.018, z + 0.0035)], 0.006), "lapis"))
+    return parts
+
+
+def ram_emblem(sx):
+    """Amun's ram: a head in profile looking to the statue, its horn curled behind the eye."""
+    f = -sx  # the muzzle points to the middle
+    parts = [(ellipsoid((-f * 0.004, -0.003, 0.002), (0.015, 0.003, 0.012), n=12, rings=6), "amun_blue"),
+             (ellipsoid((f * 0.014, -0.003, -0.006), (0.012, 0.003, 0.008), n=12, rings=6, axis=V((f * 0.5, 0, 1))), "amun_blue"),
+             (ellipsoid((f * 0.003, -0.0065, 0.004), (0.0025, 0.0015, 0.0025), n=6, rings=3), "black")]
+    horn = []
+    for k in range(13):
+        t = k / 12
+        a = math.radians(90 + f * 400 * t)  # from the crown back, down and round
+        r = 0.016 * (1 - 0.65 * t)
+        horn.append((-f * 0.008 + r * math.cos(a), -0.006, 0.002 + r * math.sin(a)))
+    parts.append((curve(horn, 0.0038, n=6, ref=V((0, -1, 0)), r_end=0.0018), "gold"))
+    return parts
+
+
+def scorpion_emblem(sx):
+    """Serket's scorpion, head up: claws raised, four legs a side, the tail curled under it."""
+    parts = [(ellipsoid((0, -0.003, 0.012), (0.009, 0.003, 0.011), n=12, rings=6), "gold"),
+             (ellipsoid((0, -0.003, -0.003), (0.008, 0.003, 0.007), n=12, rings=6), "gold")]
+    tail = [(0, -0.003, -0.008), (0, -0.003, -0.02), (0.002 * sx, -0.003, -0.032), (0.01 * sx, -0.003, -0.04),
+            (0.017 * sx, -0.003, -0.034), (0.016 * sx, -0.003, -0.026)]
+    parts.append((curve(tail, 0.004, n=6, ref=V((0, -1, 0)), r_end=0.0022), "gold"))
+    parts.append((ellipsoid((0.013 * sx, -0.003, -0.023), (0.002, 0.002, 0.004), n=6, rings=3), "paint_red"))  # sting
+    for s in (-1, 1):
+        parts.append((curve([(s * 0.005, -0.003, 0.02), (s * 0.012, -0.003, 0.027), (s * 0.014, -0.003, 0.035)], 0.0022, n=5,
+                            ref=V((0, -1, 0))), "gold"))
+        parts.append((ellipsoid((s * 0.015, -0.003, 0.041), (0.0045, 0.0025, 0.007), n=8, rings=4), "gold"))  # claw
+        for k in range(4):
+            z = 0.014 - 0.006 * k
+            parts.append((rod((s * 0.006, -0.003, z), (s * 0.017, -0.003, z - 0.004 - 0.002 * k), 0.0014, n=5), "gold"))
+    return parts
+
+
+def standing_legs(skin, stride):
+    """Two legs from the hips (z 0.1) to the feet on z = 0, facing -Y; the left one (+X) forward by `stride`."""
+    parts = []
+    for sx in (-1, 1):
+        x, fy = sx * 0.011, -stride if sx > 0 else 0.0
+        knee = (x, fy * 0.5 - 0.003, 0.052)
+        parts += [(rod((x, 0, 0.1), knee, 0.0105, 0.008, n=8), skin), (rod(knee, (x, fy, 0.008), 0.0075, 0.006, n=8), skin),
+                  (ellipsoid((x, fy - 0.006, 0.004), (0.0055, 0.011, 0.004), n=8, rings=4), skin)]
+    return parts
+
+
+def montu_statue():
+    """Montu striding, falcon-headed: red-brown skin, a white kilt, a blue and gold wig, the sun disc between two tall
+    plumes on his head; his right hand (-X) holds a khopesh up, the left hangs. Base on z = 0, facing -Y."""
+    skin = "skin_male"
+    parts = standing_legs(skin, 0.03)
+    parts += [
+        (tube([((0, 0, 0.072), 0.027, 0.02), ((0, 0, 0.1), 0.021, 0.016), ((0, 0, 0.116), 0.019, 0.015)], sub=2, n=12,
+              ref=V((0, -1, 0))), "kilt"),
+        (tube([((0, 0, 0.114), 0.018, 0.013), ((0, -0.001, 0.145), 0.025, 0.015), ((0, 0, 0.162), 0.028, 0.013)], sub=3,
+              n=12, ref=V((0, -1, 0))), skin),
+        (rod((0, 0, 0.16), (0, -0.001, 0.176), 0.0068, n=8), skin),
+        (ring((0, -0.001, 0.161), (0, -0.2, 1), 0.021, 0.013, 0.003), "collar"),
+    ]
+    head = V((0, -0.003, 0.188))
+    parts += [
+        (ellipsoid(head, (0.0125, 0.0145, 0.014), n=12, rings=6), "falcon"),
+        (ellipsoid(head + V((0, 0.006, 0.002)), (0.016, 0.014, 0.017), n=12, rings=6), "thoth_wig"),
+        (curve([head + V((0, -0.012, 0.0)), head + V((0, -0.02, -0.004)), head + V((0, -0.021, -0.011))], 0.0045, n=6,
+               r_end=0.0012), "coffin_yellow"),  # the hooked beak
+    ]
+    for sx in (-1, 1):
+        parts += [
+            (ellipsoid(head + V((sx * 0.009, -0.009, 0.002)), (0.0032, 0.003, 0.0032), n=6, rings=3), "falcon_light"),
+            (ellipsoid(head + V((sx * 0.0105, -0.0105, 0.002)), (0.0018, 0.0016, 0.0018), n=6, rings=3), "black"),
+            (rod((sx * 0.012, -0.006, 0.188), (sx * 0.014, -0.01, 0.158), 0.005, 0.004, n=6), "thoth_wig"),  # lappet
+        ]
+    # The crown: the sun disc, a uraeus in front, two tall plumes behind it.
+    crown = head + V((0, 0.002, 0.027))
+    parts += [
+        (ellipsoid(crown, (0.014, 0.004, 0.014), n=14, rings=6), "gold"),
+        (curve([head + V((0, -0.012, 0.012)), head + V((0, -0.015, 0.02)), head + V((0, -0.014, 0.027))], 0.0028, n=5), "regalia"),
+    ]
+    for sx in (-1, 1):
+        parts.append((ellipsoid(crown + V((sx * 0.006, 0.006, 0.019)), (0.005, 0.004, 0.022), n=8, rings=6), "plume"))
+    # The left arm hangs, the right one holds the khopesh up before the chest, its blade curving out.
+    parts += [(rod((0.027, 0, 0.158), (0.031, 0, 0.125), 0.0058, 0.005, n=6), skin),
+              (rod((0.031, 0, 0.125), (0.029, -0.004, 0.095), 0.005, 0.0045, n=6), skin),
+              (ellipsoid((0.029, -0.005, 0.089), (0.005, 0.005, 0.007), n=6, rings=3), skin),
+              (rod((-0.027, 0, 0.158), (-0.033, -0.004, 0.126), 0.0058, 0.005, n=6), skin),
+              (rod((-0.033, -0.004, 0.126), (-0.034, -0.03, 0.135), 0.005, 0.0045, n=6), skin),
+              (ellipsoid((-0.034, -0.035, 0.136), (0.0055, 0.006, 0.006), n=6, rings=3), skin)]
+    h = V((-0.034, -0.036, 0.136))
+    parts += [(rod(h + V((0, 0, -0.01)), h + V((0, 0, 0.012)), 0.0028, n=6), "black"),
+              (rod(h + V((0, 0, 0.012)), h + V((0, 0, 0.03)), 0.0026, n=6), "gold"),
+              (tube([(h + V((0, 0, 0.03)), 0.003, 0.0016), (h + V((-0.005, 0, 0.045)), 0.006, 0.0016),
+                     (h + V((-0.017, 0, 0.053)), 0.0075, 0.0016), (h + V((-0.029, 0, 0.049)), 0.006, 0.0016),
+                     (h + V((-0.035, 0, 0.04)), 0.0015, 0.0012)], sub=3, n=8, ref=V((0, -1, 0))), "gold")]  # the sickle blade
+    return parts
+
+
+def ptah_statue():
+    """Ptah standing mummiform on a low pedestal: a white shroud, green face and hands, a blue skullcap, a straight
+    beard; his hands hold the was-djed sceptre before him (an ankh and a djed under the was's head). Faces -Y."""
+    skin, cap = "ptah_green", "lapis"
+    parts = [
+        (place(box(0.05, 0.06, 0.012), loc=(0, -0.005, 0.006)), "limestone_fresh"),  # the pedestal
+        (tube([((0, 0, 0.012), 0.02, 0.018), ((0, 0, 0.06), 0.022, 0.018), ((0, 0, 0.12), 0.026, 0.019),
+               ((0, -0.001, 0.15), 0.027, 0.018), ((0, 0, 0.162), 0.022, 0.014)], sub=3, n=14, ref=V((0, -1, 0))), "shroud"),
+        (ellipsoid((0, -0.012, 0.016), (0.014, 0.012, 0.005), n=10, rings=4), "shroud"),  # the feet under the shroud
+        (rod((0, 0, 0.16), (0, -0.001, 0.172), 0.0066, n=8), skin),
+        (ring((0, -0.001, 0.158), (0, -0.2, 1), 0.021, 0.014, 0.0032), "collar"),
+        (ellipsoid((0, 0.008, 0.162), (0.007, 0.006, 0.012), n=8, rings=4), "gold"),  # the menat behind the neck
+    ]
+    head = V((0, -0.003, 0.184))
+    parts += [
+        (ellipsoid(head, (0.0125, 0.0135, 0.0145), n=12, rings=6), skin),
+        (ellipsoid(head + V((0, 0.002, 0.005)), (0.0135, 0.0145, 0.0115), n=12, rings=6), cap),  # the skullcap
+        (rod(head + V((0, -0.012, -0.011)), head + V((0, -0.013, -0.03)), 0.0032, 0.0034, n=6), "regalia"),  # the beard
+    ]
+    for sx in (-1, 1):
+        parts.append((ellipsoid(head + V((sx * 0.0048, -0.0125, -0.001)), (0.003, 0.0015, 0.0017), n=6, rings=3), "black"))
+        parts.append((ellipsoid((sx * 0.007, -0.025, 0.128), (0.0065, 0.006, 0.0075), n=6, rings=3), skin))  # the fists
+    # The was-djed sceptre, upright before him: a forked foot, the shaft, an ankh, a djed, the was's head.
+    y = -0.031
+    parts += [(rod((0, y, 0.014), (0, y, 0.122), 0.0026, n=6), "gold"),
+              (rod((0, y, 0.014), (-0.004, y, 0.006), 0.002, n=5), "gold"), (rod((0, y, 0.014), (0.004, y, 0.006), 0.002, n=5), "gold"),
+              (rod((0, y, 0.122), (0, y, 0.136), 0.0024, n=6), "gold"),
+              (rod((-0.007, y, 0.136), (0.007, y, 0.136), 0.0022, n=5), "gold"),
+              (ring((0, y, 0.1435), (0, 1, 0), 0.005, 0.0068, 0.0019, n=12), "gold"),
+              (curve([(0, y, 0.15), (0, y, 0.154), (0.005, y, 0.157), (0.009, y, 0.154)], 0.0022, n=5, ref=V((0, -1, 0))), "gold")]
+    for k in range(3):
+        parts.append((rod((-0.0055, y, 0.124 + 0.0035 * k), (0.0055, y, 0.124 + 0.0035 * k), 0.0017, n=5), "lapis"))
+    return parts
+
+
+def seated_body(skin, dress, kilt=None):
+    """A figure seated on a block throne on z = 0, facing -Y, hands on the knees (Isis's pose, isis_statue). kilt: a
+    man's, his chest bare (skin) over it. Returns ([(geo, mat)], the head's centre)."""
+    y = 0.0
+    torso = [((0, y, 0.07), 0.022, 0.018), ((0, y - 0.002, 0.1), 0.017, 0.013), ((0, y - 0.002, 0.135), 0.022, 0.015),
+             ((0, y - 0.001, 0.15), 0.025, 0.014)]
+    parts = [(place(box(0.062, 0.05, 0.068), loc=(0, y + 0.012, 0.034)), "paint_red"),
+             (place(box(0.066, 0.012, 0.11), loc=(0, y + 0.034, 0.055)), "paint_red")]
+    if kilt:
+        parts += [(tube(torso[:2], sub=2, n=12, ref=V((0, -1, 0))), kilt), (tube(torso[1:], sub=3, n=12, ref=V((0, -1, 0))), skin)]
+    else:
+        parts.append((tube(torso, sub=3, n=12, ref=V((0, -1, 0))), dress))
+    head = V((0, y - 0.004, 0.176))
+    parts += [(rod((0, y, 0.15), (0, y - 0.001, 0.163), 0.0065, n=8), skin), (ellipsoid(head, (0.0125, 0.0135, 0.015), n=12, rings=6), skin),
+              (ring((0, y - 0.002, 0.149), (0, -0.2, 1), 0.02, 0.013, 0.0028), "collar")]
+    leg = kilt or dress
+    for sx in (-1, 1):
+        x = sx * 0.012
+        parts += [
+            (rod((x, y + 0.004, 0.074), (x, y - 0.05, 0.074), 0.011, 0.009, n=8), leg),  # thigh
+            (rod((x, y - 0.052, 0.074), (x, y - 0.054, 0.008), 0.0085, 0.007, n=8), skin if kilt else dress),  # shin
+            (ellipsoid((x, y - 0.06, 0.004), (0.006, 0.011, 0.004), n=8, rings=4), skin),  # foot
+            (rod((sx * 0.024, y, 0.143), (sx * 0.027, y - 0.012, 0.1), 0.0055, 0.005, n=6), skin),  # upper arm
+            (rod((sx * 0.027, y - 0.012, 0.1), (sx * 0.014, y - 0.044, 0.085), 0.005, 0.0045, n=6), skin),  # forearm
+            (ellipsoid((sx * 0.013, y - 0.05, 0.084), (0.005, 0.008, 0.003), n=6, rings=3), skin),  # hand
+            (ellipsoid((sx * 0.0048, y - 0.0165, 0.178), (0.003, 0.0015, 0.0016), n=6, rings=3), "black"),  # eye
+        ]
+    return parts, head
+
+
+def amun_statue():
+    """Amun seated like Isis: blue skin, a white kilt, a straight beard, the flat red crown with two tall plumes; an
+    ankh in his right hand on the knee. Base on z = 0, facing -Y."""
+    parts, head = seated_body("amun_blue", None, "kilt")
+    parts += [(rod(head + V((0, -0.011, -0.011)), head + V((0, -0.012, -0.03)), 0.0032, 0.0034, n=6), "regalia")]  # beard
+    top = head + V((0, 0.001, 0.011))
+    parts += [(revolve_geo_at(top, [(0.0, 0.0), (0.013, 0.0), (0.015, 0.012), (0.0, 0.012)], 14), "paint_red")]  # the crown
+    for sx in (-1, 1):
+        parts.append((place(box(0.009, 0.004, 0.05), loc=top + V((sx * 0.0055, 0.002, 0.012 + 0.025))), "plume_amun"))
+        parts.append((rod(top + V((sx * 0.012, -0.008, 0.0)), top + V((sx * 0.013, -0.006, -0.03)), 0.0045, 0.0038, n=6), "lapis"))
+    a = V((-0.013, -0.056, 0.084))  # the ankh in his right hand, upright before the knee
+    parts += [(rod(a + V((0, 0, -0.02)), a + V((0, 0, 0.01)), 0.0022, n=5), "gold"),
+              (rod(a + V((-0.008, 0, 0.01)), a + V((0.008, 0, 0.01)), 0.0022, n=5), "gold"),
+              (ring(a + V((0, 0, 0.019)), (0, 1, 0), 0.0055, 0.0075, 0.0019, n=12), "gold")]
+    return parts
+
+
+def serket_statue():
+    """Serket standing: a white sheath dress, yellow skin, a blue and white wig, her scorpion on her head (its back
+    to the camera, head up); her right hand holds an ankh down, her left lies on her breast. Base
+    on z = 0, facing -Y."""
+    skin = "coffin_yellow"
+    parts = [
+        (tube([((0, 0, 0.006), 0.016, 0.014), ((0, 0, 0.05), 0.019, 0.016), ((0, 0, 0.1), 0.022, 0.016),
+               ((0, -0.001, 0.14), 0.022, 0.015), ((0, 0, 0.155), 0.025, 0.014)], sub=3, n=14, ref=V((0, -1, 0))), "limestone_fresh"),
+        (rod((0, 0, 0.154), (0, -0.001, 0.168), 0.0063, n=8), skin),
+        (ring((0, -0.001, 0.154), (0, -0.2, 1), 0.02, 0.013, 0.0028), "collar"),
+    ]
+    for sx in (-1, 1):
+        parts.append((ellipsoid((sx * 0.008, -0.016, 0.005), (0.0055, 0.01, 0.004), n=8, rings=4), skin))  # feet
+    head = V((0, -0.004, 0.181))
+    parts += [(ellipsoid(head, (0.0122, 0.013, 0.0145), n=12, rings=6), skin),
+              (ellipsoid(head + V((0, 0.007, 0.002)), (0.0158, 0.0145, 0.0175), n=12, rings=6), "thoth_wig")]
+    for sx in (-1, 1):
+        parts.append((rod((sx * 0.011, -0.006, 0.18), (sx * 0.012, -0.009, 0.15), 0.0048, 0.004, n=6), "thoth_wig"))
+        parts.append((ellipsoid(head + V((sx * 0.0047, -0.0123, 0.002)), (0.003, 0.0015, 0.0016), n=6, rings=3), "black"))
+    # Her right arm (-X) down, the ankh hanging from the hand; the left across the breast.
+    parts += [(rod((-0.024, 0, 0.15), (-0.028, 0, 0.118), 0.0055, 0.005, n=6), skin),
+              (rod((-0.028, 0, 0.118), (-0.026, -0.004, 0.09), 0.005, 0.0045, n=6), skin),
+              (ellipsoid((-0.026, -0.005, 0.085), (0.0045, 0.0045, 0.006), n=6, rings=3), skin),
+              (rod((0.024, 0, 0.15), (0.028, -0.008, 0.12), 0.0055, 0.005, n=6), skin),
+              (rod((0.028, -0.008, 0.12), (0.002, -0.021, 0.132), 0.005, 0.0045, n=6), skin),
+              (ellipsoid((-0.001, -0.022, 0.133), (0.006, 0.004, 0.0045), n=6, rings=3), skin)]
+    a = V((-0.026, -0.006, 0.07))
+    parts += [(rod(a + V((0, 0, -0.022)), a + V((0, 0, 0.01)), 0.0022, n=5), "gold"),
+              (rod(a + V((-0.008, 0, -0.001)), a + V((0.008, 0, -0.001)), 0.0022, n=5), "gold"),
+              (ring(a + V((0, 0, 0.012)), (0, 1, 0), 0.0055, 0.0075, 0.0019, n=12), "gold")]
+    # The scorpion on her head, seen from above as on her crowns: head up, the claws raised, the tail curled under.
+    s = head + V((0, -0.004, 0.029))
+    parts += [(place(transform(geo, lambda v: V(v) * 0.45), loc=s), mat) for geo, mat in scorpion_emblem(1)]
+    return parts
+
+
+def build_shrine_isis(b, M):
+    """The Shrine of Isis (plan shrine-of-isis): the naos's back wall blue; Isis spreads her wings behind her seated
+    statue. The player prays here."""
+    naos(b, M, "paint_blue", wing(-1, 0.255, 0.11) + wing(1, 0.255, 0.11))
+    add_parts(b, M, isis_statue(), loc=(0, STATUE_Y, NAOS_FLOOR), scale=1.15)
+
+
+def build_shrine_montu(b, M):
+    """The Shrine of Montu (plan shrines-of-the-gods): a red back wall with a sun disc each side, Montu striding with
+    his khopesh."""
+    naos(b, M, "wall_montu", emblem_pair(sun_emblem))
+    add_parts(b, M, montu_statue(), loc=(0, STATUE_Y, NAOS_FLOOR), scale=0.97)
+
+
+def build_shrine_ptah(b, M):
+    """The Shrine of Ptah (plan shrines-of-the-gods): a green back wall with a djed pillar each side, Ptah standing
+    mummiform with his sceptre."""
+    naos(b, M, "wall_ptah", emblem_pair(djed_emblem))
+    add_parts(b, M, ptah_statue(), loc=(0, STATUE_Y, NAOS_FLOOR), scale=1.15)
+
+
+def build_shrine_amun(b, M):
+    """The Shrine of Amun (plan shrines-of-the-gods): an ochre back wall with a blue ram's head each side, Amun seated
+    in his tall plumes."""
+    naos(b, M, "wall_amun", emblem_pair(ram_emblem))
+    add_parts(b, M, amun_statue(), loc=(0, STATUE_Y, NAOS_FLOOR), scale=0.97)
+
+
+def build_shrine_serket(b, M):
+    """The Shrine of Serket (plan shrines-of-the-gods): a black back wall with a gold scorpion each side, Serket
+    standing with her scorpion on her head."""
+    naos(b, M, "wall_serket", emblem_pair(scorpion_emblem))
+    add_parts(b, M, serket_statue(), loc=(0, STATUE_Y, NAOS_FLOOR), scale=1.05)
 
 
 def revolve_geo_at(loc, profile, n=14):
@@ -1517,6 +1830,10 @@ BUILDERS = {
     "stargate_chevron": build_stargate_chevron,
     "dial_device": build_dial_device,
     "shrine_isis": build_shrine_isis,
+    "shrine_montu": build_shrine_montu,
+    "shrine_ptah": build_shrine_ptah,
+    "shrine_amun": build_shrine_amun,
+    "shrine_serket": build_shrine_serket,
 }
 
 

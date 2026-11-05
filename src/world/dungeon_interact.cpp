@@ -1,6 +1,7 @@
 // What the player does on a cell (Interact): pick up the treasure, pull a lever, read an inscription, use a gate (the
 // exit, a teleport), and the travel through a gate (the fade). Loading and saving the dungeon: dungeon_io.cpp.
 #include "dungeon.h"
+#include "shrines.h"
 #include "../entities/player.h"
 #include "inscriptions.h"
 #include "journal.h"
@@ -79,7 +80,10 @@ void Dungeon::Interact() {
 		pressDialDevice();
 		break;
 	case Interaction::Pray:
-		sim.player->stats.Pray(*sim.events); // plan shrine-of-isis
+		if (const std::optional<God> god = shrineGod(
+				decoration.decor[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].type
+			))
+			sim.player->stats.Pray(*god, *sim.events);
 		break;
 	case Interaction::Answer:
 	case Interaction::Enter:
@@ -114,7 +118,7 @@ Interaction Dungeon::InteractVerb() const {
 		return Dialling() ? Interaction::None : Interaction::Dial;
 	if (prop == DECOR_DIAL)
 		return Interaction::Press;
-	if (prop == DECOR_SHRINE_ISIS)
+	if (shrineGod(prop)) // plans shrine-of-isis, shrines-of-the-gods
 		return Interaction::Pray;
 	const OwnedWeapons& owned = sim.items->Owned();
 	if (prop == DECOR_BRAZIER && (owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] ||

@@ -244,11 +244,13 @@ void drawGameplay() {
 	if (Game().player->burning.Any())
 		Lighting::add(playerX, playerY + 16, PLAYER_FLAMES_Z, PLAYER_BURNING_LIGHT, 1);
 	const std::optional<float> sunBeam = beamProgress(Game().player->stats.LevelUpMs());
-	const std::optional<float> isisBeam = beamProgress(Game().player->stats.PrayedMs()); // plan shrine-of-isis
+	const std::optional<float> prayerBeam = beamProgress(Game().player->stats.PrayedMs()); // plan shrine-of-isis
+	static_assert(std::size(SunBeam::PRAYER_LIGHT) == GOD_COUNT);
+	const SunBeam::Tint prayerTint = SunBeam::PRAYER_LIGHT[static_cast<int>(Game().player->stats.PrayedGod())];
 	// The beam lights the room; a prayer's beam over a level up's: the newer one.
-	if (const std::optional<float> lit = isisBeam ? isisBeam : sunBeam) {
+	if (const std::optional<float> lit = prayerBeam ? prayerBeam : sunBeam) {
 		const float k = SunBeam::strength(*lit);
-		const SunBeam::Tint c = isisBeam ? SunBeam::ISIS_LIGHT : SunBeam::SUNLIGHT;
+		const SunBeam::Tint c = prayerBeam ? prayerTint : SunBeam::SUNLIGHT;
 		Lighting::add(playerX, playerY + 45, -30, {c.r * k, c.g * k, c.b * k, 150.f, 0.f}, 0);
 	}
 
@@ -295,8 +297,8 @@ void drawGameplay() {
 		);
 	if (Game().player->Alive() && sunBeam)
 		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *sunBeam);
-	if (Game().player->Alive() && isisBeam)
-		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *isisBeam, SunBeam::ISIS_LIGHT);
+	if (Game().player->Alive() && prayerBeam)
+		SunBeam::draw(playerX, playerY, -30 + Game().player->depthOffset, *prayerBeam, prayerTint);
 	Lighting::end();
 	MotionFx::setCentre(chest.x, chest.y);
 	Ink::end();

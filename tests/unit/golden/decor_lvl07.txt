@@ -94,7 +94,7 @@
 14,21 surface 4/1/1 ladder 0/2
 24,21 surface 6/1/2
 4,22 surface 4/1/1 decal 6 0.549,0.575
-5,22 surface 3/1/1
+5,22 surface 3/1/1 prop shrine_amun -0.000
 6,22 surface 3/1/1 prop webm -0.000 decal 6 0.439,0.575 torch fire torch 0.000,0.680,0.098
 7,22 surface 5/1/1 decal 1m 0.355,0.407
 8,22 surface 3/2/1 sand< prop canopicm 0.049

@@ -106,7 +106,7 @@
 32,9 surface 7/1/2 ladder 0/4m
 33,9 surface 6/1/2
 34,9 surface 6/1/2
-35,9 surface 7/1/2
+35,9 surface 7/1/2 prop shrine_montu 0.000
 36,9 surface 6/1/2 prop sand 0.000
 37,9 surface 6/1/2 ladder 0/4
 38,9 surface 6/1/2 prop skeletonm 0.017

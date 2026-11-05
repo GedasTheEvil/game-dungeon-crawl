@@ -124,8 +124,8 @@ class Player {
 	// (scenarios).
 	bool Dodges(WorldEvents& events, Rng& rng);
 	// A poisoned bite or sting: that tier (re)starts (stats.poison). Applied in god mode too; only the damage is not.
-	// Poisons unless the worn amulet and a resistance potion ward it off (PlayerStats::PoisonResistPercent, rolled on
-	// rng).
+	// Poisons unless the Shelter of Serket (plan shrines-of-the-gods) or the worn amulet and a resistance potion ward
+	// it off (PlayerStats::PoisonResistPercent, rolled on rng).
 	void Poison(PoisonTier tier, WorldEvents& events, Rng& rng);
 	// A monster's hit landed: rolls its curse entries in order on rng, the first that takes is laid (one a hit).
 	// Laid in god mode too. True when one was laid.

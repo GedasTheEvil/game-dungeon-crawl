@@ -9,8 +9,10 @@
 #include "../world/item_bag.h"
 #include "../world/poison.h"
 #include "../world/run_stats.h"
+#include "../world/shrines.h"
 #include "../world/skills.h"
 #include "../world/world_events.h"
+#include <array>
 #include <fstream>
 #include <optional>
 #include <string>
@@ -36,7 +38,8 @@ class PlayerStats {
 	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
 	int resist_left_ms = 0;
 	int water_left_ms = 0; // the Blessing of Hapi's time left (plan water-blessing-potion)
-	int isis_left_ms = 0; // the Protection of Isis's time left (plan shrine-of-isis)
+	// Each god's blessing's time left, by God (plans shrine-of-isis, shrines-of-the-gods); Isis's is her ward.
+	std::array<int, GOD_COUNT> blessing_left_ms{};
 
 	Timer stamina_regen_timer{1000};
 	Timer stamina_sprint_drain_timer{1000};
@@ -48,7 +51,9 @@ class PlayerStats {
 	bool sprinting = false; // shift held and the player moved last tick: stamina drains
 	bool charging = false; // a power hit is being charged (Player::StartCharge): no regen, no sprint
 	std::optional<int> level_up_ms; // game clock time of the last level up, for the sun beam
-	std::optional<int> prayed_ms; // ... of the last prayer at a Shrine of Isis, for its blue beam (plan shrine-of-isis)
+	std::optional<int>
+		prayed_ms; // ... of the last prayer at a shrine, for its beam in the god's tint (plan shrine-of-isis)
+	God prayed_god = God::Isis; // ... and to whom
 	std::optional<int> stamina_refused_ms; // last jump or sprint refused for lack of stamina, for the HUD flash
 
 	bool AdvanceLevel(WorldEvents& events);
@@ -91,14 +96,17 @@ class PlayerStats {
 	// With the worn amulet's bonus, the stat skills' (plan heka-surplus) and the running curses (weakness,
 	// vulnerability, disease).
 	[[nodiscard]] int CurrentMight() const {
-		return cursedMight(Might + amulet.might + (heka.Has(SkillId::StrengthOfMontu) ? SKILL_MIGHT : 0), curses);
+		const int skill = heka.Has(SkillId::StrengthOfMontu) ? SKILL_MIGHT : 0;
+		return cursedMight(Might + amulet.might + skill + (Blessed(God::Montu) ? MONTU_MIGHT : 0), curses);
 	}
 	[[nodiscard]] int CurrentArmor() const {
-		return cursedArmor(Armor + amulet.armor + (heka.Has(SkillId::DjedOfPtah) ? SKILL_ARMOR : 0), curses);
+		const int skill = heka.Has(SkillId::DjedOfPtah) ? SKILL_ARMOR : 0;
+		return cursedArmor(Armor + amulet.armor + skill + (Blessed(God::Ptah) ? PTAH_ARMOR : 0), curses);
 	}
 	[[nodiscard]] int CurrentHP() const { return HP; }
 	[[nodiscard]] int CurrentMaxHP() const {
-		const int percent = amulet.maxHpPercent + (heka.Has(SkillId::KaOfOsiris) ? SKILL_HEALTH_PERCENT : 0);
+		const int percent = amulet.maxHpPercent + (heka.Has(SkillId::KaOfOsiris) ? SKILL_HEALTH_PERCENT : 0) +
+							(Blessed(God::Amun) ? AMUN_MAX_HP_PERCENT : 0);
 		return cursedMaxHP(MaxHP + MaxHP * percent / 100, curses);
 	}
 	// Spends a heka on the skill (Heka::Learn); a health or stamina skill gives the new share of the max on top (no
@@ -108,6 +116,7 @@ class PlayerStats {
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }
 	[[nodiscard]] std::optional<int> PrayedMs() const { return prayed_ms; }
+	[[nodiscard]] God PrayedGod() const { return prayed_god; }
 	[[nodiscard]] bool Alive() const { return HP > 0; }
 	[[nodiscard]] float HealthRatio() const;
 	// XP total at which the player reaches `lvl` (level 2 at 1000).
@@ -146,14 +155,20 @@ class PlayerStats {
 	// The potion's time runs out; the status box says when it ends.
 	void AdvanceWaterBlessing(int ms, WorldEvents& events);
 	void EndWaterBlessing() { water_left_ms = 0; }
-	// The Protection of Isis (plan shrine-of-isis): prayed for at a Shrine of Isis, no curse lands while it lasts.
-	[[nodiscard]] bool IsisWarded() const { return isis_left_ms > 0; }
-	[[nodiscard]] int IsisWardLeftMs() const { return isis_left_ms; }
-	// Prays at the shrine: every curse lifted, the ward (re)started for ISIS_WARD_MS (twice with the Blessing of Isis
-	// skill). Its status line and the field note.
-	void Pray(WorldEvents& events);
-	void AdvanceIsisWard(int ms, WorldEvents& events); // its time runs out; the status box says when it ends
-	void EndIsisWard() { isis_left_ms = 0; }
+	// The gods' blessings (plans shrine-of-isis, shrines-of-the-gods, shrines.h): prayed for at the god's shrine.
+	[[nodiscard]] bool Blessed(God g) const { return BlessingLeftMs(g) > 0; }
+	[[nodiscard]] int BlessingLeftMs(God g) const { return blessing_left_ms[static_cast<size_t>(g)]; }
+	// The Protection of Isis: no curse lands while it lasts.
+	[[nodiscard]] bool IsisWarded() const { return Blessed(God::Isis); }
+	[[nodiscard]] int IsisWardLeftMs() const { return BlessingLeftMs(God::Isis); }
+	// Prays at the god's shrine and (re)starts the blessing. Isis: every curse lifted, her ward for ISIS_WARD_MS
+	// (twice with the Blessing of Isis skill). Montu: Might +MONTU_MIGHT. Ptah: Armor +PTAH_ARMOR. Amun: max HP
+	// +AMUN_MAX_HP_PERCENT, healed to it. Serket: the poison cured, no poison lands (twice as long with Serket's
+	// favour). BLESSING_MS each. Its status line, the sound and the field note.
+	void Pray(God g, WorldEvents& events);
+	// The blessings' time runs out; the status box says when one ends. Amun's end keeps the HP within the max, >= 1.
+	void AdvanceBlessings(int ms, WorldEvents& events);
+	void EndBlessings(); // death or a new game: all gone
 	// The venom amulet: the chance a weapon hit poisons the monster, and with which tier.
 	[[nodiscard]] int VenomPercent() const { return amulet.venomPercent; }
 	[[nodiscard]] PoisonTier VenomTier() const { return amulet.venomTier; }

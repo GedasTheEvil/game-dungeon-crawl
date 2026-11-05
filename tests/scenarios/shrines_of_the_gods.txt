@@ -1,0 +1,38 @@
+# Plan shrines-of-the-gods: a shrine of each god in the interact corridor. The player, hurt and poisoned, prays at
+# Montu, Ptah, Amun and Serket: Might and Armor +5, healed with max health +20%, the poison gone, four yellow cards on
+# the HUD, each beam in the god's tint; then no poison lands.
+seed 1
+level tests/levels/interact
+peace
+hurt 30
+poison medium
+prop 4 shrine_montu
+prop 6 shrine_ptah
+prop 8 shrine_amun
+prop 10 shrine_serket
+wait 10
+screenshot shrines
+walk to 4.5
+interact
+wait 300ms
+screenshot montu_beam
+expect might == 5
+walk to 6.5
+interact
+wait 300ms
+screenshot ptah_beam
+expect armor == 5
+walk to 8.5
+interact
+wait 10
+expect maxhp == 60
+expect hp == 60
+walk to 10.5
+interact
+wait 300ms
+screenshot serket_beam
+expect poison == 0
+poison strong
+wait 5
+expect poison == 0
+screenshot blessed

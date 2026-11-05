@@ -207,7 +207,11 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 	case WorldSound::HeadBump:
 		return sounds.headBump;
 	case WorldSound::ShrinePray:
-		return sounds.shrinePray;
+	case WorldSound::ShrinePrayMontu:
+	case WorldSound::ShrinePrayPtah:
+	case WorldSound::ShrinePrayAmun:
+	case WorldSound::ShrinePraySerket:
+		return sounds.shrinePray[static_cast<int>(sound) - static_cast<int>(WorldSound::ShrinePray)];
 	}
 	return sounds.arrowHit;
 }

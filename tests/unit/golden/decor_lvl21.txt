@@ -181,7 +181,7 @@
 33,15 surface 7/1/2 prop pottery -0.066 decal 8m 0.456,0.408
 34,15 surface 6/1/2 ladder 0/3m
 35,15 surface 6/2/2 sand>
-36,15 surface 6/1/2
+36,15 surface 6/1/2 prop shrine_serket -0.000
 37,15 surface 6/1/2 prop osirism -0.014
 13,16 surface 7/1/2 ladder 1/1
 13,17 surface 3/2/1 ladder 1/2

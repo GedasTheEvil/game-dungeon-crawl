@@ -45,7 +45,7 @@ TEST_CASE("Shrine of Isis: Pray at the shrine lifts every curse and wards them o
 TEST_CASE("Protection of Isis: no curse lands, of any kind or grade, from a monster or a tomb") {
 	Player player;
 	WorldEvents events;
-	player.stats.Pray(events);
+	player.stats.Pray(God::Isis, events);
 	static_cast<void>(events.Take());
 	const int cursed = player.stats.run.cursed;
 	for (int c = 0; c < CURSE_COUNT; c++) {
@@ -68,20 +68,20 @@ TEST_CASE("Protection of Isis: lasts 2 minutes, then curses land again; a second
 	GameClock::enableVirtual();
 	Player player;
 	WorldEvents events;
-	player.stats.Pray(events);
+	player.stats.Pray(God::Isis, events);
 	CHECK(player.stats.IsisWardLeftMs() == ISIS_WARD_MS);
 	CHECK(ISIS_WARD_MS == 120000);
 	CHECK(player.stats.PrayedMs() == GameClock::now()); // its blue beam starts
-	player.stats.AdvanceIsisWard(90000, events);
+	player.stats.AdvanceBlessings(90000, events);
 	CHECK(player.stats.IsisWardLeftMs() == 30000);
-	player.stats.AdvanceIsisWard(30000, events);
+	player.stats.AdvanceBlessings(30000, events);
 	CHECK_FALSE(player.stats.IsisWarded());
 	const std::vector<WorldEvent> said = events.Take();
 	CHECK(std::any_of(said.begin(), said.end(), [](const WorldEvent& e) {
 		return e.text.find("Protection of Isis fades") != std::string::npos;
 	}));
 	curse(player, events);
-	player.stats.Pray(events);
+	player.stats.Pray(God::Isis, events);
 	CHECK_FALSE(player.stats.curses.Any());
 	CHECK(player.stats.IsisWardLeftMs() == ISIS_WARD_MS);
 }
@@ -91,14 +91,14 @@ TEST_CASE("Protection of Isis: twice as long with the Blessing of Isis skill") {
 	WorldEvents events;
 	player.stats.heka.Earn(5);
 	REQUIRE(player.stats.heka.Learn(SkillId::BlessingOfIsis, true));
-	player.stats.Pray(events);
+	player.stats.Pray(God::Isis, events);
 	CHECK(player.stats.IsisWardLeftMs() == 2 * ISIS_WARD_MS);
 }
 
 TEST_CASE("Protection of Isis: ends on death, kept over a save and load") {
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/interact"));
-	world.player.stats.Pray(world.events);
+	world.player.stats.Pray(God::Isis, world.events);
 	world.Wait(1000);
 	const int left = world.player.stats.IsisWardLeftMs();
 	REQUIRE(left > 0);
@@ -108,7 +108,7 @@ TEST_CASE("Protection of Isis: ends on death, kept over a save and load") {
 	REQUIRE_FALSE(world.player.Alive());
 	CHECK_FALSE(world.player.stats.IsisWarded());
 	world.player.Reanimate(); // a new game
-	world.player.stats.Pray(world.events);
+	world.player.stats.Pray(God::Isis, world.events);
 	world.player.Reanimate();
 	CHECK_FALSE(world.player.stats.IsisWarded());
 }

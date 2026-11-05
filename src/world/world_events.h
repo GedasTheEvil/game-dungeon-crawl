@@ -59,6 +59,11 @@ enum class WorldSound : unsigned char {
 	ShotTooClose, // a monster too close to shoot: a short dull knock
 	HeadBump, // the player's head on a low ceiling in a jump (plan subcell-physics)
 	ShrinePray, // a prayer at a Shrine of Isis: a sistrum shaken, a soft chime (plan shrine-of-isis)
+	// ... at the other gods' shrines, in God order (plan shrines-of-the-gods): the same, at another pitch and timbre
+	ShrinePrayMontu,
+	ShrinePrayPtah,
+	ShrinePrayAmun,
+	ShrinePraySerket,
 };
 
 // A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged,roar}.wav).

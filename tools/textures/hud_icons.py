@@ -3,8 +3,9 @@
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/ui/player_hud.h: the potion, amulet, ring, daze, the Isis ward, the status drop and the flame, then from cell 8 on the weapons in ItemKind order, then from cell
-21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/world/curses.h). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
+src/ui/hud_icon.h: the potion, amulet, ring, daze, the Isis ward, the status drop, the flame and Montu's blessing, then from cell 8 on the weapons in ItemKind order, then from cell
+21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/world/curses.h), then the blessings of
+Ptah, Amun and Serket. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
 
@@ -668,6 +669,74 @@ def isis_ward():
     return img
 
 
+RED = (190, 48, 30, 255)
+GREEN = (60, 150, 80, 255)
+BLUE = (50, 90, 190, 255)
+AMBER = (200, 120, 30, 255)
+
+
+def montu_blessing():
+    """The Fury of Montu (plan shrines-of-the-gods): his khopesh, blade up, under a red sun disc with two plumes."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    for x in (196, 316):  # the plumes
+        d.polygon([(x - 26, 150), (x + 26, 150), (x + 14, 20), (x - 14, 20)], fill=GOLD, outline=INK, width=LINE)
+    d.ellipse([176, 90, 336, 250], fill=RED, outline=INK, width=LINE)  # the sun disc
+    blade = [(150, 470), (190, 470), (250, 300), (310, 260), (380, 270), (420, 320), (380, 300), (320, 300), (260, 350)]
+    d.polygon(blade, fill=METAL, outline=INK, width=LINE)
+    d.rectangle([110, 440, 200, 490], fill=WOOD, outline=INK, width=LINE)  # the grip
+    return img
+
+
+def ptah_blessing():
+    """The Shield of Ptah (plan shrines-of-the-gods): his djed pillar, four bars over a tapering shaft, green and
+    gold."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    d.polygon([(200, 200), (312, 200), (300, 450), (212, 450)], fill=GREEN, outline=INK, width=LINE)  # the shaft
+    d.rectangle([180, 440, 332, 480], fill=GOLD, outline=INK, width=LINE)  # its foot
+    for k in range(4):
+        y = 40 + 42 * k
+        d.rectangle([140, y, 372, y + 30], fill=GOLD if k % 2 == 0 else GREEN, outline=INK, width=LINE)
+    d.rectangle([210, 30, 302, 200], outline=INK, width=LINE)
+    return img
+
+
+def amun_blessing():
+    """The Grace of Amun (plan shrines-of-the-gods): his ram's head in profile, blue, a curled gold horn, under the two
+    tall plumes."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    for x in (230, 300):  # the plumes
+        d.polygon([(x - 28, 170), (x + 28, 170), (x + 14, 20), (x - 14, 20)], fill=RED if x < 260 else BLUE, outline=INK,
+                  width=LINE)
+    head = [(150, 200), (330, 180), (400, 260), (430, 380), (390, 420), (330, 400), (260, 450), (180, 400), (140, 300)]
+    d.polygon(head, fill=BLUE, outline=INK, width=LINE)
+    d.ellipse([150, 230, 310, 390], fill=GOLD, outline=INK, width=LINE)  # the horn's curl
+    d.ellipse([190, 270, 270, 350], fill=BLUE, outline=INK, width=LINE)
+    d.ellipse([320, 250, 350, 280], fill=INK)  # the eye
+    return img
+
+
+def serket_blessing():
+    """The Shelter of Serket (plan shrines-of-the-gods): her scorpion seen from above, amber, its tail curled up over
+    its back."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    for sx in (-1, 1):
+        for k in range(4):  # the legs
+            y = 250 + 40 * k
+            d.line([(256 + sx * 50, y), (256 + sx * 140, y - 20 + 10 * k), (256 + sx * 170, y + 30 + 10 * k)], fill=INK,
+                   width=12)
+        d.line([(256 + sx * 50, 230), (256 + sx * 130, 150), (256 + sx * 110, 80)], fill=INK, width=16)  # the arm
+        d.ellipse([256 + sx * 110 - 50, 40, 256 + sx * 110 + 50, 120], fill=AMBER, outline=INK, width=LINE)  # its claw
+    d.ellipse([186, 190, 326, 420], fill=AMBER, outline=INK, width=LINE)  # the body
+    for k in range(4):  # the tail, segments down to the sting
+        d.ellipse([226, 400 + 22 * k, 286, 450 + 22 * k], fill=AMBER, outline=INK, width=LINE)
+    d.polygon([(240, 480), (272, 480), (256, 506)], fill=INK)
+    return img
+
+
 def drop_icon():
     """A status drop (plan curse-blessing-cards): white, the HUD tints it per effect (poison tier, resistance, Hapi)."""
     img = Image.new("RGBA", (S, S))
@@ -700,10 +769,11 @@ def burning():
 CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
-# curses from cell 37 on (Icon::FirstCurse).
-ICONS = [potion, amulet, ring, daze, isis_ward, drop_icon, burning, None,
+# curses from cell 37 on (Icon::FirstCurse), the blessings of Ptah, Amun and Serket after them (Icon::PtahBlessing).
+ICONS = [potion, amulet, ring, daze, isis_ward, drop_icon, burning, montu_blessing,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
-         bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS
+         bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS + [
+         ptah_blessing, amun_blessing, serket_blessing]
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

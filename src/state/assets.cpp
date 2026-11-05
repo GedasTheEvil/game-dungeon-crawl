@@ -5,6 +5,7 @@
 #include <cstring>
 #include <filesystem>
 #include <future>
+#include <string>
 #include "../core/logger.h"
 #include "../core/gameplay_config.h"
 #include "../core/paths.h"
@@ -366,7 +367,12 @@ void loadSounds(SoundBank& sounds) {
 	sounds.dialPress.Load(MEDIA_DIR "sounds/mechanisms/dial_press.wav");
 	sounds.dodge.Load(MEDIA_DIR "sounds/characters/archeologist_dodge.wav");
 	sounds.headBump.Load(MEDIA_DIR "sounds/characters/archeologist_bump.wav");
-	sounds.shrinePray.Load(MEDIA_DIR "sounds/mechanisms/shrine_pray.wav");
+	// By God (plans shrine-of-isis, shrines-of-the-gods; tools/audio/shrine_sounds.py).
+	constexpr const char* PRAYERS[GOD_COUNT] = {"", "_montu", "_ptah", "_amun", "_serket"};
+	for (int g = 0; g < GOD_COUNT; g++)
+		sounds.shrinePray[g].Load(
+			(std::string(MEDIA_DIR "sounds/mechanisms/shrine_pray") + PRAYERS[g] + ".wav").c_str()
+		);
 	sounds.powerCharge.Load(MEDIA_DIR "sounds/items/power_charge.wav");
 	sounds.powerSwing.Load(MEDIA_DIR "sounds/items/power_swing.wav");
 	sounds.powerHit.Load(MEDIA_DIR "sounds/items/power_hit.wav");

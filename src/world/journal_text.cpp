@@ -183,22 +183,10 @@ constexpr std::array<const char*, static_cast<int>(FieldNote::RingFirst) - stati
 };
 // ... and after the rings', in FieldNote order.
 constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote::RingLast) - 1> AFTER_RING_SLUGS = {
-	"shrine-of-isis",
-	"wall-spikes",
-	"fire-jets",
-	"poison-drips",
-	"dodge",
-	"power-hit",
-	"flaming-arrows",
-	"words-of-thoth",
-	"ka-of-osiris",
-	"strength-of-montu",
-	"djed-of-ptah",
-	"breath-of-shu",
-	"speed-of-mafdet",
-	"wisdom-of-seshat",
-	"disarm-trap",
-	"quiver-of-neith",
+	"shrine-of-isis",  "wall-spikes",	  "fire-jets",		 "poison-drips",	 "dodge",
+	"power-hit",	   "flaming-arrows",  "words-of-thoth",	 "ka-of-osiris",	 "strength-of-montu",
+	"djed-of-ptah",	   "breath-of-shu",	  "speed-of-mafdet", "wisdom-of-seshat", "disarm-trap",
+	"quiver-of-neith", "shrine-of-montu", "shrine-of-ptah",	 "shrine-of-amun",	 "shrine-of-serket",
 };
 
 std::string fieldNoteKey(int note) {

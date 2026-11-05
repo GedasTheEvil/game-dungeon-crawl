@@ -96,7 +96,8 @@ level.
   coffin, a page its skeleton, a living ushabti its decor ushabti: a placed prop there is not shown. Then `Stargate`
   and `Dial` (plan stargate-chamber): the great ring against the back wall (interact dials it; no torch over it) and
   its dial device beside it, for the one chamber of the campaign. Last `Shrine of Isis` (plan shrine-of-isis): praying
-  there lifts every curse and wards them off for 2 minutes.
+  there lifts every curse and wards them off for 2 minutes. Then `Shrine of Montu`, `Ptah`, `Amun`, `Serket` (plan
+  shrines-of-the-gods): the god's blessing for 2 minutes; at most one shrine of any god a level.
 * Decals palette: `Unset` and `Bare` (both the decal and the torch), `Torch` and `No torch` (the torch only), then the
   decals of the game's atlas (the decal only). A torch and a free decal (one at eye height) would overlap: painting
   one clears the other. Random torches keep 4 cells away from a placed one; placed torches may stand closer.

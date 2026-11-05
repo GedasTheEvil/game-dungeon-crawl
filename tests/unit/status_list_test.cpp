@@ -54,7 +54,7 @@ TEST_CASE("the status list: Hapi and Isis are blessings, daze a condition, nothi
 	PotionGain water;
 	water.waterBlessing = true;
 	stats.Drink(water);
-	stats.Pray(events);
+	stats.Pray(God::Isis, events);
 	const StatusList list = statusList(stats, 0, 1500);
 	REQUIRE(list.count == 3);
 	CHECK(list.items[0].kind == StatusKind::Blessing); // Hapi before Isis

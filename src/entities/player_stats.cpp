@@ -327,27 +327,72 @@ void PlayerStats::AdvanceWaterBlessing(int ms, WorldEvents& events) {
 		events.Status("The water is deep again");
 }
 
-void PlayerStats::Pray(WorldEvents& events) {
-	const bool lifted = curses.Any();
-	EndCurses();
-	isis_left_ms = ISIS_WARD_MS * (heka.Has(SkillId::BlessingOfIsis) ? 2 : 1);
+void PlayerStats::Pray(God g, WorldEvents& events) {
+	int& left = blessing_left_ms[static_cast<size_t>(g)];
+	switch (g) {
+	case God::Isis: {
+		const bool lifted = curses.Any();
+		EndCurses();
+		left = ISIS_WARD_MS * (heka.Has(SkillId::BlessingOfIsis) ? 2 : 1);
+		events.Status(
+			StatusTone::Good,
+			"%sIsis shelters me from curses for %d min",
+			lifted ? "The curses lift. " : "",
+			left / 60000
+		);
+		break;
+	}
+	case God::Montu:
+		left = BLESSING_MS;
+		events
+			.Status(StatusTone::Good, "Montu lends me his strength: Might %d for %d min", CurrentMight(), left / 60000);
+		break;
+	case God::Ptah:
+		left = BLESSING_MS;
+		events.Status(StatusTone::Good, "Ptah steadies me: Armor %d for %d min", CurrentArmor(), left / 60000);
+		break;
+	case God::Amun:
+		left = BLESSING_MS;
+		HealFully();
+		events.Status(StatusTone::Good, "Amun fills me with breath: health %d for %d min", HP, left / 60000);
+		break;
+	case God::Serket: {
+		const bool cured = poison.Any();
+		poison.Cure();
+		left = BLESSING_MS * (heka.Has(SkillId::SerketsFavour) ? 2 : 1); // as the Blessing of Isis for Isis's ward
+		events.Status(
+			StatusTone::Good,
+			"%sSerket keeps the venom from me for %d min",
+			cured ? "The poison is gone. " : "",
+			left / 60000
+		);
+		break;
+	}
+	}
 	prayed_ms = GameClock::now();
-	events.Status(
-		StatusTone::Good,
-		"%sIsis shelters me from curses for %d min",
-		lifted ? "The curses lift. " : "",
-		isis_left_ms / 60000
-	);
-	events.Play(WorldSound::ShrinePray);
-	events.Note(FieldNote::ShrineOfIsis);
+	prayed_god = g;
+	events.Play(static_cast<WorldSound>(static_cast<int>(WorldSound::ShrinePray) + static_cast<int>(g)));
+	events.Note(shrineNote(g));
 }
 
-void PlayerStats::AdvanceIsisWard(int ms, WorldEvents& events) {
-	if (isis_left_ms <= 0)
-		return;
-	isis_left_ms = std::max(0, isis_left_ms - ms);
-	if (isis_left_ms == 0)
-		events.Status("The Protection of Isis fades");
+void PlayerStats::AdvanceBlessings(int ms, WorldEvents& events) {
+	for (int g = 0; g < GOD_COUNT; g++) {
+		int& left = blessing_left_ms[static_cast<size_t>(g)];
+		if (left <= 0)
+			continue;
+		left = std::max(0, left - ms);
+		if (left > 0)
+			continue;
+		if (static_cast<God>(g) == God::Amun && HP > 0) // the raised max is gone, the HP with it
+			HP = std::clamp(HP, 1, CurrentMaxHP());
+		events.Status("%s", GODS[g].endLine);
+	}
+}
+
+void PlayerStats::EndBlessings() {
+	blessing_left_ms = {};
+	if (HP > 0)
+		HP = std::clamp(HP, 1, CurrentMaxHP());
 }
 
 std::string PlayerStats::Drink(const PotionGain& gain) {
@@ -398,7 +443,11 @@ void PlayerStats::Dump(std::ostream& f) const {
 	poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 	f << "WATER " << water_left_ms << "\n";
-	f << "ISIS " << isis_left_ms << "\n";
+	f << "ISIS " << blessing_left_ms[static_cast<size_t>(God::Isis)] << "\n";
+	f << "GODS"; // plan shrines-of-the-gods: the other gods' blessings, in God order
+	for (int g = 1; g < GOD_COUNT; g++)
+		f << " " << blessing_left_ms[static_cast<size_t>(g)];
+	f << "\n";
 	f << "BOONS " << max_stamina_percent << "\n";
 	heka.Dump(f);
 	curses.Dump(f);
@@ -440,13 +489,20 @@ void PlayerStats::LoadDump(std::istream& f) {
 		f.seekg(water);
 	} else
 		f >> water_left_ms;
-	isis_left_ms = 0;
+	blessing_left_ms = {};
 	const auto isis = f.tellg();
 	if (!(f >> tag) || tag != "ISIS") { // a save from before the Shrine of Isis
 		f.clear();
 		f.seekg(isis);
 	} else
-		f >> isis_left_ms;
+		f >> blessing_left_ms[static_cast<size_t>(God::Isis)];
+	const auto gods = f.tellg();
+	if (!(f >> tag) || tag != "GODS") { // a save from before the shrines of the other gods
+		f.clear();
+		f.seekg(gods);
+	} else
+		for (int g = 1; g < GOD_COUNT; g++)
+			f >> blessing_left_ms[static_cast<size_t>(g)];
 	max_stamina_percent = 0;
 	const auto boons = f.tellg();
 	if (!(f >> tag) || tag != "BOONS") { // a save from before the inscription boons

@@ -100,7 +100,10 @@ struct Tint {
 	float r, g, b;
 };
 constexpr Tint SUNLIGHT = {1.f, 0.83f, 0.45f}; // the level up's warm beam
-constexpr Tint ISIS_LIGHT = {0.55f, 0.8f, 1.f}; // a prayer at a Shrine of Isis (plan shrine-of-isis): light blue
+// A prayer at a god's shrine, in God order (plans shrine-of-isis, shrines-of-the-gods): Isis light blue, Montu
+// red-gold, Ptah green, Amun deep blue, Serket amber.
+constexpr Tint PRAYER_LIGHT[] =
+	{{0.55f, 0.8f, 1.f}, {1.f, 0.5f, 0.25f}, {0.45f, 1.f, 0.5f}, {0.3f, 0.4f, 1.f}, {1.f, 0.6f, 0.12f}};
 // 0..1..0 brightness over the effect, progress 0..1.
 float strength(float progress);
 // (x, y, z) = the player's feet in local space. Call after the opaque scene, like the fire.

@@ -1,6 +1,6 @@
 # Shrines of Montu, Ptah, Amun and Serket
 
-Status: draft 2026-11-05, size L, needs nothing first. From the user.
+Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size L, needs nothing first. From the user.
 
 ## Idea (from the user)
 
@@ -68,6 +68,18 @@ the implementer decides.
 * Serket already has the Serket's favour skill, Serket's scorpion amulet and the Gate of Serket zone. Shrine and skill
   pair like Isis: the Serket's favour skill doubles her blessing, the same as the
   Blessing of Isis skill.
+
+## Implemented
+
+* `God`, `GODS`, `shrineGod` (`src/world/shrines.h`); one timer per god in `PlayerStats` (`Pray(God)`,
+  `Blessed`, `AdvanceBlessings`, `EndBlessings`); Isis's ward is the first of them.
+* Blessing names: Fury of Montu, Shield of Ptah, Grace of Amun, Shelter of Serket (the skills already have Strength
+  of Montu, Djed of Ptah).
+* Amun heals to the raised max (a full heal at the new max, not the old).
+* Saved, unlike the draft said: the Isis ward is saved too (`ISIS` line), the others in a `GODS` line.
+* Placed: Montu lvl13, 27, 37, 53; Ptah lvl11, 17, 35, 44; Amun lvl7, 16, 31, 48; Serket lvl21, 25, 34, 43
+  ([levels.md](../levels.md)).
+* Decor drawing glyphs `M` `P` `A` `S` (`decorGlyph`): `'a' + index` ran past `~`.
 
 ## Play-test
 

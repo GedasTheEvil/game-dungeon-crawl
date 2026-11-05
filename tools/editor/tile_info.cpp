@@ -307,6 +307,18 @@ constexpr PropInfo PROPS[DECOR_COUNT] = {
 	{"Shrine of Isis",
 	 "A naos with Isis seated in it (plan shrine-of-isis): praying there (interact) lifts every curse and wards "
 	 "curses off for 2 minutes. Unlimited prayers; about one level in four has one."},
+	{"Shrine of Montu",
+	 "A naos with falcon-headed Montu in it (plan shrines-of-the-gods): praying there gives Might +5 for 2 minutes. "
+	 "Unlimited prayers; at most one shrine of any god a level, before a hard fight."},
+	{"Shrine of Ptah",
+	 "A naos with Ptah in it (plan shrines-of-the-gods): praying there gives Armor +5 for 2 minutes. Unlimited "
+	 "prayers; at most one shrine of any god a level, before a hard fight."},
+	{"Shrine of Amun",
+	 "A naos with Amun seated in it (plan shrines-of-the-gods): praying there heals fully and gives max health +20% "
+	 "for 2 minutes. Unlimited prayers; at most one shrine of any god a level, deep in a side branch."},
+	{"Shrine of Serket",
+	 "A naos with Serket in it (plan shrines-of-the-gods): praying there cures poison and wards it off for 2 minutes "
+	 "(4 with Serket's favour). Unlimited prayers; at most one shrine of any god a level, where poisoners are."},
 };
 
 const char* anchorText(DecalAnchor anchor) {

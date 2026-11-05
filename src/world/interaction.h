@@ -18,7 +18,7 @@ enum class Interaction : std::uint8_t {
 	Take, // the ankh; an open treasure container's item
 	Dial, // the Stargate, not dialling (plan stargate-chamber)
 	Press, // its dial device
-	Pray, // a Shrine of Isis (plan shrine-of-isis)
+	Pray, // a god's shrine (plans shrine-of-isis, shrines-of-the-gods)
 };
 
 // The prompt's verb: "Open", "Pull", ...; empty for None.

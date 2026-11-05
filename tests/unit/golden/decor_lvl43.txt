@@ -429,7 +429,7 @@
 6,29 surface 6/1/2 ladder 1/1
 26,29 surface 12/1/7
 2,30 surface 12/5/7
-3,30 surface 13/5/7 torch fire torch 0.000,0.680,0.098
+3,30 surface 13/5/7 prop shrine_serket -0.000 torch fire torch 0.000,0.680,0.098
 4,30 surface 12/5/7 prop jackal 0.062 decal 10m 0.377,0.427
 5,30 surface 12/5/7 prop thoth_baboon_standingm 0.198
 6,30 surface 12/5/7 ladder 1/3

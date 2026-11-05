@@ -384,7 +384,7 @@
 30,28 surface 8/1/5
 31,28 surface 9/1/3
 32,28 surface 8/3/4 sand< torch fire torch 0.000,0.680,0.098
-33,28 surface 8/3/5 decal 13m 0.258,0.225
+33,28 surface 8/3/5 prop shrine_serket 0.000 decal 10m 0.280,0.564
 34,28 surface 9/3/3 sand>
 35,28 surface 8/1/3
 36,28 surface 9/3/3 ladder 0/3m

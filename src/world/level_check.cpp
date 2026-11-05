@@ -1593,7 +1593,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 char propGlyph(const Tile& t) {
 	const int prop = t.dressing.prop;
 	if (prop >= 0)
-		return static_cast<char>('a' + prop);
+		return decorGlyph(prop);
 	if (prop == PLACED_BARE)
 		return '-';
 	return isSolidStructure(t.structure) ? '#' : '.';

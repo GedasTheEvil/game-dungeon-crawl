@@ -206,7 +206,7 @@
 31,12 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 32,12 surface 1/0/0 decal 9 0.439,0.429
 33,12 surface 0/2/0 decal 9m 0.645,0.583
-34,12 surface 0/2/0
+34,12 surface 0/2/0 prop shrine_ptah -0.000
 35,12 surface 1/2/0 sand> prop ushabti -0.036
 36,12 surface 0/1/0 torch fire torch 0.000,0.680,0.098
 8,13 surface 3/0/1

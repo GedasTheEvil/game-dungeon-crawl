@@ -314,7 +314,7 @@
 28,24 surface 7/1/2
 29,24 surface 6/1/2 prop lampm 0.084 fire lamp 0.340,0.050,0.307
 30,24 surface 6/1/2 prop brazierm 0.138 decal 11 0.508,0.500 fire brazier 0.138,0.220,0.160
-31,24 surface 6/1/2 torch fire torch 0.000,0.680,0.098
+31,24 surface 6/1/2 prop shrine_montu 0.000 torch fire torch 0.000,0.680,0.098
 32,24 surface 6/1/2
 33,24 surface 6/1/2 prop brazier -0.144 decal 10 0.352,0.375 fire brazier -0.144,0.220,0.160
 34,24 surface 7/1/2

@@ -230,7 +230,7 @@
 33,17 surface 5/2/1 torch fire torch 0.000,0.680,0.098
 1,18 surface 6/1/2
 2,18 surface 6/2/2 sand<> prop thoth_baboon_seatedm -0.040 decal 11m 0.524,0.466
-3,18 surface 6/1/2
+3,18 surface 6/1/2 prop shrine_amun 0.000
 4,18 surface 7/1/2 prop lampm -0.020 decal 9 0.519,0.391 fire lamp 0.236,0.050,0.307
 5,18 surface 6/1/2 torch fire torch 0.000,0.680,0.098
 6,18 surface 6/1/2 decal 11 0.517,0.471

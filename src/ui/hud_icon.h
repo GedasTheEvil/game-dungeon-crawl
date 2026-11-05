@@ -17,9 +17,15 @@ enum class Icon : std::uint8_t {
 	IsisWard, // the Protection of Isis (plan shrine-of-isis): her throne sign
 	Drop, // white, tinted per effect on a status card (plan curse-blessing-cards): poison tiers, resistance, Hapi
 	Burning, // a flame
+	// The other gods' blessings (plan shrines-of-the-gods): Montu's in the cell left free here, the rest after the
+	// curses.
+	MontuBlessing, // a khopesh under a falcon's sun disc
 	FirstWeapon = 8,
 	FirstAmulet = 21,
 	FirstCurse = 37,
+	PtahBlessing = FirstCurse + CURSE_COUNT, // his djed pillar
+	AmunBlessing, // his ram's head with its curled horn
+	SerketBlessing, // her scorpion
 	None = 0xff
 };
 constexpr Icon weaponIcon(ItemKind weapon) {

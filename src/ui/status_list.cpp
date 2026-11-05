@@ -24,8 +24,12 @@ StatusList statusList(const PlayerStats& stats, int burningLeftMs, int dazeMs) {
 	}
 	if (stats.WaterBlessingLeftMs() > 0)
 		list.Add({StatusKind::Blessing, Icon::Drop, WATER_DROP, 0, stats.WaterBlessingLeftMs()});
-	if (stats.IsisWardLeftMs() > 0)
-		list.Add({StatusKind::Blessing, Icon::IsisWard, WHITE, 0, stats.IsisWardLeftMs()});
+	// The gods' blessings, in God order (plans shrine-of-isis, shrines-of-the-gods).
+	constexpr Icon GOD_ICONS[GOD_COUNT] =
+		{Icon::IsisWard, Icon::MontuBlessing, Icon::PtahBlessing, Icon::AmunBlessing, Icon::SerketBlessing};
+	for (int g = 0; g < GOD_COUNT; g++)
+		if (const int left = stats.BlessingLeftMs(static_cast<God>(g)); left > 0)
+			list.Add({StatusKind::Blessing, GOD_ICONS[g], WHITE, 0, left});
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
 		if (const int left = stats.poison.LeftMs(static_cast<PoisonTier>(t)); left > 0)
 			list.Add({StatusKind::Condition, Icon::Drop, POISON_DROPS[t], t + 1, left});

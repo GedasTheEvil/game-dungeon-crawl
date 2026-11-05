@@ -322,8 +322,14 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
   a tile. Walking off a step is a drop. A gap a cell wide is jumped from a step as from the floor, landing on the floor
   beyond it no lower than the take-off's cell. Jumps need head room: the whole arc (a cell over the feet) over a gap,
   three quarters onto a step. On a step in half water the player is out of it and may jump. A ladder's cell is
-  climbed off onto a step beside it at any height in the cell. The path lists cells; `sub-cells:` counts the quarter
-  steps jumped onto and the sub-cells crawled, and `--script` crouches through a crawl.
+  climbed off onto a step beside it at any height in the cell. A crawl space is not entered from a ladder's cell
+  (there the down key climbs; leave a sub-cell of head room between them,
+  [subcell-checker-mismatches](plan/subcell-checker-mismatches.bug.md)). The path lists cells; `sub-cells:` counts the
+  quarter steps jumped onto and the sub-cells crawled.
+- `--script` (`src/world/path_script.cpp`) plays the path with the scenario commands: it crouches through a crawl,
+  climbs a ladder to a step's height before stepping off it, and per jump (a stair in one cell: one per step) opens
+  the key gates on the arc first, runs up to the checker's take-off sub-cell (or against the step's face) and turns
+  the jump's way. `tests/unit/subcell_mismatches_test.cpp` plays it in the sim on small levels.
 
 It reports:
 

@@ -49,6 +49,16 @@ struct CellPos {
 // SpikedStep: a Step whose jump touches ceiling spikes or a ceiling death trap (plan ceiling-spikes).
 enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport, Turn, Crawl, Step, SpikedStep };
 
+// A jump on the path (plan subcell-checker-mismatches), for levelcheck --script: where it takes off and lands, in
+// sub-cells (SUBCELLS a cell, x across, y up), the way it goes and the sub-cells to the face it jumps onto (1: the
+// face is right in front of the take-off, so the player stands against it; 0: no face, a jump over a gap or a trap).
+struct PathTakeOff {
+	int x = 0, y = 0; // the sub-cell the player stands in at the take-off
+	int landX = 0;
+	int dir = 1; // -1 left, +1 right
+	int face = 0;
+};
+
 struct LevelReport {
 	bool valid = false;
 	std::vector<std::string> errors; // the level cannot be finished (or has no start / goal)
@@ -89,6 +99,11 @@ struct LevelReport {
 	// Cheapest path from the entrance to the goal (hazards cost extra, see level_check.cpp)
 	std::vector<CellPos> path;
 	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull and Turn stay in the cell)
+	// Per path cell: the jumps into it and inside it, in order (a stair in one cell: a jump per step), and the height
+	// the player arrives at over the sub-cell they left, in sub-cells (off a ladder onto a step beside it: the climb
+	// first). Plan subcell-checker-mismatches.
+	std::vector<std::vector<PathTakeOff>> pathTakeOffs;
+	std::vector<int> pathRise;
 	// Per Turn on the path, in order: how the mirrors the player reaches are set for the sun disc it lights.
 	std::vector<std::vector<MirrorSetting>> pathTurnWays;
 	int pathLength = 0; // moves

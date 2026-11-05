@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <map>
 #include <numeric>
+#include <optional>
 #include <queue>
 #include <set>
 
@@ -376,7 +377,8 @@ class Walker {
 			walk(x, y, dir, mask, add);
 			if (here.type == Ladder) // off a ladder onto a step beside it: up to the step's height, then over
 				for (int q = 1; q < SUBCELLS; q++)
-					if (stands(x + dir, y + q, mask)) {
+					if (stands(x + dir, y + q, mask) &&
+						!(crawl(x + dir, y + q, mask) && intoCrawlOffLadder(x, y + q, mask))) {
 						int fallen = 0;
 						add(settle(x + dir, y + q, mask, fallen),
 							COST_MOVE + (crawl(x + dir, y + q, mask) ? COST_CRAWL : 0),
@@ -390,6 +392,30 @@ class Walker {
 				if (grid.at(col, row + dy).type == Ladder)
 					add((cell + dy * LEVEL_WIDTH) * MASKS + touch(col, row + dy, mask), COST_MOVE, Move::Climb);
 		}
+	}
+
+	// The jump from state `from` that lands in state `to` (a Step, SpikedStep or Jump edge), for the script.
+	[[nodiscard]] std::optional<PathTakeOff> takeOff(int from, int to) const {
+		const int node = nodeOf(from);
+		const int mask = maskOf(from);
+		for (int dir : {-1, 1}) {
+			const int x = nodes.x(node, dir);
+			const int y = nodes.y(node);
+			std::optional<Move> found;
+			auto add = [&](int target, int, Move move) {
+				if (target == to && (move == Move::Step || move == Move::SpikedStep || move == Move::Jump))
+					found = move;
+			};
+			walk(x, y, dir, mask, add);
+			jump(x, y, dir, mask, add);
+			if (!found)
+				continue;
+			PathTakeOff t{x, y, nodes.x(nodeOf(to), dir), dir, 0};
+			for (int k = 1; *found != Move::Jump && k <= JUMP_SUBCELLS && t.face == 0; k++)
+				t.face = open(x + dir * k, y, mask) ? 0 : k;
+			return t;
+		}
+		return std::nullopt;
 	}
 
   private:
@@ -412,6 +438,8 @@ class Walker {
 			if (to == NONE || (fallen == 0 && inQuicksandAt(x, y) && inQuicksandAt(next, y)))
 				return;
 			const bool crawling = fallen == 0 && crawl(next, y, mask);
+			if (crawling && intoCrawlOffLadder(x, y, mask))
+				return;
 			add(to,
 				COST_MOVE + (fallen + SUBCELLS - 1) / SUBCELLS + (crawling ? COST_CRAWL : 0),
 				fallen > 0 ? Move::Drop : (crawling ? Move::Crawl : Move::Walk));
@@ -428,6 +456,14 @@ class Walker {
 		add(settle(next, y + 1, mask, fallen),
 			COST_STEP + (spiked ? COST_CEILING_SPIKES : 0),
 			spiked ? Move::SpikedStep : Move::Step);
+	}
+
+	// Into a crawl space from sub-cell (x, y) of a ladder's cell (plan subcell-checker-mismatches): there the down key
+	// climbs, it does not crouch (Dungeon::updateCrouch), and the body (Player::HalfWidth, under a sub-cell either side
+	// of the middle) meets the crawl space's ceiling while the middle is still in the ladder's cell. A sub-cell of head
+	// room between the ladder and the crawl space is enough.
+	[[nodiscard]] bool intoCrawlOffLadder(int x, int y, int mask) const {
+		return grid.cells[subCell(x, y)].type == Ladder && !crawl(x, y, mask);
 	}
 
 	// Sub-cell (x, y) is the underside of a ceiling trap's cell (plan ceiling-spikes).
@@ -1483,14 +1519,25 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.pathSteps += i > 0 && step ? 1 : 0;
 		r.pathCeilingSpikes += i > 0 && inCell == Move::SpikedStep ? 1 : 0;
 		r.pathCrawls += i > 0 && inCell == Move::Crawl ? 1 : 0;
+		std::optional<PathTakeOff> takeOff;
+		if (i > 0 && (step || inCell == Move::Jump))
+			takeOff = walker.takeOff(states[i - 1], states[i]);
 		if (i > 0 && cell == r.path.back().row * LEVEL_WIDTH + r.path.back().col &&
 			(inCell == Move::Walk || inCell == Move::Crawl || inCell == Move::Drop || step)) {
+			if (takeOff)
+				r.pathTakeOffs.back().push_back(*takeOff);
 			if (inCell == Move::Crawl && r.pathMoves.back() == Move::Walk)
 				r.pathMoves.back() = Move::Crawl;
 			continue;
 		}
 		r.path.push_back({cell % LEVEL_WIDTH, cell / LEVEL_WIDTH});
 		r.pathMoves.push_back(prevMove[states[i]]);
+		r.pathTakeOffs.emplace_back();
+		if (takeOff)
+			r.pathTakeOffs.back().push_back(*takeOff);
+		r.pathRise.push_back(
+			i > 0 ? walker.places().y(nodeOf(states[i])) - walker.places().y(nodeOf(states[i - 1])) : 0
+		);
 		Tile t = grid.cells[cell];
 		if (i > 0) {
 			r.pathLength++;

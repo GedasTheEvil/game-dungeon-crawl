@@ -21,7 +21,7 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 # the libraries under it. The base library (the game clock, the log) is linked by everything that links one.
 BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp src/core/paths.cpp
 BASE_LIB_HEADERS=src/core/worker_pool.h
-LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/level_gen.cpp src/world/campaign.cpp \
+LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/path_script.cpp src/world/level_gen.cpp src/world/campaign.cpp \
 	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
 	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/journal_text.cpp src/world/inscriptions.cpp src/world/inscription_layout.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
 	src/world/view_window.cpp src/world/world_events.cpp src/world/climb_path.cpp src/world/sun_beam.cpp src/world/decor_scatter.cpp src/ui/ui_layout.cpp src/ui/status_list.cpp src/ui/message_log.cpp \

@@ -18,7 +18,7 @@ Implementer's choices:
 * Shapes set with `tools/level/shape.py` (the editor's brushes by name, the shaped glyph kept in step).
 * Left out, the game does not allow them: stepping stones in half water (no jump while wading: one way only), steps
   by a pit in a 1-row hall (no head room for the jump), a crawl space starting in a ladder's cell (down climbs
-  there). Where the checker and the game disagree: [subcell-checker-mismatches](subcell-checker-mismatches.bug.draft.opus.md).
+  there). Where the checker and the game disagree: [subcell-checker-mismatches](subcell-checker-mismatches.bug.md).
 * Not checked in a game run: that a crouch behind a cover step dodges the bolt or the spit (it follows from the shot
   code: aimed at the crouched chest, stopped by a solid sub-cell).
 * Tests: the v2/v3 conversion tests drop the shapes first (old formats have none); decor goldens updated (no random

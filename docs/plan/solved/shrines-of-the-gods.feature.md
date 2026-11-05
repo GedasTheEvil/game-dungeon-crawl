@@ -1,10 +1,10 @@
 # Shrines of Montu, Ptah, Amun and Serket
 
-Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size L, needs nothing first. From the user.
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size L, needs nothing first. From the user.
 
 ## Idea (from the user)
 
-More shrines, each to another god, built like the [Shrine of Isis](solved/shrine-of-isis.md). Pray (interact, E) for a
+More shrines, each to another god, built like the [Shrine of Isis](shrine-of-isis.md). Pray (interact, E) for a
 blessing that lasts 2 minutes:
 
 * Shrine of Montu: Might +5.
@@ -25,7 +25,7 @@ the implementer decides.
   new two-part prop for no gain. Statues: Montu falcon-headed, a sun disc with two plumes, a khopesh; Ptah mummiform
   in a skullcap, holding the was-djed sceptre; Amun with the tall double plume, seated like Isis; Serket a woman with a
   scorpion on her head. Wall emblems in place of Isis's wings: Montu sun disc, Ptah djed pillar, Amun ram, Serket
-  a scorpion. Steps: [modeling.md](../modeling.md).
+  a scorpion. Steps: [modeling.md](../../modeling.md).
 * Props: `DECOR_SHRINE_MONTU`, `_PTAH`, `_AMUN`, `_SERKET` (`src/world/decor.h`), a free glyph each (AGENTS.md, Glyphs),
   editor tile info and icons (`tools/editor/`), verb "Pray" (`Interaction::Pray`, `dungeon_interact.cpp`).
 * Blessings: timed `PlayerStats` effects like `IsisWarded`, 2 minutes. They end on death, and a prayer at the same god
@@ -78,7 +78,7 @@ the implementer decides.
 * Amun heals to the raised max (a full heal at the new max, not the old).
 * Saved, unlike the draft said: the Isis ward is saved too (`ISIS` line), the others in a `GODS` line.
 * Placed: Montu lvl13, 27, 37, 53; Ptah lvl11, 17, 35, 44; Amun lvl7, 16, 31, 48; Serket lvl21, 25, 34, 43
-  ([levels.md](../levels.md)).
+  ([levels.md](../../levels.md)).
 * Decor drawing glyphs `M` `P` `A` `S` (`decorGlyph`): `'a' + index` ran past `~`.
 
 ## Play-test

@@ -263,7 +263,7 @@ with the most curse sources (cursing monsters by their chance, trapped treasure)
 priest's teleporter), 24, 29, 32, 38, 41, 45, 47, 50, 52, 54 (before the teleporter to Anubis). Each on a floor cell
 four or more cells from a monster, at a wing's end or off the path where the hall allows.
 
-The shrines of the other gods ([shrines-of-the-gods](plan/shrines-of-the-gods.feature.md)), four each, at most one shrine of any god
+The shrines of the other gods ([shrines-of-the-gods](plan/solved/shrines-of-the-gods.feature.md)), four each, at most one shrine of any god
 a level (Isis included; a soft rule, the checker does not warn), on the same kind of cell. Montu before a boss or a
 hard level: lvl13 (by the Mother of Webs's teleporter), 27 (Apep), 37 (Seth), 53 (before Anubis's level). Ptah before
 a hard fight: lvl11, 17 (before the mummy priest's level), 35, 44 (before Babi's level). Amun at a side branch's end:

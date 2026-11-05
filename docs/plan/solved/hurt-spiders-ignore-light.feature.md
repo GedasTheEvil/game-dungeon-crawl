@@ -1,6 +1,6 @@
 # Hurt spiders no longer fear the light
 
-Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size S, needs nothing first.
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size S, needs nothing first.
 
 ## Idea
 
@@ -10,7 +10,7 @@ longer applies.
 ## Today
 
 * Light shunners (`MonsterKind::shunsLight`): the camel spider, the tiny spider and their boss, the Mother of Webs
-  ([camel-spider](solved/camel-spider.md), [spider-climbers](solved/spider-climbers.feature.md)). They never step into
+  ([camel-spider](camel-spider.md), [spider-climbers](spider-climbers.feature.md)). They never step into
   a lit cell (`Dungeon::Lit`: a flame within `LIGHT_SHUN_CELLS` on the row, or sunlight), flee when light is between
   them and the player, run for the dark when caught in it, and their climb path goes round lit cells.
 * Every check reads `mon.Type()->shunsLight` (`src/world/dungeon_walkers.cpp`: `walkerStops`, `wayOutOfLight`,

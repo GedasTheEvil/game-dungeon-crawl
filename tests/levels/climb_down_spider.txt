@@ -1,0 +1,7 @@
+; Two floors joined by a ladder (col 6), a camel spider on the upper floor (col 8): it follows the player down the
+; ladder, the camera on the lower floor sees its climb clip (tests/scenarios/spider_climbers.txt, plan spider-climbers).
+####################
+#S....H.h......E...#
+######H#############
+#.....H............#
+####################

@@ -1,6 +1,6 @@
 # Spider climbers, and a tiny spider
 
-Status: draft 2026-11-02, size L, needs nothing first. From the user.
+Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-02, size L, needs nothing first. From the user.
 
 ## Idea (from the user)
 
@@ -48,3 +48,30 @@ same model.
   a ladder; neither climbs to a lit ladder top.
 * A play script `tests/play/spider-climbers.txt`: a ladder room with camel and tiny spiders.
 * `bin/levelcheck content/levels/lvl*` stays clean (a climbing spider changes threat paths).
+
+## Implemented
+
+* The camel spider and the Mother of Webs climb (`.climbs`; the threat x1.05 comes with it). A climb clip
+  `camel_spider_climb.md3` (`tools/blender/models/camel_spider.py`, 16 frames, back to the camera, head up, the
+  tetrapods take turns, the palps on a rung over the head, 2 rungs a cycle; `climbRise` 0.783, `climbGrip` 0.1866,
+  shared by the tiny spider and the Mother at their scales). The Mother climbs faster through the boss climb factor.
+* Light: a light shunner's climb path (`ClimbAbility::avoids`, `Dungeon::followPath`) takes no lit cell, so a lit
+  ladder top keeps it below. A climber left hanging over the shaft with no way on (it started up after the player
+  on the rungs) climbs back down to the floor below (`Dungeon::climbDown`).
+* Tiny spider: monster 36, glyph `[`, the camel spider's model with its own darker texture `camel_spider_tiny.png`
+  (`--tiny-texture`), scale 10, speed 20, 18 HP (two club blows), a plain bite of 1 every 0.5 s, threat 0.6, 250 XP,
+  light shunner, climber, `heightQuarters` 1 (crawl spaces). `MonsterKind::group` 4: levelgen puts 2 to 4 side by side
+  (`placeGroup`, needs room for two). Zone fauna: the tomb entrance and the web halls; levelgen 1-6. Hand-placed in
+  levels 2, 3, 4, 10, 11, 12 (dark floors). Field note `[monster.tiny-spider]`, glossary row.
+* Open points chosen: no boss of its own; the Mother drops a tiny spider every other summon (`smallMinion`, now for
+  `Summon::Drop` too). A plain bite, no poison (no antidote needed on the first levels). Its own darker tint.
+* Tests: `tests/unit/spider_climbers_test.cpp`, `tests/scenarios/spider_climbers.txt`, play script.
+
+## Play-test
+
+`bin/game --play tests/play/spider-climbers.txt`
+
+* Go down the left ladder (col 7), let the spiders see you, go back up and left: the camel spider and the tiny
+  spiders climb after you, back to the camera, legs on the rungs.
+* Go down again, cross to the right ladder (col 29, its top lit) and go up: they stay below the light.
+* The tiny spiders: darker than the camel spider, two club blows each, a weak bite.

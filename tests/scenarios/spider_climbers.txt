@@ -1,0 +1,115 @@
+# Spider climbers (plan spider-climbers), tests/levels/climb_down_spider and climb_down_tiny: the camel spider and the
+# tiny spider see the player on the upper floor and follow them down the dark ladder (col 6), back to the camera on the
+# rungs, the grip on the rails; the camera on the lower floor sees the shaft above.
+resolution 1600 1200
+seed 1
+god
+level tests/levels/climb_down_spider
+torch 1 off
+torch 2 off
+torch 3 off
+torch 4 off
+torch 5 off
+torch 6 off
+torch 7 off
+torch 8 off
+torch 9 off
+torch 10 off
+torch 11 off
+torch 12 off
+wait 30
+walk to 6.45
+wait 2s
+walk down 1.97
+torch 1 off
+torch 2 off
+torch 3 off
+torch 4 off
+torch 5 off
+torch 6 off
+torch 7 off
+torch 8 off
+torch 9 off
+torch 10 off
+torch 11 off
+torch 12 off
+walk to 5.4
+screenshot spider_rungs_0
+wait 80ms
+screenshot spider_rungs_1
+wait 80ms
+screenshot spider_rungs_2
+wait 80ms
+screenshot spider_rungs_3
+wait 80ms
+wait 250ms
+screenshot spider_0
+wait 250ms
+screenshot spider_1
+wait 250ms
+screenshot spider_2
+wait 250ms
+screenshot spider_3
+wait 250ms
+screenshot spider_4
+wait 250ms
+screenshot spider_5
+wait 250ms
+screenshot spider_6
+wait 250ms
+screenshot spider_7
+wait 250ms
+screenshot spider_8
+wait 250ms
+screenshot spider_9
+level tests/levels/climb_down_tiny
+torch 1 off
+torch 2 off
+torch 3 off
+torch 4 off
+torch 5 off
+torch 6 off
+torch 7 off
+torch 8 off
+torch 9 off
+torch 10 off
+torch 11 off
+torch 12 off
+wait 30
+walk to 6.45
+wait 2s
+walk down 1.97
+torch 1 off
+torch 2 off
+torch 3 off
+torch 4 off
+torch 5 off
+torch 6 off
+torch 7 off
+torch 8 off
+torch 9 off
+torch 10 off
+torch 11 off
+torch 12 off
+walk to 5.4
+wait 250ms
+screenshot tiny_0
+wait 250ms
+screenshot tiny_1
+wait 250ms
+screenshot tiny_2
+wait 250ms
+screenshot tiny_3
+wait 250ms
+screenshot tiny_4
+wait 250ms
+screenshot tiny_5
+wait 250ms
+screenshot tiny_6
+wait 250ms
+screenshot tiny_7
+wait 250ms
+screenshot tiny_8
+wait 250ms
+screenshot tiny_9
+expect alive == 1

@@ -9,6 +9,7 @@
 #include "../core/gameplay_config.h"
 #include <array>
 #include <cstdint>
+#include <functional>
 
 // A monster's body against a cell's shape (plan subcell-monsters), from its kind (MonsterKind::heightQuarters,
 // stepQuarters): an opening lower than its height stops it, a rise over its step stops it.
@@ -44,6 +45,9 @@ struct ClimbAbility {
 	BodyFit body{}; // its steps and the openings it fits (plan subcell-monsters)
 	// A leaper's leap catches the rungs of a ladder over the gap up to this many cells out (plan jump-onto-ladder).
 	int catchReach = MONSTER_JUMP_MAX_GAP;
+	// Cells it will not stand in, on top of the level's own rules: a light shunner's lit ones (plan spider-climbers).
+	// Empty: none.
+	std::function<bool(int col, int row)> avoids;
 };
 
 // Steps from every cell to one goal cell (the player's), up to a cap. A step: to the next cell along a row, a rung up
@@ -55,7 +59,7 @@ class ClimbMap {
 	[[nodiscard]] int Steps(int col, int row) const; // -1: out of reach (or past the cap)
 	// The next cell on a shortest way from (col, row) to the goal. False: out of reach, or at the goal.
 	bool Next(int col, int row, int& outCol, int& outRow) const;
-	// It can stand there: open, with a floor under it (no trap unless reckless) or a ladder.
+	// It can stand there: open, with a floor under it (no trap unless reckless) or a ladder, and not a cell it avoids.
 	[[nodiscard]] bool Stands(int col, int row) const;
 
   private:

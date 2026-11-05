@@ -117,7 +117,7 @@
 15,10 surface 0/2/1 decal 1 0.449,0.446
 16,10 surface 2/2/1
 17,10 surface 3/2/1
-18,10 surface 3/0/1 prop skeletonm 0.015 decal 0m 0.360,0.602
+18,10 surface 3/0/1 decal 1m 0.342,0.602
 19,10 surface 3/0/1 decal 2 0.465,0.350
 20,10 surface 3/0/1
 21,10 surface 4/0/1
@@ -281,7 +281,7 @@
 22,22 surface 5/2/1 decal 1m 0.504,0.572
 23,22 surface 3/2/1
 24,22 surface 4/2/1 decal 2 0.582,0.350
-25,22 surface 2/2/1m prop catm 0.065 decal 1 0.418,0.553
+25,22 surface 2/2/1m decal 8 0.464,0.565
 26,22 surface 0/2/1
 27,22 surface 2/0/1 prop rubblem 0.080
 28,22 surface 5/2/1 prop skeleton 0.013

@@ -1,0 +1,16 @@
+# Plan spider-climbers, for `bin/game --play tests/play/spider-climbers.txt`: a camel spider and three tiny spiders on
+# the lower floor of a two-floor room; the left ladder (col 7) is dark, the top of the right one (col 29) is lit.
+seed 1
+level tests/levels/spider_climbers
+god
+torch 1 off
+torch 2 off
+torch 3 off
+torch 4 off
+torch 5 off
+torch 6 off
+torch 7 off
+torch 8 off
+torch 9 off
+torch 10 off
+torch 29 on

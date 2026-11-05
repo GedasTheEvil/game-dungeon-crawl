@@ -233,6 +233,10 @@ constexpr float GIANT_SCARAB_STRIDE = 0.29f; // the giant scarab and Khepri
 constexpr float ANUBIS_STRIDE = 1.37f; // 0.54 s
 constexpr float BABOON_STRIDE = 3.95f; // 2.05 s
 constexpr float CAMEL_SPIDER_STRIDE = 2.21f; // 1.05 s
+// The camel spider's climb clip (tools/blender/models/camel_spider.py prints both), shared by the tiny spider and the
+// Mother of Webs at their scales (plan spider-climbers).
+constexpr float CAMEL_SPIDER_CLIMB_RISE = 0.783f;
+constexpr float CAMEL_SPIDER_CLIMB_GRIP = 0.1866f;
 constexpr float COBRA_STRIDE = 0.69f; // 1.31 s, a slither
 constexpr float CROCODILE_STRIDE = 0.32f; // 1.31 s
 constexpr float MUMMY_STRIDE = 0.48f; // 1.64 s
@@ -1049,6 +1053,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
+	 .climbs = true, // plan spider-climbers
+	 .climbRise = CAMEL_SPIDER_CLIMB_RISE,
+	 .climbGrip = CAMEL_SPIDER_CLIMB_GRIP,
 	 .generated = {3, 8, 2}},
 	// The hippo (plan hippo), the deadliest animal of the Nile: lies under the water like the crocodile, comes out
 	// charging along its row like Sobek, nearer and slower (ChargeRules). Heavy: more HP than the giant cobra, a
@@ -1274,8 +1281,12 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .shunsLight = true,
 	 .douseCells = MOTHER_DOUSE_CELLS,
 	 .webs = WebRules{MOTHER_WEB_EVERY_MS, MOTHER_WEB_MAX},
+	 .climbs = true, // her kin's clip at her scale (plan spider-climbers)
+	 .climbRise = CAMEL_SPIDER_CLIMB_RISE,
+	 .climbGrip = CAMEL_SPIDER_CLIMB_GRIP,
 	 .kin = MonsterCamelSpider,
-	 .boss = {MonsterCamelSpider, 2, 2, 3000, 10, 0, Summon::Drop}},
+	 // Every other spider that drops is a tiny one (plan spider-climbers).
+	 .boss = {MonsterCamelSpider, 2, 2, 3000, 10, 0, Summon::Drop, 0, MonsterTinySpider}},
 	// Babi (plan babi-boss), the bull of the baboons, who eats the hearts of the dead by the lake of fire: a god, like
 	// Seth. The baboon's kiting and throw, stronger: a wider band and a quicker retreat, leaping the gaps between the
 	// ledges of his arena where the baboon would be cornered; volleys of coals, and every third throw a big one that
@@ -1352,6 +1363,39 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .heightQuarters = 1,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .disguise = Container::Jar},
+	// The tiny spider (plan spider-climbers): the camel spider's small kin on its model, darker, in groups of 2 to 4.
+	// Fast, a few blows kill it, a plain bite; it climbs and keeps out of the light like its big kin, and fits through
+	// a crawl space. The first zones, the web halls; the Mother of Webs drops it too.
+	{.id = MonsterTinySpider,
+	 .glyph = '[',
+	 .name = "Tiny spider",
+	 .label = "tiny spider",
+	 .description = "Tiny spider, fast, in groups; keeps out of the light of torches, braziers and lamps; climbs; "
+					"fits through crawl spaces",
+	 .threat = 0.6f, // under the rat: one bites less than a rat, but they come in groups
+	 .model = "monsters/camel_spider",
+	 .texture = "monsters/camel_spider_tiny",
+	 .scale = 10,
+	 .blood = {0.5f, 0.55f, 0.32f},
+	 .speed = 20,
+	 .maxHealth = 18, // two blows of the club; bin/balance: 3% of the player's HP in 2 s (each of a group)
+	 .damage = 1,
+	 .attackMs = 500,
+	 .xp = 250,
+	 .attackMix = CAMEL_SPIDER_MIX,
+	 .melee = LOW_BITE,
+	 .resist = CAMEL_SPIDER_RESIST,
+	 .weight = 1,
+	 .heightQuarters = 1,
+	 .wading = Wading::Unaffected,
+	 .waterSpeed = 1.f,
+	 .walkStride = CAMEL_SPIDER_STRIDE,
+	 .shunsLight = true,
+	 .climbs = true,
+	 .climbRise = CAMEL_SPIDER_CLIMB_RISE,
+	 .climbGrip = CAMEL_SPIDER_CLIMB_GRIP,
+	 .generated = {1, 6, 3},
+	 .group = 4},
 }};
 
 constexpr bool validKinds() {
@@ -1376,6 +1420,10 @@ constexpr bool validKinds() {
 			return false; // and its shunning of the light
 		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].kite && !kind.kite)
 			return false; // and its kiting
+		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].climbs && !kind.climbs)
+			return false; // and its climbing
+		if (kind.group < 1)
+			return false;
 		if (kind.ranged && kind.ranged->volley &&
 			(kind.ranged->volley->minCount < 1 || kind.ranged->volley->maxCount < kind.ranged->volley->minCount))
 			return false;
@@ -1400,7 +1448,8 @@ constexpr bool validKinds() {
 static_assert(
 	validKinds(),
 	"KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
-	"bosses with a kin (its sand burrowing, light shunning and kiting too), no weakness and no resistance worse "
+	"bosses with a kin (its sand burrowing, light shunning, kiting and climbing too), no weakness and no resistance "
+	"worse "
 	"than the kin's, poison included, a reach no shorter than the kin's, volleys of at least one shot"
 );
 } // namespace

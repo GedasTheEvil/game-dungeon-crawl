@@ -168,6 +168,10 @@ conventions, steps). New model notes go in the script's docstring, not here.
   reference: two fast gait cycles, the palps tapping in turn; 1.64 long x 1.24 wide x 0.50 high, `KINDS` scale 28), attack 18
   (rears, palps up, jaws open, lunges and snaps), die 26 (flips onto its back, the legs curl), idle 24 (`_idle`: waits, palps
   tapping, jaws sawing; shown while it stands off the light). Every frame lifted so the lowest vertex touches the floor.
+  Climb 16 (`_climb`, plan spider-climbers, after `scorpion.py`'s: head up, back to the camera, the tetrapods take turns
+  on the rungs, the palps on a rung over the head; 2 rungs a cycle; climbRise 0.783, climbGrip 0.1866; `-- --export-climb`
+  writes only it, `CAMEL_SPIDER_LADDER=1` adds a ladder stand-in). `camel_spider_tiny.png` (`--tiny-texture`): the tiny
+  spider's darker, greyer tint on the same UVs.
   Sounds: `tools/audio/camel_spider_sounds.py` (`media/sounds/monsters/camel_spider_{att,die}.wav`: a stridulating rasp, two
   shear snaps; a rasping squeal, rattle, scrape).
 * `tools/blender/models/baboon.py` - the hamadryas baboon of the Lake of Fire (plan baboon), faces +Y, rotA 180; built

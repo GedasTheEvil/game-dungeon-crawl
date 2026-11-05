@@ -98,7 +98,7 @@ started (port 9876).
   The mimic (`AMBUSH_CLIPS`) requires `_idle` (the closed chest) and uses it as the reference clip; the cursed mimic
   (`AMBUSH_HOP_CLIPS`, files `mimic_cursed*`) the same, its move clip a hop, plus an optional `_jump`.
   Optional `<name>_jump.md3` (plays once, holds the last frame; the giant rat's, giant scarab's, cursed mimic's and Babi's leap) and `media/sounds/<category>/<name>_jump.wav`.
-  Optional `<name>_climb.md3` (loops, back to the camera; rat, scorpion, mummy, mummy priest, Anubis, baboon, Babi).
+  Optional `<name>_climb.md3` (loops, back to the camera; rat, scorpion, mummy, mummy priest, Anubis, baboon, Babi, camel spider).
   The mummy (`ENTOMBED_CLIPS`) adds a required `_idle` (dormant in its coffin) and `_rise` (`ModelState::Rise`, suffix `_rise`, plays once:
   its wake clip, climbing out; the last frame is walk frame 0). The cobra (`COILED_CLIPS`), the blue lotus and the ushabti
   (`FLOATING_CLIPS`) require `_idle` and `_rise` too.
@@ -145,7 +145,7 @@ Start from the one closest to the new model. Details per model: its docstring an
 | `hippo.py` | hippo, Seth | `crocodile.py` style: barrel body, huge hinged jaw (the yawn), ear bones, idle with only eyes, ears and nostrils on top |
 | `scarab.py` | scarab, giant scarab, Khepri | six legs, rigid parts per bone, analytic IK, tripod gait, jump |
 | `scorpion.py` | scorpion, giant, queen | eight legs, FK tail blended between poses, climb |
-| `camel_spider.py` | camel spider, Mother of Webs | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip |
+| `camel_spider.py` | camel spider, Mother of Webs, tiny spider | `scorpion.py`'s legs and palps (IK), sawing chelicerae on hinged jaws, cone bristles, idle clip, climb |
 | `baboon.py` | baboon, Babi (`--boss`: reshaped, own files) | `rat.py` style quadruped (loft over bones, two-bone IK legs, FK tail, climb) with world-point hand targets (rearing, raised hands), a mane loft with flat locks, a prop bone scaled to zero (the coal); ranged clip `--measure` |
 | `bat.py` | bat, giant, vampire | flying: FK deformation matrices, membrane grids, hanging idle |
 | `mimic.py` | mimic, cursed mimic | ambush monster built on an item's mesh (`items.build_chest`); `--cursed`: own move (hop) and jump clips, the texture recoloured by colour class |

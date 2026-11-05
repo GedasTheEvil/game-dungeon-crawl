@@ -2,6 +2,7 @@
 #include "../core/gameplay_config.h"
 #include <algorithm>
 #include <deque>
+#include <utility>
 
 namespace {
 bool inBounds(int col, int row) { return col >= 0 && col < LEVEL_WIDTH && row >= 0 && row < LEVEL_HEIGHT; }
@@ -88,7 +89,7 @@ int leapCatchAt(const Tile* cells, int col, int row, int dir, int reach, BodyFit
 }
 
 bool ClimbMap::Stands(int col, int row) const {
-	if (!inBounds(col, row) || isSolidTile(at(cells, col, row)))
+	if (!inBounds(col, row) || isSolidTile(at(cells, col, row)) || (how.avoids && how.avoids(col, row)))
 		return false;
 	return ladderAt(cells, col, row) || !walkerBlockedAt(cells, col, row, how.reckless);
 }
@@ -136,7 +137,7 @@ int ClimbMap::neighbours(int col, int row, int (&outCol)[NEIGHBOURS_MAX], int (&
 
 void ClimbMap::Build(const Tile* grid, int goalCol, int goalRow, ClimbAbility ability, int maxSteps) {
 	cells = grid;
-	how = ability;
+	how = std::move(ability);
 	steps.fill(-1);
 	if (!Stands(goalCol, goalRow))
 		return;

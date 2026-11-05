@@ -1,0 +1,8 @@
+; Plan spider-climbers (tests/play/spider-climbers.txt): two floors, a dark
+; ladder (col 7) and one whose top the play script lights (col 29); a camel spider (col 13) and three tiny spiders
+; (cols 18-20) on the lower floor.
+########################################
+#S.....H.....................H........E#
+#######H#####################H##########
+#......H.....h....[[[........H.........#
+########################################

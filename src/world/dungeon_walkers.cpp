@@ -346,6 +346,19 @@ int Dungeon::rungsExit(const Monster& mon) const {
 	return 0;
 }
 //======================================================================================
+// A climber with no way on that hangs on the rungs over the shaft (it came up after the player, who then went on
+// into the light, plan spider-climbers) climbs down to the first floor below. False: it stands on a floor.
+bool Dungeon::climbDown(Monster& mon) {
+	const auto col = static_cast<int>(std::floor(mon.CentreX()));
+	int row = mon.Row();
+	while (mon.OnRungs() && row > 0 && walkerBlocked(col, row, mon.reckless()) && MapAt(col, row - 1).type == Ladder)
+		row--;
+	if (row == mon.Row())
+		return false;
+	mon.StartClimb(col, row);
+	return true;
+}
+//======================================================================================
 bool Dungeon::followPath(Monster& mon, int dir) {
 	if (!mon.climbs() || !mon.Alerted())
 		return false;
@@ -363,12 +376,16 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 		}
 		return false; // the walker's rules: chase along the row and bite
 	}
-	const ClimbAbility how{
+	ClimbAbility how{
 		mon.reckless(),
 		leaps(mon.Type()->locomotion),
 		mon.Body(),
 		MONSTER_JUMP_MAX_GAP + (mon.Type()->isBoss() ? BOSS_LEAP_CATCH_EXTRA : 0)
 	};
+	if (mon.Type()->shunsLight) { // no way through the light, a lit ladder top is a wall (plan spider-climbers)
+		const bool torches = mon.Type()->douseCells == 0; // as shunned
+		how.avoids = [this, torches](int c, int r) { return Lit(c, r, torches); };
+	}
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
 	climbPath.Build(map, playerCol, playerRow, how, CLIMB_PATH_MAX);
 	if (climbPath.Steps(col, mon.Row()) > 0)
@@ -376,10 +393,10 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 	else if (int toCol = 0, toRow = 0; mon.HeadingFor(toCol, toRow))
 		climbPath.Build(map, toCol, toRow, how, CLIMB_PATH_MAX); // where the player was last
 	else
-		return false; // gave up: it stays where it is
+		return climbDown(mon); // gave up: it stays where it is, on a floor
 	int nextCol = 0, nextRow = 0;
 	if (!climbPath.Next(col, mon.Row(), nextCol, nextRow))
-		return false;
+		return climbDown(mon);
 	if (nextRow != mon.Row()) { // a rung: to the ladder's middle first
 		const float centre = static_cast<float>(col) + 0.5f;
 		if (std::fabs(mon.CentreX() - centre) > mon.WalkStep())

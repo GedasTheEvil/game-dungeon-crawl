@@ -304,6 +304,7 @@ class Dungeon {
 	// or out of its reach along it; dir: Monster::attackDirection. On the rungs with the player in reach, it steps off
 	// them (rungsExit). False: the walker's rules go on (no path, given up).
 	bool followPath(Monster& mon, int dir);
+	bool climbDown(Monster& mon); // a climber with no way on, hanging over the shaft: down to the floor below
 	// A climber on the rungs with the player in reach: the way off them to a floor, -1 / +1; 0: none.
 	[[nodiscard]] int rungsExit(const Monster& mon) const;
 	// Flyers (dungeon_flight.cpp, plan bats-high-ceiling): whether it sees the player, the row it heads for and the way
@@ -533,7 +534,8 @@ class Dungeon {
 		int summoned = 0; // minions summoned this fight, after the first ones
 		int nextSummonMs = 0; // GameClock time of the next summon
 		int firstLeft = 0; // hatchers: first minions still to come (the egg clusters spawn in view after the boss)
-		int hatched = 0; // minions hatched or out of a wall so far: picks the kind (BossRules::smallMinion), the nest
+		int hatched =
+			0; // minions hatched, out of a wall or dropped so far: picks the kind (BossRules::smallMinion), the nest
 	} bossFight;
 	void startBossFight(int slot); // the boss appeared: its first minions with it
 	void updateBoss(); // summons while it lives; its death opens the boss gates, for good

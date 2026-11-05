@@ -1750,10 +1750,41 @@ class LevelBuilder {
 		const int type = fauna != nullptr ? zoneMonster(col, row, dark) : randomMonster();
 		if (type == 0)
 			return false;
+		if (monsterKind(type)->group > 1 && !groupCell(col - 1, row) && !groupCell(col + 1, row))
+			return false; // no room for a group
 		put(col, row, Tile{MonsterSpawn, type, 0});
 		busy[index(col, row)] = 1;
 		monsters++;
+		placeGroup(col, row, type);
 		return true;
+	}
+
+	// One of a group may stand there: a free floor cell no other feature uses.
+	[[nodiscard]] bool groupCell(int col, int row) const {
+		return col >= 1 && col < LEVEL_WIDTH - 1 && busy[index(col, row)] == 0 && freeCell(col, row) &&
+			   isSolidStructure(g.at(col, row - 1).structure);
+	}
+
+	// The rest of a group (MonsterKind::group, the tiny spiders): 1 to group - 1 more of its kind on the free floor
+	// cells next to it, either side in turn, each side up to the first cell that is not.
+	void placeGroup(int col, int row, int type) {
+		const int group = monsterKind(type)->group;
+		if (group < 2)
+			return;
+		int more = rng.range(1, group - 1);
+		int next[2] = {col + 1, col - 1};
+		bool open[2] = {true, true};
+		for (int side = 0; more > 0 && (open[0] || open[1]); side = 1 - side) {
+			const int c = next[side];
+			open[side] = open[side] && groupCell(c, row);
+			if (!open[side])
+				continue;
+			put(c, row, Tile{MonsterSpawn, type, 0});
+			busy[index(c, row)] = 1;
+			monsters++;
+			more--;
+			next[side] += side == 0 ? 1 : -1;
+		}
 	}
 
 	[[nodiscard]] bool floorCell(const Segment& s, int col) const {

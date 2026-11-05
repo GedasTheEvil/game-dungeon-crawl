@@ -3,10 +3,12 @@ die, idle).
 
     MCP:  p = ".../tools/blender/models/camel_spider.py"; g = {"__file__": p, "__name__": "camel_spider"}
           exec(open(p).read(), g); g["build"]()          # then g["export"]()
-    CLI:  blender -b --python tools/blender/models/camel_spider.py -- [--export] [--boss-texture]
+    CLI:  blender -b --python tools/blender/models/camel_spider.py -- [--export | --export-climb] [--boss-texture]
+          [--tiny-texture]
 
 camel_spider_mother.png (the Mother of Webs, the boss, plan camel-spider-boss: near-black, bone-pale bands, a pale
 sheen on the head plate and the legs, red-black jaws) shares the UVs: bake it alone with --boss-texture.
+camel_spider_tiny.png (the tiny spider, plan spider-climbers: darker, greyer) too: --tiny-texture.
 
 Blender space: Z up, the spider faces +Y (game uses rotA = 180), its right side is +X.
 Built on scorpion.py's rig: rigid parts follow one bone each. The prosoma (the domed head plate, the eye tubercle) and
@@ -17,7 +19,9 @@ towards a wrist target, the tarsus with its pale sucker), so it looks ten-legged
 so the lowest vertex touches the floor (numpy skinning, as in scorpion.py).
 Clips: walk (16 frames, two gait cycles: a fast scuttle, the palps tapping), attack (18: rears, palps up, lunges with
 the jaws open, snaps), die (26: flips onto its back, the legs curl), idle (24: waits, palps tapping, jaws sawing; shown
-while it stands at the edge of the light).
+while it stands at the edge of the light), climb (16: head up, back to the camera, the tetrapods take turns on the
+rungs, the palps on a rung over the head; one cycle per 2 rungs; prints climbRise / climbGrip for KINDS;
+--export-climb writes only it; CAMEL_SPIDER_LADDER=1 adds a ladder stand-in).
 """
 
 import importlib
@@ -38,7 +42,7 @@ from common import REPO, Builder, ellipsoid, smoothstep, tube  # noqa: E402
 
 COLL = "camel_spider_new"
 CLIPS = [("camel_spider_walk", "", 16), ("camel_spider_attack", "_att", 18), ("camel_spider_die", "_die", 26),
-         ("camel_spider_idle", "_idle", 24)]
+         ("camel_spider_idle", "_idle", 24), ("camel_spider_climb", "_climb", 16)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0.1, 0.25), "ortho": 2.2, "res": (560, 400)}
 
@@ -64,6 +68,18 @@ COL_MOTHER = {
     "rust_dark": (0.08, 0.015, 0.01),
     "black": (0.01, 0.006, 0.004),
     "eye": (0.25, 0.02, 0.01),
+}
+# The tiny spider (camel_spider_tiny.png, same UVs, plan spider-climbers): darker and greyer than its big kin, so the
+# player tells a near one from a far camel spider; the abdomen's bands and the jaws stay.
+COL_TINY = {
+    "sand": (0.24, 0.17, 0.10),
+    "sand_hi": (0.36, 0.28, 0.19),
+    "sand_dark": (0.09, 0.06, 0.035),
+    "pale": (0.52, 0.44, 0.32),
+    "rust": (0.34, 0.12, 0.05),
+    "rust_dark": (0.12, 0.04, 0.02),
+    "black": (0.012, 0.008, 0.005),
+    "eye": (0.004, 0.004, 0.004),
 }
 
 UP, FWD, X = V((0, 0, 1)), V((0, 1, 0)), V((1, 0, 0))
@@ -458,13 +474,16 @@ def palp_mats(rest, p, T, s, mats):
     hip0, wrist0, bend0, tdir0 = palp_rest(s)
     elbow0, normal0, wrist0 = solve_leg(hip0, wrist0, PALP_A, PALP_B, bend0)
     R = T.to_3x3()
-    # The two palps tap in turn (the right one half a cycle after the left).
-    tap = p["ptap"] * math.sin(2 * math.pi * (p["pphase"] + (0.5 if s > 0 else 0.0)))
-    limp = V((0.22 * s, 0.62, 0.12))
-    w_body = wrist0 + V((p["pspread"] * s, p["pfwd"], p["pup"] + tap))
-    w_body = w_body.lerp(limp, p["plimp"])
-    target = T @ w_body
-    td = R @ (euler(70 * p["pup"] - 40 * p["plimp"] + 150 * tap, 0, 0) @ tdir0)
+    if "palps" in p:  # climbing: wrist target and tarsus direction in armature space, the sucker on a rung above
+        target, td = p["palps"][s]
+    else:
+        # The two palps tap in turn (the right one half a cycle after the left).
+        tap = p["ptap"] * math.sin(2 * math.pi * (p["pphase"] + (0.5 if s > 0 else 0.0)))
+        limp = V((0.22 * s, 0.62, 0.12))
+        w_body = wrist0 + V((p["pspread"] * s, p["pfwd"], p["pup"] + tap))
+        w_body = w_body.lerp(limp, p["plimp"])
+        target = T @ w_body
+        td = R @ (euler(70 * p["pup"] - 40 * p["plimp"] + 150 * tap, 0, 0) @ tdir0)
     hip = T @ hip0
     elbow, normal, wrist = solve_leg(hip, target, PALP_A, PALP_B, R @ bend0)
     mats["pfemur" + sfx] = frame(hip, elbow - hip, normal) @ frame(hip0, elbow0 - hip0, normal0).inverted() @ rest["pfemur" + sfx]
@@ -500,6 +519,8 @@ def pose_matrices(rest, p):
         body_td = R @ td0
         hang = (body_td + (foot - knee).normalized() * 0.8).normalized()
         planted = flat(body_td) * math.sqrt(1 - td0.z * td0.z) + V((0, 0, td0.z))
+        if "tdirs" in p:  # climbing: the tarsus hooks onto the rung
+            planted = p["tdirs"][n]
         td = planted.lerp(hang, min(1.0, swing * 1.5)).normalized()
         mats["tarsus" + n] = frame(foot, td, normal) @ frame(foot0, td0, normal0).inverted() @ rest["tarsus" + n]
     for s in (1, -1):
@@ -533,13 +554,27 @@ class Skin:
             z += self.W[:, j] * (self.P @ row)
         return float(z.min())
 
+    def points(self, mats):
+        """Skinned vertex coordinates for pose matrices mats."""
+        np = self.np
+        out = np.zeros((len(self.P), 3))
+        for j, n in enumerate(self.bones):
+            m = np.array(mats[n] @ self.inv[n])[:3]
+            out += self.W[:, j : j + 1] * (self.P @ m.T)
+        return out
 
-def key_frame(rig, skin, p, frame_no):
-    bones = rig.data.bones
-    rest = {bn.name: bn.matrix_local.copy() for bn in bones}
+
+def frame_mats(rig, skin, p, lift=None):
+    """Armature-space matrices of every bone: the lowest vertex on the floor, or raised by a fixed lift (the climb)."""
+    rest = {bn.name: bn.matrix_local.copy() for bn in rig.data.bones}
     mats = pose_matrices(rest, p)
-    S = Matrix.Translation(V((0, 0, -skin.lowest(mats))))
-    mats = {n: S @ m for n, m in mats.items()}
+    S = Matrix.Translation(V((0, 0, -skin.lowest(mats) if lift is None else lift)))
+    return {n: S @ m for n, m in mats.items()}
+
+
+def key_frame(rig, skin, p, frame_no, lift=None):
+    bones = rig.data.bones
+    mats = frame_mats(rig, skin, p, lift)
     for bn in bones:
         pose = mats[bn.name]
         if bn.parent:
@@ -602,10 +637,126 @@ def idle_params(t):
     return p
 
 
+# Climbing a ladder (camel_spider_climb.md3, plan spider-climbers), after scorpion.py's. The engine draws it at
+# rotA + 180, so +Y points at the ladder and the back faces the camera. It sets the frame from the climb height (one
+# cycle per CLIMB_RUNGS rungs; the clock does not advance it) and lifts the body, so here the body holds its height and
+# a gripping tarsus slides down at the climb rate. The walk's alternating tetrapods: one grips and pulls (half a cycle,
+# one rung) while the other swings up one rung, off the ladder; the palps, held up like a fifth pair of legs, take
+# turns on a rung over the head. Ladder sizes (rails at x = +-0.1 tile, a hold every tile / 12) come from the walk's
+# frame 0, which the engine scales to the kind's size (the camel spider's 28 units = 0.7 tile). The tiny spider and
+# the Mother of Webs share the clip at their scales, so their tarsi miss the rungs.
+CLIMB = ("camel_spider_climb", "_climb", 16)
+CLIMB_SCALE = 28  # the camel spider's kind scale (world units, 40 = 1 tile)
+CLIMB_RUNGS = 2  # rungs climbed per cycle (R)
+CLIMB_PITCH = 84  # body pitched head-up, the belly towards the ladder
+CLIMB_GRIP_Y = 0.30  # G: the ladder plane, where the tarsi and the palps grip
+CLIMB_OFF = 0.10  # a swinging tarsus comes this far off the ladder
+# Per leg pair: x of the grip, the wanted top of its stroke in the body's height (before the lift); snapped to a rung.
+# The legs reach past the rails and hook round them, the long hind pair braced low.
+CLIMB_LEGS = {"1": (0.26, 0.80), "2": (0.34, 0.56), "3": (0.36, 0.22), "4": (0.30, -0.18)}
+CLIMB_PALP = (0.14, 1.10)  # x of the palp's sucker on a rung, its wanted top
+CLIMB_REF = {}  # walk frame 0 sizes, the ladder in authored units, the lift; filled by climb_setup
+
+
+def climb_stroke(u):
+    """Stroke position (1 = top, 0 = bottom) and lift at phase u: grip and pull down at the climb rate, swing up."""
+    u %= 1.0
+    if u < 0.5:
+        return 1 - u / 0.5, 0.0  # linear: the ladder rises at a constant rate against the body
+    k = (u - 0.5) / 0.5
+    return smoothstep(0, 1, k), math.sin(math.pi * k)
+
+
+def climb_params(t, ref):
+    """Pose at climb phase t; foot and palp targets in armature space before the lift (ref["lift"])."""
+    p = dict(REST)
+    w = 2 * math.pi * t
+    p.update(pitch=CLIMB_PITCH + 0.8 * math.sin(2 * w), roll=2.0 * math.sin(w), yaw=1.5 * math.cos(w), flex=8 + 2 * math.sin(2 * w),
+             saw=0.015, sphase=t)
+    lift, rung, tops = ref["lift"], ref["rung"], ref["tops"]
+    feet, tdirs = {}, {}
+    for leg in LEGS:
+        n, s = leg["name"], leg["s"]
+        x, _ = CLIMB_LEGS[n[0]]
+        k, up = climb_stroke(t + leg["phase"])
+        tip = V((x * s, CLIMB_GRIP_Y - CLIMB_OFF * up, tops[n[0]] - rung + rung * k - lift))
+        td = V((0.3 * s, 1, -0.4)).normalized()
+        feet[n] = (tip - td * leg["tlen"], up)
+        tdirs[n] = td
+    p["feet"], p["tdirs"] = feet, tdirs
+    palps = {}
+    for s, phase in ((1, 0.0), (-1, 0.5)):  # the right palp grips with L1 R2 L3 R4
+        k, up = climb_stroke(t + phase)
+        sucker = V((CLIMB_PALP[0] * s, CLIMB_GRIP_Y - 0.08 * up, tops["p"] - rung + rung * k - lift))
+        td = (V((0.1 * s, 0.75, 0.66)) + V((0, -0.5, 0)) * up).normalized()  # up the ladder, the sucker on its face
+        palps[s] = (sucker - td * TARSUS_LEN, td)
+    p["palps"] = palps
+    return p
+
+
+def climb_setup(rig, skin):
+    """Walk frame 0 sizes, the ladder in authored units, the lift (the clip's lowest point on the floor), the rungs."""
+    pts = skin.points(frame_mats(rig, skin, walk_params(0.0)))
+    lo, hi = pts.min(axis=0), pts.max(axis=0)
+    size = float(max(hi - lo))
+    tile = 40 * size / CLIMB_SCALE
+    ref = dict(S=size, H=float(hi[2] - lo[2]), C=float(lo[1] + hi[1]) / 2, tile=tile, rung=tile / 12, R=CLIMB_RUNGS * tile / 12, lift=0.6)
+    rung = ref["rung"]
+
+    def lowest(f):
+        return skin.lowest(frame_mats(rig, skin, climb_params(f / CLIMB[2], ref), ref["lift"]))
+
+    for _ in range(5):  # the tops snap to holds ((k + 0.5) rungs above the floor), the lift puts the clip's lowest point on it
+        tops = {n: top for n, (_, top) in CLIMB_LEGS.items()}
+        tops["p"] = CLIMB_PALP[1]
+        ref["tops"] = {n: (round((top + ref["lift"]) / rung - 0.5) + 0.5) * rung for n, top in tops.items()}
+        ref["lift"] -= min(lowest(f) for f in range(0, CLIMB[2], 2))
+    ref["low"] = lowest(0)
+    CLIMB_REF.update(ref)
+    return ref
+
+
+def print_climb():
+    r = CLIMB_REF
+    print("climb: walk frame 0 S_ref {S:.4f} H {H:.4f} C {C:.4f}; tile {tile:.4f}, rung {rung:.4f}, R {R:.4f} ({n} rungs), G {G:.3f}, "
+          "lift {lift:.4f} (frame 0 lowest {low:+.4f}), {frames} frames".format(n=CLIMB_RUNGS, G=CLIMB_GRIP_Y, frames=CLIMB[2], **r))
+    print("climb: climbRise = R / H = {:.4f}, climbGrip = (G - C) / H = {:.4f}".format(r["R"] / r["H"], (CLIMB_GRIP_Y - r["C"]) / r["H"]))
+    print("climb: grip tops " + " ".join("{} {:.3f}".format(n, z) for n, z in sorted(r["tops"].items())))
+    short = {}  # how far each IK chain falls short of its target over the clip
+    for f in range(CLIMB[2]):
+        p = climb_params(f / CLIMB[2], r)
+        T = body_mats(p)[0]
+        for leg in LEGS:
+            d = (p["feet"][leg["name"]][0] - T @ leg["hip"]).length - (leg["a"] + leg["b"]) * 0.999
+            short[leg["name"]] = max(short.get(leg["name"], -9.0), d)
+        for s in (1, -1):
+            d = (p["palps"][s][0] - T @ V((PALP_HIP[0] * s, PALP_HIP[1], PALP_HIP[2]))).length - (PALP_A + PALP_B) * 0.999
+            short["palp%+d" % s] = max(short.get("palp%+d" % s, -9.0), d)
+    print("climb: IK short of target (max, <= 0 reaches) " + " ".join("{} {:+.3f}".format(n, d) for n, d in sorted(short.items())))
+
+
+def ladder_standin(coll):
+    """Review only (CAMEL_SPIDER_LADDER=1): rails at x = +-0.1 tile and a rung every tile / 12 in the plane y = G."""
+    r = CLIMB_REF
+    b = Builder()
+    mat = common.make_material("camel_spider_ladder", ("solid", "rust"), COL)
+    for s in (1, -1):
+        b.add(tube([((0.1 * r["tile"] * s, CLIMB_GRIP_Y + 0.03, -0.1), 0.02, 0.02), ((0.1 * r["tile"] * s, CLIMB_GRIP_Y + 0.03, 2.4), 0.02, 0.02)],
+                   n=8, ref=FWD), mat, "body")
+    k = 0
+    while (k + 0.5) * r["rung"] < 2.4:
+        z = (k + 0.5) * r["rung"]
+        b.add(tube([((-0.1 * r["tile"], CLIMB_GRIP_Y + 0.01, z), 0.015, 0.015), ((0.1 * r["tile"], CLIMB_GRIP_Y + 0.01, z), 0.015, 0.015)],
+                   n=8, ref=UP), mat, "body")
+        k += 1
+    common.finish_mesh(b, coll, "camel_spider_ladder")
+
+
 def make_actions(rig, skin):
     rig.animation_data_create()
     acts = {}
-    for name, suffix, frames in CLIPS:
+    # The climb is keyed first, as in scorpion.py: keyed last it may shift the other clips' export a little.
+    for name, suffix, frames in sorted(CLIPS, key=lambda c: c[0] != CLIMB[0]):
         act = bpy.data.actions.get(name)
         if act:
             bpy.data.actions.remove(act)
@@ -613,6 +764,12 @@ def make_actions(rig, skin):
         act.use_fake_user = True
         rig.animation_data.action = act
         last = frames if name != "camel_spider_die" else frames - 1  # loops key frame N = frame 0
+        if name == CLIMB[0]:
+            ref = climb_setup(rig, skin)
+            for f in range(last + 1):
+                key_frame(rig, skin, climb_params(f / frames, ref), f, lift=ref["lift"])
+            acts[name] = act
+            continue
         for f in range(last + 1):
             if name == "camel_spider_walk":
                 p = walk_params(f / frames)
@@ -654,6 +811,9 @@ def build(bake=True, tex_path=None):
     scene.frame_start, scene.frame_end = 0, CLIPS[0][2] - 1
     scene.frame_set(0)
     print("camel_spider: {} verts, {} tris".format(len(obj.data.vertices), common.tri_count(obj)))
+    print_climb()
+    if os.environ.get("CAMEL_SPIDER_LADDER"):
+        ladder_standin(coll)
     return obj, rig
 
 
@@ -668,6 +828,15 @@ if __name__ == "__main__" and "--" in sys.argv:
         materials(COL_MOTHER)
         common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "camel_spider_mother.png"), TEX_SIZE,
                             "camel_spider_mother", ao_distance=0.1)
+    elif "--tiny-texture" in args:
+        obj, _ = build(bake=False)
+        materials(COL_TINY)
+        common.bake_texture(obj, os.path.join(REPO, "media", "textures", "monsters", "camel_spider_tiny.png"), TEX_SIZE,
+                            "camel_spider_tiny", ao_distance=0.1)
+    elif "--export-climb" in args:  # that clip alone (no texture bake)
+        build(bake=False)
+        common.export_files(bpy.data.objects["camel_spider_new"], bpy.data.objects["camel_spider_rig"], "camel_spider",
+                            [CLIMB], "monsters")
     elif "--export" in args:
         build(tex_path=os.path.join(REPO, "media", "textures", "monsters", "camel_spider.png"))
         export()

@@ -37,8 +37,8 @@
 20,24 surface 7/1/2 prop skeleton 0.087 torch fire torch 0.000,0.680,0.098
 21,24 surface 6/1/2
 22,24 surface 6/1/2
-23,24 surface 7/1/2 prop webm -0.000
-24,24 surface 6/1/2 prop sandm 0.000
+23,24 surface 7/1/2
+24,24 surface 6/1/2
 25,24 surface 6/1/2
 26,24 surface 6/1/2 decal 1m 0.631,0.465
 7,25 surface 6/1/2 ladder 0/1

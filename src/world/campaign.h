@@ -115,9 +115,9 @@ struct ZoneFauna {
 };
 // By ZoneId.
 constexpr ZoneFauna ZONE_FAUNA[ZONE_ID_COUNT] = {
-	{{{MonsterRat, 4}, {MonsterScarab, 4}, {MonsterBat, 3}, {MonsterPlant, 2}}, 10, 0},
+	{{{MonsterRat, 4}, {MonsterScarab, 4}, {MonsterBat, 3}, {MonsterPlant, 2}, {MonsterTinySpider, 2}}, 10, 0},
 	{{{MonsterBat, 4}, {MonsterGiantBat, 3}, {MonsterWorm, 2}, {MonsterGiantRat, 3}, {MonsterCrocodile, 2}}, 15, 0},
-	{{{MonsterCamelSpider, 4}, {MonsterGiantScarab, 3}, {MonsterGiantRat, 1}}, 30, 0},
+	{{{MonsterCamelSpider, 4}, {MonsterGiantScarab, 3}, {MonsterGiantRat, 1}, {MonsterTinySpider, 2}}, 30, 0},
 	{{{MonsterMummy, 4}, {MonsterUshabti, 2}, {MonsterAnubis, 1}, {MonsterGiantScarab, 1}}, 15, 0, 40},
 	{{{MonsterScorpion, 4}, {MonsterGiantScorpion, 3}, {MonsterGiantScarab, 1}}, 15, 0},
 	{{{MonsterCobra, 4}, {MonsterGiantCobra, 2}, {MonsterCrocodile, 2}, {MonsterGiantBat, 1}}, 15, 0},
@@ -258,7 +258,11 @@ struct Zone {
 
 // The campaign (docs/levels.md, Zones), generated zone by zone (plan denser-levels, tools/level/rebuild.txt).
 constexpr Zone ZONES[] = {
-	{ZoneId::TombEntrance, 1, 4, {MonsterRat, MonsterScarab, MonsterBat, MonsterPlant}, MonsterBossScarab},
+	{ZoneId::TombEntrance,
+	 1,
+	 4,
+	 {MonsterRat, MonsterScarab, MonsterBat, MonsterPlant, MonsterTinySpider},
+	 MonsterBossScarab},
 	{ZoneId::BatGalleries,
 	 5,
 	 9,
@@ -267,7 +271,7 @@ constexpr Zone ZONES[] = {
 	{ZoneId::WebHalls,
 	 10,
 	 13,
-	 {MonsterCamelSpider, MonsterGiantScarab, MonsterGiantRat, MonsterMimic},
+	 {MonsterCamelSpider, MonsterGiantScarab, MonsterGiantRat, MonsterTinySpider, MonsterMimic},
 	 MonsterMotherOfWebs},
 	{ZoneId::PriestsQuarter,
 	 14,

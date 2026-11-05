@@ -110,3 +110,7 @@ note: Found the one who makes the webs. She does not hide from the torches; she 
 
 [monster.babi]
 note: The heart-eater. I keep mine, thank you.
+
+[monster.tiny-spider]
+note: The camel spider's young, or its smaller cousin; nobody in the camp could tell me which. Never one alone. They
+	come out of the cracks in threes and fours, and run from my torch like their big kin.

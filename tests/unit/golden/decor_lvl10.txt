@@ -366,7 +366,7 @@
 18,32 surface 5/0/1 sand< ladder 0/4
 19,32 surface 3/2/1
 20,32 surface 3/2/1
-21,32 surface 3/0/1 prop thoth_baboon_standing 0.092 decal 7m 0.507,0.469
+21,32 surface 3/0/1 decal 10m 0.514,0.453
 22,32 surface 3/2/1
 23,32 surface 4/0/1 ladder 0/2m
 24,32 surface 2/0/1m

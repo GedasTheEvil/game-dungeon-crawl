@@ -144,7 +144,8 @@ code. A feature's numbers (speeds, ranges, timings) sit in `core/gameplay_config
 |---|---|
 | Monster type: stats, damage mix, resistances, abilities, threat | `world/monster_kinds.*` (one row per type) |
 | Monster AI decisions (chase, flee, bite, lurk, ranged attack) | `entities/monster_ai.cpp` |
-| Light shunners (the camel spider): lit cells, the stop at the light, the run for the dark | `Dungeon::Lit` (`world/dungeon_decor.cpp`), `Dungeon::walkerStops`, `wayOutOfLight` (`world/dungeon_walkers.cpp`) |
+| Light shunners (the camel spider, the tiny spider): lit cells, the stop at the light, the run for the dark, no climb path through the light | `Dungeon::Lit` (`world/dungeon_decor.cpp`), `Dungeon::walkerStops`, `wayOutOfLight`, `followPath` (`ClimbAbility::avoids`), `climbDown` (`world/dungeon_walkers.cpp`) |
+| Monsters in groups (the tiny spiders): levelgen's group placement | `MonsterKind::group` (`world/monster_kinds.h`), `placeGroup` (`world/level_gen.cpp`) |
 | Monster locomotion: state and update (`Flight`, `Leap`, `Burrow`, `Charge`, `Climb`) | `entities/monster_<flight\|leap\|burrow\|charge\|climb>.{h,cpp}`; a new one: a new pair, its member in `Monster` |
 | Monster update on the level | `world/dungeon_monsters.cpp` (`UpdateMonsters`, hits, kills, spawns); per locomotion `world/dungeon_walkers.cpp` (walk, leap, flee, climbers' paths, with `world/climb_path.*`), `dungeon_flight.cpp`, `dungeon_burrow.cpp`, `dungeon_charge.cpp` |
 | Monster drawing | `entities/monster_draw.*`; in-level effects `world/dungeon_render_effects.cpp` |

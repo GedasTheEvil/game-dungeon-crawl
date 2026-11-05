@@ -78,8 +78,8 @@ struct BossRules {
 	int lifeStealPct = 0; // heals this share of the damage it deals
 	Summon summon = Summon::DigOut;
 	int nest = 0; // Summon::Hatch: the MonsterTypeId its minions hatch out of
-	// Summon::Hatch, Summon::Wall: a smaller kind every other summon (the scorpion queen's scorpions, the Anubis's
-	// ushabti); 0: none
+	// A smaller kind every other summon (the scorpion queen's scorpions, the Anubis's ushabti, the Mother of Webs's
+	// tiny spiders); 0: none
 	int smallMinion = 0;
 };
 
@@ -375,6 +375,8 @@ struct MonsterKind {
 	int kin = 0;
 	BossRules boss{}; // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
 	GenPick generated{}; // levelgen's random monsters
+	// Comes in groups (plan spider-climbers): levelgen puts 2 to this many side by side; 1: one at a time.
+	int group = 1;
 	// An ambusher's cover (ambushes()): the container it passes for, the one it leaves killed (the mimic jar's jar).
 	Container disguise = Container::Chest;
 

@@ -248,7 +248,7 @@
 16,21 surface 0/0/1 decal 0m 0.462,0.585
 17,21 surface 1/0/1 decal 13m 0.585,0.225
 18,21 surface 0/0/1 decal 7 0.510,0.619
-19,21 surface 1/0/1 prop thoth_ibis_seated 0.119 decal 7 0.613,0.400
+19,21 surface 1/0/1 decal 8 0.591,0.423
 20,21 surface 0/0/1
 21,21 surface 0/0/1 prop skeleton 0.128
 22,21 surface 0/0/1 prop potterym -0.045

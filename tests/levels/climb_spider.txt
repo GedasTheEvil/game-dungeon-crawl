@@ -1,0 +1,8 @@
+; Two floors joined by a ladder (col 6), a camel spider on the lower floor (col 12): it follows the player up the
+; ladder, unless a torch lights the ladder top (tests/unit/spider_climbers_test.cpp, plan spider-climbers). The
+; torches are the test's: it takes the scattered ones away.
+####################
+#S....H........E...#
+######H#############
+#.....H.....h......#
+####################

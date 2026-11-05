@@ -38,7 +38,7 @@
 5,36 surface 6/1/2
 6,36 surface 6/1/2 prop skeletonm -0.149 decal 0m 0.343,0.556
 7,36 surface 7/1/2 decal 15 0.567,0.376
-8,36 surface 6/1/2 prop sand 0.000
+8,36 surface 6/1/2
 9,36 surface 6/1/2 decal 2 0.363,0.350
 10,36 surface 6/1/2 prop rubble -0.012
 11,36 surface 6/1/2 ladder 1/4

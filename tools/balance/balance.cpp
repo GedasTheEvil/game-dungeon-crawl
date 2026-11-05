@@ -573,6 +573,8 @@ Target targetOf(const MonsterKind& kind) {
 	case MonsterScorpion:
 	case MonsterCamelSpider:
 		return {6, 3};
+	case MonsterTinySpider: // one of a group of 2 to 4 (plan spider-climbers)
+		return {3, 2};
 	case MonsterPlant:
 	case MonsterWorm:
 	case MonsterUshabti:

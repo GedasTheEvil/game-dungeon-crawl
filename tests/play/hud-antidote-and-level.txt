@@ -1,9 +1,0 @@
-# Plan hud-antidote-and-level, for `bin/game --play tests/play/hud-antidote-and-level.txt`: the HUD's fifth quick slot
-# (the antidote, key 5 / =) with its count, the character level right of the XP line. The poison makes the slot blink.
-seed 1
-level tests/levels/classic1
-give potion 1 2
-give potion 6 1
-give potion 7 3
-xp 2500
-poison weak

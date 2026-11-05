@@ -1,7 +1,0 @@
-# Plan subcell-checker-mismatches, for `bin/game --play tests/play/subcell-checker-mismatches.txt`: lvl11 on the ladder
-# over the crawl space it ends beside (col 15, row 16). Climb down, walk left a step off the ladder, crouch (down) and
-# crawl left through. Before, the crawl space began right at the ladder: there the down key only climbs.
-seed 1
-god
-peace
-level 11 at 15 16

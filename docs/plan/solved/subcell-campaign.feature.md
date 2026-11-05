@@ -1,7 +1,7 @@
 # Sub-cells in the campaign
 
-Status: implemented 2026-11-04, waiting for the user's play-test (`bin/game --level N`, any level 1 to 54). Was: draft
-2026-11-02, needed [subcell-checker](solved/subcell-checker.md) first. From the user: the sub-cell drafts use a test
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-04, waiting for the user's play-test (`bin/game --level N`, any level 1 to 54). Was: draft
+2026-11-02, needed [subcell-checker](subcell-checker.md) first. From the user: the sub-cell drafts use a test
 level only; the campaign gets steps and crawl spaces here.
 
 Implementer's choices:

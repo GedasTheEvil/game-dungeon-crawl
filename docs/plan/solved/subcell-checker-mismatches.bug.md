@@ -1,6 +1,6 @@
 # Sub-cells: where the checker and the game disagree
 
-Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-04, size M, needs nothing first. Found while shaping the campaign ([subcell-campaign](subcell-campaign.feature.md)): `levelcheck` passed these, the `--script` path then failed in the game. Each was worked around in the levels; the checker (or the game) should agree.
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-04, size M, needs nothing first. Found while shaping the campaign ([subcell-campaign](../subcell-campaign.feature.md)): `levelcheck` passed these, the `--script` path then failed in the game. Each was worked around in the levels; the checker (or the game) should agree.
 
 * A jump onto a step from 2 to 5 sub-cells away (`JUMP_SUBCELLS`, `level_check.cpp`) often lands short in the game and
   the step's face stops the player (lvl51 after the lever, lvl52 by a pit, lvl27 from the dead-end wall, lvl9 next to

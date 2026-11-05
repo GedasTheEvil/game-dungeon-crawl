@@ -1,6 +1,6 @@
 # Regeneration amulet: more sources
 
-Status: implemented 2026-11-04, waiting for the user's play-test. Was: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-04, waiting for the user's play-test. Was: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
 
 ## Problem
 

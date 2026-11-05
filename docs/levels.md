@@ -324,7 +324,7 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
   three quarters onto a step. On a step in half water the player is out of it and may jump. A ladder's cell is
   climbed off onto a step beside it at any height in the cell. A crawl space is not entered from a ladder's cell
   (there the down key climbs; leave a sub-cell of head room between them,
-  [subcell-checker-mismatches](plan/subcell-checker-mismatches.bug.md)). The path lists cells; `sub-cells:` counts the
+  [subcell-checker-mismatches](plan/solved/subcell-checker-mismatches.bug.md)). The path lists cells; `sub-cells:` counts the
   quarter steps jumped onto and the sub-cells crawled.
 - `--script` (`src/world/path_script.cpp`) plays the path with the scenario commands: it crouches through a crawl,
   climbs a ladder to a step's height before stepping off it, and per jump (a stair in one cell: one per step) opens

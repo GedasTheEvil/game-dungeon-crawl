@@ -36,7 +36,9 @@ the implementer decides.
   * Amun: HP to max, then max HP +20% for 2 minutes. When it ends, HP is clamped to the normal max and never drops
     below 1.
   * Serket: ends poison, and no poison lands for 2 minutes (the HUD shows it as a ward). Same block message as the
-    Isis ward ("Serket turns the venom away").
+    Isis ward ("Serket turns the venom away"). With the Serket's favour skill the blessing lasts twice as long, 4
+    minutes, the same as Blessing of Isis does for the Isis ward (from the user). Update the skill's glossary row
+    and its journal note (`note.serkets-favour`).
 * Uses: every prayer gives the blessing, with no limit and no cooldown, the same as Isis (from the user). Nothing to
   save. Shrines stay rare instead (Placement).
 * HUD: yellow blessing status cards (`status_list.cpp`, `PlayerHud::Icon`). The icons come from `tools/textures/hud_icons.py`:
@@ -52,7 +54,7 @@ the implementer decides.
   should not count on the blessings: they are optional, and they run out on the walk to the fight.
 * Glossary rows: each shrine and each blessing. Journal: a field note on the first prayer at each god.
 * Tests: a unit test for each blessing (applied, ends after 2 minutes, ends on death, the same god restarts it, two
-  gods stack, Amun's HP clamp, Serket blocks poison), and a second prayer
+  gods stack, Amun's HP clamp, Serket blocks poison, Serket's favour makes it 4 minutes), and a second prayer
   that gives the blessing again. A play script with all four shrines in reach (a test level may break the soft rule).
 
 ## Lore (why Serket, not Wadjet)
@@ -64,13 +66,8 @@ the implementer decides.
   95% for 2 minutes) and Wadjet's cobra amulet (the player's hits poison). A Shrine of Wadjet would repeat the greater
   ward.
 * Serket already has the Serket's favour skill, Serket's scorpion amulet and the Gate of Serket zone. Shrine and skill
-  pair like Isis: the Serket's favour skill could make her blessing last longer (see Open points), the same as the
+  pair like Isis: the Serket's favour skill doubles her blessing, the same as the
   Blessing of Isis skill.
-
-## Open points
-
-* Should a skill lengthen the blessings, as Blessing of Isis lengthens the Isis ward? Serket's favour is the natural
-  pick for Serket; the others have no skill. Not needed now.
 
 ## Play-test
 

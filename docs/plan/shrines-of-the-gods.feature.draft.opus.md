@@ -1,4 +1,4 @@
-# Shrines of Montu, Ptah, Amun and Wadjet
+# Shrines of Montu, Ptah, Amun and Serket
 
 Status: draft 2026-11-05, size L, needs nothing first. From the user.
 
@@ -10,8 +10,8 @@ blessing that lasts 2 minutes:
 * Shrine of Montu: Might +5.
 * Shrine of Ptah: Armor +5.
 * Shrine of Amun: heals fully, then max HP +20%.
-* Shrine of Wadjet: cures poison, then the player resists poison fully (the user wrote "Wdjet"; the usual name is
-  Wadjet, the cobra goddess).
+* Shrine of Serket: cures poison, then the player resists poison fully. The user first wrote "Wdjet" (Wadjet) and
+  then asked: Serket, see Lore below.
 
 The look comes from the Shrine of Isis. The user suggests splitting the model into the base shrine and the god's statue;
 the implementer decides.
@@ -23,10 +23,10 @@ the implementer decides.
   function per god (`isis_statue` is already one). Export one model per shrine, so the game, the editor and the
   checker see one prop each, the same as the Isis shrine. A runtime split (one naos plus a statue part) would need a
   new two-part prop for no gain. Statues: Montu falcon-headed, a sun disc with two plumes, a khopesh; Ptah mummiform
-  in a skullcap, holding the was-djed sceptre; Amun with the tall double plume, seated like Isis; Wadjet a rearing
-  cobra in the red crown. Wall emblems in place of Isis's wings: Montu sun disc, Ptah djed pillar, Amun ram, Wadjet
-  papyrus stalks. Steps: [modeling.md](../modeling.md).
-* Props: `DECOR_SHRINE_MONTU`, `_PTAH`, `_AMUN`, `_WADJET` (`src/world/decor.h`), a free glyph each (AGENTS.md, Glyphs),
+  in a skullcap, holding the was-djed sceptre; Amun with the tall double plume, seated like Isis; Serket a woman with a
+  scorpion on her head. Wall emblems in place of Isis's wings: Montu sun disc, Ptah djed pillar, Amun ram, Serket
+  a scorpion. Steps: [modeling.md](../modeling.md).
+* Props: `DECOR_SHRINE_MONTU`, `_PTAH`, `_AMUN`, `_SERKET` (`src/world/decor.h`), a free glyph each (AGENTS.md, Glyphs),
   editor tile info and icons (`tools/editor/`), verb "Pray" (`Interaction::Pray`, `dungeon_interact.cpp`).
 * Blessings: timed `PlayerStats` effects like `IsisWarded`, 2 minutes. They end on death, and a prayer at the same god
   starts the time again. Different gods stack (Montu and Ptah at once is fine). Nothing is saved, the same as the Isis
@@ -35,30 +35,43 @@ the implementer decides.
     player level gives +1.
   * Amun: HP to max, then max HP +20% for 2 minutes. When it ends, HP is clamped to the normal max and never drops
     below 1.
-  * Wadjet: ends poison, and no poison lands for 2 minutes (the HUD shows it as a ward). Same block message as the
-    Isis ward ("Wadjet turns the venom away").
+  * Serket: ends poison, and no poison lands for 2 minutes (the HUD shows it as a ward). Same block message as the
+    Isis ward ("Serket turns the venom away").
 * Uses, the implementer's call: **one prayer per shrine per level** (recommended). Unlimited Amun heals turn a shrine
   into a free healing well, and unlimited stat buffs mean praying before every fight. After a prayer the shrine is
   spent: its lamp goes out or its offerings are gone, and the prompt says "The god is silent". Save which shrines are
   spent in the level state. Isis stays unlimited.
 * HUD: yellow blessing status cards (`status_list.cpp`, `PlayerHud::Icon`). The icons come from `tools/textures/hud_icons.py`:
-  falcon/khopesh, djed, ankh or ram, cobra.
+  falcon/khopesh, djed, ankh or ram, scorpion.
 * Sound: the Isis chime with a different pitch or instrument for each god (`tools/audio/shrine_sounds.py`).
 * Light: the prayer's beam (`SunBeam::ISIS_LIGHT`) in each god's tint: Montu red-gold, Ptah green, Amun deep blue,
-  Wadjet green-gold.
+  Serket amber.
 * Placement: rare, like Isis, about 3 to 5 levels per god, never two shrines in one room. Put each where it fits: Montu
-  and Ptah before a boss or hard fight, Amun deep in a side branch after a heavy fight, Wadjet on levels with
+  and Ptah before a boss or hard fight, Amun deep in a side branch after a heavy fight, Serket on levels with
   poisoners (spiders, scorpions, cobras). Every touched level passes `bin/levelcheck` with no warnings. The checker
   should not count on the blessings: they are optional, and the player may already have used the shrine.
 * Glossary rows: each shrine and each blessing. Journal: a field note on the first prayer at each god.
 * Tests: a unit test for each blessing (applied, ends after 2 minutes, ends on death, the same god restarts it, two
-  gods stack, Amun's HP clamp, Wadjet blocks poison), plus the one-use rule if it is chosen. A play script with all
+  gods stack, Amun's HP clamp, Serket blocks poison), plus the one-use rule if it is chosen. A play script with all
   four shrines in reach.
+
+## Lore (why Serket, not Wadjet)
+
+* Serket (Serqet) is the scorpion goddess who heals stings and snakebites. Her priests, the "kherep Serqet", were the
+  physicians for venom. Wadjet is the cobra on the king's brow (the uraeus), a guardian of Lower Egypt and the king,
+  not a healer.
+* The game already gives Wadjet the poison items: the Ward of Wadjet potions (the greater one cures and resists poison
+  95% for 2 minutes) and Wadjet's cobra amulet (the player's hits poison). A Shrine of Wadjet would repeat the greater
+  ward.
+* Serket already has the Serket's favour skill, Serket's scorpion amulet and the Gate of Serket zone. Shrine and skill
+  pair like Isis: the Serket's favour skill could make her blessing last longer (see Open points), the same as the
+  Blessing of Isis skill.
 
 ## Open points
 
 * One use per shrine (recommended) or unlimited like Isis.
-* Should a skill lengthen the blessings, as Blessing of Isis lengthens the Isis ward? Not needed now.
+* Should a skill lengthen the blessings, as Blessing of Isis lengthens the Isis ward? Serket's favour is the natural
+  pick for Serket; the others have no skill. Not needed now.
 
 ## Play-test
 

@@ -295,3 +295,45 @@ TEST_CASE("Sharp eye: ranged weapons reach 30% farther, melee ones the same") {
 	CHECK(weaponReach(ItemKind::CompositeBow, eye) == doctest::Approx(5.2f));
 	CHECK(weaponReach(ItemKind::SelfBow, eye) == doctest::Approx(3.9f));
 }
+
+// Quiver of Neith (plan skill-quiver-of-neith): 40% more shots (rounded up, one sum with the shots amulet), the shots
+// back 25% faster (added to the quick shots amulet's share).
+TEST_CASE("Quiver of Neith: more shots per ranged weapon, alone and with a quiver amulet") {
+	struct Row {
+		ItemKind weapon;
+		int base, skill, skillAndGrand;
+	};
+	const Row rows[] = {
+		{ItemKind::SelfBow, 5, 7, 12},
+		{ItemKind::CompositeBow, 6, 9, 15},
+		{ItemKind::Sling, 6, 9, 15},
+		{ItemKind::ThrowingStick, 3, 5, 8},
+		{ItemKind::Javelin, 2, 3, 5},
+	};
+	PlayerStats plain;
+	PlayerStats quiver;
+	quiver.heka.Earn(1);
+	REQUIRE(quiver.Learn(SkillId::QuiverOfNeith));
+	PlayerStats both = quiver;
+	both.Wear(amuletBonus(ItemKind::ShotsGrand), true);
+	for (const Row& row : rows) {
+		CAPTURE(itemText(row.weapon).label);
+		CHECK(plain.Shots(row.weapon) == row.base);
+		CHECK(quiver.Shots(row.weapon) == row.skill);
+		CHECK(both.Shots(row.weapon) == row.skillAndGrand);
+	}
+	CHECK(quiver.Shots(ItemKind::Club) == 0);
+	CHECK(both.Shots(ItemKind::Club) == 0);
+}
+
+TEST_CASE("Quiver of Neith: the shots come back 25% faster, on top of a cat amulet") {
+	PlayerStats stats;
+	stats.heka.Earn(1);
+	REQUIRE(stats.Learn(SkillId::QuiverOfNeith));
+	CHECK(stats.ShotRecoveryPace().delayMs == 1600);
+	CHECK(stats.ShotRecoveryPace().everyMs == 2000);
+	stats.Wear(amuletBonus(ItemKind::QuickShotsGrand), true);
+	CHECK(stats.ShotRecoveryPace().delayMs == 888); // speed 225%
+	CHECK(stats.ShotRecoveryPace().everyMs == 1111);
+	CHECK(skillDef(SkillId::QuiverOfNeith).sealed == false);
+}

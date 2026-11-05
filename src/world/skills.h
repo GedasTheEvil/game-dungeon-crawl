@@ -29,8 +29,9 @@ enum class SkillId : std::uint8_t {
 	SpeedOfMafdet, // walk and sprint +SKILL_SPEED_PERCENT on firm ground, not the jump
 	WisdomOfSeshat, // riddle hints, the royal name, hidden rooms on the map
 	DisarmTrap, // a trapped container's trap may fail, trapped ones and mimics red-rimmed, never empty
+	QuiverOfNeith, // ranged weapons hold QUIVER_SHOTS_PERCENT more shots, they come back QUIVER_RECOVERY_PERCENT faster
 };
-constexpr int SKILL_COUNT = 16;
+constexpr int SKILL_COUNT = 17;
 
 // The stat skills' gains (plan heka-surplus), applied where the stat is computed (PlayerStats).
 constexpr int SKILL_HEALTH_PERCENT = 25;
@@ -40,6 +41,9 @@ constexpr int SKILL_STAMINA_PERCENT = 25;
 constexpr int SKILL_SPEED_PERCENT = 20;
 // Disarm trap: a trapped container's own roll to stay quiet, beside the trap ward's.
 constexpr int DISARM_TRAP_PERCENT = 80;
+// Quiver of Neith (plan skill-quiver-of-neith): added to the shots and shot recovery amulets' percents (PlayerStats).
+constexpr int QUIVER_SHOTS_PERCENT = 40;
+constexpr int QUIVER_RECOVERY_PERCENT = 25;
 
 struct SkillDef {
 	const char* name;

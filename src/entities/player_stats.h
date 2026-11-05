@@ -183,7 +183,8 @@ class PlayerStats {
 	// A ranged weapon's shots and how they come back (plan ranged-weaker-than-melee): WeaponDef::shots,
 	// SHOT_RECOVERY_DELAY_MS and SHOT_RECOVERY_MS. The one place to scale them: the shots amulet adds its share of the
 	// shots, rounded up, at least one (plan amulet-more-shots); the quick shots amulet shortens both times, +100%
-	// halves them (plan amulet-quick-shots).
+	// halves them (plan amulet-quick-shots). The Quiver of Neith skill adds its percents to both (plan
+	// skill-quiver-of-neith).
 	[[nodiscard]] int Shots(ItemKind weapon) const;
 	[[nodiscard]] ShotPace ShotRecoveryPace() const;
 	// Lays a curse (plan curses): its status line, the field note the first time. Disease keeps the HP's share of the

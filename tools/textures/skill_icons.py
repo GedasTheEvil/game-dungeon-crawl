@@ -279,9 +279,23 @@ def disarm_trap():
     return img
 
 
+def quiver_of_neith():
+    """Neith's sign: a quiver with two crossed arrows."""
+    img, d = canvas()
+    stroke(d, [(130, 90), (380, 330)], WOOD, 16)
+    stroke(d, [(382, 90), (132, 330)], WOOD, 16)
+    for tip, tail in (((380, 330), (130, 90)), ((132, 330), (382, 90))):
+        d.ellipse([tip[0] - 22, tip[1] - 22, tip[0] + 22, tip[1] + 22], fill=METAL, outline=INK, width=LINE)
+        d.ellipse([tail[0] - 20, tail[1] - 20, tail[0] + 20, tail[1] + 20], fill=TURQUOISE, outline=INK, width=LINE)
+    d.polygon([(170, 250), (342, 250), (320, 480), (192, 480)], fill=BRONZE, outline=INK, width=LINE)
+    d.rectangle([160, 230, 352, 270], fill=GOLD, outline=INK, width=LINE)
+    return img
+
+
 # Order = atlas cell: the heka mark, then SkillId order.
 ICONS = [heka, stun, thoth, dodge, power_hit, sharp_eye, hapi, serket, isis, flaming_arrows, ka_of_osiris,
-         strength_of_montu, djed_of_ptah, breath_of_shu, speed_of_mafdet, wisdom_of_seshat, disarm_trap]
+         strength_of_montu, djed_of_ptah, breath_of_shu, speed_of_mafdet, wisdom_of_seshat, disarm_trap,
+         quiver_of_neith]
 ROWS = (len(ICONS) + GRID - 1) // GRID
 
 

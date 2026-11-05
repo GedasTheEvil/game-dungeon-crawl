@@ -26,6 +26,8 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Speed of Mafdet", "Walk and sprint 20% faster", false},
 	{"Wisdom of Seshat", "Hints, names, sealed rooms", false},
 	{"Disarm trap", "Chest traps fail, mimics shown", false},
+	// Plan skill-quiver-of-neith: more shots, back faster (PlayerStats::Shots, ShotRecoveryPace).
+	{"Quiver of Neith", "Ranged weapons hold 40% more shots, back 25% faster", false},
 }};
 
 const char* skillLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".lore").c_str(); }

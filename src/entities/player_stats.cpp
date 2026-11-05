@@ -218,13 +218,15 @@ int PlayerStats::TypeMightPercent(const DamageMix& mix) const {
 
 int PlayerStats::Shots(ItemKind weapon) const {
 	const int shots = weaponDef(weapon).shots;
-	if (shots == 0 || amulet.shotsPercent == 0)
+	const int percent = amulet.shotsPercent + (heka.Has(SkillId::QuiverOfNeith) ? QUIVER_SHOTS_PERCENT : 0);
+	if (shots == 0 || percent == 0)
 		return shots;
-	return shots + std::max(1, (shots * amulet.shotsPercent + 99) / 100);
+	return shots + std::max(1, (shots * percent + 99) / 100);
 }
 
 ShotPace PlayerStats::ShotRecoveryPace() const {
-	const int speed = 100 + amulet.shotRecoveryPercent;
+	const int speed = 100 + amulet.shotRecoveryPercent +
+					  (heka.Has(SkillId::QuiverOfNeith) ? QUIVER_RECOVERY_PERCENT : 0);
 	return {SHOT_RECOVERY_DELAY_MS * 100 / speed, SHOT_RECOVERY_MS * 100 / speed};
 }
 

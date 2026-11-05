@@ -480,6 +480,11 @@ text: I see the threads now. Four times in five a trapped chest, jar or coffin o
 	pass for them show a red rim. And a trapped one is never empty: where its treasure was taken, something of its
 	depth lies instead.
 
+[note.quiver-of-neith]
+title: Quiver of Neith
+text: Neith counts my arrows. She counts better than I do: two in five more in every bow, sling and javelin
+	bundle, and the spent ones come back a quarter sooner. Satet's quiver and Bastet's cat still add their own.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

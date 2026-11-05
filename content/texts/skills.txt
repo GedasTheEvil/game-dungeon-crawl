@@ -48,3 +48,6 @@ lore: Seshat measured every temple: riddle hints at once, the royal name, sealed
 
 [skill.disarm-trap]
 lore: Containers' traps fail 4 times in 5, trapped ones and mimics glow red up close, none is empty.
+
+[skill.quiver-of-neith]
+lore: Neith, the huntress of the crossed arrows, refills your quiver before you reach for it.

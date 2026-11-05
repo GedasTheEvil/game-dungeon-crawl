@@ -1,6 +1,6 @@
 # Skill: Quiver of Neith
 
-Status: draft 2026-11-05, size M, needs first [heka-surplus](solved/heka-surplus.feature.md) (the scrolling Heka list, the icon atlas, `SkillId` order). From the user.
+Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size M, needs first [heka-surplus](solved/heka-surplus.feature.md) (the scrolling Heka list, the icon atlas, `SkillId` order). From the user.
 
 ## Idea
 
@@ -39,7 +39,7 @@ with them.
 
 ## Play-test
 
-* `tests/play/skill-quiver-of-neith.txt`: a level with a few targets, a self-bow and a javelin given, the skill learnt.
+* `bin/game --play tests/play/skill-quiver-of-neith.txt`: the archery level, a self-bow and a javelin given, the skill learnt.
 * Shoot the bow empty: 7 shots, not 5. The javelin throws 3.
 * After the last shot the first comes back after about 2 s, then one every 2 s.
 * The Heka screen shows the card with its icon and lore.

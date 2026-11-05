@@ -181,3 +181,29 @@ TEST_CASE("levelgen puts tiny spiders in groups of 2 to 4 side by side") {
 	}
 	CHECK(groups > 0);
 }
+
+TEST_CASE("the play level: dark but the right ladder top, the spiders follow up the left ladder") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/spider_climbers"));
+	world.player.god = true;
+	const auto upper = static_cast<int>(world.Y());
+	for (const int row : {upper, upper - 2})
+		for (int col = 1; col < LEVEL_WIDTH - 1; col++) {
+			CAPTURE(col);
+			CHECK(world.dungeon.Lit(col, row) == (row == upper && col >= 29 && col <= 31));
+		}
+	REQUIRE(world.WalkTo(7.45f));
+	REQUIRE(world.Climb(-1.97f));
+	REQUIRE(world.WalkTo(13.f)); // the tiny ones come into view
+	world.Wait(500);
+	REQUIRE(world.WalkTo(7.45f));
+	REQUIRE(world.Climb(2.f));
+	REQUIRE(world.WalkTo(3.f));
+	world.Wait(15000);
+	const Monster* camel = find(world, MonsterCamelSpider);
+	const Monster* tiny = find(world, MonsterTinySpider);
+	REQUIRE(camel != nullptr);
+	REQUIRE(tiny != nullptr);
+	CHECK(camel->Row() == upper);
+	CHECK(tiny->Row() == upper);
+}

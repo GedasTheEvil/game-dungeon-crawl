@@ -71,7 +71,16 @@ same model.
 
 `bin/game --play tests/play/spider-climbers.txt`
 
-* Go down the left ladder (col 7), let the spiders see you, go back up and left: the camel spider and the tiny
-  spiders climb after you, back to the camera, legs on the rungs.
+* Go down the left ladder (col 7), walk right until the tiny spiders show (col 13), go back up and left: the camel
+  spider and the tiny spiders climb after you, back to the camera, legs on the rungs.
 * Go down again, cross to the right ladder (col 29, its top lit) and go up: they stay below the light.
 * The tiny spiders: darker than the camel spider, two club blows each, a weak bite.
+
+## Play-test feedback
+
+### Round 1 (2026-11-05)
+
+- [x] can not test, the spiders are afraid of the torch and will not follow me
+  Fixed: the play level got its torches from the random scatter, some on the spiders' floors. Its decor and decal
+  layers now say no prop and no torch on either floor but the one by the right ladder top (col 30); the play script's
+  torch commands are gone. A unit test checks the level's light and that both kinds follow up the left ladder.

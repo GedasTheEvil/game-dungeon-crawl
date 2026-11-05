@@ -1376,7 +1376,7 @@ void Editor::drawPalette() {
 	const float arrowX = TILES_PANEL.cx();
 	const float topY = TILES_PANEL.y + TILES_PANEL.h;
 	if (paletteScroll > 0)
-		triangle(arrowX - 1.2f, topY - 0.4f, arrowX + 1.2f, topY - 0.4f, arrowX, topY - 1.6f, GOLD, 0.9f);
+		triangle(arrowX - 1.2f, topY - 1.6f, arrowX + 1.2f, topY - 1.6f, arrowX, topY - 0.4f, GOLD, 0.9f);
 	if (paletteScroll < paletteMaxScroll(slots, TILES_PANEL))
 		triangle(
 			arrowX - 1.2f,

@@ -1,6 +1,6 @@
 # Editor palette scrolls when its icons overflow the panel
 
-Status: draft 2026-11-05, size S, needs nothing first.
+Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size S, needs nothing first.
 
 ## Repro
 
@@ -38,6 +38,7 @@ tile types) and will overflow the same way.
 
 ## Play-test
 
-* `make run-editor`, Decor layer: 3 rows show, the wheel over the palette reveals the 4th row; nothing draws over the
+* Play command: `make run-editor` (the editor, not `bin/game`).
+* In it, Decor layer: 3 rows show, the wheel over the palette reveals the 4th row; nothing draws over the
   brush panel.
 * Switch to Decals and Looks: the palette starts at the top row, wheel scroll works where they overflow.

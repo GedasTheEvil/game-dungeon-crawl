@@ -2,6 +2,7 @@
 
 #include "dressing_brush.h"
 #include "map_view.h"
+#include "palette_scroll.h"
 #include "shape_brush.h"
 #include "tile_info.h"
 #include "../../src/graphics/font.h"
@@ -73,10 +74,6 @@ constexpr Rect ZONE_BUTTON = {108.5f, 8.2f, 23.f, 4.1f}; // the level's zone (Le
 constexpr Rect SAVE_BUTTON = {132.5f, 8.2f, 10.f, 4.1f};
 constexpr Rect LOAD_BUTTON = {143.8f, 8.2f, 10.f, 4.1f};
 
-constexpr int PALETTE_COLUMNS = 9; // 4 rows hold the decor layer's 30 slots
-constexpr float SLOT_W = 7.2f;
-constexpr float SLOT_H = 7.6f;
-constexpr float SLOT_GAP = 0.6f;
 constexpr float NAME_BAND_H = 2.3f;
 
 constexpr size_t ATTRIBUTE_DIGITS = 3;
@@ -176,18 +173,6 @@ std::vector<int> paletteOf(Layer layer) {
 	return ids;
 }
 
-Rect slotRect(int slot) {
-	float x0 = RIGHT_CX - (PALETTE_COLUMNS * SLOT_W + (PALETTE_COLUMNS - 1) * SLOT_GAP) / 2;
-	int column = slot % PALETTE_COLUMNS;
-	int row = slot / PALETTE_COLUMNS;
-	return {
-		x0 + static_cast<float>(column) * (SLOT_W + SLOT_GAP),
-		TILES_PANEL.y + TILES_PANEL.h - 2.f - SLOT_H - static_cast<float>(row) * (SLOT_H + SLOT_GAP),
-		SLOT_W,
-		SLOT_H
-	};
-}
-
 int parseNumber(const std::string& digits) { return digits.empty() ? 0 : std::stoi(digits); }
 
 bool isNameChar(unsigned char c) {
@@ -279,6 +264,8 @@ class Editor {
 	Texture wallTexture, papyrus;
 	Font title, heading, body, small, tiny, tinier; // tinier: a palette name too long for tiny
 	float hintScroll = 0.f; // how far the papyrus text is scrolled up (canvas units), 0: its top shows
+	int paletteScroll = 0; // the palette's first shown row (plan editor-palette-scroll)
+	int paletteSelected = -2; // the palette id the last drawPalette saw selected: a change scrolls it into view
 	float hintScrollMax = 0.f; // how far it can scroll: its overflow, measured by the last drawHint
 	std::string hintShown; // what the papyrus showed last: a new hint starts at its top
 
@@ -417,12 +404,9 @@ void Editor::updateHover(float x, float y) {
 	hovered = minimapShown() && MINIMAP.contains(x, y) ? CellPos{} : view.cellAt(x, y);
 	hoveredSlot = -1;
 	hoveredTarget = Target::None;
-	const size_t slots = paletteOf(layer).size();
-	for (size_t slot = 0; slot < slots; slot++)
-		if (slotRect(static_cast<int>(slot)).contains(x, y)) {
-			hoveredSlot = static_cast<int>(slot);
-			hoveredTarget = Target::Tile;
-		}
+	hoveredSlot = paletteSlotAt(x, y, static_cast<int>(paletteOf(layer).size()), paletteScroll, TILES_PANEL);
+	if (hoveredSlot >= 0)
+		hoveredTarget = Target::Tile;
 	static const std::pair<Rect, Target> TARGETS[] = {
 		{PAINT_BUTTON, Target::PaintMode},
 		{CHECK_BUTTON, Target::CheckMode},
@@ -478,6 +462,14 @@ void Editor::centerOnMinimap(float x, float y) {
 void Editor::wheel(int button) {
 	const bool forward = button == 3 || button == 5; // up, left
 	const int modifiers = glutGetModifiers();
+	if (TILES_PANEL.contains(pointerX, pointerY)) { // scrolls the palette's rows
+		if (button == 3 || button == 4) {
+			const int slots = static_cast<int>(paletteOf(layer).size());
+			paletteScroll = std::clamp(paletteScroll + (forward ? -1 : 1), 0, paletteMaxScroll(slots, TILES_PANEL));
+			updateHover(pointerX, pointerY);
+		}
+		return;
+	}
 	if (HINT_PANEL.contains(pointerX, pointerY)) { // scrolls the papyrus text
 		if (button == 3 || button == 4)
 			hintScroll = std::clamp(hintScroll + (forward ? -HINT_SCROLL_STEP : HINT_SCROLL_STEP), 0.f, hintScrollMax);
@@ -709,6 +701,7 @@ void Editor::setLayer(Layer l) {
 	layer = l;
 	painting = false;
 	hoveredSlot = -1;
+	paletteScroll = 0;
 	if ((l == Layer::Wall || l == Layer::Objects) && isWallType(tile) != (l == Layer::Wall))
 		tile = NoObject; // the brush's type is not in this layer's palette
 }
@@ -1308,9 +1301,24 @@ void Editor::drawTextBox(const Rect& r, const std::string& value, Field which, T
 void Editor::drawPalette() {
 	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(glutGet(GLUT_ELAPSED_TIME)) * 0.004f);
 	const std::vector<int> palette = paletteOf(layer);
+	const int slots = static_cast<int>(palette.size());
+	if (selectedId() != paletteSelected) { // the brush changed (a pick, a layer switch): show its slot
+		paletteSelected = selectedId();
+		const auto found = std::find(palette.begin(), palette.end(), paletteSelected);
+		paletteScroll = paletteScrollTo(
+			found == palette.end() ? -1 : static_cast<int>(found - palette.begin()),
+			paletteScroll,
+			slots,
+			TILES_PANEL
+		);
+		updateHover(pointerX, pointerY);
+	}
+	paletteScroll = std::clamp(paletteScroll, 0, paletteMaxScroll(slots, TILES_PANEL));
 	for (size_t slot = 0; slot < palette.size(); slot++) {
+		if (!paletteSlotShown(static_cast<int>(slot), paletteScroll, TILES_PANEL))
+			continue;
 		const int id = palette[slot];
-		Rect r = slotRect(static_cast<int>(slot));
+		Rect r = paletteSlotRect(static_cast<int>(slot), paletteScroll, TILES_PANEL);
 		bool selected = id == selectedId();
 		bool hover = static_cast<int>(slot) == hoveredSlot;
 		if (selected) {
@@ -1363,6 +1371,23 @@ void Editor::drawPalette() {
 		textCentered(labelFont, r.cx(), r.y + 0.4f, label, selected || hover ? GOLD : Color{0.78f, 0.64f, 0.40f});
 		beginShapes();
 	}
+
+	// Hidden rows above or below: a small arrow at the panel's edge (plan editor-palette-scroll).
+	const float arrowX = TILES_PANEL.cx();
+	const float topY = TILES_PANEL.y + TILES_PANEL.h;
+	if (paletteScroll > 0)
+		triangle(arrowX - 1.2f, topY - 0.4f, arrowX + 1.2f, topY - 0.4f, arrowX, topY - 1.6f, GOLD, 0.9f);
+	if (paletteScroll < paletteMaxScroll(slots, TILES_PANEL))
+		triangle(
+			arrowX - 1.2f,
+			TILES_PANEL.y + 1.6f,
+			arrowX + 1.2f,
+			TILES_PANEL.y + 1.6f,
+			arrowX,
+			TILES_PANEL.y + 0.4f,
+			GOLD,
+			0.9f
+		);
 
 	drawButton(PAINT_BUTTON, "Paint", mode == Mode::Paint, Target::PaintMode);
 	drawButton(CHECK_BUTTON, "Check", mode == Mode::Check, Target::CheckMode);

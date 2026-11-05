@@ -11,7 +11,8 @@ level file, relative to where you run it, and `Save` writes back to it). The edi
 * Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Wall` / `Objects` / `Decor` / `Decals` /
   `Looks` layer buttons.
 * Right, middle: the palette of the layer (structures, the wall types, the object tiles, the props, the decals or the
-  container looks, up to four rows of nine), then the `Attribute` and `Value` fields (fixtures and objects), or the
+  container looks, rows of nine; the panel shows three rows: when a layer has more, the mouse wheel over the palette
+  scrolls a row a notch and a small arrow at the panel's top or bottom edge shows the hidden rows), then the `Attribute` and `Value` fields (fixtures and objects), or the
   `Mirror` button (props and decals, key `M`).
 * Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
   A text longer than the papyrus scrolls: the mouse wheel over it; a red bar on its right shows where you are.

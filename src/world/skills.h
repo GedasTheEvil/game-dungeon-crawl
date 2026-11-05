@@ -21,8 +21,25 @@ enum class SkillId : std::uint8_t {
 	SerketsFavour,
 	BlessingOfIsis,
 	FlamingArrows,
+	// Plan heka-surplus: more skills than heka, so each run picks a different set.
+	KaOfOsiris, // max health +SKILL_HEALTH_PERCENT
+	StrengthOfMontu, // Might +SKILL_MIGHT
+	DjedOfPtah, // Armor +SKILL_ARMOR
+	BreathOfShu, // max stamina +SKILL_STAMINA_PERCENT
+	SpeedOfMafdet, // walk and sprint +SKILL_SPEED_PERCENT on firm ground, not the jump
+	WisdomOfSeshat, // riddle hints, the royal name, hidden rooms on the map, traps outlined
+	DisarmTrap, // a trapped container's trap may fail, its trap and mimics outlined, never empty
 };
-constexpr int SKILL_COUNT = 9;
+constexpr int SKILL_COUNT = 16;
+
+// The stat skills' gains (plan heka-surplus), applied where the stat is computed (PlayerStats).
+constexpr int SKILL_HEALTH_PERCENT = 25;
+constexpr int SKILL_MIGHT = 5;
+constexpr int SKILL_ARMOR = 5;
+constexpr int SKILL_STAMINA_PERCENT = 25;
+constexpr int SKILL_SPEED_PERCENT = 20;
+// Disarm trap: a trapped container's own roll to stay quiet, beside the trap ward's.
+constexpr int DISARM_TRAP_PERCENT = 80;
 
 struct SkillDef {
 	const char* name;
@@ -41,14 +58,15 @@ extern const std::array<SkillDef, SKILL_COUNT> SKILLS;
 constexpr int HEKA_ICON = 0;
 constexpr int SKILL_ICON_FIRST = 1;
 constexpr int SKILL_ICON_COLUMNS = 4;
-constexpr int SKILL_ICON_ROWS = 4;
+constexpr int SKILL_ICON_ROWS = (SKILL_ICON_FIRST + SKILL_COUNT + SKILL_ICON_COLUMNS - 1) / SKILL_ICON_COLUMNS;
 [[nodiscard]] constexpr int skillIcon(SkillId id) { return SKILL_ICON_FIRST + static_cast<int>(id); }
 
 // The player's heka: the bosses that gave one (by campaign level, so a boss killed again after a load gives none)
 // and the skills learnt. Saved with PlayerStats.
 class Heka {
   public:
-	// The boss of `level` is slain: one heka, the first time. True when it gave one.
+	// The boss of `level` is slain: one heka, the first time, none for the last level's (Anubis: the win is the
+	// reward, plan heka-surplus). True when it gave one.
 	bool Earn(int level);
 	[[nodiscard]] int Earned() const { return static_cast<int>(levels.size()); }
 	[[nodiscard]] int Free() const { return Earned() - Spent(); }
@@ -58,6 +76,8 @@ class Heka {
 	[[nodiscard]] bool HasStaminaSkill() const { return Has(SkillId::FlamingArrows) || Has(SkillId::PowerHit); }
 	// Not learnt yet, not sealed, and a heka free.
 	[[nodiscard]] bool CanLearn(SkillId id) const;
+	// A heka free and a skill to spend it on (the HUD tile pulses).
+	[[nodiscard]] bool Waiting() const;
 	// Spends a heka on it; false (nothing spent) unless CanLearn. Force: also a sealed one (scenario `learn`).
 	bool Learn(SkillId id, bool force = false);
 

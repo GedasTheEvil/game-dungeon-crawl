@@ -42,6 +42,8 @@ std::string trim(const std::string& s) {
 	return s.substr(first, s.find_last_not_of(" \t\r\n") - first + 1);
 }
 
+bool seshat() { return Game().player->stats.heka.Has(SkillId::WisdomOfSeshat); }
+
 } // namespace
 
 // ---- riddle files ----------------------------------------------------------
@@ -192,6 +194,10 @@ void Riddle::Ask() {
 	journalIndex = Game().journal.MeetRiddle(note);
 	answer.clear();
 	misses = 0;
+	if (seshat()) { // the Wisdom of Seshat (plan heka-surplus): the hint at once
+		misses = HINT_AFTER_MISSES;
+		Game().journal.ShowHint(journalIndex);
+	}
 	wrongAtMs = -100000;
 }
 
@@ -203,11 +209,16 @@ void Riddle::AskLate(size_t index) {
 	nameGate = false;
 	journalIndex = index;
 	answer.clear();
-	misses = note.hintShown ? HINT_AFTER_MISSES : 0;
+	misses = note.hintShown || seshat() ? HINT_AFTER_MISSES : 0;
+	if (seshat())
+		Game().journal.ShowHint(journalIndex);
 	wrongAtMs = -100000;
 }
 
 void Riddle::AskName(const RoyalName& name) {
+	knownName = name.name;
+	for (char& c : knownName)
+		c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
 	shown = RiddleEntry{"The sealed way", {"Speak the name written in the cartouche."}, name.answers, "", name.source};
 	reward = 0;
 	late = false;
@@ -350,8 +361,14 @@ void Riddle::DrawScroll() {
 		y -= QUESTION_STEP;
 	}
 
-	// Plan secret-name-gates: no hint, but a player without the skill is told where the name might be.
-	if (nameGate && misses > 0 && !Game().player->stats.heka.Has(SkillId::Hieroglyphs)) {
+	// Plan secret-name-gates: no hint, but a player without the skill is told where the name might be. The Wisdom of
+	// Seshat (plan heka-surplus) writes the name itself in the margin.
+	if (nameGate && seshat()) {
+		std::vector<std::string> hintLines = wrap(small, "Seshat writes it in the margin: " + knownName, SCROLL.w - 12);
+		float hy = 35.f + (hintLines.size() > 1 ? 1.7f : 0.f);
+		for (size_t i = 0; i < hintLines.size() && i < 2; i++)
+			textCentered(small, cx, hy - 3.4f * static_cast<float>(i), hintLines[i].c_str(), INK_FADED);
+	} else if (nameGate && misses > 0 && !Game().player->stats.heka.Has(SkillId::Hieroglyphs)) {
 		std::vector<std::string> hintLines = wrap(
 			small,
 			"A name is asked. The wall glyphs I copied might hold it.",

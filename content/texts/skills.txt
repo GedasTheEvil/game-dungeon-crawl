@@ -27,3 +27,24 @@ lore: Isis has a knot for every curse. She ties fast.
 
 [skill.flaming-arrows]
 lore: Sekhmet lends her flame: the arrow flies on fire, and what it hits burns.
+
+[skill.ka-of-osiris]
+lore: Osiris came back from death. A share of his ka keeps you standing longer.
+
+[skill.strength-of-montu]
+lore: Montu, the falcon lord of war, lends you his arm.
+
+[skill.djed-of-ptah]
+lore: Ptah's djed pillar, the backbone of Osiris, stiffens your skin.
+
+[skill.breath-of-shu]
+lore: Shu, the air between earth and sky, fills your lungs.
+
+[skill.speed-of-mafdet]
+lore: Mafdet, the cheetah who runs down snakes, lends her feet. Not in water or sand; a jump reaches as far as ever.
+
+[skill.wisdom-of-seshat]
+lore: Seshat measured every temple: riddle hints at once, the royal name, sealed rooms on the map, traps outlined.
+
+[skill.disarm-trap]
+lore: Containers' traps fail 4 times in 5, trapped ones and mimics glow red up close, none is empty.

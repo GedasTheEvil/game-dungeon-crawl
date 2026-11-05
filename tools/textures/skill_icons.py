@@ -1,4 +1,5 @@
-"""Generate the skill icon atlas media/textures/ui/skill_icons.png (RGBA, 4 x 4 cells of 128 px).
+"""Generate the skill icon atlas media/textures/ui/skill_icons.png (RGBA, 4 cells of 128 px a row, as many rows as
+needed: SKILL_ICON_ROWS).
 
     python3 tools/textures/skill_icons.py [out.png]
 
@@ -197,12 +198,95 @@ def flaming_arrows():
     return img
 
 
+def ka_of_osiris():
+    """An ankh in faience over a carnelian heart: life, more of it."""
+    img, d = canvas()
+    d.ellipse([140, 300, 372, 470], fill=CARNELIAN, outline=INK, width=LINE)
+    d.ellipse([176, 50, 336, 230], fill=None, outline=INK, width=50 + 2 * LINE)
+    d.ellipse([176, 50, 336, 230], fill=None, outline=FAIENCE, width=50)
+    d.rectangle([90, 220, 422, 280], fill=FAIENCE, outline=INK, width=LINE)
+    d.rectangle([226, 220, 286, 470], fill=FAIENCE, outline=INK, width=LINE)
+    return img
+
+
+def strength_of_montu():
+    """Montu's khopesh, the sickle sword of war, under his sun disc with two plumes."""
+    img, d = canvas()
+    for side in (-1, 1):
+        d.polygon([(256 + side * 20, 120), (256 + side * 70, 20), (256 + side * 90, 120)], fill=WHITE, outline=INK,
+                  width=LINE)
+    d.ellipse([196, 90, 316, 210], fill=GOLD, outline=INK, width=LINE)
+    stroke(d, arc(300, 300, 110, 190, 360, 20), METAL, 54)
+    stroke(d, [(190, 300), (80, 460)], WOOD, 40)
+    d.rectangle([170, 280, 210, 320], fill=BRONZE, outline=INK, width=LINE)
+    return img
+
+
+def djed_of_ptah():
+    """Ptah's djed pillar, the backbone of Osiris: a column under four bars."""
+    img, d = canvas()
+    d.rectangle([206, 150, 306, 470], fill=GOLD, outline=INK, width=LINE)
+    for k in range(4):
+        y = 60 + 50 * k
+        d.rectangle([126, y, 386, y + 34], fill=LAPIS if k % 2 == 0 else TURQUOISE, outline=INK, width=LINE)
+    d.rectangle([150, 450, 362, 490], fill=BRONZE, outline=INK, width=LINE)
+    return img
+
+
+def breath_of_shu():
+    """Shu's ostrich feather in the wind."""
+    img, d = canvas()
+    for y, x0 in ((150, 330), (250, 370), (350, 330)):
+        stroke(d, [(x0, y), (x0 + 80, y - 10), (x0 + 130, y + 10)], FOAM, 16)
+    vane = [(150, 470), (110, 360), (110, 220), (150, 90), (210, 40), (250, 120), (260, 260), (230, 380), (170, 470)]
+    d.polygon(vane, fill=WHITE, outline=INK, width=LINE)
+    stroke(d, [(160, 480), (180, 300), (215, 80)], BONE, 12)
+    return img
+
+
+def speed_of_mafdet():
+    """A sandal on the run: Mafdet's cheetah spots on the strap, speed lines behind it."""
+    img, d = canvas()
+    for y, x0 in ((230, 30), (300, 60), (370, 30)):
+        d.line([(x0, y), (x0 + 120, y)], fill=INK, width=18)
+    d.rounded_rectangle([170, 330, 480, 410], radius=40, fill=WOOD, outline=INK, width=LINE)
+    d.polygon([(220, 340), (290, 160), (390, 170), (420, 340)], fill=GOLD, outline=INK, width=LINE)
+    for x, y in ((290, 230), (350, 220), (320, 290), (380, 290)):
+        d.ellipse([x - 16, y - 14, x + 16, y + 14], fill=DARK)
+    return img
+
+
+def wisdom_of_seshat():
+    """Seshat's emblem: a seven-pointed star on a stalk under an arch."""
+    img, d = canvas()
+    stroke(d, arc(256, 170, 150, 200, 340, 20), DARK, 30)
+    stroke(d, [(256, 280), (256, 480)], DARK, 24)
+    star(d, 256, 250, 120, TURQUOISE, points=7)
+    d.ellipse([226, 220, 286, 280], fill=GOLD, outline=INK, width=LINE)
+    return img
+
+
+def disarm_trap():
+    """A chest whose red trap thread a knife has cut."""
+    img, d = canvas()
+    d.rectangle([90, 250, 422, 450], fill=WOOD, outline=INK, width=LINE)
+    d.rounded_rectangle([80, 170, 432, 260], radius=30, fill=WOOD, outline=INK, width=LINE)
+    d.rectangle([230, 230, 282, 300], fill=BRONZE, outline=INK, width=LINE)
+    stroke(d, [(60, 120), (200, 200)], CARNELIAN, 14)
+    stroke(d, [(300, 200), (450, 120)], CARNELIAN, 14)
+    stroke(d, [(250, 60), (250, 170)], METAL, 34)
+    stroke(d, [(250, 20), (250, 60)], BRONZE, 30)
+    return img
+
+
 # Order = atlas cell: the heka mark, then SkillId order.
-ICONS = [heka, stun, thoth, dodge, power_hit, sharp_eye, hapi, serket, isis, flaming_arrows]
+ICONS = [heka, stun, thoth, dodge, power_hit, sharp_eye, hapi, serket, isis, flaming_arrows, ka_of_osiris,
+         strength_of_montu, djed_of_ptah, breath_of_shu, speed_of_mafdet, wisdom_of_seshat, disarm_trap]
+ROWS = (len(ICONS) + GRID - 1) // GRID
 
 
 def main(path):
-    atlas = Image.new("RGBA", (CELL * GRID, CELL * GRID), (0, 0, 0, 0))
+    atlas = Image.new("RGBA", (CELL * GRID, CELL * ROWS), (0, 0, 0, 0))
     for k, fn in enumerate(ICONS):
         cell = outlined(fn()).resize((CELL, CELL), Image.LANCZOS)
         atlas.paste(cell, ((k % GRID) * CELL, (k // GRID) * CELL))

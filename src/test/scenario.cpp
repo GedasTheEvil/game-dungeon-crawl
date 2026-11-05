@@ -429,7 +429,7 @@ bool runInstant(const Command& cmd) {
 		report(cmd, true, "");
 		return true;
 	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
-		if (!Game().player->stats.heka.Learn(static_cast<SkillId>(cmd.ticks), true)) {
+		if (!Game().player->stats.Learn(static_cast<SkillId>(cmd.ticks), true)) {
 			report(cmd, false, "learnt already, or no heka to spend");
 			return true;
 		}

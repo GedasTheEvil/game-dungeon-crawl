@@ -213,14 +213,10 @@ TEST_CASE("the Heka screen's cards and button fit their panels, apart, clear of 
 	CHECK(DETAIL_PANEL.within(canvas));
 	CHECK_FALSE(CARDS_PANEL.overlaps(DETAIL_PANEL));
 	CHECK(LEARN_BUTTON.within(DETAIL_PANEL));
-	for (int a = 0; a < SKILL_COUNT; a++) {
-		const Rect r = cardRect(a);
-		CHECK(r.inset(-1.f).within(CARDS_PANEL)); // the selection frame too
-		CHECK(r.y + r.h < POINTS_BASELINE - 1.f);
-		CHECK(cardAt(r.cx(), r.cy()) == a);
+	for (int a = 0; a < SKILL_COUNT; a++)
 		for (int b = a + 1; b < SKILL_COUNT; b++)
-			CHECK_FALSE(r.overlaps(cardRect(b)));
-	}
+			CHECK_FALSE(cardRect(a).overlaps(cardRect(b)));
+	// In the panel at each scroll: heka_surplus_test.
 	CHECK(cardAt(DETAIL_PANEL.cx(), DETAIL_PANEL.cy()) == -1);
 	for (int t = 0; t < ui::SCREEN_TAB_COUNT; t++) {
 		const Rect tab = ui::screenTabRect(t);

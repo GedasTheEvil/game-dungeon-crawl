@@ -1,0 +1,67 @@
+# Plan heka-surplus: the Heka screen's list scrolled to the top and to the bottom; the Wisdom of Seshat's faint trap
+# outlines and the sealed room on the draft map; Disarm trap's red outlines on a trapped chest and a mimic
+# (tests/levels/heka_surplus). Parked once solved: the screens are drawn.
+seed 1
+god
+peace
+level tests/levels/heka_surplus
+heka 6
+learn wisdom_of_seshat
+learn disarm_trap
+learn ka_of_osiris
+learn speed_of_mafdet
+expect skills == 4
+expect heka == 2
+wait 10
+key k
+mouse 21.6 68.5
+screenshot heka_top
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key right
+screenshot heka_bottom
+key k
+wait 2
+walk to 6.5
+wait 10
+screenshot seshat_floor_traps
+walk to 12.5
+wait 10
+screenshot seshat_wall_traps
+walk to 17
+wait 10
+screenshot disarm_chest_mimic
+walk to 20.5
+wait 10
+key m
+screenshot seshat_map
+key m
+level tests/levels/name_gate
+expect skills == 4
+wait 10
+walk to 10.5
+wait 5
+interact
+wait 5
+expect riddle == 1
+expect journal_inscriptions == 1
+screenshot seshat_name_gate
+speakname
+key enter
+wait 5
+expect riddle == 0
+level tests/levels/riddle
+wait 10
+walk to 4.5
+wait 5
+interact
+wait 5
+expect riddle == 1
+screenshot seshat_riddle_hint
+key esc
+dump

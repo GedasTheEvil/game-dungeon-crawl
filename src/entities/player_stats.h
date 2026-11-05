@@ -64,8 +64,9 @@ class PlayerStats {
 	// sprints less (SLOWNESS_SPRINT_MULTIPLIER).
 	[[nodiscard]] float SprintMoveMultiplier() const;
 	// Walk and climb steps: SLOWNESS_WALK_FACTOR while slowed, times the jasper rings' speed on the ground (not in the
-	// air: a jump carries as far as without them, the levels are built on its reach).
-	[[nodiscard]] float WalkFactor(bool airborne) const;
+	// air: a jump carries as far as without them, the levels are built on its reach). The Speed of Mafdet skill too,
+	// and only on firm ground (not wading, not in sand: their own factors stay as they are; plan heka-surplus).
+	[[nodiscard]] float WalkFactor(bool airborne, bool firmGround = true) const;
 	// A walk step really moved the player (not into a wall). halvedDrain: it was a sprint in half water with the
 	// Blessing of Hapi and the Favour of Hapi, which drains the stamina at WADE_SPRINT_DRAIN_BOTH.
 	void NoteWalked(bool halvedDrain = false) {
@@ -74,7 +75,10 @@ class PlayerStats {
 	}
 	void UpdateStamina(WorldEvents& events);
 	[[nodiscard]] int Stamina() const { return stamina; }
-	[[nodiscard]] int MaxStamina() const { return (100 + (level - 1) * 10) * (100 + max_stamina_percent) / 100; }
+	[[nodiscard]] int MaxStamina() const {
+		const int skill = heka.Has(SkillId::BreathOfShu) ? SKILL_STAMINA_PERCENT : 0;
+		return (100 + (level - 1) * 10) * (100 + max_stamina_percent + skill) / 100;
+	}
 	void SetStamina(int value);
 	bool ConsumeStamina(int value); // false (and nothing spent) if there is not enough
 	void AddStamina(int value);
@@ -84,11 +88,22 @@ class PlayerStats {
 
 	// Might and weapon, cut by clumsiness; at least 1.
 	[[nodiscard]] int Damage(int weaponDamage) const { return cursedHit(CurrentMight() + weaponDamage, curses); }
-	// With the worn amulet's bonus and the running curses (weakness, vulnerability, disease).
-	[[nodiscard]] int CurrentMight() const { return cursedMight(Might + amulet.might, curses); }
-	[[nodiscard]] int CurrentArmor() const { return cursedArmor(Armor + amulet.armor, curses); }
+	// With the worn amulet's bonus, the stat skills' (plan heka-surplus) and the running curses (weakness,
+	// vulnerability, disease).
+	[[nodiscard]] int CurrentMight() const {
+		return cursedMight(Might + amulet.might + (heka.Has(SkillId::StrengthOfMontu) ? SKILL_MIGHT : 0), curses);
+	}
+	[[nodiscard]] int CurrentArmor() const {
+		return cursedArmor(Armor + amulet.armor + (heka.Has(SkillId::DjedOfPtah) ? SKILL_ARMOR : 0), curses);
+	}
 	[[nodiscard]] int CurrentHP() const { return HP; }
-	[[nodiscard]] int CurrentMaxHP() const { return cursedMaxHP(MaxHP + MaxHP * amulet.maxHpPercent / 100, curses); }
+	[[nodiscard]] int CurrentMaxHP() const {
+		const int percent = amulet.maxHpPercent + (heka.Has(SkillId::KaOfOsiris) ? SKILL_HEALTH_PERCENT : 0);
+		return cursedMaxHP(MaxHP + MaxHP * percent / 100, curses);
+	}
+	// Spends a heka on the skill (Heka::Learn); a health or stamina skill gives the new share of the max on top (no
+	// heal beyond it). False: nothing learnt.
+	bool Learn(SkillId id, bool force = false);
 	[[nodiscard]] int CurrentLevel() const { return level; }
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }

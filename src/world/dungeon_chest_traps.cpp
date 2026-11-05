@@ -10,13 +10,25 @@
 #include <cmath>
 #include <string>
 
+// Disarm trap (plan heka-surplus): its own roll, after the trap ward's, only when the ward failed.
+bool Dungeon::disarmed() {
+	return sim.player->stats.heka.Has(SkillId::DisarmTrap) && sim.random->gameplay.percent(DISARM_TRAP_PERCENT);
+}
+//======================================================================================
 void Dungeon::springChestTrap(int cell) {
 	Rng& rng = sim.random->gameplay;
 	const bool full = rng.percent(TRAPPED_CHEST_FULL_PERCENT);
 	const bool warded = rng.percent(sim.player->stats.TrapWardPercent());
+	const bool safe = warded || disarmed();
 	std::string line = warded ? "Something clicks inside, and nothing happens. The Eye of Horus saw it first."
+					   : safe ? "A thread across the lid, a catch under it: I undo the trap before it springs."
 							  : fireChestTrap(cell);
-	if (!full) {
+	if (!full && sim.player->stats.heka.Has(SkillId::DisarmTrap)) {
+		// Never empty with the skill: what it hides is of its depth, rolled now (learnt mid-level counts too).
+		const ItemFileId item = fileIdOf(RollCursedMimicLoot(sim.items->Owned(), levelNumber, rng));
+		map[cell].attr = item.type;
+		map[cell].value = item.id;
+	} else if (!full) {
 		clearObject(map[cell]);
 		containers[cell].emptied = true; // the open container stays
 		line += line.empty() ? "Empty. The trap was the treasure." : "\nEmpty. The trap was the treasure.";
@@ -125,6 +137,10 @@ void Dungeon::coffinCurse() {
 	Rng& rng = sim.random->gameplay;
 	if (rng.percent(sim.player->stats.TrapWardPercent())) {
 		sim.events->Status("The red text on the lid flakes away as I lift it. The Eye of Horus read it first.");
+		return;
+	}
+	if (disarmed()) { // plan heka-surplus
+		sim.events->Status("I read the curse backwards before I lift the lid. It unravels.");
 		return;
 	}
 	tombCurse(

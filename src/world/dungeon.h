@@ -32,6 +32,16 @@ struct RoyalName;
 //   World space:  map * TILE_SIZE, OpenGL units, used for rendering
 //   Screen space: projection of world space, origin top-left
 
+// The sealed rooms of a level (plan heka-surplus): the open cells joined to a teleporter's by no other way, with no
+// entrance or exit in them, at most a few dozen cells (the hidden rooms and the name gates' secret rooms). cells: a
+// whole level.
+[[nodiscard]] std::vector<std::vector<int>> secretRooms(const Tile* cells);
+// Where the Wisdom of Seshat outlines a trap cell's danger: on the floor (spikes, death traps, dart plates,
+// quicksand), the back wall (wall spikes, fire vents) or the ceiling (an armed rock fall, a poison drip, ceiling
+// spikes); None: no trap.
+enum class TrapOutline : std::uint8_t { None, Floor, Wall, Ceiling };
+[[nodiscard]] TrapOutline trapOutline(const Tile& t);
+
 // Live monster slots; the campaign's busiest level has 15. No design limit: raise it at will.
 constexpr int MAX_MONSTERS = 32;
 
@@ -108,6 +118,7 @@ class Dungeon {
 	// Trapped chests (plan trapped-chests, dungeon_chest_traps.cpp): openContainer on a TrappedTreasure rolls its
 	// contents and its trap (loot.h), the trap goes off unless the trap ward stops it.
 	void springChestTrap(int cell);
+	[[nodiscard]] bool disarmed(); // the Disarm trap skill's roll stops a container's trap or curse
 	std::string fireChestTrap(int cell); // the trap's status line; empty for a curse, which tells its own
 	void chestSwarm(int cell); // CHEST_SWARM_SIZE scarabs dig out round it
 	// A curse from an object (a chest's execration text, a smashed ushabti): the execration's status line, then the
@@ -132,6 +143,18 @@ class Dungeon {
 	// 0 .. 1: how much of the text shows on a cursed coffin's lid in cell, by the player's distance (as chestTell).
 	[[nodiscard]] float coffinTell(int cell) const;
 	[[nodiscard]] float tellNear(int cell) const; // 1 within CHEST_TELL_NEAR of the cell, 0 from CHEST_TELL_FAR
+	// The Wisdom of Seshat and Disarm trap (plan heka-surplus, dungeon_seshat.cpp): the level's sealed rooms
+	// (secretRooms, found on load), put on the draft map with the player near; the outlines' strength, 0 .. 1, by the
+	// player's distance (1 up to OUTLINE_FADE tiles before `far`, 0 from it): a trap cell's, a closed trapped
+	// container's, a disguised mimic's. Drawn by drawOutlines (dungeon_render_outlines.cpp).
+	std::vector<std::vector<int>> secrets;
+	void findSecretRooms();
+	void revealSecretRooms();
+	[[nodiscard]] float outlineNear(float col, float row, float far) const;
+	[[nodiscard]] float trapOutlineAt(int cell) const;
+	[[nodiscard]] float containerOutlineAt(int cell) const;
+	[[nodiscard]] float mimicOutline(const Monster& mon) const;
+	void drawOutlines(const CellRect& drawn);
 	[[nodiscard]] bool containerShows(int cell) const; // opened and its clip played: the item shows
 	// 0 closed .. 1 open, the cell's clip.
 	[[nodiscard]] float containerOpening(int cell) const;
@@ -141,6 +164,8 @@ class Dungeon {
 	// The journal page of the inscription fixture f, translated if the player has the hieroglyph skill; a name
 	// cartouche's holds the level's name (plan secret-name-gates). None: too worn to read (no text, no name).
 	[[nodiscard]] std::optional<JournalInscription> inscriptionPage(const Fixture& f) const;
+	// The name cartouche's page: the level's royal name; none without a name.
+	[[nodiscard]] std::optional<JournalInscription> nameCartouchePage(bool translated) const;
 	// The name gate opened last (map index) and when (GameClock): its plasma shimmers from the pulse to steady.
 	int namedCell = -1;
 	int namedAtMs = 0;
@@ -777,6 +802,9 @@ class Dungeon {
 	[[nodiscard]] bool PlayerWading() const;
 	// The walk's speed factor: wading, sand, a web; dazed (plan giant-bat-screech) DAZE_WALK_FACTOR on top.
 	[[nodiscard]] float PlayerWalkFactor() const;
+	// A walk key's step factor: PlayerWalkFactor times the player's own (PlayerStats::WalkFactor: slowness, rings, the
+	// Speed of Mafdet on firm ground; none of them in the air).
+	[[nodiscard]] float PlayerStepFactor() const;
 	// The sprint multiplier of a step (PlayerStats::SprintMoveMultiplier) as it counts here: in half water it is 1 (no
 	// sprint), with the Favour of Hapi skill the sprint at WADE_SPRINT_FACTOR_HAPI of the land sprint once
 	// PlayerWalkFactor is applied too (plan skill-blessing-of-hapi); WADE_SPRINT_FACTOR_BLESSED with the Blessing of

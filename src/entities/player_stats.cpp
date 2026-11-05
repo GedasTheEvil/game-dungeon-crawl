@@ -75,9 +75,11 @@ float PlayerStats::SprintMoveMultiplier() const {
 	return curses.Has(Curse::Slowness) ? SLOWNESS_SPRINT_MULTIPLIER : SPRINT_MULTIPLIER;
 }
 
-float PlayerStats::WalkFactor(bool airborne) const {
+float PlayerStats::WalkFactor(bool airborne, bool firmGround) const {
 	const float rings = airborne ? 1.f : static_cast<float>(100 + this->rings.speedPercent) / 100.f;
-	return (curses.Has(Curse::Slowness) ? SLOWNESS_WALK_FACTOR : 1.f) * rings;
+	const bool swift = !airborne && firmGround && heka.Has(SkillId::SpeedOfMafdet);
+	const float skill = swift ? static_cast<float>(100 + SKILL_SPEED_PERCENT) / 100.f : 1.f;
+	return (curses.Has(Curse::Slowness) ? SLOWNESS_WALK_FACTOR : 1.f) * rings * skill;
 }
 
 void PlayerStats::RegenerateStamina() {
@@ -168,6 +170,17 @@ void PlayerStats::AddMaxHP(int hpPart) {
 	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
 	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
 	HP = CurrentMaxHP();
+}
+
+bool PlayerStats::Learn(SkillId id, bool force) {
+	const int oldMaxHP = CurrentMaxHP();
+	const int oldMaxStamina = MaxStamina();
+	if (!heka.Learn(id, force))
+		return false;
+	if (HP > 0)
+		HP += std::max(0, CurrentMaxHP() - oldMaxHP);
+	AddStamina(MaxStamina() - oldMaxStamina);
+	return true;
 }
 
 void PlayerStats::AddMaxStamina(int percent) {
@@ -439,8 +452,8 @@ void PlayerStats::LoadDump(std::istream& f) {
 		f.seekg(boons);
 	} else
 		f >> max_stamina_percent;
-	SetStamina(loadedStamina); // clamped to the max, which needs the boons
 	heka.LoadDump(f);
+	SetStamina(loadedStamina); // clamped to the max, which needs the boons and the skills
 	curses.LoadDump(f);
 	run.LoadDump(f);
 }

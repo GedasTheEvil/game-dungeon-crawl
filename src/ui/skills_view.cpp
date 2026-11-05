@@ -64,6 +64,7 @@ void SkillsScreen::Select(int card) {
 	if (card != selected)
 		confirming = false;
 	selected = std::clamp(card, 0, SKILL_COUNT - 1);
+	scroll = scrollTo(selected, scroll);
 }
 
 void SkillsScreen::MoveSelection(int dx, int dy) {
@@ -91,7 +92,7 @@ void SkillsScreen::PressLearn() {
 		return;
 	}
 	confirming = false;
-	points.Learn(id);
+	Game().player->stats.Learn(id);
 	if (const std::optional<FieldNote> note = skillNote(id))
 		Game().journal.LearnNote(*note);
 	std::string learnt = std::string("Learnt: ") + def.name;
@@ -114,7 +115,7 @@ void SkillsScreen::PressLearn() {
 }
 
 void SkillsScreen::UpdateHover(float x, float y) {
-	const int card = cardAt(x, y);
+	const int card = cardAt(x, y, scroll);
 	pointer.Move(
 		card >= 0					  ? Pick{Target::Card, card}
 		: LEARN_BUTTON.contains(x, y) ? Pick{Target::LearnButton}
@@ -131,11 +132,17 @@ void SkillsScreen::MouseMotion(int x, int y) {
 
 // A card is selected when the button goes down on it; Learn fires when the button comes up over it.
 void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
-	if (button != MOUSE_LEFT_BUTTON)
-		return;
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(x, y, cx, cy);
+	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
+		if (state == GLUT_DOWN)
+			scroll = std::clamp(scroll + (button == MOUSE_WHEEL_UP ? -1 : 1), 0, MAX_SCROLL);
+		UpdateHover(cx, cy);
+		return;
+	}
+	if (button != MOUSE_LEFT_BUTTON)
+		return;
 	UpdateHover(cx, cy);
 	const Pick at = pointer.hovered;
 	if (state == GLUT_DOWN) {
@@ -197,7 +204,9 @@ void SkillsScreen::Draw() {
 	panel(CARDS_PANEL, 0.9f);
 	DrawPoints();
 	for (int card = 0; card < SKILL_COUNT; card++)
-		DrawCard(card);
+		if (cardVisible(card, scroll))
+			DrawCard(card);
+	DrawScrollBar();
 	DrawDetails();
 	DrawFooter();
 	ScreenTabs::Draw();
@@ -238,10 +247,10 @@ void SkillsScreen::DrawCard(int card) {
 	if (isSelected) {
 		const float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(GameClock::now()) * PULSE_RATE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		ring(cardRect(card), 2.6f, GOLD, 0.35f + 0.25f * pulse, 0.f);
+		ring(cardRect(card, scroll), 2.6f, GOLD, 0.35f + 0.25f * pulse, 0.f);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-	const Rect r = tile(cardRect(card), style, hovered, held);
+	const Rect r = tile(cardRect(card, scroll), style, hovered, held);
 	if (isSelected)
 		strokeRect(r, GOLD, 1.f, 3.f);
 
@@ -264,6 +273,15 @@ void SkillsScreen::DrawCard(int card) {
 	text(body, textX, r.y + CARD_NAME_Y, def.name, nameColor);
 	text(small, textX, r.y + CARD_EFFECT_Y, def.effect, sealed ? DIM_TEXT : (learnt ? GOLD_DIM : LABEL_DIM));
 	beginShapes();
+}
+
+// Right of the cards, when they do not all fit: the track over the rows shown, the thumb where they are (as the
+// inventory's).
+void SkillsScreen::DrawScrollBar() {
+	if (MAX_SCROLL == 0)
+		return;
+	fillRect(scrollTrack(), {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
+	fillRect(scrollThumb(scroll), GOLD, GOLD_DIM, 1.f);
 }
 
 // The selected skill on papyrus: its icon, name, effect and lore, what it takes, and the Learn button.
@@ -327,6 +345,12 @@ void SkillsScreen::DrawFooter() {
 	beginText();
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
 		textCentered(body, CENTRE, 7.2f, toast.text.c_str(), TOAST, alpha);
-	textCentered(small, CENTRE, 2.2f, "Click: select    Enter: learn    Arrows: browse    K / Esc: close", LABEL_DIM);
+	textCentered(
+		small,
+		CENTRE,
+		2.2f,
+		"Click: select    Enter: learn    Arrows: browse    Wheel: scroll    K / Esc: close",
+		LABEL_DIM
+	);
 	beginShapes();
 }

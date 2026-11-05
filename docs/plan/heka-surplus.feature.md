@@ -1,6 +1,6 @@
 # Heka surplus: more skills than bosses
 
-Status: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30, grilled with the user 2026-11-03.
+Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30, grilled with the user 2026-11-03.
 
 ## Problem
 
@@ -102,3 +102,11 @@ mapping); a regroup by kind is the implementer's choice (old saves can be ignore
 * Tests: unit tests per stat skill (the stat with and without it, save/load), the jump reach unchanged with the
   speed skill, Anubis gives no heka; a scenario screenshot of the Heka screen and of the Seshat map and trap
   outlines.
+
+## Play-test
+
+* `bin/game --play tests/play/heka-surplus.txt`. K: 16 cards, the list scrolls (arrows, wheel), a thin bar at the right; learn a stat skill: the HUD's health / stamina, the inventory's might / armor grow; Speed of Mafdet walks faster, the jump no farther.
+* Walk right: spikes, dart plate, rock fall, death trap, wall spikes, fire vent get a faint pale outline near you, in the dark too.
+* The trapped chest and the mimic glow red up close; the chest opens quietly 4 times in 5 and is never empty.
+* M by the teleporter (col 21): the sealed room above is on the draft map. A name gate's scroll gives the name, a riddle its hint at once.
+* Campaign: Anubis (lvl54) gives no heka; with every skill learnt the HUD heka tile stops pulsing.

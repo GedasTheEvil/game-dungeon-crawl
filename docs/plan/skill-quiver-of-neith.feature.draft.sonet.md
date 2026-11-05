@@ -1,6 +1,6 @@
 # Skill: Quiver of Neith
 
-Status: draft 2026-11-05, size M, needs first [heka-surplus](heka-surplus.feature.draft.opus.md) (the scrolling Heka list, the icon atlas, `SkillId` order). From the user.
+Status: draft 2026-11-05, size M, needs first [heka-surplus](heka-surplus.feature.md) (the scrolling Heka list, the icon atlas, `SkillId` order). From the user.
 
 ## Idea
 

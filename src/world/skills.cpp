@@ -1,4 +1,5 @@
 #include "skills.h"
+#include "campaign.h"
 #include "texts.h"
 #include <algorithm>
 #include <bit>
@@ -17,12 +18,20 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Blessing of Isis", "Curses last half as long", false},
 	// Plan skill-flaming-arrows: a stamina skill, switched with the stamina-skill key.
 	{"Flaming arrows", "Bow shots burn, for stamina", false},
+	// Plan heka-surplus: stats (PlayerStats), Seshat's exploration and the trapped containers.
+	{"Ka of Osiris", "Max health +25%", false},
+	{"Strength of Montu", "Might +5", false},
+	{"Djed of Ptah", "Armor +5", false},
+	{"Breath of Shu", "Max stamina +25%", false},
+	{"Speed of Mafdet", "Walk and sprint 20% faster", false},
+	{"Wisdom of Seshat", "Hints, names, rooms, traps", false},
+	{"Disarm trap", "Chest traps fail, mimics glow", false},
 }};
 
 const char* skillLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".lore").c_str(); }
 
 bool Heka::Earn(int level) {
-	if (std::ranges::find(levels, level) != levels.end())
+	if (level == CAMPAIGN_LEVELS || std::ranges::find(levels, level) != levels.end())
 		return false;
 	levels.push_back(level);
 	return true;
@@ -31,6 +40,15 @@ bool Heka::Earn(int level) {
 int Heka::Spent() const { return std::popcount(learned); }
 
 bool Heka::CanLearn(SkillId id) const { return !skillDef(id).sealed && !Has(id) && Free() > 0; }
+
+bool Heka::Waiting() const {
+	if (Free() <= 0)
+		return false;
+	for (int i = 0; i < SKILL_COUNT; i++)
+		if (CanLearn(static_cast<SkillId>(i)))
+			return true;
+	return false;
+}
 
 bool Heka::Learn(SkillId id, bool force) {
 	if (Has(id) || Free() <= 0 || (skillDef(id).sealed && !force))

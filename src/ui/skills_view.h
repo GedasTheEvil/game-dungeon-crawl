@@ -6,9 +6,9 @@
 #include "pointer.h"
 #include "ui_draw.h"
 
-// The Heka screen ([K], plan skills): a card per skill and the heka left to spend; the papyrus on the right tells the
-// selected skill and learns it, after a second press to confirm (no unlearning). Its layout: skills_layout.h. The game
-// is paused while it is open.
+// The Heka screen ([K], plan skills): a card per skill (a list that scrolls, plan heka-surplus) and the heka left to
+// spend; the papyrus on the right tells the selected skill and learns it, after a second press to confirm (no
+// unlearning). Its layout: skills_layout.h. The game is paused while it is open.
 class SkillsScreen {
   public:
 	void Draw();
@@ -26,6 +26,7 @@ class SkillsScreen {
 	};
 
 	int selected = 0; // a SkillId
+	int scroll = 0; // the first card row shown (plan heka-surplus): follows the selection, the wheel moves it
 	ui::Pointer<Pick> pointer;
 	bool confirming = false; // the first press of Learn: the next one learns
 	ui::Toast toast;
@@ -40,6 +41,7 @@ class SkillsScreen {
 
 	void DrawPoints();
 	void DrawCard(int card);
+	void DrawScrollBar();
 	void DrawDetails();
 	void DrawFooter();
 };

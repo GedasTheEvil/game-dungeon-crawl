@@ -692,6 +692,7 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawFireJets(drawn);
 	drawPoisonDrips(drawn);
 	drawMechanismEffects();
+	drawOutlines(drawn); // the skills' (plan heka-surplus)
 	drawSummonEffects();
 	drawBallEffects();
 	drawSandEffects();

@@ -443,6 +443,45 @@ text: The carved words on the walls were pictures yesterday. Now they are senten
 	those who ask, and every inscription I read pays me in experience, the ones I passed before as well. They are
 	mostly warnings and gifts. Mostly.
 
+[note.ka-of-osiris]
+title: Ka of Osiris
+text: Osiris came back from death; a share of his ka came into me. A quarter more health, and it stays: no amulet
+	to lose, no curse to wait out. The new share came full, the old wounds did not close.
+
+[note.strength-of-montu]
+title: Strength of Montu
+text: Montu, the war god of Thebes, sits in my shoulder now. Five more might in every blow, for good. My club
+	hits like a younger man's.
+
+[note.djed-of-ptah]
+title: Djed of Ptah
+text: Ptah's pillar, the djed, stands in my spine. Five more armor, for good: a bite has to work harder to get
+	through.
+
+[note.breath-of-shu]
+title: Breath of Shu
+text: Shu, the air itself, breathes with me. A quarter more stamina for good: longer sprints, more jumps before I
+	am out of breath.
+
+[note.speed-of-mafdet]
+title: Speed of Mafdet
+text: Mafdet runs down snakes and lends me her feet: a fifth faster walking and sprinting on firm ground. Water
+	and sand slow me as before, and a jump carries no farther: the gaps I could not clear, I still cannot.
+
+[note.wisdom-of-seshat]
+title: Wisdom of Seshat
+text: Seshat measured every temple before it was built, so she knows its hidden rooms. A riddle shows its hint at
+	once. A name gate tells me the name it wants. Near a sealed room, its plan draws itself on my map. And the traps
+	near me show a faint pale outline, even in the dark: spikes, death traps, plates, rock falls, vents, drips,
+	quicksand.
+
+[note.disarm-trap]
+title: Disarm trap
+text: I see the threads now. Four times in five a trapped chest, jar or coffin opens quietly: no darts, no gas, no
+	curse, no scarabs. With the Eye of Horus it is safer still. Up close, trapped containers and the mimics that
+	pass for them glow a faint red. And a trapped one is never empty: where its treasure was taken, something of its
+	depth lies instead.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

@@ -51,6 +51,7 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) 
 	stargateRestDeg = 0.f;
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 	meta = grid.meta;
+	findSecretRooms(); // plan heka-surplus
 
 	bool entranceFound = false;
 	for (int j = 0; j < MAP_HEIGHT; j++)
@@ -92,6 +93,7 @@ bool Dungeon::LoadDump(std::istream& f) {
 		LOG_ERRORF("world", "Cannot read the saved map: %s", error.c_str());
 		return false;
 	}
+	findSecretRooms(); // plan heka-surplus
 
 	clearMonsters();
 	resetPlayerMotion();

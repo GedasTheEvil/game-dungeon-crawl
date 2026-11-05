@@ -71,6 +71,7 @@ void Dungeon::exploreAroundPlayer() {
 		for (int i = col - EXPLORE_RADIUS; i <= col + EXPLORE_RADIUS; i++)
 			if (IsInBounds(i, j))
 				explored[MapIndex(i, j)] = true;
+	revealSecretRooms(); // the Wisdom of Seshat (plan heka-surplus)
 }
 //======================================================================================
 Dungeon::Dungeon() {
@@ -587,6 +588,12 @@ float Dungeon::PlayerWalkFactor() const {
 	const float daze = sim.player->Dazed() ? DAZE_WALK_FACTOR : 1.f;
 	const float crouch = sim.player->crouched ? CROUCH_WALK_FACTOR : 1.f;
 	return daze * crouch * groundWalkFactor();
+}
+//======================================================================================
+float Dungeon::PlayerStepFactor() const {
+	const JumpState& jump = sim.player->jump;
+	const bool firmGround = !PlayerWading() && !PlayerInSand(); // plan heka-surplus
+	return PlayerWalkFactor() * sim.player->stats.WalkFactor(jump.jumping || jump.falling, firmGround);
 }
 //======================================================================================
 bool Dungeon::PlayerCanSprint() const {

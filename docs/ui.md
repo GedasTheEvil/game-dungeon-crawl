@@ -294,7 +294,7 @@ gem is drawn see-through over the band, with a slow glint (`Item::DrawPart`).
 
 Skills bought with heka ([plan/skills.md](plan/solved/skills.md)). Title "Heka" with the screen tabs. Left a `panel`
 (`CARDS_PANEL`): the heka mark and "Heka to spend: n" (`heading` `GOLD`, `LABEL_DIM` "No heka to spend" at none) over
-the cards, "Learnt n of m" (`small` `LABEL_DIM`) right. Cards 45 x 11, two a row (five rows for nine skills), in `SkillId` order: an icon well
+the cards, "Learnt n of m" (`small` `LABEL_DIM`) right. Cards 45 x 11, two a row (the list scrolls: five rows show, a thin bar at the right, the wheel or the arrows past the last row), in `SkillId` order: an icon well
 with the baked icon (`media/textures/ui/skill_icons.png`, `tools/textures/skill_icons.py`; `ui::atlasIcon`), the name in
 `body`, its one line in `small`. Learnt: lapis tile, `GOLD` name, a `GOLD_BRIGHT` diamond top right. Sealed (rules not
 in yet): `Disabled` tile, dim icon and text, a red wax dot. No heka left: the icons dimmed. The selected card has the

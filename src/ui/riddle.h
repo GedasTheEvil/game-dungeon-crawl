@@ -32,6 +32,7 @@ class Riddle {
 	size_t journalIndex = 0;
 	bool late = false; // asked from the journal: Esc and a right answer go back to it
 	bool nameGate = false; // a name gate's scroll (plan secret-name-gates): no reward, no hint, not in the journal
+	std::string knownName; // the name gate's name in capitals, shown with the Wisdom of Seshat (plan heka-surplus)
 	int reward = 0;
 	std::string answer;
 	int misses = 0;

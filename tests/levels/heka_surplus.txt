@@ -1,0 +1,17 @@
+; Plan heka-surplus (tests/scenarios/heka-surplus.txt): the Wisdom of Seshat's and Disarm trap's outlines. Row 1:
+; spikes (col 4), a dart plate (6), a rock fall (8), a death trap (10), wall spikes (12) and a fire vent (14) in the
+; back wall, a trapped chest (16), a mimic (18), a teleporter (21) to the sealed room on row 4 (cols 18 to 24, a chest
+; at col 24), the exit (26). Built with tools/level/ascii2level.py.
+################################
+##################O.....$#######
+################################
+################################
+#S..^._.v.X.....%.M..O....E#####
+################################
+wall
+################################
+##################......########
+################################
+################################
+#...........|.+.................
+################################

@@ -190,8 +190,16 @@ enum class FieldNote : unsigned char {
 	PowerHit,
 	FlamingArrows,
 	WordsOfThoth,
+	// Plan heka-surplus: the new skills, written on learning, in SkillId order.
+	KaOfOsiris,
+	StrengthOfMontu,
+	DjedOfPtah,
+	BreathOfShu,
+	SpeedOfMafdet,
+	WisdomOfSeshat,
+	DisarmTrap,
 };
-constexpr int FIELD_NOTE_COUNT = 65 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 72 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

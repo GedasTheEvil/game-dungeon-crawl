@@ -513,6 +513,13 @@ constexpr int CHEST_SWARM_SIZE = 3;
 constexpr float CHEST_TELL_SHADE = 0.62f;
 constexpr float CHEST_TELL_NEAR = 0.8f;
 constexpr float CHEST_TELL_FAR = 1.8f; // the view shows about two tiles either side of the player
+// The skills' outlines (plan heka-surplus): the Wisdom of Seshat shows the traps within SESHAT_TRAP_FAR tiles and puts
+// a sealed room within SESHAT_ROOM_RADIUS cells on the draft map; Disarm trap shows trapped containers and disguised
+// mimics within DISARM_SEEN_FAR, a little farther than the chest's own tell. Each fades in over OUTLINE_FADE tiles.
+constexpr float SESHAT_TRAP_FAR = 3.f;
+constexpr int SESHAT_ROOM_RADIUS = 3;
+constexpr float DISARM_SEEN_FAR = 2.6f;
+constexpr float OUTLINE_FADE = 0.8f;
 // Tomb curses (plan trapped-chests): smashing a living ushabti curses with fatigue, at this chance; the trap ward's
 // chance stops it as a chest's trap.
 constexpr int TOMB_CURSE_PERCENT = 25;

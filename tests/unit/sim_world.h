@@ -295,8 +295,7 @@ class SimWorld {
 
 	bool walk(float dx, float dy) {
 		const bool sprints = dungeon.PlayerCanSprint();
-		const float factor =
-			dungeon.PlayerWalkFactor() * player.stats.WalkFactor(player.jump.jumping || player.jump.falling);
+		const float factor = dungeon.PlayerStepFactor();
 		const bool moved = dungeon.Move(dx * factor, dy * factor);
 		if (moved && sprints)
 			player.stats.NoteWalked(dungeon.PlayerHalvedWadeDrain());

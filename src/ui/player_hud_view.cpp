@@ -85,7 +85,7 @@ PlayerHud::View playerHudView() {
 	if (std::optional<int> refused = Game().player->staminaSkillRefusedMs)
 		view.staminaSkillRefusedAgeMs = GameClock::now() - *refused;
 	view.staminaSkillKey = keyCapOf(BindAction::StaminaSkills);
-	view.hekaWaiting = stats.heka.Free() > 0;
+	view.hekaWaiting = stats.heka.Waiting(); // plan heka-surplus: not while every skill is learnt
 	view.hekaKey = keyCapOf(BindAction::Skills);
 	view.journalNew = Game().journal.AnyNew();
 	view.journalKey = keyCapOf(BindAction::Journal);

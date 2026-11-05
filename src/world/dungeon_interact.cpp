@@ -237,29 +237,32 @@ const RoyalName* Dungeon::LevelName() const {
 //======================================================================================
 std::optional<JournalInscription> Dungeon::inscriptionPage(const Fixture& f) const {
 	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
-	if (f.attr == NAME_CARTOUCHE_ID) { // plan secret-name-gates
-		const RoyalName* name = LevelName();
-		if (name == nullptr)
-			return std::nullopt;
-		std::string upper = name->name;
-		for (char& c : upper)
-			c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
-		const std::string asked = "Something on this level wants to hear it.";
-		JournalInscription page{
-			NAME_CARTOUCHE_ID,
-			"A royal name",
-			{"The name of the " + name->title + ": " + upper},
-			name->note.empty() ? asked : name->note + " " + asked,
-			levelNumber,
-			reads
-		};
-		page.glyphs = name->glyphs;
-		return page;
-	}
+	if (f.attr == NAME_CARTOUCHE_ID) // plan secret-name-gates
+		return nameCartouchePage(reads);
 	const InscriptionText* text = sim.inscriptions != nullptr ? sim.inscriptions->Find(f.attr) : nullptr;
 	if (text == nullptr)
 		return std::nullopt;
 	return JournalInscription{text->id, text->title, text->text, text->note, levelNumber, reads, text->boon};
+}
+//======================================================================================
+std::optional<JournalInscription> Dungeon::nameCartouchePage(bool translated) const {
+	const RoyalName* name = LevelName();
+	if (name == nullptr)
+		return std::nullopt;
+	std::string upper = name->name;
+	for (char& c : upper)
+		c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+	const std::string asked = "Something on this level wants to hear it.";
+	JournalInscription page{
+		NAME_CARTOUCHE_ID,
+		"A royal name",
+		{"The name of the " + name->title + ": " + upper},
+		name->note.empty() ? asked : name->note + " " + asked,
+		levelNumber,
+		translated
+	};
+	page.glyphs = name->glyphs;
+	return page;
 }
 //======================================================================================
 // The status line only says what happened; the title and the comment go into the journal (plans
@@ -312,10 +315,15 @@ void Dungeon::useGate() {
 		startTravel(true);
 		break;
 	case GateTeleport:
-		if (isNameGate(here))
-			sim.events->AskName(); // plan secret-name-gates
-		else if (!sim.player->jump.jumping && !sim.player->jump.falling &&
-				 teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))) >= 0)
+		if (isNameGate(here)) { // plan secret-name-gates
+			// The Wisdom of Seshat (plan heka-surplus) knows the name: the journal gets the cartouche's page, the
+			// scroll shows it (Riddle::AskName).
+			if (sim.player->stats.heka.Has(SkillId::WisdomOfSeshat))
+				if (const std::optional<JournalInscription> page = nameCartouchePage(true))
+					sim.journal->ReadInscription(*page);
+			sim.events->AskName();
+		} else if (!sim.player->jump.jumping && !sim.player->jump.falling &&
+				   teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))) >= 0)
 			startTravel(false, isRingPlatform(here));
 		break;
 	default: // the entrance, an answered riddle gate

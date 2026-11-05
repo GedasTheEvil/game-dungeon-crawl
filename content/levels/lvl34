@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone seths_desert
 title The Buried Gate
 structure
@@ -284,3 +284,4 @@ shapes 6
 18 41 000f
 19 41 000f
 20 41 000f
+containers 0

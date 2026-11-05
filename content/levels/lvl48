@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone necropolis
 title The Ring of Seven Marks
 structure
@@ -401,3 +401,4 @@ shapes 9
 18 14 000f
 17 36 fff0
 18 36 fff0
+containers 0

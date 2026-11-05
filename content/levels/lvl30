@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone cisterns_of_sobek
 title The Cistern Grid
 structure
@@ -262,3 +262,4 @@ shapes 4
 22 33 000f
 23 33 00ff
 24 33 000f
+containers 0

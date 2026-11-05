@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone hall_of_judgment
 title The Hall of the Two Truths
 structure
@@ -332,3 +332,4 @@ shapes 6
 30 43 00ff
 31 43 00ff
 32 43 000f
+containers 0

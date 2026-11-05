@@ -232,6 +232,22 @@ int scatterProps(const Tile* cells, uint32_t seed, int tier, const ZoneLook& loo
 	return placed;
 }
 
+} // namespace
+
+uint32_t containerStances(const Tile* cells, int col, int row, Container kind, uint32_t (&weights)[STANCE_COUNT]) {
+	const bool lengthwise = containerDef(kind).lengthwise;
+	uint32_t total = 0;
+	for (int k = 0; k < STANCE_COUNT; k++) {
+		const StanceDef& st = STANCES[k];
+		const bool fits = (st.wallSide == 0 || rockAt(cells, col + st.wallSide, row)) &&
+						  (!lengthwise || std::abs(st.yaw) < 90);
+		weights[k] = fits ? static_cast<uint32_t>(st.weight) : 0;
+		total += weights[k];
+	}
+	return total;
+}
+
+namespace {
 // Every open cell gets a look, not only the treasure cells: a chest taken before a save still stands there, opened,
 // after the load (its tile is empty then).
 int scatterTreasures(const Tile* cells, uint32_t seed, int tier, TreasureLook* treasure) {
@@ -247,19 +263,17 @@ int scatterTreasures(const Tile* cells, uint32_t seed, int tier, TreasureLook* t
 			uint32_t kinds[CONTAINER_COUNT];
 			for (int k = 0; k < CONTAINER_COUNT; k++)
 				kinds[k] = static_cast<uint32_t>(CONTAINER_PERCENT[tier][k]);
-			const int kind = weightedPick(kinds, CONTAINER_COUNT, h);
-			const bool lengthwise = CONTAINER_DEFS[kind].lengthwise;
+			// A placed look (plan placed-container-looks) beats the roll of the kind and the lid, not the stance.
+			const Dressing placed = cells[cellIndex(i, j)].dressing;
+			const int kind = hasPlacedContainer(placed) ? placed.container : weightedPick(kinds, CONTAINER_COUNT, h);
 			uint32_t stances[STANCE_COUNT];
-			for (int k = 0; k < STANCE_COUNT; k++) {
-				const StanceDef& st = STANCES[k];
-				const bool fits = (st.wallSide == 0 || rockAt(cells, i + st.wallSide, j)) &&
-								  (!lengthwise || std::abs(st.yaw) < 90);
-				stances[k] = fits ? static_cast<uint32_t>(st.weight) : 0;
-			}
-			const StanceDef& stance = STANCES[weightedPick(stances, STANCE_COUNT, mix(h))];
+			containerStances(cells, i, j, static_cast<Container>(kind), stances);
+			const int pick = weightedPick(stances, STANCE_COUNT, mix(h));
+			const StanceDef& stance = STANCES[pick < 0 ? 0 : pick];
 			// A coffin's text (plan tomb-curse-containers): its own roll, the other looks stay as they were.
+			const bool rolledText = mix(mix(h)) % 100U < static_cast<uint32_t>(COFFIN_INSCRIBED_PERCENT);
 			const bool inscribed = static_cast<Container>(kind) == Container::Coffin &&
-								   mix(mix(h)) % 100U < static_cast<uint32_t>(COFFIN_INSCRIBED_PERCENT);
+								   (placed.lid == CoffinLid::Rolled ? rolledText : placed.lid == CoffinLid::Inscribed);
 			look = {static_cast<Container>(kind), stance.yaw, stance.x, stance.z, inscribed};
 			chests += isTreasure(at(cells, i, j)) ? 1 : 0;
 		}

@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone land_of_sokar
 title The Gate of Sokar
 structure
@@ -549,3 +549,4 @@ shapes 7
 28 34 000f
 15 45 fff0
 16 45 fff0
+containers 0

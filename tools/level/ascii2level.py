@@ -139,6 +139,7 @@ def main(src, dst):
         f.write(f"shapes {len(shapes)}\n")
         for (col, row), mask in sorted(shapes.items(), key=lambda kv: (kv[0][1], kv[0][0])):
             f.write(f"{col} {row} {mask:04x}\n")
+        f.write("containers 0\n")  # no placed container looks: the editor paints them (plan placed-container-looks)
 
 
 if __name__ == "__main__":

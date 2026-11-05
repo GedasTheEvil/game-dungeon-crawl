@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone cisterns_of_sobek
 title The Cistern Stairs
 structure
@@ -252,3 +252,4 @@ shapes 5
 27 9 000f
 23 19 fff0
 24 19 fff0
+containers 0

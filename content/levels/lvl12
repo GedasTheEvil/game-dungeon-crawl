@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone web_halls
 title The Two Shafts
 structure
@@ -791,3 +791,4 @@ shapes 9
 32 38 fff0
 27 45 fff0
 28 45 fff0
+containers 0

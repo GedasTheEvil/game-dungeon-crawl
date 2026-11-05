@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone web_halls
 title The Hall of Webs
 structure
@@ -644,3 +644,4 @@ shapes 10
 18 39 0fff
 19 39 00ff
 20 39 000f
+containers 0

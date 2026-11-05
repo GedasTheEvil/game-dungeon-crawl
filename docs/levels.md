@@ -49,7 +49,12 @@ it as on any level), bare (none) or one picked with its mirror, whatever the dep
 * **Decal**: the cell's wall decal (`DECAL_DEFS`) and, as a second field, its wall torch (unset, none, a torch).
   Random torches keep their gap to a placed one.
 
-Rules and the editor's palettes: [tools/editor/readme.md](../tools/editor/readme.md#decor-and-decal-layers).
+One more, the **looks** layer ([placed-container-looks](plan/placed-container-looks.feature.md)), picks a
+treasure's container: rolled (by depth, as on any level) or one of `CONTAINER_NAMES` (`src/world/containers.h`), a
+coffin's lid also plain or inscribed (a cursed coffin). The stance still rolls.
+
+Rules and the editor's palettes: [tools/editor/readme.md](../tools/editor/readme.md#decor-and-decal-layers),
+[looks layer](../tools/editor/readme.md#looks-layer).
 
 Fixtures and objects stand in `Empty`, `HalfWater`, `Sand` or `Quicksand`. A cell can hold one of each: an inscription over a chest, a
 lever behind a monster spawn. Interact takes the chest first, then the fixture (pull the lever, read the inscription)
@@ -97,14 +102,14 @@ reach with the mirrors the player reaches from there (with the colours open by t
 light shaft without rock behind it, a mirror in front of an inscription, a sun disc no beam can ever reach and one lit
 as the level starts.
 
-Level files are text, version 6: a `DCLEVEL 6 40 47` header, the level's zone (`zone cisterns_of_sobek`, or
+Level files are text, version 7: a `DCLEVEL 7 40 47` header, the level's zone (`zone cisterns_of_sobek`, or
 `zone none`; [Zones](#zones)), an optional level title (`title The Hall of Drifts`, the rest of the line; every campaign
-level has one, plan campaign-texts), the structure as a drawing (a shaped cell with its own glyph), then the lists of fixtures, objects, props, decals and
-shapes (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
+level has one, plan campaign-texts), the structure as a drawing (a shaped cell with its own glyph), then the lists of fixtures, objects, props, decals,
+shapes and container looks (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
 the same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1
-to v5) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
-v3 file's cells are all unset, a v4 file has no zone, a v5 file no shapes); `levelcheck` warns about a file older than
-v6, and `bin/levelconvert FILE...` (built by `make`) rewrites one as v6. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
+to v6) level files and saves still load, converted as they are read (a v2 file's wall types move to the wall layer, a
+v3 file's cells are all unset, a v4 file has no zone, a v5 file no shapes, a v6 file no placed looks); `levelcheck`
+warns about a file older than v7, and `bin/levelconvert FILE...` (built by `make`) rewrites one as v7. Water: [crocodiles-and-flooded-cells.md](plan/solved/crocodiles-and-flooded-cells.md).
 
 ## Campaign order
 
@@ -189,9 +194,9 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 13 | The Lair of the Mother of Webs: The Mother of Webs, the third boss. Giant rat 2, mimic 5, giant scarab 6, camel spider 15, mother of webs 1. 2 keys, 1 lever, 1 riddle gate. Expedition page 9. Inscriptions: Hymn to the evening sun. |
 | 14 | The Gate of the Priests: Anubis 1, mimic 1, giant scarab 1, mummy 16, ushabti 10. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The vault of the strong arm (a might boon); A name is a door; The purification of the priest; The offering formula. |
 | 15 | The House of Life: Anubis 2, mimic 1, giant scarab 2, mummy 14, ushabti 4, mimic jar 1. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 10. Inscriptions: The ushabti spell (a stamina boon); Anubis upon his mountain; The flame of the brazier; The hidden pharmacy. |
-| 16 | The Scribes' Hall: Anubis 2, mimic 1, giant scarab 5, mummy 8, ushabti 10, mimic jar 1. 2 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The instruction of Ptahhotep; The scribe's wish; The song of the harper. |
-| 17 | The Hall of Purification: Anubis 3, mimic 1, giant scarab 2, mummy 14, ushabti 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The temple cat; Not dying a second time (a life boon); The negative confession. |
-| 18 | The Tomb of the High Priest: The High Priest, the fourth boss. Anubis 3, giant scarab 2, mummy 17, mummy priest 1, ushabti 9, mimic jar 1. 1 key, 2 levers, 1 riddle gate. Expedition page 11. Inscriptions: The might of the king (a might boon). |
+| 16 | The Scribes' Hall: Anubis 2, mimic 1, giant scarab 5, mummy 8, ushabti 10, mimic jar 1. 2 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The instruction of Ptahhotep; The scribe's wish; The song of the harper. A plain coffin in the burial chamber by Ptahhotep. |
+| 17 | The Hall of Purification: Anubis 3, mimic 1, giant scarab 2, mummy 14, ushabti 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The temple cat; Not dying a second time (a life boon); The negative confession, a cursed coffin beside it. |
+| 18 | The Tomb of the High Priest: The High Priest, the fourth boss. Anubis 3, giant scarab 2, mummy 17, mummy priest 1, ushabti 9, mimic jar 1. 1 key, 2 levers, 1 riddle gate. Expedition page 11. Inscriptions: The might of the king (a might boon). A cursed coffin among the sleepers and canopic jars of the upper burial chamber. |
 | 19 | The Gate of Serket: Mimic 3, giant scarab 4, scorpion 22, giant scorpion 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: A spell against stings; The drip from the ceiling; Serket who makes the throat breathe. |
 | 20 | The Weeping Roof: Mimic 2, giant scarab 6, scorpion 11, giant scorpion 18. 2 keys, 1 riddle gate, a name gate to a secret room. Expedition page 12. Inscriptions: The nest of eggs; The breath of life (a life boon); Serket. |
 | 21 | The Hall of Antidotes: Mimic 3, giant scarab 3, scorpion 23, giant scorpion 8. 1 key, 1 lever, 1 riddle gate. Inscriptions: The healer's rule; The scorpion charm. |
@@ -220,10 +225,10 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 44 | The Cool Water: Giant bat 7, mimic 1, giant cobra 11, baboon 21. 2 keys, 1 lever, 1 riddle gate. Inscriptions: The fire that does not burn (a life boon); The Book of Gates, the lake. |
 | 45 | The Shore of Babi: Babi on his shore, the tenth boss. Giant bat 10, giant cobra 18, baboon 10, babi 1. 3 keys, 1 lever, 1 riddle gate. Inscriptions: The heat of Babi. |
 | 46 | The Gate of the Dead: Anubis 9, mummy 18, giant scorpion 5, baboon 4. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 23. Inscriptions: The cursed chests; The way of the dead; The house of the name. |
-| 47 | The Hall of Coffins: Anubis 10, mimic 1, mummy 17, giant scorpion 3, cursed mimic 4, baboon 1, mimic jar 2. 1 key, 3 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The mummy's linen; The unmoved (a armor boon); The last steward. |
+| 47 | The Hall of Coffins: Anubis 10, mimic 1, mummy 17, giant scorpion 3, cursed mimic 4, baboon 1, mimic jar 2. 1 key, 3 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The mummy's linen; The unmoved (a armor boon); The last steward ("Let no one open it who has not read"), a cursed coffin beside it. A plain coffin among the mummies of row 28. |
 | 48 | The Ring of Seven Marks: The Stargate chamber: the name gate (the king's name), a sealed ring platform, to the ring's room. Anubis 13, mummy 6, giant scorpion 4, cursed mimic 4, baboon 1, mimic jar 1. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The ring of the stars; A tomb robber's confession; The jackal at the end. |
 | 49 | The Two Gates: The last route fork: the warning between the two drops, page 24 on the way. Anubis 7, mimic 1, mummy 19, giant scorpion 1, cursed mimic 1, baboon 4, mimic jar 1. 2 keys, 2 levers, 1 riddle gate. Expedition page 24. Inscriptions: Take the left gate; The curse of Khentika; The treasury in the pillar. |
-| 50 | The Catacombs: Anubis 14, mummy 14, giant scorpion 1, cursed mimic 4, baboon 3. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: Going forth by day; The overseer of works; The heart scarab (a armor boon). |
+| 50 | The Catacombs: Anubis 14, mummy 14, giant scorpion 1, cursed mimic 4, baboon 3. 3 keys, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: Going forth by day; The overseer of works; The heart scarab (a armor boon), a plain coffin by it. |
 | 51 | The Gate of Judgment: Anubis 17, mimic 2, mummy 5, giant cobra 3, camel spider 1, baboon 9. 2 keys, 2 levers, 3 riddle gates, a name gate to a secret room. Inscriptions: The riddle of Thoth; The negative confession; The deepest seal (a life boon). |
 | 52 | The Hall of the Two Truths: Anubis 14, mimic 3, mummy 6, giant cobra 6, cursed mimic 1, baboon 6. 3 keys, 1 lever, 3 riddle gates. Inscriptions: The weighing of the heart; The breath of the justified (a life boon). |
 | 53 | The Feather of Maat: Anubis 19, mummy 8, giant cobra 3, cursed mimic 2, baboon 3. 1 key, 3 levers, 3 riddle gates. Inscriptions: The strength of the throne (a might boon); Maat, the feather. |
@@ -298,7 +303,7 @@ bin/levelcheck content/levels/lvl*                   # report per level, then a 
 bin/levelcheck --map content/levels/lvl3             # plus the map with the path drawn as '*'
 bin/levelcheck --legend                      # the map's characters, with the tile each one stands for
 bin/levelcheck --quiet content/levels/lvl*           # no report, only the exit code (and --script)
-bin/levelconvert content/levels/lvl*                 # rewrite older level files (v1 to v5) as v6 (v6 files are left alone)
+bin/levelconvert content/levels/lvl*                 # rewrite older level files (v1 to v6) as v7 (v7 files are left alone)
 bin/levelcheck --script tests/out/paths content/levels/lvl*   # a scenario per level that plays the path
 ```
 
@@ -343,7 +348,7 @@ It reports:
 | Item | Meaning |
 |---|---|
 | errors | No entrance, an entrance with no floor below it, no exit or ankh, or the exit cannot be reached. The level is invalid. |
-| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap or spikes or jump into ceiling spikes, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, the sandstorm rules above, a ring platform paired with a plain teleporter or without rock above it, a campaign level without a title, a monster spawn, ladder, gate, door, treasure or mirror in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a poison drip without a floor under it or a ceiling over it, in water or with an object in its puddle (but a key or a page), a run of rhythm traps (wall spikes, fire vents, poison drips) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v6, a placed prop, decal or torch that does not fit (a water prop out of half water too) ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), the sub-cell rules above, a poisoner (scorpion, cobra), a poison drip or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
+| warnings | More than one entrance, keys, levers, treasure or expedition pages out of reach, an expedition page without a number, gates that nothing opens (no key, lever or sun disc), the sunlight rules above, a teleporter pair id without exactly two teleporters, a boss gate without a boss or a boss without one, more than one boss, a boss the player can walk to (not only by teleporter), softlock cells, a path that must cross a death trap or spikes or jump into ceiling spikes, an object or fixture in a wall or deep water, a sphinx gate that is no entrance, exit, riddle or teleporter, the water rules above, the sandstorm rules above, a ring platform paired with a plain teleporter or without rock above it, a campaign level without a title, a monster spawn, ladder, gate, door, treasure or mirror in front of wall spikes, wall spikes without a floor under them or a wall above them, a fire vent without a floor under it or in water, a poison drip without a floor under it or a ceiling over it, in water or with an object in its puddle (but a key or a page), a run of rhythm traps (wall spikes, fire vents, poison drips) that cannot be walked through both ways, sand or quicksand not on a wall, a run of more than 2 quicksand cells, a level file older than v7, a placed prop, decal or torch that does not fit (a water prop out of half water too) ([editor readme](../tools/editor/readme.md#decor-and-decal-layers)), a container look off a treasure or a plain coffin lid on a trapped one ([looks layer](../tools/editor/readme.md#looks-layer)), the sub-cell rules above, a poisoner (scorpion, cobra), a poison drip or a dart trap on the path without an antidote in reach, an inscription out of reach or without a text id, more than one name gate or name cartouche, a name gate without a name cartouche or one
 without a gate, the exit, a key or a lever only behind a name gate, a name cartouche found only through its gate or next
 to it (2 cells along the row), a name gate not reached back from its cartouche. With the files: an inscription whose text id has no text in `content/inscriptions/`, the same text id in two places. |
 | size | Open cells, reachable cells, the bounding box. |
@@ -538,8 +543,10 @@ to the wall layer too, so a fixture alone in its cell needs no wall drawing. `le
 where it has no object, prints the structure drawing after the map when the level has water, then the wall drawing
 when it has fixtures. `levelcheck --legend` marks the wall types (`wall:`). A level with placed props gets a `decor`
 drawing (`a` + the prop's index, the god shrines `M` `P` `A` `S`, `-` bare), one with placed decals or torches a `decals` drawing (`a` + the decal's
-index, upper case with a torch, `t` a torch alone, `-` bare or no torch); `--legend` ends with their `prop` and `decal`
-lines. The ASCII sources have no decor or decal drawings: the editor paints them. A `shape COL ROW MASK` line gives a
+index, upper case with a torch, `t` a torch alone, `-` bare or no torch), one with placed container looks a
+`containers` drawing (`c` chest, `f` coffer, `b` basket, `n` canopic, `j` jar, `t` table, `m` coffin, `p` / `i` a
+coffin with a plain / inscribed lid); `--legend` ends with their `prop`, `decal` and `container` lines. The ASCII
+sources have no decor, decal or looks drawings: the editor paints them. A `shape COL ROW MASK` line gives a
 cell its shape (plan level-subcells; MASK as in the level file, rock turns empty); the built file draws it with its
 shaped glyph (`--legend`'s `shaped` line), as does `--map`'s structure drawing. Example: `tests/levels/subcells.txt`.
 Example with both layers in a cell: `tests/levels/wall_layer.txt`.

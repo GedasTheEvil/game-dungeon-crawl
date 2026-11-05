@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone cisterns_of_sobek
 title The Lake of Sobek
 structure
@@ -235,3 +235,4 @@ shapes 6
 22 10 000f
 5 43 000f
 7 43 000f
+containers 0

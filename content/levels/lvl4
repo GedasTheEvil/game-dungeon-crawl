@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone tomb_entrance
 title The Lair of Khepri
 structure
@@ -147,3 +147,4 @@ shapes 5
 17 43 000f
 18 43 00ff
 19 43 000f
+containers 0

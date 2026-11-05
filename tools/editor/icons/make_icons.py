@@ -757,6 +757,80 @@ def serket(d):  # standing in a white sheath, a scorpion on her head
     d.line(p(29, 15, 29, 12, 32, 11), fill=GOLD, width=2 * SS)  # its tail
 
 
+def look(name, draw):
+    """A container look of the looks layer (plan placed-container-looks): the container on the floor, a gold glow."""
+    img, d = canvas(GOLD, 55)
+    floor(d)
+    draw(d)
+    save(img, f"look_{name}.png")
+
+
+def look_chest(d):
+    d.rectangle(p(10, 36, 54, 56), fill=BRONZE, outline=BRONZE_DARK, width=SS)
+    d.chord(p(10, 22, 54, 50), 180, 360, fill=GOLD_DIM, outline=BRONZE_DARK, width=SS)  # lid
+    d.rectangle(p(10, 35, 54, 38), fill=GOLD)
+    for x in (15, 45):  # straps
+        d.rectangle(p(x, 23, x + 4, 56), fill=GOLD)
+    d.rectangle(p(28, 36, 36, 45), fill=GOLD_LIGHT, outline=BRONZE_DARK, width=SS)  # lock
+
+
+def look_coffer(d):  # painted, a gabled lid
+    d.rectangle(p(12, 34, 52, 56), fill=LAPIS, outline=BRONZE_DARK, width=SS)
+    for y in (40, 46):  # painted bands
+        d.rectangle(p(12, y, 52, y + 2), fill=GOLD)
+    poly(d, [(10, 34), (32, 20), (54, 34)], GOLD_DIM, BRONZE_DARK, 1)  # the gable
+    d.ellipse(p(29, 25, 35, 31), fill=RED_LIGHT)
+
+
+def look_basket(d):  # reed, a lid
+    d.rounded_rectangle(p(14, 32, 50, 56), radius=6 * SS, fill=(190, 150, 80), outline=WOOD_DARK, width=SS)
+    for x in range(18, 50, 6):  # the weave
+        d.line(p(x, 33, x + 3, 55), fill=WOOD, width=SS)
+    for y in (40, 48):
+        d.line(p(15, y, 49, y), fill=WOOD, width=SS)
+    d.chord(p(12, 24, 52, 40), 180, 360, fill=(170, 130, 64), outline=WOOD_DARK, width=SS)  # lid
+    d.ellipse(p(29, 21, 35, 26), fill=WOOD, outline=WOOD_DARK, width=SS)
+
+
+def look_canopic(d):  # four jars, the sons of Horus
+    for cx, lid in ((12, BONE), (25, GOLD_DIM), (39, LAPIS_LIGHT), (52, CLAY)):
+        jar(d, cx, 28, 12, 28, BONE_DARK, BRONZE_DARK, lid)
+
+
+def look_jar(d):  # a large sealed pottery jar
+    jar(d, 32, 16, 30, 40, CLAY, CLAY_DARK, STONE)
+    d.line(p(20, 40, 44, 40), fill=CLAY_DARK, width=SS)
+
+
+def look_table(d):  # an offering table, the item under a linen cover
+    d.rectangle(p(28, 38, 36, 56), fill=STONE, outline=STONE_DARK, width=SS)  # the stand
+    d.rectangle(p(10, 34, 54, 39), fill=(130, 104, 74), outline=STONE_DARK, width=SS)  # the top
+    d.chord(p(18, 20, 46, 46), 180, 360, fill=LINEN, outline=LINEN_DARK, width=SS)  # the cover
+    for x in (24, 32, 40):
+        d.line(p(x, 24, x - 2, 33), fill=LINEN_DARK, width=SS)
+
+
+def look_coffin(text):
+    """The coffin, its lid: text None rolled (faint marks), "plain" or "inscribed" (red signs: it curses)."""
+    def draw(d):
+        coffin(d, WOOD, WOOD_DARK)
+        if text == "plain":
+            return
+        colour = RED_LIGHT if text == "inscribed" else GOLD_DIM
+        for x in range(13, 40, 5):  # columns of signs on the lid
+            for y in (41, 47):
+                d.rectangle(p(x, y, x + 2, y + 3), fill=colour)
+    return draw
+
+
+def looks():
+    for name, draw in (("chest", look_chest), ("coffer", look_coffer), ("basket", look_basket),
+                       ("canopic", look_canopic), ("jar", look_jar), ("table", look_table),
+                       ("coffin", look_coffin(None)), ("coffin_plain", look_coffin("plain")),
+                       ("coffin_inscribed", look_coffin("inscribed"))):
+        look(name, draw)
+
+
 def props():
     for f in (prop_web, prop_pottery, prop_canopic, prop_rubble, prop_sand, prop_skeleton, prop_brazier, prop_lamp,
               prop_scrolls, prop_ushabti, prop_cat, prop_jackal, prop_osiris, prop_sarcophagus, prop_water_reeds,
@@ -795,3 +869,4 @@ if __name__ == "__main__":
     dartplate()
     later_tiles()
     props()
+    looks()

@@ -3,10 +3,12 @@
 // --script DIR writes DIR/<level name>.txt per valid level: a scenario (docs/testing.md) that plays the path the
 // check found in the real game, in god mode, and expects the level to be finished at the end. It kills the boss
 // (killboss) where the path reaches it.
-// --legend prints the glyphs of the --map drawings and the ASCII level sources, the props and the decals.
+// --legend prints the glyphs of the --map drawings and the ASCII level sources, the props, the decals and the
+// container looks.
 // Exit code: 0 all valid, 1 at least one level cannot be finished, 2 usage / unreadable file.
 
 #include "../../src/core/gameplay_config.h"
+#include "../../src/world/containers.h"
 #include "../../src/world/decor.h"
 #include "../../src/world/inscriptions.h"
 #include "../../src/world/level.h"
@@ -224,6 +226,10 @@ int main(int argc, char** argv) {
 				printf("prop %c %d %s\n", decorGlyph(d), d, DECOR_NAMES[d]);
 			for (int d = 0; d < DECAL_COUNT; d++)
 				printf("decal %c %d %s\n", 'a' + d, d, DECAL_DEFS[d].name);
+			for (int c = 0; c < CONTAINER_COUNT; c++) // the --map containers drawing (plan placed-container-looks)
+				printf("container %c %d %s\n", CONTAINER_GLYPHS[c], c, CONTAINER_NAMES[c]);
+			printf("container %c coffin, plain lid\n", PLAIN_COFFIN_GLYPH);
+			printf("container %c coffin, inscribed lid\n", INSCRIBED_COFFIN_GLYPH);
 			return 0;
 		}
 		if (strcmp(argv[i], "--script") == 0 && i + 1 < argc) {

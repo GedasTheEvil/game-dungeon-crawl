@@ -143,7 +143,8 @@ struct LevelReport {
 // cellGlyph (level.h); a level with fixtures one after a "wall" line, the same rows, the fixtures alone ('#' / '.':
 // none). A level with placed props (plan placed-decor) gets a "decor" drawing: decorGlyph (decor.h),
 // '-' bare; one with placed decals or torches a "decals" drawing: 'a' + the decal's index (DECAL_DEFS), upper case with
-// a torch, 't' a torch alone, '-' bare or no torch ('#' / '.': unset).
+// a torch, 't' a torch alone, '-' bare or no torch ('#' / '.': unset); one with placed container looks (plan
+// placed-container-looks) a "containers" drawing: CONTAINER_GLYPHS, a coffin's plain or inscribed lid 'p' / 'i'.
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
 
 #endif

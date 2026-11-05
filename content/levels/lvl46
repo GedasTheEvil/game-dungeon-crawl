@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone necropolis
 title The Gate of the Dead
 structure
@@ -545,3 +545,4 @@ shapes 7
 16 28 000f
 30 45 fff0
 31 45 fff0
+containers 0

@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone priests_quarter
 title The Hall of Purification
 structure
@@ -292,3 +292,5 @@ shapes 7
 21 20 000f
 23 20 000f
 25 31 000f
+containers 1
+33 38 6 2

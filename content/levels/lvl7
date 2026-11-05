@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone bat_galleries
 title The Flooded Stretch
 structure
@@ -220,3 +220,4 @@ shapes 6
 19 28 000f
 11 45 fff0
 12 45 fff0
+containers 0

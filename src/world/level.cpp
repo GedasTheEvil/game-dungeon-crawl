@@ -1,5 +1,6 @@
 #include "level.h"
 #include "decor.h"
+#include "containers.h"
 #include "campaign.h"
 #include "movement.h"
 #include <cstdio>
@@ -150,6 +151,31 @@ std::string readShapes(std::istream& in, Tile* cells, const bool* shaped) {
 	return "";
 }
 
+// The looks list (plan placed-container-looks): "containers COUNT", then COUNT lines "COL ROW KIND LID".
+std::string readContainers(std::istream& in, Tile* cells) {
+	std::string word;
+	int count = 0;
+	if (!(in >> word >> count) || word != "containers" || count < 0)
+		return "no looks layer";
+	for (int k = 0; k < count; k++) {
+		int col = 0, row = 0, kind = 0, lid = 0;
+		if (!(in >> col >> row >> kind >> lid))
+			return "file ends early";
+		if (!LevelGrid::inBounds(col, row))
+			return "container outside the level" + where(col, row);
+		if (kind < 0 || kind >= CONTAINER_COUNT)
+			return "unknown container " + std::to_string(kind) + where(col, row);
+		if (lid < 0 || lid >= COFFIN_LID_COUNT)
+			return "unknown lid " + std::to_string(lid) + where(col, row);
+		if (lid != 0 && static_cast<Container>(kind) != Container::Coffin)
+			return "a lid on a " + std::string(CONTAINER_NAMES[kind]) + where(col, row);
+		Dressing& d = cells[row * LEVEL_WIDTH + col].dressing;
+		d.container = kind;
+		d.lid = static_cast<CoffinLid>(lid);
+	}
+	return "";
+}
+
 std::string readMeta(std::istream& in, LevelMeta& meta) {
 	std::string word, slug;
 	if (!(in >> word >> slug) || word != "zone")
@@ -231,6 +257,8 @@ std::string readDcLevel(std::istream& in, Tile* cells, int& version, LevelMeta& 
 		error = readDecals(in, cells);
 	if (error.empty() && version >= 6)
 		error = readShapes(in, cells, shaped);
+	if (error.empty() && version >= 7)
+		error = readContainers(in, cells);
 	return error.empty() ? checkCeilingTraps(cells) : error;
 }
 } // namespace
@@ -314,6 +342,16 @@ void writeLevel(std::ostream& out, const Tile* cells, const LevelMeta& meta) {
 			snprintf(mask, sizeof(mask), "%04x", static_cast<unsigned>(cells[i].shape));
 			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << mask << '\n';
 		}
+	count = 0;
+	for (int i = 0; i < CELLS; i++)
+		count += hasPlacedContainer(cells[i].dressing) ? 1 : 0;
+	out << "containers " << count << '\n';
+	for (int i = 0; i < CELLS; i++) {
+		const Dressing& d = cells[i].dressing;
+		if (hasPlacedContainer(d))
+			out << i % LEVEL_WIDTH << ' ' << i / LEVEL_WIDTH << ' ' << d.container << ' ' << static_cast<int>(d.lid)
+				<< '\n';
+	}
 }
 
 std::string loadLevelFile(const char* path, LevelGrid& grid, int* version) {

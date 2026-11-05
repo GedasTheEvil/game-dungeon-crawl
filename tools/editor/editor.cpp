@@ -50,13 +50,14 @@ constexpr float RIGHT_CX = RIGHT_X + RIGHT_W / 2;
 // The mode and layer buttons, one row (the small font: they are 5 or less high).
 constexpr float BUTTON_Y = 82.5f;
 constexpr float BUTTON_H = 4.8f;
-constexpr Rect PAINT_BUTTON = {85.f, BUTTON_Y, 8.5f, BUTTON_H};
-constexpr Rect CHECK_BUTTON = {94.1f, BUTTON_Y, 8.5f, BUTTON_H};
-constexpr Rect STRUCTURE_BUTTON = {104.4f, BUTTON_Y, 11.6f, BUTTON_H};
-constexpr Rect WALL_BUTTON = {116.6f, BUTTON_Y, 7.4f, BUTTON_H};
-constexpr Rect OBJECTS_BUTTON = {124.6f, BUTTON_Y, 10.4f, BUTTON_H};
-constexpr Rect DECOR_BUTTON = {135.6f, BUTTON_Y, 9.2f, BUTTON_H};
-constexpr Rect DECALS_BUTTON = {145.4f, BUTTON_Y, 9.6f, BUTTON_H};
+constexpr Rect PAINT_BUTTON = {85.f, BUTTON_Y, 7.4f, BUTTON_H};
+constexpr Rect CHECK_BUTTON = {93.1f, BUTTON_Y, 7.6f, BUTTON_H};
+constexpr Rect STRUCTURE_BUTTON = {102.1f, BUTTON_Y, 10.4f, BUTTON_H};
+constexpr Rect WALL_BUTTON = {113.2f, BUTTON_Y, 6.4f, BUTTON_H};
+constexpr Rect OBJECTS_BUTTON = {120.3f, BUTTON_Y, 9.f, BUTTON_H};
+constexpr Rect DECOR_BUTTON = {130.f, BUTTON_Y, 8.f, BUTTON_H};
+constexpr Rect DECALS_BUTTON = {138.7f, BUTTON_Y, 8.4f, BUTTON_H};
+constexpr Rect LOOKS_BUTTON = {147.8f, BUTTON_Y, 7.8f, BUTTON_H};
 constexpr Rect TILES_PANEL = {RIGHT_X, 53.f, RIGHT_W, 27.f};
 constexpr Rect BRUSH_PANEL = {RIGHT_X, 43.5f, RIGHT_W, 7.5f};
 constexpr Rect ATTRIBUTE_BOX = {102.f, 45.f, 14.f, 4.5f};
@@ -108,10 +109,14 @@ constexpr float HALF_WATER_OVER_OBJECT = 0.5f; // the water over the lower half 
 
 enum class Mode : unsigned char { Paint, Check };
 // Which one the brush paints and the palette shows: the structure, the fixtures on the back wall (plan wall-layer),
-// the objects; how the cell is dressed (plan placed-decor): its prop, its wall decal and torch.
-enum class Layer : unsigned char { Structure, Wall, Objects, Decor, Decals };
-constexpr int LAYER_COUNT = 5;
+// the objects; how the cell is dressed (plan placed-decor): its prop, its wall decal and torch; its treasure's
+// container (plan placed-container-looks).
+enum class Layer : unsigned char { Structure, Wall, Objects, Decor, Decals, Looks };
+constexpr int LAYER_COUNT = 6;
+// The layers with a mirror instead of the attribute and value.
 [[nodiscard]] bool dressingLayer(Layer l) { return l == Layer::Decor || l == Layer::Decals; }
+// The layers with the attribute and value fields.
+[[nodiscard]] bool fieldsLayer(Layer l) { return !dressingLayer(l) && l != Layer::Looks; }
 enum class Field : unsigned char { None, Attribute, Value, Name };
 // Clickable things besides the map.
 enum class Target : unsigned char {
@@ -124,6 +129,7 @@ enum class Target : unsigned char {
 	ObjectsLayer,
 	DecorLayer,
 	DecalsLayer,
+	LooksLayer,
 	Mirror,
 	Attribute,
 	Value,
@@ -140,7 +146,7 @@ constexpr int SHAPE_ID = 100;
 [[nodiscard]] Structure structureOf(int id) { return isStructure(id) ? static_cast<Structure>(id) : Structure::Wall; }
 
 // The palette of a layer: structure numbers then the shape brushes, tile types (the wall types in the wall layer, the
-// others in the object layer, None in both), props or decal brushes (tile_info.h), in slot order.
+// others in the object layer, None in both), props, decal or look brushes (tile_info.h), in slot order.
 std::vector<int> paletteOf(Layer layer) {
 	std::vector<int> ids;
 	if (layer == Layer::Structure) {
@@ -148,6 +154,12 @@ std::vector<int> paletteOf(Layer layer) {
 			ids.push_back(s);
 		for (int b = 0; b < SHAPE_BRUSH_COUNT; b++)
 			ids.push_back(SHAPE_ID + b);
+		return ids;
+	}
+	if (layer == Layer::Looks) {
+		ids.push_back(PLACED_UNSET);
+		for (int b = 0; b < LOOK_BRUSH_COUNT; b++)
+			ids.push_back(b);
 		return ids;
 	}
 	if (dressingLayer(layer)) {
@@ -229,6 +241,7 @@ class Editor {
 	int shapeBrush = -1; // the structure layer's brush is a shape brush (SHAPE_BRUSHES), else the structure
 	int prop = PLACED_UNSET; // the decor layer's brush
 	int decal = PLACED_UNSET; // the decal layer's (dressing_brush.h)
+	int look = PLACED_UNSET; // the looks layer's (dressing_brush.h)
 	bool mirror = false; // of the prop or decal
 	std::string attributeText, valueText, name;
 	std::string openedPath; // the file given on the command line: Save and Load use it until the name is typed
@@ -262,6 +275,7 @@ class Editor {
 	Texture propIcons[DECOR_COUNT];
 	bool hasPropIcon[DECOR_COUNT] = {};
 	Texture torchIcon, noTorchIcon, bareIcon, decalAtlas;
+	Texture lookIcons[LOOK_BRUSH_COUNT];
 	Texture wallTexture, papyrus;
 	Font title, heading, body, small, tiny, tinier; // tinier: a palette name too long for tiny
 	float hintScroll = 0.f; // how far the papyrus text is scrolled up (canvas units), 0: its top shows
@@ -278,6 +292,8 @@ class Editor {
 			return prop;
 		case Layer::Decals:
 			return decal;
+		case Layer::Looks:
+			return look;
 		default:
 			break;
 		}
@@ -327,6 +343,7 @@ class Editor {
 	void drawObjectIcon(int type, const Rect& r, float alpha);
 	void drawPropIcon(int id, const Rect& r, float alpha);
 	void drawDecalIcon(int id, const Rect& r, float alpha);
+	void drawLookIcon(int id, const Rect& r, float alpha);
 	void drawDressing(const Dressing& d, const Rect& r, float alpha);
 	void drawCell(const Tile& t, const Rect& r, float structureAlpha, float wallAlpha, float objectAlpha);
 };
@@ -362,6 +379,14 @@ Editor::Editor() {
 	noTorchIcon.LoadPNG("tools/editor/icons/no_torch.png", TexFilter::Flat);
 	bareIcon.LoadPNG("tools/editor/icons/bare.png", TexFilter::Flat);
 	decalAtlas.LoadPNG(MEDIA_DIR "textures/decorations/decals.png", TexFilter::Flat);
+	for (int b = 0; b < LOOK_BRUSH_COUNT; b++) {
+		const std::string name = b == PLAIN_COFFIN_BRUSH	   ? "coffin_plain"
+								 : b == INSCRIBED_COFFIN_BRUSH ? "coffin_inscribed"
+															   : CONTAINER_NAMES[b];
+		const std::string path = "tools/editor/icons/look_" + name + ".png";
+		if (lookIcons[b].LoadPNG(path.c_str(), TexFilter::Flat) == 0)
+			fprintf(stderr, "Cannot load %s\n", path.c_str());
+	}
 }
 
 // ---- input -----------------------------------------------------------------
@@ -406,6 +431,7 @@ void Editor::updateHover(float x, float y) {
 		{OBJECTS_BUTTON, Target::ObjectsLayer},
 		{DECOR_BUTTON, Target::DecorLayer},
 		{DECALS_BUTTON, Target::DecalsLayer},
+		{LOOKS_BUTTON, Target::LooksLayer},
 		{NAME_BOX, Target::Name},
 		{SAVE_BUTTON, Target::Save},
 		{LOAD_BUTTON, Target::Load},
@@ -417,10 +443,12 @@ void Editor::updateHover(float x, float y) {
 	if (dressingLayer(layer)) { // the mirror instead of the attribute and value
 		if (MIRROR_BUTTON.contains(x, y))
 			hoveredTarget = Target::Mirror;
-	} else if (ATTRIBUTE_BOX.contains(x, y))
-		hoveredTarget = Target::Attribute;
-	else if (VALUE_BOX.contains(x, y))
-		hoveredTarget = Target::Value;
+	} else if (fieldsLayer(layer)) {
+		if (ATTRIBUTE_BOX.contains(x, y))
+			hoveredTarget = Target::Attribute;
+		else if (VALUE_BOX.contains(x, y))
+			hoveredTarget = Target::Value;
+	}
 }
 
 // Zooms to `zoom` around the cell under the mouse (the centre of the window when the mouse is not on the map).
@@ -520,6 +548,8 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 			prop = id;
 		else if (layer == Layer::Decals)
 			decal = id;
+		else if (layer == Layer::Looks)
+			look = id;
 		else
 			tile = id;
 		break;
@@ -544,6 +574,9 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 		break;
 	case Target::DecalsLayer:
 		setLayer(Layer::Decals);
+		break;
+	case Target::LooksLayer:
+		setLayer(Layer::Looks);
 		break;
 	case Target::Mirror:
 		mirror = !mirror;
@@ -622,7 +655,7 @@ void Editor::keyPressed(unsigned char key) {
 			nextZone();
 		else if ((key == 'm' || key == 'M') && dressingLayer(layer))
 			mirror = !mirror;
-		else if (key == KEY_TAB && !dressingLayer(layer))
+		else if (key == KEY_TAB && fieldsLayer(layer))
 			field = Field::Attribute;
 		else if (key == '+' || key == '=')
 			zoomTo(view.zoom() + 1);
@@ -688,7 +721,7 @@ int Editor::subcellUnderPointer(CellPos cell, bool row) const {
 
 // Keeps the level valid: an object or fixture painted into rock carves the cell open, rock painted over them removes
 // them, the dressing and the shape. A shape painted into rock carves it open (paintShape). Props, decals and torches go
-// only in open cells.
+// only in open cells, a container's look only on a treasure.
 void Editor::paint(CellPos cell) {
 	Tile t = grid.at(cell.col, cell.row);
 	if (layer == Layer::Structure && shapeBrush >= 0) {
@@ -701,6 +734,12 @@ void Editor::paint(CellPos cell) {
 			t.dressing = Dressing{};
 			t.shape = NO_SHAPE;
 		}
+	} else if (layer == Layer::Looks) {
+		if (!isTreasure(t)) {
+			showStatus("A look goes on a treasure (Treasure or TrappedTreasure in the Objects layer)", true);
+			return;
+		}
+		paintLook(t.dressing, look);
 	} else if (dressingLayer(layer)) {
 		if (isSolidStructure(t.structure))
 			return;
@@ -728,6 +767,11 @@ void Editor::pick(CellPos cell) {
 		prop = t.dressing.prop;
 		mirror = t.dressing.propMirror;
 		showStatus(std::string("Picked ") + propLabel(prop) + (mirror ? ", mirrored" : ""), false);
+		return;
+	}
+	if (layer == Layer::Looks) {
+		look = pickLookBrush(t.dressing);
+		showStatus(std::string("Picked ") + lookLabel(look), false);
 		return;
 	}
 	if (layer == Layer::Decals) {
@@ -966,6 +1010,13 @@ void Editor::drawDecalIcon(int id, const Rect& r, float alpha) {
 	beginShapes();
 }
 
+// A looks palette id: the container, a coffin's lid (PLACED_UNSET shows nothing: the object's icon stays).
+void Editor::drawLookIcon(int id, const Rect& r, float alpha) {
+	if (id >= 0 && id < LOOK_BRUSH_COUNT)
+		texturedRect(r, lookIcons[id].ID(), {alpha, alpha, alpha});
+	beginShapes();
+}
+
 // The cell's dressing in the layer being painted: its prop, or its decal with its torch over it (a torch alone, or no
 // torch, in the corner when there is a decal too).
 void Editor::drawDressing(const Dressing& d, const Rect& r, float alpha) {
@@ -1038,6 +1089,8 @@ void Editor::drawMap() {
 			);
 			if (dressingLayer(layer))
 				drawDressing(t.dressing, cellRect(col, row), 1.f);
+			else if (layer == Layer::Looks)
+				drawLookIcon(pickLookBrush(t.dressing), cellRect(col, row), 1.f);
 		}
 
 	// Grid lines, every 5th a little stronger to help counting.
@@ -1124,6 +1177,8 @@ void Editor::drawMapOverlay() {
 				drawPropIcon(prop, r, alpha);
 			else if (layer == Layer::Decals)
 				drawDecalIcon(decal, r, alpha);
+			else if (layer == Layer::Looks)
+				drawLookIcon(look, r, alpha);
 			else
 				drawCell(brush(), r, alpha, alpha, alpha); // the brush as an object: it has no fixture
 		}
@@ -1178,6 +1233,8 @@ void Editor::drawMapOverlay() {
 			readout += std::string(",  decal ") + decalLabel(d.decal) + (d.decalMirror ? " (mirrored)" : "");
 		if (d.torch != TorchPlacing::Unset)
 			readout += d.torch == TorchPlacing::Torch ? ",  torch" : ",  no torch";
+		if (hasPlacedContainer(d))
+			readout += std::string(",  look ") + lookLabel(pickLookBrush(d));
 		text(small, MAP_PANEL.x + 1.f, 96.6f, readout.c_str(), GOLD);
 	}
 	std::string modeText = mode == Mode::Paint ? "Paint: click to draw" : "Check: click to inspect";
@@ -1283,6 +1340,8 @@ void Editor::drawPalette() {
 				drawPropIcon(id, icon, alpha);
 			else if (layer == Layer::Decals)
 				drawDecalIcon(id, icon, alpha);
+			else if (layer == Layer::Looks)
+				drawLookIcon(id, icon, alpha);
 			else
 				drawObjectIcon(id, icon, alpha);
 		}
@@ -1298,6 +1357,7 @@ void Editor::drawPalette() {
 							: layer == Layer::Structure				   ? structureDef(structureOf(id)).name
 							: layer == Layer::Decor					   ? propLabel(id)
 							: layer == Layer::Decals				   ? decalLabel(id)
+							: layer == Layer::Looks					   ? lookLabel(id)
 																	   : tileInfo(id).name;
 		Font& labelFont = tiny.TextWidth(label) <= r.w - 0.4f ? tiny : tinier;
 		textCentered(labelFont, r.cx(), r.y + 0.4f, label, selected || hover ? GOLD : Color{0.78f, 0.64f, 0.40f});
@@ -1311,6 +1371,7 @@ void Editor::drawPalette() {
 	drawButton(OBJECTS_BUTTON, "Objects", layer == Layer::Objects, Target::ObjectsLayer);
 	drawButton(DECOR_BUTTON, "Decor", layer == Layer::Decor, Target::DecorLayer);
 	drawButton(DECALS_BUTTON, "Decals", layer == Layer::Decals, Target::DecalsLayer);
+	drawButton(LOOKS_BUTTON, "Looks", layer == Layer::Looks, Target::LooksLayer);
 }
 
 void Editor::drawBrush() {
@@ -1318,6 +1379,8 @@ void Editor::drawBrush() {
 		drawButton(MIRROR_BUTTON, mirror ? "Mirrored (M)" : "Mirror (M)", mirror, Target::Mirror);
 		return;
 	}
+	if (layer == Layer::Looks)
+		return;
 	drawTextBox(ATTRIBUTE_BOX, attributeText, Field::Attribute, Target::Attribute);
 	drawTextBox(VALUE_BOX, valueText, Field::Value, Target::Value);
 	beginText();
@@ -1364,6 +1427,8 @@ void Editor::drawHint() {
 		hint = describeProp(checking ? cell.dressing.prop : prop);
 	else if (layer == Layer::Decals)
 		hint = describeDecal(checking ? pickDecalBrush(cell.dressing) : decal);
+	else if (layer == Layer::Looks)
+		hint = describeLook(checking ? pickLookBrush(cell.dressing) : look);
 	float cx = HINT_PANEL.cx();
 	float x = HINT_PANEL.x + 4.f;
 	float width = HINT_PANEL.w - 8.f;
@@ -1397,7 +1462,7 @@ void Editor::drawHint() {
 		y -= 2.8f;
 	}
 	y -= 0.8f;
-	if (!dressingLayer(layer)) {
+	if (fieldsLayer(layer)) {
 		drawFieldHint(y, "Attribute", hint.attribute);
 		drawFieldHint(y, "Value", hint.value);
 	}

@@ -410,3 +410,58 @@ CellHint describeDecal(int brush) {
 		std::string("On the back wall, whatever the depth. ") + anchorText(DECAL_DEFS[brush].anchor) + " M: mirror."
 	);
 }
+
+const char* lookLabel(int brush) {
+	if (brush == PLACED_UNSET)
+		return "Rolled";
+	if (brush == PLAIN_COFFIN_BRUSH)
+		return "Plain coffin";
+	if (brush == INSCRIBED_COFFIN_BRUSH)
+		return "Cursed coffin";
+	static constexpr const char* LABELS[CONTAINER_COUNT] =
+		{"Chest", "Coffer", "Basket", "Canopic", "Jar", "Table", "Coffin"};
+	return brush >= 0 && brush < CONTAINER_COUNT ? LABELS[brush] : "?";
+}
+
+CellHint describeLook(int brush) {
+	constexpr const char* ON_TREASURE = " Only on a treasure cell; the stance (turn, place) still rolls.";
+	switch (brush) {
+	case PLACED_UNSET:
+		return dressingHint(
+			"Rolled container",
+			"The treasure's container rolls as on any level: chests, baskets and jars in the caves, coffers and "
+			"canopic jars from the worked tunnels, offering tables and coffins from the tombs (level 10)."
+		);
+	case PLAIN_COFFIN_BRUSH:
+		return dressingHint(
+			"Plain coffin",
+			std::string(
+				"A coffin with a bare lid: it opens like a chest. Not on a trapped treasure: a trapped coffin "
+				"always shows the text."
+			) + ON_TREASURE
+		);
+	case INSCRIBED_COFFIN_BRUSH:
+		return dressingHint(
+			"Cursed coffin",
+			std::string(
+				"A coffin with an execration text on its lid: opening it curses, and it holds one bonus item. "
+				"Put a warning inscription near it."
+			) + ON_TREASURE
+		);
+	default:
+		break;
+	}
+	if (brush < 0 || brush >= CONTAINER_COUNT)
+		return dressingHint("Unknown container", "");
+	std::string text = std::string("The treasure lies in a ") + CONTAINER_NAMES[brush] + ", whatever the depth.";
+	if (static_cast<Container>(brush) == Container::Coffin)
+		text += " Its lid rolls: 40% carry an execration text (a curse on opening).";
+	if (static_cast<Container>(brush) == Container::Canopic || static_cast<Container>(brush) == Container::Jar)
+		text += " Trapped, it always curses (disease).";
+	if (static_cast<Container>(brush) == Container::Coffin)
+		text += " Trapped, it always shows the text and curses.";
+	return dressingHint(
+		std::string(lookLabel(brush)) + " (container " + std::to_string(brush) + ")",
+		text + ON_TREASURE
+	);
+}

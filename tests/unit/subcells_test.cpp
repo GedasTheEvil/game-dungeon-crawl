@@ -85,7 +85,7 @@ TEST_CASE("a v6 level keeps its shapes, with their glyphs in the structure drawi
 	std::istringstream in(file);
 	int version = 0;
 	REQUIRE(readLevel(in, loaded.cells, &version).empty());
-	CHECK(version == 6);
+	CHECK(version == LEVEL_VERSION);
 	for (int i = 0; i < LEVEL_WIDTH * LEVEL_HEIGHT; i++) {
 		CHECK(loaded.cells[i].structure == grid.cells[i].structure);
 		CHECK(loaded.cells[i].shape == grid.cells[i].shape);
@@ -97,7 +97,7 @@ TEST_CASE("a v5 level loads with no shapes") {
 	grid.set(2, 1, Tile{});
 	grid.set(3, 1, shaped(Structure::HalfWater, NO_SHAPE));
 	std::string v5 = written(grid);
-	replace(v5, "DCLEVEL 6", "DCLEVEL 5");
+	replace(v5, "DCLEVEL " + std::to_string(LEVEL_VERSION), "DCLEVEL 5");
 	replace(v5, "shapes 0\n", "");
 	LevelGrid loaded;
 	std::istringstream in(v5);
@@ -111,7 +111,7 @@ TEST_CASE("a v5 level loads with no shapes") {
 	// No shaped glyphs before v6.
 	grid.set(2, 1, shaped(Structure::Empty, 0x000f));
 	std::string shapedV5 = written(grid);
-	replace(shapedV5, "DCLEVEL 6", "DCLEVEL 5");
+	replace(shapedV5, "DCLEVEL " + std::to_string(LEVEL_VERSION), "DCLEVEL 5");
 	CHECK(readError(shapedV5).find("unknown structure '_'") != std::string::npos);
 }
 

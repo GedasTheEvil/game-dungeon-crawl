@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone scorpion_nest
 title The Gate of Serket
 structure
@@ -270,3 +270,4 @@ shapes 7
 31 19 000f
 33 37 fff0
 34 37 fff0
+containers 0

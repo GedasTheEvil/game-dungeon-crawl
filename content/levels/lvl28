@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone cisterns_of_sobek
 title The Gate of Sobek
 structure
@@ -249,3 +249,4 @@ shapes 5
 19 29 000f
 20 29 00ff
 21 29 000f
+containers 0

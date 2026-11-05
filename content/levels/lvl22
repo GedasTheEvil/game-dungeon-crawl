@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone scorpion_nest
 title The Nest of the Queen
 structure
@@ -288,3 +288,4 @@ shapes 8
 8 43 000f
 29 43 000f
 31 43 000f
+containers 0

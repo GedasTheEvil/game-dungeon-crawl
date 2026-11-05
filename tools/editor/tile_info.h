@@ -42,5 +42,9 @@ struct CellHint {
 [[nodiscard]] const char* decalLabel(int brush);
 [[nodiscard]] CellHint describeProp(int prop);
 [[nodiscard]] CellHint describeDecal(int brush);
+// The looks layer (plan placed-container-looks). A palette id: PLACED_UNSET, a Container (containers.h),
+// PLAIN_COFFIN_BRUSH or INSCRIBED_COFFIN_BRUSH (dressing_brush.h).
+[[nodiscard]] const char* lookLabel(int brush);
+[[nodiscard]] CellHint describeLook(int brush);
 
 #endif

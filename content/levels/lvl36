@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone seths_desert
 title The Sand Stair
 structure
@@ -263,3 +263,4 @@ shapes 7
 11 31 000f
 12 31 00ff
 13 31 000f
+containers 0

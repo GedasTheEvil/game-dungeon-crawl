@@ -1,0 +1,7 @@
+# Plan placed-container-looks, for `bin/game --play tests/play/placed-container-looks.txt`: tests/levels/placed_coffins,
+# a shallow level where no coffin rolls. Walking east: the curse of Khentika on the wall over a cursed coffin (col 5,
+# red text on its lid up close), a plain coffin (col 7), a coffer (col 9), an offering table (col 11), canopic jars
+# (col 13), a rolled container (col 15). Open the plain coffin (no curse), then the cursed one (a curse).
+seed 1
+level tests/levels/placed_coffins
+god

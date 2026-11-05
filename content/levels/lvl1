@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone tomb_entrance
 title The Jackal Statue
 structure
@@ -105,3 +105,4 @@ shapes 3
 24 35 000f
 25 38 000f
 26 38 000f
+containers 0

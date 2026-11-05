@@ -24,6 +24,11 @@ enum class Container : uint8_t {
 constexpr int CONTAINER_COUNT = 7;
 constexpr const char* CONTAINER_NAMES[CONTAINER_COUNT] =
 	{"chest", "coffer", "basket", "canopic", "jar", "table", "coffin"};
+// A placed look's glyph in `levelcheck --map`'s "containers" drawing (plan placed-container-looks), by Container; a
+// coffin with a plain lid 'p', with an inscribed one 'i'.
+constexpr char CONTAINER_GLYPHS[CONTAINER_COUNT + 1] = "cfbnjtm";
+constexpr char PLAIN_COFFIN_GLYPH = 'p';
+constexpr char INSCRIBED_COFFIN_GLYPH = 'i';
 
 struct ContainerDef {
 	const char* model; // media/models/items/<model>.md3 and media/textures/items/<model>.png

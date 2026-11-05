@@ -1,0 +1,22 @@
+# Plan placed-container-looks (tests/levels/placed_coffins): the looks layer forces the containers on a shallow level,
+# where the roll gives no coffins: the curse of Khentika (col 4) over a cursed coffin (col 5), a plain coffin (col 7),
+# a coffer (col 9), an offering table (col 11), canopic jars (col 13), a rolled one (col 15). Opening the plain coffin
+# does not curse, the cursed one does.
+seed 1
+level tests/levels/placed_coffins
+god
+walk to 9.5
+wait 1s
+screenshot looks
+walk to 7.5
+interact
+wait 1500ms
+expect curses == 0
+screenshot plain_opened
+walk to 5.5
+wait 500ms
+screenshot cursed_near
+interact
+wait 1500ms
+expect curses >= 1
+screenshot cursed_opened

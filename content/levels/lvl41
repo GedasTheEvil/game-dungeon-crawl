@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone land_of_sokar
 title The Den of Rerek
 structure
@@ -543,3 +543,4 @@ shapes 7
 9 20 000f
 12 45 fff0
 13 45 fff0
+containers 0

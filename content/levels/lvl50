@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone necropolis
 title The Catacombs
 structure
@@ -654,3 +654,5 @@ shapes 8
 23 30 000f
 13 44 000f
 15 44 000f
+containers 1
+12 27 6 1

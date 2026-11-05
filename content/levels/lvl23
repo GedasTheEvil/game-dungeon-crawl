@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone serpent_temple
 title The Gate of the Serpent
 structure
@@ -365,3 +365,4 @@ shapes 7
 11 9 000f
 22 42 fff0
 23 42 fff0
+containers 0

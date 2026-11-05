@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone scorpion_nest
 title The Hall of Antidotes
 structure
@@ -274,3 +274,4 @@ shapes 7
 7 41 0fff
 8 41 00ff
 9 41 000f
+containers 0

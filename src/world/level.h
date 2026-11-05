@@ -4,7 +4,8 @@
 // Level data without rendering: tile types, the cell grid and the file format.
 // A cell has three layers: its structure (what it is made of), at most one fixture on its back wall (the wall layer)
 // and at most one object in it. Two more say how it is dressed (plan placed-decor): the decor layer (its prop) and the
-// decal layer (its wall decal and torch).
+// decal layer (its wall decal and torch). One more, the looks layer, picks a treasure's container (plan
+// placed-container-looks).
 // Shared by the game (Dungeon) and the command line tools (levelcheck, levelgen), so no GL here.
 
 #include <cstdint>
@@ -189,14 +190,22 @@ constexpr int PLACED_UNSET = -2;
 constexpr int PLACED_BARE = -1;
 enum class TorchPlacing : std::uint8_t { Unset = 0, None = 1, Torch = 2 };
 constexpr int TORCH_PLACING_COUNT = 3;
+// The looks layer (plan placed-container-looks): a treasure's container, PLACED_UNSET (rolled, scatterTreasures) or a
+// Container (containers.h); a coffin's lid also rolled, plain or inscribed (an execration text: opening it curses).
+// The stance stays rolled. Only a coffin's lid may be other than Rolled.
+enum class CoffinLid : std::uint8_t { Rolled = 0, Plain = 1, Inscribed = 2 };
+constexpr int COFFIN_LID_COUNT = 3;
 struct Dressing {
 	int prop = PLACED_UNSET;
 	bool propMirror = false;
 	int decal = PLACED_UNSET;
 	bool decalMirror = false;
 	TorchPlacing torch = TorchPlacing::Unset;
+	int container = PLACED_UNSET;
+	CoffinLid lid = CoffinLid::Rolled;
 };
 [[nodiscard]] inline bool hasPlacedProp(const Dressing& d) { return d.prop != PLACED_UNSET; }
+[[nodiscard]] inline bool hasPlacedContainer(const Dressing& d) { return d.container != PLACED_UNSET; }
 [[nodiscard]] inline bool hasPlacedDecal(const Dressing& d) {
 	return d.decal != PLACED_UNSET || d.torch != TorchPlacing::Unset;
 }
@@ -453,8 +462,8 @@ class TeleportPairs {
 	int partners[LEVEL_WIDTH * LEVEL_HEIGHT];
 };
 
-// The level format (docs/levels.md), in level files and save games. Version 6, text:
-//   DCLEVEL 6 WIDTH HEIGHT
+// The level format (docs/levels.md), in level files and save games. Version 7, text:
+//   DCLEVEL 7 WIDTH HEIGHT
 //   zone SLUG, the level's zone (ZoneInfo::slug, campaign.h), or "zone none"
 //   title TEXT, optional: the level's title, the rest of the line (plan campaign-texts)
 //   structure, then HEIGHT rows of WIDTH structure glyphs (cellGlyph), top row first
@@ -463,16 +472,19 @@ class TeleportPairs {
 //   decor COUNT, then COUNT lines "COL ROW PROP MIRROR", the cells with a placed prop (hasPlacedProp)
 //   decals COUNT, then COUNT lines "COL ROW DECAL MIRROR TORCH", the cells with hasPlacedDecal (TORCH: TorchPlacing)
 //   shapes COUNT, then COUNT lines "COL ROW MASK", the cells with a shape (hasShape), MASK 4 hex digits
+//   containers COUNT, then COUNT lines "COL ROW KIND LID", the cells with hasPlacedContainer (KIND: Container, LID:
+//   CoffinLid)
 // PROP and DECAL as in Dressing: the index, -1 bare, -2 unset; MIRROR 0 or 1. A shaped cell has its SHAPED_GLYPHS
 // glyph in the structure drawing, and only a shaped cell has one.
+// Version 6 has no looks layer: every container rolls.
 // Version 5 has no shape layer: no cell has a shape.
 // Version 4 has no zone line: it loads with NO_ZONE.
 // Version 3 has no decor and decal layers: every cell loads unset.
 // Version 2 has no wall layer: its wall types stand in the object layer and move to the wall layer on load (setThing).
-// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 to 5
+// Version 1, the old format: LEVEL_CELL_COUNT, then one "TYPE ATTR VALUE" per cell (type 0 a wall). Versions 1 to 6
 // are read and converted, never written.
 constexpr const char* LEVEL_MAGIC = "DCLEVEL";
-constexpr int LEVEL_VERSION = 6;
+constexpr int LEVEL_VERSION = 7;
 constexpr char STRUCTURE_GLYPHS[STRUCTURE_COUNT + 1] = "#.~=,%"; // by Structure
 [[nodiscard]] inline char structureGlyph(Structure s) { return STRUCTURE_GLYPHS[static_cast<int>(s)]; }
 // A shaped cell's glyph (plan level-subcells), by Structure; ' ' for Wall and DeepWater, which take no shape.

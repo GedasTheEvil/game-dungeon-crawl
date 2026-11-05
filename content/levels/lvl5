@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone bat_galleries
 title The Lever Gallery
 structure
@@ -207,3 +207,4 @@ shapes 9
 16 37 00ff
 17 37 00ff
 18 37 000f
+containers 0

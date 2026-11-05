@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone tomb_entrance
 title The Beetle Passage
 structure
@@ -106,3 +106,4 @@ shapes 4
 17 36 000f
 31 45 fff0
 32 45 fff0
+containers 0

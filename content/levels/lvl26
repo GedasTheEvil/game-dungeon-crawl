@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone serpent_temple
 title The Uraeus Stair
 structure
@@ -328,3 +328,4 @@ shapes 7
 10 41 000f
 11 41 00ff
 12 41 000f
+containers 0

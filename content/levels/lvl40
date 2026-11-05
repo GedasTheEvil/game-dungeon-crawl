@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone land_of_sokar
 title The Falling Sands
 structure
@@ -514,3 +514,4 @@ shapes 7
 15 16 000f
 25 39 fff0
 26 39 fff0
+containers 0

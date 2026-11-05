@@ -8,11 +8,11 @@ level file, relative to where you run it, and `Save` writes back to it). The edi
 * Left: the map grid, 40 columns x 47 rows. The bottom row of the grid is the bottom of the level (row 0).
   Above the grid: the column, row and contents of the cell under the mouse.
   Zoomed, the grid shows a window of the map and a minimap in its top right corner (see [Zoom](#zoom)).
-* Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Wall` / `Objects` / `Decor` / `Decals` layer
-  buttons.
-* Right, middle: the palette of the layer (structures, the wall types, the object tiles, the props or the decals, up to
-  four rows of nine), then the `Attribute` and `Value` fields (fixtures and objects), or the `Mirror` button (props
-  and decals, key `M`).
+* Right, top: the `Paint` / `Check` mode buttons and the `Structure` / `Wall` / `Objects` / `Decor` / `Decals` /
+  `Looks` layer buttons.
+* Right, middle: the palette of the layer (structures, the wall types, the object tiles, the props, the decals or the
+  container looks, up to four rows of nine), then the `Attribute` and `Value` fields (fixtures and objects), or the
+  `Mirror` button (props and decals, key `M`).
 * Right, papyrus: what the tile, attribute and value mean (the [Tile reference](#tile-reference) as text).
   A text longer than the papyrus scrolls: the mouse wheel over it; a red bar on its right shows where you are.
   Numbers that mean nothing to the game show in red.
@@ -30,7 +30,7 @@ level file, relative to where you run it, and `Save` writes back to it). The edi
   goal is drawn with gold dots, the result shows under the grid.
 
 In both modes, a right click on a cell picks it into the brush, in the layer being painted: its structure, its
-fixture's or object's tile, attribute and value, its prop or its decal (else its torch) with the mirror. In `Check` mode with the `Wall` layer, the papyrus explains the
+fixture's or object's tile, attribute and value, its prop or its decal (else its torch) with the mirror, its look. In `Check` mode with the `Wall` layer, the papyrus explains the
 clicked cell's fixture.
 
 ## Zoom
@@ -47,13 +47,15 @@ is not saved.
 
 Painting, picking, the check mode and the hover line work at every zoom.
 
-A cell has five layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water), at
+A cell has six layers (see [File format](#file-format)): its structure (wall, empty, half water, deep water), at
 most one fixture on its back wall (a lever, an inscription, wall spikes: the wall layer), at most one object in it
-(a ladder, a monster, a key, ...), and how it is dressed ([placed-decor](../../docs/plan/solved/placed-decor.md)): its prop
-(the decor layer) and its wall decal and torch (the decal layer). Key `L` (Structure, Wall, Objects, Decor, Decals,
-round) or the layer buttons switch the layer the brush paints and the palette shows. The map shows the structure,
-fixtures and objects in every layer; the other layers stay visible, dimmed, and the layer being painted is drawn on
-top. The props show in the decor layer only, the decals and torches in the decal layer only.
+(a ladder, a monster, a key, ...), how it is dressed ([placed-decor](../../docs/plan/solved/placed-decor.md)): its prop
+(the decor layer) and its wall decal and torch (the decal layer), and its treasure's container (the looks layer,
+[placed-container-looks](../../docs/plan/placed-container-looks.feature.md)). Key `L` (Structure, Wall,
+Objects, Decor, Decals, Looks, round) or the layer buttons switch the layer the brush paints and the palette shows.
+The map shows the structure, fixtures and objects in every layer; the other layers stay visible, dimmed, and the
+layer being painted is drawn on top. The props show in the decor layer only, the decals and torches in the decal layer
+only, the looks in the looks layer only.
 
 * Painting an object or a fixture into a wall or deep water carves the cell open (`Empty`).
 * Painting a wall or deep water over a cell removes its object, fixture, prop, decal, torch and shape.
@@ -104,12 +106,23 @@ level.
 * A random prop never puts a brazier, a lamp or a Thoth statue under a placed torch, nor anything in front of a placed
   floor decal; a random torch never goes over a placed free decal.
 
+### Looks layer
+
+A treasure's container (chest, coffer, basket, canopic jars, pottery jar, offering table, coffin) rolls by the depth
+and the cell. The looks layer picks it by hand: **Rolled** (every cell of a new or older level) leaves the roll, a
+container forces that one at any depth. A coffin's lid rolls too (40% carry an execration text); `Plain coffin` and
+`Cursed coffin` fix it: the cursed one curses on opening and holds one bonus item, as a rolled one with the text.
+Put it next to a warning inscription, or among the coffins of a burial chamber. The stance (turn, place in the cell)
+still rolls; a coffin only lies facing the camera or angled. Only a treasure cell (`Treasure`, `TrappedTreasure`)
+takes a look: painting one elsewhere is refused. A trapped coffin always shows the text, whatever its lid.
+
 `levelcheck` warns where a placed one does not fit: a prop in rock, a dry prop in water or with no floor under it, a
 water prop out of half water, a web with no ceiling, a prop (not the web) in front of a chest, door, gate, ankh,
 ladder, mirror, monster or a fixture, a prop the game does not show; a decal in rock or on a cell that takes no decals
 (a door, a gate, ...), a ceiling decal with no rock above, a floor decal with no floor, in water or sand, or behind a
 prop, a free decal behind a torch; a torch in rock, in deep water, on a cell that takes no torch, over a brazier, a
-lamp or a Thoth statue.
+lamp or a Thoth statue; a look on a cell without a treasure, a plain lid on a trapped treasure, a look with no stance
+that fits its cell.
 
 ## Workflow
 
@@ -285,11 +298,11 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Level format v6, plain text (`src/world/level.h`). A header, the level's zone, the structure layer as a drawing,
-then the wall layer, the object layer, the decor layer, the decal layer and the shape layer as lists:
+Level format v7, plain text (`src/world/level.h`). A header, the level's zone, the structure layer as a drawing,
+then the wall layer, the object layer, the decor layer, the decal layer, the shape layer and the looks layer as lists:
 
 ```
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone tomb_entrance                        the zone's slug (ZONE_INFO, src/world/campaign.h), or none
 structure
 ########################################
@@ -308,6 +321,8 @@ decals 1
 7 1 -2 0 2                                column row decal mirror torch
 shapes 1
 3 1 000f                                  column row mask
+containers 1
+4 1 6 2                                   column row kind lid
 ```
 
 The structure glyphs are in the [Structure reference](#structure-reference). The wall list holds only the cells with
@@ -322,7 +337,11 @@ The shape list holds the shaped cells, `mask` 4 hex digits: bit = sub-column + 4
 (`000f` a quarter step over the floor, `f000` a ceiling a quarter lower). A shaped cell has its shaped glyph in the
 structure drawing, and only a shaped cell does.
 
+The containers list holds the cells whose look is set: `kind` an index of `CONTAINER_NAMES`
+(`src/world/containers.h`: 0 chest, 1 coffer, 2 basket, 3 canopic, 4 jar, 5 table, 6 coffin), `lid` 0 rolled, 1
+plain, 2 inscribed (a coffin only).
+
 The old formats still load: the game, the editor and `levelcheck` convert them as they read them (`levelcheck`
-warns). v5 has no shape list: no shapes. v4 has no zone line: no zone. v3 has no decor and decal lists: every cell is unset. v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
-`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v6 for
+warns). v6 has no containers list: every look rolls. v5 has no shape list: no shapes. v4 has no zone line: no zone. v3 has no decor and decal lists: every cell is unset. v2 has no wall list: its wall types stand in the object list and move to the wall layer. v1 is the cell count
+`1881`, then one `type attribute value` line per cell, type 0 a wall. `levelconvert FILE...` rewrites files in v7 for
 good.

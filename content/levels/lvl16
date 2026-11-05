@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone priests_quarter
 title The Scribes' Hall
 structure
@@ -274,3 +274,5 @@ shapes 7
 20 24 000f
 17 31 fff0
 18 31 fff0
+containers 1
+22 6 6 1

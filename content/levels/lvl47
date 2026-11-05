@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone necropolis
 title The Hall of Coffins
 structure
@@ -642,3 +642,6 @@ shapes 6
 7 38 0fff
 8 38 00ff
 9 38 000f
+containers 2
+4 24 6 2
+22 28 6 1

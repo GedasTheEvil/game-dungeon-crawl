@@ -1,9 +1,10 @@
 #ifndef EDITOR_DRESSING_BRUSH_H
 #define EDITOR_DRESSING_BRUSH_H
 
-// The editor's brushes for the decor and decal layers (plan placed-decor): what painting one does to a cell's
-// dressing. Header only, no GL: the unit tests use it.
+// The editor's brushes for the decor and decal layers (plan placed-decor) and the looks layer (plan
+// placed-container-looks): what painting one does to a cell's dressing. Header only, no GL: the unit tests use it.
 
+#include "../../src/world/containers.h"
 #include "../../src/world/decor.h"
 #include "../../src/world/level.h"
 
@@ -59,6 +60,26 @@ inline void paintDecal(Dressing& d, int brush, bool mirror) {
 	if (d.torch == TorchPlacing::Torch)
 		return TORCH_BRUSH;
 	return d.torch == TorchPlacing::None ? NO_TORCH_BRUSH : PLACED_UNSET;
+}
+
+// The looks palette's brushes besides PLACED_UNSET (rolled) and the containers (Container, a coffin's lid rolled): a
+// coffin with a plain lid, with an inscribed one.
+constexpr int PLAIN_COFFIN_BRUSH = CONTAINER_COUNT;
+constexpr int INSCRIBED_COFFIN_BRUSH = CONTAINER_COUNT + 1;
+constexpr int LOOK_BRUSH_COUNT = CONTAINER_COUNT + 2; // the containers and the two coffin brushes
+
+inline void paintLook(Dressing& d, int brush) {
+	d.lid = brush == PLAIN_COFFIN_BRUSH		  ? CoffinLid::Plain
+			: brush == INSCRIBED_COFFIN_BRUSH ? CoffinLid::Inscribed
+											  : CoffinLid::Rolled;
+	d.container = d.lid != CoffinLid::Rolled ? static_cast<int>(Container::Coffin) : brush;
+}
+
+// The looks brush that picks up the cell's look.
+[[nodiscard]] inline int pickLookBrush(const Dressing& d) {
+	if (d.lid == CoffinLid::Plain)
+		return PLAIN_COFFIN_BRUSH;
+	return d.lid == CoffinLid::Inscribed ? INSCRIBED_COFFIN_BRUSH : d.container;
 }
 
 #endif

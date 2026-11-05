@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone lake_of_fire
 title The Gate of Fire
 structure
@@ -254,3 +254,4 @@ shapes 7
 26 43 000f
 27 43 00ff
 28 43 000f
+containers 0

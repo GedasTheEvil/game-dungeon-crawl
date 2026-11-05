@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone bat_galleries
 title The Roost of Shezmu
 structure
@@ -239,3 +239,4 @@ shapes 6
 31 41 000f
 32 41 00ff
 33 41 0fff
+containers 0

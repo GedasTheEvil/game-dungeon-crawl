@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone scorpion_nest
 title The Weeping Roof
 structure
@@ -284,3 +284,4 @@ shapes 7
 29 33 0fff
 13 44 000f
 15 44 000f
+containers 0

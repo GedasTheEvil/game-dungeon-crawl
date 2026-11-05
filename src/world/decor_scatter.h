@@ -48,6 +48,10 @@ struct DecorCounts {
 	int painted = 0, stone = 0, rough = 0; // surface cells by family
 };
 
+// The stances (STANCES, containers.h) a container of kind can take in cell (col, row), by weight: the side wall a
+// stance needs, the coffin's lengthwise ones. The total weight, 0 where none fits.
+uint32_t containerStances(const Tile* cells, int col, int row, Container kind, uint32_t (&weights)[STANCE_COUNT]);
+
 // An empty floor cell within MINION_SUMMON_REACH of a boss whose minions climb out of coffins (Summon::Coffin) on its
 // row, alive or slain (slainMonster): a coffin for its minions stands there. cells: a whole level.
 [[nodiscard]] bool bossCoffinCell(const Tile* cells, int col, int row);

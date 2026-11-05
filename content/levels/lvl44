@@ -1,4 +1,4 @@
-DCLEVEL 6 40 47
+DCLEVEL 7 40 47
 zone lake_of_fire
 title The Cool Water
 structure
@@ -235,3 +235,4 @@ shapes 7
 13 36 000f
 14 36 00ff
 15 36 000f
+containers 0

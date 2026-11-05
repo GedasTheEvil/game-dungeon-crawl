@@ -833,11 +833,35 @@ void checkPlacedDecal(const LevelGrid& grid, int cell, LevelReport& r) {
 		r.warnings.push_back(what + " is over a " + DECOR_NAMES[d.prop]);
 }
 
-// The decor and decal layers (plan placed-decor): a placed prop, decal or torch where it fits.
+// The looks layer (plan placed-container-looks): a look on a treasure, of a kind that has a stance there.
+void checkPlacedContainer(const LevelGrid& grid, int cell, LevelReport& r) {
+	const Dressing& d = grid.cells[cell].dressing;
+	if (!hasPlacedContainer(d))
+		return;
+	const std::string what = std::string("the ") + CONTAINER_NAMES[d.container] + " look at " + at(cell);
+	if (!isTreasure(grid.cells[cell])) {
+		r.warnings.push_back(what + " is on a cell without a treasure");
+		return;
+	}
+	if (d.lid == CoffinLid::Plain && grid.cells[cell].type == TrappedTreasure)
+		r.warnings.push_back(what + " has a plain lid on a trapped treasure: a trapped coffin always shows the text");
+	uint32_t weights[STANCE_COUNT];
+	if (containerStances(
+			grid.cells,
+			cell % LEVEL_WIDTH,
+			cell / LEVEL_WIDTH,
+			static_cast<Container>(d.container),
+			weights
+		) == 0)
+		r.warnings.push_back(what + " has no stance that fits the cell");
+}
+
+// The decor, decal and looks layers (plan placed-decor): a placed prop, decal, torch or container where it fits.
 void checkDressing(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		checkPlacedProp(grid, cell, r);
 		checkPlacedDecal(grid, cell, r);
+		checkPlacedContainer(grid, cell, r);
 	}
 }
 
@@ -1611,17 +1635,26 @@ char decalGlyph(const Tile& t) {
 	return isSolidStructure(t.structure) ? '#' : '.';
 }
 
+char containerGlyph(const Tile& t) {
+	const Dressing& d = t.dressing;
+	if (!hasPlacedContainer(d))
+		return isSolidStructure(t.structure) ? '#' : '.';
+	if (d.lid == CoffinLid::Plain)
+		return PLAIN_COFFIN_GLYPH;
+	return d.lid == CoffinLid::Inscribed ? INSCRIBED_COFFIN_GLYPH : CONTAINER_GLYPHS[d.container];
+}
+
 std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 	std::vector<char> onPath(CELLS, 0);
 	if (report != nullptr)
 		for (const CellPos& p : report->path)
 			onPath[p.row * LEVEL_WIDTH + p.col] = 1;
 
-	std::string objects, structure, wall, decor, decals;
+	std::string objects, structure, wall, decor, decals, containers;
 	bool layered = false, fixtures = false; // water, sand or shapes: the structure drawing too
-	bool props = false, wallDecals = false;
+	bool props = false, wallDecals = false, looks = false;
 	for (int row = LEVEL_HEIGHT - 1; row >= 0; row--) {
-		std::string line, structureLine, wallLine, decorLine, decalLine;
+		std::string line, structureLine, wallLine, decorLine, decalLine, containerLine;
 		bool any = false;
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
 			Tile t = grid.at(col, row);
@@ -1631,6 +1664,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			fixtures = fixtures || hasFixture(t);
 			props = props || hasPlacedProp(t.dressing);
 			wallDecals = wallDecals || hasPlacedDecal(t.dressing);
+			looks = looks || hasPlacedContainer(t.dressing);
 			if (c == '.' && onPath[row * LEVEL_WIDTH + col] != 0)
 				c = '*';
 			line += c;
@@ -1638,6 +1672,7 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			wallLine += hasFixture(t) ? tileGlyph(fixtureAsTile(t.fixture)) : isSolidStructure(t.structure) ? '#' : '.';
 			decorLine += propGlyph(t);
 			decalLine += decalGlyph(t);
+			containerLine += containerGlyph(t);
 		}
 		if (any) {
 			char head[8];
@@ -1647,8 +1682,10 @@ std::string renderLevel(const LevelGrid& grid, const LevelReport* report) {
 			wall += head + wallLine + '\n';
 			decor += head + decorLine + '\n';
 			decals += head + decalLine + '\n';
+			containers += head + containerLine + '\n';
 		}
 	}
 	return objects + (layered ? "structure\n" + structure : "") + (fixtures ? "wall\n" + wall : "") +
-		   (props ? "decor\n" + decor : "") + (wallDecals ? "decals\n" + decals : "");
+		   (props ? "decor\n" + decor : "") + (wallDecals ? "decals\n" + decals : "") +
+		   (looks ? "containers\n" + containers : "");
 }

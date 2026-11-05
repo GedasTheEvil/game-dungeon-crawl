@@ -37,23 +37,23 @@ the implementer decides.
     below 1.
   * Serket: ends poison, and no poison lands for 2 minutes (the HUD shows it as a ward). Same block message as the
     Isis ward ("Serket turns the venom away").
-* Uses, the implementer's call: **one prayer per shrine per level** (recommended). Unlimited Amun heals turn a shrine
-  into a free healing well, and unlimited stat buffs mean praying before every fight. After a prayer the shrine is
-  spent: its lamp goes out or its offerings are gone, and the prompt says "The god is silent". Save which shrines are
-  spent in the level state. Isis stays unlimited.
+* Uses: every prayer gives the blessing, with no limit and no cooldown, the same as Isis (from the user). Nothing to
+  save. Shrines stay rare instead (Placement).
 * HUD: yellow blessing status cards (`status_list.cpp`, `PlayerHud::Icon`). The icons come from `tools/textures/hud_icons.py`:
   falcon/khopesh, djed, ankh or ram, scorpion.
 * Sound: the Isis chime with a different pitch or instrument for each god (`tools/audio/shrine_sounds.py`).
 * Light: the prayer's beam (`SunBeam::ISIS_LIGHT`) in each god's tint: Montu red-gold, Ptah green, Amun deep blue,
   Serket amber.
-* Placement: rare, like Isis, about 3 to 5 levels per god, never two shrines in one room. Put each where it fits: Montu
+* Placement: at most one shrine of any god per level, Isis included (from the user). This is a soft rule for level
+  design, so a level that needs two may have them; the checker does not warn. So a level that already has a Shrine of
+  Isis gets no new shrine. Rare, like Isis, about 3 to 5 levels per god. Put each where it fits: Montu
   and Ptah before a boss or hard fight, Amun deep in a side branch after a heavy fight, Serket on levels with
   poisoners (spiders, scorpions, cobras). Every touched level passes `bin/levelcheck` with no warnings. The checker
-  should not count on the blessings: they are optional, and the player may already have used the shrine.
+  should not count on the blessings: they are optional, and they run out on the walk to the fight.
 * Glossary rows: each shrine and each blessing. Journal: a field note on the first prayer at each god.
 * Tests: a unit test for each blessing (applied, ends after 2 minutes, ends on death, the same god restarts it, two
-  gods stack, Amun's HP clamp, Serket blocks poison), plus the one-use rule if it is chosen. A play script with all
-  four shrines in reach.
+  gods stack, Amun's HP clamp, Serket blocks poison), and a second prayer
+  that gives the blessing again. A play script with all four shrines in reach (a test level may break the soft rule).
 
 ## Lore (why Serket, not Wadjet)
 
@@ -69,7 +69,6 @@ the implementer decides.
 
 ## Open points
 
-* One use per shrine (recommended) or unlimited like Isis.
 * Should a skill lengthen the blessings, as Blessing of Isis lengthens the Isis ward? Serket's favour is the natural
   pick for Serket; the others have no skill. Not needed now.
 

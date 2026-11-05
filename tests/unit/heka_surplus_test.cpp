@@ -259,3 +259,36 @@ TEST_CASE("Disarm trap: an inscribed coffin's curse fails as often") {
 	CHECK(cursed > 0);
 	CHECK(cursed < RUNS * (100 - DISARM_TRAP_PERCENT + 15) / 100);
 }
+
+TEST_CASE("Wisdom of Seshat: the name gate asks and the journal gets the royal name's page, translated") {
+	for (const bool skill : {false, true}) {
+		CAPTURE(skill);
+		SimWorld world;
+		world.player.god = true;
+		REQUIRE(world.names.Load(CONTENT_DIR "names").empty());
+		world.player.stats.run.nameSeed = 42;
+		LevelGrid grid;
+		for (int col = 1; col <= 12; col++)
+			grid.set(col, 1, Tile{});
+		grid.set(1, 1, cellWith({Door, GateEntrance, 0}));
+		grid.set(6, 1, cellWith({Door, GateTeleport, 3 | NAME_SEAL}));
+		grid.set(12, 1, cellWith({Door, GateExit, 0}));
+		for (int col = 2; col <= 6; col++)
+			grid.set(col, 5, Tile{});
+		grid.set(3, 5, cellWith({Door, GateTeleport, 3}));
+		world.dungeon.LoadGrid(grid, "seshat-name");
+		world.player.Reanimate();
+		if (skill)
+			learn(world, SkillId::WisdomOfSeshat);
+		world.WaitTicks(5);
+		REQUIRE(world.WalkTo(6.5f));
+		world.Interact();
+		world.WaitTicks(1);
+		CHECK(std::ranges::any_of(world.said, [](const WorldEvent& e) { return e.kind == WorldEvent::Kind::AskName; }));
+		REQUIRE(world.journal.Inscriptions().size() == (skill ? 1U : 0U));
+		if (skill) {
+			CHECK(world.journal.Inscriptions()[0].id == NAME_CARTOUCHE_ID);
+			CHECK(world.journal.Inscriptions()[0].translated);
+		}
+	}
+}

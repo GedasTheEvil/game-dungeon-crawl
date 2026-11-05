@@ -1,6 +1,6 @@
 # Heka surplus: more skills than bosses
 
-Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30, grilled with the user 2026-11-03.
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30, grilled with the user 2026-11-03.
 
 ## Problem
 
@@ -26,7 +26,7 @@ the boss-slain status line drops "You take its heka" there (the `else` branch al
 
 ### Five stat skills
 
-Flat, permanent stats, like the inscription boons ([inscription-boons](solved/inscription-boons.md)) but bigger. Names
+Flat, permanent stats, like the inscription boons ([inscription-boons](inscription-boons.md)) but bigger. Names
 and lore are the implementer's (gods matching the boons' themes: Montu for Might, Ptah for Armor, the ankh for life,
 Shu for stamina); proposals below.
 
@@ -64,8 +64,8 @@ Checker rule unchanged: nothing on the exit path needs the skill.
 
 ### Disarm trap (from the user)
 
-For the trapped chests ([trapped-chests](solved/trapped-chests.md)) and the cursed coffins
-([tomb-curse-containers](solved/tomb-curse-containers.md)):
+For the trapped chests ([trapped-chests](trapped-chests.md)) and the cursed coffins
+([tomb-curse-containers](tomb-curse-containers.md)):
 
 1. 80% chance that opening a trapped container disarms its trap: no darts, gas, curse or scarab swarm. A roll of its
    own beside the trap ward amulet's (`TrapWardPercent`, `src/world/dungeon_chest_traps.cpp`): the trap goes off only
@@ -98,7 +98,7 @@ mapping); a regroup by kind is the implementer's choice (old saves can be ignore
 ## Also
 
 * Glossary rows for the seven skills, the skill names row, the heka row (Anubis gives none).
-* Field notes for the new skills if the other skills have them (see [journal-field-notes-gaps](journal-field-notes-gaps.feature.md)).
+* Field notes for the new skills if the other skills have them (see [journal-field-notes-gaps](../journal-field-notes-gaps.feature.md)).
 * Tests: unit tests per stat skill (the stat with and without it, save/load), the jump reach unchanged with the
   speed skill, Anubis gives no heka; a scenario screenshot of the Heka screen and of the Seshat map and trap
   outlines.

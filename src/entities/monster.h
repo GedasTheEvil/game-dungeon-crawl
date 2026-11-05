@@ -176,6 +176,9 @@ class Monster {
 	// The player at map y py is on its row (a climber halfway up a ladder: by its height).
 	[[nodiscard]] bool sameRow(float py) const;
 	[[nodiscard]] int Health() const { return health; }
+	// A light shunner (MonsterKind::shunsLight) fears the light at full HP only: any damage ends it for good (plan
+	// hurt-spiders-ignore-light).
+	[[nodiscard]] bool ShunsLight() const { return type->shunsLight && health >= type->maxHealth; }
 	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
 	// Hitbox: the model's half width (CharacterModel::HalfWidth) at its drawn scale, map units. Height: BottomY, TopY.
 	[[nodiscard]] float HalfWidth() const;

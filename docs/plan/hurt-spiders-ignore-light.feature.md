@@ -1,6 +1,6 @@
 # Hurt spiders no longer fear the light
 
-Status: draft 2026-11-05, size S, needs nothing first.
+Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size S, needs nothing first.
 
 ## Idea
 
@@ -43,5 +43,6 @@ longer applies.
 
 ## Play-test
 
-* Stand in a torch's light with a bow: the spider waits at the edge of the light; shoot it once and it comes through
-  the light and bites.
+* `bin/game --play tests/play/hurt-spiders-ignore-light.txt`: stand in the torch's light with the bow (god mode on):
+  the spider waits at the edge of the light; shoot it once and it comes through the light and bites.
+* No tell when it turns fearless (open point decided: none); the journal's shun-light line says it.

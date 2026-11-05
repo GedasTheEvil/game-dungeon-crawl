@@ -13,7 +13,7 @@ bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walk
 bool Dungeon::walkerStops(const Monster& mon, int col) const {
 	if (walkerBlocked(col, mon.Row(), mon.reckless()))
 		return true;
-	return mon.Type()->shunsLight && col != static_cast<int>(std::floor(mon.CentreX())) && shunned(mon, col);
+	return mon.ShunsLight() && col != static_cast<int>(std::floor(mon.CentreX())) && shunned(mon, col);
 }
 //======================================================================================
 bool Dungeon::walkerStopsAhead(const Monster& mon, int col, int dir) const {
@@ -126,12 +126,14 @@ bool Dungeon::hopOnto(Monster& mon, int dir) {
 	return true;
 }
 //======================================================================================
-bool Dungeon::shunned(const Monster& mon, int col) const { return Lit(col, mon.Row(), mon.Type()->douseCells == 0); }
+bool Dungeon::shunned(const Monster& mon, int col) const {
+	return mon.ShunsLight() && Lit(col, mon.Row(), mon.Type()->douseCells == 0);
+}
 //======================================================================================
 // The nearer dark cell either way, short of a cell it can't walk on; on a tie, away from the player.
 int Dungeon::wayOutOfLight(const Monster& mon) const {
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
-	if (!mon.Type()->shunsLight || !shunned(mon, col))
+	if (!mon.ShunsLight() || !shunned(mon, col))
 		return 0;
 	const int away = mapX < mon.CentreX() ? 1 : -1;
 	bool open[2] = {true, true}; // away, towards
@@ -207,7 +209,7 @@ bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 			return false;
 		col = land;
 	}
-	return !mon.Type()->shunsLight || !shunned(mon, to); // nor into the light around them
+	return !mon.ShunsLight() || !shunned(mon, to); // nor into the light around them
 }
 //======================================================================================
 // No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
@@ -294,7 +296,7 @@ float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 	const auto probes = static_cast<int>(room / PROBE);
 	for (int i = 1; i <= probes; i++) {
 		const auto col = static_cast<int>(std::floor(rear - static_cast<float>(dir * i) * PROBE));
-		if (walkerBlocked(col, mon.Row(), false) || (mon.Type()->shunsLight && shunned(mon, col)) ||
+		if (walkerBlocked(col, mon.Row(), false) || (mon.ShunsLight() && shunned(mon, col)) ||
 			stepAt(mon, rear - static_cast<float>(dir * i) * PROBE) != StepAhead::Walk)
 			return static_cast<float>(i - 1) * PROBE;
 	}
@@ -382,7 +384,7 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 		mon.Body(),
 		MONSTER_JUMP_MAX_GAP + (mon.Type()->isBoss() ? BOSS_LEAP_CATCH_EXTRA : 0)
 	};
-	if (mon.Type()->shunsLight) { // no way through the light, a lit ladder top is a wall (plan spider-climbers)
+	if (mon.ShunsLight()) { // no way through the light, a lit ladder top is a wall (plan spider-climbers)
 		const bool torches = mon.Type()->douseCells == 0; // as shunned
 		how.avoids = [this, torches](int c, int r) { return Lit(c, r, torches); };
 	}
@@ -450,7 +452,7 @@ void Dungeon::updateWalker(Monster& mon) {
 		return;
 	}
 	if (dir != 0 && runs && !walkerReaches(mon, dir)) {
-		if (mon.Type()->shunsLight && mon.sameRow(mapY) && litBetween(mon))
+		if (mon.ShunsLight() && mon.sameRow(mapY) && litBetween(mon))
 			sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::ShunLight);
 		fleeFrom(mon, dir);
 		return;

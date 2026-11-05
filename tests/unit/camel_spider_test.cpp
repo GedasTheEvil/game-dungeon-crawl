@@ -118,3 +118,43 @@ TEST_CASE("a camel spider in the light runs for the nearer dark") {
 	CHECK_FALSE(world.dungeon.Lit(cellOf(s->CentreX()), row));
 	CHECK(s->CentreX() > 7.5f);
 }
+
+// Plan hurt-spiders-ignore-light: any damage ends the fear of the light for good.
+namespace {
+void hurt(const Monster& mon) { const_cast<Monster&>(mon).TakeWeaponHit(1, DamageMix{0, 0, 100}); }
+} // namespace
+
+TEST_CASE(
+	"a hurt camel spider walks through the light and bites the player standing in it (plan hurt-spiders-ignore-light)"
+) {
+	SimWorld world;
+	const int row = loadHall(world, 3);
+	REQUIRE(world.dungeon.Lit(2, row));
+	const Monster* s = spider(world);
+	REQUIRE(s != nullptr);
+	CHECK(s->ShunsLight());
+	world.Wait(3000); // full HP: it waits at the edge of the light
+	CHECK(s->Left() > 5.f);
+	hurt(*s);
+	REQUIRE(s->Health() < s->MaxHealth());
+	CHECK_FALSE(s->ShunsLight());
+	const int hp = world.Hp();
+	float nearest = s->Left();
+	for (int t = 0; t < 600; t++) {
+		world.Tick();
+		nearest = std::min(nearest, s->Left());
+	}
+	CHECK(nearest < 5.f); // it came into the light (cols 2-4)
+	CHECK(world.Hp() < hp);
+}
+
+TEST_CASE("a hurt camel spider in the light stays and does not run for the dark (plan hurt-spiders-ignore-light)") {
+	SimWorld world;
+	const int row = loadHall(world, 6); // the spider (col 7) in its light, cols 5-7
+	const Monster* s = spider(world);
+	REQUIRE(s != nullptr);
+	hurt(*s);
+	world.Wait(1500);
+	CHECK(world.dungeon.Lit(cellOf(s->CentreX()), row));
+	CHECK(s->CentreX() < 7.5f);
+}

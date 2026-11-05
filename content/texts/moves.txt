@@ -71,7 +71,7 @@ text: Floats among the lotus flowers, rears up when I come near.
 text: Its bite makes me drowsy, too tired to run or jump.
 
 [move.shun-light]
-text: Will not come into the torchlight. It waits in the dark until I leave it.
+text: Will not come into the torchlight. It waits in the dark until I leave it. Hurt, it forgets its fear of the flame.
 
 [move.grab]
 sting: Two claws to hold you, one tail to finish. Hit the claws.

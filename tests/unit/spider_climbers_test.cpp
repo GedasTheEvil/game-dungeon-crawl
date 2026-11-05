@@ -207,3 +207,16 @@ TEST_CASE("the play level: dark but the right ladder top, the spiders follow up 
 	CHECK(camel->Row() == upper);
 	CHECK(tiny->Row() == upper);
 }
+
+TEST_CASE("a hurt tiny spider climbs to a lit ladder top (plan hurt-spiders-ignore-light)") {
+	SimWorld world;
+	const int upper = showAndFlee(world, "tests/levels/climb_tiny", 6);
+	REQUIRE(world.dungeon.Lit(6, upper));
+	const Monster* spider = find(world, MonsterTinySpider);
+	REQUIRE(spider != nullptr);
+	const_cast<Monster&>(*spider).TakeWeaponHit(1, DamageMix{0, 0, 100});
+	REQUIRE(spider->Health() < spider->MaxHealth());
+	world.Wait(10000);
+	CHECK(world.Saw(MonsterTinySpider, CreatureMove::Climb));
+	CHECK(spider->Row() == upper);
+}

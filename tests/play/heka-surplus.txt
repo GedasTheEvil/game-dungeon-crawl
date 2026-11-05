@@ -1,6 +1,6 @@
 # Plan heka-surplus, for `bin/game --play tests/play/heka-surplus.txt`: 16 skills, the Heka screen's list scrolls. The
-# Wisdom of Seshat and Disarm trap are learnt: walk right past the traps (faint pale outlines), the trapped chest and
-# the mimic (red outlines), then open the map (M) near the teleporter: the sealed room above is on it. 8 heka left to
+# Wisdom of Seshat and Disarm trap are learnt: walk right past the traps (no outlines), the trapped chest and the
+# mimic (a red contour), then open the map (M) near the teleporter: the sealed room above is on it. 8 heka left to
 # try the stat skills on the Heka screen (K).
 seed 1
 level tests/levels/heka_surplus

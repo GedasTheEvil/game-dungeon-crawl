@@ -24,7 +24,7 @@ PlayerStats saveAndLoad(const PlayerStats& stats) {
 }
 
 // A corridor on row 1 from the entrance (col 1) to the exit (col 18), a plain teleporter at col 16 to a sealed room on
-// row 4 (cols 10 to 14, its teleporter at col 10), a spike trap at col 5.
+// row 4 (cols 10 to 14, its teleporter at col 10).
 LevelGrid sealedRoomLevel() {
 	LevelGrid grid;
 	for (int col = 1; col <= 18; col++)
@@ -32,7 +32,6 @@ LevelGrid sealedRoomLevel() {
 	for (int col = 10; col <= 14; col++)
 		grid.set(col, 4, Tile{});
 	grid.set(1, 1, cellWith({Door, GateEntrance, 0}));
-	grid.set(5, 1, cellWith({Spike, 0, 0}));
 	grid.set(16, 1, cellWith({Door, GateTeleport, 2}));
 	grid.set(18, 1, cellWith({Door, GateExit, 0}));
 	grid.set(10, 4, cellWith({Door, GateTeleport, 2}));
@@ -183,30 +182,6 @@ TEST_CASE("Wisdom of Seshat: a sealed room goes on the draft map once the player
 		CHECK(world.dungeon.Explored(14, 4) == skill); // the whole room
 		CHECK(world.dungeon.Explored(15, 4) == skill); // its walls
 	}
-}
-
-TEST_CASE("Wisdom of Seshat: which traps are outlined, and where") {
-	CHECK(trapOutline(Tile{Spike, 0, 0}) == TrapOutline::Floor);
-	CHECK(trapOutline(Tile{Death, 0, 0}) == TrapOutline::Floor);
-	CHECK(trapOutline(Tile{DartPlate, 0, 0}) == TrapOutline::Floor);
-	CHECK(trapOutline(Tile{RockFall, 0, static_cast<int>(RockState::Armed)}) == TrapOutline::Ceiling);
-	CHECK(trapOutline(Tile{RockFall, 0, static_cast<int>(RockState::Fallen)}) == TrapOutline::None);
-	Tile quicksand{};
-	quicksand.structure = Structure::Quicksand;
-	CHECK(trapOutline(quicksand) == TrapOutline::Floor);
-	for (const int fixture : {static_cast<int>(WallSpikes), static_cast<int>(FireVent)}) {
-		Tile t{};
-		t.fixture.type = fixture;
-		CHECK(trapOutline(t) == TrapOutline::Wall);
-	}
-	for (const int fixture :
-		 {static_cast<int>(PoisonDrip), static_cast<int>(CeilingSpikes), static_cast<int>(CeilingDeath)}) {
-		Tile t{};
-		t.fixture.type = fixture;
-		CHECK(trapOutline(t) == TrapOutline::Ceiling);
-	}
-	CHECK(trapOutline(Tile{}) == TrapOutline::None);
-	CHECK(trapOutline(Tile{Treasure, 3, 0}) == TrapOutline::None);
 }
 
 TEST_CASE("the Heka screen's list scrolls: every card shows at some scroll, in the panel, the selection followed") {

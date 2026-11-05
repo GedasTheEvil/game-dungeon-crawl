@@ -61,7 +61,7 @@ void CharacterModel::loadSounds(const char* name) {
 			target->Load(path.c_str());
 }
 
-void CharacterModel::Show(ModelState state, const ClipPlayback& playback) const {
+void CharacterModel::Show(ModelState state, const ClipPlayback& playback, int texture) const {
 	const ModelState shown = info.Shown(state);
-	Clip(shown)->Show(playback[static_cast<int>(shown)], texture.ID());
+	Clip(shown)->Show(playback[static_cast<int>(shown)], texture >= 0 ? texture : this->texture.ID());
 }

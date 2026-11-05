@@ -513,10 +513,9 @@ constexpr int CHEST_SWARM_SIZE = 3;
 constexpr float CHEST_TELL_SHADE = 0.62f;
 constexpr float CHEST_TELL_NEAR = 0.8f;
 constexpr float CHEST_TELL_FAR = 1.8f; // the view shows about two tiles either side of the player
-// The skills' outlines (plan heka-surplus): the Wisdom of Seshat shows the traps within SESHAT_TRAP_FAR tiles and puts
-// a sealed room within SESHAT_ROOM_RADIUS cells on the draft map; Disarm trap shows trapped containers and disguised
-// mimics within DISARM_SEEN_FAR, a little farther than the chest's own tell. Each fades in over OUTLINE_FADE tiles.
-constexpr float SESHAT_TRAP_FAR = 3.f;
+// The skills' sight (plan heka-surplus): the Wisdom of Seshat puts a sealed room within SESHAT_ROOM_RADIUS cells on the
+// draft map; Disarm trap draws a red contour round trapped containers and disguised mimics within DISARM_SEEN_FAR, a
+// little farther than the chest's own tell, fading in over OUTLINE_FADE tiles.
 constexpr int SESHAT_ROOM_RADIUS = 3;
 constexpr float DISARM_SEEN_FAR = 2.6f;
 constexpr float OUTLINE_FADE = 0.8f;

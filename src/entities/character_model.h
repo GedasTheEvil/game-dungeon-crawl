@@ -48,7 +48,8 @@ class CharacterModel {
 	[[nodiscard]] const ModelInfo& Info() const { return info; }
 	[[nodiscard]] AnimatedModel* Clip(ModelState state) const { return shape->clips[static_cast<int>(state)].get(); }
 	void BindTexture() const { texture.Bind(); }
-	void Show(ModelState state, const ClipPlayback& playback) const;
+	// texture >= 0: that one on the model's UVs instead of its own (a contour pass).
+	void Show(ModelState state, const ClipPlayback& playback, int texture = -1) const;
 };
 
 #endif

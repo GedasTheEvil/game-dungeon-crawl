@@ -27,8 +27,8 @@ enum class SkillId : std::uint8_t {
 	DjedOfPtah, // Armor +SKILL_ARMOR
 	BreathOfShu, // max stamina +SKILL_STAMINA_PERCENT
 	SpeedOfMafdet, // walk and sprint +SKILL_SPEED_PERCENT on firm ground, not the jump
-	WisdomOfSeshat, // riddle hints, the royal name, hidden rooms on the map, traps outlined
-	DisarmTrap, // a trapped container's trap may fail, its trap and mimics outlined, never empty
+	WisdomOfSeshat, // riddle hints, the royal name, hidden rooms on the map
+	DisarmTrap, // a trapped container's trap may fail, trapped ones and mimics red-rimmed, never empty
 };
 constexpr int SKILL_COUNT = 16;
 

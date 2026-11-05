@@ -24,8 +24,8 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Djed of Ptah", "Armor +5", false},
 	{"Breath of Shu", "Max stamina +25%", false},
 	{"Speed of Mafdet", "Walk and sprint 20% faster", false},
-	{"Wisdom of Seshat", "Hints, names, rooms, traps", false},
-	{"Disarm trap", "Chest traps fail, mimics glow", false},
+	{"Wisdom of Seshat", "Hints, names, sealed rooms", false},
+	{"Disarm trap", "Chest traps fail, mimics shown", false},
 }};
 
 const char* skillLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".lore").c_str(); }

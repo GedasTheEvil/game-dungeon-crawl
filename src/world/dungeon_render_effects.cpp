@@ -193,7 +193,10 @@ void Dungeon::DrawMonsters(const CellRect& drawn) {
 			0
 		);
 		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
-		DrawMonster(mon, sim.assets->monsterModels[mon.Type()->id], sim.assets->textures);
+		const CharacterModel& model = sim.assets->monsterModels[mon.Type()->id];
+		DrawMonster(mon, model, sim.assets->textures);
+		if (const float near = mimicOutline(mon); near > 0.f) // Disarm trap (plan heka-surplus)
+			drawContour(near, [&](int texture) { DrawMonster(mon, model, sim.assets->textures, texture); });
 		glPopMatrix();
 	}
 	drawDecoys(drawn);

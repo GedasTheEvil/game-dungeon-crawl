@@ -263,6 +263,8 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 		glColor3f(shade, shade * 0.9f, shade * 0.85f);
 	}
 	container.Draw(containerOpening(cell));
+	if (const float near = containerOutlineAt(cell); near > 0.f) // Disarm trap (plan heka-surplus)
+		drawContour(near, [&](int texture) { container.Draw(containerOpening(cell), texture); });
 	// A cursed coffin's execration text (plan tomb-curse-containers): its red lid over the plain one, only up close.
 	if (const float text = coffinTell(cell); text > 0.f) {
 		Item& cursed = *sim.assets->items.cursedCoffin;
@@ -692,7 +694,6 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	drawFireJets(drawn);
 	drawPoisonDrips(drawn);
 	drawMechanismEffects();
-	drawOutlines(drawn); // the skills' (plan heka-surplus)
 	drawSummonEffects();
 	drawBallEffects();
 	drawSandEffects();

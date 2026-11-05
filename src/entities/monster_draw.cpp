@@ -88,7 +88,8 @@ void drawHealthBar(const Monster& mon, const Texture& bar) {
 }
 } // namespace
 
-void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureRegistry& textures) {
+void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureRegistry& textures, int texture) {
+	const bool plain = texture >= 0;
 	const MonsterType& type = *mon.Type();
 	const float scale = type.scale;
 	// A screech's tell shakes the body (plan giant-bat-screech).
@@ -102,7 +103,7 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	glPushMatrix(); // will add rotation
 
 	// Idle monsters keep up the disguise, a hidden one (under the sand) shows none; the boss's bar is on the HUD.
-	if (mon.Alive() && mon.Alerted() && !mon.Hidden() && !type.isBoss())
+	if (!plain && mon.Alive() && mon.Alerted() && !mon.Hidden() && !type.isBoss())
 		drawHealthBar(mon, textures.loadingBar);
 
 	glScalef(scale, scale, scale);
@@ -114,9 +115,10 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 		Particles::Draw(mon.Blood());
 		glPopMatrix();
 	};
-	if (mon.Alive())
+	if (!plain && mon.Alive())
 		drawBlood();
-	drawBlood(); // even when dead
+	if (!plain)
+		drawBlood(); // even when dead
 
 	model.BindTexture();
 	// Climbing it faces the ladder, its back to the camera.
@@ -130,7 +132,7 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 		glRotatef(roll * static_cast<float>(mon.Facing()), 0, 0, 1);
 		glTranslatef(0, -middle, 0);
 	}
-	model.Show(mon.ShownState(), mon.Playback());
+	model.Show(mon.ShownState(), mon.Playback(), texture);
 
 	glPopMatrix();
 	glPopMatrix();

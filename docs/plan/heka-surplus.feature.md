@@ -57,8 +57,8 @@ rooms. One skill with all four parts (the user: each alone is worthless):
    read, `Dungeon::LevelName`, plan secret-name-gates), so the name gate opens without the search.
 3. Hidden rooms (`LevelBuilder::placeTeleporterRoom`) and secret rooms (behind a name gate) show on the map once the
    player is near (a few cells; implementer's radius).
-4. Traps near the player are outlined faintly: spikes, death traps, rock falls, dart plates, wall spikes, fire vents,
-   poison drips, quicksand. A soft glow or outline, visible in the dark, not the trap's full look.
+4. ~~Traps near the player are outlined faintly~~: dropped by the user at the play-test (2026-11-05), no trap
+   outlines.
 
 Checker rule unchanged: nothing on the exit path needs the skill.
 
@@ -72,7 +72,7 @@ For the trapped chests ([trapped-chests](solved/trapped-chests.md)) and the curs
    if both fail (skill alone 80% safe, with a 50% ward 90%, a 100% ward stays sure). A status line says it was
    disarmed. The cursed coffin's curse counts (`Dungeon::tombCurse` from a container), the smashed ushabti's does not.
 2. Trapped containers and every disguised mimic (Chest of Set, cursed mimic, Jar of Set: `MonsterKind::disguise`,
-   asleep in ambush) get a soft red glowing outline when near, the same render as Seshat's trap outlines in red.
+   asleep in ambush) get a red contour when near (the user, 2026-11-05: the model's silhouette, not a frame).
    Seen from the same distance as the trap's own tell or a little farther (implementer's choice).
 3. With the skill a trapped container is never empty: one that rolled empty (`RollTrappedChestLoot`) gives random
    loot of its depth instead, rolled on opening (so learning the skill mid-level counts too), from the gameplay
@@ -106,7 +106,6 @@ mapping); a regroup by kind is the implementer's choice (old saves can be ignore
 ## Play-test
 
 * `bin/game --play tests/play/heka-surplus.txt`. K: 16 cards, the list scrolls (arrows, wheel), a thin bar at the right; learn a stat skill: the HUD's health / stamina, the inventory's might / armor grow; Speed of Mafdet walks faster, the jump no farther.
-* Walk right: spikes, dart plate, rock fall, death trap, wall spikes, fire vent get a faint pale outline near you, in the dark too.
-* The trapped chest and the mimic glow red up close; the chest opens quietly 4 times in 5 and is never empty.
+* The trapped chest and the mimic get a red rim (their silhouette) up close; the chest opens quietly 4 times in 5 and is never empty.
 * M by the teleporter (col 21): the sealed room above is on the draft map. A name gate's scroll gives the name, a riddle its hint at once.
 * Campaign: Anubis (lvl54) gives no heka; with every skill learnt the HUD heka tile stops pulsing.

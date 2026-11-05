@@ -44,7 +44,7 @@ lore: Shu, the air between earth and sky, fills your lungs.
 lore: Mafdet, the cheetah who runs down snakes, lends her feet. Not in water or sand; a jump reaches as far as ever.
 
 [skill.wisdom-of-seshat]
-lore: Seshat measured every temple: riddle hints at once, the royal name, sealed rooms on the map, traps outlined.
+lore: Seshat measured every temple: riddle hints at once, the royal name, sealed rooms on the map.
 
 [skill.disarm-trap]
 lore: Containers' traps fail 4 times in 5, trapped ones and mimics glow red up close, none is empty.

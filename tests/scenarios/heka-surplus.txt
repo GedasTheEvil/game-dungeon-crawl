@@ -1,5 +1,5 @@
-# Plan heka-surplus: the Heka screen's list scrolled to the top and to the bottom; the Wisdom of Seshat's faint trap
-# outlines and the sealed room on the draft map; Disarm trap's red outlines on a trapped chest and a mimic
+# Plan heka-surplus: the Heka screen's list scrolled to the top and to the bottom; the Wisdom of Seshat's sealed room on
+# the draft map, its name and riddle hint; Disarm trap's red contour on a trapped chest and a mimic
 # (tests/levels/heka_surplus). Parked once solved: the screens are drawn.
 seed 1
 god
@@ -29,10 +29,8 @@ key k
 wait 2
 walk to 6.5
 wait 10
-screenshot seshat_floor_traps
 walk to 12.5
 wait 10
-screenshot seshat_wall_traps
 walk to 17
 wait 10
 screenshot disarm_chest_mimic

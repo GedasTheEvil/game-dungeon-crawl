@@ -10,9 +10,11 @@
 
 void Item::Draw(float pose) { drawScaled(scale * Ink::figureScale(), pose); }
 
+void Item::Draw(float pose, int texture) { drawScaled(scale * Ink::figureScale(), pose, texture); }
+
 void Item::DrawHeld(float pose) { drawScaled(scale * Ink::heldWeaponScale(), pose); }
 
-void Item::drawScaled(float drawScale, float pose) {
+void Item::drawScaled(float drawScale, float pose, int texture) {
 	if (!mdl)
 		return;
 
@@ -23,7 +25,7 @@ void Item::drawScaled(float drawScale, float pose) {
 	glRotatef(rotA, 0, 1, 0);
 	AnimPlayback playback;
 	playback.frame = std::clamp(pose, 0.f, 1.f) * static_cast<float>(mdl->FrameCount() - 1);
-	mdl->Show(playback, tex.ID());
+	mdl->Show(playback, texture >= 0 ? texture : tex.ID());
 	glPopMatrix();
 }
 

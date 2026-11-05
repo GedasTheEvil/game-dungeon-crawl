@@ -1,6 +1,6 @@
 // The Wisdom of Seshat and Disarm trap skills (plan heka-surplus): the hidden and secret rooms on the draft map, the
-// traps, trapped containers and mimics outlined near the player. The outlines are drawn in
-// dungeon_render_outlines.cpp; the riddle hint and the royal name in ui/riddle.cpp and dungeon_interact.cpp.
+// trapped containers' and mimics' red contour near the player (drawn in dungeon_render_outlines.cpp); the riddle hint
+// and the royal name are in ui/riddle.cpp and dungeon_interact.cpp.
 #include "dungeon.h"
 #include "../entities/player.h"
 #include <algorithm>
@@ -66,44 +66,11 @@ void Dungeon::revealSecretRooms() {
 	}
 }
 //======================================================================================
-TrapOutline trapOutline(const Tile& t) {
-	switch (t.type) {
-	case Spike:
-	case Death:
-	case DartPlate:
-		return TrapOutline::Floor;
-	case RockFall:
-		return rockState(t) == RockState::Armed ? TrapOutline::Ceiling : TrapOutline::None;
-	default:
-		break;
-	}
-	switch (t.fixture.type) {
-	case WallSpikes:
-	case FireVent:
-		return TrapOutline::Wall;
-	case PoisonDrip:
-	case CeilingSpikes:
-	case CeilingDeath:
-		return TrapOutline::Ceiling;
-	default:
-		break;
-	}
-	return inQuicksand(t) ? TrapOutline::Floor : TrapOutline::None;
-}
-//======================================================================================
 float Dungeon::outlineNear(float col, float row, float far) const {
 	const float dx = mapX - col;
 	const float dy = mapY - row;
 	const float d = std::sqrt(dx * dx + dy * dy);
 	return std::clamp((far - d) / OUTLINE_FADE, 0.f, 1.f);
-}
-//======================================================================================
-float Dungeon::trapOutlineAt(int cell) const {
-	if (sim.player == nullptr || !sim.player->stats.heka.Has(SkillId::WisdomOfSeshat) ||
-		trapOutline(map[cell]) == TrapOutline::None)
-		return 0.f;
-	const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
-	return outlineNear(static_cast<float>(col) + 0.5f, static_cast<float>(row), SESHAT_TRAP_FAR);
 }
 //======================================================================================
 float Dungeon::containerOutlineAt(int cell) const {

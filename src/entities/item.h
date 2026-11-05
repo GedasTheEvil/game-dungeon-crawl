@@ -33,7 +33,7 @@ class Item {
 	};
 	Part part;
 
-	void drawScaled(float drawScale, float pose);
+	void drawScaled(float drawScale, float pose, int texture = -1);
 	void drawPartScaled(float drawScale);
 	void drawGlint(const AnimPlayback& playback, Rgb c) const; // the gem again, bigger, added on (in its frame)
 
@@ -44,6 +44,8 @@ class Item {
 	float scale = 0;
 	// pose 0..1 through the model's frames (the bow's draw, items.py); the other items have one frame.
 	void Draw(float pose = 0.f);
+	// With another texture on the same UVs (the plain white one for a contour, Dungeon::drawContour).
+	void Draw(float pose, int texture);
 	void DrawHeld(float pose); // in the player's fist: Ink::heldWeaponScale instead of the figures' scale
 	// media/models/items/<name>.md3 with media/textures/items/<texture>.png (default: the same name).
 	bool loadModel(const char* name, const char* texture = nullptr);

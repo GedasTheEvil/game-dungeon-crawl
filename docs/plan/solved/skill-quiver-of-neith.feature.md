@@ -1,13 +1,13 @@
 # Skill: Quiver of Neith
 
-Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size M, needs first [heka-surplus](solved/heka-surplus.feature.md) (the scrolling Heka list, the icon atlas, `SkillId` order). From the user.
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size M, needs first [heka-surplus](heka-surplus.feature.md) (the scrolling Heka list, the icon atlas, `SkillId` order). From the user.
 
 ## Idea
 
 A Heka skill for the ranged style: every ranged weapon holds more shots, and spent shots come back 25% faster.
 Neith, the huntress, whose sign is two crossed arrows. The amulets do the same job one at a time (Satet's Quiver for
-the count, Bastet's Cat for the pace, [amulet-more-shots](solved/amulet-more-shots.md),
-[amulet-quick-shots](solved/amulet-quick-shots.md)); the skill does both, smaller than the grand amulets, and stacks
+the count, Bastet's Cat for the pace, [amulet-more-shots](amulet-more-shots.md),
+[amulet-quick-shots](amulet-quick-shots.md)); the skill does both, smaller than the grand amulets, and stacks
 with them.
 
 * Name: "Quiver of Neith". Card: "Quiver of Neith: ranged weapons hold 40% more shots, and they come back 25% faster."

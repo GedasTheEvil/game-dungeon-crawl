@@ -279,7 +279,7 @@ bin/levelgen --seed 1 --difficulty 3 --count 5 /tmp/gen    # /tmp/gen1 .. /tmp/g
 
 Difficulty runs from 1 to 10. The same seed and difficulty always give the same level.
 
-The generator (`src/level/level_gen.cpp`) builds levels like the hand-made ones:
+The generator (`src/level/level_gen.cpp`; `LevelBuilder` in `level_builder.h`, its phases in `level_gen_*.cpp`) builds levels like the hand-made ones:
 
 1. **Main route.** 3 + difficulty / 2 corridors, one cell high (sometimes a two-cell hall), 6 to 15 cells long.
    Ladders (both ways) and drop shafts (one way down) join them. The entrance is at one end of the first

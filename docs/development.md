@@ -50,6 +50,8 @@ read their file arguments from the current directory.
 * `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), the balance sim (`balance/`), scenario runner script, `profile_game.sh` ([performance-testing.md](performance-testing.md)), the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, its tests `plan_test.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts).
 * `tests/` - unit tests (`unit/`), scenario scripts (`scenarios/`), play scripts (`play/`), test levels (`levels/`), riddles (`riddles/`), inscriptions (`inscriptions/`) and save games (`saves/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
+* `docs/slides/` - the presentation of the original game (the user's Bachelor's thesis), kept for history, not maintained.
+* `Play`, `LevelEditor`, `ViewModel` - root launchers: start `bin/game`, `bin/editor` and `bin/model-viewer` from the repo root, for a release build tested on a system without dev tools. Plain `sh`, no make or dev-tool dependency.
 
 ## Libraries
 

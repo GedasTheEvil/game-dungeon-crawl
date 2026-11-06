@@ -5,7 +5,7 @@ Status: draft 2026-11-06, size S, needs nothing first.
 ## Problem
 
 To test the game on a system without dev tools, the user copies the compiled game there by hand. The root `Play`
-script starts it from a folder that has `bin/`, `media/`, `content/` and `saves/` ([docs-root-tidy](docs-root-tidy.tooling.draft.sonet.md)).
+script starts it from a folder that has `bin/`, `media/`, `content/` and `saves/` ([docs-root-tidy](solved/docs-root-tidy.tooling.md)).
 There is no script that makes that folder.
 
 ## Plan

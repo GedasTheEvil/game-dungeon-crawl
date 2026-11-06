@@ -24,7 +24,7 @@ Menu, options, credits, inventory, riddle, map, journal and Heka share one look.
 ## Modelling
 Models are built procedurally in Blender Python scripts, with Blender 5 only (never the system `blender`). Making one
 (Blender path and MCP, steps, tools, format conventions):
-[docs/modeling.md](docs/modeling.md). The finished remodel of the original models, notes per model:
+[docs/modeling.md](docs/modeling.md). The history of the finished remodel of the original models (read it for a model's notes only):
 [docs/remodeling.md](docs/remodeling.md).
 
 ## Command whitelist

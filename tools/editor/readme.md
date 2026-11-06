@@ -157,7 +157,7 @@ stays sharp this small). A palette name too wide for its tile is drawn a size sm
 |---|---|---|---|
 | `#` | Wall | 0 | Solid rock. The player stands on it and cannot walk through it. Holds no object. |
 | `.` | Empty | 1 | Open space. With no wall below, the player falls. |
-| `~` | Half water | 2 | Open space, half filled with water. Any object may stand in it. The player wades at half speed and cannot sprint or jump in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both); put deep water or a wall under it ([docs/levels.md](../../docs/levels.md#level-format)). |
+| `~` | Half water | 2 | Open space, half filled with water. Any object may stand in it. The player wades at half speed and cannot sprint or jump in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both); put deep water or a wall under it ([docs/levels.md](../../docs/level-format.md)). |
 | `=` | Deep water | 3 | Full of water, solid like a wall. Holds no object. |
 | `,` | Sand | 4 | Open space, a drift of sand on the floor (plan desert-chapter). Any object may stand in it. The player walks at 3/4 speed and cannot sprint in it; jumping is fine. A sand worm placed in it lies under the surface (a ripple) and comes up under the player within 2.5 cells on its row (at the sand's edge for a player beside it), later dives to come up under them again. Put a wall under it. |
 | `%` | Quicksand | 5 | Looks like sand, with a slow swirl up close. Standing in it sinks the player: slower each second, stuck after 3 s, 5% of the max HP a second from 5 s (no armour); a jump frees them, for 40 stamina (twice a jump's). `levelcheck` treats it as a passable trap (a jump crosses one cell of it) and warns about runs of more than 2 cells. Put a wall under it. |

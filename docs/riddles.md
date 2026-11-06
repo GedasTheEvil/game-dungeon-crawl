@@ -1,6 +1,6 @@
 # Riddles
 
-A riddle gate (`?` in the [level legend](levels.md)) asks a riddle when the player interacts with it. A right answer
+A riddle gate (`?` in the [level legend](level-format.md)) asks a riddle when the player interacts with it. A right answer
 gives 30% of the XP from the current level to the next, at least 500 XP. Wrong answers can be retried; after two
 misses the scroll shows the hint. Esc walks away without the reward, and the gate is spent either way.
 

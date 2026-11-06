@@ -1,6 +1,6 @@
 # Docs and repo root tidy-up
 
-Status: draft 2026-11-06, size S, needs nothing first.
+Status: solved 2026-11-06. Was: draft 2026-11-06, size S, needs nothing first.
 
 ## Problem
 

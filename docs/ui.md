@@ -6,7 +6,7 @@ parts below instead of drawing their own.
 
 | Screen | Code | Canvas |
 |---|---|---|
-| Main / in-game menu, Save, Load, Options, Credits | `src/ui/menu.cpp` (`MainMenu`) | 160 x 100 |
+| Main / in-game menu, Save, Load, Options, Credits | `src/ui/menu.cpp` (`MainMenu`), its Options `menu_options.cpp`, Save / Load slots `menu_slots.cpp`, icons `menu_icons.cpp`, shared layout `menu_internal.h` | 160 x 100 |
 | Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/level/leaderboard.h`) | 160 x 100 |
 | Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
@@ -41,8 +41,8 @@ the level library: `tests/unit/ui_layout_test.cpp` checks them at 4:3, 16:9 and 
 * Mouse to canvas: `ui::toCanvas()`. Hit tests use `Rect::contains` on the same `constexpr Rect`s the drawing uses.
 * Only the backdrop fills the margins (`area`); all panels, buttons and text sit inside 0..160 x 0..100.
 * Line widths are in pixels, sizes in canvas units.
-* Layout lives in `constexpr Rect` / `float` constants at the top of the file (`menu.cpp` marks it with a
-  `// ---- layout ----` comment), or in `ui_layout.h` / `inventory_layout.h` where a unit test checks it. Repeated
+* Layout lives in `constexpr Rect` / `float` constants at the top of the file (the menu's sit in `menu_internal.h`
+  under a `// ---- layout ----` comment), or in `ui_layout.h` / `inventory_layout.h` where a unit test checks it. Repeated
   items get a `xxxRect(index)` function.
 
 Vertical bands used by every 160 x 100 screen:
@@ -140,7 +140,7 @@ The level editor still has its own smaller buttons (`Editor::drawButton`).
 ### Icon well
 
 Dark square on the left of a tile: `ui::iconWell(tile, inset)` returns its rect; `menu.cpp` draws the `WELL` fill (lapis on a lapis tile), `GOLD_DIM` frame
-(`GOLD` on hover). Holds a flat vector glyph from `drawIcon()` (`menu.cpp`, `enum class Icon`: Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book, Podium)
+(`GOLD` on hover). Holds a flat vector glyph from `drawIcon()` (`menu_icons.cpp`, `enum class Icon`: Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book, Podium)
 or a number (save slots, lapis seal when the slot is used). Glyphs are shapes, not textures.
 
 ### Selection
@@ -158,7 +158,7 @@ with white alpha 0.035 (Options).
 
 Options tabs: Controls, Display and Sound.
 
-* Display and Sound: one striped row a setting (`DISPLAY_ROWS`, `SOUND_ROWS` in `menu.cpp`): name in `body`
+* Display and Sound: one striped row a setting (`DISPLAY_ROWS`, `SOUND_ROWS` in `menu_options.cpp`): name in `body`
   `LABEL`, what it does in `small` `LABEL_DIM`, the control on the right. A row's kind picks the control: a switch
   (On / Off tile, lapis when on), a choice (stone tile with the value, a click steps to the next; disabled when it
   does not apply) or a slider (dark track filled lapis up to a gold knob, the number in `heading` to its right; it

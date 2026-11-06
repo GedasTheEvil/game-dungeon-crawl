@@ -6,3 +6,8 @@
 # Sources moved into one directory per layer, then their includes rewritten (plan src-dirs-by-layer)
 d9b2e91487c7950fc4eb9e6bfcc652c3467ca2c5
 1ba71e79898b63ec03d1f922f08ed877762ce60f
+# The four largest sources split at their seams, moves only (plan split-large-sources)
+d8dae8bfd32dfffbed1821574ffcc0d6b2948016
+7cd832283b965050b377c0fb682b23abb2603049
+42ae9154f90e429b2f0957c0380759016abb235a
+c8d581c68f5251b8a2495b10a99a8ce0f0be98e7

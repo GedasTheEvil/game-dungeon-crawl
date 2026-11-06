@@ -1,6 +1,6 @@
 # Split the four largest source files at their seams
 
-Status: draft 2026-11-06, size L, needs nothing first.
+Status: solved 2026-11-06. Was: draft 2026-11-06, size L, needs nothing first.
 
 ## Problem
 
@@ -38,6 +38,26 @@ file and add each to `.git-blame-ignore-revs`.
 
 ## Open points
 
-* If [src-dirs-by-layer](solved/src-dirs-by-layer.tooling.md) comes first, the new files go straight into
+* If [src-dirs-by-layer](src-dirs-by-layer.tooling.md) comes first, the new files go straight into
   their new directories. The two plans can go in either order. Don't run them at the same time.
-* File names: check [glossary.md](../glossary.md) and use its terms.
+* File names: check [glossary.md](../../glossary.md) and use its terms.
+
+## Done (2026-11-06)
+
+After [src-dirs-by-layer](src-dirs-by-layer.tooling.md), so the files sit in `src/level/` and `src/ui/`.
+One commit per file, all four in `.git-blame-ignore-revs`. Moves only; what compiling across files needed: each
+file's anonymous namespace became a named internal one (`levelcheck`, `levelgen`, `menu_internal`,
+`journal_view`), large members of `Walker` and `LevelBuilder` are defined out of the class.
+
+| Was | Now |
+|---|---|
+| `level_check.cpp` 1691 | `level_check.cpp` 700 (checkLevel, counts, terrain and shape checks, score, glyphs), `level_walker.h` 347 / `.cpp` 240 (Nodes, Walker, reach searches), `level_check_dressing.cpp` 168, `level_check_mechanisms.cpp` 340, `level_check_internal.h` |
+| `level_gen.cpp` 2124 | `level_gen.cpp` 141 (entry points), `level_builder.h` 367 (`LevelBuilder`), `level_gen_layout.cpp` 500, `level_gen_gates.cpp` 366, `level_gen_content.cpp` 632, `level_gen_dressing.cpp` 230 |
+| `menu.cpp` 1415 | `menu.cpp` 613 (frame, input), `menu_options.cpp` 421, `menu_slots.cpp` 171, `menu_icons.cpp` 140, `menu_internal.h` 138 |
+| `journal_view.cpp` 1392 | `journal_view.cpp` 764 (book, ribbons, page turns, input), `journal_pages.cpp` 669, `journal_internal.h` 19 |
+
+Sameness: `levelcheck` reports, maps and path scripts over every campaign and test level byte-identical (so `make
+paths` plays the same scripts with the same game: not rerun); 166 generated levels (test, every zone, boss, fork,
+finale) byte-identical; the menu scenarios' 61 screenshots identical but the save time in 8; the journal scenarios'
+74 screenshots pixel-identical. `journal.txt`, `journal_field_notes` and `inscription_boons` (solved scenarios) fail on
+master already, the same before and after.

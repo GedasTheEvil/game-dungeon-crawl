@@ -1,13 +1,13 @@
 # Difficulty setting
 
-Status: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30.
+Status: Won't do 2026-11-06: dropped by the user. Was: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30.
 
 Opus: balance work across monsters, traps and loot.
 
 ## Idea
 
 There is no difficulty option (`Settings`, the Options rows). The campaign has one balance
-([monster-balance](solved/monster-balance.md), `tools/balance`). Offer three levels, chosen at New Game and stored in the
+([monster-balance](../solved/monster-balance.md), `tools/balance`). Offer three levels, chosen at New Game and stored in the
 save and the run record:
 
 * Easy: monster damage x0.6, monster health x0.8, more healing in chests.

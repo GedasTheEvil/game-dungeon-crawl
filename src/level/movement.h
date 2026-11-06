@@ -55,7 +55,7 @@ constexpr float WALKING_REACH = ARC.drift + WALK_SPEED * static_cast<float>(ARC.
 	return false;
 }
 
-// The checker's walker (level_check.cpp) moves by whole cells and relies on these.
+// The checker's walker (level_walker.cpp) moves by whole cells and relies on these.
 static_assert(Jump::ARC.peak < 1.f, "the checker assumes a jump cannot step up onto a ledge one cell high");
 static_assert(Jump::ARC.drift > 0.5f, "the checker assumes a jump clears a one-cell gap");
 static_assert(Jump::WALKING_REACH > 1.5f, "a walking jump from the middle of a cell clears a one-cell gap");

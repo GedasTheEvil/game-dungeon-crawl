@@ -244,7 +244,7 @@ void Dungeon::updateTraps() {
 	const bool jet = !here && sim.player->Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
 	if (!jet)
 		playerScorched = false;
-	if (jet && trapHurt.hit() > 0) {
+	if (jet && sim.player->stats.vitals.trapHurt.hit() > 0) {
 		PlayerStats& stats = sim.player->stats;
 		const int perSecond = std::max(
 			FIRE_JET_HP_PER_SECOND * 100,
@@ -255,7 +255,7 @@ void Dungeon::updateTraps() {
 		if (const int dmg = stats.TrapDamage(hundredths / 100); dmg > 0) {
 			sim.player->TakeHit(dmg, FIRE_JET_MIX, *sim.events);
 			const double warded = perSecond / 100.0 * (100 - stats.TrapWardPercent()) / 100.0;
-			sim.player->burning.Ignite(fireDamage(1, FIRE_JET_MIX, stats.resist) * warded);
+			sim.player->stats.vitals.burning.Ignite(fireDamage(1, FIRE_JET_MIX, stats.resist) * warded);
 			if (!playerScorched) {
 				playerScorched = true;
 				sim.events->Status("The wall exhales. You smell your eyebrows.");
@@ -263,7 +263,7 @@ void Dungeon::updateTraps() {
 		}
 	}
 	if (here)
-		if (const int dmg = sim.player->stats.TrapDamage(trapHurt.hit()); dmg > 0) {
+		if (const int dmg = sim.player->stats.TrapDamage(sim.player->stats.vitals.trapHurt.hit()); dmg > 0) {
 			sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
 			if (here->type == Death && !playerVenomed) { // the death trap's tips are venomous: once per entry
 				playerVenomed = true;

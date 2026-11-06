@@ -70,7 +70,7 @@ Color potionColor(ItemKind potion) {
 	return {c.r, c.g, c.b};
 }
 
-Vitals playerVitals() {
+BagUser bagUser() {
 	const PlayerStats& s = Game().player->stats;
 	return {
 		Game().player->Alive(),
@@ -78,7 +78,7 @@ Vitals playerVitals() {
 		s.CurrentMaxHP(),
 		s.Stamina(),
 		s.MaxStamina(),
-		s.poison.Any(),
+		s.vitals.poison.Any(),
 		s.PotionResistPercent()
 	};
 }
@@ -170,7 +170,7 @@ int Inventory::EquippedDamage() const {
 // ---- actions ---------------------------------------------------------------
 
 bool Inventory::CanUse(int slot, const char** reason) const {
-	UseBlock block = bag.Block(kindOf(slot), playerVitals());
+	UseBlock block = bag.Block(kindOf(slot), bagUser());
 	if (reason != nullptr)
 		*reason = block != UseBlock::None ? blockReason(block)
 				  : isPotion(slot)		  ? "Drink"
@@ -225,7 +225,7 @@ void Inventory::Use(int slot) {
 	}
 	if (::isRing(kind)) { // the quick way: off if worn, else on the free hand (or in place of the older one)
 		const WornRings before = bag.Rings();
-		bag.Use(kind, playerVitals());
+		bag.Use(kind, bagUser());
 		ApplyRings();
 		Game().assets.sounds.amulet_s.Play();
 		for (int hand = 0; hand < HAND_COUNT; hand++)
@@ -240,19 +240,19 @@ void Inventory::Use(int slot) {
 		return;
 	}
 	if (::isAmulet(kind)) {
-		bag.Use(kind, playerVitals());
+		bag.Use(kind, bagUser());
 		Game().player->stats.Wear(amuletBonus(bag.Worn()), true);
 		Game().assets.sounds.amulet_s.Play();
 		ShowToast(std::string(itemText(kind).name) + (bag.Worn() == kind ? " put on" : " taken off"));
 		return;
 	}
-	bag.Use(kind, playerVitals());
+	bag.Use(kind, bagUser());
 	ShowToast(std::string(itemText(kind).name) + " equipped");
 }
 
 std::string Inventory::DrinkPotion(ItemKind potion) {
 	Game().assets.sounds.drink_s.Play();
-	bag.Use(potion, playerVitals());
+	bag.Use(potion, bagUser());
 	Game().player->stats.run.Drink(potion);
 	return Game().player->stats.Drink(potionGain(potion));
 }
@@ -288,7 +288,7 @@ void Inventory::QuickDrink(QuickKind kind) {
 }
 
 void Inventory::QuickAntidote() {
-	const UseBlock block = bag.Block(ItemKind::Antidote, playerVitals());
+	const UseBlock block = bag.Block(ItemKind::Antidote, bagUser());
 	if (block == UseBlock::Dead)
 		return;
 	if (block != UseBlock::None) {

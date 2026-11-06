@@ -30,12 +30,12 @@ TEST_CASE("the autosave waits while the player is poisoned, burning, held, in th
 	world.WaitTicks(30);
 	CHECK_FALSE(world.dungeon.PlayerInDanger());
 
-	world.player.stats.poison.Apply(PoisonTier::Weak, false);
+	world.player.stats.vitals.poison.Apply(PoisonTier::Weak, false);
 	CHECK(world.dungeon.PlayerInDanger());
-	world.player.stats.poison.Cure();
-	world.player.burning.Ignite(5.0);
+	world.player.stats.vitals.poison.Cure();
+	world.player.stats.vitals.burning.Ignite(5.0);
 	CHECK(world.dungeon.PlayerInDanger());
-	world.player.burning.Douse();
+	world.player.stats.vitals.burning.Douse();
 	CHECK_FALSE(world.dungeon.PlayerInDanger());
 
 	world.Jump();
@@ -63,7 +63,7 @@ TEST_CASE("held in the giant scorpion's claws is no moment for the autosave") {
 	for (int t = 0; t < 60000 && world.dungeon.PlayerHeldBy() == nullptr; t += UPDATE_TICK_MS)
 		world.Tick();
 	REQUIRE(world.dungeon.PlayerHeldBy() != nullptr);
-	world.player.stats.poison.Cure();
+	world.player.stats.vitals.poison.Cure();
 	CHECK(world.dungeon.PlayerInDanger());
 }
 

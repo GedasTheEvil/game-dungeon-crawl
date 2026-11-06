@@ -60,7 +60,6 @@ class Player {
 	int attackStartMs = -1;
 	bool attackLanded = false;
 	bool god = false; // the scenario god mode: no damage (TakeHit) and no poison damage
-	Burning burning; // plan fire-damage; not saved, it lasts seconds
 	// The stamina-skill toggle (plan skill-flaming-arrows): on, every learned stamina skill that fits the attack
 	// applies and costs stamina. Not saved. The refusal (too little stamina for a skill) blinks the HUD sign.
 	bool staminaSkills = false;
@@ -123,19 +122,19 @@ class Player {
 	// rng. True: dodged (the "Dodged" line and a whoosh); the caller deals no damage, no poison. Also in god mode
 	// (scenarios).
 	bool Dodges(WorldEvents& events, Rng& rng);
-	// A poisoned bite or sting: that tier (re)starts (stats.poison). Applied in god mode too; only the damage is not.
-	// Poisons unless the Shelter of Serket (plan shrines-of-the-gods) or the worn amulet and a resistance potion ward
-	// it off (PlayerStats::PoisonResistPercent, rolled on rng).
+	// A poisoned bite or sting: that tier (re)starts (stats.vitals.poison). Applied in god mode too; only the damage is
+	// not. Poisons unless the Shelter of Serket (plan shrines-of-the-gods) or the worn amulet and a resistance potion
+	// ward it off (PlayerStats::PoisonResistPercent, rolled on rng).
 	void Poison(PoisonTier tier, WorldEvents& events, Rng& rng);
 	// A monster's hit landed: rolls its curse entries in order on rng, the first that takes is laid (one a hit).
 	// Laid in god mode too. True when one was laid.
 	bool Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng);
 	// Once a tick: the running tiers' damage, which can kill; the resistance potion's and the curses' time.
 	void UpdatePoison(WorldEvents& events);
-	// Once a tick: half water (inWater) puts the fire out, else it burns (Burning), armour or not, and can kill.
-	// Also notes whether it stands in water: a hit's fire share is then WATER_FIRE_DAMAGE_PCT % (plan fire-in-water).
+	// Once a tick: half water (Vitals::inWater) puts the fire out, else it burns (Burning), armour or not, and can
+	// kill. Also notes whether it stands in water: a hit's fire share is then WATER_FIRE_DAMAGE_PCT % (plan
+	// fire-in-water).
 	void UpdateBurning(bool wading, WorldEvents& events);
-	bool inWater = false; // as of the last UpdateBurning; not saved
 	// Spit in the eyes (plan giant-cobra-blinding-spit): blinded for ms, at least what is left of an earlier one.
 	void Blind(int ms, WorldEvents& events);
 	// A screech (plan giant-bat-screech): dazed for ms, at least what is left of an earlier one.
@@ -145,17 +144,16 @@ class Player {
 	// armour, no resistance; none in god mode), a grunt, and HEAD_BUMP_DAZE_PCT % of the time (rolled on rng) a daze of
 	// HEAD_BUMP_DAZE_MIN_MS .. HEAD_BUMP_DAZE_MAX_MS. Can kill. Returns the HP lost.
 	int HeadBump(WorldEvents& events, Rng& rng);
-	// Once a tick, after UpdateBurning: the blind's and the daze's time run, the blind's BLIND_WATER_FACTOR times as
-	// fast in water.
+	// Once a tick, after UpdateBurning: the blind's time runs, BLIND_WATER_FACTOR times as fast in water. The daze
+	// runs on the game clock (Vitals::KnockOut).
 	void UpdateSenses();
 	// How blind the player is: 1 .. 0 over the last BLIND_CLEAR_MS, 0 when they see.
 	[[nodiscard]] float Blindness() const;
 	// Dazed: half the walk speed, no sprint, no jump, no grip on a ladder (Dungeon).
-	[[nodiscard]] bool Dazed() const { return dazeMs > 0; }
+	[[nodiscard]] bool Dazed() const { return stats.vitals.Out(); }
 	// How dazed, for the view's wobble: 1 .. 0 over the last DAZE_CLEAR_MS.
 	[[nodiscard]] float Daziness() const;
 	int blindMs = 0; // left of the blind; not saved, it lasts seconds
-	int dazeMs = 0; // left of the daze; not saved
 	void Reanimate(); // full HP, standing, no poison, no curse, no fire
 	void setModelState(ModelState s) { model.Enter(state, s, playback); }
 	// Climb clip at phase 0..1 of its cycle, set by the caller instead of the clock (no-op without the file).

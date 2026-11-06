@@ -49,8 +49,8 @@ bool Monster::Seek(bool blocked, float px, float py) {
 }
 
 float Monster::terrainSpeed() const {
-	return inWater && type->wading == Wading::Slowed ? wadeWithTerrain(WADE_SPEED_FACTOR, terrain.speed)
-													 : terrain.speed;
+	return vitals.inWater && type->wading == Wading::Slowed ? wadeWithTerrain(WADE_SPEED_FACTOR, terrain.speed)
+															: terrain.speed;
 }
 
 float Monster::WalkStep() const { return MONSTER_SEEK_STEP * type->speed * terrainSpeed(); }
@@ -167,7 +167,7 @@ void Monster::bite() {
 		type->boss.lifeStealPct,
 		type->screech && links.player->Dazed() ? type->screech->dazedHealPercent : 0
 	);
-	health = std::min(type->maxHealth, health + lost * steal / 100);
+	vitals.hp = std::min(type->maxHealth, vitals.hp + lost * steal / 100);
 	links.journal->HitByCreature(type->id, links.level);
 	if (steal > 0 && lost > 0)
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Heal);

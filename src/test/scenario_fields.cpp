@@ -38,7 +38,7 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::Keys:
 		return static_cast<float>(Game().dungeon.KeysHeld());
 	case Field::Poison:
-		return static_cast<float>(Game().player->stats.poison.Mask());
+		return static_cast<float>(Game().player->stats.vitals.poison.Mask());
 	case Field::Resist:
 		return static_cast<float>(Game().player->stats.PoisonResistPercent());
 	case Field::WaterBlessing: // seconds left, rounded up
@@ -73,11 +73,11 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::NearestBurning:
 		return Game().dungeon.NearestMonsterBurns() ? 1.f : 0.f;
 	case Field::Burning:
-		return Game().player->burning.Any() ? 1.f : 0.f;
+		return Game().player->stats.vitals.burning.Any() ? 1.f : 0.f;
 	case Field::Blind: // ms left (plan giant-cobra-blinding-spit)
 		return static_cast<float>(Game().player->blindMs);
 	case Field::Daze: // ms left (plan giant-bat-screech)
-		return static_cast<float>(Game().player->dazeMs);
+		return static_cast<float>(Game().player->stats.vitals.OutLeftMs());
 	case Field::Crouched: // plan crouch
 		return Game().player->crouched ? 1.f : 0.f;
 	case Field::Held: // plans crocodile-hold-bite, giant-scorpion-grab

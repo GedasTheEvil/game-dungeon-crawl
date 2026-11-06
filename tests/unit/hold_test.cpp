@@ -41,7 +41,7 @@ const Monster* scorpionHold(SimWorld& world) {
 	const Monster* s = find(world, MonsterGiantScorpion);
 	REQUIRE(s != nullptr);
 	REQUIRE(waitFor(world, [&] { return s->Holding(); }, 60000));
-	world.player.stats.poison.Cure();
+	world.player.stats.vitals.poison.Cure();
 	return s;
 }
 } // namespace
@@ -130,7 +130,7 @@ TEST_CASE("the giant scorpion's hold allows the attack and ends in a sure, poiso
 	CHECK_FALSE(world.Step(1));
 	world.Wait(s->Hold().holdMs);
 	CHECK_FALSE(s->Holding());
-	CHECK(world.player.stats.poison.Running(PoisonTier::Medium));
+	CHECK(world.player.stats.vitals.poison.Running(PoisonTier::Medium));
 }
 
 TEST_CASE("a hit late in the giant scorpion's hold breaks it: no sting") {
@@ -144,7 +144,7 @@ TEST_CASE("a hit late in the giant scorpion's hold breaks it: no sting") {
 	REQUIRE(waitFor(world, [&] { return !s->Holding(); }, hitMs + 2 * UPDATE_TICK_MS));
 	CHECK(world.Told("You break free"));
 	CHECK(s->Alive());
-	CHECK_FALSE(world.player.stats.poison.Any());
+	CHECK_FALSE(world.player.stats.vitals.poison.Any());
 }
 
 TEST_CASE("the bosses hold harder than their kin: Sobek more often and longer, the queen longer and harder to break") {

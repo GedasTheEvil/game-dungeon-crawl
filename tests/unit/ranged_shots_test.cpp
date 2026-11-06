@@ -63,12 +63,12 @@ TEST_CASE("each weapon keeps its own shots: a switch does not refill, all of the
 	bag.Add(ItemKind::SelfBow);
 	bag.Add(ItemKind::Sling);
 	const int bow = weaponDef(ItemKind::SelfBow).shots, sling = weaponDef(ItemKind::Sling).shots;
-	REQUIRE(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
+	REQUIRE(bag.Use(ItemKind::SelfBow, BagUser{true, 1, 1, 1, 1}));
 	bag.SpendShot(ItemKind::SelfBow);
 	bag.SpendShot(ItemKind::SelfBow);
-	REQUIRE(bag.Use(ItemKind::Sling, Vitals{true, 1, 1, 1, 1}));
+	REQUIRE(bag.Use(ItemKind::Sling, BagUser{true, 1, 1, 1, 1}));
 	bag.SpendShot(ItemKind::Sling);
-	REQUIRE(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
+	REQUIRE(bag.Use(ItemKind::SelfBow, BagUser{true, 1, 1, 1, 1}));
 	CHECK(bag.ShotsLeft(ItemKind::SelfBow, bow) == bow - 2);
 	CHECK(bag.ShotsLeft(ItemKind::Sling, sling) == sling - 1);
 	bag.RecoverShots(SHOT_RECOVERY_DELAY_MS + SHOT_RECOVERY_MS, PACE); // the sling, not in hand, too

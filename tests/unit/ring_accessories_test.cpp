@@ -12,7 +12,7 @@
 #include <string>
 
 namespace {
-constexpr Vitals ALIVE{true, 1, 1, 1, 1};
+constexpr BagUser ALIVE{true, 1, 1, 1, 1};
 
 WornRings worn(std::optional<ItemKind> left, std::optional<ItemKind> right) { return {left, right}; }
 
@@ -179,11 +179,11 @@ TEST_CASE("the garnet heals in a fight too, but not while poisoned") {
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
 		stats.Regenerate(false, UPDATE_TICK_MS); // not safe: a monster chases
 	CHECK(stats.CurrentHP() == hp + 1);
-	stats.poison.Apply(PoisonTier::Weak);
+	stats.vitals.poison.Apply(PoisonTier::Weak);
 	for (int ms = 0; ms < 6000; ms += UPDATE_TICK_MS)
 		stats.Regenerate(false, UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() == hp + 1);
-	stats.poison.Cure();
+	stats.vitals.poison.Cure();
 	stats.WearRings(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)));
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
 		stats.Regenerate(false, UPDATE_TICK_MS);

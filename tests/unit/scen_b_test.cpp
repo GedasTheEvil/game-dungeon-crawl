@@ -30,7 +30,7 @@ TEST_CASE("the cobra lies coiled with no health bar, rears up, shows its bar and
 	world.WaitTicks(19);
 	CHECK(world.dungeon.MonsterBarsShown() == 1);
 	world.Wait(4000);
-	CHECK(world.player.stats.poison.Mask() == 2);
+	CHECK(world.player.stats.vitals.poison.Mask() == 2);
 	world.player.god = true;
 	swingUntilDead(world, 80, 1000);
 	CHECK(world.Nearest() == 0);
@@ -125,7 +125,7 @@ TEST_CASE("the scorpion queen's egg clusters hatch scorpions; her sting poisons 
 	world.Equip(ItemKind::ShortSword);
 	swing(world, 5, 1000);
 	world.Wait(9000);
-	CHECK(world.player.stats.poison.Mask() >= 4);
+	CHECK(world.player.stats.vitals.poison.Mask() >= 4);
 }
 
 TEST_CASE("the vampire bat's roost: two bats drop, wounded it heals on bites, summons more; its death yields the key") {

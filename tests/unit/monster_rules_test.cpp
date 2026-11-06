@@ -242,7 +242,7 @@ TEST_CASE("the plant's bite poisons weakly on a share of bites; its sap on a sha
 	REQUIRE(world.Walk(0.25f));
 	REQUIRE(world.Walk(7.4f));
 	world.Wait(20000); // some 25 bites
-	CHECK(world.player.stats.poison.Mask() == 1);
+	CHECK(world.player.stats.vitals.poison.Mask() == 1);
 }
 
 TEST_CASE("the Anubis guard walks 20% faster than the player, the Anubis boss a little faster still") {
@@ -305,17 +305,17 @@ TEST_CASE("the player burns through armour; half water puts the fire out") {
 	const int hp = world.Hp();
 	world.player.TakeHit(10, {0, 0, 0, 100}, world.events);
 	CHECK(world.Hp() == hp - 10);
-	CHECK(world.player.burning.Any());
+	CHECK(world.player.stats.vitals.burning.Any());
 	world.Wait(3500);
 	CHECK(world.Hp() == hp - 16);
-	CHECK_FALSE(world.player.burning.Any());
+	CHECK_FALSE(world.player.stats.vitals.burning.Any());
 	REQUIRE(world.WalkTo(5.5f));
 	world.Wait(500);
 	const int wet = world.Hp();
 	world.player.TakeHit(10, {0, 0, 0, 100}, world.events);
 	world.Wait(3500);
 	CHECK(world.Hp() == wet - 1);
-	CHECK_FALSE(world.player.burning.Any());
+	CHECK_FALSE(world.player.stats.vitals.burning.Any());
 	CHECK(world.Told("The water puts the fire out"));
 }
 

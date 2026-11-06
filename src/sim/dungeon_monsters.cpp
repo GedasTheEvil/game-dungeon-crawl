@@ -179,8 +179,8 @@ bool Dungeon::PlayerSafe() const {
 //======================================================================================
 bool Dungeon::PlayerInDanger() const {
 	const Player& player = *sim.player;
-	return player.stats.poison.Any() || player.burning.Any() || PlayerHeldBy() != nullptr || PlayerOnLadder() ||
-		   player.jump.jumping || player.jump.falling || Travelling() || PlayerInQuicksand();
+	return player.stats.vitals.poison.Any() || player.stats.vitals.burning.Any() || PlayerHeldBy() != nullptr ||
+		   PlayerOnLadder() || player.jump.jumping || player.jump.falling || Travelling() || PlayerInQuicksand();
 }
 //======================================================================================
 // A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest

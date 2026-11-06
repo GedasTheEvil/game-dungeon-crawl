@@ -9,7 +9,7 @@
 #include "render_config.h"
 
 bool Monster::canJump() const {
-	return leaps(type->locomotion) && health > 0 && !jumping() && GameClock::now() >= leap.readyMs;
+	return leaps(type->locomotion) && Alive() && !jumping() && GameClock::now() >= leap.readyMs;
 }
 
 bool Monster::canPounce() const {
@@ -105,7 +105,7 @@ int Monster::HeadBump(Rng& rng) {
 	if (!Alive())
 		return 0;
 	const HeadBumpDaze roll = rollHeadBumpDaze(rng);
-	const int lost = std::min(headBumpHp(MaxHealth()), health);
+	const int lost = vitals.HeadBumpLoss(MaxHealth());
 	sound(CharacterSound::Attack); // the grunt (no kind has a hurt sound)
 	leap.bumpMemoryMs = GameClock::now() + MONSTER_HEAD_BUMP_MEMORY_MS;
 	takeHit(lost); // a kill gives no XP: Dungeon::UpdateMonsters sees it dead, not the player's
@@ -123,11 +123,11 @@ int Monster::TrapCrossHits() const {
 int Monster::CeilingSpikes(bool death, Rng& rng) {
 	if (!Alive())
 		return 0;
-	const int before = health;
+	const int before = vitals.hp;
 	sound(CharacterSound::Attack); // the grunt, as a bump's
 	leap.bumpMemoryMs = GameClock::now() + MONSTER_HEAD_BUMP_MEMORY_MS;
 	TrapHit(TrapHurt::rampTotal(TrapCrossHits()));
 	if (death)
 		TakePoison(PoisonTier::Strong, false, rng);
-	return before - health;
+	return before - vitals.hp;
 }

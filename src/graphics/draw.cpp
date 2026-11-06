@@ -241,7 +241,7 @@ void drawGameplay() {
 		Lighting::add(playerX, playerY + 16, -22, Lighting::PLAYER, 0); // just in front of the player's chest
 	if (cutScene) // the far gate is lit as the player would light it
 		Lighting::add(0, 16, -22, Lighting::PLAYER, 0);
-	if (Game().player->burning.Any())
+	if (Game().player->stats.vitals.burning.Any())
 		Lighting::add(playerX, playerY + 16, PLAYER_FLAMES_Z, PLAYER_BURNING_LIGHT, 1);
 	const std::optional<float> sunBeam = beamProgress(Game().player->stats.LevelUpMs());
 	const std::optional<float> prayerBeam = beamProgress(Game().player->stats.PrayedMs()); // plan shrine-of-isis
@@ -279,7 +279,7 @@ void drawGameplay() {
 	Game().dungeon.DrawWater();
 	glPopMatrix();
 
-	if (Game().player->burning.Any()) // plan fire-damage
+	if (Game().player->stats.vitals.burning.Any()) // plan fire-damage
 		Fire::body(
 			playerX,
 			playerY - sink,

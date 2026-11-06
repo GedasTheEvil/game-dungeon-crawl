@@ -98,7 +98,7 @@ TEST_CASE("the jet burns through armour: an armoured player loses as much as an 
 	const int lossBare = jetLoss(bare);
 	CHECK(lossBare > 0);
 	CHECK(bare.Told("You smell your eyebrows"));
-	CHECK(bare.player.burning.Any()); // leaving it late still costs a few ticks
+	CHECK(bare.player.stats.vitals.burning.Any()); // leaving it late still costs a few ticks
 	SimWorld armoured;
 	toughen(armoured);
 	armoured.player.stats.AddArmor(30);
@@ -130,7 +130,7 @@ TEST_CASE("the jet blocks nothing, a jump does not clear it; off, the player wal
 	waitFor(world, SpikeState::Retracted);
 	REQUIRE(world.WalkTo(6.6f)); // through while it is off
 	CHECK(world.Hp() == 2000);
-	CHECK_FALSE(world.player.burning.Any());
+	CHECK_FALSE(world.player.stats.vitals.burning.Any());
 
 	REQUIRE(world.WalkTo(4.4f));
 	waitFor(world, SpikeState::Extended);
@@ -139,7 +139,7 @@ TEST_CASE("the jet blocks nothing, a jump does not clear it; off, the player wal
 	world.HoldWalk(1, 600);
 	CHECK(world.X() > 5.5f); // not blocked
 	CHECK(world.Hp() < 2000 - FIRE_JET_HP_PER_SECOND / 4);
-	CHECK(world.player.burning.Any());
+	CHECK(world.player.stats.vitals.burning.Any());
 }
 
 TEST_CASE("the trap ward and the Fire Warding amulet both cut the jet, one after the other") {
@@ -164,7 +164,7 @@ TEST_CASE("the trap ward and the Fire Warding amulet both cut the jet, one after
 	ward.trapCutPercent = 100;
 	immune.player.stats.Wear(ward, false);
 	CHECK(jetLoss(immune) == 0);
-	CHECK_FALSE(immune.player.burning.Any());
+	CHECK_FALSE(immune.player.stats.vitals.burning.Any());
 }
 
 TEST_CASE("a mummy in the jet takes double (weak to fire), and burns; its fire kill gives no XP") {

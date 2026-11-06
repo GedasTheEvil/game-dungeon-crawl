@@ -17,7 +17,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	col = spawnCol;
 	this->spawnRow = spawnRow;
 	row = spawnRow;
-	health = kind.maxHealth;
+	vitals.hp = kind.maxHealth;
 	x = 0.f;
 	alerted = false;
 	provoked = false;
@@ -28,7 +28,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	// A rooted one (the plant, the egg cluster) dormant too, until it notices the player (plan missing-idle-clips).
 	state = flies() || lurking() || rooted() ? ModelState::Idle : ModelState::Move;
 	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
-	inWater = false;
+	vitals.inWater = false;
 	waterKnown = false;
 	terrain = TerrainFactors{};
 	mood = TerrainMood::Neutral;
@@ -53,18 +53,13 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	climb = Climb{};
 	rungs = false;
 	wayMs = -1;
-	trapHurt = TrapHurt{};
-	trapDamageCarry = 0;
+	vitals.trapHurt = TrapHurt{};
 	rangedReadyMs = 0;
 	throws = 0;
 	rangedReleased = true;
 	drop.reset();
-	poison.Cure();
-	poisonByPlayer = false;
-	burning.Douse();
-	burnByPlayer = false;
+	vitals.Clear(); // the poison, the fire, the trap carry, the stun
 	dripPuddled = dripDropped = false;
-	reelUntilMs = -1;
 	reelReadyMs = 0;
 	playback = kind.model.SpawnPlayback(effects);
 	attackMs = kind.attackMs;
@@ -81,7 +76,7 @@ void Monster::Clear() {
 	col = -1;
 	spawnRow = -1;
 	row = -1;
-	health = 0;
+	vitals.hp = 0;
 	drop.reset();
 }
 
@@ -147,7 +142,7 @@ float Monster::emergeLift() const {
 }
 
 float Monster::swimLift() const {
-	if (!inWater || !headInWater || type->wading != Wading::Swimmer || !Alive())
+	if (!vitals.inWater || !headInWater || type->wading != Wading::Swimmer || !Alive())
 		return 0.f;
 	const float drawScale = type->scale * Figures::Scale();
 	const float top = lurking() ? type->model.idleTop * drawScale - SUBMERGED_SHOW
@@ -164,7 +159,7 @@ void Monster::SetTerrain(Terrains here) {
 
 int Monster::HitDamage(int base) const { return terrainDamage(base, terrain.damage); }
 
-float Monster::floatLift() const { return floats() && inWater ? RenderConfig::WATER_DEPTH : 0.f; }
+float Monster::floatLift() const { return floats() && vitals.inWater ? RenderConfig::WATER_DEPTH : 0.f; }
 
 float Monster::lift() const {
 	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim + floatLift() - sink + climbLift()) + emergeLift() +
@@ -231,9 +226,9 @@ bool Monster::takeHit(int dmg) {
 		wake();
 	alerted = true;
 	if (Alive()) {
-		health -= dmg;
+		vitals.Lose(dmg);
 		blood->Splash(scale);
-		if (type->call && !called && Alive() && health * 100 < type->maxHealth * type->call->belowPct)
+		if (type->call && !called && Alive() && vitals.hp * 100 < type->maxHealth * type->call->belowPct)
 			called = callDue = true; // squeals; Dungeon::UpdateMonsters gathers the pack
 	}
 
@@ -252,12 +247,15 @@ bool Monster::takeHit(int dmg) {
 
 bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix, int resistCutPercent) {
 	const Resistances resist = cutResistances(type->resist, resistCutPercent);
-	const int hit = resistedDamage(dmg, mix, inWater ? inWaterResist(resist) : resist);
-	const bool killed = takeHit(Stunned() ? hit * CHARGE_STUN_DAMAGE_FACTOR : hit);
-	if (Alive() && !inWater && mix[FIRE] > 0) {
-		burning.Ignite(fireDamage(dmg, mix, resist));
-		burnByPlayer = true;
-	}
+	const Harm harm{
+		.damage = dmg,
+		.mix = mix,
+		.source = HarmSource::Weapon,
+		.factor = Stunned() ? CHARGE_STUN_DAMAGE_FACTOR : 1
+	};
+	const bool killed = takeHit(vitals.Cost(harm, Guard{resist}));
+	if (Alive() && !vitals.inWater && mix[FIRE] > 0)
+		vitals.Ignite(vitals.FireOf(harm, resist), harm.burnMs, harm.source);
 	return killed;
 }
 
@@ -270,7 +268,7 @@ bool Monster::StunHit(int ms, bool wasLurking) {
 		ms = ms * BOSS_STUN_PERCENT / 100;
 		reelReadyMs = now + BOSS_STUN_COOLDOWN_MS;
 	}
-	reelUntilMs = std::max(reelUntilMs, now + ms);
+	vitals.KnockOut(ms);
 	biteAtMs = -1;
 	if (Grabbing())
 		letGo(); // a held player is free
@@ -280,7 +278,7 @@ bool Monster::StunHit(int ms, bool wasLurking) {
 }
 
 void Monster::StandInTrap(std::optional<PoisonTier> venom, Rng& rng) {
-	if (const int dmg = trapHurt.hit(); dmg > 0) {
+	if (const int dmg = vitals.trapHurt.hit(); dmg > 0) {
 		TrapHit(dmg);
 		if (venom)
 			TakePoison(*venom, false, rng);
@@ -290,21 +288,18 @@ void Monster::StandInTrap(std::optional<PoisonTier> venom, Rng& rng) {
 void Monster::TrapHit(int dmg) { trapHit(dmg * type->trapDamagePct); }
 
 void Monster::trapHit(int hundredthsDealt) {
-	const int hundredths = hundredthsDealt + trapDamageCarry;
-	trapDamageCarry = hundredths % 100;
-	if (hundredths >= 100)
-		takeHit(hundredths / 100); // no reward: the player must not farm kills with traps
+	if (const int hp = vitals.TrapShare(hundredthsDealt); hp > 0)
+		takeHit(hp); // no reward: the player must not farm kills with traps
 }
 
 void Monster::StandInFire() {
-	if (trapHurt.hit() <= 0)
+	if (vitals.trapHurt.hit() <= 0)
 		return;
 	constexpr int HUNDREDTHS = FIRE_JET_MONSTER_HP_PER_SECOND * 100 * TRAP_HURT_INTERVAL_MS / 1000;
 	trapHit(HUNDREDTHS * type->trapDamagePct / 100 * type->resist[FIRE] / NORMAL);
-	if (Alive() && !inWater) {
-		burnByPlayer = burnByPlayer && burning.Any(); // the player's fire stays theirs
-		burning.Ignite(fireDamage(FIRE_JET_MONSTER_HP_PER_SECOND, FIRE_JET_MIX, type->resist));
-	}
+	if (Alive() && !vitals.inWater) // the player's fire stays theirs
+		vitals
+			.Ignite(fireDamage(FIRE_JET_MONSTER_HP_PER_SECOND, FIRE_JET_MIX, type->resist), BURN_MS, HarmSource::Trap);
 }
 
 void Monster::StandInDrip(bool puddle, bool drop, Rng& rng) {
@@ -319,35 +314,24 @@ void Monster::StandInDrip(bool puddle, bool drop, Rng& rng) {
 }
 
 bool Monster::TakePoison(PoisonTier tier, bool byPlayer, Rng& rng) {
-	if (!Alive() || (type->poisonResistPercent > 0 && rng.percent(type->poisonResistPercent)))
-		return false;
-	poisonByPlayer = byPlayer || (poisonByPlayer && poison.Any());
-	poison.Apply(tier);
-	return true;
+	return Alive() &&
+		   vitals.TakePoison(tier, type->poisonResistPercent, rng, byPlayer ? HarmSource::Weapon : HarmSource::Trap);
 }
 
 bool Monster::UpdatePoison() {
-	if (!Alive()) {
-		poison.Cure();
-		return false;
-	}
-	const int hp = poison.Advance(UPDATE_TICK_MS, MaxHealth());
+	const int hp = vitals.PoisonTick(UPDATE_TICK_MS, MaxHealth());
 	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
 		return false;
-	poison.Cure();
-	return poisonByPlayer;
+	vitals.poison.Cure();
+	return vitals.poisonByPlayer;
 }
 
 bool Monster::UpdateBurning() {
-	if (!Alive() || inWater) {
-		burning.Douse();
-		return false;
-	}
-	const int hp = burning.Advance(UPDATE_TICK_MS);
+	const int hp = vitals.BurnTick(UPDATE_TICK_MS);
 	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
 		return false;
-	burning.Douse();
-	return burnByPlayer;
+	vitals.burning.Douse();
+	return vitals.burnByPlayer;
 }
 
 // The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.

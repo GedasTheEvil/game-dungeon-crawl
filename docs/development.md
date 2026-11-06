@@ -168,7 +168,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `level/gameplay_confi
 | The player's ranged weapons: shots and their recovery, the minimum range, the HUD's pips | `WeaponDef::shots`, `minRange` (`level/items.*`), `PlayerStats::Shots` / `ShotRecoveryPace` (amulets and the Quiver of Neith skill), `ItemBag::ShotsLeft` / `RecoverShots` (`level/item_bag.*`, ticked in `Dungeon::Update`), `Dungeon::ShotRefused` / `ShootWeapon` (`sim/dungeon_arrows.cpp`), `drawShots` (`ui/player_hud.cpp`); numbers `SHOT_*` (`level/gameplay_config.h`) |
 | Dung balls (the giant scarab's and Khepri's roll): the windup, the kick, the roll, the fall, the hit | `sim/monster_roll.{h,cpp}` (`Roll`), `sim/dungeon_balls.cpp` (`Dungeon::DungBall`), drawn by `Dungeon::drawBalls` (`graphics/dungeon_render_effects.cpp`); rules `RollRules` in `level/monster_kinds.*` |
 | Boss fight (appear, summon, boss gates) | `sim/dungeon_boss.cpp` |
-| Player movement, jump, wading, ladders, traps underfoot | `sim/dungeon_base.cpp`, `level/movement.h`, `sim/trap_hurt.h` |
+| Player movement, jump, wading, ladders, traps underfoot | `sim/dungeon_base.cpp`, `level/movement.h`, `level/trap_hurt.h` |
 | Crouch: the down key, the crouched body and hitbox, the pose, the ducked attacks | `Dungeon::updateCrouch`, `roomToStand`, `playerBodyHeight` (`sim/dungeon_base.cpp`), `Player::crouched`, `UpdateCrouchPose`, `Covers` (`sim/player.*`), `AttackHeight` (`level/monster_kinds.h`, read by `Monster::Reaches`), the clips in `tools/blender/models/archeologist.py` |
 | Player stats, XP, levels | `level/player_stats.*`, `level/progression.*` |
 | Items: weapons, potions, amulets, rings (rows, rules) | `level/items.*`, `level/item_bag.*`; loot `level/loot.*` |

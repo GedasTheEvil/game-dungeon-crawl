@@ -67,7 +67,7 @@ TEST_CASE("poison can kill the player, and the death ends it") {
 	world.player.Poison(PoisonTier::Strong, world.events, world.random.gameplay);
 	world.Wait(5000);
 	CHECK_FALSE(world.player.Alive());
-	CHECK_FALSE(world.player.stats.poison.Any());
+	CHECK_FALSE(world.player.stats.vitals.poison.Any());
 }
 
 TEST_CASE("a scorpion walks up and stings (weak poison); the club kills it, it is weak to blows") {
@@ -77,7 +77,7 @@ TEST_CASE("a scorpion walks up and stings (weak poison); the club kills it, it i
 	const int full = world.Hp();
 	REQUIRE(world.Walk(1.5f));
 	world.Wait(5000);
-	CHECK(world.player.stats.poison.Any());
+	CHECK(world.player.stats.vitals.poison.Any());
 	CHECK(world.Hp() < full);
 	world.player.god = true;
 	int swings = 0;
@@ -146,7 +146,7 @@ TEST_CASE("the death trap poisons strongly once per entry; plain spikes do not; 
 		world.WaitTicks(5);
 		world.Walk(3.5f);
 		world.Wait(1000);
-		CHECK_FALSE(world.player.stats.poison.Any());
+		CHECK_FALSE(world.player.stats.vitals.poison.Any());
 	}
 	SimWorld world;
 	toughen(world);
@@ -156,6 +156,6 @@ TEST_CASE("the death trap poisons strongly once per entry; plain spikes do not; 
 	world.Walk(3.5f);
 	world.Wait(1000);
 	CHECK(world.player.Alive());
-	CHECK(world.player.stats.poison.Running(PoisonTier::Strong));
+	CHECK(world.player.stats.vitals.poison.Running(PoisonTier::Strong));
 	CHECK(world.Hp() < 2000);
 }

@@ -103,18 +103,18 @@ TEST_CASE("Shrines of the gods: Serket cures poison and wards it off; twice as l
 	WorldEvents events;
 	Rng rng(1);
 	player.Poison(PoisonTier::Strong, events, rng);
-	REQUIRE(player.stats.poison.Any());
+	REQUIRE(player.stats.vitals.poison.Any());
 	player.stats.Pray(God::Serket, events);
-	CHECK_FALSE(player.stats.poison.Any());
+	CHECK_FALSE(player.stats.vitals.poison.Any());
 	CHECK(player.stats.BlessingLeftMs(God::Serket) == BLESSING_MS);
 	static_cast<void>(events.Take());
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
 		player.Poison(static_cast<PoisonTier>(t), events, rng);
-	CHECK_FALSE(player.stats.poison.Any());
+	CHECK_FALSE(player.stats.vitals.poison.Any());
 	CHECK(said(events.Take(), "Serket turns the venom away"));
 	player.stats.AdvanceBlessings(BLESSING_MS, events);
 	player.Poison(PoisonTier::Weak, events, rng);
-	CHECK(player.stats.poison.Any()); // over: poison lands again
+	CHECK(player.stats.vitals.poison.Any()); // over: poison lands again
 
 	Player favoured;
 	favoured.stats.heka.Earn(5);

@@ -272,8 +272,8 @@ TEST_CASE("Serket's favour: with the skill a poison that takes runs half as long
 	Rng b(3);
 	plain.Poison(PoisonTier::Medium, events, a);
 	blessed.Poison(PoisonTier::Medium, events, b);
-	CHECK(plain.stats.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs);
-	CHECK(blessed.stats.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs / 2);
+	CHECK(plain.stats.vitals.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs);
+	CHECK(blessed.stats.vitals.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs / 2);
 	CHECK(a.next() == b.next()); // no extra roll
 }
 

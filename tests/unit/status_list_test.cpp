@@ -14,8 +14,8 @@ TEST_CASE("the status list orders a mixed set by kind: blessings, conditions, cu
 	// Laid in the opposite order to the display.
 	stats.LayCurse(Curse::Fatigue, CurseGrade::Lesser, events);
 	stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events);
-	stats.poison.Apply(PoisonTier::Medium);
-	stats.poison.Apply(PoisonTier::Weak);
+	stats.vitals.poison.Apply(PoisonTier::Medium);
+	stats.vitals.poison.Apply(PoisonTier::Weak);
 	PotionGain resist;
 	resist.resistPercent = PotionEffect::GREATER_RESIST_PERCENT;
 	stats.Drink(resist);
@@ -72,6 +72,6 @@ TEST_CASE("every effect at once fits the list") {
 	for (int c = 0; c < CURSE_COUNT; c++)
 		stats.LayCurse(static_cast<Curse>(c), CurseGrade::Lesser, events);
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
-		stats.poison.Apply(static_cast<PoisonTier>(t));
+		stats.vitals.poison.Apply(static_cast<PoisonTier>(t));
 	CHECK(statusList(stats, 1000, 1000).count == 2 + CURSE_COUNT + POISON_TIER_COUNT);
 }

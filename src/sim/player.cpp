@@ -92,11 +92,12 @@ void Player::Animate() {
 }
 
 int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ignoreArmor, int burnMs) {
-	if (const double fire = fireDamage(dmg, mix, inWater ? inWaterResist(stats.resist) : stats.resist);
-		fire > 0.0 && Alive()) {
-		if (!burning.Any())
+	Vitals& v = stats.vitals;
+	const Harm harm{.damage = dmg, .mix = mix, .ignoreArmor = ignoreArmor, .burnMs = burnMs};
+	if (const double fire = v.FireOf(harm, stats.resist); fire > 0.0 && Alive()) {
+		if (!v.burning.Any())
 			events.Status("You are on fire!");
-		burning.Ignite(fire, burnMs);
+		v.Ignite(fire, burnMs, harm.source);
 		events.Note(FieldNote::Fire);
 	}
 	if (god)
@@ -104,10 +105,8 @@ int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ign
 	const int s = static_cast<int>(scale);
 	int lost = 0;
 	if (Alive()) {
-		const int hit = stats.HitDamage(dmg, mix, ignoreArmor, inWater);
-		lost = std::min(hit, stats.CurrentHP());
+		lost = v.Lose(v.Cost(harm, stats.HitGuard()));
 		stats.run.damageTaken += lost;
-		stats.LoseHP(hit);
 		blood.Splash(s);
 		events.Note(FieldNote::Health);
 	}
@@ -132,12 +131,12 @@ bool Player::Dodges(WorldEvents& events, Rng& rng) {
 void Player::die(WorldEvents& events) {
 	setModelState(ModelState::Die);
 	events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Die);
-	stats.poison.Cure();
+	stats.vitals.poison.Cure();
 	stats.EndResistance();
 	stats.EndWaterBlessing();
 	stats.EndBlessings();
 	stats.EndCurses();
-	burning.Douse();
+	stats.vitals.burning.Douse();
 }
 
 bool Player::Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng) {
@@ -156,13 +155,19 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 		events.Status(StatusTone::Good, "Serket turns the venom away");
 		return;
 	}
-	if (stats.PoisonResistPercent() > 0 && rng.percent(stats.PoisonResistPercent())) {
+	const bool poisoned = stats.vitals.poison.Any();
+	if (!stats.vitals.TakePoison( // the Serket's favour skill: half the time (plan skill-serkets-favour)
+			tier,
+			stats.PoisonResistPercent(),
+			rng,
+			HarmSource::Monster,
+			stats.heka.Has(SkillId::SerketsFavour)
+		)) {
 		events.Status(stats.PotionResistPercent() > 0 ? "You resist the poison" : "Your amulet wards off the poison");
 		return;
 	}
-	if (!stats.poison.Any())
+	if (!poisoned)
 		events.Status(StatusTone::Danger, "You are poisoned!");
-	stats.poison.Apply(tier, stats.heka.Has(SkillId::SerketsFavour)); // plan skill-serkets-favour
 	stats.run.poisoned++;
 	events.Note(FieldNote::Poison);
 }
@@ -172,7 +177,7 @@ void Player::UpdatePoison(WorldEvents& events) {
 	stats.AdvanceWaterBlessing(UPDATE_TICK_MS, events);
 	stats.AdvanceBlessings(UPDATE_TICK_MS, events);
 	stats.AdvanceCurses(UPDATE_TICK_MS, events);
-	const int hp = stats.poison.Advance(UPDATE_TICK_MS, stats.CurrentMaxHP(), stats.PoisonFasterPercent());
+	const int hp = stats.vitals.PoisonTick(UPDATE_TICK_MS, stats.CurrentMaxHP(), stats.PoisonFasterPercent());
 	if (hp <= 0 || !Alive() || god)
 		return;
 	stats.LoseHP(hp); // armour does not help
@@ -181,14 +186,11 @@ void Player::UpdatePoison(WorldEvents& events) {
 }
 
 void Player::UpdateBurning(bool wading, WorldEvents& events) {
-	inWater = wading;
-	if (inWater && burning.Any())
+	Vitals& v = stats.vitals;
+	v.inWater = wading;
+	if (v.inWater && v.burning.Any())
 		events.Status("The water puts the fire out");
-	if (inWater || !Alive()) {
-		burning.Douse();
-		return;
-	}
-	const int hp = burning.Advance(UPDATE_TICK_MS);
+	const int hp = v.BurnTick(UPDATE_TICK_MS);
 	if (hp <= 0 || god)
 		return;
 	stats.LoseHP(hp); // armour does not help
@@ -207,9 +209,9 @@ void Player::Blind(int ms, WorldEvents& events) {
 void Player::Daze(int ms, WorldEvents& events) {
 	if (!Alive())
 		return;
-	if (dazeMs <= 0)
+	if (!Dazed())
 		events.Status("Your ears ring!");
-	dazeMs = std::max(dazeMs, ms);
+	stats.vitals.KnockOut(ms);
 }
 
 int Player::HeadBump(WorldEvents& events, Rng& rng) {
@@ -220,10 +222,8 @@ int Player::HeadBump(WorldEvents& events, Rng& rng) {
 	const HeadBumpDaze roll = rollHeadBumpDaze(rng);
 	int lost = 0;
 	if (!god) { // the daze also lands in god mode, as a screech's does
-		const int hp = headBumpHp(stats.CurrentMaxHP());
-		lost = std::min(hp, stats.CurrentHP());
+		lost = stats.vitals.Lose(headBumpHp(stats.CurrentMaxHP()));
 		stats.run.damageTaken += lost;
-		stats.LoseHP(hp);
 		blood.Splash(static_cast<int>(scale));
 		events.Note(FieldNote::Health);
 		if (!Alive()) {
@@ -237,20 +237,21 @@ int Player::HeadBump(WorldEvents& events, Rng& rng) {
 }
 
 void Player::UpdateSenses() {
-	blindMs = std::max(0, blindMs - UPDATE_TICK_MS * (inWater ? BLIND_WATER_FACTOR : 1));
-	dazeMs = std::max(0, dazeMs - UPDATE_TICK_MS);
+	blindMs = std::max(0, blindMs - UPDATE_TICK_MS * (stats.vitals.inWater ? BLIND_WATER_FACTOR : 1));
 }
 
-float Player::Daziness() const { return std::min(1.f, static_cast<float>(dazeMs) / static_cast<float>(DAZE_CLEAR_MS)); }
+float Player::Daziness() const {
+	return std::min(1.f, static_cast<float>(stats.vitals.OutLeftMs()) / static_cast<float>(DAZE_CLEAR_MS));
+}
 
 float Player::Blindness() const {
 	return std::min(1.f, static_cast<float>(blindMs) / static_cast<float>(BLIND_CLEAR_MS));
 }
 
 void Player::Reanimate() {
-	burning.Douse();
+	stats.vitals.burning.Douse();
+	stats.vitals.ComeTo();
 	blindMs = 0;
-	dazeMs = 0;
 	fireArrows = 0;
 	staminaSkills = false;
 	staminaSkillRefusedMs.reset();
@@ -260,7 +261,7 @@ void Player::Reanimate() {
 	stats.EndCurses();
 	stats.EndBlessings(); // before the heal: Amun's raised max goes first
 	stats.HealFully();
-	stats.poison.Cure();
+	stats.vitals.poison.Cure();
 	stats.EndResistance();
 	stats.EndWaterBlessing();
 	crouched = false;

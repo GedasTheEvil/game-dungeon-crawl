@@ -2,7 +2,7 @@
 #define ITEM_BAG_H
 
 // What the player carries and the rules for using it, without the screen (ui/inventory.h draws it) or the player:
-// the caller passes the player's Vitals and applies a potion's PotionGain.
+// the caller passes the player's BagUser and applies a potion's PotionGain.
 
 #include "items.h"
 #include "quick_potion.h"
@@ -26,8 +26,8 @@ constexpr int MAX_WEAPON_LEVEL = 5;
 [[nodiscard]] int amuletWorth(AmuletTier tier);
 [[nodiscard]] std::optional<ItemKind> nextTier(ItemKind amulet); // nullopt: grand, the top
 
-// The player as the rules see it.
-struct Vitals {
+// The player as the bag's rules see it (whether a potion or an item can be used now).
+struct BagUser {
 	bool alive = true;
 	int hp = 0, maxHp = 0;
 	int stamina = 0, maxStamina = 0;
@@ -113,12 +113,12 @@ class ItemBag {
 	[[nodiscard]] float ShotRecovery(ItemKind weapon, const ShotPace& pace) const;
 	void RefillShots(); // all shots back (a new game, a load)
 
-	[[nodiscard]] UseBlock Block(ItemKind kind, const Vitals& player) const;
+	[[nodiscard]] UseBlock Block(ItemKind kind, const BagUser& player) const;
 	// Equips a weapon, takes a potion out of the bag (the caller applies its potionGain), or puts an amulet on (takes
 	// it off if it is the one worn; the caller applies amuletBonus(Worn())). A ring: worn, it comes off (the one put on
 	// last, if both hands wear it); else on the free hand, left first, or in place of the one worn longer (the caller
 	// applies ringBonus(Rings())). False if Block says no.
-	bool Use(ItemKind kind, const Vitals& player);
+	bool Use(ItemKind kind, const BagUser& player);
 	// A weapon: its copies reach upgradeCost. An amulet: UpgradePoints reach its worth (amuletWorth), below grand.
 	[[nodiscard]] bool CanUpgrade(ItemKind kind, bool alive) const;
 	// False if CanUpgrade says no. An amulet becomes one of the next tier (nextTier), the spares paying largest first;

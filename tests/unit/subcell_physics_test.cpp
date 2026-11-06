@@ -254,18 +254,18 @@ TEST_CASE("the daze rolls about half the time, 1 to 2 s; a bump at 5 HP or less 
 	const int rolls = 400;
 	for (int i = 0; i < rolls; i++) {
 		world.player.stats.HealFully();
-		world.player.dazeMs = 0;
+		world.player.stats.vitals.ComeTo();
 		CHECK(world.player.HeadBump(events, rng) == HEAD_BUMP_MIN_HP);
 		if (world.player.Dazed()) {
 			dazed++;
-			CHECK(world.player.dazeMs >= HEAD_BUMP_DAZE_MIN_MS);
-			CHECK(world.player.dazeMs <= HEAD_BUMP_DAZE_MAX_MS);
+			CHECK(world.player.stats.vitals.OutLeftMs() >= HEAD_BUMP_DAZE_MIN_MS);
+			CHECK(world.player.stats.vitals.OutLeftMs() <= HEAD_BUMP_DAZE_MAX_MS);
 		}
 	}
 	CHECK(dazed > rolls * 40 / 100);
 	CHECK(dazed < rolls * 60 / 100);
 
-	world.player.dazeMs = 1500;
+	world.player.stats.vitals.KnockOut(1500);
 	world.Jump();
 	CHECK_FALSE(world.player.jump.jumping);
 

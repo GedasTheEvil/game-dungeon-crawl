@@ -78,8 +78,12 @@ PlayerHud::View playerHudView() {
 			view.ringWorn[hand] = true;
 			view.ringGem[hand] = {c.r, c.g, c.b};
 		}
-	view.statuses = statusList(stats, Game().player->burning.LeftMs(), Game().player->dazeMs);
-	view.poisoned = stats.poison.Any();
+	view.statuses = statusList(
+		stats,
+		Game().player->stats.vitals.burning.LeftMs(),
+		Game().player->stats.vitals.OutLeftMs()
+	);
+	view.poisoned = stats.vitals.poison.Any();
 	view.staminaSkillShown = stats.heka.HasStaminaSkill();
 	view.staminaSkillOn = Game().player->staminaSkills;
 	if (std::optional<int> refused = Game().player->staminaSkillRefusedMs)

@@ -70,7 +70,7 @@ TEST_CASE(
 	world.Wait(240);
 	REQUIRE(world.Walk(1.f)); // walking on does not get the player clear
 	world.Wait(1000);
-	CHECK(world.player.stats.poison.Mask() == 2); // medium
+	CHECK(world.player.stats.vitals.poison.Mask() == 2); // medium
 	CHECK(world.Hp() < 50);
 	CHECK(world.Hp() >= 36); // 3 darts (6) and about 2 s of poison (3 a second)
 	// The game writes the notes as it drains the events: the dart traps, the poison (and the hit points).
@@ -86,7 +86,7 @@ TEST_CASE(
 	world.Jump();
 	REQUIRE(world.Walk(2.f));
 	world.Wait(1000);
-	CHECK(world.player.stats.poison.Mask() == 0);
+	CHECK(world.player.stats.vitals.poison.Mask() == 0);
 	CHECK(world.Hp() == 50);
 
 	world.player.god = true;

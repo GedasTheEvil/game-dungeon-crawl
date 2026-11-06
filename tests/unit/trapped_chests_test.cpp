@@ -113,10 +113,10 @@ TEST_CASE("each trap kind goes off once on opening and does what it says") {
 		REQUIRE_FALSE(trap.empty());
 		CHECK(noted(world, FieldNote::TrappedChests));
 		if (trap == "darts") {
-			CHECK(world.player.stats.poison.LeftMs(PoisonTier::Medium) > 0);
+			CHECK(world.player.stats.vitals.poison.LeftMs(PoisonTier::Medium) > 0);
 			CHECK(world.Hp() < hp);
 		} else if (trap == "gas") {
-			CHECK(world.player.stats.poison.LeftMs(PoisonTier::Weak) > 0);
+			CHECK(world.player.stats.vitals.poison.LeftMs(PoisonTier::Weak) > 0);
 		} else if (trap == "curse") {
 			CHECK(world.player.stats.curses.Any());
 			CHECK(noted(world, FieldNote::TombCurses));
@@ -147,13 +147,13 @@ TEST_CASE("the gas poisons while the player stands in it, not once it has gone o
 		world.WaitTicks(1);
 		if (trapOf(world) != "gas")
 			continue;
-		world.player.stats.poison = {};
+		world.player.stats.vitals.poison = {};
 		world.Wait(CHEST_GAS_POISON_MS + UPDATE_TICK_MS);
-		CHECK(world.player.stats.poison.LeftMs(PoisonTier::Weak) > 0); // still in it
-		world.player.stats.poison = {};
+		CHECK(world.player.stats.vitals.poison.LeftMs(PoisonTier::Weak) > 0); // still in it
+		world.player.stats.vitals.poison = {};
 		REQUIRE(world.WalkTo(static_cast<float>(TRAPPED_COL) + 2.5f));
 		world.Wait(CHEST_GAS_POISON_MS + UPDATE_TICK_MS);
-		CHECK(world.player.stats.poison.LeftMs(PoisonTier::Weak) == 0);
+		CHECK(world.player.stats.vitals.poison.LeftMs(PoisonTier::Weak) == 0);
 		return;
 	}
 	FAIL("no gas in 80 seeds");
@@ -251,7 +251,7 @@ TEST_CASE("the trap ward: the grand one stops every chest trap, a lesser one abo
 		CHECK(trapOf(grand).empty());
 		CHECK(grand.Told("Eye of Horus"));
 		CHECK_FALSE(grand.player.stats.curses.Any());
-		CHECK(grand.player.stats.poison.LeftMs(PoisonTier::Medium) == 0);
+		CHECK(grand.player.stats.vitals.poison.LeftMs(PoisonTier::Medium) == 0);
 		fired += trapOf(lesser).empty() ? 0 : 1;
 		full += grand.dungeon.Cell(TRAPPED_COL, ROW).type == TrappedTreasure ? 1 : 0;
 	}

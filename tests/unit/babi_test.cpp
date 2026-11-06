@@ -124,7 +124,7 @@ TEST_CASE("a burning floor hurts the player standing in it and sets them burning
 	CHECK(world.dungeon.PlayerInBlaze());
 	world.Wait(1000);
 	CHECK(world.Hp() < hp);
-	CHECK(world.player.burning.Any());
+	CHECK(world.player.stats.vitals.burning.Any());
 	CHECK(world.Told("The floor is burning under your feet"));
 	world.Jump();
 	world.Tick();

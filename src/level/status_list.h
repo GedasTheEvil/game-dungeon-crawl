@@ -43,8 +43,8 @@ struct StatusList {
 };
 
 // The running effects in display order: blessings (resistance, Hapi, the gods in God order), then conditions (poison
-// weak first, burning, daze), then curses in Curse order, so the row reads by colour. burningLeftMs: Player::burning,
-// dazeMs: Player::dazeMs.
+// weak first, burning, daze), then curses in Curse order, so the row reads by colour. burningLeftMs: Vitals::burning,
+// dazeMs: Vitals::OutLeftMs (the daze).
 [[nodiscard]] StatusList statusList(const PlayerStats& stats, int burningLeftMs, int dazeMs);
 
 #endif

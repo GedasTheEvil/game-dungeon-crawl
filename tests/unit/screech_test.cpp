@@ -94,7 +94,7 @@ TEST_CASE("the giant bat stops, shakes through the tell, then the player in the 
 		world.Tick();
 	CHECK_FALSE(bat->Screeching());
 	CHECK(world.player.Dazed());
-	CHECK(world.player.dazeMs > 1400);
+	CHECK(world.player.stats.vitals.OutLeftMs() > 1400);
 }
 
 TEST_CASE("a player who steps out of the cone in the tell is not dazed") {
@@ -194,7 +194,7 @@ TEST_CASE("Shezmu's bite heals him by all its damage while the player is dazed, 
 		REQUIRE(world.WalkTo(7.f));
 		for (int t = 0; t < 1500; t++) {
 			if (dazed)
-				world.player.dazeMs = 1000; // the daze kept up, no screech needed
+				world.player.stats.vitals.KnockOut(1000); // the daze kept up, no screech needed
 			const int hp = world.Hp(), boss = world.dungeon.BossHealth();
 			world.Tick();
 			if (world.player.Dazed() != dazed) // his screech

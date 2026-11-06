@@ -122,18 +122,18 @@ void PlayerStats::RefuseStamina(WorldEvents& events) {
 
 float PlayerStats::StaminaRatio() const { return ratioOf(stamina, MaxStamina()); }
 
-float PlayerStats::HealthRatio() const { return ratioOf(HP, CurrentMaxHP()); }
+float PlayerStats::HealthRatio() const { return ratioOf(vitals.hp, CurrentMaxHP()); }
 
 void PlayerStats::Heal(int hpPart) {
 	const int max = CurrentMaxHP();
-	if (HP == max)
+	if (vitals.hp == max)
 		return;
 
 	float heal = static_cast<float>(hpPart * max) / static_cast<float>(100.0);
-	if (static_cast<float>(HP) + heal > static_cast<float>(max))
-		HP = max;
+	if (static_cast<float>(vitals.hp) + heal > static_cast<float>(max))
+		vitals.hp = max;
 	else
-		HP = static_cast<int>(heal + static_cast<float>(HP));
+		vitals.hp = static_cast<int>(heal + static_cast<float>(vitals.hp));
 }
 
 void PlayerStats::AddArmor(int na) { Armor += na; }
@@ -155,8 +155,8 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 		Might++;
 
 	MaxHP += HP_PER_LEVEL;
-	HP = CurrentMaxHP();
-	poison.Cure(); // a new level heals fully, poison too
+	vitals.hp = CurrentMaxHP();
+	vitals.poison.Cure(); // a new level heals fully, poison too
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();
 
@@ -169,7 +169,7 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 void PlayerStats::AddMaxHP(int hpPart) {
 	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
 	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
-	HP = CurrentMaxHP();
+	vitals.hp = CurrentMaxHP();
 }
 
 bool PlayerStats::Learn(SkillId id, bool force) {
@@ -177,8 +177,8 @@ bool PlayerStats::Learn(SkillId id, bool force) {
 	const int oldMaxStamina = MaxStamina();
 	if (!heka.Learn(id, force))
 		return false;
-	if (HP > 0)
-		HP += std::max(0, CurrentMaxHP() - oldMaxHP);
+	if (vitals.hp > 0)
+		vitals.hp += std::max(0, CurrentMaxHP() - oldMaxHP);
 	AddStamina(MaxStamina() - oldMaxStamina);
 	return true;
 }
@@ -240,9 +240,9 @@ void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
 }
 
 void PlayerStats::keepHpShare(int oldMax) {
-	if (HP > 0 && oldMax > 0)
-		HP = std::clamp(
-			static_cast<int>(std::lround(static_cast<double>(HP) * CurrentMaxHP() / oldMax)),
+	if (vitals.hp > 0 && oldMax > 0)
+		vitals.hp = std::clamp(
+			static_cast<int>(std::lround(static_cast<double>(vitals.hp) * CurrentMaxHP() / oldMax)),
 			1,
 			CurrentMaxHP()
 		);
@@ -284,19 +284,15 @@ void PlayerStats::EndCurses() {
 	keepHpShare(oldMax);
 }
 
-int PlayerStats::TrapDamage(int dmg) {
-	const int hundredths = dmg * (100 - amulet.trapCutPercent) + trap_carry;
-	trap_carry = hundredths % 100;
-	return hundredths / 100;
-}
+int PlayerStats::TrapDamage(int dmg) { return vitals.TrapShare(dmg * (100 - amulet.trapCutPercent)); }
 
 void PlayerStats::Regenerate(bool safe, int tickMs) {
-	const bool healing = !poison.Any() && Alive() && HP < CurrentMaxHP();
+	const bool healing = !vitals.poison.Any() && Alive() && vitals.hp < CurrentMaxHP();
 	if (rings.regenHpPerHour <= 0 || !healing)
 		ring_regen_carry = 0;
 	else { // the rubies, also in a fight
 		ring_regen_carry += tickMs * rings.regenHpPerHour;
-		HP = std::min(CurrentMaxHP(), HP + ring_regen_carry / RingEffect::MS_PER_HOUR);
+		vitals.hp = std::min(CurrentMaxHP(), vitals.hp + ring_regen_carry / RingEffect::MS_PER_HOUR);
 		ring_regen_carry %= RingEffect::MS_PER_HOUR;
 	}
 	if (amulet.regenHpPerSecond <= 0 || !safe || !healing) {
@@ -304,7 +300,7 @@ void PlayerStats::Regenerate(bool safe, int tickMs) {
 		return;
 	}
 	regen_carry_ms += tickMs * amulet.regenHpPerSecond;
-	HP = std::min(CurrentMaxHP(), HP + regen_carry_ms / 1000);
+	vitals.hp = std::min(CurrentMaxHP(), vitals.hp + regen_carry_ms / 1000);
 	regen_carry_ms %= 1000;
 }
 
@@ -354,11 +350,11 @@ void PlayerStats::Pray(God g, WorldEvents& events) {
 	case God::Amun:
 		left = BLESSING_MS;
 		HealFully();
-		events.Status(StatusTone::Good, "Amun fills me with breath: health %d for %d min", HP, left / 60000);
+		events.Status(StatusTone::Good, "Amun fills me with breath: health %d for %d min", vitals.hp, left / 60000);
 		break;
 	case God::Serket: {
-		const bool cured = poison.Any();
-		poison.Cure();
+		const bool cured = vitals.poison.Any();
+		vitals.poison.Cure();
 		left = BLESSING_MS * (heka.Has(SkillId::SerketsFavour) ? 2 : 1); // as the Blessing of Isis for Isis's ward
 		events.Status(
 			StatusTone::Good,
@@ -383,25 +379,25 @@ void PlayerStats::AdvanceBlessings(int ms, WorldEvents& events) {
 		left = std::max(0, left - ms);
 		if (left > 0)
 			continue;
-		if (static_cast<God>(g) == God::Amun && HP > 0) // the raised max is gone, the HP with it
-			HP = std::clamp(HP, 1, CurrentMaxHP());
+		if (static_cast<God>(g) == God::Amun && vitals.hp > 0) // the raised max is gone, the HP with it
+			vitals.hp = std::clamp(vitals.hp, 1, CurrentMaxHP());
 		events.Status("%s", GODS[g].endLine);
 	}
 }
 
 void PlayerStats::EndBlessings() {
 	blessing_left_ms = {};
-	if (HP > 0)
-		HP = std::clamp(HP, 1, CurrentMaxHP());
+	if (vitals.hp > 0)
+		vitals.hp = std::clamp(vitals.hp, 1, CurrentMaxHP());
 }
 
 std::string PlayerStats::Drink(const PotionGain& gain) {
-	const int hpBefore = HP;
+	const int hpBefore = vitals.hp;
 	const int staminaBefore = stamina;
 	char buf[64];
 	if (gain.healPercent > 0) {
 		Heal(gain.healPercent);
-		snprintf(buf, sizeof(buf), "Healed %d health", HP - hpBefore);
+		snprintf(buf, sizeof(buf), "Healed %d health", vitals.hp - hpBefore);
 	} else if (gain.might > 0) {
 		AddMight(gain.might);
 		snprintf(buf, sizeof(buf), "Might rises to %d", CurrentMight());
@@ -409,9 +405,9 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 		AddArmor(gain.armor);
 		snprintf(buf, sizeof(buf), "Armor rises to %d", CurrentArmor());
 	} else if (gain.resistPercent > 0) {
-		const bool cured = gain.cure && poison.Any();
+		const bool cured = gain.cure && vitals.poison.Any();
 		if (gain.cure)
-			poison.Cure();
+			vitals.poison.Cure();
 		resist_percent = gain.resistPercent;
 		resist_left_ms = PotionEffect::RESIST_MS;
 		snprintf(
@@ -426,7 +422,7 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 		water_left_ms = PotionEffect::WATER_BLESSING_MS * (heka.Has(SkillId::FavourOfHapi) ? 2 : 1);
 		snprintf(buf, sizeof(buf), "The water parts for %d min", water_left_ms / 60000);
 	} else if (gain.cure) {
-		poison.Cure();
+		vitals.poison.Cure();
 		snprintf(buf, sizeof(buf), "The poison is gone");
 	} else if (gain.maxHpPercent > 0) {
 		AddMaxHP(gain.maxHpPercent);
@@ -439,8 +435,9 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 }
 
 void PlayerStats::Dump(std::ostream& f) const {
-	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << HP << " " << Might << " " << stamina << "\n";
-	poison.Save(f);
+	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << vitals.hp << " " << Might << " " << stamina
+	  << "\n";
+	vitals.poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 	f << "WATER " << water_left_ms << "\n";
 	f << "ISIS " << blessing_left_ms[static_cast<size_t>(God::Isis)] << "\n";
@@ -455,7 +452,7 @@ void PlayerStats::Dump(std::ostream& f) const {
 }
 
 void PlayerStats::LoadDump(std::istream& f) {
-	f >> level >> XP >> Armor >> MaxHP >> HP >> Might;
+	f >> level >> XP >> Armor >> MaxHP >> vitals.hp >> Might;
 
 	int loadedStamina = 100;
 
@@ -472,7 +469,7 @@ void PlayerStats::LoadDump(std::istream& f) {
 	stamina_refused_ms.reset();
 	stamina_regen_timer.Reset();
 	stamina_sprint_drain_timer.Reset();
-	poison.Load(f);
+	vitals.poison.Load(f);
 	resist_percent = 0;
 	resist_left_ms = 0;
 	const auto start = f.tellg();

@@ -126,7 +126,7 @@ TEST_CASE(
 	waitFor(world, 5, 2, SpikeState::Retracted);
 	REQUIRE(world.WalkTo(6.6f)); // through while they are in
 	CHECK(world.Hp() == 50);
-	CHECK(world.player.stats.poison.Mask() == 0);
+	CHECK(world.player.stats.vitals.poison.Mask() == 0);
 
 	waitFor(world, 5, 2, SpikeState::Extended);
 	waitFor(world, 5, 2, SpikeState::Retracted);
@@ -134,7 +134,7 @@ TEST_CASE(
 	waitFor(world, 5, 2, SpikeState::Extended);
 	CHECK(world.Told("Spikes shoot out of the wall"));
 	CHECK(world.Hp() == 50 - SPIKES_STAB_DAMAGE);
-	CHECK(world.player.stats.poison.Mask() == 1); // weak
+	CHECK(world.player.stats.vitals.poison.Mask() == 1); // weak
 	CHECK(world.X() > 6.f + world.player.HalfWidth()); // shoved out on the near side
 	world.Wait(SPIKES_OUT_MS[0]);
 	CHECK(world.Hp() > 50 - SPIKES_STAB_DAMAGE - 5); // one stab, then only the weak poison
@@ -157,7 +157,7 @@ TEST_CASE("the trap ward wards off the wall spikes' stab and its poison") {
 	REQUIRE(world.WalkTo(5.4f));
 	waitFor(world, 5, 2, SpikeState::Extended);
 	CHECK(world.Hp() == 50);
-	CHECK(world.player.stats.poison.Mask() == 0);
+	CHECK(world.player.stats.vitals.poison.Mask() == 0);
 	CHECK(world.X() < 5.f - world.player.HalfWidth()); // shoved out all the same
 }
 

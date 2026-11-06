@@ -190,7 +190,7 @@ int tabPosition(const ItemBag& bag, ItemKind kind, SortOrder sort) {
 	return static_cast<int>(std::find(order.begin(), order.end(), kind) - order.begin());
 }
 
-UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
+UseBlock ItemBag::Block(ItemKind kind, const BagUser& player) const {
 	if (!player.alive)
 		return UseBlock::Dead;
 	if (Count(kind) <= 0)
@@ -210,7 +210,7 @@ UseBlock ItemBag::Block(ItemKind kind, const Vitals& player) const {
 	return UseBlock::None;
 }
 
-bool ItemBag::Use(ItemKind kind, const Vitals& player) {
+bool ItemBag::Use(ItemKind kind, const BagUser& player) {
 	if (Block(kind, player) != UseBlock::None)
 		return false;
 	if (isPotion(kind))

@@ -683,8 +683,6 @@ class Dungeon {
 	void addBallLights(); // the burning balls'; same frame as addLights
 
 	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
-	// Spike and death trap tiles hurt the player and the monsters standing in them (TrapHurt).
-	TrapHurt trapHurt; // the player's
 	// Feet at (x, y) in map units, half wide (a box; 0 a point), touch a spike or death trap's hitbox:
 	// TRAP_HITBOX_X/Y_SCALE x the trap's scale round the tile's bottom centre. The box is TRAP_BOX_FORGIVE narrower on
 	// each side (plan trap-player-box), so grazing an edge doesn't count.

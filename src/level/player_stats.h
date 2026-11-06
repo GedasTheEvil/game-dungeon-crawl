@@ -8,6 +8,7 @@
 #include "inscriptions.h"
 #include "item_bag.h"
 #include "poison.h"
+#include "vitals.h"
 #include "run_stats.h"
 #include "shrines.h"
 #include "skills.h"
@@ -26,7 +27,6 @@ class PlayerStats {
 	double XP = 0;
 	int Armor = 0;
 	int MaxHP = 50;
-	int HP = 50;
 	int Might = 0;
 	int stamina = 100;
 	int max_stamina_percent = 0; // inscription boons' (plan inscription-boons), on top of the level's max
@@ -34,7 +34,6 @@ class PlayerStats {
 	int regen_carry_ms = 0; // regeneration time not yet turned into HP
 	RingBonus rings; // the worn rings' (WearRings)
 	int ring_regen_carry = 0; // the rubies' ms x HP an hour not yet turned into HP
-	int trap_carry = 0; // hundredths of trap damage not yet taken (TrapDamage)
 	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
 	int resist_left_ms = 0;
 	int water_left_ms = 0; // the Blessing of Hapi's time left (plan water-blessing-potion)
@@ -103,7 +102,7 @@ class PlayerStats {
 		const int skill = heka.Has(SkillId::DjedOfPtah) ? SKILL_ARMOR : 0;
 		return cursedArmor(Armor + amulet.armor + skill + (Blessed(God::Ptah) ? PTAH_ARMOR : 0), curses);
 	}
-	[[nodiscard]] int CurrentHP() const { return HP; }
+	[[nodiscard]] int CurrentHP() const { return vitals.hp; }
 	[[nodiscard]] int CurrentMaxHP() const {
 		const int percent = amulet.maxHpPercent + (heka.Has(SkillId::KaOfOsiris) ? SKILL_HEALTH_PERCENT : 0) +
 							(Blessed(God::Amun) ? AMUN_MAX_HP_PERCENT : 0);
@@ -117,7 +116,7 @@ class PlayerStats {
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }
 	[[nodiscard]] std::optional<int> PrayedMs() const { return prayed_ms; }
 	[[nodiscard]] God PrayedGod() const { return prayed_god; }
-	[[nodiscard]] bool Alive() const { return HP > 0; }
+	[[nodiscard]] bool Alive() const { return vitals.Alive(); }
 	[[nodiscard]] float HealthRatio() const;
 	// XP total at which the player reaches `lvl` (level 2 at 1000).
 	[[nodiscard]] static double LevelXP(int lvl);
@@ -127,11 +126,13 @@ class PlayerStats {
 	void AddMight(int ns = 1);
 	void AddXP(int xp, WorldEvents& events); // a level up shows its status line and writes the levels note
 	void Heal(int hpPart); // percent of max HP
-	void HealFully() { HP = CurrentMaxHP(); }
+	void HealFully() { vitals.hp = CurrentMaxHP(); }
 	void AddArmor(int na = 1);
 	// HP lost to a hit of dmg dealt as mix: the resistances, then the armour unless ignoreArmor; at least 1.
 	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor, bool inWater = false) const;
-	void LoseHP(int hp) { HP -= hp; }
+	// How the player takes a hit (Vitals::Cost): the worn resistances and the current armour.
+	[[nodiscard]] Guard HitGuard() const { return {resist, CurrentArmor()}; }
+	void LoseHP(int hp) { vitals.Lose(hp); }
 	void AddMaxHP(int hpPart); // percent, heals fully
 	void AddMaxStamina(int percent); // the stamina rises by as much as the max
 	// An inscription's boon, given when it is translated; returns its text ("Might +1"), empty for none.
@@ -209,7 +210,8 @@ class PlayerStats {
 	void AdvanceCurses(int ms, WorldEvents& events); // the curses' time runs out, each with its status line
 	void EndCurses(); // death or a new game: all gone
 	Curses curses;
-	Poison poison;
+	// HP, poison, fire, water, the trap ramp, the daze (plan shared-vitals); the HP and the poison are saved.
+	Vitals vitals{50};
 	Resistances resist = NO_RESISTANCES; // how each type of a hit's damage is taken: the worn amulet's (Wear)
 	Heka heka; // bosses' points and the skills bought with them
 	RunStats run; // what this run did since New Game, for the leaderboard (plan leaderboard)

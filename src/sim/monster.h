@@ -5,13 +5,14 @@
 #include "particles.h"
 #include "../level/gameplay_config.h"
 #include "../core/timer.h"
-#include "trap_hurt.h"
+#include "../level/trap_hurt.h"
 #include "../level/climb_path.h"
 #include "../level/damage.h"
 #include "../level/items.h"
 #include "../level/level.h"
 #include "../level/monster_kinds.h"
 #include "../level/poison.h"
+#include "../level/vitals.h"
 #include "../level/rng.h"
 #include "../level/world_events.h"
 #include "monster_burrow.h"
@@ -60,10 +61,11 @@ class Monster {
 	int col = -1, spawnRow = -1; // spawn tile
 	int row = -1; // the row it is on: the spawn row, until it climbs
 	float x = 0.f;
-	int health = 0;
+	// HP, poison, fire, water, the trap ramp and carry, the stun (plan shared-vitals).
+	Vitals vitals;
 	ModelState state = ModelState::Move;
 	int facing = 0; // -1 left, 0 the camera, +1 right
-	void trapHit(int hundredths); // a trap's damage in hundredths of a HP, carried over (trapDamageCarry)
+	void trapHit(int hundredths); // a trap's damage in hundredths of a HP, carried over (Vitals::TrapShare)
 	float walked = 0.f; // tiles its last step went (Seek, Flee, BackOff); 0: it stood
 	// A walk step is drawn sliding from glideFrom to x over glideMs from glideAtMs (< 0: none), not as a jump.
 	float glideFrom = 0.f;
@@ -98,7 +100,6 @@ class Monster {
 	Summon summonedBy = Summon::DigOut;
 	float wallX = 0.f; // Summon::Wall: tile-local x of the wall cell's centre it steps out of
 	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
-	bool inWater = false; // standing in half water (Dungeon::UpdateMonsters sets it every tick)
 	bool waterKnown = false; // SetInWater ran since the spawn
 	// Its terrain affinity's factors in the cell it stands in (plan terrain-affinity, SetTerrain every tick).
 	TerrainFactors terrain{};
@@ -112,20 +113,13 @@ class Monster {
 	float stepUp = 0.f;
 	bool stepPlaced = false;
 	float sink = 0.f; // world units it is drawn down into a water basin (Dungeon::WaterSink); < 0: up onto sand
-	TrapHurt trapHurt;
-	int trapDamageCarry = 0; // hundredths of a HP of trap damage not dealt yet (trapDamagePct)
 	int biteAtMs = -1; // GameClock time the bite under way lands or misses (UpdateBite); < 0: none
 	int biteDir = 0; // the way the bite or grab under way goes, -1 / +1: it does not turn till then
 	int rangedReadyMs = 0; // ranged attackers: no new shot before this GameClock time
 	bool rangedReleased = true; // the ranged clip's shot has left (TakeShot)
 	int throws = 0; // ranged attacks begun since the spawn: every VolleyRules::bigEvery-th is a big coal
 	std::optional<ItemKind> drop; // the weapon chest it leaves once its die clip has played (RollKillDrop)
-	Poison poison; // plan monster-poison
-	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
-	Burning burning; // plan fire-damage
-	bool burnByPlayer = false; // the fire is the player's doing (a weapon, a sunbeam): its kill is theirs, a trap's not
 	bool dripPuddled = false, dripDropped = false; // a poison drip's puddle, its drop took this entry
-	int reelUntilMs = -1; // stunned (StunHit) until this GameClock time
 	int reelReadyMs = 0; // a boss: no new stun before this GameClock time
 
 	void wake(); // a lurker stops lurking: the chest opens, the mummy starts to climb out
@@ -179,10 +173,10 @@ class Monster {
 	[[nodiscard]] int SpawnRow() const { return spawnRow; }
 	// The player at map y py is on its row (a climber halfway up a ladder: by its height).
 	[[nodiscard]] bool sameRow(float py) const;
-	[[nodiscard]] int Health() const { return health; }
+	[[nodiscard]] int Health() const { return vitals.hp; }
 	// A light shunner (MonsterKind::shunsLight) fears the light at full HP only: any damage ends it for good (plan
 	// hurt-spiders-ignore-light).
-	[[nodiscard]] bool ShunsLight() const { return type->shunsLight && health >= type->maxHealth; }
+	[[nodiscard]] bool ShunsLight() const { return type->shunsLight && vitals.hp >= type->maxHealth; }
 	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
 	// Hitbox: the model's half width (CharacterModel::HalfWidth) at its drawn scale, map units. Height: BottomY, TopY.
 	[[nodiscard]] float HalfWidth() const;
@@ -191,7 +185,7 @@ class Monster {
 	// The box edge facing the player looking dir (-1 / +1), and the one away from them.
 	[[nodiscard]] float NearEdge(int dir) const { return dir > 0 ? Left() : Right(); }
 	[[nodiscard]] float FarEdge(int dir) const { return dir > 0 ? Right() : Left(); }
-	[[nodiscard]] bool Alive() const { return health > 0; }
+	[[nodiscard]] bool Alive() const { return vitals.Alive(); }
 	// True once, after a hit took it below its pack call's health (CallRules): the dungeon alerts the pack.
 	[[nodiscard]] bool TakeCall() {
 		const bool due = callDue && Alive();
@@ -227,9 +221,9 @@ class Monster {
 	// Returns true the tick it enters the water from dry cells (plan monster-water-splash), not the first tick after
 	// the spawn.
 	bool SetInWater(bool water, bool head, float basin) {
-		const bool entered = water && !inWater && waterKnown;
+		const bool entered = water && !vitals.inWater && waterKnown;
 		waterKnown = true;
-		inWater = water;
+		vitals.inWater = water;
 		headInWater = head;
 		sink = basin;
 		return entered;
@@ -245,7 +239,7 @@ class Monster {
 	[[nodiscard]] int HitDamage(int base) const;
 	// Map x of the front of its box, the way it faces (its centre while it faces the camera).
 	[[nodiscard]] float HeadX() const { return facing > 0 ? Right() : facing < 0 ? Left() : CentreX(); }
-	[[nodiscard]] bool InWater() const { return inWater; }
+	[[nodiscard]] bool InWater() const { return vitals.inWater; }
 	// Entombed or coiled: woken, still climbing out of its coffin or rearing up; it does not act yet.
 	[[nodiscard]] bool Rising() const;
 	// A dead ambusher whose die clip has played: its tile turns into a treasure chest.
@@ -475,19 +469,17 @@ class Monster {
 	// Once a tick: the running tiers' damage, which can kill. True: it killed and the player poisoned it
 	// (Dungeon::rewardKill).
 	bool UpdatePoison();
-	[[nodiscard]] bool Poisoned() const { return poison.Any(); }
+	[[nodiscard]] bool Poisoned() const { return vitals.poison.Any(); }
 	// Once a tick: half water puts the fire out, else it burns (Burning), which can kill. True: it burnt to death
 	// and the player set it alight (Dungeon::rewardKill).
 	bool UpdateBurning();
-	[[nodiscard]] bool Burns() const { return burning.Any(); }
+	[[nodiscard]] bool Burns() const { return vitals.burning.Any(); }
 	// Set on fire as by a hit with fire fire (a beam of sunlight on a mummy, plan sunlight-mirrors); not in water.
 	void Kindle(double fire) {
-		if (Alive() && !inWater) {
-			burning.Ignite(fire);
-			burnByPlayer = true;
-		}
+		if (Alive() && !vitals.inWater)
+			vitals.Ignite(fire, BURN_MS, HarmSource::Weapon);
 	}
-	[[nodiscard]] int PoisonMask() const { return poison.Mask(); }
+	[[nodiscard]] int PoisonMask() const { return vitals.poison.Mask(); }
 	// Each tick it stands in a spike or death trap (see TrapHurt).
 	// venom: the death trap's poison tier, applied on a hit (no XP for the player's kill).
 	void StandInTrap(std::optional<PoisonTier> venom, Rng& rng);
@@ -508,7 +500,7 @@ class Monster {
 	// the time, and not again within BOSS_STUN_COOLDOWN_MS of the last. Not while lurking (wasLurking: before the hit
 	// that woke it), rising, hidden, in a leap, a charge or a roll, or climbing. True: it took.
 	bool StunHit(int ms, bool wasLurking);
-	[[nodiscard]] bool Reeling() const { return Alive() && GameClock::now() < reelUntilMs; }
+	[[nodiscard]] bool Reeling() const { return Alive() && vitals.Out(); }
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (DrawMonster only shows them).
 	void Animate(float px, float py);
 

@@ -27,7 +27,7 @@ TEST_CASE("a level up raises max HP, heals fully, cures poison and tells the app
 	WorldEvents events;
 	stats.LoseHP(30);
 	stats.SetStamina(10);
-	stats.poison.Apply(PoisonTier::Weak);
+	stats.vitals.poison.Apply(PoisonTier::Weak);
 	stats.AddXP(999, events);
 	CHECK(stats.CurrentLevel() == 1);
 	CHECK(events.Take().empty());
@@ -38,7 +38,7 @@ TEST_CASE("a level up raises max HP, heals fully, cures poison and tells the app
 	CHECK(stats.CurrentHP() == stats.CurrentMaxHP());
 	CHECK(stats.Stamina() == stats.MaxStamina());
 	CHECK(stats.MaxStamina() == 110);
-	CHECK_FALSE(stats.poison.Any());
+	CHECK_FALSE(stats.vitals.poison.Any());
 	CHECK(stats.LevelUpMs().has_value());
 	const std::vector<WorldEvent> list = events.Take();
 	REQUIRE(list.size() == 2);
@@ -188,10 +188,10 @@ TEST_CASE("a regeneration amulet heals only while safe and not poisoned") {
 	CHECK(stats.CurrentHP() == 41);
 	stats.Regenerate(false, 1000);
 	CHECK(stats.CurrentHP() == 41);
-	stats.poison.Apply(PoisonTier::Weak);
+	stats.vitals.poison.Apply(PoisonTier::Weak);
 	stats.Regenerate(true, 1000);
 	CHECK(stats.CurrentHP() == 41);
-	stats.poison.Cure();
+	stats.vitals.poison.Cure();
 	stats.Regenerate(true, 10000);
 	CHECK(stats.CurrentHP() == 50);
 }
@@ -210,9 +210,9 @@ TEST_CASE("a potion's gain and its status line") {
 	CHECK(stats.Drink(armor) == "Armor rises to 2");
 	PotionGain cure;
 	cure.cure = true;
-	stats.poison.Apply(PoisonTier::Weak);
+	stats.vitals.poison.Apply(PoisonTier::Weak);
 	CHECK(stats.Drink(cure) == "The poison is gone");
-	CHECK_FALSE(stats.poison.Any());
+	CHECK_FALSE(stats.vitals.poison.Any());
 	PotionGain maxHp;
 	maxHp.maxHpPercent = 10;
 	CHECK(stats.Drink(maxHp) == "Max health rises to 55");
@@ -230,9 +230,9 @@ TEST_CASE("a resistance potion adds to the amulet's ward for 2 minutes, up to 10
 	stats.Wear(amulet, true);
 	PotionGain lesser;
 	lesser.resistPercent = 50;
-	stats.poison.Apply(PoisonTier::Weak);
+	stats.vitals.poison.Apply(PoisonTier::Weak);
 	CHECK(stats.Drink(lesser) == "Resists poison 70% for 2 min");
-	CHECK(stats.poison.Any()); // the lesser one does not cure
+	CHECK(stats.vitals.poison.Any()); // the lesser one does not cure
 	CHECK(stats.PoisonResistPercent() == 70);
 	stats.AdvanceResistance(PotionEffect::RESIST_MS - 1);
 	CHECK(stats.PoisonResistPercent() == 70);
@@ -242,7 +242,7 @@ TEST_CASE("a resistance potion adds to the amulet's ward for 2 minutes, up to 10
 	greater.cure = true;
 	greater.resistPercent = 95;
 	CHECK(stats.Drink(greater) == "Cured. Resists poison 100% for 2 min");
-	CHECK_FALSE(stats.poison.Any());
+	CHECK_FALSE(stats.vitals.poison.Any());
 	CHECK(stats.PotionResistPercent() == 95);
 	stats.EndResistance();
 	CHECK(stats.PoisonResistPercent() == 20);
@@ -254,7 +254,7 @@ TEST_CASE("the stats survive a save and a load") {
 	stats.AddXP(5000, events);
 	stats.LoseHP(7);
 	stats.SetStamina(33);
-	stats.poison.Apply(PoisonTier::Weak);
+	stats.vitals.poison.Apply(PoisonTier::Weak);
 	PotionGain lesser;
 	lesser.resistPercent = 50;
 	stats.Drink(lesser);
@@ -276,7 +276,7 @@ TEST_CASE("the stats survive a save and a load") {
 	CHECK(loaded.CurrentMaxHP() == stats.CurrentMaxHP());
 	CHECK(loaded.CurrentArmor() == stats.CurrentArmor());
 	CHECK(loaded.Stamina() == 33);
-	CHECK(loaded.poison.Any());
+	CHECK(loaded.vitals.poison.Any());
 	CHECK(loaded.PotionResistPercent() == 50);
 	CHECK(loaded.PotionResistLeftMs() == PotionEffect::RESIST_MS - 1000);
 }

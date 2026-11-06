@@ -1,6 +1,6 @@
 # Shared vitals: one part for what the player and the monsters both live through
 
-Status: draft 2026-11-06, size L, needs nothing first.
+Status: solved 2026-11-06. Was: draft 2026-11-06, size L, needs nothing first.
 
 ## Problem
 
@@ -60,11 +60,25 @@ rewritten). Kind tooling.
 ## Out of scope
 
 Any rule change (the trap formula, blaze on monsters, terrain for the player, monster icons): those are
-[same-hazards-for-all](same-hazards-for-all.feature.draft.opus.md) and
-[monster-status-icons](monster-status-icons.feature.draft.opus.md). This plan makes them one-place changes.
+[same-hazards-for-all](../same-hazards-for-all.feature.draft.opus.md) and
+[monster-status-icons](../monster-status-icons.feature.draft.opus.md). This plan makes them one-place changes.
 
 ## Open points (implementer's choice)
 
 * Where the player's `Vitals` lives: in `Player` (beside `burning`, `dazeMs` today) or in `PlayerStats` (beside HP and
   poison, which the save already writes). `PlayerStats` is likely less churn.
 * Whether `Vitals` holds max HP or takes it per call.
+
+## As built
+
+* `Vitals` (`src/level/vitals.h`) lives in `PlayerStats::vitals` (the save writes its HP and poison as before, the
+  format unchanged) and `Monster::vitals`. `trap_hurt.h` moved to `src/level/` for it; the player's `TrapHurt` moved
+  from `Dungeon` into the vitals.
+* Resistances and armour are not kept in it: the player's change with the amulet, the curses and the blessings, so a
+  `Guard` (resistances, the player's armour) is passed per hit. `Vitals::Cost(Harm, Guard)` is the one damage rule;
+  `FireOf`, `Ignite`, `TrapShare`, `TakePoison` the others.
+* Two ticks, not one: `PoisonTick` and `BurnTick` keep today's order in the update (the poison and the fire run at
+  different points of a tick), each owner's `UpdatePoison` / `UpdateBurning` a thin call.
+* The out-of-action timer is the monster's GameClock "until" for both (`KnockOut`, `OutLeftMs`); the player's daze
+  ran as a per-tick countdown before (the same length, at most a tick apart).
+* The old `struct Vitals` of `item_bag.h` (the player as the bag's rules see it) is now `BagUser`.

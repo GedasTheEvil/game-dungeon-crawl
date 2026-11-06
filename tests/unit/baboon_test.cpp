@@ -37,7 +37,7 @@ TEST_CASE("a baboon comes up to its band and throws: the coal sets the player bu
 	bool burnt = false;
 	for (int t = 0; t < 6000 && !burnt; t += UPDATE_TICK_MS) {
 		world.Tick();
-		burnt = world.player.burning.Any();
+		burnt = world.player.stats.vitals.burning.Any();
 	}
 	CHECK(burnt);
 	CHECK(world.Saw(MonsterBaboon, CreatureMove::AttackRanged));
@@ -53,13 +53,13 @@ TEST_CASE("the player in half water: the coal hits, but the water puts the fire 
 	bool burnt = false;
 	for (int t = 0; t < 6000 && world.Hp() == hp; t += UPDATE_TICK_MS) {
 		world.Tick();
-		burnt = burnt || world.player.burning.Any();
+		burnt = burnt || world.player.stats.vitals.burning.Any();
 	}
 	CHECK(world.Hp() < hp);
 	CHECK(world.Saw(MonsterBaboon, CreatureMove::AttackRanged));
 	world.Wait(200);
 	CHECK_FALSE(burnt);
-	CHECK_FALSE(world.player.burning.Any());
+	CHECK_FALSE(world.player.stats.vitals.burning.Any());
 	CHECK(world.Told("The water puts the fire out"));
 }
 

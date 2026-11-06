@@ -77,7 +77,7 @@ TEST_CASE("a new bag holds the club, in hand") {
 
 TEST_CASE("what can be used") {
 	ItemBag bag;
-	Vitals hurt{true, 50, 100, 100, 100};
+	BagUser hurt{true, 50, 100, 100, 100};
 	CHECK(bag.Block(ItemKind::Club, hurt) == UseBlock::Equipped);
 	CHECK(bag.Block(ItemKind::ShortSword, hurt) == UseBlock::NotFound);
 	CHECK(bag.Block(ItemKind::SmallHealth, hurt) == UseBlock::NotFound); // never had one
@@ -86,13 +86,13 @@ TEST_CASE("what can be used") {
 	bag.Add(ItemKind::SmallStamina);
 	CHECK(bag.Block(ItemKind::SmallHealth, hurt) == UseBlock::None);
 	CHECK(bag.Block(ItemKind::SmallStamina, hurt) == UseBlock::StaminaFull);
-	CHECK(bag.Block(ItemKind::SmallHealth, Vitals{true, 100, 100, 10, 100}) == UseBlock::HealthFull);
-	CHECK(bag.Block(ItemKind::SmallHealth, Vitals{false, 50, 100, 10, 100}) == UseBlock::Dead);
+	CHECK(bag.Block(ItemKind::SmallHealth, BagUser{true, 100, 100, 10, 100}) == UseBlock::HealthFull);
+	CHECK(bag.Block(ItemKind::SmallHealth, BagUser{false, 50, 100, 10, 100}) == UseBlock::Dead);
 }
 
 TEST_CASE("using takes a potion out and equips a weapon") {
 	ItemBag bag;
-	Vitals hurt{true, 50, 100, 100, 100};
+	BagUser hurt{true, 50, 100, 100, 100};
 	bag.Add(ItemKind::SmallHealth);
 	bag.Add(ItemKind::Spear);
 	CHECK(bag.Use(ItemKind::SmallHealth, hurt));
@@ -142,9 +142,9 @@ TEST_CASE("potion gains") {
 TEST_CASE("the antidote is drunk only while poisoned") {
 	ItemBag bag;
 	bag.Add(ItemKind::Antidote);
-	Vitals healthy{true, 50, 50, 100, 100};
+	BagUser healthy{true, 50, 50, 100, 100};
 	CHECK(bag.Block(ItemKind::Antidote, healthy) == UseBlock::NotPoisoned);
-	Vitals poisoned = healthy;
+	BagUser poisoned = healthy;
 	poisoned.poisoned = true;
 	CHECK(bag.Use(ItemKind::Antidote, poisoned));
 	CHECK(bag.Count(ItemKind::Antidote) == 0);
@@ -154,11 +154,11 @@ TEST_CASE("a lesser resistance potion does not cut a greater one short") {
 	ItemBag bag;
 	bag.Add(ItemKind::LesserResistance);
 	bag.Add(ItemKind::GreaterResistance);
-	Vitals greater{true, 50, 50, 100, 100};
+	BagUser greater{true, 50, 50, 100, 100};
 	greater.resistPercent = 95;
 	CHECK(bag.Block(ItemKind::LesserResistance, greater) == UseBlock::StrongerResistance);
 	CHECK(bag.Block(ItemKind::GreaterResistance, greater) == UseBlock::None);
-	Vitals lesser = greater;
+	BagUser lesser = greater;
 	lesser.resistPercent = 50;
 	CHECK(bag.Block(ItemKind::LesserResistance, lesser) == UseBlock::None);
 	CHECK(bag.Block(ItemKind::GreaterResistance, lesser) == UseBlock::None);
@@ -166,7 +166,7 @@ TEST_CASE("a lesser resistance potion does not cut a greater one short") {
 
 TEST_CASE("a potion used up is found, not one never had") {
 	ItemBag bag;
-	Vitals player{true, 10, 50, 100, 100};
+	BagUser player{true, 10, 50, 100, 100};
 	CHECK(bag.Block(ItemKind::SmallHealth, player) == UseBlock::NotFound);
 	CHECK_FALSE(bag.AnyFound(ItemGroup::Potions));
 	bag.Add(ItemKind::SmallHealth);
@@ -226,7 +226,7 @@ TEST_CASE("the bag survives a save and a load") {
 	bag.Add(ItemKind::SelfBow);
 	bag.Add(ItemKind::LargeStamina);
 	CHECK(bag.Upgrade(ItemKind::SelfBow, true));
-	CHECK(bag.Use(ItemKind::SelfBow, Vitals{true, 1, 1, 1, 1}));
+	CHECK(bag.Use(ItemKind::SelfBow, BagUser{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
 	CHECK(file.str().rfind("INV8 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
@@ -414,7 +414,7 @@ TEST_CASE("the bonus of each amulet") {
 
 TEST_CASE("an amulet is put on, swapped and taken off; it stays in the bag") {
 	ItemBag bag;
-	Vitals player{true, 10, 50, 100, 100};
+	BagUser player{true, 10, 50, 100, 100};
 	CHECK(bag.Block(ItemKind::StrengthLesser, player) == UseBlock::NotFound);
 	bag.Add(ItemKind::StrengthLesser);
 	bag.Add(ItemKind::ArmorMinor);
@@ -428,14 +428,14 @@ TEST_CASE("an amulet is put on, swapped and taken off; it stays in the bag") {
 	CHECK_FALSE(bag.Worn().has_value());
 	CHECK(bag.Count(ItemKind::ArmorMinor) == 1);
 	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorMinor, true));
-	CHECK(bag.Block(ItemKind::ArmorMinor, Vitals{false, 0, 50, 0, 100}) == UseBlock::Dead);
+	CHECK(bag.Block(ItemKind::ArmorMinor, BagUser{false, 0, 50, 0, 100}) == UseBlock::Dead);
 }
 
 TEST_CASE("the worn amulet survives a save and a load") {
 	ItemBag bag;
 	bag.Add(ItemKind::HealthGrand);
 	bag.Add(ItemKind::HealthGrand);
-	CHECK(bag.Use(ItemKind::HealthGrand, Vitals{true, 1, 1, 1, 1}));
+	CHECK(bag.Use(ItemKind::HealthGrand, BagUser{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
 	ItemBag loaded;
@@ -485,7 +485,7 @@ TEST_CASE("a tab shows the found items first, each part in ItemKind order") {
 TEST_CASE("an item used up stays in the found part") {
 	ItemBag bag;
 	bag.Add(ItemKind::Might);
-	const Vitals player{true, 50, 50, 100, 100, false};
+	const BagUser player{true, 50, 50, 100, 100, false};
 	REQUIRE(bag.Use(ItemKind::Might, player));
 	CHECK(bag.Count(ItemKind::Might) == 0);
 	CHECK(tabPosition(bag, ItemKind::Might) == 0);
@@ -615,7 +615,7 @@ TEST_CASE("amulet upgrade: largest spares first, the normal one before minors") 
 
 TEST_CASE("amulet upgrade: the worn one is upgraded and stays worn, never a spare") {
 	ItemBag bag;
-	const Vitals player{true, 10, 50, 100, 100};
+	const BagUser player{true, 10, 50, 100, 100};
 	bag.Add(ItemKind::StrengthLesser);
 	bag.Add(ItemKind::StrengthLesser);
 	REQUIRE(bag.Use(ItemKind::StrengthLesser, player));
@@ -634,7 +634,7 @@ TEST_CASE("amulet upgrade: the worn one is upgraded and stays worn, never a spar
 	// a worn lesser does not pay for a minor of its type
 	bag.Add(ItemKind::StrengthLesser);
 	bag.Add(ItemKind::StrengthMinor);
-	const Vitals alive{true, 10, 50, 100, 100};
+	const BagUser alive{true, 10, 50, 100, 100};
 	REQUIRE(bag.Use(ItemKind::StrengthLesser, alive));
 	CHECK(bag.UpgradePoints(ItemKind::StrengthMinor) == 0);
 	bag.Add(ItemKind::StrengthLesser);

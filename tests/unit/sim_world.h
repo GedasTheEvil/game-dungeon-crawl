@@ -157,14 +157,14 @@ class SimWorld {
 	void Equip(ItemKind weapon) {
 		if (items.Count(weapon) == 0)
 			Give(weapon);
-		items.Use(weapon, vitals());
+		items.Use(weapon, bagUser());
 	}
 	// As `wear` (given first if not held): the amulet on, its bonus applied.
 	void Wear(ItemKind amulet) {
 		if (items.Count(amulet) == 0)
 			Give(amulet);
 		if (items.Worn() != amulet)
-			items.Use(amulet, vitals());
+			items.Use(amulet, bagUser());
 		player.stats.Wear(amuletBonus(items.Worn()), true);
 	}
 	// As `wear <ring> left|right` (given first if not held): the ring on that hand, the rings' bonus applied.
@@ -302,13 +302,13 @@ class SimWorld {
 		return moved;
 	}
 
-	[[nodiscard]] Vitals vitals() const {
+	[[nodiscard]] BagUser bagUser() const {
 		return {player.Alive(),
 				player.stats.CurrentHP(),
 				player.stats.CurrentMaxHP(),
 				player.stats.Stamina(),
 				player.stats.MaxStamina(),
-				player.stats.poison.Any(),
+				player.stats.vitals.poison.Any(),
 				player.stats.PotionResistPercent()};
 	}
 

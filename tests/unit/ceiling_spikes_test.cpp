@@ -72,14 +72,14 @@ TEST_CASE("a jump into ceiling spikes costs a walk over the floor spikes, throug
 	CHECK_FALSE(heard(world, WorldSound::HeadBump));
 	CHECK_FALSE(world.Told("You bump your head"));
 	CHECK_FALSE(world.player.Dazed()); // no daze roll on top
-	CHECK_FALSE(world.player.stats.poison.Any());
+	CHECK_FALSE(world.player.stats.vitals.poison.Any());
 }
 
 TEST_CASE("a jump into a ceiling death trap costs a walk over the death trap and poisons strongly") {
 	SimWorld world;
 	const int lost = jumpUnder(world, DEATH_COL);
 	CHECK(lost >= world.player.stats.HitDamage(DEATH_TRAP_CROSS_HP, SPIKE_ATTACK_MIX, true, false));
-	CHECK(world.player.stats.poison.Any());
+	CHECK(world.player.stats.vitals.poison.Any());
 	CHECK(world.Told("The spike tips are wet with venom."));
 }
 

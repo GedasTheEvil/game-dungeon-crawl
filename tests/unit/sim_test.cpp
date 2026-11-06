@@ -70,11 +70,11 @@ TEST_CASE("the cobra rears up and spits from afar: its venom poisons the player"
 	REQUIRE(world.Load("tests/levels/cobra"));
 	REQUIRE(world.WalkTo(world.X() + 5.f));
 	const int hp = world.Hp();
-	for (int t = 0; t < 250 && !world.player.stats.poison.Any(); t++)
+	for (int t = 0; t < 250 && !world.player.stats.vitals.poison.Any(); t++)
 		world.Tick();
 	CHECK(world.Saw(MonsterCobra, CreatureMove::Rear));
 	CHECK(world.Saw(MonsterCobra, CreatureMove::AttackRanged));
-	CHECK(world.player.stats.poison.Mask() == 2); // medium
+	CHECK(world.player.stats.vitals.poison.Mask() == 2); // medium
 	CHECK(world.Hp() < hp);
 }
 
@@ -87,9 +87,9 @@ TEST_CASE("the Anubis shoots a bolt from afar, no poison, then hits up close") {
 		world.Tick();
 	REQUIRE(world.Saw(MonsterAnubis, CreatureMove::AttackRanged));
 	CHECK(world.Hp() < hp);
-	CHECK(world.player.burning.Any()); // a fire bolt (plan anubis-fire-bolt)
-	CHECK(world.player.burning.LeftMs() <= BURN_MS);
-	CHECK_FALSE(world.player.stats.poison.Any());
+	CHECK(world.player.stats.vitals.burning.Any()); // a fire bolt (plan anubis-fire-bolt)
+	CHECK(world.player.stats.vitals.burning.LeftMs() <= BURN_MS);
+	CHECK_FALSE(world.player.stats.vitals.poison.Any());
 	CHECK_FALSE(world.Saw(MonsterAnubis, CreatureMove::Poison));
 	const Monster* anubis = firstMonster(world);
 	REQUIRE(anubis != nullptr);
@@ -113,9 +113,9 @@ TEST_CASE("the Anubis bolt is fire, its melee is not; the boss's bolt burns long
 	REQUIRE(world.Load("tests/levels/anubis_bolt"));
 	world.player.stats.AddXP(1000000, world.events); // lives through both hits
 	world.player.TakeHit(boss.damage, boss.attackMix, world.events);
-	CHECK_FALSE(world.player.burning.Any());
+	CHECK_FALSE(world.player.stats.vitals.burning.Any());
 	world.player.TakeHit(boss.ranged->damage, *boss.ranged->mix, world.events, false, boss.ranged->burnMs);
-	CHECK(world.player.burning.LeftMs() == boss.ranged->burnMs);
+	CHECK(world.player.stats.vitals.burning.LeftMs() == boss.ranged->burnMs);
 }
 
 TEST_CASE("Sobek charges along the row through the player and is stunned by the wall") {

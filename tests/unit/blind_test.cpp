@@ -42,7 +42,7 @@ TEST_CASE("a blind lasts its time, clears over the last BLIND_CLEAR_MS, twice as
 	CHECK(player.Blindness() == 0.f);
 
 	player.Blind(2000, events);
-	player.inWater = true; // wading: as UpdateBurning notes it
+	player.stats.vitals.inWater = true; // wading: as UpdateBurning notes it
 	run(1000 + UPDATE_TICK_MS);
 	CHECK(player.blindMs == 0);
 	player.Blind(2000, events);
@@ -57,9 +57,9 @@ TEST_CASE("the giant cobra's spit blinds on some hits and not on others, the bit
 		world.player.god = true;
 		REQUIRE(world.Load("tests/levels/giant_cobra", seed));
 		REQUIRE(world.WalkTo(world.X() + 4.9f)); // in its wake range: it rears and spits
-		for (int t = 0; t < 600 && !world.player.stats.poison.Any(); t++)
+		for (int t = 0; t < 600 && !world.player.stats.vitals.poison.Any(); t++)
 			world.Tick();
-		REQUIRE(world.player.stats.poison.Any());
+		REQUIRE(world.player.stats.vitals.poison.Any());
 		if (!world.Saw(MonsterGiantCobra, CreatureMove::AttackRanged))
 			continue; // bitten first
 		seen++;

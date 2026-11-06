@@ -1,13 +1,13 @@
 # Same hazards for all: every trap and terrain hits the player and the monsters by one rule
 
-Status: draft 2026-11-06, size L, needs first: [shared-vitals](shared-vitals.tooling.draft.opus.md), [terrain-affinity](solved/terrain-affinity.feature.md).
+Status: draft 2026-11-06, size L, needs first: [shared-vitals](solved/shared-vitals.tooling.md), [terrain-affinity](solved/terrain-affinity.feature.md).
 
 ## Idea
 
 From the user: the player is, in a way, one more monster that walks in and kills everything. So a trap, a poison, a
 fire or a terrain treats every living thing by the same rule; a kind differs only by its numbers (resistances, trap
 share, poison ward, native and hostile terrains), never by a separate code path. What stays the player's alone:
-equipment, shrines and blessings, curses, skills, XP. With [shared-vitals](shared-vitals.tooling.draft.opus.md)
+equipment, shrines and blessings, curses, skills, XP. With [shared-vitals](solved/shared-vitals.tooling.md)
 done, each point below is a change in one place.
 
 ## Plan

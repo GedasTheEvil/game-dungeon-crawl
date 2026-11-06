@@ -50,8 +50,8 @@ void waitFor(SimWorld& world, SpikeState s) {
 	REQUIRE(stateAt(world) == s);
 }
 
-bool weak(const SimWorld& world) { return world.player.stats.poison.Running(PoisonTier::Weak); }
-bool medium(const SimWorld& world) { return world.player.stats.poison.Running(PoisonTier::Medium); }
+bool weak(const SimWorld& world) { return world.player.stats.vitals.poison.Running(PoisonTier::Weak); }
+bool medium(const SimWorld& world) { return world.player.stats.vitals.poison.Running(PoisonTier::Medium); }
 
 // On the level, beside the drip at col 5 as the venom stops falling.
 void besideTheDrip(SimWorld& world) {
@@ -136,7 +136,7 @@ TEST_CASE("a jump clears the puddle, not the drop") {
 	world.Jump(); // between drops: clean over it
 	land(world);
 	REQUIRE(world.X() > 5.5f + DRIP_PUDDLE_HALF_WIDTH);
-	CHECK_FALSE(world.player.stats.poison.Any());
+	CHECK_FALSE(world.player.stats.vitals.poison.Any());
 
 	REQUIRE(world.WalkTo(7.f));
 	world.facing = -1;

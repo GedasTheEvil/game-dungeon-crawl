@@ -176,6 +176,6 @@ TEST_CASE("Khepri's ball burns: its hit sets the player burning") {
 	REQUIRE(waitFor(world, 6000, [&] { return rolling(world); }));
 	CHECK(khepri->PlayerGap(world.X()) > monsterKind(MonsterGiantScarab)->roll->maxRange); // from farther
 	REQUIRE(waitFor(world, 1500, [&] { return broken(world); }));
-	CHECK(world.player.burning.Any());
+	CHECK(world.player.stats.vitals.burning.Any());
 	CHECK(world.Saw(MonsterBossScarab, CreatureMove::RollBall));
 }

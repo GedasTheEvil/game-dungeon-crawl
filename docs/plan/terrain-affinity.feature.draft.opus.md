@@ -82,8 +82,8 @@ More terrains can be added later as one row pair in the table.
   native to water; check the two match. The one water speed changes every swimmer (cobras and Apep faster, the
   hippo, Seth, the crocodile and Sobek slower in water): accepted, no retune here. A `Slowed` wader hostile to water
   takes the lower of `WADE_SPEED_FACTOR` and the hostile speed, not their product.
-* **The tell**: the walk (and swim) clip plays faster in a native terrain (e.g. 1.25x) and slower in a hostile one
-  (e.g. 0.8x), one constant each for all. No trail, no glow, no text in the HUD. A journal line
+* **The tell**: the walk (and swim) clip plays faster in a native terrain (1.1x) and slower in a hostile one
+  (0.9x, the user's call), one constant each for all. No trail, no glow, no text in the HUD. A journal line
   (`CreatureMove::AvoidTerrain`, like `ShunLight`) the first time the player sees a monster step out of hostile
   terrain.
 * **The level checker**:
@@ -127,7 +127,7 @@ The plan can land in steps, each one play-testable on its own:
 
 ## Open questions
 
-* The starting numbers in the table and the clip rates.
+* The starting numbers in the table.
 * The avoidance's "about as short" detour for a chasing monster (e.g. at most 2 cells longer).
 
 ## Play-test

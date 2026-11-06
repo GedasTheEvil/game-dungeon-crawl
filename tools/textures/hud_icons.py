@@ -1,11 +1,11 @@
-"""Generate the HUD and inventory tab icon atlas media/textures/ui/hud_icons.png (RGBA, 8 x 6 cells of 128 px).
+"""Generate the HUD and inventory tab icon atlas media/textures/ui/hud_icons.png (RGBA, 8 x 7 cells of 128 px).
 
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
 src/level/hud_icon.h: the potion, amulet, ring, daze, the Isis ward, the status drop, the flame and Montu's blessing, then from cell 8 on the weapons in ItemKind order, then from cell
 21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/level/curses.h), then the blessings of
-Ptah, Amun and Serket. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
+Ptah, Amun and Serket, then a monster's terrain moods (an arrow up, an arrow down). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
 
@@ -19,7 +19,7 @@ from decals import bleed
 
 CELL = 128
 S = CELL * 4  # drawing resolution per cell
-GRID_X, GRID_Y = 8, 6
+GRID_X, GRID_Y = 8, 7
 OUTLINE = 18  # ink round the whole glyph, in drawing pixels
 LINE = 6  # ink between the parts
 
@@ -766,6 +766,26 @@ def burning():
     return img
 
 
+def terrain_arrow(up):
+    """A monster's terrain mood (plan monster-status-icons): a broad arrow, up and green on its home ground (drawn on
+    the gold blessing card), down and red on the ground it hates (on the grey condition card)."""
+    img = Image.new("RGBA", (S, S))
+    d = ImageDraw.Draw(img)
+    pts = [(256, 40), (460, 260), (340, 260), (340, 470), (172, 470), (172, 260), (52, 260)]
+    if not up:
+        pts = [(x, S - y) for x, y in pts]
+    d.polygon(pts, fill=GREEN if up else RED, outline=INK, width=LINE)
+    return img
+
+
+def terrain_native():
+    return terrain_arrow(True)
+
+
+def terrain_hostile():
+    return terrain_arrow(False)
+
+
 CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, palsy, insanity]
 
 # Order = atlas cell = PlayerHud::Icon; None: an empty cell. The amulets from cell 21 on (Icon::FirstAmulet), the
@@ -773,7 +793,7 @@ CURSE_ICONS = [weakness, clumsiness, vulnerability, fatigue, disease, slowness, 
 ICONS = [potion, amulet, ring, daze, isis_ward, drop_icon, burning, montu_blessing,
          club, dagger, sword, khopesh, epsilon_axe, duckbill_axe, mace, spear,
          bow, composite_bow, sling, throwing_stick, javelin] + AMULET_ICONS + CURSE_ICONS + [
-         ptah_blessing, amun_blessing, serket_blessing]
+         ptah_blessing, amun_blessing, serket_blessing, terrain_native, terrain_hostile]
 
 def main(path):
     atlas = Image.new("RGBA", (CELL * GRID_X, CELL * GRID_Y), (0, 0, 0, 0))

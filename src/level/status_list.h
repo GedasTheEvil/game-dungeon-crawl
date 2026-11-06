@@ -6,6 +6,8 @@
 #include "poison.h"
 #include "rgb.h"
 #include "shrines.h"
+#include "terrain.h"
+#include "vitals.h"
 #include <array>
 
 class PlayerStats;
@@ -14,12 +16,14 @@ class PlayerStats;
 // background by kind (media/textures/ui/status_cards.png, tools/textures/status_cards.py, one cell per kind in enum
 // order) with the effect's icon on it.
 //
-// The kind follows what the effect does to the player:
-// * Blessing, yellow-gold: any good effect. Hapi, the gods' blessings, the resistance potion.
+// The kind follows what the effect does to the player (or the monster, plan monster-status-icons):
+// * Blessing, yellow-gold: any good effect. Hapi, the gods' blessings, the resistance potion, a monster's native
+// terrain.
 // * Condition, neutral grey: a bad effect that is easy to end (an antidote, water, a short wait). Poison, burning,
-// daze.
+// daze or stun, a hostile terrain.
 // * Curse, purple: a bad effect that is almost incurable (only a prayer at a Shrine of Isis lifts it).
-// A new effect: a cell in hud_icons.py, an Icon entry, one line in statusList().
+// A new effect: a cell in hud_icons.py, an Icon entry, one line in statusList() (a condition both the player and a
+// monster can have: in addConditions).
 enum class StatusKind : std::uint8_t { Blessing, Condition, Curse };
 constexpr int STATUS_KIND_COUNT = 3;
 
@@ -31,8 +35,8 @@ struct Status {
 	int leftMs = 0; // the seconds shown under the card
 };
 
-// Fixed size, no allocation per frame: all the blessings, poison tiers, burning, daze and curses at once.
-constexpr int MAX_STATUSES = 2 + GOD_COUNT + POISON_TIER_COUNT + 2 + CURSE_COUNT;
+// Fixed size, no allocation per frame: all the blessings, poison tiers, burning, daze, terrain and curses at once.
+constexpr int MAX_STATUSES = 2 + GOD_COUNT + POISON_TIER_COUNT + 3 + CURSE_COUNT;
 struct StatusList {
 	std::array<Status, MAX_STATUSES> items{};
 	int count = 0;
@@ -42,9 +46,16 @@ struct StatusList {
 	}
 };
 
-// The running effects in display order: blessings (resistance, Hapi, the gods in God order), then conditions (poison
-// weak first, burning, daze), then curses in Curse order, so the row reads by colour. burningLeftMs: Vitals::burning,
-// dazeMs: Vitals::OutLeftMs (the daze).
-[[nodiscard]] StatusList statusList(const PlayerStats& stats, int burningLeftMs, int dazeMs);
+// The conditions of a body, the player's or a monster's (plan monster-status-icons): the poison tiers weak first,
+// burning, out of action (the player's daze, a monster's stun), then the terrain's mood (native: a blessing card,
+// hostile: a condition card; the player has none yet). One place for the next condition both can have.
+void addConditions(StatusList& list, const Vitals& vitals, TerrainMood mood = TerrainMood::Neutral);
+
+// The player's running effects in display order: blessings (resistance, Hapi, the gods in God order), then the
+// conditions (addConditions), then curses in Curse order, so the row reads by colour.
+[[nodiscard]] StatusList statusList(const PlayerStats& stats);
+
+// A monster's (plan monster-status-icons): its conditions only, no blessings or curses (it prays at no shrine).
+[[nodiscard]] StatusList monsterStatuses(const Vitals& vitals, TerrainMood mood);
 
 #endif

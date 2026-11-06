@@ -78,11 +78,7 @@ PlayerHud::View playerHudView() {
 			view.ringWorn[hand] = true;
 			view.ringGem[hand] = {c.r, c.g, c.b};
 		}
-	view.statuses = statusList(
-		stats,
-		Game().player->stats.vitals.burning.LeftMs(),
-		Game().player->stats.vitals.OutLeftMs()
-	);
+	view.statuses = statusList(stats);
 	view.poisoned = stats.vitals.poison.Any();
 	view.staminaSkillShown = stats.heka.HasStaminaSkill();
 	view.staminaSkillOn = Game().player->staminaSkills;

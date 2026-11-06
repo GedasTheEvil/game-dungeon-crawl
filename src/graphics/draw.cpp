@@ -376,9 +376,12 @@ void drawGameplay() {
 			boss->Type()->name,
 			static_cast<float>(boss->Health()) / static_cast<float>(boss->MaxHealth()),
 			boss->Poisoned(),
-			Game().render.resX,
-			Game().render.resY,
-			Game().assets.fonts.status
+			boss->Statuses(),
+			{Game().render.resX,
+			 Game().render.resY,
+			 &Game().assets.fonts.status,
+			 Game().assets.textures.hudIcons.ID(),
+			 Game().assets.textures.statusCards.ID()}
 		);
 
 	glColor3f(1, 1, 1);

@@ -1,0 +1,36 @@
+# Plan monster-status-icons: a monster's effects as small status cards over its health bar (burning, poisoned,
+# stunned), the boss's over its HUD bar at the player's card size. The screenshots are the look; the list's rules:
+# tests/unit/status_list_test.cpp.
+seed 1
+god
+level tests/levels/fire
+give ranged 0
+equip self-bow
+walk to 12
+walk to 9.5
+prop 9 brazier
+interact
+walk to 10.3
+wait 1s
+attack
+wait 66
+expect nearest_burning == 1
+walk to 11.2
+poisonmonster medium
+stun
+wait 2
+screenshot mummy_cards
+wait 4s
+screenshot mummy_cards_later
+
+# the boss: its cards over the HUD bar
+level tests/levels/vampire at 8 4
+god
+wait 30
+expect boss > 0
+wait 2s
+poisonboss strong
+stun
+wait 2
+screenshot boss_cards
+quit

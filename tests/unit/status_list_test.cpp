@@ -20,7 +20,8 @@ TEST_CASE("the status list orders a mixed set by kind: blessings, conditions, cu
 	resist.resistPercent = PotionEffect::GREATER_RESIST_PERCENT;
 	stats.Drink(resist);
 
-	const StatusList list = statusList(stats, 2000, 0);
+	stats.vitals.burning.Ignite(5.0, 2000);
+	const StatusList list = statusList(stats);
 	REQUIRE(list.count == 6);
 	const Status* s = list.items.data();
 	CHECK(s[0].kind == StatusKind::Blessing); // the resistance potion, greater: two pips
@@ -49,13 +50,14 @@ TEST_CASE("the status list: Hapi and Isis are blessings, daze a condition, nothi
 	GameClock::enableVirtual();
 	PlayerStats stats;
 	WorldEvents events;
-	CHECK(statusList(stats, 0, 0).count == 0);
+	CHECK(statusList(stats).count == 0);
 
 	PotionGain water;
 	water.waterBlessing = true;
 	stats.Drink(water);
 	stats.Pray(God::Isis, events);
-	const StatusList list = statusList(stats, 0, 1500);
+	stats.vitals.KnockOut(1500);
+	const StatusList list = statusList(stats);
 	REQUIRE(list.count == 3);
 	CHECK(list.items[0].kind == StatusKind::Blessing); // Hapi before Isis
 	CHECK(list.items[0].icon == Icon::Drop);
@@ -73,5 +75,37 @@ TEST_CASE("every effect at once fits the list") {
 		stats.LayCurse(static_cast<Curse>(c), CurseGrade::Lesser, events);
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
 		stats.vitals.poison.Apply(static_cast<PoisonTier>(t));
-	CHECK(statusList(stats, 1000, 1000).count == 2 + CURSE_COUNT + POISON_TIER_COUNT);
+	stats.vitals.burning.Ignite(5.0, 1000);
+	stats.vitals.KnockOut(1000);
+	CHECK(statusList(stats).count == 2 + CURSE_COUNT + POISON_TIER_COUNT);
+}
+
+TEST_CASE("monster-status-icons: a monster's row is its conditions in the player's order, its terrain mood last") {
+	GameClock::enableVirtual();
+	Vitals vitals{10};
+	CHECK(monsterStatuses(vitals, TerrainMood::Neutral).count == 0);
+	vitals.poison.Apply(PoisonTier::Strong);
+	vitals.burning.Ignite(5.0, 2000);
+	vitals.KnockOut(1500);
+	const StatusList hostile = monsterStatuses(vitals, TerrainMood::Hostile);
+	REQUIRE(hostile.count == 4);
+	CHECK(hostile.items[0].icon == Icon::Drop); // the strong tier, as the player's card
+	CHECK(hostile.items[0].pips == 3);
+	CHECK(hostile.items[1].icon == Icon::Burning);
+	CHECK(hostile.items[2].icon == Icon::Daze); // stunned: the player's daze stars
+	CHECK(hostile.items[3].kind == StatusKind::Condition);
+	CHECK(hostile.items[3].icon == Icon::TerrainHostile);
+	const StatusList native = monsterStatuses(Vitals{10}, TerrainMood::Native);
+	REQUIRE(native.count == 1);
+	CHECK(native.items[0].kind == StatusKind::Blessing);
+	CHECK(native.items[0].icon == Icon::TerrainNative);
+	// The player's row holds the same conditions, through the same function.
+	PlayerStats stats;
+	stats.vitals.poison.Apply(PoisonTier::Strong);
+	stats.vitals.burning.Ignite(5.0, 2000);
+	stats.vitals.KnockOut(1500);
+	const StatusList player = statusList(stats);
+	REQUIRE(player.count == 3);
+	for (int i = 0; i < 3; i++)
+		CHECK(player.items[static_cast<size_t>(i)].icon == hostile.items[static_cast<size_t>(i)].icon);
 }

@@ -12,6 +12,7 @@
 #include "../level/level.h"
 #include "../level/monster_kinds.h"
 #include "../level/poison.h"
+#include "../level/status_list.h"
 #include "../level/vitals.h"
 #include "../level/rng.h"
 #include "../level/world_events.h"
@@ -501,6 +502,8 @@ class Monster {
 	// that woke it), rising, hidden, in a leap, a charge or a roll, or climbing. True: it took.
 	bool StunHit(int ms, bool wasLurking);
 	[[nodiscard]] bool Reeling() const { return Alive() && vitals.Out(); }
+	// Its status cards (plan monster-status-icons): poison, burning, stunned, its terrain's mood (monsterStatuses).
+	[[nodiscard]] StatusList Statuses() const { return monsterStatuses(vitals, Alive() ? mood : TerrainMood::Neutral); }
 	// Once a tick: the pose for its state, the facing, the blood, the clip frame (DrawMonster only shows them).
 	void Animate(float px, float py);
 

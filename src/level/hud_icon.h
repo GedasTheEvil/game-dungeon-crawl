@@ -6,6 +6,8 @@
 #include <cstdint>
 
 namespace PlayerHud {
+constexpr int ICON_COLUMNS = 8; // the atlas grid
+constexpr int ICON_ROWS = 7;
 // Cells of the icon atlas media/textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
 // inventory's tabs. Daze: the stars circling a dazed head (plan screech-bite). The weapons follow from FirstWeapon on,
 // in ItemKind order (weaponIcon); the curses from FirstCurse on, in Curse order.
@@ -26,6 +28,10 @@ enum class Icon : std::uint8_t {
 	PtahBlessing = FirstCurse + CURSE_COUNT, // his djed pillar
 	AmunBlessing, // his ram's head with its curled horn
 	SerketBlessing, // her scorpion
+	// A monster's terrain mood (plans terrain-affinity, monster-status-icons): an arrow up on its home ground, down on
+	// the ground it hates.
+	TerrainNative,
+	TerrainHostile,
 	None = 0xff
 };
 constexpr Icon weaponIcon(ItemKind weapon) {

@@ -9,7 +9,28 @@ constexpr Rgb WATER_DROP = {0.08f, 0.52f, 0.68f}; // the Blessing of Hapi's, as 
 constexpr Rgb WHITE = {1, 1, 1};
 } // namespace
 
-StatusList statusList(const PlayerStats& stats, int burningLeftMs, int dazeMs) {
+void addConditions(StatusList& list, const Vitals& vitals, TerrainMood mood) {
+	using PlayerHud::Icon;
+	for (int t = 0; t < POISON_TIER_COUNT; t++)
+		if (const int left = vitals.poison.LeftMs(static_cast<PoisonTier>(t)); left > 0)
+			list.Add({StatusKind::Condition, Icon::Drop, POISON_DROPS[t], t + 1, left});
+	if (const int left = vitals.burning.LeftMs(); left > 0)
+		list.Add({StatusKind::Condition, Icon::Burning, WHITE, 0, left});
+	if (const int left = vitals.OutLeftMs(); left > 0)
+		list.Add({StatusKind::Condition, Icon::Daze, WHITE, 0, left});
+	if (mood == TerrainMood::Native)
+		list.Add({StatusKind::Blessing, Icon::TerrainNative, WHITE, 0, 0});
+	else if (mood == TerrainMood::Hostile)
+		list.Add({StatusKind::Condition, Icon::TerrainHostile, WHITE, 0, 0});
+}
+
+StatusList monsterStatuses(const Vitals& vitals, TerrainMood mood) {
+	StatusList list;
+	addConditions(list, vitals, mood);
+	return list;
+}
+
+StatusList statusList(const PlayerStats& stats) {
 	using PlayerHud::Icon;
 	StatusList list;
 	if (stats.PotionResistLeftMs() > 0) {
@@ -30,13 +51,7 @@ StatusList statusList(const PlayerStats& stats, int burningLeftMs, int dazeMs) {
 	for (int g = 0; g < GOD_COUNT; g++)
 		if (const int left = stats.BlessingLeftMs(static_cast<God>(g)); left > 0)
 			list.Add({StatusKind::Blessing, GOD_ICONS[g], WHITE, 0, left});
-	for (int t = 0; t < POISON_TIER_COUNT; t++)
-		if (const int left = stats.vitals.poison.LeftMs(static_cast<PoisonTier>(t)); left > 0)
-			list.Add({StatusKind::Condition, Icon::Drop, POISON_DROPS[t], t + 1, left});
-	if (burningLeftMs > 0)
-		list.Add({StatusKind::Condition, Icon::Burning, WHITE, 0, burningLeftMs});
-	if (dazeMs > 0)
-		list.Add({StatusKind::Condition, Icon::Daze, WHITE, 0, dazeMs});
+	addConditions(list, stats.vitals);
 	for (int c = 0; c < CURSE_COUNT; c++) {
 		const auto curse = static_cast<Curse>(c);
 		if (!stats.curses.Has(curse))

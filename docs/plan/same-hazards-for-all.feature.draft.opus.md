@@ -49,7 +49,7 @@ done, each point below is a change in one place.
 
 * Shrines and blessings for monsters, equipment for monsters.
 * Balance of the bosses (separate follow-ups after the play-test).
-* The icons over the monsters: [monster-status-icons](monster-status-icons.feature.draft.opus.md).
+* The icons over the monsters: [monster-status-icons](monster-status-icons.feature.md).
 
 ## Open points (implementer's choice)
 

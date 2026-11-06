@@ -51,8 +51,6 @@ constexpr Rect STAMINA_SKILL_SIGN =
 constexpr Color FLAME = {0.98f, 0.45f, 0.1f};
 constexpr float HEKA_PULSE_RATE = 0.004f; // radians per ms
 constexpr float ICON_INSET = 0.3f; // the icon in its slot
-constexpr int ICON_COLUMNS = 8; // atlas grid
-constexpr int ICON_ROWS = 6;
 
 // ---- timing ----
 constexpr float LOW_HEALTH = 0.25f; // under this the health bar pulses
@@ -148,29 +146,8 @@ Rect poisonRect(int i) { return {POISON_X + POISON_STEP * static_cast<float>(i),
 // The status cards left to right in the list's order (blessings, conditions, curses): a drop shadow, the kind's painted
 // card (a margin round the tile), the icon tinted, a pip per tier or grade in the bottom strip.
 void drawStatuses(const PlayerHud::View& v, int icons, int cards) {
-	for (int i = 0; i < v.statuses.count; i++) {
-		const Status& s = v.statuses.items[static_cast<size_t>(i)];
-		const Rect r = poisonRect(i);
-		fillRect({r.x + 0.5f, r.y - 0.6f, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-		atlasIcon(r.inset(-CARD_MARGIN), cards, static_cast<int>(s.kind), STATUS_KIND_COUNT, 1, {1, 1, 1});
-		atlasIcon(
-			{r.x + 0.6f, r.y + 1.3f, r.w - 1.2f, r.h - 1.6f},
-			icons,
-			static_cast<int>(s.icon),
-			ICON_COLUMNS,
-			ICON_ROWS,
-			{s.tint.r, s.tint.g, s.tint.b}
-		);
-		beginShapes();
-		for (int p = 0; p < s.pips; p++)
-			diamond(
-				r.cx() + (static_cast<float>(p) - static_cast<float>(s.pips - 1) / 2.f) * 1.4f,
-				r.y + 0.9f,
-				0.45f,
-				GOLD_BRIGHT,
-				1.f
-			);
-	}
+	for (int i = 0; i < v.statuses.count; i++)
+		PlayerHud::drawStatusCard(v.statuses.items[static_cast<size_t>(i)], poisonRect(i), icons, cards, true);
 }
 
 // A heka waits to be spent: a lapis tile with the heka mark and a breathing gold halo, the Heka key under it.
@@ -397,6 +374,33 @@ namespace PlayerHud {
 void tick(int hp, int maxHp) { trail.update(ratioOf(hp, maxHp), GameClock::now()); }
 
 void reset() { trail = PlayerHud::DamageTrail{}; }
+
+// The card's parts are measured on the HUD's (POISON_SIZE across) and scaled to r: the same look at any size.
+void drawStatusCard(const Status& s, const Rect& r, int icons, int cards, bool pips) {
+	const float k = r.w / POISON_SIZE;
+	beginShapes();
+	fillRect({r.x + 0.5f * k, r.y - 0.6f * k, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
+	atlasIcon(r.inset(-CARD_MARGIN * k), cards, static_cast<int>(s.kind), STATUS_KIND_COUNT, 1, {1, 1, 1});
+	atlasIcon(
+		{r.x + 0.6f * k, r.y + 1.3f * k, r.w - 1.2f * k, r.h - 1.6f * k},
+		icons,
+		static_cast<int>(s.icon),
+		ICON_COLUMNS,
+		ICON_ROWS,
+		{s.tint.r, s.tint.g, s.tint.b}
+	);
+	beginShapes();
+	if (!pips)
+		return;
+	for (int p = 0; p < s.pips; p++)
+		diamond(
+			r.cx() + (static_cast<float>(p) - static_cast<float>(s.pips - 1) / 2.f) * 1.4f * k,
+			r.y + 0.9f * k,
+			0.45f * k,
+			GOLD_BRIGHT,
+			1.f
+		);
+}
 
 void drawIcon(Icon icon, const Rect& r, int icons, Color tint) {
 	atlasIcon(r, icons, static_cast<int>(icon), ICON_COLUMNS, ICON_ROWS, tint);

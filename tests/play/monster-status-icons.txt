@@ -1,0 +1,12 @@
+# Plan monster-status-icons: the Bat of Shezmu's roost: its bats' cards over their bars, the boss's over its HUD bar.
+# The mace with the Stun skill stuns; the venom amulet poisons.
+seed 1
+god
+level tests/levels/vampire at 8 4
+xp 70000
+give melee 7
+equip mace
+heka 1
+learn stun
+give amulet 37
+wear grand_amulet_of_venom

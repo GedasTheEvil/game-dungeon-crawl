@@ -1,6 +1,6 @@
 # Monster status icons: small effect icons over a monster's health bar
 
-Status: draft 2026-11-06, size M, needs nothing first.
+Status: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size M, needs nothing first.
 
 ## Idea
 
@@ -39,3 +39,23 @@ but it does not need it: it reads today's `Monster` getters.
 * Whether pips fit at that size.
 * Whether the stun icon replaces the stars over the head or sits beside them (likely beside: the stars are the body,
   the icon the HUD language).
+
+## As built
+
+* `addConditions` (`src/level/status_list.cpp`) fills a body's conditions from its `Vitals` (plan shared-vitals) and
+  its terrain mood; `statusList` (the player) and `monsterStatuses` (`Monster::Statuses`) both call it.
+* `PlayerHud::drawStatusCard` draws one card at any size (its parts scaled from the HUD's); the HUD, the boss bar and
+  the monster row (`drawStatusRow`, `src/graphics/monster_draw.cpp`) use it. Pips only on the HUD and the boss bar:
+  too small on a monster's row. The stun card sits beside the stars over the head.
+* Terrain mood: two new atlas cells (`hud_icons.py`, the atlas now 8 x 7), an arrow up (green, on the gold card) and
+  an arrow down (red, on the grey card).
+* Scenario `tests/scenarios/monster-status-icons.txt`: the burning, stunned mummy; the Bat of Shezmu poisoned and
+  stunned on its HUD bar, its bats' native arrows.
+
+## Play-test
+
+* `bin/game --play tests/play/monster-status-icons.txt` (the Bat of Shezmu's roost, mace with Stun, venom amulet; god
+  mode): hit the bats and the boss.
+* A small card row over each bat's bar: its native gold arrow up, the stars card while stunned, a green drop while
+  poisoned; readable, not clipped at the screen edge.
+* The boss's cards over its HUD bar at the player's card size, with pips for the poison tier; clear of its name.

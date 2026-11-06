@@ -5,6 +5,7 @@
 #include "../render/ink.h"
 #include "../render/lighting.h"
 #include "particles_draw.h"
+#include "../ui/player_hud.h"
 #include "../sim/render_config.h"
 #include "../level/gameplay_config.h"
 
@@ -17,8 +18,34 @@ constexpr float HEALTH_BAR_GAP = 3.f; // between the model and the bar
 constexpr Rgb POISON_BAR = {0.6f, 0.95f, 0.15f};
 constexpr Rgb POISON_BAR_DARK = {0.08f, 0.4f, 0.1f};
 constexpr int POISON_PULSE_MS = 800;
+// Its status cards (plan monster-status-icons), left-aligned over the bar: 1.5 times its height (the user's start
+// value; tune by play-test), no seconds, no pips (too small to read).
+constexpr float STATUS_CARD = 1.5f * HEALTH_BAR_HEIGHT;
+constexpr float STATUS_GAP = 0.5f; // bar top to the cards (their frame sticks out), and between two cards
 
-void drawHealthBar(const Monster& mon, const Texture& bar) {
+// The row of cards in the bar's billboard space, the bar's left end at x = -w; under a roosting flyer's bar (its
+// body is above it).
+void drawStatusRow(const Monster& mon, float w, const TextureRegistry& textures) {
+	const StatusList statuses = mon.Statuses();
+	if (statuses.count == 0)
+		return;
+	for (int i = 0; i < statuses.count; i++)
+		PlayerHud::drawStatusCard(
+			statuses.items[static_cast<size_t>(i)],
+			{-w + STATUS_GAP / 2 + static_cast<float>(i) * (STATUS_CARD + STATUS_GAP),
+			 mon.Roosting() ? -STATUS_GAP - STATUS_CARD : HEALTH_BAR_HEIGHT + STATUS_GAP, // a roost's bar hangs low
+			 STATUS_CARD,
+			 STATUS_CARD},
+			textures.hudIcons.ID(),
+			textures.statusCards.ID(),
+			false
+		);
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D); // the cards leave it off; the model is drawn textured
+}
+
+void drawHealthBar(const Monster& mon, const TextureRegistry& textures) {
+	const Texture& bar = textures.loadingBar;
 	const MonsterType& type = *mon.Type();
 	// Above the model's frame 0 top; a roosting flyer's bar hangs under it (the ceiling is above).
 	const float drawScale = type.scale * Ink::figureScale();
@@ -81,6 +108,7 @@ void drawHealthBar(const Monster& mon, const Texture& bar) {
 	glVertex3f(-w, h, 0);
 	glEnd();
 	glDisable(GL_BLEND);
+	drawStatusRow(mon, w, textures);
 
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
@@ -104,7 +132,7 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 
 	// Idle monsters keep up the disguise, a hidden one (under the sand) shows none; the boss's bar is on the HUD.
 	if (!plain && mon.Alive() && mon.Alerted() && !mon.Hidden() && !type.isBoss())
-		drawHealthBar(mon, textures.loadingBar);
+		drawHealthBar(mon, textures);
 
 	glScalef(scale, scale, scale);
 

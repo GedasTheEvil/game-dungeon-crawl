@@ -35,6 +35,7 @@ These commands do not need confirmation to run
 * make tidy-fix
 * make format-check
 * make unit
+* make unit-serial
 * make format
 * make clean
 * make

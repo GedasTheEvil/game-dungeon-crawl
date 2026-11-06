@@ -75,8 +75,12 @@ const float* Md3DecodeNormal(int16_t packed) {
 
 //============================================================
 bool Md3Mesh::Load(const char fileName[]) {
-	ifstream in(fileName, ios::binary);
-	vector<char> data((istreambuf_iterator<char>(in)), istreambuf_iterator<char>());
+	// One read of the whole file (an istreambuf_iterator copy goes char by char: most of a model's load time).
+	ifstream in(fileName, ios::binary | ios::ate);
+	vector<char> data(in ? static_cast<size_t>(max<streamoff>(in.tellg(), 0)) : 0);
+	in.seekg(0);
+	if (!in.read(data.data(), static_cast<streamsize>(data.size())))
+		data.clear();
 
 	auto fail = [&](const char* why) {
 		LOG_ERRORF("model", "Cannot load %s: %s", fileName, why);

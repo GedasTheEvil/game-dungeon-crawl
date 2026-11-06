@@ -6,8 +6,12 @@ Two kinds: unit tests of the GL-free library code, and scenario tests of the run
 ## Unit tests
 
 [doctest](https://github.com/doctest/doctest) (one header, `external/doctest/doctest.h`). `tests/unit/*_test.cpp`
-link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL. `make unit` builds and runs
-`bin/unit`; `bin/unit -tc="*gate*"` runs the matching test cases. A new file in `tests/unit/` is picked up by the makefile. Test the rules there first;
+link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL. `make unit` builds
+`bin/unit` and runs it in parallel shards (`tools/unit_shards.sh`: one seeded random order cut into windows, each
+shard through the load gate; a failed shard's output in full, then one summary line). Every test case runs once, in
+one shard, in its own process with other cases: a test must not depend on another one's state or order, and a file
+it writes needs its own path. `make unit-serial` runs `bin/unit` in one process; `bin/unit -tc="*gate*"` runs the
+matching test cases. A new file in `tests/unit/` is picked up by the makefile. Test the rules there first;
 a scenario is for what needs the game running (drawing, timing, input).
 
 `tests/unit/sim_world.h` (`SimWorld`) runs the world without the game: it loads a level as `level path` does, steps

@@ -93,11 +93,17 @@ CLANG_TIDY?=clang-tidy
 # idle-core, free-memory and free-swap floor, shared by all runs at once, also a make -j. Each heavy target ends with
 # the gate's summary line (peaks, wall time). The build's stats start fresh with every make.
 GATE=./tools/load_gate.sh run
+# Parallel by default (plan check-speed): as many jobs as the gate's cap, which holds them back anyway. A serial build
+# after a change to a widely included header (core/gameplay_config.h) took 5 minutes. `make -j1` builds serially.
+# Lines of parallel jobs do not interleave (--output-sync=line), and a long run (make test) still prints as it goes.
+ifeq ($(filter -j% j%,$(MAKEFLAGS)),)
+MAKEFLAGS+=-j$(shell ./tools/load_gate.sh jobs) --output-sync=line
+endif
 export GATE_STATS:=$(BUILD)/.gate-build
 $(shell rm -f $(GATE_STATS))
 GATE_REPORT=@./tools/load_gate.sh report build
 
-.PHONY: all check clean format format-check layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit paths level-tools
+.PHONY: all check clean format format-check layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE)
@@ -201,7 +207,7 @@ check: all
 	@./tools/plan.py lint
 	@python3 -I tools/plan_test.py
 	@$(MAKE) --no-print-directory format
-	@$(MAKE) --no-print-directory format-check
+	@./tools/check_format.sh --changed $(FORMAT_FILES)
 	@$(MAKE) --no-print-directory tidy
 	@$(MAKE) --no-print-directory unit
 
@@ -227,7 +233,13 @@ $(UNIT): $(UNIT_OBJECTS) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB) $(EXTERNAL_OBJECTS)
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
 
+# `make unit`: the unit tests in parallel shards (tools/unit_shards.sh, plan check-speed); `make unit-serial` runs them
+# in one process, for a debugger or doctest's own options (bin/unit --help).
 unit: $(UNIT)
+	$(GATE_REPORT)
+	@./tools/unit_shards.sh $(UNIT)
+
+unit-serial: $(UNIT)
 	$(GATE_REPORT)
 	$(UNIT)
 

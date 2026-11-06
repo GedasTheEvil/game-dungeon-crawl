@@ -20,7 +20,8 @@ Data paths are relative to the repo root (`MEDIA_DIR`, `CONTENT_DIR` in `src/cor
 model viewer move there themselves (the parent of `bin/`), so `bin/game` also starts from elsewhere; the level tools
 read their file arguments from the current directory.
 
-* `make` builds the game and every tool. Game: `./Play` (or `bin/game` from the repo root).
+* `make` builds the game and every tool, in parallel (as many jobs as the load gate's cap; `make -j1` builds
+  serially). Game: `./Play` (or `bin/game` from the repo root).
 * `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
   scenario's setup (level, gear) by hand. `--no-sound` mutes either. See [testing.md](testing.md#play-by-hand).
 * Level editor: `make editor`, `make run-editor [LEVEL=content/levels/lvl3]` (opens that file). See [tools/editor/readme.md](../tools/editor/readme.md).
@@ -217,15 +218,16 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
 ## Code quality tools
 
 * `make check`: builds, rewrites markdown links to plans that moved (`tools/plan.py links`), checks the plans' names
-  and Status lines (`plan.py lint`) and runs the plan tool's tests, then `format`, `format-check`, `tidy` and `unit`,
-  in order. Run it before each commit.
+  and Status lines (`plan.py lint`) and runs the plan tool's tests, then `format`, the stability check of
+  `format-check` on the changed files only (`tools/check_format.sh --changed`), `tidy` and `unit`, in order. Run it
+  before each commit.
 * `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about
   it. `.clang-format` aligns nothing across lines (trailing comments, line continuations), so a diff shows only the
   lines that changed. A call too long for one line gets one argument per line and the `)` on its own line (the same
   for parameters). The whole-tree reformats for these are skipped by `git blame` ([version-control.md](version-control.md#blame)).
 * `make format-check` fails on a file `make format` would change, and on code clang-format does not leave stable (a
   file that flips between two layouts on every `make format`, often a long trailing comment that wraps onto a second
-  line: move the comment above the line).
+  line: move the comment above the line). Every file, in parallel (the load gate's job cap).
 * `make tidy` (clang-tidy, `.clang-tidy`, and the layer checks): the sources changed since the merge base with
   master, and the ones that include a changed header. `make tidy-all` checks every source (about 2.5 minutes). Both
   run one clang-tidy per file through the load gate (`tools/load_gate.sh`, as the scenario games and the build:

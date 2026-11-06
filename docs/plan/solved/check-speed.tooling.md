@@ -1,6 +1,6 @@
 # make check runs faster
 
-Status: draft 2026-11-06, size M, needs nothing first.
+Status: solved 2026-11-06. Was: draft 2026-11-06, size M, needs nothing first.
 
 ## Problem
 
@@ -55,3 +55,27 @@ Do not drop any check. The gain must come from doing the same work faster or ski
 * Shard count: start with the load gate's job cap.
 * Whether `make check` should skip `unit` when no `src/`, `tests/unit/` or `content/` file changed. Not by default:
   agents rely on a green check.
+
+## Done (2026-11-06)
+
+Measured on 16 cores, the two other worktree tasks building at times (so the numbers are noisy):
+
+| Step | Before | After |
+|---|---|---|
+| 1. `format-check` in `make check`: `tools/check_format.sh --changed`, only files changed since the merge base, in parallel (gate job cap; not through the gate: its 0.5 s sample per file would cost more than clang-format) | 25.7 s | 0.6 s (the full `make format-check`, now parallel: 6.8 s) |
+| 2. `make unit` in shards: `tools/unit_shards.sh`, one seeded random order cut into 6 windows, each through the gate; `make unit-serial` keeps one process | 20-24 s | 8-8.7 s |
+| 3. Slowest tests: `Md3Mesh::Load` read each file char by char (`istreambuf_iterator`), 55% of a sim test's time; now one read | first sim test in a process 1.18 s | 0.52 s |
+| 4. Rebuild fan-out: `make` was serial. Now `-j` the gate's job cap by default (`MAKEFLAGS`, `--output-sync=line`; `make -j1` builds serially). `touch core/gameplay_config.h && make` | 324 s | 130 s |
+| `make check`, clean tree but one changed source | ~55 s before tidy | 29 s (tidy 8 s of it) |
+
+Notes:
+
+* Shards: more than 6 end no sooner. Each shard process loads every monster model once (`SimWorld::monsterTypes`),
+  and those loads slow each other down (memory, not CPU): 4 shards 8.2 s, 6 8.5 s, 9 9.2 s, 12 10.7 s.
+* Shard summary: a doctest run with `--first`/`--last` counts the cases outside its window as passed, so the
+  summary line sums only the failures and the assertions.
+* Step 3, fewer seeds: the zone table tests need their three seeds ("a smaller weight may miss three levels"), so
+  they stay. A cache across test cases helps little now: the cases land in different shards.
+* Step 4: splitting `gameplay_config.h` is not needed after the parallel build; the gate holds the build at about 8
+  compiles at once (`RESERVE_CORES`).
+* Step 5 (friction report a week later) is the draft [check-speed-recheck](../check-speed-recheck.tooling.draft.sonet.md).

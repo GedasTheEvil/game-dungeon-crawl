@@ -34,14 +34,15 @@ CHECKS = [
 TIDY_WARNING = re.compile(r"^(\S+?):(\d+):\d+: (?:warning|error): .*\[([a-z0-9.,-]+)\]\s*$", re.M)
 COMPILE_ERROR = re.compile(r"^\S+:\d+:\d+: error: (?!.*\[[a-z0-9.,-]+\]\s*$)", re.M)
 FORMAT_FAIL = re.compile(r"not formatted|unstable", re.I)
-UNIT_FAIL = re.compile(r"test cases:.*\|\s*[1-9]\d* failed|^ERROR: ", re.M)
+# doctest's own summary, or tools/unit_shards.sh's ("test cases: 861, 2 failed").
+UNIT_FAIL = re.compile(r"test cases:.*(?:\||,)\s*[1-9]\d* failed|^ERROR: |^=== unit shard ", re.M)
 LEVEL_WARN = re.compile(r"^\S*lvl\S*:.*warning", re.M | re.I)
 # A unit test's failure line in doctest output: the test file, then ERROR (an assertion) or FATAL ERROR (a crash).
 UNIT_ASSERT = re.compile(r"^(?:\S*/)?(tests/unit/[\w./-]+\.cpp):\d+: (FATAL ERROR|ERROR):", re.M)
 LINK_ERROR = re.compile(r"undefined reference to|ld returned \d+ exit status|collect2: error")
 CRASH = re.compile(r"CRASHED|SIGSEGV|SIGABRT|Segmentation fault|Aborted \(core dumped\)|terminate called")
 TIMEOUT = re.compile(r"Terminated|timed out|exit code 124|Command timed out", re.I)
-UNIT_RAN = re.compile(r"\[doctest\] test cases:")
+UNIT_RAN = re.compile(r"\[doctest\] test cases:|^=== unit shard ", re.M)
 PLAN_PART = re.compile(r"docs/plan(?!s)|plan\.py")
 PLAN_LINK = re.compile(r"\]\(|\.(?:draft\.)?(?:opus|sonet)?\.?md\b|\.(?:bug|feature|tooling)\b")
 EDIT_TOOLS = {"Edit", "Write", "MultiEdit", "NotebookEdit"}

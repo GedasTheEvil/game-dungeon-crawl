@@ -1,6 +1,6 @@
 # Sand worms are stronger on sand
 
-Status: draft 2026-11-06, size M, needs nothing first.
+Status: draft 2026-11-06, size M, Won't do 2026-11-06: superseded by [native-terrain](../../native-terrain.feature.draft.opus.md) (the user generalized it), needs nothing first.
 
 ## Idea
 
@@ -26,7 +26,7 @@ makes the worm stronger later in the game, on purpose.
   `bin/levelcheck content/levels/lvl*`; a level it now flags gets fixed (AGENTS.md, Campaign levels).
 * Texts: the journal note `monster.worm` ("Slow as sand...") is now wrong: rewrite it (quick in the sand, slow on
   stone). The `description` in monster_kinds.cpp for both kinds, and the glossary "sand burrower" row.
-* A tell (implementer's choice): a sand trail or a faster walk clip rate when it is quick, so the player sees why.
+* The only tell (the user's call): its walk clip plays slightly faster on sand. No trail, no other effect.
 * Tests: a unit test (worm on sand vs on stone: speed, attack interval, damage; Rerek's factors).
 
 ## Balance notes

@@ -3,3 +3,6 @@
 026b6727eb71836e30bebb51592e69d01ae799ba
 # Format: wrapped calls one argument per line, `)` on its own line; whole-tree reformat
 790dbd2adbc5d08820f981ec2e23bbec4bf8a18b
+# Sources moved into one directory per layer, then their includes rewritten (plan src-dirs-by-layer)
+d9b2e91487c7950fc4eb9e6bfcc652c3467ca2c5
+1ba71e79898b63ec03d1f922f08ed877762ce60f

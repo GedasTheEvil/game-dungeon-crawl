@@ -1,11 +1,11 @@
 # Source directories follow the library layers
 
-Status: draft 2026-11-06, size L, needs nothing first.
+Status: solved 2026-11-06. Was: draft 2026-11-06, size L, needs nothing first.
 
 ## Problem
 
 The `src/` directories are by topic (`world`, `entities`, `ui`, ...). The build layers base <- level <- sim <- render
-<- game ([development.md](../development.md#libraries)) cut across them. Most of this mismatch is in `src/world` (108 files):
+<- game ([development.md](../../development.md#libraries)) cut across them. Most of this mismatch is in `src/world` (108 files):
 
 * level library: 28 `world/` files, plus 6 from `ui/` (`*_layout`, `status_list`, `message_log`, `page_turn`), 2 from
   `state/` (`settings_ini`, `save_slots`), `input/bindings`, `entities/player_stats`, `test/scenario_script`.
@@ -26,7 +26,7 @@ Costs:
 Move the files so that each layer has its own directory. Then the makefile picks up each library with a wildcard, and
 `check_layers.sh` reads the layer from the path.
 
-* Proposed layout (the implementer can adjust the names; check [glossary.md](../glossary.md) first):
+* Proposed layout (the implementer can adjust the names; check [glossary.md](../../glossary.md) first):
   * `src/core/` base (as now) plus the game's `main` only if that stays clear, otherwise `src/game/`.
   * `src/level/`: today's level library (rows, level format, checker, generator, campaign, items, journal data,
     the pure layouts from `ui/`, bindings, settings_ini, save_slots, player_stats, scenario_script).

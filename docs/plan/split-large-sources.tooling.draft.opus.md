@@ -38,6 +38,6 @@ file and add each to `.git-blame-ignore-revs`.
 
 ## Open points
 
-* If [src-dirs-by-layer](src-dirs-by-layer.tooling.draft.opus.md) comes first, the new files go straight into
+* If [src-dirs-by-layer](solved/src-dirs-by-layer.tooling.md) comes first, the new files go straight into
   their new directories. The two plans can go in either order. Don't run them at the same time.
 * File names: check [glossary.md](../glossary.md) and use its terms.

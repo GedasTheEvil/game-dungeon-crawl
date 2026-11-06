@@ -49,7 +49,7 @@ it as on any level), bare (none) or one picked with its mirror, whatever the dep
 * **Decal**: the cell's wall decal (`DECAL_DEFS`) and, as a second field, its wall torch (unset, none, a torch).
   Random torches keep their gap to a placed one.
 
-One more, the **looks** layer ([placed-container-looks](plan/placed-container-looks.feature.md)), picks a
+One more, the **looks** layer ([placed-container-looks](plan/solved/placed-container-looks.feature.md)), picks a
 treasure's container: rolled (by depth, as on any level) or one of `CONTAINER_NAMES` (`src/world/containers.h`), a
 coffin's lid also plain or inscribed (a cursed coffin). The stance still rolls.
 

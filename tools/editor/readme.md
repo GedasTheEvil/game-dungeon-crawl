@@ -52,7 +52,7 @@ A cell has six layers (see [File format](#file-format)): its structure (wall, em
 most one fixture on its back wall (a lever, an inscription, wall spikes: the wall layer), at most one object in it
 (a ladder, a monster, a key, ...), how it is dressed ([placed-decor](../../docs/plan/solved/placed-decor.md)): its prop
 (the decor layer) and its wall decal and torch (the decal layer), and its treasure's container (the looks layer,
-[placed-container-looks](../../docs/plan/placed-container-looks.feature.md)). Key `L` (Structure, Wall,
+[placed-container-looks](../../docs/plan/solved/placed-container-looks.feature.md)). Key `L` (Structure, Wall,
 Objects, Decor, Decals, Looks, round) or the layer buttons switch the layer the brush paints and the palette shows.
 The map shows the structure, fixtures and objects in every layer; the other layers stay visible, dimmed, and the
 layer being painted is drawn on top. The props show in the decor layer only, the decals and torches in the decal layer

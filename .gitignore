@@ -14,3 +14,7 @@ media/sounds/music/soundtrack.ogg
 
 # Written by tools/plan.py board
 docs/plan/BOARD.md
+
+# The release zip (tools/release.sh)
+/release/
+/release-*.zip

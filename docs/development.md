@@ -22,6 +22,11 @@ read their file arguments from the current directory.
 
 * `make` builds the game and every tool, in parallel (as many jobs as the load gate's cap; `make -j1` builds
   serially). Game: `./Play` (or `bin/game` from the repo root).
+* `make release` (plan [release-zip](plan/solved/release-zip.tooling.md)): `release-<version>.zip` in the repo
+  root (version: `git describe --always --dirty`; a dirty tree is refused unless `make release ARGS=--allow-dirty`).
+  Holds `Play`, `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the
+  dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL, GL and GLUT
+  installed (no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
 * `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
   scenario's setup (level, gear) by hand. `--no-sound` mutes either. See [testing.md](testing.md#play-by-hand).
 * Level editor: `make editor`, `make run-editor [LEVEL=content/levels/lvl3]` (opens that file). See [tools/editor/readme.md](../tools/editor/readme.md).

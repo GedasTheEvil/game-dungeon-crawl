@@ -222,6 +222,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | player level | Level (stats) | the player's level from XP; raises HP, stamina, armour, might. Not the map level | `PlayerStats::CurrentLevel`, `levelXP` |
 | poison tier | | weak, medium or strong poison; ticks damage until it runs out; medium and strong scale with the victim's max HP above a floor | `PoisonTier`, `POISON_TIERS` |
 | touch poison | sap | a melee hit on the plant may poison the player; ranged hits do not | `TouchPoison` |
+| release zip | | `release-<version>.zip` from `make release` (`tools/release.sh`): `Play`, the portable game build, `media/`, `content/` and an empty `saves/`, to test the game on a system without dev tools ([plan](plan/solved/release-zip.tooling.md)) | `tools/release.sh` |
 | reach | | how far a melee weapon hits, from the player's box edge, in tiles | `weaponReach` |
 | range | | how far a weapon or ranged attack reaches, between the hitboxes; weapons in tenths of a tile, ranged attacks in tiles; a ranged weapon's from its launch point, just ahead of the player, to the monster's near edge, with a minimum range too | `WeaponDef::range`, `RangedRules::range` |
 | minimum range | Too close to shoot | a ranged weapon does not shoot at a monster it would aim at that is nearer than this (bows 0.8 tiles, sling, throwing stick and javelin 0.5): no shot, nothing spent; walls and levers never block ([ranged-weaker-than-melee](plan/solved/ranged-weaker-than-melee.md)) | `WeaponDef::minRange`, `weaponMinRange`, `Dungeon::ShotRefused` |

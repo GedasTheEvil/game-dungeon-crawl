@@ -1,17 +1,31 @@
 ##DungeonCrawl by Gedas The Evil
 CXX=g++
+# RELEASE=1 (make release): a portable build in build/release, so it runs on an older CPU than this one's.
+ifdef RELEASE
+MARCH=-march=x86-64-v2
+else
+MARCH=-march=native
+endif
 RM=rm -f
 # -Wno-missing-field-initializers: a table row in designated initializers leaves out what it does not need.
-CXXFLAGS=-std=c++20 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 -march=native -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
+CXXFLAGS=-std=c++20 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
 TIDY_CPPFLAGS=-std=c++20 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 # Game and tools link only what they use: GL for every window, SDL (audio) for the game alone.
 GL_LIBS=-lX11 -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib
 SDL_LIBS=-lSDL_mixer -lSDL
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
+ifdef RELEASE
+BUILD=build/release
+else
 BUILD=build
+endif
 # The linked programs (plan directory-layout); build/ keeps the objects and libraries. Run them from the repo root.
+ifdef RELEASE
+BIN=build/release/bin
+else
 BIN=bin
+endif
 # Third-party implementations (stb), compiled without warnings and outside make tidy.
 EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 
@@ -103,7 +117,7 @@ export GATE_STATS:=$(BUILD)/.gate-build
 $(shell rm -f $(GATE_STATS))
 GATE_REPORT=@./tools/load_gate.sh report build
 
-.PHONY: all check clean format format-check layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
+.PHONY: all release check clean format format-check layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE)
@@ -160,6 +174,10 @@ $(LEVEL_TOOLS): $(BIN)/%: $(BUILD)/tools/level/%.o $(LEVEL_LIB) $(BASE_LIB)
 $(BALANCE): $(BALANCE_SOURCES:%.cpp=$(BUILD)/%.o) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
+
+# The release zip (plan release-zip, tools/release.sh): the portable game build, bin, media, content and Play.
+release:
+	./tools/release.sh $(ARGS)
 
 clean:
 	rm -rf $(BUILD) $(BIN)

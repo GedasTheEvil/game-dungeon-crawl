@@ -17,7 +17,8 @@ There is no script that makes that folder.
   2. Build (see "Portable build" below).
   3. Create `release/` in the repo root. Stop if it already exists (it is left over from a failed run: report it,
      don't delete it silently).
-  4. Copy `bin/`, `media/`, `content/` and the `Play` script into `release/`. Leave out `.directory` files.
+  4. Copy `bin/game` (only the game: no tool binaries), `media/`, `content/` and the `Play` script into `release/`.
+     Leave out `.directory` files.
   5. Create an empty `release/saves/`.
   6. Zip the contents of `release/` (not the folder itself, so `Play` sits at the top of the zip) into
      `release-<version>.zip` in the repo root. Check that the empty `saves/` is in the zip (`unzip -l`). `zip -r`
@@ -28,18 +29,16 @@ There is no script that makes that folder.
 * Portable build: the makefile compiles with `-O3 -march=native`, so a binary built here can crash with "illegal
   instruction" on an older CPU. Build the release with `-march=x86-64-v2` (or no `-march`) into its own build and
   bin folders, so the dev build's objects are not rebuilt or mixed up. For example a `RELEASE=1` makefile switch that
-  sets the flags, `BUILD=build/release`, `BIN=build/release/bin`. The script copies that bin folder as `bin/`.
-  Without a separate build, `make release` would force a full rebuild of the dev tree twice.
+  sets the flags, `BUILD=build/release`, `BIN=build/release/bin`. The release build makes only the game target, and the script
+  copies that `game` binary as `bin/game`. Without a separate build, `make release` would force a full rebuild of the dev tree twice.
 * Docs: development.md (Build and run: `make release`, what the zip holds, that the target needs SDL, GL and
   GLUT installed). Glossary row "release zip".
 * Test: run `make release` and unzip into a temp folder. Then run
   `xvfb-run -a timeout -k 5 10 ./Play --no-sound` from the unzipped folder: it must start and write `game.log` there.
   `make check` passes.
 
-## Open points
+## Decisions and open points
 
-* `bin/` holds the dev tools too (`unit`, `levelcheck`, `levelgen`, `levelconvert`, `balance`, `editor`,
-  `model-viewer`). The user asked for `bin`. Copy the whole folder unless the user narrows it. `LevelEditor` and
-  `ViewModel` are not in the user's list. Leave them out, even though `bin/editor` and `bin/model-viewer` ship.
+* No tool binaries (user, 2026-11-06): `bin/` in the zip holds `game` only, and `LevelEditor` and `ViewModel` stay out.
 * `media/sounds/music/soundtrack.ogg` (the music fallback) is untracked and local. Copy it if it is there. The zone
   tracks are tracked and always ship.

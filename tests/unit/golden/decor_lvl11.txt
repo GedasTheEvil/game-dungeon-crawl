@@ -433,7 +433,7 @@
 8,34 surface 3/1/1
 9,34 surface 4/0/1 sand<
 10,34 surface 5/0/1 prop brazier 0.110 decal 8m 0.511,0.590 fire brazier 0.110,0.220,0.160
-11,34 surface 4/0/1 decal 9 0.494,0.409
+11,34 surface 4/0/1 prop skeleton -0.099 decal 1 0.494,0.409
 12,34 surface 3/2/1
 13,34 surface 3/2/1 sand>
 14,34 surface 4/1/1 prop skeletonm -0.128 decal 6m 0.468,0.575 torch fire torch 0.000,0.680,0.098
@@ -560,7 +560,7 @@
 19,44 surface 6/2/2 sand<
 20,44 surface 7/1/2
 21,44 surface 6/1/2 prop cat -0.092
-22,44 surface 7/1/2 prop skeleton 0.062
+22,44 surface 7/1/2
 23,44 surface 6/1/2
 24,44 surface 6/1/2 prop brazier 0.001 fire brazier 0.001,0.220,0.160
 25,44 surface 7/1/2

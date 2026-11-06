@@ -416,7 +416,7 @@ TEST_CASE("the rule: every kind that resists pierce is weak to fire, except a na
 	CHECK(monsterKind(MonsterScorpion)->resist[FIRE] == NORMAL);
 }
 
-TEST_CASE("the checker scores a swimmer in half water higher: the player wades and cannot back off") {
+TEST_CASE("the checker scores a swimmer in half water higher: its native terrain (plan terrain-affinity)") {
 	LevelGrid grid; // tests/levels/crocodile: the crocodile in a pool by the path
 	REQUIRE(loadLevelFile("tests/levels/crocodile", grid).empty());
 	int croc = -1;
@@ -429,6 +429,9 @@ TEST_CASE("the checker scores a swimmer in half water higher: the player wades a
 	grid.cells[croc].structure = Structure::Empty;
 	const float onLand = checkLevel(grid).difficulty;
 	CHECK(
-		inWater - onLand == doctest::Approx(monsterThreat(MonsterCrocodile) * (SWIMMER_IN_WATER_THREAT_FACTOR - 1.f))
+		inWater - onLand == doctest::Approx(
+								monsterThreat(MonsterCrocodile) *
+								(terrainThreatFactor(TERRAIN_ROWS[static_cast<int>(Terrain::Water)].native) - 1.f)
+							)
 	);
 }

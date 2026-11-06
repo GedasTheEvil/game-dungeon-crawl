@@ -1,6 +1,6 @@
 # Same hazards for all: every trap and terrain hits the player and the monsters by one rule
 
-Status: draft 2026-11-06, size L, needs first: [shared-vitals](shared-vitals.tooling.draft.opus.md), [terrain-affinity](terrain-affinity.feature.draft.opus.md).
+Status: draft 2026-11-06, size L, needs first: [shared-vitals](shared-vitals.tooling.draft.opus.md), [terrain-affinity](terrain-affinity.feature.md).
 
 ## Idea
 
@@ -31,7 +31,7 @@ done, each point below is a change in one place.
   * Webs: today a floor web slows the player (`WEB_SLOW_FACTOR`) and is a terrain for monsters. Make the web the
     terrain for the player too (below), with `WEB_SLOW_FACTOR` as the player's hostile speed in it.
   * Head bump: one rule (already near: `Player::HeadBump`, `Monster::HeadBump`), the daze / stun by the same roll.
-* **Terrain for the player** (needs [terrain-affinity](terrain-affinity.feature.draft.opus.md)): the player has a
+* **Terrain for the player** (needs [terrain-affinity](terrain-affinity.feature.md)): the player has a
   terrain affinity like a monster kind: by default hostile to web (the slow above) and nothing else, so today's game
   plays the same. The hook is what matters: a blessing or a curse can later add a native or a hostile terrain (e.g. a
   god's favour makes water native: faster, harder hits there; a curse makes light hostile). Only the hook and the web

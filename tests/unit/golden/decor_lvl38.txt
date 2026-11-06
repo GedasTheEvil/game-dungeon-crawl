@@ -355,7 +355,7 @@
 30,27 surface 8/3/5 sand<>
 31,27 surface 9/1/3 torch fire torch 0.000,0.680,0.098
 32,27 surface 8/1/3 decal 2m 0.642,0.350
-33,27 surface 9/3/5 sand< prop sandm 0.000 decal 9 0.619,0.408
+33,27 surface 9/3/5 sand< decal 13 0.664,0.225
 34,27 surface 8/3/5 ladder 0/4m
 35,27 surface 8/3/5
 36,27 surface 8/3/3 prop sandm 0.000 decal 0 0.664,0.451

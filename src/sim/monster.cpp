@@ -30,6 +30,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
 	inWater = false;
 	waterKnown = false;
+	terrain = TerrainFactors{};
+	mood = TerrainMood::Neutral;
 	headInWater = false;
 	sink = 0.f;
 	swim = 0.f;
@@ -65,7 +67,8 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	reelUntilMs = -1;
 	reelReadyMs = 0;
 	playback = kind.model.SpawnPlayback(effects);
-	attackTimer.SetInterval(kind.attackMs); // a slot can respawn another kind
+	attackMs = kind.attackMs;
+	attackTimer.SetInterval(attackMs); // a slot can respawn another kind
 	if (!spawned) {
 		stepTimer.Reset();
 		attackTimer.Reset();
@@ -151,6 +154,15 @@ float Monster::swimLift() const {
 								: type->model.referenceTop * drawScale - 2.f * SUBMERGED_SHOW;
 	return std::max(0.f, RenderConfig::WATER_DEPTH - top);
 }
+
+void Monster::SetTerrain(Terrains here) {
+	terrain = terrainFactors(here, type->native, type->hostile);
+	mood = MoodIn(here);
+	attackMs = static_cast<int>(std::lround(static_cast<float>(type->attackMs) * terrain.interval));
+	attackTimer.SetInterval(attackMs);
+}
+
+int Monster::HitDamage(int base) const { return terrainDamage(base, terrain.damage); }
 
 float Monster::floatLift() const { return floats() && inWater ? RenderConfig::WATER_DEPTH : 0.f; }
 

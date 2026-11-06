@@ -56,7 +56,7 @@
 21,6 surface 7/1/2 prop coffin 0.000 decal 9m 0.473,0.541
 22,6 surface 6/1/2 prop coffin_mummym -0.000
 23,6 surface 7/1/2
-24,6 surface 6/1/2 prop osirism 0.076
+24,6 surface 6/1/2
 25,6 surface 7/1/2 prop water_lotus -0.065
 26,6 surface 6/1/2 decal 11m 0.378,0.506
 27,6 surface 6/1/2 torch fire torch 0.000,0.680,0.098

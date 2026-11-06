@@ -157,6 +157,70 @@ bool Dungeon::litBetween(const Monster& mon) const {
 	return false;
 }
 //======================================================================================
+Terrains Dungeon::TerrainsAt(int col, int row, bool ground, bool anyVent) const {
+	Terrains here;
+	if (!IsInBounds(col, row))
+		return here;
+	const Tile& t = MapAt(col, row);
+	if (ground && inHalfWater(t))
+		here.add(Terrain::Water);
+	if (ground && inSand(t))
+		here.add(Terrain::Sand);
+	if (ground && WebAt(col, row))
+		here.add(Terrain::Web);
+	here.add(Lit(col, row) ? Terrain::Light : Terrain::Darkness);
+	Flame flames[MAX_CELL_FLAMES];
+	const int n = std::min(flamesAt(decoration, MapIndex(col, row), flames), MAX_CELL_FLAMES);
+	bool fire = BlazeAt(col, row) || (t.fixture.type == FireVent && (anyVent || fireJetOn(t.fixture)));
+	for (int k = 0; k < n && !fire; k++) // a brazier's or an oil lamp's own flame; a wall torch only lights
+		fire = flames[static_cast<size_t>(k)].kind != FlameKind::Torch;
+	if (fire)
+		here.add(Terrain::Fire);
+	return here;
+}
+//======================================================================================
+TerrainMood Dungeon::moodAt(const Monster& mon, int col) const {
+	return mon.MoodIn(TerrainsAt(col, mon.Row(), !mon.flies(), true));
+}
+//======================================================================================
+bool Dungeon::terrainShuns(const Monster& mon, int col) const {
+	const auto own = static_cast<int>(std::floor(mon.CentreX()));
+	return col != own && moodAt(mon, col) == TerrainMood::Hostile && moodAt(mon, own) != TerrainMood::Hostile;
+}
+//======================================================================================
+// The nearer cell either way, short of a cell it can't walk on; on a tie, the one tried first (away from the player).
+int Dungeon::wayOutOfTerrain(const Monster& mon, int dir, float& to) const {
+	const MonsterType& kind = *mon.Type();
+	if (mon.flies() || mon.rooted() || (!kind.native.any() && !kind.hostile.any()))
+		return 0;
+	const auto col = static_cast<int>(std::floor(mon.CentreX()));
+	if (dir != 0 || moodAt(mon, col) != TerrainMood::Hostile)
+		return 0;
+	const bool fighting = mon.sameRow(mapY);
+	const int cells = fighting ? TERRAIN_STEP_OUT_CELLS : TERRAIN_WALK_OUT_CELLS;
+	constexpr float EDGE = 0.05f; // its centre this far into the better cell
+	const int side = mapX < mon.CentreX() ? -1 : 1; // the player's
+	const float half = mon.HalfWidth() + sim.player->HalfWidth();
+	bool open[2] = {true, true}; // away, towards
+	for (int d = 1; d <= cells; d++)
+		for (int k = 0; k < 2; k++) {
+			const int way = k == 0 ? -side : side;
+			const int c = col + way * d;
+			open[k] = open[k] && !walkerBlocked(c, mon.Row(), mon.reckless()) &&
+					  stepAt(mon, static_cast<float>(c) + 0.5f) == StepAhead::Walk;
+			if (!open[k] || moodAt(mon, c) == TerrainMood::Hostile)
+				continue;
+			const float x = way > 0 ? static_cast<float>(c) + EDGE : static_cast<float>(c + 1) - EDGE;
+			// Fighting: it still bites the player from there, on its side of them (not through them).
+			const float gap = static_cast<float>(side) * (mapX - x) - half;
+			if (fighting && (gap < 0.f || gap > MONSTER_BITE_REACH * 0.8f))
+				continue;
+			to = x;
+			return way;
+		}
+	return 0;
+}
+//======================================================================================
 int Dungeon::leapLanding(int col, int row, int dir, BodyFit body) const {
 	return leapLandingAt(map, col, row, dir, body);
 }
@@ -221,7 +285,8 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 		return;
 	}
 	const auto col = static_cast<int>(std::floor(mon.seekProbeX(-dir)));
-	mon.Flee(walkerStops(mon, col) || stepAhead(mon, -dir) != StepAhead::Walk, -dir);
+	// Not chasing, it does not run into a hostile cell (plan terrain-affinity).
+	mon.Flee(walkerStops(mon, col) || terrainShuns(mon, col) || stepAhead(mon, -dir) != StepAhead::Walk, -dir);
 }
 //======================================================================================
 // Threatened: the player nearer than near and coming at it. Once it backs off, it goes on while they keep coming, so
@@ -279,8 +344,8 @@ bool Dungeon::leapAway(Monster& mon, int dir, bool threatened) {
 }
 //======================================================================================
 // The free run behind it, away from the player (dir), up to upTo tiles: to a wall, a drop, a trap (also for a reckless
-// one), a lit cell for a light shunner, or another monster on its row (not a boss's minion for the boss, nor the boss
-// for its minion).
+// one), a lit cell for a light shunner, a hostile cell (terrainShuns), or another monster on its row (not a boss's
+// minion for the boss, nor the boss for its minion).
 float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 	const float rear = mon.seekProbeX(-dir);
 	float room = upTo;
@@ -296,7 +361,7 @@ float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 	const auto probes = static_cast<int>(room / PROBE);
 	for (int i = 1; i <= probes; i++) {
 		const auto col = static_cast<int>(std::floor(rear - static_cast<float>(dir * i) * PROBE));
-		if (walkerBlocked(col, mon.Row(), false) || (mon.ShunsLight() && shunned(mon, col)) ||
+		if (walkerBlocked(col, mon.Row(), false) || (mon.ShunsLight() && shunned(mon, col)) || terrainShuns(mon, col) ||
 			stepAt(mon, rear - static_cast<float>(dir * i) * PROBE) != StepAhead::Walk)
 			return static_cast<float>(i - 1) * PROBE;
 	}
@@ -439,6 +504,13 @@ void Dungeon::updateWalker(Monster& mon) {
 		return;
 	if (const int out = wayOutOfLight(mon); out != 0) { // a light shunner caught in the light runs for the dark
 		mon.Flee(false, out);
+		return;
+	}
+	// In a hostile cell, idle or fighting: out to a better one (plan terrain-affinity).
+	if (float to = 0.f; wayOutOfTerrain(mon, dir, to) != 0) {
+		mon.StepOut(to, mon.sameRow(mapY));
+		if (inView(mon))
+			sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::AvoidTerrain);
 		return;
 	}
 	if (kite(mon, dir))

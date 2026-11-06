@@ -39,6 +39,13 @@ void Dungeon::UpdateMonsters() {
 			: stepFloor > 0.f ? 0.f
 							  : WaterSink(mon.CentreX(), mon.Row())
 		);
+		{ // its terrain affinity (plan terrain-affinity): a fire vent only while its jet burns; the water as it wades
+			Terrains here = TerrainsAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row(), !mon.flies(), false);
+			here.remove(Terrain::Water); // on a step over the basin it is out of the water
+			if (mon.InWater())
+				here.add(Terrain::Water);
+			mon.SetTerrain(here);
+		}
 		if (splashed && !mon.flies()) // plan monster-water-splash: a big body splashes, a small one only wades
 			sim.events->Play(mon.HalfWidth() >= MONSTER_SPLASH_HALF_WIDTH ? WorldSound::Splash : WorldSound::Wade);
 		const auto monCol = static_cast<int>(std::floor(mon.CentreX()));

@@ -135,9 +135,37 @@ constexpr float CLIMBER_FALL_STEP = 0.15f; // tiles a tick a climber killed on t
 constexpr float LEAP_CATCH_AIR = 0.7f;
 constexpr float BOSS_LEAP_CATCH_AIR = 0.55f;
 constexpr int BOSS_LEAP_CATCH_EXTRA = 1;
-// A swimmer (Wading::Swimmer: the crocodile, the hippo) that spawns in half water (plan monster-balance): there the
-// player wades at half speed and cannot sprint, jump or back off, so the checker scores it a little higher.
-constexpr float SWIMMER_IN_WATER_THREAT_FACTOR = 1.1f;
+// Terrain affinity (plan terrain-affinity, level/terrain.h): in a native terrain a monster walks faster, bites more
+// often and harder; in a hostile one slower, less often and softer. One row per terrain (in Terrain's order), the same
+// for every monster, bosses included. interval: times its attackMs (x0.8: 25% more bites).
+struct TerrainFactors {
+	float speed = 1.f;
+	float interval = 1.f;
+	float damage = 1.f;
+};
+struct TerrainRow {
+	TerrainFactors native;
+	TerrainFactors hostile;
+};
+constexpr TerrainFactors HOSTILE_TERRAIN = {0.6f, 1.25f, 0.75f};
+constexpr TerrainRow TERRAIN_ROWS[] = {
+	{{2.f, 0.8f, 1.5f}, HOSTILE_TERRAIN}, // water
+	{{2.f, 0.8f, 1.5f}, HOSTILE_TERRAIN}, // sand (quicksand too)
+	{{1.5f, 0.8f, 1.25f}, HOSTILE_TERRAIN}, // darkness
+	{{1.5f, 0.8f, 1.25f}, HOSTILE_TERRAIN}, // light
+	{{2.f, 0.8f, 1.25f}, HOSTILE_TERRAIN}, // web
+	{{1.5f, 0.8f, 1.5f}, HOSTILE_TERRAIN}, // fire
+};
+// The checker scores a monster spawned in its native terrain higher (terrainThreatFactor): this share of the mean of
+// its speed's and its damage per second's gain (water: about x1.09).
+constexpr float TERRAIN_THREAT_WEIGHT = 0.1f;
+// The tell: its walk (and swim) clip plays this much faster in a native terrain, slower in a hostile one.
+constexpr float NATIVE_CLIP_FACTOR = 1.1f;
+constexpr float HOSTILE_CLIP_FACTOR = 0.9f;
+// Fighting in a hostile cell, it steps out to a better one up to this many cells along its row from which it still
+// bites the player; idle in one, it walks out to the nearest better cell up to TERRAIN_WALK_OUT_CELLS away.
+constexpr int TERRAIN_STEP_OUT_CELLS = 2;
+constexpr int TERRAIN_WALK_OUT_CELLS = 6;
 constexpr int MINION_SUMMON_REACH = 3; // cells from its boss a summoned minion may appear
 constexpr int MINION_EMERGE_MS = 700; // a summoned minion digs out or drops into place, then acts
 // An Anubis guard steps out of the wall (Summon::Wall, plan mummy-boss): slower, so the player sees the stone move.
@@ -145,9 +173,9 @@ constexpr int WALL_EMERGE_MS = 1400;
 constexpr int WALL_SUMMON_SIGHT = 3; // cells from the player: a wall this near is on screen (1280x720 shows about 3)
 
 // Half water (crocodiles-and-flooded-cells): the player and the slowed walkers wade at this share of their speed (a
-// monster's own share: MonsterType::waterSpeed). No jump and no sprint while standing in it, except with the Favour of
-// Hapi skill (plan skill-blessing-of-hapi). An arrow hits a monster standing in it for a share of its damage; melee is
-// not affected.
+// monster's own: Wading, and its terrain affinity). No jump and no sprint while standing in it, except with the Favour
+// of Hapi skill (plan skill-blessing-of-hapi). An arrow hits a monster standing in it for a share of its damage; melee
+// is not affected.
 constexpr float WADE_SPEED_FACTOR = 0.5f;
 // Sand (plan desert-chapter, Dungeon::PlayerInSand): the walk at SAND_SPEED_FACTOR, no sprint, jumping is fine.
 constexpr float SAND_SPEED_FACTOR = 0.75f;

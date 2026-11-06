@@ -333,7 +333,7 @@
 19,21 surface 12/5/7 prop skeleton 0.089
 20,21 surface 12/5/7
 21,21 surface 12/5/7
-22,21 surface 13/5/7
+22,21 surface 13/5/7 prop water_reeds -0.053
 23,21 surface 12/5/7 prop water_padsm 0.042
 24,21 surface 12/5/7 decal 8 0.449,0.473
 25,21 surface 12/5/7 prop water_reeds 0.043

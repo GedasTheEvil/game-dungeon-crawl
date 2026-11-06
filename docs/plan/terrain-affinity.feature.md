@@ -1,6 +1,6 @@
 # Terrain affinity: monsters stronger in native terrain, weaker in hostile terrain
 
-Status: draft 2026-11-06, size L, needs nothing first.
+Status: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size L, needs nothing first.
 
 ## Idea
 
@@ -132,4 +132,25 @@ The plan can land in steps, each one play-testable on its own:
 
 ## Play-test
 
-*
+`bin/game --play tests/play/terrain-affinity.txt` (the scorpion), then the campaign levels to taste: `bin/game --level 10`
+(camel spiders in the dark), `--level 4` (bats), a scorpion or worm level with water.
+
+* Stand in the sand by the scorpion: it bites quick and hard, its legs run fast. Walk west onto the dry floor: it
+  follows at its usual pace.
+* Walk on into the water: it follows you in, but slowly, its legs slow; its bites are fewer and softer.
+* Light a brazier or stand by a torch near a camel spider or a bat: it is slow and weak there; in the dark it is fast.
+* A baboon backing off from you stops at the water's edge instead of stepping in.
+* The journal notes "Hates the water..." (or the light, the fire) the first time you see one walk out of it.
+
+## Notes
+
+* The checker: a native in its terrain scores x(1 + `TERRAIN_THREAT_WEIGHT` x its gain); it knows only the placed
+  flames (torches, braziers, lamps), every other cell counts as dark. 31 campaign spawns in hostile cells moved 1-6
+  cells along their row (23 camel spiders by placed torches, 7 baboons and a worm in water); levelgen puts no monster
+  in a hostile cell and no torch or brazier by a light-hater.
+* Fighting in a hostile cell, it steps to a better cell up to 2 away only if it still bites the player from there:
+  with the short bite reach (0.1 tile) that is a small step at a terrain's edge. Chasing, it takes the row's one way;
+  climbers' paths are as before. Flyers get the factors, not the avoidance.
+* Damage factors act on every hit (bite, grab, death roll, sting, charge, shot); a shot keeps its thrower's factor.
+  Charges keep their own speed.
+

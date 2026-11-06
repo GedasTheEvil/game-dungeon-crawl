@@ -7,7 +7,7 @@
 6,3 surface 15/6/8
 7,3 surface 14/6/8 prop water_padsm 0.008
 8,3 surface 15/6/8 prop water_reeds 0.075
-9,3 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+9,3 surface 14/6/8 prop water_pads -0.071 torch fire torch 0.000,0.680,0.098
 10,3 surface 15/6/8
 11,3 surface 14/6/8 prop water_reedsm -0.021 decal 11m 0.519,0.385
 12,3 surface 15/6/8 sand>

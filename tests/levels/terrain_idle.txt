@@ -1,0 +1,12 @@
+; Terrain affinity (plan terrain-affinity, tests/unit/terrain_affinity_test.cpp): a scorpion (hostile to water) in half
+; water (cols 17-22) at col 21 on row 1, the player (col 20) on row 3 above it, no way between: it walks out to the
+; nearer dry cell (col 23) and stays there.
+########################################
+#.................S...................E#
+########################################
+#....................j.................#
+structure
+########################################
+#......................................#
+########################################
+#................~~~~~~................#

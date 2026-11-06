@@ -272,6 +272,15 @@ class Dungeon {
 	[[nodiscard]] int wayOutOfLight(const Monster& mon) const;
 	// A lit cell between the walker and the player, or round the player (not its own cell).
 	[[nodiscard]] bool litBetween(const Monster& mon) const;
+	// How (col, its row) suits mon for the avoidance (a fire vent counts always).
+	[[nodiscard]] TerrainMood moodAt(const Monster& mon, int col) const;
+	// A walker that is not chasing the player (idle, fleeing, backing off) does not step into a hostile cell from a
+	// better one: it is a wall to it.
+	[[nodiscard]] bool terrainShuns(const Monster& mon, int col) const;
+	// A walker standing in a hostile cell: the way (-1 / +1) to a better one. Fighting (the player in its reach), the
+	// nearest within TERRAIN_STEP_OUT_CELLS from which it still reaches them; idle (the player off its row), the
+	// nearest within TERRAIN_WALK_OUT_CELLS. 0: stay. to: map x it stops at.
+	[[nodiscard]] int wayOutOfTerrain(const Monster& mon, int dir, float& to) const;
 	// The cell a walk-jumper lands on when (col, row) blocks it walking in direction dir: the first one past a gap of
 	// up to MONSTER_JUMP_MAX_GAP pits and traps it can walk on. -1: no such cell (a wall, or the gap is too wide).
 	// With a body (plan subcell-monsters): a shaped landing cell it passes going dir.
@@ -613,6 +622,7 @@ class Dungeon {
 		int spawnMs = 0; // GameClock time it was shot: the seed of its flames
 		bool big = false; // a volley thrower's big coal (VolleyRules): at the feet, it sets the floor burning
 		float spread = 0.f; // radians off the aim: a fan's side shots (RangedRules::fan)
+		float damage = 1.f; // the thrower's terrain damage factor as it threw (plan terrain-affinity)
 		[[nodiscard]] bool waiting(int now) const { return now < spawnMs; }
 	};
 	std::vector<MonsterShot> shots;
@@ -970,6 +980,10 @@ class Dungeon {
 	// of a sunlit cell (Sunlit): a light shunner keeps out (plan camel-spider). torches false: only a brazier's flame
 	// and the sun count.
 	[[nodiscard]] bool Lit(int col, int row, bool torches = true) const;
+	// Terrain affinity (plan terrain-affinity). The terrains of (col, row) for a monster on the ground (ground false: a
+	// flyer, over water, sand and webs). A fire vent's cell is fire while its jet burns, or always (anyVent: the
+	// avoidance, monsters know the trap).
+	[[nodiscard]] Terrains TerrainsAt(int col, int row, bool ground = true, bool anyVent = false) const;
 	// The torch or lamp in (col, row) was put out (DecorLayout::doused, plan camel-spider-boss).
 	[[nodiscard]] bool Doused(int col, int row) const {
 		return IsInBounds(col, row) && decoration.doused[MapIndex(col, row)];

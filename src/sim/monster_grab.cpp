@@ -34,8 +34,11 @@ void Monster::UpdateGrab(float px, float py, bool playerWading) {
 			letGo();
 			return;
 		}
-		player
-			.TakeHit(type->damage * rules.grabDamagePct / 100, rules.grabMix.value_or(type->attackMix), *links.events);
+		player.TakeHit(
+			HitDamage(type->damage * rules.grabDamagePct / 100),
+			rules.grabMix.value_or(type->attackMix),
+			*links.events
+		);
 		curse(type->meleeCurses);
 		links.journal->HitByCreature(type->id, links.level);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Grab);
@@ -55,7 +58,7 @@ void Monster::UpdateGrab(float px, float py, bool playerWading) {
 	// The death roll: a tick every tickMs, the last one as it lets go.
 	while (rules.tickMs > 0 && (grab.ticks + 1) * rules.tickMs <= std::min(now, grab.endMs) - grab.startMs) {
 		grab.ticks++;
-		player.TakeHit(type->damage * rules.tickDamagePct / 100, type->attackMix, *links.events);
+		player.TakeHit(HitDamage(type->damage * rules.tickDamagePct / 100), type->attackMix, *links.events);
 		sound(CharacterSound::Attack);
 	}
 	if (now < grab.endMs)
@@ -67,7 +70,7 @@ void Monster::UpdateGrab(float px, float py, bool playerWading) {
 
 void Monster::sting() {
 	Player& player = *links.player;
-	player.TakeHit(type->damage, type->attackMix, *links.events);
+	player.TakeHit(HitDamage(type->damage), type->attackMix, *links.events);
 	curse(type->meleeCurses);
 	if (type->poison) {
 		player.Poison(*type->poison, *links.events, *links.random);

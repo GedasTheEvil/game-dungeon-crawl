@@ -1,0 +1,10 @@
+; Terrain affinity (plan terrain-affinity, tests/unit/terrain_affinity_test.cpp): one long hall, the player (col 22) by
+; the scorpion; half water cols 10-15, sand cols 20-25 (quicksand cols 24-25), dry floor elsewhere. A scorpion (native
+; to sand, hostile to water) in the sand at col 23.
+########################################
+#.....................Sj..............E#
+########################################
+structure
+########################################
+#.........~~~~~~....,,,,%%.............#
+########################################

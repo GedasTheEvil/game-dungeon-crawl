@@ -268,6 +268,7 @@ void Dungeon::shootAtPlayer(const Monster& mon, float x, float y) {
 			MonsterShot v = {x, y, 0.f, 0.f, mon.Type(), ranged->colour, at};
 			v.spawnMs = at;
 			v.big = big;
+			v.damage = mon.TerrainDamage();
 			v.spread = SHOT_FAN_SPREAD * (static_cast<float>(f) - static_cast<float>(ranged->fan - 1) / 2.f);
 			aimShot(v);
 			shots.push_back(v);
@@ -334,7 +335,7 @@ void Dungeon::updateShots() {
 					blazeAt(mapX, mapY, ranged.volley->blazeMs);
 				if (!dodged) {
 					sim.player->TakeHit(
-						v.big && ranged.volley ? ranged.volley->bigDamage : ranged.damage,
+						terrainDamage(v.big && ranged.volley ? ranged.volley->bigDamage : ranged.damage, v.damage),
 						ranged.mix.value_or(v.from->attackMix),
 						*sim.events,
 						false,

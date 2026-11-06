@@ -48,17 +48,27 @@ bool Monster::Seek(bool blocked, float px, float py) {
 	return true;
 }
 
-float Monster::WalkStep() const { return MONSTER_SEEK_STEP * type->speed * (inWater ? type->waterSpeed : 1.f); }
+float Monster::terrainSpeed() const {
+	return inWater && type->wading == Wading::Slowed ? wadeWithTerrain(WADE_SPEED_FACTOR, terrain.speed)
+													 : terrain.speed;
+}
+
+float Monster::WalkStep() const { return MONSTER_SEEK_STEP * type->speed * terrainSpeed(); }
+
+// The terrain's tell (plan terrain-affinity): the walk clip a little faster in a native terrain, slower in a hostile.
+float Monster::clipTell() const {
+	return mood == TerrainMood::Native ? NATIVE_CLIP_FACTOR : mood == TerrainMood::Hostile ? HOSTILE_CLIP_FACTOR : 1.f;
+}
 
 float Monster::WalkClipSpeed() const {
 	if (type->walkStride <= 0.f)
-		return ModelInfo::CLIP_SPEED;
+		return ModelInfo::CLIP_SPEED * clipTell();
 	// Tiles a second: the rush, else its last step (a summoned one coming out of the wall: its usual step).
 	const float pace = charge.phase == ChargePhase::Rush
 						   ? type->charge.value_or(ChargeRules{}).speed
 						   : (walked > 0.f ? walked : WalkStep()) * 1000.f / static_cast<float>(MONSTER_STEP_PERIOD_MS);
 	const float stride = type->walkStride * type->scale * Figures::Scale() / RenderConfig::TILE_SIZE;
-	return type->model.WalkSpeed(pace / stride);
+	return type->model.WalkSpeed(pace / stride) * clipTell();
 }
 
 bool Monster::flees() const {
@@ -77,6 +87,16 @@ void Monster::Flee(bool blocked, int dir) {
 	fleeDir = dir;
 	walked = WalkStep();
 	stepBy(walked * static_cast<float>(dir));
+	enter(ModelState::Move);
+}
+
+void Monster::StepOut(float toX, bool fight) {
+	if (!Alive())
+		return;
+	const float dx = std::clamp(toX - CentreX(), -WalkStep(), WalkStep());
+	fleeDir = fight ? 0 : (dx > 0.f ? 1 : -1); // fighting, it backs off facing the player
+	walked = std::fabs(dx);
+	stepBy(dx);
 	enter(ModelState::Move);
 }
 
@@ -99,7 +119,7 @@ void Monster::BackOff(int dir) {
 	alerted = true;
 	fleeDir = dir;
 	links.journal->SeeMove(type->id, links.level, CreatureMove::Kite);
-	walked = MONSTER_SEEK_STEP * type->kite->backOffSpeed * (inWater ? type->waterSpeed : 1.f);
+	walked = MONSTER_SEEK_STEP * type->kite->backOffSpeed * terrainSpeed();
 	stepBy(walked * static_cast<float>(dir));
 	enter(ModelState::Move);
 }
@@ -131,7 +151,7 @@ void Monster::bite() {
 		sound(CharacterSound::Attack);
 		return;
 	}
-	const int lost = links.player->TakeHit(type->damage, type->attackMix, *links.events);
+	const int lost = links.player->TakeHit(HitDamage(type->damage), type->attackMix, *links.events);
 	curse(type->meleeCurses);
 	if (type->poison && (type->poisonChancePercent >= 100 || links.random->percent(type->poisonChancePercent))) {
 		links.player->Poison(*type->poison, *links.events, *links.random);

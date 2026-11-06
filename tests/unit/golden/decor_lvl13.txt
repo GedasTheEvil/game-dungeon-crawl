@@ -229,8 +229,8 @@
 25,22 surface 4/1/1
 26,22 surface 3/0/1 sand<> ladder 0/4
 27,22 surface 2/1/1m torch fire torch 0.000,0.680,0.098
-28,22 surface 1/1/1
-29,22 surface 0/2/1 sand<> prop ushabtim 0.047 decal 9m 0.404,0.601
+28,22 surface 1/1/1 prop thoth_ibis_standingm -0.097
+29,22 surface 0/2/1 sand<> decal 9m 0.404,0.601
 30,22 surface 1/1/1 prop skeleton -0.081
 31,22 surface 0/0/1 sand< prop thoth_baboon_standingm -0.032
 32,22 surface 0/0/1 ladder 0/4m
@@ -347,8 +347,8 @@
 5,30 surface 0/0/1 sand< decal 2 0.550,0.350
 6,30 surface 0/0/1 prop ushabti -0.001 decal 1 0.482,0.547
 7,30 surface 1/2/1 ladder 0/3m
-8,30 surface 0/2/1 prop skeleton 0.095
-9,30 surface 0/0/1 sand>
+8,30 surface 0/2/1
+9,30 surface 0/0/1 sand> prop skeletonm -0.004
 10,30 surface 0/1/1 decal 2m 0.444,0.350 torch fire torch 0.000,0.680,0.098
 11,30 surface 0/0/1 sand<
 12,30 surface 0/0/1 prop sand 0.000

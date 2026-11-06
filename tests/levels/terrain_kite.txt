@@ -1,0 +1,9 @@
+; Terrain affinity (plan terrain-affinity, tests/unit/terrain_affinity_test.cpp): a baboon (hostile to water) at col 12,
+; half water behind it (cols 15-20), the player (col 8) west of it: backing off, it does not step into the water.
+########################################
+#.......S...z.........................E#
+########################################
+structure
+########################################
+#..............~~~~~~..................#
+########################################

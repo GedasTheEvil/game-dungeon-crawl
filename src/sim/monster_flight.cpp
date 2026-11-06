@@ -68,7 +68,7 @@ void Monster::Fly(bool wallAhead, float px, float py, const FlightGoal& goal) {
 
 	const float dx = px - CentreX(); // to the player
 	const bool sees = goal.sees;
-	const float step = BAT_TILES_PER_SPEED * type->speed * dt;
+	const float step = BAT_TILES_PER_SPEED * type->speed * terrain.speed * dt;
 	float targetLift = roost;
 	// On the way to another row: along this one to the shaft, then up or down it, facing the player.
 	auto changeRow = [&]() {

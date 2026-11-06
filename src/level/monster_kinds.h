@@ -12,6 +12,7 @@
 #include "level.h"
 #include "poison.h"
 #include "rgb.h"
+#include "terrain.h"
 #include <optional>
 
 // How a monster gets around. Only flyers cross pits; walkers stop at their edge, and at traps unless reckless
@@ -46,11 +47,12 @@ enum class Locomotion : unsigned char {
 // Leaps over pits and traps (Leap): the walk-jumpers, the cursed mimic once woken.
 [[nodiscard]] constexpr bool leaps(Locomotion l) { return l == Locomotion::WalkJump || l == Locomotion::AmbushHop; }
 
-// How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade.
+// How a walker moves through half water (crocodiles-and-flooded-cells). Rooted monsters and flyers do not wade. Its
+// speed there beyond the wade is its terrain affinity's (plan terrain-affinity): a swimmer is native to water.
 enum class Wading : unsigned char {
-	Slowed, // slower, like the player (MonsterKind::waterSpeed, WADE_SPEED_FACTOR unless set)
+	Slowed, // slower, like the player (WADE_SPEED_FACTOR; hostile to water: the lower of the two, wadeWithTerrain)
 	Unaffected, // full speed
-	Swimmer, // faster (waterSpeed), floating with its back at the surface (swimLift)
+	Swimmer, // floating with its back at the surface (swimLift); native to water
 };
 
 // Whether a monster sets foot on a trap. Locomotion says what it can do, courage what it wants to.
@@ -323,7 +325,11 @@ struct MonsterKind {
 	int heightQuarters = 2;
 	int stepQuarters = 0;
 	Wading wading = Wading::Slowed;
-	float waterSpeed = WADE_SPEED_FACTOR; // its speed in half water, times its speed on land
+	// Its terrain affinity (plan terrain-affinity, level/terrain.h): faster, quicker and harder in a native terrain,
+	// slower, slower and softer in a hostile one (TERRAIN_ROWS), which it keeps out of when it can. A boss has its
+	// kin's.
+	Terrains native;
+	Terrains hostile;
 	std::optional<PoisonTier> poison; // its bite or sting poisons the player
 	int poisonChancePercent = 100; // the share of its bites that poison
 	std::optional<TouchPoison> touch; // a melee hit on it poisons the player (plan plant-poison)

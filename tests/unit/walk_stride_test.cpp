@@ -32,7 +32,9 @@ TEST_CASE("a scorpion's legs slow down with its walk in half water") {
 	}
 	REQUIRE(wading > 0.f);
 	REQUIRE(walking > 0.f);
-	CHECK(wading == doctest::Approx(walking * WADE_SPEED_FACTOR));
+	// Hostile to water (plan terrain-affinity): the wade (the lower of it and the hostile speed), the tell's slower
+	// clip.
+	CHECK(wading == doctest::Approx(walking * WADE_SPEED_FACTOR * HOSTILE_CLIP_FACTOR));
 	// On land: one stride per round, its stride in tiles at its drawn scale.
 	const MonsterKind& kind = *scorpion->Type();
 	const float stride = kind.walkStride * kind.scale / 40.f;

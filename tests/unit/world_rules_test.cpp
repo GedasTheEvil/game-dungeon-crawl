@@ -250,6 +250,11 @@ TEST_CASE("level 4 from its entrance to its exit: Khepri's room, the key behind 
 	world.Wait(500);
 	REQUIRE(world.WalkTo(22.45f));
 	world.Wait(4000);
+	// The bats bite more often in the dark (plan terrain-affinity): one of them laid fatigue on the way (no stamina
+	// comes back). The walk is about the path: off with it, and the stamina for the jump.
+	world.player.stats.curses.EndAll();
+	for (int t = 0; t < 10000 && world.player.stats.Stamina() < JUMP_STAMINA_COST; t += UPDATE_TICK_MS)
+		world.Tick();
 	world.Jump();
 	REQUIRE(world.WalkTo(24.45f));
 	world.Wait(500);

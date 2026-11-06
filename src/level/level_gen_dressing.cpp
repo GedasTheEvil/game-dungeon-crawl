@@ -137,7 +137,7 @@ void LevelBuilder::addLight() {
 			const int x = rng.range(hall.x0, hall.x1);
 			const Tile t = g.at(x, hall.row);
 			if (t.structure != Structure::Empty || !freeCell(x, hall.row) || busy[index(x, hall.row)] != 0 ||
-				!isWall(g.at(x, hall.row - 1)) || t.dressing.torch == TorchPlacing::Torch ||
+				!isWall(g.at(x, hall.row - 1)) || t.dressing.torch == TorchPlacing::Torch || lightsFoe(x, hall.row) ||
 				hasPlacedProp(g.at(x - 1, hall.row).dressing) || hasPlacedProp(g.at(x + 1, hall.row).dressing))
 				continue;
 			Tile cell = t;
@@ -181,6 +181,16 @@ void LevelBuilder::dressFigures() {
 	}
 }
 
+bool LevelBuilder::lightsFoe(int col, int row) const {
+	for (int x = col - LIGHT_SHUN_CELLS; x <= col + LIGHT_SHUN_CELLS; x++) {
+		const Tile t = g.at(x, row);
+		const MonsterKind* kind = t.type == MonsterSpawn ? monsterKind(t.attr) : nullptr;
+		if (kind != nullptr && kind->hostile.has(Terrain::Light))
+			return true;
+	}
+	return false;
+}
+
 // Dry floor with nothing in it or on its back wall, no prop yet.
 bool LevelBuilder::figureCell(int col, int row) const {
 	const Tile t = g.at(col, row);
@@ -208,7 +218,7 @@ void LevelBuilder::darken(const Segment& hall) {
 				g.set(x, y, cell);
 			}
 	for (int x = hall.x0 + rng.range(2, TORCH_GAP); x <= hall.x1 - 2; x += rng.range(TORCH_GAP, 2 * TORCH_GAP)) {
-		if (!freeCell(x, hall.row))
+		if (!freeCell(x, hall.row) || lightsFoe(x, hall.row))
 			continue;
 		Tile cell = g.at(x, hall.row);
 		cell.dressing.torch = TorchPlacing::Torch;

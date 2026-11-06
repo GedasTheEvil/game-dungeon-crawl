@@ -1,0 +1,9 @@
+# Plan terrain-affinity, for `bin/game --play tests/play/terrain-affinity.txt`: tests/levels/terrain, you (col 22) stand
+# in the sand by a scorpion (col 23, native to sand, hates water). Walk west: it follows out of the sand onto the dry
+# floor (cols 16-19), slower, then through the water (cols 10-15), slow and soft. Its legs run quicker in the sand,
+# slower in the water.
+seed 1
+level tests/levels/terrain
+god
+give melee 1
+equip short_sword

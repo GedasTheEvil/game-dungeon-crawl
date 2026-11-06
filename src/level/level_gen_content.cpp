@@ -1,5 +1,6 @@
 #include "level_builder.h"
 #include "inscriptions.h"
+#include "level_check.h"
 #include <algorithm>
 #include <cmath>
 #include <optional>
@@ -319,6 +320,10 @@ int LevelBuilder::zoneMonster(int col, int row, bool dark) {
 
 		if (kind->sandBurrow.has_value() && inSand(t))
 			w *= 3;
+		// Never in a hostile cell (plan terrain-affinity): water, sand, a fire vent. The light comes later (addLight
+		// keeps clear of them).
+		if (hostileCell(col, row, m.type))
+			w = 0;
 		if (kind->shunsLight && terrain.dark != TerrainAmount::None)
 			w = dark ? w * 3 : w / 4;
 		weights[i] = w;
@@ -342,7 +347,7 @@ bool LevelBuilder::placeMonster(int col, int row, bool dark) {
 		if (g.at(x, row).type == MonsterSpawn)
 			return false;
 	const int type = fauna != nullptr ? zoneMonster(col, row, dark) : randomMonster();
-	if (type == 0)
+	if (type == 0 || hostileCell(col, row, type))
 		return false;
 	if (monsterKind(type)->group > 1 && !groupCell(col - 1, row) && !groupCell(col + 1, row))
 		return false; // no room for a group
@@ -351,6 +356,12 @@ bool LevelBuilder::placeMonster(int col, int row, bool dark) {
 	monsters++;
 	placeGroup(col, row, type);
 	return true;
+}
+
+// The cell is hostile to the type (plan terrain-affinity, spawnTerrains): no spawn there.
+bool LevelBuilder::hostileCell(int col, int row, int type) const {
+	const MonsterKind& kind = *monsterKind(type);
+	return terrainMood(spawnTerrains(g, col, row, kind), kind.native, kind.hostile) == TerrainMood::Hostile;
 }
 
 // One of a group may stand there: a free floor cell no other feature uses.
@@ -370,7 +381,7 @@ void LevelBuilder::placeGroup(int col, int row, int type) {
 	bool open[2] = {true, true};
 	for (int side = 0; more > 0 && (open[0] || open[1]); side = 1 - side) {
 		const int c = next[side];
-		open[side] = open[side] && groupCell(c, row);
+		open[side] = open[side] && groupCell(c, row) && !hostileCell(c, row, type);
 		if (!open[side])
 			continue;
 		put(c, row, Tile{MonsterSpawn, type, 0});

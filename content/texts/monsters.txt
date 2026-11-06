@@ -5,7 +5,7 @@
 note: A beetle the size of my fist. Its bite stings.
 
 [monster.worm]
-note: Slow as sand, but its jaws shut tight and hold. Whoever calls it Shai-Hulud gets no answer.
+note: Quick in the sand, quicker than I am there; out of it slow, and the water it hates. Its jaws shut tight and hold. Whoever calls it Shai-Hulud gets no answer.
 
 [monster.plant]
 note: It cannot move. Never stand next to it. Never touch it: hitting it counts too.

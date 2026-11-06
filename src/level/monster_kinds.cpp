@@ -275,7 +275,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'w',
 	 .name = "Sand worm",
 	 .label = "worm",
-	 .description = "Sand worm; in sand it lies under the surface and comes up under the player",
+	 .description = "Sand worm; in sand it lies under the surface and comes up under the player; quick in the sand, "
+					"hates the water",
 	 .threat = 2.f,
 	 .model = "monsters/worm",
 	 .texture = "monsters/worm",
@@ -290,6 +291,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .melee = LOW_BITE,
 	 .resist = WORM_RESIST,
 	 .heightQuarters = 1,
+	 .native = Terrains{Terrain::Sand},
+	 .hostile = Terrains{Terrain::Water},
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 15}},
 	 .walkStride = WORM_STRIDE,
 	 .sandBurrow = SandBurrowRules{},
@@ -342,7 +345,6 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 25,
 	 .weight = 3,
 	 .wading = Wading::Unaffected,
-	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .ringDropPercent = 6,
 	 // A bolt of fire from the was-sceptre (plans anubis-ranged-attack, anubis-fire-bolt). The melee swing is its
@@ -385,7 +387,6 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .heightQuarters = 1,
 	 .wading = Wading::Unaffected,
-	 .waterSpeed = 1.f,
 	 .meleeCurses = {CurseEntry{Curse::Disease, CurseGrade::Lesser, 10}},
 	 .walkStride = RAT_STRIDE,
 	 .answersCall = true,
@@ -413,7 +414,6 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::WalkJump,
 	 .stepQuarters = 1,
 	 .wading = Wading::Unaffected,
-	 .waterSpeed = 1.f,
 	 .meleeCurses =
 		 {CurseEntry{Curse::Disease, CurseGrade::Greater, 3}, CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
 	 .walkStride = RAT_STRIDE,
@@ -428,7 +428,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'f',
 	 .name = "Bat",
 	 .label = "bat",
-	 .description = "Bat",
+	 .description = "Bat; quick in the dark, keeps away from flames",
 	 .threat = 1.2f, // weak, but only hit with good timing
 	 .model = "monsters/bat",
 	 .texture = "monsters/bat",
@@ -443,6 +443,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::Fly,
 	 .weight = 0,
 	 .heightQuarters = 1,
+	 .native = Terrains{Terrain::Darkness},
+	 .hostile = Terrains{Terrain::Fire},
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 10}},
 	 .generated = {2, 6, 3}},
 	{.id = MonsterGiantBat,
@@ -464,6 +466,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = BAT_RESIST,
 	 .locomotion = Locomotion::Fly,
 	 .weight = 0,
+	 .native = Terrains{Terrain::Darkness},
+	 .hostile = Terrains{Terrain::Fire},
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 15}},
 	 .screech = GIANT_BAT_SCREECH,
 	 .generated = {6, 10, 2}},
@@ -566,6 +570,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = bossResist(BAT_RESIST),
 	 .locomotion = Locomotion::Fly,
 	 .weight = 0,
+	 .native = Terrains{Terrain::Darkness},
+	 .hostile = Terrains{Terrain::Fire},
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 30}},
 	 .screech = SHEZMU_SCREECH,
 	 .kin = MonsterBat,
@@ -575,7 +581,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'u',
 	 .name = "Mummy",
 	 .label = "mummy",
-	 .description = "Mummy, lies in its coffin until the player comes near",
+	 .description = "Mummy, lies in its coffin until the player comes near; keeps away from flames",
 	 .threat = 5.f, // walks fast for its size and hits hard, but gives the player time to see it climb out
 	 .model = "monsters/mummy",
 	 .texture = "monsters/mummy",
@@ -592,6 +598,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::Entombed,
 	 .courage = Courage::Reckless, // a crushing rock (500) can kill it
 	 .trapDamagePct = 50,
+	 .hostile = Terrains{Terrain::Fire},
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .ringDropPercent = 6, // the tomb's dead keep their rings
 	 .meleeCurses =
@@ -628,7 +635,6 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .heightQuarters = 3,
 	 .wading = Wading::Unaffected,
-	 .waterSpeed = 1.f,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 // Its guard's bolt, farther and harder, burning longer; the same model.
 	 .ranged =
@@ -687,7 +693,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::Submerged,
 	 .weight = 3,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 2.5f,
+	 .native = Terrains{Terrain::Water},
 	 .walkStride = CROCODILE_STRIDE,
 	 .hold = CROCODILE_HOLD},
 	// Small and quick like the rat, a slower sting that poisons; levels from the scorpion queen's (plan
@@ -696,7 +702,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'j',
 	 .name = "Scorpion",
 	 .label = "scorpion",
-	 .description = "Scorpion, its sting poisons (weak)",
+	 .description = "Scorpion, its sting poisons (weak); quick in the sand, hates the water",
 	 .threat = 1.f, // a little above the rat and the scarab: the poison burns on after the fight
 	 .model = "monsters/scorpion",
 	 .texture = "monsters/scorpion",
@@ -712,6 +718,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCORPION_RESIST,
 	 .weight = 1,
 	 .heightQuarters = 1,
+	 .native = Terrains{Terrain::Sand},
+	 .hostile = Terrains{Terrain::Water},
 	 .poison = PoisonTier::Weak,
 	 .poisonResistPercent = POISONER_RESIST,
 	 .walkStride = SCORPION_STRIDE,
@@ -739,7 +747,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::Coiled,
 	 .weight = 1,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 1.25f,
+	 .native = Terrains{Terrain::Water},
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
 	 .ranged = RangedRules{10, PoisonTier::Medium, 1.2f, 3500, 0.41f, 0.87f}, // release: frame 7 of 18
@@ -765,7 +773,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = COBRA_RESIST,
 	 .locomotion = Locomotion::Coiled,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 1.25f,
+	 .native = Terrains{Terrain::Water},
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
 	 .ranged =
@@ -787,7 +795,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'J',
 	 .name = "Giant scorpion",
 	 .label = "giant scorpion",
-	 .description = "Giant scorpion, its claws may hold the player for a sure sting; its sting poisons (medium)",
+	 .description = "Giant scorpion, its claws may hold the player for a sure sting; its sting poisons (medium); quick "
+					"in the sand, hates the water",
 	 .threat = 3.5f, // a giant rat's, the poison on top
 	 .model = "monsters/scorpion",
 	 .texture = "monsters/scorpion_giant",
@@ -801,6 +810,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .attackMix = SCORPION_MIX,
 	 .melee = LOW_BITE,
 	 .resist = SCORPION_RESIST,
+	 .native = Terrains{Terrain::Sand},
+	 .hostile = Terrains{Terrain::Water},
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
 	 .walkStride = SCORPION_STRIDE,
@@ -855,6 +866,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 10,
 	 .weight = 4,
 	 .heightQuarters = 3,
+	 .native = Terrains{Terrain::Sand},
+	 .hostile = Terrains{Terrain::Water},
 	 .poison = PoisonTier::Strong,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
 	 .walkStride = SCORPION_STRIDE,
@@ -891,7 +904,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .heightQuarters = 4,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 1.25f,
+	 .native = Terrains{Terrain::Water},
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
 	 // Between dives, a fan of three that blinds with each hit (plan giant-cobra-blinding-spit).
 	 .ranged =
@@ -934,7 +947,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 10,
 	 .weight = 5,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 2.5f,
+	 .native = Terrains{Terrain::Water},
 	 .walkStride = CROCODILE_STRIDE,
 	 .charge = ChargeRules{},
 	 .hold = SOBEK_HOLD,
@@ -997,6 +1010,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapDamagePct = 10,
 	 .weight = 4,
 	 .heightQuarters = 3,
+	 .hostile = Terrains{Terrain::Fire},
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .ranged =
 		 RangedRules{
@@ -1051,6 +1065,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .melee = LOW_BITE,
 	 .resist = CAMEL_SPIDER_RESIST,
 	 .weight = 1,
+	 .native = Terrains{Terrain::Darkness, Terrain::Web},
+	 .hostile = Terrains{Terrain::Light, Terrain::Fire},
 	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
 	 .climbs = true, // plan spider-climbers
@@ -1066,7 +1082,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .name = "Hippopotamus",
 	 .label = "hippo",
 	 .description = "Hippo, lies under the water until the player comes near, then charges along the row (a wall "
-					"stuns it); slow on land",
+					"stuns it); slow on land; strong in the water, slow in the sand",
 	 .threat = 6.f, // above the giant cobra: the charge in the water, where the player cannot jump it
 	 .model = "monsters/hippo",
 	 .texture = "monsters/hippo",
@@ -1082,7 +1098,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 4,
 	 .heightQuarters = 3,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 3.f,
+	 .native = Terrains{Terrain::Water},
+	 .hostile = Terrains{Terrain::Sand},
 	 .walkStride = HIPPO_STRIDE,
 	 .charge = ChargeRules{HIPPO_CHARGE_MIN, HIPPO_CHARGE_MAX, HIPPO_CHARGE_SPEED}},
 	// The living ushabti (plan living-ushabti), the overseer of the servant figures buried to work for the dead: it
@@ -1092,7 +1109,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = '@', // the free letters are taken by the level sources' defs
 	 .name = "Living ushabti",
 	 .label = "ushabti",
-	 .description = "Living ushabti, stands still among the decor figures until the player comes near",
+	 .description =
+		 "Living ushabti, stands still among the decor figures until the player comes near; clay: hates the water",
 	 .threat = 1.5f, // slow and frail, but it hides among the decor
 	 .model = "monsters/ushabti",
 	 .texture = "monsters/ushabti",
@@ -1109,6 +1127,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = USHABTI_RESIST,
 	 .locomotion = Locomotion::Figurine,
 	 .weight = 1,
+	 .hostile = Terrains{Terrain::Water},
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .riseMs = 900,
 	 .walkStride = USHABTI_STRIDE,
@@ -1170,7 +1189,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 6,
 	 .heightQuarters = 4,
 	 .wading = Wading::Swimmer,
-	 .waterSpeed = 3.f,
+	 .native = Terrains{Terrain::Water},
+	 .hostile = Terrains{Terrain::Sand},
 	 .walkStride = HIPPO_STRIDE,
 	 .charge = ChargeRules{SETH_CHARGE_MIN, SETH_CHARGE_MAX, SETH_CHARGE_SPEED},
 	 .roar = RoarRules{SETH_ROAR_RADIUS, SETH_ROAR_DAMAGE, SETH_ROAR_SHOVE, SETH_ROAR_HAZE_MS},
@@ -1184,7 +1204,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .name = "Baboon of the Lake of Fire",
 	 .label = "baboon",
 	 .description = "Baboon, keeps its distance and hurls burning coals (a screech before each); backs off when the "
-					"player comes at it, bites when cornered; climbs",
+					"player comes at it, bites when cornered; climbs; strong by fire, hates the water",
 	 .threat = 5.5f, // the giant cobra's, its coal burns from afar; the kiter's factor on top (KITER_THREAT_FACTOR)
 	 .model = "monsters/baboon",
 	 .texture = "monsters/baboon",
@@ -1196,6 +1216,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 3200,
 	 .attackMix = BABOON_MIX,
 	 .resist = BABOON_RESIST,
+	 .native = Terrains{Terrain::Fire},
+	 .hostile = Terrains{Terrain::Water},
 	 .ranged =
 		 RangedRules{
 			 .damage = 24,
@@ -1241,6 +1263,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .courage = Courage::Reckless,
 	 .trapDamagePct = 10,
 	 .weight = 5,
+	 .native = Terrains{Terrain::Sand},
+	 .hostile = Terrains{Terrain::Water},
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .walkStride = WORM_STRIDE,
 	 .spray = RoarRules{REREK_SPRAY_RADIUS, 0, REREK_SPRAY_SHOVE, REREK_SPRAY_HAZE_MS},
@@ -1277,6 +1301,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = bossResist(CAMEL_SPIDER_RESIST),
 	 .weight = 4,
 	 .heightQuarters = 3,
+	 .native = Terrains{Terrain::Darkness, Terrain::Web},
+	 .hostile = Terrains{Terrain::Light, Terrain::Fire},
 	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
 	 .douseCells = MOTHER_DOUSE_CELLS,
@@ -1318,6 +1344,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 5,
 	 .heightQuarters = 3,
 	 .stepQuarters = 2,
+	 .native = Terrains{Terrain::Fire},
+	 .hostile = Terrains{Terrain::Water},
 	 .ranged =
 		 RangedRules{
 			 .damage = 30,
@@ -1388,7 +1416,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .heightQuarters = 1,
 	 .wading = Wading::Unaffected,
-	 .waterSpeed = 1.f,
+	 .native = Terrains{Terrain::Darkness, Terrain::Web},
+	 .hostile = Terrains{Terrain::Light, Terrain::Fire},
 	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
 	 .climbs = true,
@@ -1418,6 +1447,14 @@ constexpr bool validKinds() {
 			return false; // the boss rule: its kin's sand burrowing too (AGENTS.md)
 		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].shunsLight && !kind.shunsLight)
 			return false; // and its shunning of the light
+		if (!validAffinity(kind.native, kind.hostile) ||
+			(kind.wading == Wading::Swimmer) != kind.native.has(Terrain::Water))
+			return false; // a sane terrain affinity (plan terrain-affinity), a swimmer native to water and no other
+		if (kind.isBoss() && ((KINDS[static_cast<size_t>(kind.kin - 1)].native & kind.native) !=
+								  KINDS[static_cast<size_t>(kind.kin - 1)].native ||
+							  (KINDS[static_cast<size_t>(kind.kin - 1)].hostile & kind.hostile) !=
+								  KINDS[static_cast<size_t>(kind.kin - 1)].hostile))
+			return false; // and its terrain affinity
 		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].kite && !kind.kite)
 			return false; // and its kiting
 		if (kind.isBoss() && KINDS[static_cast<size_t>(kind.kin - 1)].climbs && !kind.climbs)
@@ -1448,7 +1485,8 @@ constexpr bool validKinds() {
 static_assert(
 	validKinds(),
 	"KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
-	"bosses with a kin (its sand burrowing, light shunning, kiting and climbing too), no weakness and no resistance "
+	"bosses with a kin (its sand burrowing, light shunning, terrain affinity, kiting and climbing too), sane terrain "
+	"affinities, swimmers native to water, no weakness and no resistance "
 	"worse "
 	"than the kin's, poison included, a reach no shorter than the kin's, volleys of at least one shot"
 );

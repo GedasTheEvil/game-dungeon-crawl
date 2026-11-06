@@ -14,7 +14,7 @@
 23,1 surface 3/1/1
 24,1 surface 4/2/1 sand<
 25,1 surface 3/2/1 torch fire torch 0.000,0.680,0.098
-26,1 surface 3/1/1 decal 1 0.277,0.468
+26,1 surface 3/1/1 prop water_lotus 0.096 decal 1 0.277,0.468
 27,1 surface 4/1/1
 28,1 surface 3/2/1 prop water_padsm 0.009 decal 15 0.404,0.457
 29,1 surface 5/2/1

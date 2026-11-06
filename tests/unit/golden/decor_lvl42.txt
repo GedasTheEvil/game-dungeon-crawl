@@ -589,7 +589,7 @@
 16,43 surface 12/5/7 prop water_padsm -0.052 decal 11 0.379,0.609
 17,43 surface 13/5/7
 18,43 surface 12/5/7 decal 8m 0.585,0.431
-19,43 surface 13/5/7 sand> prop skeleton 0.038
+19,43 surface 13/5/7 sand>
 20,43 surface 12/1/7
 21,43 surface 12/5/7 sand<
 22,43 surface 12/5/7 prop thoth_ibis_standing -0.145

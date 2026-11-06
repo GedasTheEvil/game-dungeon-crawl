@@ -622,7 +622,7 @@
 10,44 surface 14/6/8
 11,44 surface 14/6/8 decal 8 0.409,0.531
 12,44 surface 15/6/8
-13,44 surface 14/6/8
+13,44 surface 14/6/8 prop water_reeds -0.057
 14,44 surface 15/1/8 decal 7m 0.535,0.579
 15,44 surface 14/6/8 prop water_pads 0.001 decal 11 0.442,0.495
 16,44 surface 15/6/8

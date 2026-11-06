@@ -89,8 +89,9 @@ enum class CreatureMove : unsigned char {
 	Blind, // a spit in the eyes blinds the player (RangedRules::blindMs)
 	Screech, // a flyer screeches, the player in its cone is dazed (MonsterKind::screech)
 	CallPack, // a hurt giant rat squeals and the rats near come (MonsterKind::call)
+	AvoidTerrain, // a monster steps out of a hostile terrain (MonsterKind::hostile, plan terrain-affinity)
 };
-constexpr int CREATURE_MOVE_COUNT = 29;
+constexpr int CREATURE_MOVE_COUNT = 30;
 
 // What the archaeologist knows about one monster type (MonsterTypeId). Every note comes from a meeting, never from a
 // kill count (plan monster-journal).

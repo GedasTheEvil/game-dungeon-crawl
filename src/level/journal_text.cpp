@@ -107,6 +107,14 @@ const char* creatureMoveNote(CreatureMove move, const MonsterKind& t) {
 		return moveText("blind", t.ranged && t.ranged->fan > 1 ? "fan" : "text");
 	case CreatureMove::CallPack:
 		return moveText("call-pack");
+	case CreatureMove::AvoidTerrain: // by the terrain it hates; the light before the fire (the spiders hate both)
+		return moveText(
+			"avoid-terrain",
+			t.hostile.has(Terrain::Water)	? "water"
+			: t.hostile.has(Terrain::Sand)	? "sand"
+			: t.hostile.has(Terrain::Light) ? "light"
+											: "fire"
+		);
 	}
 	return "";
 }

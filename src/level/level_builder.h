@@ -358,6 +358,9 @@ class LevelBuilder {
 	void addLight();
 	void dressFigures();
 	[[nodiscard]] bool figureCell(int col, int row) const;
+	[[nodiscard]] bool hostileCell(int col, int row, int type) const;
+	// A wall torch or a brazier at col would light a monster spawn hostile to the light (plan terrain-affinity).
+	[[nodiscard]] bool lightsFoe(int col, int row) const;
 	void chooseDark();
 	void darken(const Segment& hall);
 	[[nodiscard]] bool crack(const Segment& hall, int x) const;

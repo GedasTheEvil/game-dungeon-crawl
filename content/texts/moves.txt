@@ -114,3 +114,9 @@ drink: He screams, and the scream hurts. While my ears ring his bite drinks deep
 
 [move.call-pack]
 text: Hurt the big one and the small ones come. Rats are loyal. Who knew.
+
+[move.avoid-terrain]
+water: Hates the water. It walks out of it when it can; caught in it, it is slow and its bite is soft. Fight it there.
+sand: Hates the sand. Out of the water it walks round it; caught in it, it drags itself and bites soft.
+light: Hates the light. In it the spider is slow and timid; it steps back into the dark to fight.
+fire: Keeps away from the flames. By a brazier it is slow and hits soft: fight it there.

@@ -50,7 +50,7 @@ bool Monster::UpdateCharge(bool wallAhead, float px, float py) {
 		if (!charge.hit && sameRow(py) && onFloor && std::fabs(px - head) <= links.player->HalfWidth() + 0.1f) {
 			charge.hit = true;
 			if (!links.player->Dodges(*links.events, *links.random)) {
-				links.player->TakeHit(type->damage * CHARGE_HIT_FACTOR, type->attackMix, *links.events);
+				links.player->TakeHit(HitDamage(type->damage * CHARGE_HIT_FACTOR), type->attackMix, *links.events);
 				curse(type->meleeCurses);
 				links.journal->HitByCreature(type->id, links.level);
 			}

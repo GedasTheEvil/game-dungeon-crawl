@@ -57,7 +57,7 @@ TEST_CASE("the hippo comes out charging along the row, through the player, and a
 	CHECK(h->CentreX() < 10.8f); // ran on past the player, into the west wall
 }
 
-TEST_CASE("the hippo walks slowly on land and swims fast in half water") {
+TEST_CASE("the hippo walks slowly on land and swims fast in half water: its native terrain (plan terrain-affinity)") {
 	SimWorld world;
 	const Monster* h = loadPool(world);
 	REQUIRE(h != nullptr);
@@ -67,6 +67,6 @@ TEST_CASE("the hippo walks slowly on land and swims fast in half water") {
 	REQUIRE(waitStunned(world, *h));
 	REQUIRE_FALSE(h->InWater()); // on the dry floor by the west wall
 	const float walk = h->WalkStep();
-	CHECK(swim >= 2.5f * walk);
+	CHECK(swim == doctest::Approx(walk * TERRAIN_ROWS[static_cast<int>(Terrain::Water)].native.speed));
 	CHECK(h->Type()->speed < monsterKind(MonsterCrocodile)->speed); // slower than the crocodile on land
 }

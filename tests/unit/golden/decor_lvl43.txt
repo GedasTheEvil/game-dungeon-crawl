@@ -438,13 +438,13 @@
 9,30 surface 12/5/7 sand<
 10,30 surface 13/5/7 sand>
 11,30 surface 12/1/7
-12,30 surface 12/5/7 sand< prop skeleton 0.138
+12,30 surface 12/5/7 sand<
 13,30 surface 13/5/7
 14,30 surface 12/5/7 prop brazier -0.035 decal 1m 0.298,0.566 fire brazier -0.035,0.220,0.160
 15,30 surface 12/5/7 prop water_weedm -0.029
 16,30 surface 12/5/7 ladder 0/4m
 17,30 surface 13/5/7 torch fire torch 0.000,0.680,0.098
-18,30 surface 12/5/7
+18,30 surface 12/5/7 prop water_lotus -0.167
 19,30 surface 12/5/7 decal 1m 0.479,0.427
 20,30 surface 12/1/7
 21,30 surface 13/5/7 decal 11 0.548,0.478

@@ -327,6 +327,27 @@ bool monsterReaches(const LevelGrid& grid, int spawnCol, int row, int col) {
 	return true;
 }
 
+// A monster spawned in a hostile cell is a placement mistake (plan terrain-affinity): it walks out at once, or fights
+// weak where it stands.
+void checkSpawnTerrains(const LevelGrid& grid, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		const Tile& t = grid.cells[cell];
+		const MonsterKind* kind = t.type == MonsterSpawn ? monsterKind(t.attr) : nullptr;
+		if (kind == nullptr)
+			continue;
+		const Terrains here = spawnTerrains(grid, cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, *kind);
+		if (terrainMood(here, kind->native, kind->hostile) != TerrainMood::Hostile)
+			continue;
+		std::string what;
+		for (int k = 0; k < TERRAIN_COUNT; k++)
+			if ((here & kind->hostile).has(static_cast<Terrain>(k)))
+				what += std::string(what.empty() ? "" : ", ") + TERRAIN_NAMES[k];
+		r.warnings.push_back(
+			std::string("the ") + kind->label + " at " + at(cell) + " spawns in a hostile terrain: " + what
+		);
+	}
+}
+
 // The monster spawns (cells) within MONSTER_REACH of the path along its rows that can reach it.
 std::set<int> monstersNear(const LevelGrid& grid, const std::vector<CellPos>& path) {
 	std::set<int> near;
@@ -357,9 +378,14 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 		if (t.type != MonsterSpawn)
 			continue;
 		const MonsterKind* kind = monsterKind(t.attr);
-		const bool swimsHere = kind != nullptr && kind->wading == Wading::Swimmer && inHalfWater(t);
-		score += monsterThreat(t.attr) * (swimsHere ? SWIMMER_IN_WATER_THREAT_FACTOR : 1.f) *
-				 (near.count(cell) != 0 ? 1.f : 0.25f);
+		// In its native terrain it is faster and hits harder (plan terrain-affinity).
+		const float native = kind == nullptr ? 1.f
+											 : terrainThreatFactor(terrainFactors(
+												   spawnTerrains(grid, cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, *kind),
+												   kind->native,
+												   kind->hostile
+											   ));
+		score += monsterThreat(t.attr) * native * (near.count(cell) != 0 ? 1.f : 0.25f);
 	}
 
 	// Jumps over spike pits hurt when missed.
@@ -383,6 +409,24 @@ float monsterThreat(int type) {
 	return kind->threat * (kind->climbs ? CLIMBER_THREAT_FACTOR : 1.f) * (kind->kite ? KITER_THREAT_FACTOR : 1.f);
 }
 
+Terrains spawnTerrains(const LevelGrid& grid, int col, int row, const MonsterKind& kind) {
+	Terrains here;
+	const Tile t = grid.at(col, row);
+	const bool ground = kind.locomotion != Locomotion::Fly;
+	if (ground && inHalfWater(t))
+		here.add(Terrain::Water);
+	if (ground && inSand(t))
+		here.add(Terrain::Sand);
+	auto flame = [](const Tile& c) { return c.dressing.prop == DECOR_BRAZIER || c.dressing.prop == DECOR_LAMP; };
+	if (flame(t) || t.fixture.type == FireVent)
+		here.add(Terrain::Fire);
+	bool lit = false;
+	for (int c = col - LIGHT_SHUN_CELLS; c <= col + LIGHT_SHUN_CELLS; c++)
+		lit = lit || flame(grid.at(c, row)) || grid.at(c, row).dressing.torch == TorchPlacing::Torch;
+	here.add(lit ? Terrain::Light : Terrain::Darkness);
+	return here;
+}
+
 LevelReport checkLevel(const LevelGrid& grid) {
 	LevelReport r;
 	countContent(grid, r);
@@ -396,6 +440,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	checkSandGusts(grid, r);
 	checkDressing(grid, r);
 	checkShapes(grid, r);
+	checkSpawnTerrains(grid, r);
 	const int litAtStart = checkSunBeams(grid, r);
 
 	if (r.entrances == 0)

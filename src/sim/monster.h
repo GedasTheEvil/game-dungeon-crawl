@@ -100,6 +100,10 @@ class Monster {
 	float tomb = 0.f; // entombed: world units its body is drawn back towards the wall, in its coffin
 	bool inWater = false; // standing in half water (Dungeon::UpdateMonsters sets it every tick)
 	bool waterKnown = false; // SetInWater ran since the spawn
+	// Its terrain affinity's factors in the cell it stands in (plan terrain-affinity, SetTerrain every tick).
+	TerrainFactors terrain{};
+	TerrainMood mood = TerrainMood::Neutral;
+	int attackMs = 0; // between bites: its kind's, times its terrain's interval factor
 	bool headInWater = false; // its head is over half water: a swimmer floats only then (on the floor at the bank)
 	float swim = 0.f; // a swimmer in the water: world units it floats up off the floor (swimLift), eased
 	bool swimPlaced = false; // swim was set on the first Animate after the spawn
@@ -230,6 +234,15 @@ class Monster {
 		sink = basin;
 		return entered;
 	}
+	// Once a tick (Dungeon::UpdateMonsters): the terrains of the cell it stands in (Dungeon::TerrainsAt). Its speed,
+	// bite interval and damage take its affinity's factors there at once (plan terrain-affinity).
+	void SetTerrain(Terrains here);
+	[[nodiscard]] TerrainMood Mood() const { return mood; }
+	[[nodiscard]] TerrainMood MoodIn(Terrains here) const { return ::terrainMood(here, type->native, type->hostile); }
+	[[nodiscard]] float TerrainDamage() const { return terrain.damage; }
+	[[nodiscard]] int AttackMs() const { return attackMs; }
+	// A hit of base damage, times its terrain's damage factor; at least 1 if base was.
+	[[nodiscard]] int HitDamage(int base) const;
 	// Map x of the front of its box, the way it faces (its centre while it faces the camera).
 	[[nodiscard]] float HeadX() const { return facing > 0 ? Right() : facing < 0 ? Left() : CentreX(); }
 	[[nodiscard]] bool InWater() const { return inWater; }
@@ -264,7 +277,11 @@ class Monster {
 	// Its feet go there at MONSTER_STEP_EASE a tick: up a step it jumped onto, down off one.
 	void SetStepFloor(float floor);
 	[[nodiscard]] float StepUp() const { return stepUp; }
-	[[nodiscard]] float WalkStep() const; // tiles a walk step goes, slower or faster in half water (Wading)
+	// Tiles a walk step goes: its speed times its terrain's (plan terrain-affinity) and the wade (Wading).
+	[[nodiscard]] float WalkStep() const;
+	// Its terrain's speed factor, with the wade of a slowed wader in half water (wadeWithTerrain).
+	[[nodiscard]] float terrainSpeed() const;
+	[[nodiscard]] float clipTell() const; // NATIVE_CLIP_FACTOR, HOSTILE_CLIP_FACTOR or 1
 	// AdvancePlayback's speed of its walk clip: one stride (walkStride) per stride walked (plan walk-clip-stride).
 	[[nodiscard]] float WalkClipSpeed() const;
 	void stepBy(float dx); // a walk step: x moves at once, the drawing slides there (LocalX)
@@ -292,6 +309,10 @@ class Monster {
 	[[nodiscard]] bool flees() const;
 	// Fleeing cowards: one step that way (dir -1 / +1), away from the player, as Seek; blocked: it stands.
 	void Flee(bool blocked, int dir);
+	// Out of a hostile cell (plan terrain-affinity, Dungeon::wayOutOfTerrain): one walk step towards map x toX, not
+	// past it. fight: facing the player (it backs off to bite them from there), else the way it walks. It does not
+	// notice the player by it.
+	void StepOut(float toX, bool fight);
 	void Stand(); // a fleeing coward out of the player's fire: stands, watching them
 	// Kiters (KiteRules): once a tick, notes whether the player at px is coming at it (KITE_CLOSING_MS).
 	void WatchPlayer(float px);

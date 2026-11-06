@@ -26,7 +26,7 @@ but it does not need it: it reads today's `Monster` getters.
   daze / stun, terrain mood) is one function both the player's HUD and the monster's row call; the player's adds
   blessings and curses around it. One place to add the next condition.
 * **Drawing** (`src/graphics/monster_draw.cpp`, where the health bar is drawn once a monster is alerted): the cards
-  shrunk to a small square (about the bar's height times 2, the implementer tunes it on a screenshot), the kind's
+  shrunk to a small square (1.5 times the health bar's height, the user's start value; tune later by play-test), the kind's
   background cell (`status_cards.png`) with the icon on top, left-aligned over the bar, no seconds text (too small);
   the pips only if they stay readable. Only while the bar shows (alerted, not a boss).
 * **Bosses**: their bar is on the HUD (`boss_bar.cpp`): the same row of icons over that bar, at the player's card size.
@@ -36,6 +36,6 @@ but it does not need it: it reads today's `Monster` getters.
 
 ## Open points (implementer's choice)
 
-* The icon size and whether pips fit at that size.
+* Whether pips fit at that size.
 * Whether the stun icon replaces the stars over the head or sits beside them (likely beside: the stars are the body,
   the icon the HUD language).

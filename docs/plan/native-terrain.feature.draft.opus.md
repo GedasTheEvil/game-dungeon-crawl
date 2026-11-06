@@ -35,11 +35,10 @@ swimmers' per-kind `waterSpeed`. More terrains can be added later as one row in 
 * **Who is native** (`MonsterKind::native`, a bit set: a monster can have several; in two at once, each factor is
   the highest of the two, they do not stack):
   * water: crocodile, Sobek, hippo, Seth, cobra, giant cobra, Apep (today's `Wading::Swimmer`s);
-  * sand: worm, Rerek;
+  * sand: worm, Rerek, scorpion, giant scorpion, the scorpion queen (the user's call; not the egg cluster: it does not move or bite);
   * darkness: bat, giant bat, Bat of Shezmu, camel spider, tiny spider, Mother of Webs;
   * web: camel spider, tiny spider, Mother of Webs;
   * fire: baboon of the Lake of Fire, Babi.
-  * Implementer's choice: scorpions on sand (the desert chapter). Not by default.
 * **Bosses**: a boss has its kin's native terrains (the boss rule, AGENTS.md). Extend the boss-rule check in
   monster_kinds.cpp (~1417, now for `sandBurrow`) to fail a boss without them. The same multipliers as everyone.
 * **Water today**: `waterSpeed` per kind (cobra x1.25 ... hippo x3) goes away. `Wading` keeps only how it moves in
@@ -79,7 +78,6 @@ The plan can land in steps, each one play-testable on its own:
 ## Open questions
 
 * The starting numbers in the table and the clip rate.
-* Scorpions native to sand or not.
 * Fire: is "lit cell" too wide (every torch in a level)? A narrower choice: only braziers and fire vents.
 
 ## Play-test

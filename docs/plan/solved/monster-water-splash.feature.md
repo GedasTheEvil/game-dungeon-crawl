@@ -1,9 +1,9 @@
 # Splash when a monster enters water
 
-Status: implemented 2026-10-31, waiting for the user's play-test. Was: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-06 (play-tested by the user). Was: implemented 2026-10-31, waiting for the user's play-test. Was: draft 2026-10-30, needs nothing first. From the project audit of 2026-10-30.
 
 `WorldSound::Splash` plays only for the player's landing / wading and for dung balls (`src/world/dungeon_base.cpp`,
-`dungeon_balls.cpp`). [crocodiles-and-flooded-cells](solved/crocodiles-and-flooded-cells.md) left monsters out.
+`dungeon_balls.cpp`). [crocodiles-and-flooded-cells](crocodiles-and-flooded-cells.md) left monsters out.
 
 * A monster crossing from air into a water cell (falling or walking in) plays the splash at its position, louder for
   large monsters, and spawns the existing splash particles if the player's landing has them.

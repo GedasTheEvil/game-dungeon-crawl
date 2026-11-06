@@ -1,15 +1,15 @@
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "item_bag.h"
-#include "journal.h"
-#include "rng.h"
-#include "world_events.h"
+#include "player.h"
+#include "../level/item_bag.h"
+#include "../level/journal.h"
+#include "../level/rng.h"
+#include "../level/world_events.h"
 #include <algorithm>
 #include <cmath>
 #include <memory>
-#include "../core/gameplay_config.h"
-#include "loot.h"
-#include "../graphics/render_config.h"
+#include "../level/gameplay_config.h"
+#include "../level/loot.h"
+#include "render_config.h"
 
 void Dungeon::UpdateMonsters() {
 	updateBoss();

@@ -2,9 +2,9 @@
 // the gameplay stream; a chest opens with a press, shows its item after the clip and gives it with the next press;
 // what was opened stays so over a save and load.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/containers.h"
-#include "../../src/world/decor_scatter.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/containers.h"
+#include "../../src/level/decor_scatter.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <memory>

@@ -1,17 +1,17 @@
-#include "dungeon.h"
+#include "../sim/dungeon.h"
 #include "../state/assets.h"
-#include "../entities/player.h"
-#include "item_bag.h"
-#include "journal.h"
-#include "rng.h"
-#include "world_events.h"
+#include "../sim/player.h"
+#include "../level/item_bag.h"
+#include "../level/journal.h"
+#include "../level/rng.h"
+#include "../level/world_events.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
-#include "../graphics/render_config.h"
-#include "../graphics/fire.h"
-#include "../graphics/lighting.h"
-#include "tile_defs.h"
+#include "../sim/render_config.h"
+#include "fire.h"
+#include "../render/lighting.h"
+#include "../level/tile_defs.h"
 
 namespace {
 constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the container

@@ -1,5 +1,5 @@
 #include "ui_draw.h"
-#include "../graphics/font.h"
+#include "font.h"
 #include <GL/gl.h>
 #include <cmath>
 #include "../core/paths.h"

@@ -3,10 +3,10 @@
 // drops it every other summon.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/climb_path.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/level_gen.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/climb_path.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/level_gen.h"
 #include <cmath>
 
 namespace {

@@ -2,7 +2,7 @@
 // MONSTER_BITE_REACH from the player's box, and every melee weapon reaches it there, in normal and toon mode (the
 // figures and their boxes are larger). The look of the reach against the weapon: tests/scenarios/melee_weapons.txt.
 #include "../../external/doctest/doctest.h"
-#include "../../src/entities/figures.h"
+#include "../../src/sim/figures.h"
 #include "sim_world.h"
 #include <string>
 

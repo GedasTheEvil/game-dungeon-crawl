@@ -5,7 +5,7 @@
 #include "gl_includes.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
-#include "../state/settings_ini.h"
+#include "../level/settings_ini.h"
 #ifndef WIN32
 #include <GL/glx.h>
 #endif

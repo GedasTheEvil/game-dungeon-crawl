@@ -6,7 +6,7 @@
 // bottom), so the sim and the unit tests share it.
 
 #include "level.h"
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include <array>
 #include <cstdint>
 #include <functional>

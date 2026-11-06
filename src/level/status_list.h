@@ -2,10 +2,10 @@
 #define STATUS_LIST_H
 
 #include "hud_icon.h"
-#include "../world/curses.h"
-#include "../world/poison.h"
-#include "../world/rgb.h"
-#include "../world/shrines.h"
+#include "curses.h"
+#include "poison.h"
+#include "rgb.h"
+#include "shrines.h"
 #include <array>
 
 class PlayerStats;

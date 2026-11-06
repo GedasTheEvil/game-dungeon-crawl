@@ -1,8 +1,8 @@
 // The menu keys (plan keyboard-menus): which key moves or activates, and where a direction moves the focus.
 #include "../../external/doctest/doctest.h"
-#include "../../src/input/bindings.h"
-#include "../../src/input/input.h"
-#include "../../src/ui/ui_layout.h"
+#include "../../src/level/bindings.h"
+#include "../../src/level/input.h"
+#include "../../src/level/ui_layout.h"
 #include <vector>
 
 using ui::Rect;

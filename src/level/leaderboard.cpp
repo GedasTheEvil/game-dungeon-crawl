@@ -1,6 +1,6 @@
 #include "leaderboard.h"
 #include "../core/logger.h"
-#include "../entities/player_stats.h"
+#include "player_stats.h"
 #include "campaign.h"
 #include "items.h"
 #include "level.h"

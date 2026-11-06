@@ -1,10 +1,10 @@
 #ifndef DUNGEON_SAVE_H
 #define DUNGEON_SAVE_H
 
-#include "../entities/player.h"
+#include "player.h"
 #include "dungeon.h"
-#include "item_bag.h"
-#include "journal.h"
+#include "../level/item_bag.h"
+#include "../level/journal.h"
 #include <istream>
 #include <ostream>
 #include <string>

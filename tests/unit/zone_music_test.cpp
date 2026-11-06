@@ -1,7 +1,7 @@
 // Zone music (plan zone-music): the menu's track, a zone's own, soundtrack.ogg in no zone or for a missing file.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/zone_music.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/zone_music.h"
 #include <filesystem>
 #include <string>
 

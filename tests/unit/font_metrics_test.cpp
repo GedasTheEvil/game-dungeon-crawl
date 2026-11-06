@@ -1,6 +1,6 @@
 // Font metrics (plan text-vertical-centre): Font's baseline and cap height match the inked "H" of the font sheets.
 #include "../../external/doctest/doctest.h"
-#include "../../src/graphics/font.h"
+#include "../../src/render/font.h"
 #include "../../src/core/paths.h"
 #include "../../external/stb/stb_image.h"
 #include <algorithm>

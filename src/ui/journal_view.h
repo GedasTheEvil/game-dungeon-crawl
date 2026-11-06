@@ -1,14 +1,14 @@
 #ifndef JOURNAL_VIEW_H
 #define JOURNAL_VIEW_H
 
-#include "../graphics/font.h"
-#include "../graphics/render_target.h"
-#include "../graphics/textures.h"
-#include "../world/level.h"
-#include "../input/bindings.h"
-#include "message_log.h"
-#include "pointer.h"
-#include "ui_draw.h"
+#include "../render/font.h"
+#include "../render/render_target.h"
+#include "../render/textures.h"
+#include "../level/level.h"
+#include "../level/bindings.h"
+#include "../level/message_log.h"
+#include "../level/pointer.h"
+#include "../render/ui_draw.h"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -17,7 +17,7 @@
 
 // The archaeologist's journal ([J]): a cloth-bound field notebook open on two grid pages, a coloured ribbon bookmark
 // in the first page of each section with pages, hanging out on the left or right. Pages turn over the spine
-// (ui/page_curl.h): a click, a key or a drag of a page corner. The data is Game().journal (world/journal.h); this is
+// (ui/page_curl.h): a click, a key or a drag of a page corner. The data is Game().journal (level/journal.h); this is
 // only the screen. The game is paused while it is open. It opens on the section and pages looked at last.
 class JournalScreen {
   public:

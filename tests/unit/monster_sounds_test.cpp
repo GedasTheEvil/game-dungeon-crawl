@@ -2,8 +2,8 @@
 // own voice (a boss's) or its model's.
 #include "../../external/doctest/doctest.h"
 #include "../../src/core/paths.h"
-#include "../../src/world/monster_kinds.h"
-#include "../../src/world/world_events.h"
+#include "../../src/level/monster_kinds.h"
+#include "../../src/level/world_events.h"
 #include <filesystem>
 #include <string>
 

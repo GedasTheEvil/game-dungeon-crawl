@@ -121,7 +121,7 @@ for `--play` only; `make test` does not run them. `tools/plan.py solve` removes 
 
 One command per line. `#` starts a comment.
 
-A new command is a row in `commandDefs()` (`src/test/scenario_script.cpp`: name, argument parser, usage), its run in
+A new command is a row in `commandDefs()` (`src/level/scenario_script.cpp`: name, argument parser, usage), its run in
 `runInstant` (`src/test/scenario.cpp`, `-Wswitch` asks for it), an example line in
 `tests/unit/scenario_script_test.cpp` and a row in the table below. A new `expect` field is a row in `fieldDefs()` and
 its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this page lists both.
@@ -158,10 +158,10 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `grab` | The living monster nearest the player starts a grab's tell now, as when its bite rolls one (`MonsterKind::hold`, plans [crocodile-hold-bite](plan/solved/crocodile-hold-bite.md), [giant-scorpion-grab](plan/solved/giant-scorpion-grab.md)): the jaws or claws open, the lunge follows; `expect held` tells whether it caught the player. Fails if it does not grab or is grabbing already. |
 | `stun` | The level's boss while it lives, else the living monster nearest the player, is stunned for 1.5 s (a boss for half, not again within 5 s), as by a blunt hit with the Stun skill ([skill-stun](plan/solved/skill-stun.md)): it stands, its clip paused, stars over its head; a flyer drops to the floor. Fails when it cannot be (lurking, hidden, in a leap or a charge). |
 | `poisonmonster weak\|medium\|strong` | The living monster nearest the player is poisoned with that tier, as by the player: its kill by the poison gives the XP. It may shrug it off (`MonsterKind::poisonResistPercent`, [monster poison](plan/solved/monster-poison.md)); `expect nearest_poison` tells. |
-| `prop COL NAME` | Put the prop NAME (`DECOR_NAMES` in `src/world/decor.h`: `cat`, `osiris`, `thoth_ibis_standing`, ...) on column COL of the player's row, over whatever the level's scatter picked there. For props the scatter would only place by chance. |
+| `prop COL NAME` | Put the prop NAME (`DECOR_NAMES` in `src/level/decor.h`: `cat`, `osiris`, `thoth_ibis_standing`, ...) on column COL of the player's row, over whatever the level's scatter picked there. For props the scatter would only place by chance. |
 | `torch COL on\|off` | Put a wall torch on column COL of the player's row, or take the scattered one away: its light (a light shunner keeps out, `Dungeon::Lit`). |
 | `mirror COL ROW WAY` | The mirror in cell (COL, ROW) points WAY at once (`down`, `left`, `up`, `right` or 0 to 3; plan sunlight-mirrors); `levelcheck --script` sets the mirrors a beam needs with it. |
-| `container COL KIND [STANCE]` | The treasure on column COL of the player's row looks like KIND (`CONTAINER_NAMES` in `src/world/containers.h`: `chest`, `coffer`, `basket`, `canopic`, `jar`, `table`, `coffin`; `cursed_coffin`: a coffin with the execration text), standing as `STANCES[STANCE]` (0 facing the camera, the default; 1-2 angled, 3-4 side-on, 5 at the back wall, 6-7 against a side wall), over whatever the level's scatter picked. |
+| `container COL KIND [STANCE]` | The treasure on column COL of the player's row looks like KIND (`CONTAINER_NAMES` in `src/level/containers.h`: `chest`, `coffer`, `basket`, `canopic`, `jar`, `table`, `coffin`; `cursed_coffin`: a coffin with the execration text), standing as `STANCES[STANCE]` (0 facing the camera, the default; 1-2 angled, 3-4 side-on, 5 at the back wall, 6-7 against a side wall), over whatever the level's scatter picked. |
 | `riddles PATH` | Load the riddles from one file or a directory instead of `content/riddles/` ([riddles.md](riddles.md)). |
 | `speakname` | Type the level's royal name (`Dungeon::LevelName`, [names.md](names.md)) into the open name gate scroll, key by key, as the player would; `key enter` speaks it. Fails when the scroll is not open or no names are loaded. |
 | `inscriptions PATH` | Load the wall inscriptions' texts from one file or a directory instead of `content/inscriptions/` ([inscriptions.md](inscriptions.md)). Fails on a problem in the files. |

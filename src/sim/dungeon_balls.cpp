@@ -1,11 +1,11 @@
-// Dung balls on the level (plan scarab-dung-ball; the roller's windup and kick: entities/monster_roll.cpp): the ball
+// Dung balls on the level (plan scarab-dung-ball; the roller's windup and kick: sim/monster_roll.cpp): the ball
 // rolls along the floor of its row over traps, falls into a pit, sinks in water, breaks on a wall, at the end of its
 // roll or on the player. A jump clears it.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "journal.h"
-#include "rng.h"
-#include "world_events.h"
+#include "player.h"
+#include "../level/journal.h"
+#include "../level/rng.h"
+#include "../level/world_events.h"
 #include <algorithm>
 #include <cmath>
 

@@ -1,10 +1,10 @@
 // The earlier expedition's notebook pages (plan expedition-notes): picked up on touch into the journal, kept over a
 // save, one of each number over the campaign in order of depth, the last one on the exit path.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/journal_text.h"
-#include "../../src/world/level_check.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/journal_text.h"
+#include "../../src/level/level_check.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <cstring>

@@ -1,10 +1,10 @@
 // Secret name gates (plan secret-name-gates): the name files, the pick per run, the name gate and its cartouche in the
 // level, the checker's rules, the campaign's rooms.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/names.h"
-#include "../../src/world/run_stats.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/names.h"
+#include "../../src/level/run_stats.h"
 #include "sim_world.h"
 #include <set>
 #include <sstream>

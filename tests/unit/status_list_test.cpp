@@ -1,9 +1,9 @@
 // The HUD's status cards (plan curse-blessing-cards): the running effects in one list, by kind, with their icons, pips
 // and tints.
 #include "../../external/doctest/doctest.h"
-#include "../../src/entities/player_stats.h"
-#include "../../src/ui/status_list.h"
-#include "../../src/world/world_events.h"
+#include "../../src/level/player_stats.h"
+#include "../../src/level/status_list.h"
+#include "../../src/level/world_events.h"
 
 using PlayerHud::Icon;
 

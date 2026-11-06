@@ -1,9 +1,9 @@
 // Rollers (the giant scarab, Khepri; plan scarab-dung-ball): the windup with its back to the player, the kick. The
-// ball's roll is the dungeon's (world/dungeon_balls.cpp).
+// ball's roll is the dungeon's (sim/dungeon_balls.cpp).
 #include "monster.h"
 #include <algorithm>
-#include "../core/gameplay_config.h"
-#include "../world/journal.h"
+#include "../level/gameplay_config.h"
+#include "../level/journal.h"
 
 bool Monster::canRoll(float px, float py) const {
 	if (!type->roll || !Alive() || !alerted || lurking() || RollingBall() || jumping() ||

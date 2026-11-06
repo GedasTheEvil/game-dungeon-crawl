@@ -2,7 +2,7 @@
 # level can be generated again on its own: tools/level/rebuild.py LEVEL. The level files stay the source of truth: a
 # level is polished by hand or in the editor after it is generated (docs/levels.md, Levels), and generating it again
 # drops that polish.
-# Sizes: ZONE_SIZE (src/world/campaign.h). Difficulty: 1 to 10 over the target campaign (tools/balance, difficultyOf).
+# Sizes: ZONE_SIZE (src/level/campaign.h). Difficulty: 1 to 10 over the target campaign (tools/balance, difficultyOf).
 # Inscriptions from content/inscriptions/rebuild.txt, each id once; pages in order of depth.
 #
 # level  levelgen arguments

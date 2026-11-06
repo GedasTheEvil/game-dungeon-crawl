@@ -1,8 +1,8 @@
 #include "interact_prompt.h"
 #include "player_hud.h"
-#include "ui_layout.h"
+#include "../level/ui_layout.h"
 #include "../core/timer.h"
-#include "../graphics/font.h"
+#include "../render/font.h"
 #include <GL/gl.h>
 
 using namespace ui;

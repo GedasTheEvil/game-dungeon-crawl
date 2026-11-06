@@ -1,6 +1,6 @@
 #ifndef SPIKE_CYCLE_H
 #define SPIKE_CYCLE_H
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include "level.h"
 #include <algorithm>
 

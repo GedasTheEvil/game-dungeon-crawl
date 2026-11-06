@@ -1,7 +1,7 @@
 // The shots amulet (plan amulet-more-shots) and the quick shots amulet (plan amulet-quick-shots): more shots in every
 // ranged weapon, and the shots back sooner.
 #include "../../external/doctest/doctest.h"
-#include "../../src/entities/player_stats.h"
+#include "../../src/level/player_stats.h"
 #include "sim_world.h"
 #include <string>
 

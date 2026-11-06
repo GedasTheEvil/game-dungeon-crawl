@@ -1,7 +1,7 @@
 #ifndef STATUS_BOX_H
 #define STATUS_BOX_H
 
-#include "message_log.h"
+#include "../level/message_log.h"
 #include <vector>
 
 class Font;

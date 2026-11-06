@@ -2,8 +2,8 @@
 // leaps traps, and a quarter of its bites lay insanity. Killed, it leaves its chest where it died.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/level_gen.h"
-#include "../../src/world/loot.h"
+#include "../../src/level/level_gen.h"
+#include "../../src/level/loot.h"
 
 namespace {
 const Monster* find(const SimWorld& world) {

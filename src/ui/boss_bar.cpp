@@ -1,7 +1,7 @@
 #include "boss_bar.h"
-#include "ui_draw.h"
+#include "../render/ui_draw.h"
 #include "player_hud.h"
-#include "../graphics/font.h"
+#include "../render/font.h"
 #include <GL/gl.h>
 #include <algorithm>
 

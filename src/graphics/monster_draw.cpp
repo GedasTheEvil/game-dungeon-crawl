@@ -2,11 +2,11 @@
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
-#include "../graphics/ink.h"
-#include "../graphics/lighting.h"
-#include "../graphics/particles_draw.h"
-#include "../graphics/render_config.h"
-#include "../core/gameplay_config.h"
+#include "../render/ink.h"
+#include "../render/lighting.h"
+#include "particles_draw.h"
+#include "../sim/render_config.h"
+#include "../level/gameplay_config.h"
 
 namespace {
 // Health bar in world units (a tile is 40), the same for every monster.

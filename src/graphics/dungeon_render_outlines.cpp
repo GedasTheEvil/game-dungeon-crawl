@@ -5,9 +5,9 @@
 // The many edges along a rim would pile their alpha up: each pass writes the depth and tests GL_LESS, so a pixel takes
 // one line of a pass, the next pass a little nearer (its polygon offset) to come over it. That depth would hide what
 // is drawn behind later, so the contours wait for the end of the opaque scene (queueContour, drawContours).
-#include "dungeon.h"
+#include "../sim/dungeon.h"
 #include "../state/assets.h"
-#include "../graphics/lighting.h"
+#include "../render/lighting.h"
 #include <GL/gl.h>
 #include <cmath>
 #include <iterator>

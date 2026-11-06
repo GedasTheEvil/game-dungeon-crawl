@@ -1,7 +1,7 @@
 #ifndef SIM_LINKS_H
 #define SIM_LINKS_H
 
-#include "../entities/monster.h"
+#include "monster.h"
 
 struct Assets;
 class Player;

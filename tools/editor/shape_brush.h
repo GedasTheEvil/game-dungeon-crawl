@@ -5,7 +5,7 @@
 // common shapes, painted on a whole cell, and two brushes that make the sub-cell under the mouse solid or open.
 // Header only, no GL: the unit tests use it.
 
-#include "../../src/world/level.h"
+#include "../../src/level/level.h"
 #include <cstdint>
 #include <iterator>
 

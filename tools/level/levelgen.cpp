@@ -9,11 +9,11 @@
 // --fork 1 (2: the last fork) splits the route in two, --finale (with --boss) puts the ankh behind the boss gate.
 
 #include "../../src/core/paths.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/inscriptions.h"
-#include "../../src/world/level.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/level_gen.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/inscriptions.h"
+#include "../../src/level/level.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/level_gen.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

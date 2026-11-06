@@ -1,10 +1,10 @@
 // Campaign zones (plan campaign-zones): the zone table covers the campaign, each boss lives in its zone.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/journal_text.h"
-#include "../../src/world/level.h"
-#include "../../src/world/monster_kinds.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/journal_text.h"
+#include "../../src/level/level.h"
+#include "../../src/level/monster_kinds.h"
 #include <algorithm>
 #include <iterator>
 #include <set>

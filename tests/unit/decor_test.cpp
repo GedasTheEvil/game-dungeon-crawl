@@ -1,10 +1,10 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/core/gameplay_config.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/decor_scatter.h"
-#include "../../src/world/level_gen.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/gameplay_config.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/decor_scatter.h"
+#include "../../src/level/level_gen.h"
+#include "../../src/level/tile_defs.h"
 #include <cmath>
 #include <memory>
 #include <string>

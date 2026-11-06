@@ -2,10 +2,10 @@
 // minutes (Serket's 4 with Serket's favour). Montu Might +5, Ptah Armor +5, Amun a full heal and max HP +20%, Serket
 // cures poison and no poison lands. They end on death, the same god restarts the time, different gods stack.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/shrines.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/shrines.h"
 #include "sim_world.h"
-#include "../../src/world/journal_text.h"
+#include "../../src/level/journal_text.h"
 #include <algorithm>
 #include <string>
 

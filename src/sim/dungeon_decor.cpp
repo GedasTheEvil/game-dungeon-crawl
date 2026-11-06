@@ -1,5 +1,5 @@
 #include "dungeon.h"
-#include "../core/gameplay_config.h"
+#include "../level/gameplay_config.h"
 #include "../core/logger.h"
 
 bool Dungeon::bossCoffin(int i, int j) const { return bossCoffinCell(map, i, j); }

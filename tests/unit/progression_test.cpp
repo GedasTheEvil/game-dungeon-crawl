@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/progression.h"
+#include "../../src/level/progression.h"
 
 TEST_CASE("level XP") {
 	CHECK(levelXP(1) == 0.0);

@@ -5,7 +5,7 @@
 // more rows scrolls them (the mouse wheel). The slot layout and the scroll math. Header only, no GL: the unit tests
 // use it.
 
-#include "../../src/ui/ui_layout.h"
+#include "../../src/level/ui_layout.h"
 #include <algorithm>
 
 constexpr int PALETTE_COLUMNS = 9; // slots in a row

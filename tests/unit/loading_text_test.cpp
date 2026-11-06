@@ -1,7 +1,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/state/loading_text.h"
-#include "../../src/world/items.h"
-#include "../../src/world/monster_kinds.h"
+#include "../../src/level/items.h"
+#include "../../src/level/monster_kinds.h"
 
 // Plan loading-two-lines: no detail line runs off the right edge of the loading screen.
 TEST_CASE("every monster name fits the loading screen's detail line") {

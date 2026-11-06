@@ -1,8 +1,8 @@
 #include "skills_view.h"
-#include "skills_layout.h"
+#include "../level/skills_layout.h"
 #include "../core/timer.h"
 #include "../graphics/gl_includes.h"
-#include "../input/input.h"
+#include "../level/input.h"
 #include "../state/game_state.h"
 #include <GL/gl.h>
 #include <algorithm>

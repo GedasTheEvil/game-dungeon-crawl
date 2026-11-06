@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/input/input.h"
-#include "../../src/state/settings_ini.h"
+#include "../../src/level/input.h"
+#include "../../src/level/settings_ini.h"
 #include <fstream>
 #include <sstream>
 

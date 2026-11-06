@@ -3,9 +3,9 @@
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
-#include "lighting.h"
+#include "../render/lighting.h"
 #include "../core/timer.h"
-#include "render_config.h"
+#include "../sim/render_config.h"
 
 namespace {
 constexpr int MAX_PARTICLES = 128;

@@ -1,7 +1,7 @@
 // The interact prompt (plan interact-prompt): the verb of each cell, the key doing exactly what the verb says, the
 // mimic waking on the key or a hit only, and the glint over an unread inscription.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/decor.h"
+#include "../../src/level/decor.h"
 #include "sim_world.h"
 #include <string>
 

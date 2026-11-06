@@ -3,8 +3,8 @@
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/ui/hud_icon.h: the potion, amulet, ring, daze, the Isis ward, the status drop, the flame and Montu's blessing, then from cell 8 on the weapons in ItemKind order, then from cell
-21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/world/curses.h), then the blessings of
+src/level/hud_icon.h: the potion, amulet, ring, daze, the Isis ward, the status drop, the flame and Montu's blessing, then from cell 8 on the weapons in ItemKind order, then from cell
+21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/level/curses.h), then the blessings of
 Ptah, Amun and Serket. The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.
 """
@@ -537,11 +537,11 @@ def cat(d, cx, cy):
     d.rectangle([cx - 100, cy + 160, cx + 100, cy + 190], fill=GOLD, outline=INK, width=LINE)
 
 
-# By AmuletType (src/world/items.h).
+# By AmuletType (src/level/items.h).
 AMULET_ICONS = [pendant(f) for f in (tooth, scarab, heart, scorpion, wedjat, djed, tyet, shen, lotus, uraeus,
                                      sun_disc, mace_head, khopesh_blade, arrowhead, quiver, cat)]
 
-# ---- the curses, one per Curse (src/world/curses.h): what the curse takes from the player, with a purple taint ----
+# ---- the curses, one per Curse (src/level/curses.h): what the curse takes from the player, with a purple taint ----
 CURSE = (128, 58, 160, 255)
 SICK = (120, 170, 60, 255)
 GREY = (205, 198, 184, 255)

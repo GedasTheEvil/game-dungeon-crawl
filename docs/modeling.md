@@ -16,7 +16,7 @@ started (port 9876).
 3. Iterate in live Blender (MCP) or headless with `render_sheet.py`; check the motion (`--onion`, `--paths`, `MINZ`,
    `SEAM`, `SLIDE`).
 4. `-- --export`, then `md3_stats.py` and `bin/model-viewer` on the files.
-5. Wire it in: a row in `KINDS` (`src/world/monster_kinds.cpp`) or `ITEMS` (`src/world/items.cpp`), sounds from a
+5. Wire it in: a row in `KINDS` (`src/level/monster_kinds.cpp`) or `ITEMS` (`src/level/items.cpp`), sounds from a
    `tools/audio/<name>_sounds.py` (`media/sounds/<category>/<name>_{wake,att,die}.wav`, optional `_jump`, `_att_ranged`), a scenario to see it in the
    dungeon ([testing.md](testing.md)).
 6. A monster with a boss: the boss texture on the same UVs (`--boss-texture`, `<NAME>_TEX=<boss>` in review renders).
@@ -66,15 +66,15 @@ started (port 9876).
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
   exporter splits surfaces). Game space Y-up, counter-clockwise triangles, each file scaled to fill the int16 range
-  (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `Md3Mesh::Load` in `src/entities/md3_mesh.cpp`.
-* Blender space: Z-up. Facing depends on the monster's `rotA` in `KINDS` (`src/world/monster_kinds.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
+  (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `Md3Mesh::Load` in `src/sim/md3_mesh.cpp`.
+* Blender space: Z-up. Facing depends on the monster's `rotA` in `KINDS` (`src/level/monster_kinds.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
   Check the facing in `KINDS` first.
 * The engine normalizes a monster by its reference clip's frame 0 (the walk-slot file `<name>.md3`; `_idle` for the mimics, `AMBUSH_CLIPS`, `AMBUSH_HOP_CLIPS`): largest dimension -> 1, centred in x/z,
-  min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `LoadClips` in `src/entities/model_info.cpp`),
+  min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `LoadClips` in `src/sim/model_info.cpp`),
   so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
   Single-file models (items, props) are centred on their own frame 0.
 * Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, Rise, AttackRanged, Crouch, CrouchWalk, CrouchDown, one file per clip. The file list (`ClipFiles` in
-  `src/entities/model_info.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
+  `src/sim/model_info.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
   clips and stands in for a missing optional clip. `ClipFilesOf` picks a monster's list by its `roll`, `sandBurrow`, `locomotion` and `ranged` in `KINDS`.
   `MONSTER_CLIPS`: `<name>.md3` Move, `_att` Attack, `_die` Die, optional `_idle` Idle, optional `_jump` Jump (plays once), optional `_climb` Climb.
   `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`, `_crouch`, `_crouch_walk`, `_crouch_down`.
@@ -109,7 +109,7 @@ started (port 9876).
   and so do the rollers (`ROLLER_CLIPS`, `MonsterKind::roll`: the giant scarab's and Khepri's dung ball, `scarab.py`). Sound `media/sounds/<category>/<name>_att_ranged.wav`.
 * Any frame count per file; the engine plays ~14 fps. Loops: key frame N = frame 0, export 0..N-1.
 * Textures: PNG (`bake_texture` in `common.py` saves with Blender `file_format="PNG"`, RGB), 1024x1024 for monsters and the player (the chest mimics 1024x512; the mimic jar, the lotus and the ushabti 512x512).
-  Loaded by `Texture::LoadPNG` (`src/graphics/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
+  Loaded by `Texture::LoadPNG` (`src/render/textures.cpp`, stb_image); an alpha channel is kept if present, rows are flipped so UV v=0 is the image bottom.
 * Metal (plan metallic-shading): a palette colour wrapped in `common.metal((r, g, b)[, strength])` is metal. `make_material`
   keeps the strengths on the material, `bake_texture` bakes them in a second pass and writes them to the alpha
   (255 matte, 255 - 255 x strength metal; the texture is RGBA then, RGB without metal). The game's shader shines it
@@ -123,11 +123,11 @@ started (port 9876).
   the carapace at 0.6) and the mummy priest (`mummy_priest.py`: ankh, finger stalls, scarab).
   Re-bake with `tools/blender/rebake.py` (Tools), not a plain `--export`: Cycles adds a little noise, and `uv_unwrap`
   may lay the UVs out anew since the last export (then the `.md3` must go with its new texture).
-* Engine side: `src/entities/md3_mesh.cpp` (MD3 loader), `src/entities/model_info.cpp` (clip files, normalization), `src/graphics/animated_model.cpp` (drawing), `src/graphics/textures.cpp` (PNG textures), model/texture paths in `src/world/monster_kinds.cpp` (`KINDS`) and `src/world/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
-* Lighting: `src/graphics/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
-  toon mode (F1) snaps the light to cel bands), `src/graphics/ink.cpp` (toon ink outlines: depth-based post pass,
+* Engine side: `src/sim/md3_mesh.cpp` (MD3 loader), `src/sim/model_info.cpp` (clip files, normalization), `src/render/animated_model.cpp` (drawing), `src/render/textures.cpp` (PNG textures), model/texture paths in `src/level/monster_kinds.cpp` (`KINDS`) and `src/level/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
+* Lighting: `src/render/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
+  toon mode (F1) snaps the light to cel bands), `src/render/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,
-  `LAMP_FIRE`, `TORCH_FIRE` in `src/world/decor_scatter.cpp`; keep them in sync with the geometry in `decor.py`.
+  `LAMP_FIRE`, `TORCH_FIRE` in `src/level/decor_scatter.cpp`; keep them in sync with the geometry in `decor.py`.
 
 ## Model scripts
 Start from the one closest to the new model. Details per model: its docstring and [remodeling.md](remodeling.md).

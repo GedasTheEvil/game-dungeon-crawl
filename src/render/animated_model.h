@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 #include "../core/timer.h"
-#include "../entities/md3_mesh.h"
-#include "../entities/model_info.h"
+#include "../sim/md3_mesh.h"
+#include "../sim/model_info.h"
 
 class AnimatedModel {
   protected:

@@ -1,6 +1,6 @@
 #ifndef TRAP_HURT_H
 #define TRAP_HURT_H
-#include "../core/gameplay_config.h"
+#include "../level/gameplay_config.h"
 #include "../core/timer.h"
 #include <algorithm>
 #include <cmath>

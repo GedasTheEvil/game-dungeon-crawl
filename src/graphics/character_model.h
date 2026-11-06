@@ -1,11 +1,11 @@
 #ifndef CHARACTER_MODEL_H
 #define CHARACTER_MODEL_H
 
-#include "model_info.h"
-#include "../graphics/animated_model.h"
-#include "../graphics/textures.h"
-#include "../core/sound.h"
-#include "../world/rng.h"
+#include "../sim/model_info.h"
+#include "../render/animated_model.h"
+#include "../render/textures.h"
+#include "../game/sound.h"
+#include "../level/rng.h"
 #include <array>
 #include <memory>
 #include <vector>

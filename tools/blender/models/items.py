@@ -56,13 +56,13 @@ ITEMS = ["club", "dagger", "sword", "khopesh", "epsilon_axe", "duckbill_axe", "m
 # Exported with frames, one shape key each on the baked object: the bows' draw, the chest's opening. Item: (keyword of
 # its builder, frames); the builder's default is the last frame.
 BOW_FRAMES = 8  # the draw, frame 0 at rest
-CHEST_FRAMES = 12  # the opening, frame 0 closed (CONTAINER_DEFS in src/world/containers.h: 700 ms)
+CHEST_FRAMES = 12  # the opening, frame 0 closed (CONTAINER_DEFS in src/level/containers.h: 700 ms)
 FRAMED = {"bow": ("draw", BOW_FRAMES), "composite_bow": ("draw", BOW_FRAMES), "chest": ("opening", CHEST_FRAMES)}
 FILES = {"chest": "treasure_chest"}
 GLASS_VESSELS = ("potion_flask", "potion_lotus", "potion_cobra")  # each with a glass shell <vessel>_glass (glass_vessel)  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
 GLASS_TEX_SIZE = 128  # the glass shells' textures: one tint
-# The potions, in ItemKind order: texture stem (media/textures/items/<stem>.png, PotionDef::texture in src/world/items.cpp),
+# The potions, in ItemKind order: texture stem (media/textures/items/<stem>.png, PotionDef::texture in src/level/items.cpp),
 # vessel model (POTION_MODELS there) and the palette keys its texture overrides.
 POTIONS = [
     ("potion_small_health", "potion_flask", {"liquid": (0.70, 0.04, 0.03), "liquid_dark": (0.38, 0.02, 0.02)}),

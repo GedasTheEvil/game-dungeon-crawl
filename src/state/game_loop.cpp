@@ -1,14 +1,14 @@
 #include "game_loop.h"
 #include "game_state.h"
 #include "../graphics/gl_includes.h"
-#include "../graphics/render_config.h"
+#include "../sim/render_config.h"
 #include "../input/input_actions.h"
 #include "../ui/inventory.h"
 #include "../ui/player_hud.h"
 #include "../ui/screen_state.h"
 #include "../core/logger.h"
 #include "../core/paths.h"
-#include "../world/zone_music.h"
+#include "../level/zone_music.h"
 #include <filesystem>
 #include <map>
 #include <string>

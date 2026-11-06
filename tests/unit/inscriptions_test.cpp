@@ -1,9 +1,9 @@
 // Wall inscriptions (plan hieroglyph-cartouches): the text files, reading one in the level, the journal, the campaign.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/inscriptions.h"
-#include "../../src/world/journal.h"
-#include "../../src/world/progression.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/inscriptions.h"
+#include "../../src/level/journal.h"
+#include "../../src/level/progression.h"
 #include "sim_world.h"
 #include <set>
 #include <sstream>

@@ -2,8 +2,8 @@
 // they light. The tracing is sun_beam.h's, shared with the checker; drawn in dungeon_render_sun.cpp.
 #include "dungeon.h"
 #include "dungeon_rules.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
 

@@ -1,7 +1,7 @@
 #ifndef PARTICLES_DRAW_H
 #define PARTICLES_DRAW_H
 
-#include "../entities/particles.h"
+#include "../sim/particles.h"
 
 namespace Particles {
 inline bool shown = true; // Options > Display > Blood: off draws no splashes (they still run)

@@ -9,7 +9,7 @@
 #include <cmath>
 #include <string>
 
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 
 // Fire (plan fire-damage) also sets its target burning (Burning) and goes through armour.
 enum class DamageType : unsigned char { Blunt, Slash, Pierce, Fire };

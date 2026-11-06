@@ -7,25 +7,25 @@ parts below instead of drawing their own.
 | Screen | Code | Canvas |
 |---|---|---|
 | Main / in-game menu, Save, Load, Options, Credits | `src/ui/menu.cpp` (`MainMenu`) | 160 x 100 |
-| Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/world/leaderboard.h`) | 160 x 100 |
+| Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/level/leaderboard.h`) | 160 x 100 |
 | Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map (zoom: `src/ui/map_zoom.h`) | `src/ui/map_view.cpp` | 100 high, width follows the window |
-| Journal | `src/ui/journal_view.cpp` (data: `src/world/journal.h`) | 160 x 100 |
-| Heka (skills) | `src/ui/skills_view.cpp` (layout: `src/ui/skills_layout.h`, data: `src/world/skills.h`) | 160 x 100 |
+| Journal | `src/ui/journal_view.cpp` (data: `src/level/journal.h`) | 160 x 100 |
+| Heka (skills) | `src/ui/skills_view.cpp` (layout: `src/level/skills_layout.h`, data: `src/level/skills.h`) | 160 x 100 |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
 | Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` (values: `src/ui/player_hud_view.cpp`) | 100 / `SCALE` high, width follows the window; over the game |
 | Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
-| Zone banner (a campaign level starts: the hour and gate, the zone, its guardian; else the level) | `src/ui/zone_banner.cpp` (text: `levelBanner`, `src/world/campaign.h`) | 100 high, width follows the window; over the game, under the status box |
+| Zone banner (a campaign level starts: the hour and gate, the zone, its guardian; else the level) | `src/ui/zone_banner.cpp` (text: `levelBanner`, `src/level/campaign.h`) | 100 high, width follows the window; over the game, under the status box |
 | Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
-| Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
+| Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/level/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
 | Confirm box (Yes / No over a menu screen) | `src/ui/confirm_box.cpp` (`ConfirmBox`, [save-load-safety](plan/solved/save-load-safety.md)) | 160 x 100, over the dimmed screen that asks |
 | Death screen | `src/ui/death_screen.cpp` (`DeathScreen`, [autosave](plan/solved/autosave.md)) | 160 x 100, over the dimmed game |
 
-Shared drawing code: `src/ui/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too. The layout
-without GL is `src/ui/ui_layout.h` (the canvas, `Rect`, `visibleArea`, `toCanvas` / `toWindow`, the screen tabs, the
-status box, the interact prompt, the level gem, the health trail) and `src/ui/inventory_layout.h` (the inventory's rects and `hitAt`), in
+Shared drawing code: `src/render/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too. The layout
+without GL is `src/level/ui_layout.h` (the canvas, `Rect`, `visibleArea`, `toCanvas` / `toWindow`, the screen tabs, the
+status box, the interact prompt, the level gem, the health trail) and `src/level/inventory_layout.h` (the inventory's rects and `hitAt`), in
 the level library: `tests/unit/ui_layout_test.cpp` checks them at 4:3, 16:9 and 21:9.
 
 ## Canvas
@@ -163,7 +163,7 @@ Options tabs: Controls, Display and Sound.
   (On / Off tile, lapis when on), a choice (stone tile with the value, a click steps to the next; disabled when it
   does not apply) or a slider (dark track filled lapis up to a gold knob, the number in `heading` to its right; it
   follows the mouse while the button is down and saves when it comes up). A new setting is a field in `Settings`
-  (`src/state/settings_ini.h`), a key in the parser and writer, and a row.
+  (`src/level/settings_ini.h`), a key in the parser and writer, and a row.
 * Controls: two columns of rows, an action and three cells (two keys, the mouse button); the "Reset to defaults"
   stone tile ends the right column, the fixed keys are named in a `small` line under the table. A click on a cell
   waits for the input: the cell pulses lapis with "Press" (or "Click"), the footer says what it waits for.
@@ -274,7 +274,7 @@ order on the same dark label. Each tab keeps its own order; not saved, a new gam
 
 The slots are one grid for every tab: 4 a row, 19 x 22 each, one model scale (`SLOT_SCALE`), rows from the group's
 item count. The items found come first, in the tab's sort order (default `ItemKind` order), then the ones not found yet in
-`ItemKind` order (`tabOrder`, `src/world/item_bag.h`; [plan/solved/inventory-sorting.md](plan/solved/inventory-sorting.md)),
+`ItemKind` order (`tabOrder`, `src/level/item_bag.h`; [plan/solved/inventory-sorting.md](plan/solved/inventory-sorting.md)),
 so the found ones fill the first rows without gaps. Two rows fit; a group with more scrolls by whole rows. An
 item never found shows a grey question mark instead of its model (slot and details) and nothing else that tells what it
 is: no name in the slot, "Unknown" with no type, stats or lore in the details. One found and used up keeps the dark
@@ -361,7 +361,7 @@ of it, and under them a gem per worn ring (left hand, then right), a lozenge in 
 panel's right end, the Heka key under it. Once flaming arrows is learnt, a small tile with a flame (lapis while the
 stamina-skill key, default Q, has the skills on, stone while off) sits right of the stamina bar, the key left of it; a
 skill refused for lack of stamina blinks it red. Above the panel, one status card per running effect
-([plan](plan/solved/curse-blessing-cards.md), `src/ui/status_list.*`, `drawStatuses`): a painted background by kind from
+([plan](plan/solved/curse-blessing-cards.md), `src/level/status_list.*`, `drawStatuses`): a painted background by kind from
 `media/textures/ui/status_cards.png` (`tools/textures/status_cards.py`, one 128 px cell per `StatusKind`: blessing yellow,
 condition grey, curse purple; the frames differ in brightness too), the icon on it (tinted for the white drop), a pip per
 tier or grade in the bottom strip, the seconds under it. Flashes and pulses are additive
@@ -370,7 +370,7 @@ icons: [plan/solved/hud-icons.md](plan/solved/hud-icons.md).
 
 ## Clicks
 
-Every screen handles its mouse through one `ui::Pointer<Target>` (`src/ui/pointer.h`,
+Every screen handles its mouse through one `ui::Pointer<Target>` (`src/level/pointer.h`,
 [shared-click-handling](plan/solved/shared-click-handling.md)), over its own target type: an `int` with a `NONE`
 (menu, death screen, screen tabs) or a small struct with `==` (inventory and Heka `Pick`, journal `Hit`).
 
@@ -383,7 +383,7 @@ Every screen handles its mouse through one `ui::Pointer<Target>` (`src/ui/pointe
 
 The wheel, the menu's slider drag and the journal's page drag stay with the screen, before the pointer.
 
-Keys ([keyboard-menus](plan/solved/keyboard-menus.md)): `navKeyOf` (`src/input/bindings.h`) turns a key into a
+Keys ([keyboard-menus](plan/solved/keyboard-menus.md)): `navKeyOf` (`src/level/bindings.h`) turns a key into a
 `NavKey`: the arrows, Enter and Space, and the keys bound to move left / right, climb up / down and interact. `hovered`
 is the focus, so a focused tile looks hovered; the mouse moves it too.
 

@@ -16,8 +16,8 @@
 // depth's tier; "play": the user's playthrough (plan monster-balance, Playthrough reference data), as a share of the
 // level's own gains.
 #include "../../tests/unit/sim_world.h"
-#include "../../src/world/level_gen.h"
-#include "../../src/world/progression.h"
+#include "../../src/level/level_gen.h"
+#include "../../src/level/progression.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

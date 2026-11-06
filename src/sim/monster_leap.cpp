@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <cmath>
 #include "player.h"
-#include "../world/journal.h"
-#include "../core/gameplay_config.h"
-#include "../world/head_bump.h"
-#include "../graphics/render_config.h"
+#include "../level/journal.h"
+#include "../level/gameplay_config.h"
+#include "../level/head_bump.h"
+#include "render_config.h"
 
 bool Monster::canJump() const {
 	return leaps(type->locomotion) && health > 0 && !jumping() && GameClock::now() >= leap.readyMs;

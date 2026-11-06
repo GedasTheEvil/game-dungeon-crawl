@@ -1,5 +1,5 @@
 #include "assets.h"
-#include "../world/monster_kinds.h"
+#include "../level/monster_kinds.h"
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
@@ -7,11 +7,11 @@
 #include <future>
 #include <string>
 #include "../core/logger.h"
-#include "../core/gameplay_config.h"
+#include "../level/gameplay_config.h"
 #include "../core/paths.h"
 #include "../core/worker_pool.h"
 #include "loading_text.h"
-#include "../world/world_events.h"
+#include "../level/world_events.h"
 
 namespace {
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.

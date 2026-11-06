@@ -1,8 +1,8 @@
 #include "player_hud.h"
 #include "../core/timer.h"
-#include "../graphics/font.h"
-#include "../world/level.h"
-#include "../world/skills.h"
+#include "../render/font.h"
+#include "../level/level.h"
+#include "../level/skills.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

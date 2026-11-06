@@ -6,7 +6,7 @@
 // zoom and pan are kept as asked and clamped to the fit of the frame. View state only, not saved. Header only, no GL:
 // the unit tests use it.
 
-#include "ui_layout.h"
+#include "../level/ui_layout.h"
 #include <algorithm>
 
 // The 1x view: the drawing area on the sheet, the canvas units per cell, the map point (in cells) at its centre.

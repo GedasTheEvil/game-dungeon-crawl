@@ -2,8 +2,8 @@
 // sinks the player (slower, stuck, hurt) until a jump frees them; a sand fall hits, slows and leaves a drift.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/level_check.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/level_check.h"
 #include <algorithm>
 #include <cmath>
 

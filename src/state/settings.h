@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include "settings_ini.h"
+#include "../level/settings_ini.h"
 
 // The player's choices from Options, kept between runs in saves/settings.ini (docs/settings.md). Scenarios neither
 // read nor write it: they run with the defaults.

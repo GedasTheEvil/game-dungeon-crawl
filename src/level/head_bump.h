@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include "rng.h"
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 
 // The larger of HEAD_BUMP_MIN_HP and HEAD_BUMP_MAX_HP_PCT % of the max HP, straight off the HP.
 [[nodiscard]] constexpr int headBumpHp(int maxHp) {

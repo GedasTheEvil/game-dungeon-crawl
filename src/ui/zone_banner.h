@@ -1,7 +1,7 @@
 #ifndef ZONE_BANNER_H
 #define ZONE_BANNER_H
 
-#include "../world/campaign.h"
+#include "../level/campaign.h"
 
 class Font;
 

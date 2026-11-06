@@ -1,5 +1,5 @@
 #include "climb_path.h"
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include <algorithm>
 #include <deque>
 #include <utility>

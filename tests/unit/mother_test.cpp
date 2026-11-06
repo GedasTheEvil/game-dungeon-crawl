@@ -3,7 +3,7 @@
 // player, a blade cuts them, fire burns them; camel spiders drop from the ceiling round her.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/decor.h"
+#include "../../src/level/decor.h"
 
 namespace {
 const Monster* find(const SimWorld& world, int type) {

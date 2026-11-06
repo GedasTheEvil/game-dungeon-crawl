@@ -1,7 +1,7 @@
 #ifndef INTERACT_PROMPT_H
 #define INTERACT_PROMPT_H
 
-#include "../world/interaction.h"
+#include "../level/interaction.h"
 #include <string>
 
 class Font;

@@ -1,11 +1,11 @@
 // The Mother of Webs' webs over the floor (plan camel-spider-boss, the rules in dungeon_webs.cpp): pale threads from
 // the middle of the cell out to its edges and rings round it, a faint sheet between them. A cut web fades, a burning
 // one goes up in flames.
-#include "dungeon.h"
+#include "../sim/dungeon.h"
 #include "../state/assets.h"
-#include "../graphics/fire.h"
-#include "../graphics/lighting.h"
-#include "../graphics/render_config.h"
+#include "fire.h"
+#include "../render/lighting.h"
+#include "../sim/render_config.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

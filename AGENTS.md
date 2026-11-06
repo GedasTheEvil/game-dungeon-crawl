@@ -49,7 +49,7 @@ added since.
 
 ## Boss abilities
 When a base monster gets a new ability (jump, ranged attack, swimming, ...), its boss gets one too (the boss whose
-`kin` is that monster, `src/world/monster_kinds.cpp`). Make it stronger (farther, harder, faster) where that makes
+`kin` is that monster, `src/level/monster_kinds.cpp`). Make it stronger (farther, harder, faster) where that makes
 sense. The same goes for draft plans: a plan that gives a base monster an ability covers its boss too.
 
 ## Plans

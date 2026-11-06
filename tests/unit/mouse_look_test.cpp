@@ -1,6 +1,6 @@
 // Mouse look (plan mouse-look-fixes): no turn behind a screen, no jump after one or after the cursor left the window.
 #include "../../external/doctest/doctest.h"
-#include "../../src/input/mouse_look.h"
+#include "../../src/level/mouse_look.h"
 
 namespace {
 bool still(MouseLook::Turn turn) { return turn.dx == 0 && turn.dy == 0; }

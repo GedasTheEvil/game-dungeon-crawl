@@ -144,7 +144,7 @@ carve their cell).
 
 Tile and prop icons (`prop_<name>.png`, `torch.png`, `no_torch.png`, `bare.png`) are PNG files in
 `tools/editor/icons/`, drawn by `tools/editor/icons/make_icons.py` (Pillow; a tile's file is the `icon` in
-`src/world/tile_defs.cpp`, every tile but `None`, `Unknown` and the structures has one,
+`src/level/tile_defs.cpp`, every tile but `None`, `Unknown` and the structures has one,
 [editor-icons-and-small-font](../../docs/plan/solved/editor-icons-and-small-font.md)); the decals show their cell of the game's
 `media/textures/decorations/decals.png`. Fonts and backgrounds come from the game's `media/textures/fonts/` and
 `media/textures/ui/`: the title, headings and body text are parchment, as in the game; the small text (palette names,
@@ -299,12 +299,12 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Level format v7, plain text (`src/world/level.h`). A header, the level's zone, the structure layer as a drawing,
+Level format v7, plain text (`src/level/level.h`). A header, the level's zone, the structure layer as a drawing,
 then the wall layer, the object layer, the decor layer, the decal layer, the shape layer and the looks layer as lists:
 
 ```
 DCLEVEL 7 40 47
-zone tomb_entrance                        the zone's slug (ZONE_INFO, src/world/campaign.h), or none
+zone tomb_entrance                        the zone's slug (ZONE_INFO, src/level/campaign.h), or none
 structure
 ########################################
 #......................................#
@@ -331,7 +331,7 @@ a fixture (wall types only), the object list only the cells with an object, row 
 Rows count from the bottom, columns from the left.
 
 The decor list holds the cells whose prop is set, the decal list those whose decal or torch is set. `prop` is an
-index of `DECOR_NAMES`, `decal` one of `DECAL_DEFS` (`src/world/decor.h`, `levelcheck --legend` lists both), `-1`
+index of `DECOR_NAMES`, `decal` one of `DECAL_DEFS` (`src/level/decor.h`, `levelcheck --legend` lists both), `-1`
 bare, `-2` unset (a decal line with only its torch set). `mirror` is 0 or 1, `torch` 0 unset, 1 none, 2 a torch.
 
 The shape list holds the shaped cells, `mask` 4 hex digits: bit = sub-column + 4 x sub-row, sub-row 0 at the bottom
@@ -339,7 +339,7 @@ The shape list holds the shaped cells, `mask` 4 hex digits: bit = sub-column + 4
 structure drawing, and only a shaped cell does.
 
 The containers list holds the cells whose look is set: `kind` an index of `CONTAINER_NAMES`
-(`src/world/containers.h`: 0 chest, 1 coffer, 2 basket, 3 canopic, 4 jar, 5 table, 6 coffin), `lid` 0 rolled, 1
+(`src/level/containers.h`: 0 chest, 1 coffer, 2 basket, 3 canopic, 4 jar, 5 table, 6 coffin), `lid` 0 rolled, 1
 plain, 2 inscribed (a coffin only).
 
 The old formats still load: the game, the editor and `levelcheck` convert them as they read them (`levelcheck`

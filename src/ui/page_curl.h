@@ -1,7 +1,7 @@
 #ifndef PAGE_CURL_H
 #define PAGE_CURL_H
 
-#include "page_turn.h"
+#include "../level/page_turn.h"
 
 // Where the turning page lies on the canvas: the spine's foot, which way it turns, the textures of its two sides.
 struct PageCurlPlacement {

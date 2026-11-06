@@ -6,7 +6,7 @@ shambles after them. Mesh, rig, baked texture and six .md3 clips.
     CLI:  blender -b --python tools/blender/models/mummy.py -- [--export] [--export-climb] [--coffin-check out_dir]
 
 Built like anubis.py: Z up, facing +Y (game: towards the camera, drawn at rotA 180), right side +X (game -X).
-Clips (MONSTER_CLIPS + the entombed extras, ENTOMBED_CLIPS in src/entities/character_model.h):
+Clips (MONSTER_CLIPS + the entombed extras, ENTOMBED_CLIPS in src/graphics/character_model.h):
   mummy.md3       walk loop (the reference: frame 0's bounding box is centred on x = y = 0, lowest point on z = 0),
   mummy_att.md3   attack loop, one slow two-handed smash,
   mummy_die.md3   collapse into a heap of linen (plays once),

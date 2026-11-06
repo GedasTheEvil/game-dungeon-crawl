@@ -1,7 +1,7 @@
 #ifndef SETTINGS_INI_H
 #define SETTINGS_INI_H
 
-#include "../input/bindings.h"
+#include "bindings.h"
 #include <istream>
 #include <string>
 #include <vector>

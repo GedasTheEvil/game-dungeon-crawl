@@ -5,7 +5,7 @@
 // draws them (ui/skills_view.cpp).
 
 #include "ui_layout.h"
-#include "../world/skills.h"
+#include "skills.h"
 
 namespace SkillsLayout {
 using ui::Rect;

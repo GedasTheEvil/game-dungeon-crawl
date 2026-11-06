@@ -1,5 +1,5 @@
 #include "quick_potion.h"
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include <algorithm>
 
 std::optional<ItemKind> quickPotion(QuickKind kind, int current, int max, int smallCount, int largeCount) {

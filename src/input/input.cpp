@@ -4,12 +4,12 @@
 #include <utility>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
-#include "../graphics/ink.h"
+#include "../render/ink.h"
 #include "../graphics/frame_rate.h"
-#include "input.h"
+#include "../level/input.h"
 #include "input_actions.h"
-#include "mouse_look.h"
-#include "camera_look.h"
+#include "../level/mouse_look.h"
+#include "../level/camera_look.h"
 #include "../ui/screen_state.h"
 
 namespace {

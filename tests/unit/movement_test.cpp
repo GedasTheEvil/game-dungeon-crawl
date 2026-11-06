@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/movement.h"
+#include "../../src/level/movement.h"
 
 TEST_CASE("the jump arc from the game's constants") {
 	// 0.085 up, 0.01 less each 40 ms tick: 18 ticks, peak after 9.

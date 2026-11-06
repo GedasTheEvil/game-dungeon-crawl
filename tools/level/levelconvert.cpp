@@ -2,7 +2,7 @@
 //   levelconvert FILE...
 // A file already in the current format is left as it is. Exit code: 0 done, 2 usage / unreadable or unwritable file.
 
-#include "../../src/world/level.h"
+#include "../../src/level/level.h"
 #include <cstdio>
 
 int main(int argc, char** argv) {

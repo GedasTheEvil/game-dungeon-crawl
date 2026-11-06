@@ -9,7 +9,7 @@ OPs (COL ROW as `levelcheck --map` prints them, row 0 at the bottom):
     nowall COL ROW                 remove the cell's fixture
     show COL ROW                   print the cell's object and fixture
 
-Type numbers: `DungeonTileType` in src/world/level.h (or `levelcheck --legend`). An OP on a wall cell refuses: carve
+Type numbers: `DungeonTileType` in src/level/level.h (or `levelcheck --legend`). An OP on a wall cell refuses: carve
 the structure in the editor first. Run `bin/levelcheck LEVEL` after.
 """
 

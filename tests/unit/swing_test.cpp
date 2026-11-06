@@ -1,7 +1,7 @@
 // The held weapon's swing (swingPose, plan scenarios-to-unit-tests technique 1): tilt, thrust and the bow's draw at the
 // marks of every weapon's WeaponMotion. tests/scenarios/solved/weapons_held.txt shows the grip in the fist.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/items.h"
+#include "../../src/level/items.h"
 #include <cmath>
 #include <string>
 

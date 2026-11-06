@@ -1,9 +1,9 @@
 // The level docs are written by hand; these tests fail when a table in the code grows and the docs do not.
 #include "../../external/doctest/doctest.h"
-#include "../../src/test/scenario_script.h"
-#include "../../src/world/items.h"
-#include "../../src/world/monster_kinds.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/scenario_script.h"
+#include "../../src/level/items.h"
+#include "../../src/level/monster_kinds.h"
+#include "../../src/level/tile_defs.h"
 #include <algorithm>
 #include <cctype>
 #include <cstdio>

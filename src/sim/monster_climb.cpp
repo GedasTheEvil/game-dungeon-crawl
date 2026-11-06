@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <cmath>
 #include "figures.h"
-#include "../world/journal.h"
-#include "../core/gameplay_config.h"
-#include "../graphics/render_config.h"
+#include "../level/journal.h"
+#include "../level/gameplay_config.h"
+#include "render_config.h"
 
 void Monster::WalkPath(int dir, bool blocked) {
 	if (!Alive())

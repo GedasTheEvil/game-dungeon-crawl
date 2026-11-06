@@ -1,6 +1,6 @@
 #ifndef INPUT_H
 #define INPUT_H
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 
 const unsigned char KEY_ESCAPE = 27;
 const unsigned char KEY_ENTER = 13;

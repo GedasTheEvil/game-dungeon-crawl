@@ -3,7 +3,7 @@
 
 #include "sim_world.h"
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/level_check.h"
+#include "../../src/level/level_check.h"
 #include "../../tools/editor/shape_brush.h"
 #include <sstream>
 #include <string>

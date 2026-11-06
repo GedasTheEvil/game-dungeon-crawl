@@ -2,10 +2,10 @@
 #include <algorithm>
 #include <cmath>
 #include "player.h"
-#include "../world/journal.h"
-#include "../core/gameplay_config.h"
+#include "../level/journal.h"
+#include "../level/gameplay_config.h"
 #include "figures.h"
-#include "../graphics/render_config.h"
+#include "render_config.h"
 
 int Monster::attackDirection(float px, float py) const {
 	if (!sameRow(py))

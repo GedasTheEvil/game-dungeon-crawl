@@ -1,9 +1,9 @@
 // Poison drips (plan poison-drip-trap): a puddle that always poisons (weak), a lump of venom that falls into it on the
 // wall spikes' cycle (a small hit and medium poison).
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/climb_path.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/spike_cycle.h"
+#include "../../src/level/climb_path.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/spike_cycle.h"
 #include "sim_world.h"
 #include <string>
 #include <vector>

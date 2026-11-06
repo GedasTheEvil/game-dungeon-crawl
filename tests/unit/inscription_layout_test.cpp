@@ -1,7 +1,7 @@
 // Composed inscriptions (plan composed-inscriptions): the hieroglyph sheet's manifest, every G: code in it, and where
 // the signs go on the plates.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/inscription_layout.h"
+#include "../../src/level/inscription_layout.h"
 #include <filesystem>
 #include <fstream>
 #include <set>

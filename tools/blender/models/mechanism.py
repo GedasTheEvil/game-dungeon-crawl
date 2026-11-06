@@ -368,7 +368,7 @@ def build_pressure_plate(b, M):
     b.add(ellipsoid((body[-1].x, -0.33, top + 0.004), (0.045, 0.04, 0.005), n=12, rings=4), M["stone_dark"], "root")
 
 
-DART_HEIGHT = 0.3  # the engine's DART_HEIGHT and DART_HOLE_X (src/core/gameplay_config.h): where the darts leave
+DART_HEIGHT = 0.3  # the engine's DART_HEIGHT and DART_HOLE_X (src/level/gameplay_config.h): where the darts leave
 DART_HOLE_X = (-0.22, 0.0, 0.22)
 
 

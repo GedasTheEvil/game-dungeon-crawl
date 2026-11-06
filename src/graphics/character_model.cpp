@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <string>
 #include "../core/paths.h"
-#include "../world/world_events.h"
+#include "../level/world_events.h"
 
 CharacterModel::Parsed CharacterModel::Parse(const char* name, const ClipFiles& files) {
 	Parsed parsed;

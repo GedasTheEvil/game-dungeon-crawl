@@ -1,8 +1,8 @@
 // The ring transporter (plan ring-transporter): a ring platform carries the player to its partner like a teleporter,
 // the rings dropping round them first, a white flash, the rings rising at the partner; the checker's rules for it.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/tile_defs.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <string>

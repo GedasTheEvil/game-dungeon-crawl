@@ -2,8 +2,8 @@
 #include "dressing_brush.h"
 #include "shape_brush.h"
 #include <cstdio>
-#include "../../src/world/items.h"
-#include "../../src/world/monster_kinds.h"
+#include "../../src/level/items.h"
+#include "../../src/level/monster_kinds.h"
 #include <string>
 #include <vector>
 
@@ -53,7 +53,7 @@ const Choices ITEM_TYPES = {
 	{ItemType::EMPTY, "empty chest", "Empty chest"},
 };
 
-// The ids of one item type, from the game's item table (src/world/items.h).
+// The ids of one item type, from the game's item table (src/level/items.h).
 Choices itemIds(int type) {
 	Choices ids;
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {

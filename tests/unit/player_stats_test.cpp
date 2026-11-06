@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/core/timer.h"
-#include "../../src/entities/player_stats.h"
+#include "../../src/level/player_stats.h"
 #include <filesystem>
 #include <fstream>
 #include <string>

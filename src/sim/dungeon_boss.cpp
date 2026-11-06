@@ -1,12 +1,12 @@
 // The boss fight (Dungeon::bossFight): the boss appears with its minions, summons more while it lives, and its death
 // opens the boss gates. plan boss-rooms.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "item_bag.h"
-#include "journal.h"
-#include "rng.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
+#include "player.h"
+#include "../level/item_bag.h"
+#include "../level/journal.h"
+#include "../level/rng.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
 #include <vector>

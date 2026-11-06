@@ -2,7 +2,7 @@
 // catches the rungs; the jump ends there and the press climbs. No climb against a jump's rise or fall.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/climb_path.h"
+#include "../../src/level/climb_path.h"
 
 namespace {
 // tests/levels/climb_up: a ladder (col 6) from the lower floor up two rows to the upper one.

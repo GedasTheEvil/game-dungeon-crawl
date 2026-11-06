@@ -33,35 +33,21 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
 # base <- level <- sim <- render <- the game and the tools. tools/check_layers.sh (make layers) keeps them apart:
 # base, level and sim have no GL, no library has SDL or Game(), and each includes only its own headers and those of
 # the libraries under it. The base library (the game clock, the log) is linked by everything that links one.
-BASE_LIB_SOURCES=src/core/timer.cpp src/core/logger.cpp src/core/paths.cpp
-BASE_LIB_HEADERS=src/core/worker_pool.h
-LEVEL_LIB_SOURCES=src/world/level.cpp src/world/level_check.cpp src/world/path_script.cpp src/world/level_gen.cpp src/world/campaign.cpp \
-	src/world/items.cpp src/world/item_bag.cpp src/world/quick_potion.cpp src/world/poison.cpp src/world/loot.cpp \
-	src/world/progression.cpp src/world/tile_defs.cpp src/world/monster_kinds.cpp src/world/journal.cpp src/world/journal_text.cpp src/world/inscriptions.cpp src/world/inscription_layout.cpp src/world/names.cpp src/world/skills.cpp src/world/curses.cpp \
-	src/world/view_window.cpp src/world/world_events.cpp src/world/climb_path.cpp src/world/sun_beam.cpp src/world/decor_scatter.cpp src/ui/ui_layout.cpp src/ui/status_list.cpp src/ui/message_log.cpp \
-	src/ui/inventory_layout.cpp src/ui/skills_layout.cpp src/ui/page_turn.cpp src/input/bindings.cpp src/state/settings_ini.cpp src/state/save_slots.cpp \
-	src/entities/player_stats.cpp src/test/scenario_script.cpp src/world/run_stats.cpp src/world/leaderboard.cpp src/world/texts.cpp
-LEVEL_LIB_HEADERS=src/ui/hud_icon.h src/core/gameplay_config.h src/ui/pointer.h src/world/rgb.h src/world/movement.h src/world/spike_cycle.h src/world/rng.h src/world/head_bump.h src/world/damage.h src/world/decor.h src/world/shrines.h src/world/zone_look.h src/world/zone_music.h src/world/containers.h src/input/input.h src/input/mouse_look.h src/input/camera_look.h src/world/interaction.h
+# One directory per library (plan src-dirs-by-layer): a new file there is part of it, no list to keep.
+BASE_LIB_SOURCES=$(sort $(wildcard src/core/*.cpp))
+BASE_LIB_HEADERS=$(wildcard src/core/*.h)
+LEVEL_LIB_SOURCES=$(sort $(wildcard src/level/*.cpp))
+LEVEL_LIB_HEADERS=$(wildcard src/level/*.h)
 # The sim (docs/plan/solved/sim-library.md): the dungeon, the monsters and the player, their rules and the model facts
-# they read, without GL: every dungeon_*.cpp but the dungeon's drawing (dungeon_render*.cpp), which stays in the game
-# with the views.
-SIM_LIB_SOURCES=src/entities/md3_mesh.cpp src/entities/model_info.cpp src/entities/figures.cpp \
-	src/entities/particles.cpp src/entities/monster.cpp src/entities/monster_ai.cpp src/entities/monster_burrow.cpp \
-	src/entities/monster_charge.cpp src/entities/monster_climb.cpp src/entities/monster_flight.cpp \
-	src/entities/monster_grab.cpp src/entities/monster_leap.cpp src/entities/monster_reach.cpp src/entities/monster_roll.cpp src/entities/player.cpp \
-	$(filter-out src/world/dungeon_render%,$(sort $(wildcard src/world/dungeon_*.cpp)))
+# they read, without GL. The dungeon's drawing (dungeon_render*.cpp) is in the game, in src/graphics/, with the views.
 # render_config.h: the world's sizes in GL units (a tile is 40), the sim's lifts and depths, the drawing's frame.
-SIM_LIB_HEADERS=src/world/dungeon.h src/world/dungeon_rules.h src/world/sim_links.h src/entities/trap_hurt.h \
-	src/graphics/render_config.h
-RENDER_LIB_SOURCES=src/graphics/textures.cpp src/graphics/font.cpp \
-	src/graphics/animated_model.cpp src/ui/ui_draw.cpp src/graphics/shader.cpp src/graphics/ink.cpp \
-	src/graphics/lighting.cpp src/graphics/render_target.cpp src/graphics/motion_fx.cpp src/graphics/inscription_draw.cpp
+SIM_LIB_SOURCES=$(sort $(wildcard src/sim/*.cpp))
+SIM_LIB_HEADERS=$(wildcard src/sim/*.h)
+RENDER_LIB_SOURCES=$(sort $(wildcard src/render/*.cpp))
+RENDER_LIB_HEADERS=$(wildcard src/render/*.h)
 BASE_LIB=$(BUILD)/libbase.a
 LEVEL_LIB=$(BUILD)/liblevel.a
 SIM_LIB=$(BUILD)/libsim.a
-# The world and the entities: no Game(), no screens; the dungeon's drawing only in dungeon_render*.cpp (tools/check_sim.sh,
-# make layers).
-SIM_FILES=$(wildcard src/world/dungeon*.cpp src/world/dungeon*.h src/world/sim_links.h src/entities/*.cpp src/entities/*.h)
 RENDER_LIB=$(BUILD)/librender.a
 BASE_LIB_OBJECTS=$(BASE_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
 LEVEL_LIB_OBJECTS=$(LEVEL_LIB_SOURCES:%.cpp=$(BUILD)/%.o)
@@ -108,7 +94,7 @@ CLANG_TIDY?=clang-tidy
 # the gate's summary line (peaks, wall time). The build's stats start fresh with every make.
 GATE=./tools/load_gate.sh run
 # Parallel by default (plan check-speed): as many jobs as the gate's cap, which holds them back anyway. A serial build
-# after a change to a widely included header (core/gameplay_config.h) took 5 minutes. `make -j1` builds serially.
+# after a change to a widely included header (level/gameplay_config.h) took 5 minutes. `make -j1` builds serially.
 # Lines of parallel jobs do not interleave (--output-sync=line), and a long run (make test) still prints as it goes.
 ifeq ($(filter -j% j%,$(MAKEFLAGS)),)
 MAKEFLAGS+=-j$(shell ./tools/load_gate.sh jobs) --output-sync=line
@@ -193,8 +179,8 @@ format-check:
 	@./tools/check_format.sh $(FORMAT_FILES)
 
 layers:
-	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) $(BASE_LIB_HEADERS) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES)
-	@./tools/check_sim.sh $(SIM_FILES)
+	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) $(BASE_LIB_HEADERS) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES) $(RENDER_LIB_HEADERS)
+	@./tools/check_sim.sh $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS)
 
 tidy-fix: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy-fix:

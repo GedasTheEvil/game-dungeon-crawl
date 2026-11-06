@@ -3,8 +3,8 @@
 
 // Rules the dungeon's sim files share with its drawing (dungeon_render*.cpp): no GL here.
 
-#include "items.h"
-#include "world_events.h"
+#include "../level/items.h"
+#include "../level/world_events.h"
 #include "../core/timer.h"
 #include <algorithm>
 #include <cstddef>

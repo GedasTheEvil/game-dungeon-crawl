@@ -1,7 +1,7 @@
 // The camel spider (plan camel-spider): a fast walker that keeps out of the light of torches, braziers and lamps.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/decor.h"
+#include "../../src/level/decor.h"
 
 namespace {
 const Monster* spider(const SimWorld& world) {

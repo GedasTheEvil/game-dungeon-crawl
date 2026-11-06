@@ -1,5 +1,5 @@
 # The monsters' field notes (plan texts-to-content, docs/texts.md): the journal's description, in the archaeologist's
-# words, written after the first kill. [monster.<label>], the label of its row in src/world/monster_kinds.cpp.
+# words, written after the first kill. [monster.<label>], the label of its row in src/level/monster_kinds.cpp.
 
 [monster.scarab]
 note: A beetle the size of my fist. Its bite stings.

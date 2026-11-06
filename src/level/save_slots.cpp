@@ -1,5 +1,5 @@
 #include "save_slots.h"
-#include "../world/run_stats.h"
+#include "run_stats.h"
 #include <algorithm>
 #include <map>
 #include <sstream>

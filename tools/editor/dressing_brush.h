@@ -4,9 +4,9 @@
 // The editor's brushes for the decor and decal layers (plan placed-decor) and the looks layer (plan
 // placed-container-looks): what painting one does to a cell's dressing. Header only, no GL: the unit tests use it.
 
-#include "../../src/world/containers.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/level.h"
+#include "../../src/level/containers.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/level.h"
 
 // The decal palette's brushes besides PLACED_UNSET, PLACED_BARE and the decals (DECAL_DEFS indices): the torch field
 // alone.

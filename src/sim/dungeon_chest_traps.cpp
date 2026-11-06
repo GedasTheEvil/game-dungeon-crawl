@@ -2,10 +2,10 @@
 // (loot.h); the trap ward's chance stops it. The gas cloud is drawn in dungeon_render_effects.cpp.
 // The tomb-curse coffins too (plan tomb-curse-containers).
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "journal.h"
-#include "loot.h"
-#include "world_events.h"
+#include "player.h"
+#include "../level/journal.h"
+#include "../level/loot.h"
+#include "../level/world_events.h"
 #include <algorithm>
 #include <cmath>
 #include <string>

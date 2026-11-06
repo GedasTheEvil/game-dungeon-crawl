@@ -5,7 +5,7 @@
 // and the window-to-canvas mapping, the screen tabs, the status box, the interact prompt and the level gem. The drawing
 // is ui_draw.h and the screens'; the unit tests check the layouts at any window size (tests/unit/ui_layout_test.cpp).
 
-#include "../world/interaction.h"
+#include "interaction.h"
 #include <algorithm>
 #include <cstdint>
 #include <string>

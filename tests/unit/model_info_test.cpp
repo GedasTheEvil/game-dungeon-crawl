@@ -1,10 +1,10 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/core/gameplay_config.h"
+#include "../../src/level/gameplay_config.h"
 #include "../../src/core/timer.h"
-#include "../../src/entities/model_info.h"
-#include "../../src/world/level.h"
-#include "../../src/world/monster_kinds.h"
-#include "../../src/world/rng.h"
+#include "../../src/sim/model_info.h"
+#include "../../src/level/level.h"
+#include "../../src/level/monster_kinds.h"
+#include "../../src/level/rng.h"
 #include <algorithm>
 #include <string>
 

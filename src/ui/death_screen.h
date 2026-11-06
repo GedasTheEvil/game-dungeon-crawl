@@ -1,9 +1,9 @@
 #ifndef DEATH_SCREEN_H
 #define DEATH_SCREEN_H
 
-#include "../graphics/font.h"
-#include "../input/bindings.h"
-#include "pointer.h"
+#include "../render/font.h"
+#include "../level/bindings.h"
+#include "../level/pointer.h"
 #include <cstdint>
 
 /// @file death_screen.h

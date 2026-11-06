@@ -52,3 +52,21 @@ Move the files so that each layer has its own directory. Then the makefile picks
 * Include style: the code uses relative includes (`"../world/level.h"`). After the moves, either fix them with a
   script or switch to `-Isrc` with `"level/level.h"`. Pick one and use it everywhere.
 * Running worktree tasks conflict with the move. Do it when no other task is open.
+
+## Done (2026-11-06)
+
+Open points decided: the full split; relative includes kept (`"../level/level.h"`), rewritten by a script from each
+file's old and new place, so `check_layers.sh` and `tidy.sh` resolve them as before.
+
+* `src/core/` base (timer, logger, paths, worker_pool.h); `src/level/`, `src/sim/`, `src/render/` one per library;
+  the game: `src/game/` (`game.cpp` with `main`, `sound`), `src/graphics/` (the game's drawing: `dungeon_render*.cpp`,
+  `character_model`, `monster_draw`, `player_view`, `item`, `trap`, `draw`, `fire`, `particles_draw`, `frame_rate`),
+  `ui/`, `state/`, `input/`, `test/` for the rest. `src/world/` and `src/entities/` are gone.
+* Moved by the layer the makefile lists gave each file: `gameplay_config.h` to `level/`, `render_config.h` to `sim/`,
+  `ui_draw` to `render/`, the pure layouts (`ui_layout`, `inventory_layout`, ...), `bindings`, `input.h`,
+  `mouse_look.h`, `camera_look.h`, `settings_ini`, `save_slots`, `scenario_script`, `hud_icon.h`, `pointer.h` to
+  `level/`.
+* Makefile: `src/<library>/*.cpp` and `*.h` wildcards; `SIM_FILES` gone (`check_sim.sh` gets the sim's files).
+  `.clang-tidy` `HeaderFilterRegex` names the new directories.
+* Paths in docs, tools, content comments and open drafts rewritten (solved and won't-do plans keep the old ones).
+* One `git mv` commit, then the fixes; both in `.git-blame-ignore-revs`.

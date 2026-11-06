@@ -4,7 +4,7 @@
 // Scenario scripts as text: the commands, the `expect` fields and the parser, without the game (scenario.cpp runs
 // them). Command reference: docs/testing.md; the unit tests check it lists every row of COMMANDS and FIELDS.
 
-#include "../world/items.h"
+#include "items.h"
 #include <istream>
 #include <string>
 #include <vector>

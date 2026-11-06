@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/level.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/level.h"
 #include <cstdio>
 #include <sstream>
 #include <string>

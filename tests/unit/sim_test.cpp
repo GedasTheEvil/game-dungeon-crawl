@@ -1,7 +1,7 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/level_gen.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/level_gen.h"
 
 TEST_CASE("a walker stops at a wall: the rat behind it never bites") {
 	SimWorld world;

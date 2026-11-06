@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/loot.h"
+#include "../../src/level/loot.h"
 
 namespace {
 OwnedWeapons allWeapons() {

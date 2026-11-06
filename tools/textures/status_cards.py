@@ -2,7 +2,7 @@
 
     python3 tools/textures/status_cards.py [out.png]
 
-One cell per StatusKind in enum order (src/ui/status_list.h, plan curse-blessing-cards): blessing (yellow-gold),
+One cell per StatusKind in enum order (src/level/status_list.h, plan curse-blessing-cards): blessing (yellow-gold),
 condition (neutral grey stone), curse (purple). Same shape and frame width on all three: a bevelled frame, a face with
 a little grain, the middle calm (the icon goes there), the bottom strip a shade darker (the pips go there). The frames
 differ in brightness too (blessing brightest, curse darkest), not only in hue, so they tell apart without colour.

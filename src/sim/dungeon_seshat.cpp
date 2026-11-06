@@ -2,7 +2,7 @@
 // trapped containers' and mimics' red contour near the player (drawn in dungeon_render_outlines.cpp); the riddle hint
 // and the royal name are in ui/riddle.cpp and dungeon_interact.cpp.
 #include "dungeon.h"
-#include "../entities/player.h"
+#include "player.h"
 #include <algorithm>
 #include <cmath>
 

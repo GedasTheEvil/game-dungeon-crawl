@@ -19,7 +19,7 @@ plays once from the awake pose: shudders, tongue limp, the lid slams, the gold c
 falls open; the last frame is the rest pose again, the open chest it leaves), idle (`_idle`, loops: the closed chest,
 as a treasure chest stands until opened (plan treasure-containers), still, but the lid lifts a hair and the box breathes
 once per loop; frame 0 = the chest item's frame 0, the engine's normalization reference for the mimic, AMBUSH_CLIPS in
-src/entities/model_info.h).
+src/sim/model_info.h).
 
 Texture: 1024 x 512, left half = treasure_chest.png unchanged, right half = the mouth parts (AO baked on their own).
 

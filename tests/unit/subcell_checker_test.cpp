@@ -2,9 +2,9 @@
 // step, monsters cut off by a shape, and the shape warnings. Small levels drawn in the levelcheck --map legend, shapes
 // set on them (bit = column + 4 * row, row 0 at the bottom).
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/tile_defs.h"
 #include <algorithm>
 #include <string>
 #include <vector>

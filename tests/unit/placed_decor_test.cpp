@@ -1,9 +1,9 @@
 // The decor and decal layers (plan placed-decor): the level format v4, the scatter reading them, the checker's
 // warnings, the editor's brushes.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor_scatter.h"
-#include "../../src/world/level_check.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor_scatter.h"
+#include "../../src/level/level_check.h"
 #include "../../tools/editor/dressing_brush.h"
 #include <memory>
 #include <sstream>

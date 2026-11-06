@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/climb_path.h"
+#include "../../src/level/climb_path.h"
 #include <cmath>
 
 // Climbers (plan monster-climbers): the path on the level's cells, and the climbers following it.

@@ -4,8 +4,8 @@
 
 #include "player.h"
 #include "figures.h"
-#include "../graphics/render_config.h"
-#include "../core/gameplay_config.h"
+#include "render_config.h"
+#include "../level/gameplay_config.h"
 
 void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const MonsterLinks& world, Rng& effects) {
 	links = world;

@@ -17,7 +17,7 @@ chatters over the fangs), attack (`_att`, from the awake pose: the stopper flips
 the tongue lashes, the stopper snaps down, back), die (`_die`, plays once: a shudder, then the jar smashes as the
 container does, the mouth shrivels; the last frame is the container's smashed jar, the one it leaves), idle (`_idle`,
 loops: the closed jar, still, the stopper lifts a hair once; frame 0 is the container's frame 0, the engine's
-normalization reference, AMBUSH_CLIPS in src/entities/model_info.h).
+normalization reference, AMBUSH_CLIPS in src/sim/model_info.h).
 
 Texture: media/textures/monsters/mimic_jar.png, 512, albedo x ambient occlusion, baked on the awake pose (the fangs
 out of the dark).

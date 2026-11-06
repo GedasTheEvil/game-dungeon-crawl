@@ -1,10 +1,10 @@
 // Texts in content/ (plan texts-to-content): the file format, the shipped files, and every key the code asks for.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/items.h"
-#include "../../src/world/journal_text.h"
-#include "../../src/world/monster_kinds.h"
-#include "../../src/world/skills.h"
-#include "../../src/world/texts.h"
+#include "../../src/level/items.h"
+#include "../../src/level/journal_text.h"
+#include "../../src/level/monster_kinds.h"
+#include "../../src/level/skills.h"
+#include "../../src/level/texts.h"
 #include <set>
 #include <sstream>
 

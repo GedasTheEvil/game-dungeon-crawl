@@ -2,11 +2,11 @@
 // webs over the floor. A web slows the player standing in it; a blade's swing cuts it, fire burns it. Drawn in
 // dungeon_render_webs.cpp (the webs) and dungeon_render_decor.cpp (a flame dying down).
 #include "dungeon.h"
-#include "decor.h"
-#include "../entities/player.h"
-#include "journal.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
+#include "../level/decor.h"
+#include "player.h"
+#include "../level/journal.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
 

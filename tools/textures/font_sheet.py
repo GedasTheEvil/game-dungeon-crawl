@@ -4,7 +4,7 @@
 
 The sheet is N x N grey (default 512), white glyphs on black, printable ASCII from ' ' in a 10 x 10 grid; cell i
 starts at round(i * N / 10), so the cells match the loader's 0.1 texture steps (Font::Load in
-src/graphics/font.cpp). Each glyph is drawn at 4x and downsampled, its baseline and cap height where the old papyrus
+src/render/font.cpp). Each glyph is drawn at 4x and downsampled, its baseline and cap height where the old papyrus
 sheet had them, so the fonts can swap at the same sizes. Font::Load measures the inked width of each cell for
 proportional text, so the glyphs only need to start inside their cell.
 """

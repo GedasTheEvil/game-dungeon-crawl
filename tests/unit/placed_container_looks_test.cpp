@@ -1,9 +1,9 @@
 // The looks layer (plan placed-container-looks): the level format v7, the scatter reading it, the stance filter, the
 // checker's warnings, the --map drawing, the editor's brushes and the looks placed in the campaign.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor_scatter.h"
-#include "../../src/world/level_check.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor_scatter.h"
+#include "../../src/level/level_check.h"
 #include "../../tools/editor/dressing_brush.h"
 #include <cstdlib>
 #include <memory>

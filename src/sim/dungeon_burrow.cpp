@@ -1,7 +1,7 @@
 // Burrowers on the level (monster_burrow.cpp, Apep, the worm and Rerek in sand): where one comes up, the holes it
 // leaves, Rerek's spray of sand.
 #include "dungeon.h"
-#include "../core/gameplay_config.h"
+#include "../level/gameplay_config.h"
 #include <cmath>
 
 // Plan subcell-monsters: a burrower does not come up under (or into) a solid sub-cell at the floor.

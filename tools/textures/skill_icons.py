@@ -5,7 +5,7 @@ needed: SKILL_ICON_ROWS).
 
 The look of the HUD icons (hud_icons.py): flat glyphs with an ink outline, drawn at 4x and downsampled. Cell 0 is the
 heka mark (the ka arms: the Heka screen's tab, its points, the HUD's waiting point); from cell 1 on the skills in
-SkillId order (src/world/skills.h, SKILL_ICON_FIRST).
+SkillId order (src/level/skills.h, SKILL_ICON_FIRST).
 """
 
 import math

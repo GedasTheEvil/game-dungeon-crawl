@@ -1,7 +1,7 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/item_bag.h"
-#include "../../src/world/journal.h"
-#include "../../src/world/world_events.h"
+#include "../../src/level/item_bag.h"
+#include "../../src/level/journal.h"
+#include "../../src/level/world_events.h"
 
 TEST_CASE("world events come out in order, once") {
 	WorldEvents events;

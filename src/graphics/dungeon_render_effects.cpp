@@ -1,20 +1,20 @@
 // Drawing the monsters, the missiles and venom in flight, and the boss fight's summon effects (the rules are in
 // dungeon_monsters.cpp, dungeon_arrows.cpp and dungeon_boss.cpp).
-#include "dungeon.h"
-#include "dungeon_rules.h"
+#include "../sim/dungeon.h"
+#include "../sim/dungeon_rules.h"
 #include "../state/assets.h"
-#include "../entities/monster_draw.h"
-#include "../entities/player.h"
-#include "../graphics/fire.h"
-#include "../graphics/ink.h"
-#include "../graphics/lighting.h"
-#include "../graphics/render_config.h"
+#include "monster_draw.h"
+#include "../sim/player.h"
+#include "fire.h"
+#include "../render/ink.h"
+#include "../render/lighting.h"
+#include "../sim/render_config.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
 
 namespace {
-// The held bow is drawn 12 units tall for its 1.2 m (ITEMS in world/items.cpp, items.py); arrow.md3 is in metres.
+// The held bow is drawn 12 units tall for its 1.2 m (ITEMS in level/items.cpp, items.py); arrow.md3 is in metres.
 constexpr float ARROW_WORLD_PER_METRE = 10.f;
 constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
 constexpr float RAD_TO_DEG = 57.29578f;

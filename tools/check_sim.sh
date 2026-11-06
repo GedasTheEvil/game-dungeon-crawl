@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Checks that the world and the entities stay off the app (plan world-without-game): no Game(), no game_state.h, no
-# screens (ui/) or input. What they need comes in by SimLinks / MonsterLinks or a parameter, and what they tell the app
-# goes out by WorldEvents. The dungeon draws itself only in dungeon_render*.cpp: its other files (src/world/dungeon*)
-# include no GL and no graphics header but the constants of render_config.h (plan sim-unit-tests).
+# Checks that the sim (src/sim/: the dungeon, the monsters, the player) stays off the app (plan world-without-game):
+# no Game(), no game_state.h, no screens (ui/) or input. What it needs comes in by SimLinks / MonsterLinks or a
+# parameter, and what it tells the app goes out by WorldEvents. It draws nothing: no GL, no graphics/ or render/
+# header; the dungeon draws itself in src/graphics/dungeon_render*.cpp, in the game (plans sim-unit-tests,
+# src-dirs-by-layer). make layers checks the includes too; this names the reason.
 #
 #   tools/check_sim.sh FILES...
 #
@@ -15,15 +16,10 @@ for file in "$@"; do
 		echo "$file:${hit%%:*}: uses ${hit#*:}"
 		errors=$((errors + 1))
 	done < <(grep -nE '\bGame\(\)|#include ".*(game_state\.h|/ui/|/input/)' "$file")
-	case "$file" in
-	src/world/dungeon_render*) ;;
-	src/world/dungeon*)
-		while IFS= read -r hit; do
-			echo "$file:${hit%%:*}: draws outside dungeon_render*.cpp: ${hit#*:}"
-			errors=$((errors + 1))
-		done < <(grep -nE '#include <GL|#include ".*graphics/' "$file" | grep -v 'graphics/render_config\.h')
-		;;
-	esac
+	while IFS= read -r hit; do
+		echo "$file:${hit%%:*}: draws outside src/graphics/dungeon_render*.cpp: ${hit#*:}"
+		errors=$((errors + 1))
+	done < <(grep -nE '#include <GL|#include ".*(graphics|render)/' "$file")
 done
 if [ $errors -gt 0 ]; then
 	echo "check_sim: $errors violation(s)"

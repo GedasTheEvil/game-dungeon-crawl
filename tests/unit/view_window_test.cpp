@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/view_window.h"
+#include "../../src/level/view_window.h"
 #include <cmath>
 
 namespace {

@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/loot.h"
+#include "../../src/level/loot.h"
 #include <map>
 
 // Former scenarios (attack_recovery, ladder_jump_off, loot, monster_slots, spikes, stamina, trap_hop, generated_path).

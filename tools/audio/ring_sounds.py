@@ -24,7 +24,7 @@ SR = 22050
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 rng = np.random.default_rng(23)  # fixed seed: the same files on every run
 
-# The engine's timings (src/core/gameplay_config.h, RING_*): the rings drop RING_STAGGER s apart, RING_FALL s each.
+# The engine's timings (src/level/gameplay_config.h, RING_*): the rings drop RING_STAGGER s apart, RING_FALL s each.
 RING_COUNT = 5
 RING_STAGGER = 0.15
 RING_FALL = 0.4

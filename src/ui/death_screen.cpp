@@ -1,7 +1,7 @@
 #include "death_screen.h"
-#include "ui_draw.h"
-#include "../core/gameplay_config.h"
-#include "../input/input.h"
+#include "../render/ui_draw.h"
+#include "../level/gameplay_config.h"
+#include "../level/input.h"
 #include "../state/game_state.h"
 #include <GL/gl.h>
 #include <array>

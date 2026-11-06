@@ -2,8 +2,8 @@
 #define ENTITIES_PARTICLES_H
 
 #include "../core/timer.h"
-#include "../world/rgb.h"
-#include "../world/rng.h"
+#include "../level/rgb.h"
+#include "../level/rng.h"
 
 // A blood splash: particles burst from (x, y, z) and drift down while the system has life left. Only the motion, no
 // GL: Particles::Draw (graphics/particles_draw.h) draws it.

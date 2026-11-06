@@ -2,7 +2,7 @@
 
     python3 tools/textures/decals.py [out.png]
 
-Every decal is drawn at 2x and downsampled. Cell order must match DECAL_DEFS in src/world/decor.h
+Every decal is drawn at 2x and downsampled. Cell order must match DECAL_DEFS in src/level/decor.h
 (anchor: ceiling decals hang from the top edge of their cell, floor decals grow from the bottom edge).
 Transparent pixels get the colour of the nearest paint so linear filtering and mipmaps do not pull
 dark fringes in.
@@ -470,7 +470,7 @@ def moss():
     return weather(img, 24, 0.4, grain=12)
 
 
-# Order = atlas cell = DECAL_DEFS in src/world/decor.h.
+# Order = atlas cell = DECAL_DEFS in src/level/decor.h.
 DECALS = [crack_a, crack_b, crack_floor, lambda: vines(4, 4, 34, False), lambda: vines(5, 3, 26, True), roots, stain, glyph_column, glyph_row, cartouche,
           wedjat, winged_sun, papyrus, dry_grass, creeper, moss]
 

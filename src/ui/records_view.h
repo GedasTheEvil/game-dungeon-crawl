@@ -1,9 +1,9 @@
 #ifndef RECORDS_VIEW_H
 #define RECORDS_VIEW_H
 
-#include "../graphics/font.h"
-#include "../world/leaderboard.h"
-#include "ui_layout.h"
+#include "../render/font.h"
+#include "../level/leaderboard.h"
+#include "../level/ui_layout.h"
 #include <string>
 #include <vector>
 

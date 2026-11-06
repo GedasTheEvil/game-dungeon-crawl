@@ -2,10 +2,10 @@
 // against tests/unit/golden/decor_lvlNN.txt. A change to the scatter shows up here as a diff. After a wanted change:
 // GOLDEN_UPDATE=1 bin/unit -tc="*golden*" writes the files anew; review them with git diff.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/decor_scatter.h"
-#include "../../src/world/level.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/decor_scatter.h"
+#include "../../src/level/level.h"
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>

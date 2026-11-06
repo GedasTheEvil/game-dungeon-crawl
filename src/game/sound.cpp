@@ -1,7 +1,7 @@
 #include "sound.h"
 #include <SDL/SDL_mixer.h>
 #include <algorithm>
-#include "logger.h"
+#include "../core/logger.h"
 
 namespace {
 int gAudioUsers = 0;

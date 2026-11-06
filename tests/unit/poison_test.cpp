@@ -1,8 +1,8 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/items.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/poison.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/items.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/poison.h"
+#include "../../src/level/tile_defs.h"
 #include <sstream>
 #include <tuple>
 #include <string>

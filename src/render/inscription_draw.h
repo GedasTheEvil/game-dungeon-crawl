@@ -4,7 +4,7 @@
 // Drawing a composed inscription (plan composed-inscriptions): the plate of its style, then a quad per sign from the
 // hieroglyph sheet, tinted with its paint (inscription_layout.h). The wall and the journal page both draw with it.
 
-#include "../world/inscription_layout.h"
+#include "../level/inscription_layout.h"
 #include "textures.h"
 #include <string>
 #include <vector>

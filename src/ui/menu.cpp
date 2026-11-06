@@ -11,8 +11,8 @@
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../state/settings.h"
-#include "ui_draw.h"
-#include "../input/input.h"
+#include "../render/ui_draw.h"
+#include "../level/input.h"
 #include <optional>
 #include <string>
 #include "../core/paths.h"

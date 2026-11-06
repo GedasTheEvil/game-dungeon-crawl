@@ -3,7 +3,7 @@
     python3 tools/audio/tomb_curse_sounds.py [out_dir]      (default: media/sounds/)
 
 Writes items/lid_coffin.wav (WorldSound::LidCoffin: the lid rattles in its seat, scrapes off the case, a heavy wooden
-thud as it lands on the floor; timed to the coffin's clip, CONTAINER_DEFS in src/world/containers.h) and the mimic
+thud as it lands on the floor; timed to the coffin's clip, CONTAINER_DEFS in src/level/containers.h) and the mimic
 jar's monsters/mimic_jar_{wake,att,die}.wav: the mimic's voice smaller and higher, in pottery instead of wood (the clay
 stopper grinding on the rim, clicking on the fangs; the death a shriek and the jar smashing as the container does).
 Everything is generated (no samples), so this script is the source of the sounds. It uses the helpers of

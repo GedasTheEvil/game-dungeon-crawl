@@ -1,7 +1,7 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/item_bag.h"
-#include "../../src/world/items.h"
-#include "../../src/world/quick_potion.h"
+#include "../../src/level/item_bag.h"
+#include "../../src/level/items.h"
+#include "../../src/level/quick_potion.h"
 #include "../../src/core/paths.h"
 #include <filesystem>
 #include <sstream>

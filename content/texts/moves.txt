@@ -1,5 +1,5 @@
 # One sentence on a move the player saw a creature make, under SAW on its journal page (plan texts-to-content,
-# docs/texts.md). [move.<CreatureMove>]; creatureMoveNote (src/world/journal_text.cpp) picks the field by the
+# docs/texts.md). [move.<CreatureMove>]; creatureMoveNote (src/level/journal_text.cpp) picks the field by the
 # monster's rules: text, or a variant (a summon's kind, a curse's name, a monster of its own).
 
 [move.leap]

@@ -1,9 +1,9 @@
 // A monster's leap into a low ceiling (plan monster-head-bump), on tests/levels/monster_head_bump: a giant rat pounces
 // at the player under a ceiling three quarters up (room 10 world units over its head, the arc's top 12), Khepri on the
-// upper hall. The rule is the player's (src/world/head_bump.h, tests/unit/subcell_physics_test.cpp).
+// upper hall. The rule is the player's (src/level/head_bump.h, tests/unit/subcell_physics_test.cpp).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/head_bump.h"
+#include "../../src/level/head_bump.h"
 #include <algorithm>
 
 namespace {

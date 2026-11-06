@@ -1,7 +1,7 @@
 #include "item.h"
 #include <GL/gl.h>
-#include "../graphics/ink.h"
-#include "../graphics/lighting.h"
+#include "../render/ink.h"
+#include "../render/lighting.h"
 #include "../core/timer.h"
 #include <cmath>
 #include <algorithm>

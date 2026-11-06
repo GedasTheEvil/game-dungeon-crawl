@@ -41,7 +41,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. The jump clip (`rat_jump.md3`, 10 frames, plays once: crouch, push-off,
   stretched in the air, paws reaching down, landing crouch) stays on the floor; the engine moves it along the arc
-  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/core/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
+  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/level/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
   (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
   Climb (`rat_climb.md3`, 16 frames, loops, back to the camera): a bound, the hind feet push together, then the forepaws reach and
   pull (a rung is about a hind leg's reach); body pitched 82 deg nose up, belly to the ladder (+Y); gripping paw tips on IK targets
@@ -54,12 +54,12 @@ conventions, steps). New model notes go in the script's docstring, not here.
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
   `BAT_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only `bat_vampire.png` (the vampire bat
   boss: blue-black fur, blood-red veins, crimson eyes). Sounds: `tools/audio/bat_sounds.py` (`media/sounds/monsters/bat_{att,die}.wav`).
-  Engine: `Monster::Fly` (`Locomotion::Fly` in `KINDS`, `src/world/monster_kinds.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
-  (`BAT_*` in `src/core/gameplay_config.h`), falls to the floor on death.
+  Engine: `Monster::Fly` (`Locomotion::Fly` in `KINDS`, `src/level/monster_kinds.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
+  (`BAT_*` in `src/level/gameplay_config.h`), falls to the floor on death.
 * `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
   `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
   their own into the right half), so the rest pose is the item vertex for vertex: frame 0 of `mimic_idle.md3`, the mimic's normalization reference
-  (`AMBUSH_CLIPS` in `src/entities/model_info.h`), has the chest's bounding box (to the int16 step). Everything else hides inside at rest: lower fangs and gums in the walls (slide up), upper fangs lying flat in the lid
+  (`AMBUSH_CLIPS` in `src/sim/model_info.h`), has the chest's bounding box (to the int16 step). Everything else hides inside at rest: lower fangs and gums in the walls (slide up), upper fangs lying flat in the lid
   frame (fold down), tongue and a fleshy mouth floor under the gold heap (the heap sinks into the box). Rigid bones posed by deformation
   matrices (as in `bat.py`), feet on a `base` bone so the legs shear under the twisting box, per-frame floor fix. Clips: walk 32 (loops on the awake
   pose, the same as attack frame 0: four lid snaps, sways and twists), attack 22 (loops from the awake pose: gape, lunge
@@ -225,17 +225,17 @@ conventions, steps). New model notes go in the script's docstring, not here.
   brazier, lamp (offerings: clay oil lamp), scrolls, ushabti; broken statues: `cat` (Bastet on a chipped plinth, an ear and a
   toppled figurine on the floor), `jackal` (Anubis couchant on a black and gold shrine), `osiris` (toppled, the shins still on the
   base, atef crown rolled off), four of Thoth, one pick with a variant at even odds: `thoth_ibis_standing` (striding, palette and pen, beak snapped, moon crown on the floor), `thoth_ibis_seated` (enthroned, palette on the knees), `thoth_baboon_seated` (squatting, dark sandstone, crown fallen), `thoth_baboon_standing` (forepaws raised, one broken off); `sarcophagus` (a commoner's box
-  coffin, lid cracked in two, its mummy lying in front)) plus the wall torch (`decor_torch`, placed by `scatterTorches` in `src/world/decor_scatter.cpp`, up to one per
+  coffin, lid cracked in two, its mummy lying in front)) plus the wall torch (`decor_torch`, placed by `scatterTorches` in `src/level/decor_scatter.cpp`, up to one per
   5 cells of a row) in tile units, lighting baked into the texture (sun from the camera side + AO),
   drawn textured only (no Centrify). `-- --export` writes `media/models/decorations/decor_<name>.md3` + `media/textures/decorations/decor_<name>.png`;
   `--review out.png` renders a line-up, `--only web,sand` limits the build; extents are printed (engine jitter table `DECOR_JITTER` in
-  `src/world/decor_scatter.cpp`). Placement: `scatterDecor` in `src/world/decor_scatter.cpp` (30% of walkable empty floor cells, seeded by the level file name), from the
-  decoration tiers the level's depth unlocks (`DECOR_TIERS` in `src/world/decor.h`: cave, worked tunnel, tomb, temple).
+  `src/level/decor_scatter.cpp`). Placement: `scatterDecor` in `src/level/decor_scatter.cpp` (30% of walkable empty floor cells, seeded by the level file name), from the
+  decoration tiers the level's depth unlocks (`DECOR_TIERS` in `src/level/decor.h`: cave, worked tunnel, tomb, temple).
   Water props (plan [water-decorations](plan/solved/water-decorations.md)): `water_reeds` (papyrus clump), `water_weed` (under the
   surface), `water_pads` (lotus leaves), `water_lotus` (leaves, a blue lotus in bloom and a bud), modelled at their real
   height in the basin (`BASIN_Z`, `SURFACE_Z` from `render_config.h`), not enlarged; their bake floor is the basin's.
   Scattered in 50% of free half water cells (reeds at the bank, leaves out on the water); swayed or bobbed at draw time
-  (`waterMotion` in `src/world/dungeon_render_decor.cpp`). In-game check: `make test SCENARIO=tests/scenarios/solved/water_decorations.txt`.
+  (`waterMotion` in `src/graphics/dungeon_render_decor.cpp`). In-game check: `make test SCENARIO=tests/scenarios/solved/water_decorations.txt`.
   In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/solved/statues.txt` (puts them with the
   scenario's `prop` command); of the tiers: `tests/unit/sim_test.cpp` and the golden dumps (`tests/unit/golden/`).
   `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,
@@ -249,8 +249,8 @@ conventions, steps). New model notes go in the script's docstring, not here.
   under the ceiling) and `bottom` (on the floor). Rails sit at x = +-0.1, y = -0.04 and match at z = 0 / 1, so pieces stack in any
   order; holds every 1/12 tile (for the climbing animations to come). `-- --export` writes `media/models/ladders/ladder_<style>_<piece>.md3` +
   `media/textures/ladders/ladder_<style>_<piece>.png`; `--review out.png [--view z,scale]` renders both styles as stacked shafts.
-  Placement: `scatterLadders` in `src/world/decor_scatter.cpp` (one style per shaft, no middle piece twice in a row, wooden pieces mirrored at random;
-  lianas are never mirrored, their twist would kink at the seams). Tables: `LADDER_*` in `src/world/decor.h`.
+  Placement: `scatterLadders` in `src/level/decor_scatter.cpp` (one style per shaft, no middle piece twice in a row, wooden pieces mirrored at random;
+  lianas are never mirrored, their twist would kink at the seams). Tables: `LADDER_*` in `src/level/decor.h`.
 * `tools/blender/models/mechanism.py` - level mechanics, same tile units and baked lighting as `decor.py`: `key` (upright ankh key,
   oval gem in the loop), `gate` (bronze portcullis across the corridor: plane y-z at x = 0, 0.21 thick, full tile depth and height,
   stone lintel and back stile, lock cartouche on the front face, gem medallion on both long sides, spiked feet; slides up into the
@@ -273,14 +273,14 @@ conventions, steps). New model notes go in the script's docstring, not here.
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom, flat faces in the x-z plane; the bow's back bulges to +x. The engine holds the weapon in the fist nearer the camera
   (`PlayerView::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length
-  up from the lowest point, tilted and swung per its `WeaponDef` (`ITEMS` in `src/world/items.cpp`).
+  up from the lowest point, tilted and swung per its `WeaponDef` (`ITEMS` in `src/level/items.cpp`).
   The bows (`bow`, `composite_bow`) are held upright by their grip and have `BOW_FRAMES` (8) frames, the draw: frame 0 at rest, then the string pulled back
   with an arrow on it (collapsed onto the nock in frame 0, so every frame has the same vertices); the engine picks the frame
   from the draw time (`Item::Draw(pose)`). Texture and UVs come from the fully drawn bow, the frames from shape keys
   (`bow_frames`). The missiles in flight are drawn in metres, not centred (`Dungeon::drawMissiles`): `arrow.md3` (tip at +Z),
   `sling_stone.md3`, and the throwing stick and javelin models a second time (loaded uncentred for the flight).
   The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in.
-  The potion vessels (`potion_<model>`, `PotionModel` in `src/world/items.h`; each about the flask's 0.18 m height):
+  The potion vessels (`potion_<model>`, `PotionModel` in `src/level/items.h`; each about the flask's 0.18 m height):
   `flask` (round glass flask, cork and cord: small health, small stamina), `lotus` (glass jar on a gold foot, a lotus
   flower of faience petals at the mouth, two handles: large health, large stamina), `pilgrim` (flat faience "New Year
   flask" with gold rings: might, water blessing), `canopic` (alabaster jar, falcon head lid: armor), `cobra` (slim vial, a gold cobra
@@ -309,21 +309,21 @@ conventions, steps). New model notes go in the script's docstring, not here.
   `--review out.png` as in `items.py`. In-game check: `make test SCENARIO=tests/scenarios/solved/props.txt` (every item, prop and trap).
 * `tools/textures/decals.py` - wall decal atlas `media/textures/decorations/decals.png` (RGBA, 4x4 cells of 256 px, loaded with mipmaps): cracks,
   vines, roots, seepage, hieroglyph panels, cartouche, eye of Horus, winged sun, papyrus, dry grass, creeper, moss. Cell order =
-  `DECAL_DEFS` in `src/world/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
-  Placement: `scatterDecals` in `src/world/decor_scatter.cpp` (35% of cells with a visible back wall, one decal per cell).
+  `DECAL_DEFS` in `src/level/decor.h` (anchor: free / ceiling / floor, quad size). `python3 tools/textures/decals.py`.
+  Placement: `scatterDecals` in `src/level/decor_scatter.cpp` (35% of cells with a visible back wall, one decal per cell).
 * `tools/textures/surfaces.py` - cell surfaces in `media/textures/dungeon/` (RGB 512 px, mipmapped): 16 walls (painted plaster, worn,
   broken to stone; dressed stone, cracked, sand-drifted; rough rock, strata; sandstone, granite, basalt, wet stone and
   their variants), 7 floors, 9 ceilings, `rock.png` (solid cells, one image over 2x2 cells). Order = `*_STYLE_NAMES` in
-  `src/world/decor.h`. Variants of a kind share their base and fade their own detail out at the edges, so they tile in any
-  order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `scatterSurfaces` in `src/world/decor_scatter.cpp` (per row
+  `src/level/decor.h`. Variants of a kind share their base and fade their own detail out at the edges, so they tile in any
+  order. `python3 tools/textures/surfaces.py [out_dir] [--preview sheet.png]`. Placement: `scatterSurfaces` in `src/level/decor_scatter.cpp` (per row
   of open cells: rough rock, or dressed stone cut into painted / bare stretches; all rough in the cave tier, less and
   less deeper down, `ROUGH_PERCENT` / `PAINTED_PERCENT` in `decor.h`). In-game check:
   `make test SCENARIO=tests/scenarios/solved/surfaces.txt`.
 * `tools/audio/weapon_sounds.py` - synthesizes `media/sounds/items/`: a swing and a hit per melee weapon (`<weapon>_swing`,
   `<weapon>_hit`, shared by the weapons alike: `axe_hit`, `mace_hit`), the bow's draw and release, the sling's whirl and
   release, a throw, the arrow in a body and in stone (`arrow_hit`, `arrow_wall`), a stone or stick on a body or off a wall
-  (`stone_hit`, `stone_wall`). Wired in `ITEMS` (`src/world/items.cpp`) and `MISSILE_RULES`
-  (`src/world/dungeon_rules.h`); a melee hit sound plays only when the swing hits a monster.
+  (`stone_hit`, `stone_wall`). Wired in `ITEMS` (`src/level/items.cpp`) and `MISSILE_RULES`
+  (`src/sim/dungeon_rules.h`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `media/sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 

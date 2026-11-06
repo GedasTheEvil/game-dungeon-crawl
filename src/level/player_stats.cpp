@@ -3,8 +3,8 @@
 #include <cmath>
 #include <cstdio>
 #include <utility>
-#include "../core/gameplay_config.h"
-#include "../world/progression.h"
+#include "gameplay_config.h"
+#include "progression.h"
 
 namespace {
 float ratioOf(int value, int max) {

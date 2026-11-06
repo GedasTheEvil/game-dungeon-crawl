@@ -1,7 +1,7 @@
 #ifndef TEXTURE_REGISTRY_H
 #define TEXTURE_REGISTRY_H
 
-#include "textures.h"
+#include "../render/textures.h"
 
 // Textures that are not part of a model set (Assets): UI backgrounds, props, effects.
 struct TextureRegistry {

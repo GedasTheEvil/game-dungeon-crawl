@@ -2,9 +2,9 @@
 #define MODEL_INFO_H
 
 #include "md3_mesh.h"
-#include "../core/gameplay_config.h"
-#include "../world/monster_kinds.h"
-#include "../world/rng.h"
+#include "../level/gameplay_config.h"
+#include "../level/monster_kinds.h"
+#include "../level/rng.h"
 #include <array>
 #include <vector>
 

@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/ui/message_log.h"
+#include "../../src/level/message_log.h"
 #include <string>
 #include <vector>
 

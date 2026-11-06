@@ -1,8 +1,8 @@
 #include "win_entry.h"
-#include "ui_draw.h"
-#include "../input/input.h"
+#include "../render/ui_draw.h"
+#include "../level/input.h"
 #include "../state/game_state.h"
-#include "../world/leaderboard.h"
+#include "../level/leaderboard.h"
 #include <GL/gl.h>
 #include <cmath>
 #include <ctime>

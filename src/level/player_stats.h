@@ -1,17 +1,17 @@
 #ifndef PLAYER_STATS_H
 #define PLAYER_STATS_H
 
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include "../core/timer.h"
-#include "../world/curses.h"
-#include "../world/damage.h"
-#include "../world/inscriptions.h"
-#include "../world/item_bag.h"
-#include "../world/poison.h"
-#include "../world/run_stats.h"
-#include "../world/shrines.h"
-#include "../world/skills.h"
-#include "../world/world_events.h"
+#include "curses.h"
+#include "damage.h"
+#include "inscriptions.h"
+#include "item_bag.h"
+#include "poison.h"
+#include "run_stats.h"
+#include "shrines.h"
+#include "skills.h"
+#include "world_events.h"
 #include <array>
 #include <fstream>
 #include <optional>

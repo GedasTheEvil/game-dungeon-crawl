@@ -1,7 +1,7 @@
 #include "dungeon_save.h"
 #include "../core/logger.h"
-#include "items.h"
-#include "../state/save_slots.h"
+#include "../level/items.h"
+#include "../level/save_slots.h"
 #include <filesystem>
 #include <fstream>
 #include <sstream>

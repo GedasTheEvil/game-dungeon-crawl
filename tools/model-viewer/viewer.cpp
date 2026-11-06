@@ -35,14 +35,14 @@
 #include <cstring>
 #include <cstdint>
 
-#include "../../src/graphics/animated_model.h"
-#include "../../src/graphics/textures.h"
-#include "../../src/graphics/lighting.h"
-#include "../../src/graphics/ink.h"
+#include "../../src/render/animated_model.h"
+#include "../../src/render/textures.h"
+#include "../../src/render/lighting.h"
+#include "../../src/render/ink.h"
 #include "hud.h"
-#include "../../src/graphics/font.h"
-#include "../../src/world/items.h"
-#include "../../src/ui/ui_draw.h"
+#include "../../src/render/font.h"
+#include "../../src/level/items.h"
+#include "../../src/render/ui_draw.h"
 #include "../../src/core/logger.h"
 #include "../../src/core/timer.h"
 #include "../../external/stb/stb_image_write.h"
@@ -714,8 +714,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	// Call order matches src/entities/monster.cpp, src/entities/trap.cpp and
-	// src/state/game_state.cpp -- not src/entities/item.cpp, which swaps
+	// Call order matches src/sim/monster.cpp, src/graphics/trap.cpp and
+	// src/state/game_state.cpp -- not src/graphics/item.cpp, which swaps
 	// Centrify/BindTexture (harmless but not the precedent to follow).
 	ApplyLoadedModel(modelPath);
 	if (!texture.empty()) {

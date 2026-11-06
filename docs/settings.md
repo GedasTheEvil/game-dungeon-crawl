@@ -10,8 +10,8 @@ changes in Options (and on quit, when the window was resized). You can also edit
 * An older `saves/settings.txt` (motion effects only) is read once, then replaced by the ini.
 * Scenario tests never read or write the file: they always run with the defaults.
 
-Code: `src/state/settings_ini.*` (the `Settings` struct, the parser and the writer, GL-free, unit tested in
-`tests/unit/settings_test.cpp`), `src/state/settings.cpp` (the file), `src/input/bindings.cpp` (the key bindings).
+Code: `src/level/settings_ini.*` (the `Settings` struct, the parser and the writer, GL-free, unit tested in
+`tests/unit/settings_test.cpp`), `src/state/settings.cpp` (the file), `src/level/bindings.cpp` (the key bindings).
 
 ## Format
 

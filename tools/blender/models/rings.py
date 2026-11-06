@@ -1,7 +1,7 @@
 """Procedural rings (plan ring-accessories): the band with its raised setting (ring_band) and the cut gem that sits in
 it (ring_gem), two models so the engine can draw the gem see-through over the opaque band (Item::DrawPart). All 18
 rings share them: the band baked once per metal (ring_band_copper, ring_band_silver, ring_band_gold), the gem baked
-once in pale greys the engine tints per gem (ringGemColour in src/world/items.cpp).
+once in pale greys the engine tints per gem (ringGemColour in src/level/items.cpp).
 
     MCP:  p = ".../tools/blender/models/rings.py"; g = {"__file__": p, "__name__": "rings"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)

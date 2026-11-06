@@ -4,7 +4,7 @@
 // What the tile types, attributes and values mean (readme.md), as text for the editor's hint panel.
 // No GL here.
 
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/tile_defs.h"
 #include <string>
 
 struct TileInfo {

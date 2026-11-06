@@ -1,11 +1,11 @@
 // Drawing the sunlight mirrors (plan sunlight-mirrors; dungeon_sun.cpp has their rules): the mirrors on their stands,
 // the sun discs, the beams and their light.
-#include "dungeon.h"
-#include "dungeon_rules.h"
+#include "../sim/dungeon.h"
+#include "../sim/dungeon_rules.h"
 #include "../state/assets.h"
-#include "../graphics/fire.h"
-#include "../graphics/lighting.h"
-#include "../graphics/render_config.h"
+#include "fire.h"
+#include "../render/lighting.h"
+#include "../sim/render_config.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

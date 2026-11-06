@@ -2,8 +2,8 @@
 // the gameplay stream, the trap ward's chance stops the trap, a smashed ushabti may curse; the checker does not count a
 // trapped chest's antidote.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/loot.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/loot.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <string>

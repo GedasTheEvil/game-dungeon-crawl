@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 #include <string_view>
-#include "campaign.h"
+#include "../level/campaign.h"
 
 namespace {
 // The containers in a save: one character per cell after the tag. An opened container is saved as open, its clip

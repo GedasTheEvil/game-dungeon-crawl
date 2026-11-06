@@ -31,7 +31,7 @@ stand in front of.
 
 The game loads every `content/inscriptions/*.txt` file at start-up. Edit the texts, styles and signs there; no rebuild
 is needed. The game composes each inscription when it draws it ([plan](plan/solved/composed-inscriptions.md),
-`src/world/inscription_layout.cpp`): the **plate** of its style (the empty frame,
+`src/level/inscription_layout.cpp`): the **plate** of its style (the empty frame,
 `media/textures/decorations/inscription_plates.png`), then a quad per sign from the **hieroglyph sheet**
 (`hieroglyphs.png`, a cell per sign, its manifest `hieroglyphs.txt`), each sign tinted with its paint. A text that only
 reuses signs costs no texture. A `G:` code the sheet lacks is a load error in `game.log` (and fails a unit test): rebuild

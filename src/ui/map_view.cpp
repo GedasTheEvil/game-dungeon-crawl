@@ -1,11 +1,11 @@
 #include "map_view.h"
-#include "../world/sun_beam.h"
-#include "ui_draw.h"
+#include "../level/sun_beam.h"
+#include "../render/ui_draw.h"
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
-#include "../input/bindings.h"
-#include "../input/input.h"
-#include "../graphics/font.h"
+#include "../level/bindings.h"
+#include "../level/input.h"
+#include "../render/font.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <array>

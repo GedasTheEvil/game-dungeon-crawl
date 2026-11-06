@@ -1,8 +1,8 @@
 #ifndef TRAP_H
 #define TRAP_H
 #include <memory>
-#include "../graphics/animated_model.h"
-#include "../graphics/textures.h"
+#include "../render/animated_model.h"
+#include "../render/textures.h"
 
 // A trap model (spikes, the death trap's big spikes), shared by every tile of its kind. It only draws; the damage is
 // Dungeon::updateTraps.

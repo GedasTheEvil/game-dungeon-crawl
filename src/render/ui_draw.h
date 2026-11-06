@@ -5,7 +5,7 @@
 // two-pass text. Works in whatever ortho canvas is set up (y up); sizes are in canvas units, line widths in pixels.
 // Conventions: docs/ui.md.
 
-#include "ui_layout.h"
+#include "../level/ui_layout.h"
 #include <cstdint>
 #include <string>
 #include <vector>

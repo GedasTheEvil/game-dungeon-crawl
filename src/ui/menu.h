@@ -4,13 +4,13 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "../graphics/font.h"
-#include "../graphics/textures.h"
-#include "../input/bindings.h"
+#include "../render/font.h"
+#include "../render/textures.h"
+#include "../level/bindings.h"
 #include "confirm_box.h"
-#include "pointer.h"
+#include "../level/pointer.h"
 #include "records_view.h"
-#include "ui_draw.h"
+#include "../render/ui_draw.h"
 
 /// @file menu.h
 /// Main menu, in-game menu and its save / load / options / credits / Hall of Records screens.

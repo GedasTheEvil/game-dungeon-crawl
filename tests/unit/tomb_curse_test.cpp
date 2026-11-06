@@ -2,11 +2,11 @@
 // execration text (rolled with the look, readable up close): opening such a coffin curses unless the trap ward stops
 // it, and it holds a trapped chest's loot. The mimic jar: a sealed pottery jar that bites, leaves its smashed jar.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/containers.h"
-#include "../../src/world/decor_scatter.h"
-#include "../../src/world/level_gen.h"
-#include "../../src/world/loot.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/containers.h"
+#include "../../src/level/decor_scatter.h"
+#include "../../src/level/level_gen.h"
+#include "../../src/level/loot.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <cstdlib>

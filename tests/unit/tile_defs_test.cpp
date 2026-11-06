@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/monster_kinds.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/monster_kinds.h"
+#include "../../src/level/tile_defs.h"
 #include <set>
 #include <string>
 

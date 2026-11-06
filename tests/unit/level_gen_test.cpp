@@ -2,13 +2,13 @@
 // warnings over a range of seeds per zone.
 #include "../../external/doctest/doctest.h"
 #include "../../src/core/paths.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/inscriptions.h"
-#include "../../src/world/items.h"
-#include "../../src/world/level.h"
-#include "../../src/world/level_gen.h"
-#include "../../src/world/monster_kinds.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/inscriptions.h"
+#include "../../src/level/items.h"
+#include "../../src/level/level.h"
+#include "../../src/level/level_gen.h"
+#include "../../src/level/monster_kinds.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iterator>

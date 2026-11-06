@@ -4,10 +4,10 @@
 // other sounds (SoundMuffle); arrows and spit drift (dungeon_arrows.cpp). The blown sand is drawn in
 // dungeon_render_sand.cpp.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "spike_cycle.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
+#include "player.h"
+#include "../level/spike_cycle.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
 

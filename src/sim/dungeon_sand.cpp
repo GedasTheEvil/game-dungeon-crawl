@@ -1,9 +1,9 @@
 // Sand and quicksand (plan desert-chapter): the walk in sand, sinking in quicksand, the sand fall's drift.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
-#include "../graphics/render_config.h"
+#include "player.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
+#include "render_config.h"
 #include <algorithm>
 #include <cmath>
 

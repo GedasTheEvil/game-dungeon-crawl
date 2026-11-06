@@ -1,7 +1,7 @@
 #ifndef SCREEN_TABS_H
 #define SCREEN_TABS_H
 
-#include "pointer.h"
+#include "../level/pointer.h"
 #include "screen.h"
 
 // The tab strip of the inventory, the draft map, the journal and the Heka screen (ui::screenTabs): a click on a tab, or

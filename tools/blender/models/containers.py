@@ -7,7 +7,7 @@ table with the item under a linen cover.
     CLI:  blender -b --python tools/blender/models/containers.py -- [--export] [--bake] [--only jar,table]
 
 Blender space: Z up, real sizes in metres like the items (the engine centres each on its frame 0, scales its largest
-side to Item::scale: CONTAINER_DEFS in src/world/containers.h, which takes UNITS_PER_M x the largest side printed here,
+side to Item::scale: CONTAINER_DEFS in src/level/containers.h, which takes UNITS_PER_M x the largest side printed here,
 so all containers share the chest's metres). Each faces -Y (the camera at rotA 0); the engine turns it to its stance.
 
 Frames: the opening clip, FRAMES[name] frames, one shape key each on the baked object: frame 0 closed (the item hidden),

@@ -6,7 +6,7 @@ Writes items/lid_wood.wav (the chest's and the coffer's lid: a latch click, a cr
 to rest), lid_reed.wav (the basket's lid and the offering table's linen cover: a dry rustle and a light tap),
 lid_stone.wav (the canopic jars' stone heads: four gritty scrapes and clinks, one per head), jar_smash.wav (a sealed
 pottery jar breaks: a hollow crack, the shards' clatter, a puff of dust). Timed to the clips (CONTAINER_DEFS in
-src/world/containers.h). Everything is generated (no samples), so this script is the source of the sounds.
+src/level/containers.h). Everything is generated (no samples), so this script is the source of the sounds.
 Output: 16-bit PCM mono 22050 Hz, like mechanism_sounds.py, whose helpers it uses.
 """
 

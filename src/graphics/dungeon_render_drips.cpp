@@ -2,12 +2,12 @@
 // the lump of venom swelling in it, wobbling in the telegraph, then falling into the glossy green puddle on the floor
 // with a splash, the venom pouring after it while the drop is out; small drops ring the puddle in between. All of it
 // from the cycle and the clock (spike_cycle.h), nothing kept.
-#include "dungeon.h"
+#include "../sim/dungeon.h"
 #include "../state/assets.h"
-#include "../graphics/fire.h"
-#include "../graphics/lighting.h"
-#include "../graphics/render_config.h"
-#include "spike_cycle.h"
+#include "fire.h"
+#include "../render/lighting.h"
+#include "../sim/render_config.h"
+#include "../level/spike_cycle.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

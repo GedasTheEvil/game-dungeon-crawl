@@ -1,5 +1,5 @@
 # The journal's own words (plan texts-to-content, docs/texts.md): the field notes (FieldNote, fieldNoteText in
-# src/world/journal_text.cpp), one [note.<slug>] each in FieldNote order, then the diary pages (DiaryPage). The notes
+# src/level/journal_text.cpp), one [note.<slug>] each in FieldNote order, then the diary pages (DiaryPage). The notes
 # say the rules as the game has them (PlayerStats, ItemBag, the mechanisms): keep them in step.
 
 [note.health]

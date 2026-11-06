@@ -3,7 +3,7 @@
 
 // Scripted test runs: `bin/game tests/scenarios/foo.txt`.
 // Command reference and output layout: docs/testing.md.
-#include "../core/gameplay_config.h"
+#include "../level/gameplay_config.h"
 #include <string>
 #include <vector>
 

@@ -1,10 +1,10 @@
 #ifndef CONFIRM_BOX_H
 #define CONFIRM_BOX_H
 
-#include "../graphics/font.h"
-#include "../input/bindings.h"
-#include "pointer.h"
-#include "ui_layout.h"
+#include "../render/font.h"
+#include "../level/bindings.h"
+#include "../level/pointer.h"
+#include "../level/ui_layout.h"
 #include <functional>
 #include <string>
 

@@ -7,16 +7,16 @@
 // container looks.
 // Exit code: 0 all valid, 1 at least one level cannot be finished, 2 usage / unreadable file.
 
-#include "../../src/core/gameplay_config.h"
-#include "../../src/world/containers.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/inscriptions.h"
-#include "../../src/world/level.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/path_script.h"
-#include "../../src/world/monster_kinds.h"
-#include "../../src/world/movement.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/gameplay_config.h"
+#include "../../src/level/containers.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/inscriptions.h"
+#include "../../src/level/level.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/path_script.h"
+#include "../../src/level/monster_kinds.h"
+#include "../../src/level/movement.h"
+#include "../../src/level/tile_defs.h"
 #include <algorithm>
 #include <cstdio>
 #include <cmath>

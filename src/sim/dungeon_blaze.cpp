@@ -1,9 +1,9 @@
 // A floor set burning by Babi's big coal (plan babi-boss, VolleyRules): the player standing in it burns. Drawn in
 // dungeon_render_blaze.cpp.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
+#include "player.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
 

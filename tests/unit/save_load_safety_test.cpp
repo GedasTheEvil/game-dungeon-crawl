@@ -1,8 +1,8 @@
 // Plan save-load-safety: a failed save keeps the old file, a broken save leaves the game as it was, the slots' run
 // details.
 #include "../../external/doctest/doctest.h"
-#include "../../src/state/save_slots.h"
-#include "../../src/world/dungeon_save.h"
+#include "../../src/level/save_slots.h"
+#include "../../src/sim/dungeon_save.h"
 #include "sim_world.h"
 #include <filesystem>
 #include <fstream>

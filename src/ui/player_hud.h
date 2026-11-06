@@ -1,12 +1,12 @@
 #ifndef PLAYER_HUD_H
 #define PLAYER_HUD_H
 
-#include "hud_icon.h"
-#include "status_list.h"
-#include "ui_draw.h"
-#include "../world/items.h"
-#include "../world/curses.h"
-#include "../world/poison.h"
+#include "../level/hud_icon.h"
+#include "../level/status_list.h"
+#include "../render/ui_draw.h"
+#include "../level/items.h"
+#include "../level/curses.h"
+#include "../level/poison.h"
 #include <cstdint>
 #include <string>
 

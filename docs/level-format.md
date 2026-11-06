@@ -2,7 +2,7 @@
 
 How a level file and a cell are laid out. The campaign, levelcheck and levelgen: [levels.md](levels.md).
 Level files, tile types and the editor: [tools/editor/readme.md](../tools/editor/readme.md).
-Tile types and structures in code: `src/world/level.h`.
+Tile types and structures in code: `src/level/level.h`.
 
 A cell has three layers ([level-format-layers.md](plan/solved/level-format-layers.md),
 [wall-layer.md](plan/solved/wall-layer.md)):
@@ -11,13 +11,13 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
   `DeepWater`.
 * **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes,
   sun disc, fire vent, poison drip, sand gust, ceiling spikes, ceiling death trap (the wall types, `isWallType` in
-  `src/world/level.h`).
+  `src/level/level.h`).
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
   trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
 
 An open structure can carry a **shape** ([level-subcells](plan/solved/level-subcells.md)): the cell splits into
 4 x 4 sub-cells, a quarter tile each way, and the shape is the mask of the solid ones (steps, stairs, low ceilings,
-crawl spaces). The game asks `solidAt`, `floorHeight` and `ceilingHeight` (`src/world/level.h`), never the bits.
+crawl spaces). The game asks `solidAt`, `floorHeight` and `ceilingHeight` (`src/level/level.h`), never the bits.
 The game draws the solid sub-cells as blocks; the player is blocked by them, jumps onto a quarter step (not a half),
 bumps a low ceiling and stands on a step with a foot ([subcell-physics](plan/solved/subcell-physics.md)); arrows and sunbeams
 stop at them. Monsters take steps and crawl spaces by their size ([subcell-monsters](plan/solved/subcell-monsters.md)).
@@ -43,13 +43,13 @@ checker warns when the only way on jumps into them (a quarter step under them). 
 Two more say how the cell is dressed ([placed-decor](plan/solved/placed-decor.md)), each unset (the game scatters
 it as on any level), bare (none) or one picked with its mirror, whatever the depth:
 
-* **Decor**: the cell's prop (`DECOR_NAMES`, `src/world/decor.h`), among them the decoy, a coffin with a mummy asleep
+* **Decor**: the cell's prop (`DECOR_NAMES`, `src/level/decor.h`), among them the decoy, a coffin with a mummy asleep
   in it for good. A mummy's spawn keeps its own coffin, a page its skeleton, a living ushabti its decor ushabti.
 * **Decal**: the cell's wall decal (`DECAL_DEFS`) and, as a second field, its wall torch (unset, none, a torch).
   Random torches keep their gap to a placed one.
 
 One more, the **looks** layer ([placed-container-looks](plan/solved/placed-container-looks.feature.md)), picks a
-treasure's container: rolled (by depth, as on any level) or one of `CONTAINER_NAMES` (`src/world/containers.h`), a
+treasure's container: rolled (by depth, as on any level) or one of `CONTAINER_NAMES` (`src/level/containers.h`), a
 coffin's lid also plain or inscribed (a cursed coffin). The stance still rolls.
 
 Rules and the editor's palettes: [tools/editor/readme.md](../tools/editor/readme.md#decor-and-decal-layers),
@@ -65,7 +65,7 @@ Water rules (the game, `levelcheck` as far as it models them): the player wades 
 cannot sprint or jump while standing in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both) (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
 floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (a swimmer: the
 crocodile and Sobek 2.5 times their land speed, the hippo and Seth 3, the cobras and Apep 1.25; `waterSpeed`,
-`Wading` and `KINDS` in `src/world/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
+`Wading` and `KINDS` in `src/level/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
 work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
 deep water not under water, a ladder that goes down into water (one may start in it), a crocodile, hippo, Sobek or Seth not
 in or next to water and a lotus not in half water.
@@ -90,7 +90,7 @@ on the path, and warns about a run that cannot be crossed against the wind in on
 or spikes, a death trap or quicksand in it, or blows the player into a drop, a trap or quicksand. Halls today: lvl33
 row 40 (sand, the wind to the right), lvl34 row 31 and lvl36 row 15 (stone, to the left; lvl36's slow).
 
-Sunlight rules ([sunlight-mirrors](plan/solved/sunlight-mirrors.md), `src/world/sun_beam.h`): a light shaft (`l`, attribute: its way, 0 down, 1
+Sunlight rules ([sunlight-mirrors](plan/solved/sunlight-mirrors.md), `src/level/sun_beam.h`): a light shaft (`l`, attribute: its way, 0 down, 1
 left, 2 up, 3 right) sends a beam of sunlight through open cells until rock, deep water or a gate not fully open stops
 it; the player does not. A mirror (`(`, value: the way it points) sends a beam that falls on it on that way: pointing
 the way the beam goes it stands edge-on and lets it by, pointing back it catches it. Interact turns a mirror a quarter

@@ -1,6 +1,6 @@
 #include "confirm_box.h"
-#include "../input/input.h"
-#include "ui_draw.h"
+#include "../level/input.h"
+#include "../render/ui_draw.h"
 #include <utility>
 #include <vector>
 

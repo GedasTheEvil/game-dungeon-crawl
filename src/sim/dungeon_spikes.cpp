@@ -5,11 +5,11 @@
 // poisons, the drop hits and poisons whoever is in the cell while it falls (updateDrips).
 // Drawn in dungeon_render_mechanisms.cpp.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "rng.h"
-#include "spike_cycle.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
+#include "player.h"
+#include "../level/rng.h"
+#include "../level/spike_cycle.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
 #include <cmath>
 
 void Dungeon::updateRhythmTraps() {

@@ -1,12 +1,12 @@
 // Walkers on the level (Monster::Seek, monster_leap.cpp, monster_climb.cpp): what blocks them, their leaps over gaps,
 // a coward's flight, a climber's path across floors and the step that puts it together.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "../core/gameplay_config.h"
+#include "player.h"
+#include "../level/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
-#include "climb_path.h"
-#include "../graphics/render_config.h"
+#include "../level/climb_path.h"
+#include "render_config.h"
 
 bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walkerBlockedAt(map, col, row, reckless); }
 //======================================================================================

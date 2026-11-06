@@ -1,7 +1,7 @@
 #ifndef WIN_ENTRY_H
 #define WIN_ENTRY_H
 
-#include "../graphics/font.h"
+#include "../render/font.h"
 #include "confirm_box.h"
 #include <cstdint>
 #include <string>

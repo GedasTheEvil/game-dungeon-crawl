@@ -1,10 +1,10 @@
 // The UI layouts as data (plan scenarios-to-unit-tests technique 5): at 4:3, 16:9 and 21:9 every part fits the canvas
 // without overlap, a click on a part's centre hits it, and the fades run as they should.
 #include "../../external/doctest/doctest.h"
-#include "../../src/ui/inventory_layout.h"
-#include "../../src/ui/page_turn.h"
-#include "../../src/ui/ui_layout.h"
-#include "../../src/world/campaign.h"
+#include "../../src/level/inventory_layout.h"
+#include "../../src/level/page_turn.h"
+#include "../../src/level/ui_layout.h"
+#include "../../src/level/campaign.h"
 #include <algorithm>
 #include <cmath>
 #include <string>

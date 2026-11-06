@@ -2,7 +2,7 @@
 // tests/levels/subcells; arrows and sunbeams stop at them. The drawing: tests/scenarios/solved/subcell_physics.txt.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/sun_beam.h"
+#include "../../src/level/sun_beam.h"
 #include <algorithm>
 
 namespace {

@@ -1,5 +1,5 @@
 # The details on a skill's card of the Heka page, under its effect (plan texts-to-content, docs/texts.md).
-# [skill.<name>], the name of its row in src/world/skills.cpp.
+# [skill.<name>], the name of its row in src/level/skills.cpp.
 
 [skill.stun]
 lore: A good knock on the head stops anything for a moment, gods' beasts too.

@@ -1,8 +1,8 @@
 #ifndef HUD_ICON_H
 #define HUD_ICON_H
 
-#include "../world/curses.h"
-#include "../world/items.h"
+#include "curses.h"
+#include "items.h"
 #include <cstdint>
 
 namespace PlayerHud {

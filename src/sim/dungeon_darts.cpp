@@ -1,11 +1,11 @@
 // Dart traps (plan poison-dart-trap): the plate, the volley from the wall and the darts in flight. Drawn in
 // dungeon_render_mechanisms.cpp.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "journal.h"
-#include "rng.h"
-#include "world_events.h"
-#include "../core/gameplay_config.h"
+#include "player.h"
+#include "../level/journal.h"
+#include "../level/rng.h"
+#include "../level/world_events.h"
+#include "../level/gameplay_config.h"
 #include <algorithm>
 #include <cmath>
 

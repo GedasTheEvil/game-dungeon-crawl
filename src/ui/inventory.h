@@ -1,12 +1,12 @@
 #ifndef INVENTORY_H
 #define INVENTORY_H
 #include <string>
-#include "../graphics/font.h"
-#include "../entities/item.h"
-#include "../world/item_bag.h"
-#include "../input/bindings.h"
-#include "pointer.h"
-#include "ui_draw.h"
+#include "../render/font.h"
+#include "../graphics/item.h"
+#include "../level/item_bag.h"
+#include "../level/bindings.h"
+#include "../level/pointer.h"
+#include "../render/ui_draw.h"
 #include <iosfwd>
 #include <optional>
 

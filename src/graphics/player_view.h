@@ -2,8 +2,8 @@
 #define PLAYER_VIEW_H
 
 #include "character_model.h"
-#include "player.h"
-#include "../graphics/texture_registry.h"
+#include "../sim/player.h"
+#include "texture_registry.h"
 #include <array>
 
 // The player's figure: the model, its texture and sounds, drawn at the frame origin as the Player's last Animate left

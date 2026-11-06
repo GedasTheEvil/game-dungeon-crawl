@@ -2,11 +2,11 @@
 #include "../state/game_state.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
-#include "../input/input.h"
+#include "../level/input.h"
 #include <GL/gl.h>
 #include "../graphics/gl_includes.h"
-#include "ui_draw.h"
-#include "../world/journal.h"
+#include "../render/ui_draw.h"
+#include "../level/journal.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>

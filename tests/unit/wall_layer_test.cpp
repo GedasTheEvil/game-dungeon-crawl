@@ -1,11 +1,11 @@
 // The wall layer (plan wall-layer): the level format v3 and its v2 conversion, the checker's rules for a fixture and an
 // object in one cell, interact over both, and a walker in front of a fixture.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/climb_path.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/spike_cycle.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/climb_path.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/spike_cycle.h"
+#include "../../src/level/tile_defs.h"
 #include "sim_world.h"
 #include <sstream>
 #include <string>

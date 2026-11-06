@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include "figures.h"
-#include "../world/journal.h"
-#include "../core/gameplay_config.h"
+#include "../level/journal.h"
+#include "../level/gameplay_config.h"
 
 int Monster::underMs() const { return type->sandBurrow ? type->sandBurrow->underMs : BURROW_UNDER_MS; }
 

@@ -28,7 +28,7 @@ The user's example, the giant scarab:
 * Bosses keep their god or myth in one line, then the personal reaction.
 * No code change expected (`monsterNote` reads the file). Check the journal page still fits (line count, wrap) with
   the longest notes: `docs/ui.md` (journal), a screenshot scenario of a few creature pages.
-* Leave `MonsterKind::description` (`src/world/monster_kinds.cpp`) alone: it is the editor and tool label, not shown
+* Leave `MonsterKind::description` (`src/level/monster_kinds.cpp`) alone: it is the editor and tool label, not shown
   to the player.
 
 ## Play-test

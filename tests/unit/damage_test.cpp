@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/damage.h"
+#include "../../src/level/damage.h"
 #include <cmath>
 
 TEST_CASE("without resistances a typed hit deals what it did untyped") {

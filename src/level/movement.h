@@ -6,7 +6,7 @@
 // constants, for the level checker's rules. The game compares absolute heights, so float rounding can add one tick
 // (19 instead of 18 from rows 1 to 3); the arc here is the intended one.
 
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include "level.h"
 
 namespace Jump {

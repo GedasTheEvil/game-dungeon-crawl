@@ -1,6 +1,6 @@
 #include "level_gem.h"
-#include "ui_draw.h"
-#include "../graphics/font.h"
+#include "../render/ui_draw.h"
+#include "../render/font.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

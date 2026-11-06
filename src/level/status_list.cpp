@@ -1,5 +1,5 @@
 #include "status_list.h"
-#include "../entities/player_stats.h"
+#include "player_stats.h"
 
 namespace {
 // The drops, weak to strong: pale lime, venom green, deep malachite.

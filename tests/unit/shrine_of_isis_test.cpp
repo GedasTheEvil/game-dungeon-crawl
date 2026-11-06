@@ -2,9 +2,9 @@
 // curse lands; it runs out after 2 minutes (4 with the Blessing of Isis skill), ends on death, a prayer again restarts
 // it.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/decor.h"
+#include "../../src/level/decor.h"
 #include "sim_world.h"
-#include "../../src/world/journal_text.h"
+#include "../../src/level/journal_text.h"
 #include <algorithm>
 #include <string>
 

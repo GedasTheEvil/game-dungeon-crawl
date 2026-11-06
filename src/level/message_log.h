@@ -1,7 +1,7 @@
 #ifndef MESSAGE_LOG_H
 #define MESSAGE_LOG_H
 
-#include "../world/world_events.h"
+#include "world_events.h"
 #include <deque>
 #include <string>
 #include <vector>

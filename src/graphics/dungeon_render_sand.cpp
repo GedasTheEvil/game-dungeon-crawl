@@ -1,15 +1,15 @@
 // Sand on the floor (plan desert-chapter): the drifts, the quicksand's swirl, the dust of the steps, the sand worm's
 // ripple and the sand falls pouring down.
-#include "dungeon.h"
+#include "../sim/dungeon.h"
 #include "../state/assets.h"
-#include "../entities/player.h"
+#include "../sim/player.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
-#include "../graphics/render_config.h"
-#include "../graphics/fire.h"
-#include "../graphics/lighting.h"
-#include "spike_cycle.h"
+#include "../sim/render_config.h"
+#include "fire.h"
+#include "../render/lighting.h"
+#include "../level/spike_cycle.h"
 
 namespace {
 constexpr float T = RenderConfig::TILE_SIZE;

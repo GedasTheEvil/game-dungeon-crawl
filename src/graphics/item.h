@@ -3,11 +3,11 @@
 
 #include <cstdint>
 #include <memory>
-#include "../core/sound.h"
-#include "../graphics/animated_model.h"
-#include "../graphics/textures.h"
-#include "../world/items.h"
-#include "../world/rgb.h"
+#include "../game/sound.h"
+#include "../render/animated_model.h"
+#include "../render/textures.h"
+#include "../level/items.h"
+#include "../level/rgb.h"
 
 // A weapon, potion, amulet, ring or the treasure chest: a static model, drawn where the caller has placed it. The
 // potions that come in one vessel share its model, each with its own texture (shareModel). An item may have a second

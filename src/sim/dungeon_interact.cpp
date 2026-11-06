@@ -1,14 +1,14 @@
 // What the player does on a cell (Interact): pick up the treasure, pull a lever, read an inscription, use a gate (the
 // exit, a teleport), and the travel through a gate (the fade). Loading and saving the dungeon: dungeon_io.cpp.
 #include "dungeon.h"
-#include "shrines.h"
-#include "../entities/player.h"
-#include "inscriptions.h"
-#include "journal.h"
-#include "loot.h"
-#include "names.h"
+#include "../level/shrines.h"
+#include "player.h"
+#include "../level/inscriptions.h"
+#include "../level/journal.h"
+#include "../level/loot.h"
+#include "../level/names.h"
 #include "dungeon_rules.h"
-#include "world_events.h"
+#include "../level/world_events.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>

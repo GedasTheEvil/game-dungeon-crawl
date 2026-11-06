@@ -2,11 +2,11 @@
 // are dressed in their zone's stone; the banner names the hour, the gate and the guardian.
 #include "../../external/doctest/doctest.h"
 #include "../../src/core/paths.h"
-#include "../../src/world/campaign.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/decor_scatter.h"
-#include "../../src/world/level.h"
-#include "../../src/world/zone_look.h"
+#include "../../src/level/campaign.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/decor_scatter.h"
+#include "../../src/level/level.h"
+#include "../../src/level/zone_look.h"
 #include <filesystem>
 #include <memory>
 #include <string>

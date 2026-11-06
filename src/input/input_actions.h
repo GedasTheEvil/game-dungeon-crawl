@@ -1,8 +1,8 @@
 #ifndef INPUT_ACTIONS_H
 #define INPUT_ACTIONS_H
 
-#include "input.h"
-#include "bindings.h"
+#include "../level/input.h"
+#include "../level/bindings.h"
 #include <string>
 
 enum class GameplayAction : unsigned char {

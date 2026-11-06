@@ -2,18 +2,18 @@
 
 The game's longer prose is in `content/texts/*.txt` ([plan](plan/solved/texts-to-content.md)): the journal's
 field notes, diary and expedition pages, the creature moves and monster notes, and the lore lines of the skill and
-item cards. The game reads these files once (`gameTexts`, `world/texts.*`). The unit tests and the tools read the
+item cards. The game reads these files once (`gameTexts`, `level/texts.*`). The unit tests and the tools read the
 same files from the repo root. To change the wording, edit a file: no rebuild is needed. A new text also needs code
 that asks for its key.
 
 | File | Texts | Asked for by |
 |---|---|---|
-| `journal.txt` | `[note.<slug>]` the field notes (`title`, `text`), in `FieldNote` order; `[diary.<page>]` the prologue and the epilogue (`title`, `p1`..`p3`), in `DiaryPage` order | `fieldNoteText`, `diaryText` (`world/journal_text.cpp`) |
+| `journal.txt` | `[note.<slug>]` the field notes (`title`, `text`), in `FieldNote` order; `[diary.<page>]` the prologue and the epilogue (`title`, `p1`..`p3`), in `DiaryPage` order | `fieldNoteText`, `diaryText` (`level/journal_text.cpp`) |
 | `expedition.txt` | `[page.<n>]` the earlier expedition's notebook (`heading`, `text`), n the Page tile's value | `expeditionPageText` |
 | `moves.txt` | `[move.<move>]` one sentence per `CreatureMove`: `text`, or a variant chosen by the monster's rules (a summon's kind, a curse's name, one monster's own) | `creatureMoveNote` |
 | `monsters.txt` | `[monster.<label>]` `note`: the journal description after the first kill | `monsterNote` |
-| `skills.txt` | `[skill.<name>]` `lore`: the Heka card's details under the effect | `skillLore` (`world/skills.cpp`) |
-| `items.txt` | `[item.<label>]` (an amulet: `[item.<model>]`) `lore1`, `lore2`: the inventory card's two lines | `itemText` (`world/items.cpp`) |
+| `skills.txt` | `[skill.<name>]` `lore`: the Heka card's details under the effect | `skillLore` (`level/skills.cpp`) |
+| `items.txt` | `[item.<label>]` (an amulet: `[item.<model>]`) `lore1`, `lore2`: the inventory card's two lines | `itemText` (`level/items.cpp`) |
 
 Rows whose names are in code (monsters, skills, items) are keyed by their name as `textSlug` writes it: lower case,
 a dash for each space or `_`, apostrophes dropped (`Serket's favour` -> `serkets-favour`, `giant rat` ->

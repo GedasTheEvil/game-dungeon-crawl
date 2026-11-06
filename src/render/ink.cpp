@@ -1,6 +1,6 @@
 #define GL_GLEXT_PROTOTYPES // GL 2.0 shader and 3.0 framebuffer entry points, exported by libGL on Linux
 #include "ink.h"
-#include "../entities/figures.h"
+#include "../sim/figures.h"
 #include "motion_fx.h"
 #include "shader.h"
 

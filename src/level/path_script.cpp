@@ -2,7 +2,7 @@
 #include "monster_kinds.h"
 #include "movement.h"
 #include "tile_defs.h"
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include <cmath>
 #include <cstdio>
 #include <map>

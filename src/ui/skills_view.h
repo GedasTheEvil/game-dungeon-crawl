@@ -1,10 +1,10 @@
 #ifndef SKILLS_VIEW_H
 #define SKILLS_VIEW_H
 
-#include "../graphics/font.h"
-#include "../input/bindings.h"
-#include "pointer.h"
-#include "ui_draw.h"
+#include "../render/font.h"
+#include "../level/bindings.h"
+#include "../level/pointer.h"
+#include "../render/ui_draw.h"
 
 // The Heka screen ([K], plan skills): a card per skill (a list that scrolls, plan heka-surplus) and the heka left to
 // spend; the papyrus on the right tells the selected skill and learns it, after a second press to confirm (no

@@ -1,8 +1,8 @@
 // Chargers on the level (monster_charge.cpp, Sobek, the hippo, Seth): the rush starts with a clear row, ends at what
 // blocks it; the bursts of sand: Seth's storm roar as his stun ends, Rerek's spray as he comes up.
 #include "dungeon.h"
-#include "../entities/player.h"
-#include "world_events.h"
+#include "player.h"
+#include "../level/world_events.h"
 #include <algorithm>
 #include <cmath>
 

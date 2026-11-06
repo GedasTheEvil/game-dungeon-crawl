@@ -1,7 +1,7 @@
-// The scenario script parser (src/test/scenario_script.h): every command parses, bad lines give an error.
+// The scenario script parser (src/level/scenario_script.h): every command parses, bad lines give an error.
 #include "../../external/doctest/doctest.h"
-#include "../../src/core/gameplay_config.h"
-#include "../../src/test/scenario_script.h"
+#include "../../src/level/gameplay_config.h"
+#include "../../src/level/scenario_script.h"
 #include <map>
 #include <sstream>
 #include <string>

@@ -1,12 +1,12 @@
 // Drawing the keys, the expedition's pages, gates, levers, rock falls, dart traps, wall spikes, fire vents and ring
 // platforms (dungeon_mechanisms.cpp, dungeon_darts.cpp and dungeon_spikes.cpp have their rules).
-#include "dungeon.h"
-#include "dungeon_rules.h"
+#include "../sim/dungeon.h"
+#include "../sim/dungeon_rules.h"
 #include "../state/assets.h"
-#include "../graphics/render_config.h"
-#include "../graphics/fire.h"
-#include "../graphics/lighting.h"
-#include "spike_cycle.h"
+#include "../sim/render_config.h"
+#include "fire.h"
+#include "../render/lighting.h"
+#include "../level/spike_cycle.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

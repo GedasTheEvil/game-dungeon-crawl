@@ -3,7 +3,7 @@
 #include "zone_look.h"
 #include "monster_kinds.h"
 #include "tile_defs.h"
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include <algorithm>
 #include <cstdlib>
 #include <cstdint>

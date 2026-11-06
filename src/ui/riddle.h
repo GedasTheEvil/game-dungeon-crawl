@@ -1,7 +1,7 @@
 #ifndef RIDDLE_H
 #define RIDDLE_H
-#include "../graphics/font.h"
-#include "../world/names.h"
+#include "../render/font.h"
+#include "../level/names.h"
 #include <istream>
 #include <string>
 #include <vector>

@@ -2,8 +2,8 @@
 // tests/levels/subcell_monsters (its .txt draws it); the scenario: tests/scenarios/solved/subcell_monsters.txt.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/entities/model_info.h"
-#include "../../src/world/climb_path.h"
+#include "../../src/sim/model_info.h"
+#include "../../src/level/climb_path.h"
 #include <algorithm>
 #include <cmath>
 

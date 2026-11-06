@@ -1,11 +1,11 @@
 # Levels: validator, generator, campaign
 
 The level format, tile legend and single cells by hand: [level-format.md](level-format.md). Editor: [tools/editor/readme.md](../tools/editor/readme.md).
-Tile types and structures in code: `src/world/level.h`.
+Tile types and structures in code: `src/level/level.h`.
 
 ## Campaign order
 
-`src/world/campaign.h`. A game plays `content/levels/lvl1` to `content/levels/lvl54` (`CAMPAIGN_LEVELS`), in twelve
+`src/level/campaign.h`. A game plays `content/levels/lvl1` to `content/levels/lvl54` (`CAMPAIGN_LEVELS`), in twelve
 zones, most of them ending with a boss. Each exit loads the next level. `content/levels/lvl54` holds the ankh that wins
 the game behind the Anubis boss's gate; he is always the last boss.
 
@@ -18,7 +18,7 @@ table `tools/level/rebuild.txt`; `tools/level/rebuild.py LEVEL` generates it aga
 ### Zones
 
 The levels are grouped into zones ([campaign-zones](plan/solved/campaign-zones.md), `ZONES` in
-`src/world/campaign.h`, `zoneOf(level)`; what each zone is, by `ZoneId`: `ZONE_INFO`). Each level file names its zone
+`src/level/campaign.h`, `zoneOf(level)`; what each zone is, by `ZoneId`: `ZONE_INFO`). Each level file names its zone
 too (`zone SLUG`, `LevelMeta`; the editor's zone button): the game dresses and lights the level by the file's zone, a
 unit test checks it is the one of the level's range. A level without one (`zone none`, a test or generated level)
 keeps the tombs' look. A zone is a run of levels with its own stone, main monsters, new mechanic and, mostly,
@@ -33,7 +33,7 @@ the map and the save slots show it. On entering a zone the journal gets the hour
 
 Each zone looks and sounds its own ([zone-looks](plan/solved/zone-looks.md)): its stone dresses the walls,
 floors and ceilings (`scatterSurfaces`; plaster is limestone painted more often, wet stone, basalt and granite have
-their own textures and few rough rows), and `ZONE_LOOKS` (`src/world/zone_look.h`, by `ZoneId`, all twelve) sets its
+their own textures and few rough rows), and `ZONE_LOOKS` (`src/level/zone_look.h`, by `ZoneId`, all twelve) sets its
 decor set (a factor per prop and decal on the tier weights), the ambient light, a haze far from the camera, the
 chance of a wall torch, an ambient loop (`media/sounds/ambience/`, `tools/audio/zone_ambience.py`) and the guardian
 its banner names. On a zone's first level a banner shows its hour and gate, the zone and its guardian; on every other
@@ -41,7 +41,7 @@ level a smaller one, the level and its zone (`ZoneBanner`, `levelBanner`). A lev
 tombs' look (`DEFAULT_LOOK`).
 
 The campaign's zones (decided 2026-10-21; `ZONES`, `ZONE_FAUNA`, `ZONE_TERRAIN`, `ZONE_TRAPS`, `ZONE_GATES` in
-`src/world/campaign.h`): twelve zones, 54 levels, four acts.
+`src/level/campaign.h`): twelve zones, 54 levels, four acts.
 
 | # | Zone | Levels | Monsters | New mechanic | Boss |
 |---|---|---|---|---|---|
@@ -201,13 +201,13 @@ bin/levelcheck --script tests/out/paths content/levels/lvl*   # a scenario per l
 
 Exit code: 0 if all levels are valid, 1 if one cannot be finished, 2 for a usage error or an unreadable file.
 
-The check walks the level with the player's movement rules from `Dungeon` (`src/world/level_check.h`):
+The check walks the level with the player's movement rules from `Dungeon` (`src/level/level_check.h`):
 
 - Walk left or right into any open cell. With no floor below, fall straight down to a floor or a ladder.
 - Climb between vertically adjacent `Ladder` cells.
 - Jump over one cell: a gap in the floor, or spikes or a death trap on it, from a floor (a ladder's foot too), not out
   of half water. The
-  jump peaks 0.4 tiles high (`Jump::ARC`, `src/world/movement.h`, from the game's jump constants), so the player
+  jump peaks 0.4 tiles high (`Jump::ARC`, `src/level/movement.h`, from the game's jump constants), so the player
   cannot step up onto a ledge. A rock fall is walked, not jumped (it drops all the same). Jumps from mid-ladder are
   not modelled. Stamina is not counted: it comes back while the player waits.
 - A key, or pulling a lever, opens every gate of its colour. Turning a mirror lights the sun discs a beam can then
@@ -230,7 +230,7 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
   (there the down key climbs; leave a sub-cell of head room between them,
   [subcell-checker-mismatches](plan/solved/subcell-checker-mismatches.bug.md)). The path lists cells; `sub-cells:` counts the
   quarter steps jumped onto and the sub-cells crawled.
-- `--script` (`src/world/path_script.cpp`) plays the path with the scenario commands: it crouches through a crawl,
+- `--script` (`src/level/path_script.cpp`) plays the path with the scenario commands: it crouches through a crawl,
   climbs a ladder to a step's height before stepping off it, and per jump (a stair in one cell: one per step) opens
   the key gates on the arc first, runs up to the checker's take-off sub-cell (or against the step's face) and turns
   the jump's way. `tests/unit/subcell_mismatches_test.cpp` plays it in the sim on small levels.
@@ -279,7 +279,7 @@ bin/levelgen --seed 1 --difficulty 3 --count 5 /tmp/gen    # /tmp/gen1 .. /tmp/g
 
 Difficulty runs from 1 to 10. The same seed and difficulty always give the same level.
 
-The generator (`src/world/level_gen.cpp`) builds levels like the hand-made ones:
+The generator (`src/level/level_gen.cpp`) builds levels like the hand-made ones:
 
 1. **Main route.** 3 + difficulty / 2 corridors, one cell high (sometimes a two-cell hall), 6 to 15 cells long.
    Ladders (both ways) and drop shafts (one way down) join them. The entrance is at one end of the first
@@ -336,13 +336,13 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    galleries, `LEVERS_FROM`) at the end of a wing
    before it: on its hall before the gate, or on a hall before it with no drop on the way (else a branch, as on a
    test level). A chain where it can: the wing past the nearest gate already placed before it.
-   Then the zone's other gates (`ZONE_GATES`, `src/world/campaign.h`; step 5): riddle gates (one a level, three in
+   Then the zone's other gates (`ZONE_GATES`, `src/level/campaign.h`; step 5): riddle gates (one a level, three in
    the Hall of Judgment), half of them in a riddle room up a ladder, else at a wing's end; now and then (by the
    zone's chance, none in the tomb entrance) a name gate at a wing's end to a secret room sealed in the rock (5 to 7
    cells, a rare chest: an amulet of the depth's tier or a rare potion), its name cartouche on a hall of the route;
    hidden rooms behind a plain teleporter (one or two chests, or a guard from difficulty 6); and treasure tombs, a
    wing past a gate closed by a second gate of its colour, a rare chest at its end.
-6. **Terrain.** By the zone table (`ZONE_TERRAIN`, `src/world/campaign.h`; step 2): water (few: one short wade;
+6. **Terrain.** By the zone table (`ZONE_TERRAIN`, `src/level/campaign.h`; step 2): water (few: one short wade;
    some: two or three wades and a pool; much: five to eight runs, three pools and two or three flooded halls), sand
    (few: drifts; some: drifts with quicksand, one or two cells; much: also sand falls, half the rock falls), dark halls
    (few: one or two; some: 40%; much: 75%; no wall torch but one every 8 to 16 cells), braziers (two to five),
@@ -351,13 +351,13 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    its hole starts on dry floor) nor on a ladder's top. In a zone with mirrors, 60% of the gates are opened by a sun
    disc at the end of a wing in a tall hall: a light shaft in the hall's top row falls on a mirror pointing back up
    at it (it catches the beam), the player turns it to the disc.
-7. **Monsters.** From the zone's set (`ZONE_FAUNA`, `src/world/campaign.h`; step 3; the zone table
+7. **Monsters.** From the zone's set (`ZONE_FAUNA`, `src/level/campaign.h`; step 3; the zone table
    above, [Zones](#zones)), each by its weight: crocodiles, hippos and lotuses only in half water and likelier there, sand
    worms three times likelier on a drift (they lie under it), camel spiders three times likelier in a dark hall and
    a quarter as likely in a lit one (in a zone with dark halls). Half the mummies lie between decoy coffins (a coffin
    with a sleeping mummy, `DECOR_COFFIN_MUMMY`, either side), every living ushabti among decor ushabti. The share of
    the chests that are mimics, and of the mimics that are cursed, is the zone's too.
-8. **Traps.** By the zone table (`ZONE_TRAPS`, `src/world/campaign.h`; step 4): the weight of spikes, death pits
+8. **Traps.** By the zone table (`ZONE_TRAPS`, `src/level/campaign.h`; step 4): the weight of spikes, death pits
    and rock falls in percent of a test level's, and of dart plates, wall spikes, fire vents and poison drips (none on
    a test level) along the halls; rock falls, wall spikes and drips only under a one-row ceiling, spikes and plates
    on dry floor. A rhythm trap gets its own phase, a fifth of them slow, from difficulty 6 almost a third fast. Then
@@ -366,7 +366,7 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    between to wait in; from difficulty 6 now and then two rhythm traps side by side, kept only where the checker
    finds them crossable both ways. `levelgen` reports the counts. The path scripts (`levelcheck --script`) wait
    before a run with wall spikes (`waittraps`, [testing.md](testing.md)).
-9. **Boss levels** (`--boss`; step 6). The zone's boss (`ZONE_BOSS`, `src/world/campaign.h`; none in the
+9. **Boss levels** (`--boss`; step 6). The zone's boss (`ZONE_BOSS`, `src/level/campaign.h`; none in the
    necropolis) in a room of 18 cells sealed under the halls (on row 2, the halls start over its ceiling). The last
    gate stands on the last hall's crossing, in the colour a boss level keeps free (one lock fewer); a teleporter at
    the end of one of the last free wings before it leads to the room. From the room's teleporter: the boss in the
@@ -385,14 +385,14 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    before the first hall with poison, a lesser resistance potion in a plain potion's chest, from the scorpion nest
    on a greater one too. A Blessing of Hapi in a chest 2 to 6 cells before the first half water the route wades
    through (or near the end of the hall before). Then the zone's trapped chests (`ZONE_TRAPPED_CHESTS`,
-   `src/world/campaign.h`: none in the first two zones, two in the web halls where they come in, three from the land
+   `src/level/campaign.h`: none in the first two zones, two in the web halls where they come in, three from the land
    of Sokar on), each a chest that held a plain potion (health, stamina, might, armour). Weapon chests come in by the
    difficulty as on a test level (`WeaponDef::generatedFrom`).
 12. **Carried content** (step 8; `GenOptions`, levelgen's `--texts`, `--lore`, `--page`, `--title`, `--stargate`, `--finale`). With `--finale` (the campaign's last
    level, with `--boss`) the ankh behind the boss gate wins the game: no exit (a rare chest in its place), no last gate. The
    inscriptions on the halls of the route, between where it comes in and leaves (on the way): the ids given, else 2
    or 3 (1 or 2 in the tomb entrance) of the zone's texts in `content/inscriptions/rebuild.txt` (`ZONE_TEXT_FIRST`,
-   `src/world/level_gen.h`), at most one with a boon; the hints bound to one thing stay out (the ring transporter's,
+   `src/level/level_gen.h`), at most one with a boon; the hints bound to one thing stay out (the ring transporter's,
    the last fork's, the Stargate's), the name gate's comes only with a name gate. Without the texts (a unit test's
    level, levelgen run off the repo root) none. Each secret room gets a lore text (the ids given, `--lore`, else one of
    `SECRET_ROOM_TEXTS`, no second boon). An expedition page lies on a skeleton at a free wing's end, the title goes in the level file. The
@@ -407,7 +407,7 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    Both drops are one-way: no way leads from one route to the other, and the checker's softlock rule proves each
    reaches the exit. On the last fork the warning (`FORK_TEXT`) stands between the drops; a page given lies on the
    way to the fork, on the floor. The player reaches one drop first and jumps it to take the other.
-13. **Decor** (step 9). The game scatters the rest by the zone's look (`ZONE_LOOKS`, `src/world/zone_look.h`); the
+13. **Decor** (step 9). The game scatters the rest by the zone's look (`ZONE_LOOKS`, `src/level/zone_look.h`); the
    generator places only what tells something in the decor layer: a sarcophagus (one), canopic jars, pottery and
    scrolls on the free floor of the treasure tombs, secret and hidden rooms and the fork's tomb; before the boss
    gate the zone's guardian statue (`ZONE_GUARDIAN_PROP`: a cat in the web halls, a jackal in the priests' quarter,
@@ -419,7 +419,7 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
 ## Test levels from ASCII
 
 `tools/level/ascii2level.py IN.txt OUT` builds a level file from a drawing in the `levelcheck --map` legend. It
-reads the legend from `levelcheck --legend`, which prints the game's tables (`src/world/tile_defs.cpp`,
+reads the legend from `levelcheck --legend`, which prints the game's tables (`src/level/tile_defs.cpp`,
 `monster_kinds.cpp`, the lock colours in `level.h`), so the drawing, the checker and the game cannot disagree.
 In `--map` output, `m`, `<` and `>` mark a monster type, key colour or gate colour the game does not know (no legend
 entry uses them).

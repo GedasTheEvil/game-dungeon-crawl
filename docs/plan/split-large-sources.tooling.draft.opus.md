@@ -9,8 +9,8 @@ them often, and two tasks touching them at once conflict in merges:
 
 | File | Lines | Shape |
 |---|---|---|
-| `src/world/level_gen.cpp` | 2124 | one class, `LevelBuilder` (lines ~146-2045), in an anonymous namespace |
-| `src/world/level_check.cpp` | 1691 | `Nodes` and `Walker` (the path model, ~160-520), ~25 `check*` functions (~560-1380), `checkLevel` (~240 lines), the glyph helpers |
+| `src/level/level_gen.cpp` | 2124 | one class, `LevelBuilder` (lines ~146-2045), in an anonymous namespace |
+| `src/level/level_check.cpp` | 1691 | `Nodes` and `Walker` (the path model, ~160-520), ~25 `check*` functions (~560-1380), `checkLevel` (~240 lines), the glyph helpers |
 | `src/ui/menu.cpp` | 1415 | `// ----` sections: layout, icons, options, save slots, drawing (`MainMenu`) |
 | `src/ui/journal_view.cpp` | 1392 | sections: layout, pages, ribbons, page turns, input, drawing (`JournalScreen`) |
 

@@ -4,9 +4,9 @@
 // with no underside a jump reaches; the checker warns when the only way on jumps into them.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/world/level_check.h"
-#include "../../src/world/movement.h"
-#include "../../src/world/tile_defs.h"
+#include "../../src/level/level_check.h"
+#include "../../src/level/movement.h"
+#include "../../src/level/tile_defs.h"
 #include <algorithm>
 #include <sstream>
 

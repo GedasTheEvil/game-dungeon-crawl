@@ -1,5 +1,5 @@
 """Procedural corridor decorations: fifteen static props scattered along the back wall of empty floor cells, plus the
-wall torch (placed separately by the engine, see scatterTorches in src/world/decor_scatter.cpp) and the coffins of the mummy (only at mummy spawn tiles) and the mummy priest (`coffin_large`).
+wall torch (placed separately by the engine, see scatterTorches in src/level/decor_scatter.cpp) and the coffins of the mummy (only at mummy spawn tiles) and the mummy priest (`coffin_large`).
 
     MCP:  p = ".../tools/blender/models/decor.py"; g = {"__file__": p, "__name__": "decor"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"]()
@@ -592,7 +592,7 @@ def build_lamp(b, M):
     revolve(b, M, jug, ["clay", "clay", "clay_band", "clay", "clay", "clay", "clay", "clay_in", "clay_in"], n=14, loc=(-0.005, -0.045, 0))
 
 
-# Tip of the torch head (fire origin in the engine: TORCH_FIRE in src/world/dungeon_render_decor.cpp).
+# Tip of the torch head (fire origin in the engine: TORCH_FIRE in src/graphics/dungeon_render_decor.cpp).
 TORCH_TILT = 10.0  # degrees, top leans out of the wall (towards -Y)
 TORCH_BASE, TORCH_TOP = V((0.0, -0.045, 0.40)), V((0.0, -0.085, 0.63))
 
@@ -1181,9 +1181,9 @@ def build_coffin(b, M, style="coffin"):
 
 # ---------------------------------------------------------------- water props
 # Plants in half water cells (plan water-decorations). Modelled at their real height, not enlarged: the basin floor
-# lies WATER_BASIN_DEPTH and the surface WATER_SURFACE below the row's floor (src/graphics/render_config.h, 40 units
+# lies WATER_BASIN_DEPTH and the surface WATER_SURFACE below the row's floor (src/sim/render_config.h, 40 units
 # a tile). The engine sways the standing ones (x sheared by the height over the basin floor) and bobs the floating
-# ones (decorSway / decorBob in src/world/dungeon_render_decor.cpp).
+# ones (decorSway / decorBob in src/graphics/dungeon_render_decor.cpp).
 
 BASIN_Z = -15.0 / 40
 SURFACE_Z = -3.0 / 40

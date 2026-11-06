@@ -2,7 +2,7 @@
 
     python3 tools/textures/surfaces.py [out_dir] [--preview preview.png] [--only name,name]
 
-Order and file names must match the *_STYLE_NAMES tables in src/world/decor.h.
+Order and file names must match the *_STYLE_NAMES tables in src/level/decor.h.
 Image top = top of a wall, back edge (against the back wall) of a floor or ceiling.
 
 Seams: the variants of one kind share their base (block layout, noise fields, frieze, sand line), and
@@ -808,7 +808,7 @@ def ceiling_granite():
     return finish(col, face + 0.03 * mott - 0.4 * band, 3.0)
 
 
-# Order = WALL_STYLE_NAMES / FLOOR_STYLE_NAMES / CEILING_STYLE_NAMES in src/world/decor.h.
+# Order = WALL_STYLE_NAMES / FLOOR_STYLE_NAMES / CEILING_STYLE_NAMES in src/level/decor.h.
 TEXTURES = [
     ("wall_plaster", wall_plaster),
     ("wall_plaster_worn", wall_plaster_worn),

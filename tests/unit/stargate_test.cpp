@@ -1,8 +1,8 @@
 // The Stargate chamber (plan stargate-chamber): the ring dialled, its chevrons locking one by one, the seventh that
 // will not, the XP the first time; the dial device's note; the chamber on lvl48 and the checker's torch rule.
 #include "../../external/doctest/doctest.h"
-#include "../../src/world/decor.h"
-#include "../../src/world/level_check.h"
+#include "../../src/level/decor.h"
+#include "../../src/level/level_check.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <string>

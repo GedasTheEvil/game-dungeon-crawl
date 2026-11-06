@@ -1,5 +1,5 @@
 # The two lore lines on an item's inventory card (plan texts-to-content, docs/texts.md), each short enough for the
-# card. [item.<label>] for the weapons and potions, the label of its row in src/world/items.cpp; [item.<model>] for
+# card. [item.<label>] for the weapons and potions, the label of its row in src/level/items.cpp; [item.<model>] for
 # an amulet type, its tiers share them.
 
 [item.club]

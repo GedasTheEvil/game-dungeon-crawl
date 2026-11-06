@@ -3,9 +3,9 @@
 
 // One row per monster type, everything about it but the loaded model: names, glyph, the checker's threat, stats,
 // model and texture paths, resistances, how it moves, poisons, spits and summons. The game loads the model of each
-// row into a MonsterType (entities/monster.h); levelgen picks from the rows.
+// row into a MonsterType (sim/monster.h); levelgen picks from the rows.
 
-#include "../core/gameplay_config.h"
+#include "gameplay_config.h"
 #include "containers.h"
 #include "curses.h"
 #include "damage.h"

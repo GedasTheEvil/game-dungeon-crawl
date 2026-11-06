@@ -5,8 +5,8 @@
 // scenarios-to-unit-tests technique 5). Inventory draws them (ui/inventory.cpp).
 
 #include "ui_layout.h"
-#include "../world/item_bag.h"
-#include "../world/items.h"
+#include "item_bag.h"
+#include "items.h"
 
 namespace InventoryLayout {
 using ui::Rect;

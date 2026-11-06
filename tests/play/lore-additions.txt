@@ -1,8 +1,0 @@
-# Plan lore-additions, for `bin/game --play tests/play/lore-additions.txt`: lvl31, in front of the boatman's fee
-# (inscription 99), now Book of the Dead spell 99 (Mahaf, Aqen, the boat's parts asking their names). Read it (E), then
-# the journal (J, Inscriptions ribbon).
-seed 1
-level 31 at 18 12
-god
-heka 1
-learn words_of_thoth

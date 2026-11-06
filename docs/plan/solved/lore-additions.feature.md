@@ -1,12 +1,12 @@
 # Lore additions
 
-Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-10-30, size M, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-06 (play-tested by the user). Was: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-10-30, size M, needs nothing first. From the project audit of 2026-10-30.
 
 Authentic details that would deepen the texts. Each is optional; pick the ones that fit the text and level spots.
 
 * **12th hour**: Ra is reborn by passing through the serpent "Life of the Gods" (ꜥnḫ-nṯrw) tail to mouth and comes out
   as Khepri at dawn. Ties the ankh goal to the last hour; use in the hour-12 note and the epilogue
-  ([win-ending-flow](solved/win-ending-flow.md)).
+  ([win-ending-flow](win-ending-flow.md)).
 * **Sphinx**: the Egyptian *shesep-ankh*, "living image": another ankh tie for the riddle gates (a riddle-gate text).
 * **Mehen**, the coiled serpent guarding Ra's boat in hour 7: not every serpent is an enemy (inscription id 91 hints at
   it already).
@@ -36,7 +36,7 @@ Authentic details that would deepen the texts. Each is optional; pick the ones t
 * **Tayt** (id 70, "The weaver's complaint", lvl12, the level before the Mother of Webs): she wove the linen that wraps
   the dead, yet the spider weaves finer.
 * Not done: Tefen for the scorpion queen (the draft leaves it until bosses are back in scope).
-* Checked: the scenario `tests/scenarios/lore_additions.txt` screenshots the journal pages of 91, 99 and 127 (they fit,
+* Checked: the scenario `tests/scenarios/solved/lore_additions.txt` screenshots the journal pages of 91, 99 and 127 (they fit,
   no orphan words).
 
 ## Play-test

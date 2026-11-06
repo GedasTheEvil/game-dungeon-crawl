@@ -1,6 +1,6 @@
 # Sand worms are stronger on sand
 
-Status: draft 2026-11-06, size M, Won't do 2026-11-06: superseded by [native-terrain](../../native-terrain.feature.draft.opus.md) (the user generalized it), needs nothing first.
+Status: draft 2026-11-06, size M, Won't do 2026-11-06: superseded by [native-terrain](native-terrain.feature.md) (the user generalized it), needs nothing first.
 
 ## Idea
 

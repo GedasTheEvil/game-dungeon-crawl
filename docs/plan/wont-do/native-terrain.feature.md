@@ -1,13 +1,13 @@
 # Native terrain: monsters stronger in their own ground
 
-Status: draft 2026-11-06, size L, needs nothing first.
+Status: draft 2026-11-06, size L, Won't do 2026-11-06: superseded by [terrain-affinity](../terrain-affinity.feature.draft.opus.md) (hostile terrains added), needs nothing first.
 
 ## Idea
 
 A monster can have native terrains. Standing in one, it moves faster, attacks more often and hits harder. Most
 monsters have none. Each terrain has one set of multipliers, the same for every monster native to it, bosses
 included: no per-monster numbers. Balance (lowering a boss's base stats, if it turns out too hard) is not part of
-this plan: separate follow-up drafts after the play-test, maybe not needed at all. It replaces the worm-only draft ([worm-sand-frenzy](wont-do/worm-sand-frenzy.feature.md)) and the
+this plan: separate follow-up drafts after the play-test, maybe not needed at all. It replaces the worm-only draft ([worm-sand-frenzy](worm-sand-frenzy.feature.md)) and the
 swimmers' per-kind `waterSpeed`. More terrains can be added later as one row in the table.
 
 ## Plan

@@ -147,6 +147,14 @@ class Repo(unittest.TestCase):
         self.run_tool("lint")
         self.run_tool("new", "add-w", "--kind", "bug", "--model", "opus", "--size", "S", "Again", code=1)
 
+    def test_find(self):
+        out = self.run_tool("find", "IDEA", "y")
+        self.assertIn("draft feat-y: Y", out)
+        self.assertNotIn("draft fix-x", self.run_tool("find", "needs", "first", "feat"))
+        self.run_tool("move", "tool-z", "implemented")
+        self.assertIn("solved tool-z: Z", self.run_tool("find", "prio high"))
+        self.assertIn("no plan has", self.run_tool("find", "nowhere", code=1))
+
     def test_board(self):
         self.run_tool("board")
         self.assertIn("## Ready: bug (1)", self.read("docs/plan/BOARD.md"))

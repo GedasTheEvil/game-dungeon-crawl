@@ -7,6 +7,9 @@
                                the plan to do next: rework first, then bugs, priority, age. --size: at most that big
     playtest [SLUG]            per plan waiting for a play-test: the command, its checklist, days waiting, warnings
     board                      writes docs/plan/BOARD.md (not tracked): the plans as a board, for a read by hand
+    find TERM...               every plan (drafts, implemented, solved, won't do) whose name, title, Status line or
+                               body has all the TERMs (case-insensitive): "STAGE SLUG: title" and the first
+                               matching line
   Writing
     new SLUG --kind K --model M --size S [--prio P] TITLE
                                a draft skeleton: docs/plan/SLUG.K.draft.M.md
@@ -897,6 +900,30 @@ def lint():
     return 1 if errors else 0
 
 
+def find(terms):
+    """Plans that have every term (plan friction-intents): open ones first, then the newest solved."""
+    words = [t.lower() for t in terms]
+    order = {"implemented": 0, "draft": 1, "solved": 2, "wont-do": 3}
+    hits = []
+    for p in plans().values():
+        text = p.text()
+        hay = (p.path.name + "\n" + text).lower()
+        if not all(w in hay for w in words):
+            continue
+        lines = text.splitlines()
+        title = lines[0].lstrip("# ").strip() if lines else ""
+        first = next((ln.strip() for ln in lines[1:] if any(w in ln.lower() for w in words)), "")
+        hits.append((order[p.stage], -p.path.stat().st_mtime, p, title, first))
+    for _, _, p, title, first in sorted(hits, key=lambda h: (h[0], h[1], h[2].slug)):
+        print(f"{p.stage} {p.slug}: {title}")
+        if first:
+            print(f"    {first[:150]}")
+    if not hits:
+        print("no plan has " + " and ".join(terms))
+        return 1
+    return 0
+
+
 def links():
     fixed, broken = fix_links(plans())
     if fixed:
@@ -915,6 +942,8 @@ def main(argv):
         return playtest(*args)
     if cmd == "new":
         return new(args)
+    if cmd == "find" and args:
+        return find(args)
     if cmd == "move" and len(args) in (2, 3) and (len(args) == 2 or args[2] == "--force"):
         return move(args[0], args[1], force=len(args) == 3)
     if cmd == "solve":

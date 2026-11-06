@@ -19,6 +19,7 @@ not checked (`tools/plan.py links`, `make check`): they are history.
 | "what next", "something small" | `tools/plan.py next [--size S\|M\|L] [--kind bug] [--model sonet]` |
 | "what do I play-test", "show me the test" | `tools/plan.py playtest [SLUG]`: the command and the checklist |
 | the user's play-test reply | `tools/plan.py verdict "ok a" "no b: too slow"` |
+| "is there a plan about X", an old plan by topic | `tools/plan.py find <term>...` (drafts, implemented, solved, won't do; all terms, case-insensitive) |
 | a new idea | `tools/plan.py new <slug> --kind K --model M --size S [--prio P] Title words` |
 | "hold X", "X needs Y first" | `tools/plan.py hold X reason`, `unhold X`, `needs X Y`, `unneed X Y` |
 | an overview for the user | `tools/plan.py board` writes `docs/plan/BOARD.md` (not tracked) |

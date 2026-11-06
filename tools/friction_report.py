@@ -36,6 +36,14 @@ COMPILE_ERROR = re.compile(r"^\S+:\d+:\d+: error: (?!.*\[[a-z0-9.,-]+\]\s*$)", r
 FORMAT_FAIL = re.compile(r"not formatted|unstable", re.I)
 UNIT_FAIL = re.compile(r"test cases:.*\|\s*[1-9]\d* failed|^ERROR: ", re.M)
 LEVEL_WARN = re.compile(r"^\S*lvl\S*:.*warning", re.M | re.I)
+# A unit test's failure line in doctest output: the test file, then ERROR (an assertion) or FATAL ERROR (a crash).
+UNIT_ASSERT = re.compile(r"^(?:\S*/)?(tests/unit/[\w./-]+\.cpp):\d+: (FATAL ERROR|ERROR):", re.M)
+LINK_ERROR = re.compile(r"undefined reference to|ld returned \d+ exit status|collect2: error")
+CRASH = re.compile(r"CRASHED|SIGSEGV|SIGABRT|Segmentation fault|Aborted \(core dumped\)|terminate called")
+TIMEOUT = re.compile(r"Terminated|timed out|exit code 124|Command timed out", re.I)
+UNIT_RAN = re.compile(r"\[doctest\] test cases:")
+PLAN_PART = re.compile(r"docs/plan(?!s)|plan\.py")
+PLAN_LINK = re.compile(r"\]\(|\.(?:draft\.)?(?:opus|sonet)?\.?md\b|\.(?:bug|feature|tooling)\b")
 EDIT_TOOLS = {"Edit", "Write", "MultiEdit", "NotebookEdit"}
 
 
@@ -72,6 +80,54 @@ def bash_files(command):
     return out
 
 
+def plan_intent(command):
+    """The intent and text of a shell command's first plan-related part (plan friction-intents), or None."""
+    for part in re.split(r"&&|\|\||;|\n", command):
+        part = part.strip()
+        words = part.split()
+        if not words or not PLAN_PART.search(part) or words[0] in ("cd", "git", "echo", "printf", "#"):
+            continue
+        m = re.search(r"plan\.py\s+([a-z][a-z-]*)\b(?![/.])", part)
+        if m:
+            return f"plan.py {m.group(1)}", part
+        if "plan.py" in part:
+            continue
+        head = re.sub(r"^\S*/", "", words[0])
+        if head == "sed" and re.search(r"\s-i", part):
+            return "sed -i on a plan", part
+        if head in ("mv", "cp", "rm"):
+            return "mv/rm of a plan by hand", part
+        if head in ("cat", "sed", "head", "tail", "less", "wc"):
+            return "read a plan", part
+        if head not in ("grep", "rg", "ls", "find", "egrep"):
+            continue
+        wanted = re.sub(r"grep\s+(-\S+\s+)*-v\s+\S+", "", part)  # a grep -v excludes, it does not search
+        if not PLAN_PART.search(wanted):
+            continue
+        if re.search(r"Status", wanted):
+            return "status-line grep", part
+        if re.search(r"solved|wont-do", wanted):
+            return "topic search in solved/, wont-do/", part
+        if head != "ls" and PLAN_LINK.search(wanted) and re.search(r"\s-\w*[rlL]\b", wanted):
+            return "link search", part
+        return "search in drafts", part
+    return None
+
+
+def unit_failure(out):
+    """The class of a failed unit run and the test files that failed, from its output (plan friction-intents)."""
+    files = sorted({f for f, _ in UNIT_ASSERT.findall(out)})
+    if LINK_ERROR.search(out) or (COMPILE_ERROR.search(out) and not UNIT_RAN.search(out)):
+        return "compile/link error", files
+    if CRASH.search(out) or any(kind == "FATAL ERROR" for _, kind in UNIT_ASSERT.findall(out)):
+        return "crash", files
+    if files:
+        return "assertion", files
+    if TIMEOUT.search(out):
+        return "timeout", files
+    return "other", files
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--since", default="2026-10-12")
@@ -92,6 +148,11 @@ def main():
     coedits = collections.Counter()
     tool_calls = 0
     bookkeeping = collections.Counter()
+    intents = collections.Counter()
+    intent_examples = collections.defaultdict(list)
+    unit_classes = collections.Counter()
+    unit_files = collections.Counter()
+    unit_file_sessions = collections.defaultdict(set)  # test file -> sessions where it failed, not edited
     prompts = []
     sessions = 0
     subagents = 0
@@ -100,6 +161,7 @@ def main():
         pending = {}
         session_edits = set()
         session_reads = set()
+        session_unit_fails = set()
         open_loop = {}  # check -> tool calls since it failed
         in_range = False
         for line in path.open():
@@ -135,8 +197,12 @@ def main():
                         cmd = inp.get("command", "")
                         if re.search(r"git mv \S*docs/plan", cmd):
                             bookkeeping["plan git mv"] += 1
-                        if re.search(r"grep.*docs/plan|docs/plan.*grep", cmd):
-                            bookkeeping["plan link greps"] += 1
+                        found = plan_intent(cmd)
+                        if found:
+                            intent, part = found
+                            intents[intent] += 1
+                            if len(intent_examples[intent]) < 3:
+                                intent_examples[intent].append(part[:110])
                     elif name == "Read" and target:
                         session_reads.add(target)
                     for t in touched:
@@ -178,6 +244,13 @@ def main():
                                 tidy_sessions[n].add(key)
                                 tidy_fires[n] += 1
                                 tidy_files[rel(f)] += 1
+                    if failed and check in ("make unit", "make check", "make test") and (
+                            UNIT_FAIL.search(out) or (check == "make unit" and b.get("is_error"))):
+                        cls, fails = unit_failure(out)
+                        unit_classes[cls] += 1
+                        for f in fails:
+                            unit_files[f] += 1
+                            session_unit_fails.add(f)
                     if failed:
                         run["fail"] += 1
                         open_loop.setdefault(check, 0)
@@ -191,6 +264,8 @@ def main():
             sessions += 1
         for f in session_edits:
             edit_sessions[f] += 1
+        for f in session_unit_fails - session_edits:
+            unit_file_sessions[f].add(path.stem)
         for f in session_reads - session_edits:
             read_only[f] += 1
         src = sorted(f for f in session_edits if f.startswith("src/"))
@@ -217,6 +292,16 @@ def main():
         print(f"  {n}: {c} ({len({k[0] for k in tidy_sessions[n]})})")
     print("\nTidy fires by file:", ", ".join(f"{f} {c}" for f, c in tidy_files.most_common(10)))
     print("\nBookkeeping (tool calls):", dict(bookkeeping))
+    print("\nPlan commands by intent (first plan-related part of a shell command):")
+    for intent, c in intents.most_common():
+        print(f"  {intent}: {c}")
+        for ex in intent_examples[intent]:
+            print(f"      {ex}")
+    print("\nUnit test failures by class:", dict(unit_classes))
+    print("Failing test files:", ", ".join(f"{f} {c}" for f, c in unit_files.most_common(10)))
+    flaky = sorted((f for f, ss in unit_file_sessions.items() if len(ss) >= 3), key=lambda f: -len(unit_file_sessions[f]))
+    print("Failed in 3+ sessions that did not edit it (flaky or slow?):",
+          ", ".join(f"{f} {len(unit_file_sessions[f])}" for f in flaky) or "none")
     print("\nMost edited (sessions):", ", ".join(f"{f} {c}" for f, c in edit_sessions.most_common(15)))
     print("\nRead, not edited (sessions):", ", ".join(f"{f} {c}" for f, c in read_only.most_common(15)))
     print("\nCo-edited src pairs (sessions):", ", ".join(f"{a} + {b} {c}" for (a, b), c in coedits.most_common(10)))

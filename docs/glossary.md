@@ -313,6 +313,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 |---|---|---|---|
 | checker | | `bin/levelcheck`: can a level be finished, how big and hard is it; campaign levels pass with no warnings | `src/world/level_check.h` |
 | draft plan | | an idea for later, `docs/plan/<slug>.<kind>.draft.<model>.md` (`sonet` simple, `opus` complex) ([plans.md](plans.md)) | `docs/plan`, `tools/plan.py` |
+| plan find | | `tools/plan.py find TERM...`: every plan (open, solved, won't do) that has all the terms, with its first matching line; instead of `ls docs/plan \| grep` | `tools/plan.py` |
 | plan kind | | `bug`, `feature` or `tooling`, in a plan's file name; no kind: an old plan, a feature. Bugs come first in `plan.py status` and `next`, a tooling plan skips the play-test | `tools/plan.py` |
 | plan size | | `size S` (an hour or less), `M` (a few hours), `L` (a day or more) in a draft's Status line; also `prio high` / `low` | `tools/plan.py` |
 | effects stream | | the random stream for what only shows (a clip's start frame); never shifts the game's rolls | `GameRandom` |

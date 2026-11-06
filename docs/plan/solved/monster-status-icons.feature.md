@@ -1,14 +1,14 @@
 # Monster status icons: small effect icons over a monster's health bar
 
-Status: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size M, needs nothing first.
+Status: solved 2026-11-06 (play-tested by the user). Was: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size M, needs nothing first.
 
 ## Idea
 
 From the user: the player sees their own effects as status cards over the HUD (`statusList`, `status_box.cpp`,
-[curse-blessing-cards](solved/curse-blessing-cards.md)), but a monster's effects only show as body effects (stars for
+[curse-blessing-cards](curse-blessing-cards.md)), but a monster's effects only show as body effects (stars for
 a stun, flames, maybe nothing for poison). Give a monster the same language: small icons in a row just above its
 health bar, the same icons and kind colours as the player's cards, so "poisoned", "burning", "stunned" read the same
-on both. Part of the user's "the player is a monster too" idea ([same-hazards-for-all](same-hazards-for-all.feature.draft.opus.md)),
+on both. Part of the user's "the player is a monster too" idea ([same-hazards-for-all](../same-hazards-for-all.feature.draft.opus.md)),
 but it does not need it: it reads today's `Monster` getters.
 
 ## Plan
@@ -18,7 +18,7 @@ but it does not need it: it reads today's `Monster` getters.
     with its pips.
   * Burning (`Monster::Burns`), the `Burning` icon.
   * Stunned (`Monster::Reeling`), the `Daze` icon (the same stars as the player's daze).
-  * Terrain mood, once [terrain-affinity](solved/terrain-affinity.feature.md) is in (it is being built): native
+  * Terrain mood, once [terrain-affinity](terrain-affinity.feature.md) is in (it is being built): native
     as a Blessing-gold card, hostile as a Condition-grey card, the terrain's own small glyph if there is one in the
     atlas, else an up / down arrow. Skip it if terrain-affinity is not done yet; add it then.
   * No blessings or curses: monsters do not pray at shrines. A boss's own powers (life steal, ...) are not statuses.
@@ -49,7 +49,7 @@ but it does not need it: it reads today's `Monster` getters.
   too small on a monster's row. The stun card sits beside the stars over the head.
 * Terrain mood: two new atlas cells (`hud_icons.py`, the atlas now 8 x 7), an arrow up (green, on the gold card) and
   an arrow down (red, on the grey card).
-* Scenario `tests/scenarios/monster-status-icons.txt`: the burning, stunned mummy; the Bat of Shezmu poisoned and
+* Scenario `tests/scenarios/solved/monster-status-icons.txt`: the burning, stunned mummy; the Bat of Shezmu poisoned and
   stunned on its HUD bar, its bats' native arrows.
 
 ## Play-test

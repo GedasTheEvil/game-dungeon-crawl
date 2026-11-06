@@ -1,6 +1,6 @@
 # Editor palette scrolls when its icons overflow the panel
 
-Status: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size S, needs nothing first.
+Status: solved 2026-11-05 (play-tested by the user). Was: implemented 2026-11-05, waiting for the user's play-test. Was: draft 2026-11-05, size S, needs nothing first.
 
 ## Repro
 
@@ -26,7 +26,7 @@ tile types) and will overflow the same way.
 * The wheel over `TILES_PANEL` scrolls one row per notch, clamped to `0..rows - visibleRows`. Reset the scroll on a
   layer switch (as `hintScroll = 0.f`), and scroll so the selected slot shows when the brush changes by key.
 * Show that there is more: a small up / down arrow (or a dimmed edge) at the panel's top / bottom when rows are hidden.
-  Keep the shared UI look ([ui.md](../ui.md)).
+  Keep the shared UI look ([ui.md](../../ui.md)).
 * A testable helper (visible rows, max scroll, slot at a point for a scroll) in a header so a unit test can pin it:
   with 34 slots, 9 columns and 3 visible rows, max scroll is 1 row and no visible rect leaves the panel.
 * Update `tools/editor/readme.md` (the wheel over the palette).

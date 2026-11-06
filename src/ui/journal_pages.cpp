@@ -45,6 +45,8 @@ constexpr float PHOTO_BORDER = 1.1f;
 constexpr float CAPTION_TOP = 36.6f;
 constexpr float ROWS_TOP = 40.8f; // first note's baseline below the page top
 constexpr float ROW_STEP = 3.2f;
+constexpr float CREATURE_NOTE_ROOM = 6 * ROW_STEP; // a creature's SEEN and SAW lines, above its form
+constexpr float TINY_ROW_STEP = 2.7f; // the notes in the tiny hand, when they would not fit the room
 constexpr float MARGIN_W = 10.f; // the label column on the left of the notes
 constexpr float FORM_COLUMN = 22.f;
 constexpr float BLANK_W = 7.f; // the line of a field not filled in yet
@@ -324,23 +326,35 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 		text(handTiny, x, y, s, ink);
 		beginShapes();
 	};
-	auto entry = [&](const char* name, const std::string& s) {
-		label(name, PENCIL);
-		beginText();
-		for (const std::string& l : wrap(handSmall, s, textW)) {
-			text(handSmall, textX, y, l.c_str(), INK_BLUE);
-			y -= ROW_STEP;
-		}
-		beginShapes();
-	};
 	std::string seen = "Level " + std::to_string(c.level) + ".";
 	if (c.killed && kind != nullptr)
 		seen += std::string(" ") + monsterNote(*kind);
-	entry("SEEN", seen);
 	std::string saw = c.hitBy ? attackSentence(t.attackMix) : ""; // what its bite deals, from the first one
 	for (int m = 0; m < CREATURE_MOVE_COUNT; m++)
 		if (c.Saw(static_cast<CreatureMove>(m)))
 			saw += std::string(saw.empty() ? "" : " ") + creatureMoveNote(static_cast<CreatureMove>(m), t);
+
+	// A long note and many moves seen (a boss) would push the form off the page: then the tiny hand, the rows closer
+	// (plan human-monster-notes).
+	Font* font = &handSmall;
+	float step = ROW_STEP;
+	auto lineCount = [&](const Font& f) {
+		return wrap(f, seen, textW).size() + (saw.empty() ? 0 : wrap(f, saw, textW).size());
+	};
+	if (static_cast<float>(lineCount(handSmall)) * ROW_STEP > CREATURE_NOTE_ROOM) {
+		font = &handTiny;
+		step = std::min(TINY_ROW_STEP, CREATURE_NOTE_ROOM / static_cast<float>(lineCount(handTiny)));
+	}
+	auto entry = [&](const char* name, const std::string& s) {
+		label(name, PENCIL);
+		beginText();
+		for (const std::string& l : wrap(*font, s, textW)) {
+			text(*font, textX, y, l.c_str(), INK_BLUE);
+			y -= step;
+		}
+		beginShapes();
+	};
+	entry("SEEN", seen);
 	if (!saw.empty())
 		entry("SAW", saw);
 

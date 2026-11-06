@@ -1,0 +1,60 @@
+# human-monster-notes: every creature page with its diary-voice note and the moves it can show
+# (tests/saves/human_monster_notes.sav: all 36 killed), the form still on the page when the notes run long.
+seed 1
+god
+level tests/levels/rats
+loadgame tests/saves/human_monster_notes.sav
+key j
+wait 5
+screenshot spread1
+click 83.5 17
+wait 45
+screenshot spread2
+click 83.5 17
+wait 45
+screenshot spread3
+click 83.5 17
+wait 45
+screenshot spread4
+click 83.5 17
+wait 45
+screenshot spread5
+click 83.5 17
+wait 45
+screenshot spread6
+click 83.5 17
+wait 45
+screenshot spread7
+click 83.5 17
+wait 45
+screenshot spread8
+click 83.5 17
+wait 45
+screenshot spread9
+click 83.5 17
+wait 45
+screenshot spread10
+click 83.5 17
+wait 45
+screenshot spread11
+click 83.5 17
+wait 45
+screenshot spread12
+click 83.5 17
+wait 45
+screenshot spread13
+click 83.5 17
+wait 45
+screenshot spread14
+click 83.5 17
+wait 45
+screenshot spread15
+click 83.5 17
+wait 45
+screenshot spread16
+click 83.5 17
+wait 45
+screenshot spread17
+click 83.5 17
+wait 45
+screenshot spread18

@@ -1,6 +1,6 @@
 # Human-like monster notes: what the archaeologist felt, not how the monster works
 
-Status: draft 2026-11-06, size M, needs nothing first.
+Status: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size M, needs nothing first.
 
 ## Idea
 
@@ -33,7 +33,8 @@ The user's example, the giant scarab:
 
 ## Play-test
 
-* `bin/game --play tests/play/human-monster-notes.txt` (a level with several kinds, kill a few, open the journal).
+* `bin/game --play tests/play/human-monster-notes.txt` (a save with every creature written down), press J, open the
+  Creatures ribbon and leaf through.
 * Each creature page reads like a diary line with a reaction, no rule talk; the giant scarab's matches the example's
   tone.
 * The text fits the page, no cut-off lines.

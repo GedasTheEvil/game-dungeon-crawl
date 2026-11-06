@@ -14,7 +14,8 @@ Small loose ends from a project review on 2026-11-06:
   its name). Its Status says "shelved 2026-10-09, the user plans no more bosses for now".
 * `docs/slides/` (slides.odp, slides.pdf) is not explained anywhere. It is the presentation of the original game,
   from the user's Bachelor's thesis. It stays, for history.
-* The root launchers `Play`, `LevelEditor`, `ViewModel` are the user's entry points (readme: "start `./Play`").
+* The root launchers `Play`, `LevelEditor`, `ViewModel` start the compiled game and tools in a release build for
+  testing, on systems that have no dev tools (no make). They are not `make run-*` duplicates, and they stay.
   `LevelEditor` and `ViewModel` pass `"$@"`, `Play` does not, so `./Play --level ...` drops its arguments.
   Project layout in development.md does not list them.
 
@@ -30,6 +31,7 @@ Small loose ends from a project review on 2026-11-06:
   `plan.py move` or `reject`, never `git mv`. If plan.py cannot take a file from `old/`, report that and leave it.
 * development.md, Project layout: add `docs/slides/`: the presentation of the original game (the user's Bachelor's
   thesis), kept for history, not maintained. Add the root launchers: `Play`, `LevelEditor`, `ViewModel`
-  (`bin/game`, `bin/editor`, `bin/model-viewer` started from the repo root).
+  start `bin/game`, `bin/editor` and `bin/model-viewer` from the repo root, for a release build tested on a system
+  without dev tools. Keep them plain `sh` with no make or dev-tool dependency.
 * `Play`: pass `"$@"` to `bin/game`, like the other two.
 * `make check` passes.

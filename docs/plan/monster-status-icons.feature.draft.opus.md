@@ -18,7 +18,7 @@ but it does not need it: it reads today's `Monster` getters.
     with its pips.
   * Burning (`Monster::Burns`), the `Burning` icon.
   * Stunned (`Monster::Reeling`), the `Daze` icon (the same stars as the player's daze).
-  * Terrain mood, once [terrain-affinity](terrain-affinity.feature.md) is in (it is being built): native
+  * Terrain mood, once [terrain-affinity](solved/terrain-affinity.feature.md) is in (it is being built): native
     as a Blessing-gold card, hostile as a Condition-grey card, the terrain's own small glyph if there is one in the
     atlas, else an up / down arrow. Skip it if terrain-affinity is not done yet; add it then.
   * No blessings or curses: monsters do not pray at shrines. A boss's own powers (life steal, ...) are not statuses.

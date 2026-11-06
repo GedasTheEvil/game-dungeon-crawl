@@ -1,6 +1,6 @@
 # Terrain affinity: monsters stronger in native terrain, weaker in hostile terrain
 
-Status: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size L, needs nothing first.
+Status: solved 2026-11-06 (play-tested by the user). Was: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size L, needs nothing first.
 
 ## Idea
 
@@ -9,8 +9,8 @@ attacks more often and hits harder; in a hostile one it is slower, attacks less 
 the terrain when it can. Most monsters have neither. Each terrain has one native row and one hostile row of
 multipliers, the same for every monster, bosses included: no per-monster numbers. Balance (lowering a boss's base
 stats, if it turns out too hard) is not part of this plan: separate follow-up drafts after the play-test, maybe not
-needed at all. It replaces the native-only draft ([native-terrain](wont-do/native-terrain.feature.md)), the
-worm-only draft ([worm-sand-frenzy](wont-do/worm-sand-frenzy.feature.md)) and the swimmers' per-kind `waterSpeed`.
+needed at all. It replaces the native-only draft ([native-terrain](../wont-do/native-terrain.feature.md)), the
+worm-only draft ([worm-sand-frenzy](../wont-do/worm-sand-frenzy.feature.md)) and the swimmers' per-kind `waterSpeed`.
 More terrains can be added later as one row pair in the table.
 
 ## Plan

@@ -1,6 +1,6 @@
 # Save remembers the player's settings: toggle, facing, lit arrows, inventory, journal pages
 
-Status: draft 2026-11-06, size M, needs nothing first.
+Status: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size M, needs nothing first.
 
 ## Idea
 
@@ -15,7 +15,8 @@ forgets its sort orders and tab. The save should keep them.
 * Journal: `JournalScreen` keeps the open section and the spread per section (`section`, `spread`,
   `src/ui/journal_view.h`), in memory only. Save both; a load opens the book where it was left, each section on its
   last spread. Clamp a spread past a section's end (pages can differ after a content change).
-* Facing: `Dungeon::facing` (`src/sim/dungeon.h`, -1 / +1). Save it after `mapX mapY` in `Dungeon::Dump`; a load
+* Facing: the camera's yaw (`Camera::Facing`, `GameState::camera`; there is no `Dungeon::facing`), -1 / +1; saved in the
+  `FACING` line (`UiViewState`, not `Dungeon::Dump`). A load
   turns the player (view, weapon side) the way they looked.
 * Lit fire arrows: `Player::fireArrows` (`src/sim/player.h`, "not saved"): the count of bow shots a brazier lit. Save
   and load it; drop the "not saved".
@@ -31,9 +32,9 @@ forgets its sort orders and tab. The save should keep them.
 
 ## Play-test
 
-* `bin/game --play tests/play/save-remembers-ui-state.txt`: turn the stamina-skill toggle on, light arrows at a
-  brazier, face left, sort a tab and leave the inventory on another tab, open the journal on a later Creatures spread
-  and another section, save, quit, load.
+* `bin/game --play tests/play/save-remembers-ui-state.txt` (level 1, bow and Flaming arrows learnt): Q turns the
+  stamina-skill toggle on, light arrows at the brazier (col 13), face left, sort a tab and leave the inventory on
+  Potions, open the journal on a later Creatures spread and another section, save, quit, load.
 * The HUD sign is lit, the next bow shot burns, the player faces left.
 * The inventory opens on the same tab, sorted as left; the journal on the same section and spread, the other section
   on its last spread.

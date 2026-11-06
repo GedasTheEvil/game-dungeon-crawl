@@ -280,6 +280,7 @@ void GameState::NewGame() {
 	player->stats.run.nameSeed = random.gameplay.next(); // each level's royal name (plan secret-name-gates)
 	ui.inventory->Reset();
 	journal.Begin();
+	ApplyViewState(UiViewState{}); // facing right, the first tabs and pages
 	dungeon.LoadCampaignLevel(1);
 	dungeon.ClearWin();
 	player->Reanimate();
@@ -461,13 +462,30 @@ void GameState::DrawLoad(float xxx, const char step[], const char detail[]) {
 	glutSwapBuffers();
 }
 //==============================================================
+// The settings a save keeps (plan save-remembers-ui-state): the player's look and the two screens' pages.
+UiViewState GameState::ViewState() const {
+	UiViewState view;
+	view.facing = camera.Facing();
+	ui.inventory->ViewTo(view);
+	ui.journal.ViewTo(view);
+	return view;
+}
+
+void GameState::ApplyViewState(const UiViewState& view) {
+	camera.rotW = view.facing > 0 ? 70.f : -110.f;
+	player->rotA = camera.rotW;
+	ui.inventory->ViewFrom(view);
+	ui.journal.ViewFrom(view);
+}
+//==============================================================
 bool GameState::Save(const char filename[]) {
 	if (!cacheLoaded) {
 		LOG_ERROR("game", "can't save without loading cashe");
 		return false;
 	}
 	std::ostringstream text;
-	writeSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal});
+	UiViewState view = ViewState();
+	writeSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal, view});
 	if (!writeFileSafely(filename, text.str())) {
 		LOG_ERRORF("game", "can't write save file %s", filename);
 		return false;
@@ -489,8 +507,10 @@ bool GameState::LoadSave(const char filename[]) {
 		LOG_ERRORF("game", "can't open save file %s", filename);
 		return false;
 	}
-	const bool loaded = loadSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal});
+	UiViewState view = ViewState(); // a broken save puts these back too
+	const bool loaded = loadSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal, view});
 	ui.inventory->BagLoaded();
+	ApplyViewState(view);
 	if (!loaded) {
 		LOG_ERRORF("game", "broken save file %s", filename);
 		return false;

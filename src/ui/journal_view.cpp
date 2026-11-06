@@ -215,6 +215,19 @@ void JournalScreen::SeeShown() {
 	shownNew.clear();
 }
 
+void JournalScreen::ViewTo(UiViewState& view) const {
+	view.journalSection = static_cast<int>(section);
+	view.spread = spread;
+}
+
+void JournalScreen::ViewFrom(const UiViewState& view) {
+	SeeShown();
+	turn = {};
+	pointer.Clear();
+	section = static_cast<Section>(std::clamp(view.journalSection, 0, SECTION_COUNT - 1));
+	spread = view.spread;
+}
+
 void JournalScreen::OpenDiary(const char* closes) {
 	SeeShown();
 	turn = {};

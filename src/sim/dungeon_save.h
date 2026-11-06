@@ -5,17 +5,34 @@
 #include "dungeon.h"
 #include "../level/item_bag.h"
 #include "../level/journal.h"
+#include <array>
 #include <istream>
 #include <ostream>
 #include <string>
 
-// A save game (GameState::Save / LoadSave): the level number, the player's stats, the bag, the dungeon and the
-// journal, in that order. Without the game, so the unit tests read and write one (plan save-load-safety).
+// What the player set on the screens, kept in a save (plan save-remembers-ui-state): the way they look, the
+// inventory's open tab and each tab's sort order, the journal's open section and each section's spread. The views
+// hand it over (GameState::ViewState) and take it back after a load; the defaults are a new game's.
+struct UiViewState {
+	static constexpr int JOURNAL_SECTIONS = 7; // JournalScreen::SECTION_COUNT
+	static constexpr int JOURNAL_CREATURES = 1; // the section a new book opens on (JournalScreen::Section)
+	int facing = 1; // -1 left, +1 right
+	ItemGroup tab = ItemGroup::Weapons;
+	std::array<SortOrder, ITEM_GROUP_COUNT> sort{};
+	int journalSection = JOURNAL_CREATURES;
+	std::array<int, JOURNAL_SECTIONS> spread{};
+	bool operator==(const UiViewState&) const = default;
+};
+
+// A save game (GameState::Save / LoadSave): the level number, the player's stats, the bag, the dungeon, the
+// remembered settings (the stamina-skill toggle, lit arrows, the views) and the journal, in that order. Without the
+// game, so the unit tests read and write one (plan save-load-safety).
 struct SaveParts {
 	Dungeon& dungeon;
 	Player& player;
 	ItemBag& bag;
 	Journal& journal;
+	UiViewState& view;
 };
 
 void writeSaveGame(std::ostream& out, const SaveParts& parts);

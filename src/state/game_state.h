@@ -101,6 +101,8 @@ class GameState {
 	void DrawLoad(float xxx, const char step[], const char detail[]);
 	// False when the file cannot be written (the old one stays) or read; a failed load leaves the game as it was
 	// (plan save-load-safety).
+	[[nodiscard]] UiViewState ViewState() const; // what a save keeps of the screens and the look (UiViewState)
+	void ApplyViewState(const UiViewState& view);
 	[[nodiscard]] bool Save(const char filename[]);
 	[[nodiscard]] bool LoadSave(const char filename[]);
 	// Play time since the last save or load (plan save-load-safety): leaving the run then asks first.

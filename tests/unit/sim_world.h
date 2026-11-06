@@ -214,7 +214,8 @@ class SimWorld {
 	// the journal through a file, and back.
 	void SaveAndLoad() {
 		const std::string path = "build/sim_world.sav";
-		const SaveParts parts{dungeon, player, items, journal};
+		UiViewState view;
+		const SaveParts parts{dungeon, player, items, journal, view};
 		{
 			std::ofstream out(path);
 			writeSaveGame(out, parts);

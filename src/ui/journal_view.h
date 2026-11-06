@@ -9,6 +9,7 @@
 #include "../level/message_log.h"
 #include "../level/pointer.h"
 #include "../render/ui_draw.h"
+#include "../sim/dungeon_save.h"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -41,6 +42,10 @@ class JournalScreen {
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
 	void ShowToast(const std::string& text);
+	// The open section and each section's spread into / out of a save (plan save-remembers-ui-state). Setting
+	// closes any turn; the first Draw clamps a spread past its section's end and skips an empty section.
+	void ViewTo(UiViewState& view) const;
+	void ViewFrom(const UiViewState& view);
 
   private:
 	// Clickable things: the ribbons, the page corners, the Answer button of each page.

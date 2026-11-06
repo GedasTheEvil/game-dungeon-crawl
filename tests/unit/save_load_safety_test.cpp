@@ -12,7 +12,8 @@
 namespace {
 std::string saved(SimWorld& world) {
 	std::ostringstream out;
-	writeSaveGame(out, SaveParts{world.dungeon, world.player, world.items, world.journal});
+	UiViewState view;
+	writeSaveGame(out, SaveParts{world.dungeon, world.player, world.items, world.journal, view});
 	return out.str();
 }
 
@@ -49,7 +50,8 @@ TEST_CASE("a broken save leaves the game as it was; a good one loads") {
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/win_run"));
 	world.WaitTicks(30);
-	const SaveParts parts{world.dungeon, world.player, world.items, world.journal};
+	UiViewState view;
+	const SaveParts parts{world.dungeon, world.player, world.items, world.journal, view};
 	const std::string good = saved(world);
 
 	world.player.stats.run.AddPlayMs(5000, world.dungeon.LevelNumber());
@@ -103,4 +105,46 @@ TEST_CASE("a slot shows the save's level, the character level and the play time"
 	CHECK(SaveSlots::PlayTime(59000) == "0m");
 	CHECK(SaveSlots::PlayTime(12 * 60000) == "12m");
 	CHECK_FALSE(SaveSlots::DescribeFile(dir + "/none.sav").used);
+}
+
+// Plan save-remembers-ui-state: the stamina-skill toggle, the lit arrows and the screens' settings survive a save and
+// a load; a save without their lines loads the defaults.
+TEST_CASE("a save keeps the toggle, the lit arrows, the facing, the inventory and the journal pages") {
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/win_run"));
+	UiViewState view;
+	const SaveParts parts{world.dungeon, world.player, world.items, world.journal, view};
+
+	world.player.staminaSkills = true;
+	world.player.fireArrows = 3;
+	view.facing = -1;
+	view.tab = ItemGroup::Potions;
+	view.sort = {SortOrder::Strength, SortOrder::Name, SortOrder::Recent, SortOrder::Found};
+	view.journalSection = 4;
+	view.spread = {0, 2, 1, 0, 3, 0, 5};
+	const UiViewState set = view;
+	std::ostringstream out;
+	writeSaveGame(out, parts);
+
+	world.player.Reanimate(); // the toggle and the arrows are dropped
+	view = UiViewState{};
+	REQUIRE(loadSaveGame(out.str(), parts));
+	CHECK(world.player.staminaSkills);
+	CHECK(world.player.fireArrows == 3);
+	CHECK(view == set);
+
+	// A save from before the lines: all of them gone from it.
+	const std::string text = out.str();
+	const size_t from = text.find("\nSTAMINASKILLS");
+	const size_t to = text.find('\n', text.find("\nJOURNAL") + 1);
+	REQUIRE(from != std::string::npos);
+	REQUIRE(to != std::string::npos);
+	const std::string old = text.substr(0, from) + text.substr(to + 1 - 1);
+	world.player.staminaSkills = true;
+	world.player.fireArrows = 9;
+	view = set;
+	REQUIRE(loadSaveGame(old, parts));
+	CHECK_FALSE(world.player.staminaSkills);
+	CHECK(world.player.fireArrows == 0);
+	CHECK(view == UiViewState{});
 }

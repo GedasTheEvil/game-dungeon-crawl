@@ -305,6 +305,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 + secrets found x30 | `explorationScore` |
 | Hall of Records | Hall of Records | the main menu's leaderboard screen: rank, name, score in the chosen order; a row opens the run's details | `RecordsView` |
 | leaderboard | Hall of Records | the won campaign runs, one record each, in `saves/leaderboard.txt` (never in a save game) | `Leaderboard`, `RunRecord` |
+| view state | remembered settings | what a save keeps of the screens and the look (facing, inventory tab and sort orders, journal section and spreads), with the stamina-skill toggle and lit arrows as tagged lines | `UiViewState`, `GameState::ViewState`, `src/sim/dungeon_save.cpp` |
 | play time | Time | a run's time in play: menus, the UI screens and the win do not count; per level on the details | `RunStats::PlayMs` |
 | placeholder row | Spirit of Exploration | the empty board's one row, never written to the file | `placeholderRecord` |
 | name list | | the royal names of the name gates, `content/names/*.txt` ([names](names.md)); each run gives every level its own (the run's name seed) | `NameList`, `RoyalName`, `RunStats::nameSeed` |

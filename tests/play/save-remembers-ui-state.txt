@@ -1,0 +1,12 @@
+# Plan save-remembers-ui-state, for `bin/game --play tests/play/save-remembers-ui-state.txt`: level 1, you start with a
+# bow and the Flaming arrows skill (Q toggles it) and a few items; the brazier is at col 13 past the pit. Set the toggle,
+# light arrows, face left, sort a tab, leave the inventory on Potions, open the journal on a later Creatures spread and
+# another section, save from the menu, quit, load.
+seed 1
+god
+level 1
+give ranged 0
+equip self-bow
+give potion 0 2
+heka 9
+learn flaming_arrows

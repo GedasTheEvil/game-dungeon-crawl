@@ -146,6 +146,24 @@ void Inventory::Reset() {
 	saneWeapon.reset();
 }
 
+void Inventory::ViewTo(UiViewState& view) const {
+	view.tab = tab;
+	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
+		view.sort[static_cast<size_t>(group)] = sortOrder[group];
+}
+
+void Inventory::ViewFrom(const UiViewState& view) {
+	for (int group = 0; group < ITEM_GROUP_COUNT; group++) {
+		sortOrder[group] = view.sort[static_cast<size_t>(group)];
+		tabSlot[group] = groupItems(groupAt(group)).first; // the bag can differ: each tab starts at the top
+		scrollRow[group] = 0;
+	}
+	if (TabEnabled(view.tab))
+		SwitchTab(view.tab);
+	else
+		Select(selectedSlot);
+}
+
 void Inventory::FollowInsanity(bool insane) {
 	if (insane && !saneWeapon) {
 		saneWeapon = bag.Equipped();

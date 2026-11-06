@@ -4,6 +4,7 @@
 #include "../render/font.h"
 #include "../graphics/item.h"
 #include "../level/item_bag.h"
+#include "../sim/dungeon_save.h"
 #include "../level/bindings.h"
 #include "../level/pointer.h"
 #include "../render/ui_draw.h"
@@ -25,7 +26,7 @@ class Inventory {
 	ItemGroup tab = ItemGroup::Weapons; // the selected slot's group
 	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
 	int scrollRow[ITEM_GROUP_COUNT] = {}; // rows each tab is scrolled down
-	SortOrder sortOrder[ITEM_GROUP_COUNT] = {}; // per tab, not saved: found first at the start
+	SortOrder sortOrder[ITEM_GROUP_COUNT] = {}; // per tab: found first at the start; saved with the tab (UiViewState)
 	// A target and which one: the slot, the tab, or the SortOrder past Found of a sort button.
 	struct Pick {
 		Target target = Target::None;
@@ -101,6 +102,10 @@ class Inventory {
 	Inventory();
 	~Inventory();
 	void Reset(); // a new game: only the club
+	// The open tab and the sort orders into / out of a save (plan save-remembers-ui-state). Setting opens the tab at
+	// its first item, each tab sorted as saved; a tab with nothing found stays as it is.
+	void ViewTo(UiViewState& view) const;
+	void ViewFrom(const UiViewState& view);
 	void AddItem(ItemKind kind); // found: its journal notes (ItemBag::Find)
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);

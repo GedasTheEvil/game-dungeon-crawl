@@ -61,14 +61,15 @@ class Player {
 	bool attackLanded = false;
 	bool god = false; // the scenario god mode: no damage (TakeHit) and no poison damage
 	// The stamina-skill toggle (plan skill-flaming-arrows): on, every learned stamina skill that fits the attack
-	// applies and costs stamina. Not saved. The refusal (too little stamina for a skill) blinks the HUD sign.
+	// applies and costs stamina. Saved (plan save-remembers-ui-state). The refusal (too little stamina for a skill)
+	// blinks the HUD sign.
 	bool staminaSkills = false;
 	std::optional<int> staminaSkillRefusedMs;
 	// A ranged shot refused (Dungeon::RefuseShot, plan ranged-weaker-than-melee): when, and whether a monster was too
 	// close (else none was left). The HUD's weapon slot blinks. Not saved.
 	std::optional<int> shotRefusedMs;
 	bool shotTooClose = false;
-	int fireArrows = 0; // the next bow shots carry fire: a brazier lit them (Dungeon::lightArrows); not saved
+	int fireArrows = 0; // the next bow shots carry fire: a brazier lit them (Dungeon::lightArrows); saved
 	// Power hit (plan skill-power-hit), with the skill and the toggle on and a melee weapon in hand: the attack key
 	// down starts the charge (false, nothing started: not even a tap's worth of stamina, the HUD sign blinks), it
 	// drains once a tick (UpdateCharge, no regen meanwhile), the key up ends it (ReleaseCharge: the points spent, 0

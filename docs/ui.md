@@ -12,7 +12,7 @@ parts below instead of drawing their own.
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
 | Draft map (zoom: `src/ui/map_zoom.h`) | `src/ui/map_view.cpp` | 100 high, width follows the window |
-| Journal | `src/ui/journal_view.cpp` (data: `src/level/journal.h`) | 160 x 100 |
+| Journal | `src/ui/journal_view.cpp` (the book, ribbons, page turns, input; each section's pages: `src/ui/journal_pages.cpp`; data: `src/level/journal.h`) | 160 x 100 |
 | Heka (skills) | `src/ui/skills_view.cpp` (layout: `src/level/skills_layout.h`, data: `src/level/skills.h`) | 160 x 100 |
 | Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
 | Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` (values: `src/ui/player_hud_view.cpp`) | 100 / `SCALE` high, width follows the window; over the game |

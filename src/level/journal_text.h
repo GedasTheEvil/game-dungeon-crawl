@@ -7,10 +7,8 @@
 struct MonsterKind;
 
 // The journal's words (JournalScreen draws them), from content/texts/ (texts.h, plan texts-to-content): a new
-// monster's move or a new field note is written there and keyed here, not in the screen.
+// monster's note or a new field note is written there and keyed here, not in the screen.
 
-// One sentence on a move the player saw a creature make, under SAW on its page.
-const char* creatureMoveNote(CreatureMove move, const MonsterKind& kind);
 // Its description, in the archaeologist's words, written after the first kill (content/texts/monsters.txt).
 const char* monsterNote(const MonsterKind& kind);
 

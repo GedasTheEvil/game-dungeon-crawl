@@ -1,5 +1,5 @@
-# human-monster-notes: every creature page with its diary-voice note and the moves it can show
-# (tests/saves/human_monster_notes.sav: all 36 killed), the form still on the page when the notes run long.
+# human-monster-notes: every creature page with its diary-voice note (no SAW lines: moves and the bite are not
+# written down; tests/saves/human_monster_notes.sav: all 36 killed), the form still on the page with long notes.
 seed 1
 god
 level tests/levels/rats

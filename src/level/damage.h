@@ -152,31 +152,4 @@ class Burning {
 	[[nodiscard]] int LeftMs() const { return leftMs; }
 };
 
-// The journal's sentence on what a creature's attack deals: the largest share as the main phrase, each smaller one
-// as "a hint of"; an even split names both as the main.
-[[nodiscard]] inline std::string attackSentence(const DamageMix& mix) {
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> MAIN =
-		{"smashes me hard", "cuts me deep", "stabs me to the bone", "sets me on fire"};
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> VERB = {"smashes", "cuts", "stabs", "burns"};
-	constexpr std::array<const char*, DAMAGE_TYPE_COUNT> HINT =
-		{"smashing pain", "cutting pain", "stabbing pain", "burning pain"};
-	const int top = mix[static_cast<size_t>(mainType(mix))];
-	std::string mains, hints;
-	int mainCount = 0;
-	for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++) {
-		if (mix[t] == 0)
-			continue;
-		if (mix[t] == top) {
-			mains += std::string(mainCount++ == 0 ? "" : " and ") + VERB[t];
-		} else {
-			hints += std::string(hints.empty() ? "" : " and ") + HINT[t];
-		}
-	}
-	std::string s = "It ";
-	s += mainCount == 1 ? MAIN[static_cast<size_t>(mainType(mix))] : mains + " me alike";
-	if (!hints.empty())
-		s += ", with a hint of " + hints;
-	return s + ".";
-}
-
 #endif

@@ -219,10 +219,7 @@ TEST_CASE("an entry is new until its page is seen (plan journal-new-mark)") {
 	CHECK_FALSE(j.AnyNew());
 	j.SeeCreature(3, 1); // seen again: nothing new on the page
 	j.SeeMove(3, 1, CreatureMove::Leap);
-	CHECK(j.IsNew(JournalPart::Creatures, 0)); // a move written down
-	j.MarkSeen(JournalPart::Creatures, 0);
-	j.SeeMove(3, 1, CreatureMove::Leap);
-	CHECK_FALSE(j.AnyNew());
+	CHECK_FALSE(j.AnyNew()); // moves are not written on the page
 	CHECK(j.KillCreature(3, 1)); // the photo
 	CHECK_FALSE(j.KillCreature(3, 1));
 	CHECK(j.AnyNew(JournalPart::Creatures));

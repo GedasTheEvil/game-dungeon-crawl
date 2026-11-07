@@ -96,7 +96,6 @@ void Journal::SeeMove(int type, int level, CreatureMove move) {
 	if (c.Saw(move))
 		return;
 	c.moves |= 1U << static_cast<unsigned>(move);
-	markNew(JournalPart::Creatures, type);
 }
 
 bool Journal::TryDamage(int type, int level, DamageType damage) {

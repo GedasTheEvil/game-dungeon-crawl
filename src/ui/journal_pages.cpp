@@ -45,7 +45,7 @@ constexpr float PHOTO_BORDER = 1.1f;
 constexpr float CAPTION_TOP = 36.6f;
 constexpr float ROWS_TOP = 40.8f; // first note's baseline below the page top
 constexpr float ROW_STEP = 3.2f;
-constexpr float CREATURE_NOTE_ROOM = 6 * ROW_STEP; // a creature's SEEN and SAW lines, above its form
+constexpr float CREATURE_NOTE_ROOM = 6 * ROW_STEP; // a creature's SEEN lines, above its form
 constexpr float TINY_ROW_STEP = 2.7f; // the notes in the tiny hand, when they would not fit the room
 constexpr float MARGIN_W = 10.f; // the label column on the left of the notes
 constexpr float FORM_COLUMN = 22.f;
@@ -329,18 +329,11 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 	std::string seen = "Level " + std::to_string(c.level) + ".";
 	if (c.killed && kind != nullptr)
 		seen += std::string(" ") + monsterNote(*kind);
-	std::string saw = c.hitBy ? attackSentence(t.attackMix) : ""; // what its bite deals, from the first one
-	for (int m = 0; m < CREATURE_MOVE_COUNT; m++)
-		if (c.Saw(static_cast<CreatureMove>(m)))
-			saw += std::string(saw.empty() ? "" : " ") + creatureMoveNote(static_cast<CreatureMove>(m), t);
 
-	// A long note and many moves seen (a boss) would push the form off the page: then the tiny hand, the rows closer
-	// (plan human-monster-notes).
+	// A long note would push the form off the page: then the tiny hand, the rows closer (plan human-monster-notes).
 	Font* font = &handSmall;
 	float step = ROW_STEP;
-	auto lineCount = [&](const Font& f) {
-		return wrap(f, seen, textW).size() + (saw.empty() ? 0 : wrap(f, saw, textW).size());
-	};
+	auto lineCount = [&](const Font& f) { return wrap(f, seen, textW).size(); };
 	if (static_cast<float>(lineCount(handSmall)) * ROW_STEP > CREATURE_NOTE_ROOM) {
 		font = &handTiny;
 		step = std::min(TINY_ROW_STEP, CREATURE_NOTE_ROOM / static_cast<float>(lineCount(handTiny)));
@@ -355,8 +348,6 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 		beginShapes();
 	};
 	entry("SEEN", seen);
-	if (!saw.empty())
-		entry("SAW", saw);
 
 	// The form, filled in as it is learnt.
 	if (c.killed)

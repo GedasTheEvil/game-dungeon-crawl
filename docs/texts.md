@@ -10,7 +10,6 @@ that asks for its key.
 |---|---|---|
 | `journal.txt` | `[note.<slug>]` the field notes (`title`, `text`), in `FieldNote` order; `[diary.<page>]` the prologue and the epilogue (`title`, `p1`..`p3`), in `DiaryPage` order | `fieldNoteText`, `diaryText` (`level/journal_text.cpp`) |
 | `expedition.txt` | `[page.<n>]` the earlier expedition's notebook (`heading`, `text`), n the Page tile's value | `expeditionPageText` |
-| `moves.txt` | `[move.<move>]` one sentence per `CreatureMove`: `text`, or a variant chosen by the monster's rules (a summon's kind, a curse's name, one monster's own) | `creatureMoveNote` |
 | `monsters.txt` | `[monster.<label>]` `note`: the journal description after the first kill | `monsterNote` |
 | `skills.txt` | `[skill.<name>]` `lore`: the Heka card's details under the effect | `skillLore` (`level/skills.cpp`) |
 | `items.txt` | `[item.<label>]` (an amulet: `[item.<model>]`) `lore1`, `lore2`: the inventory card's two lines | `itemText` (`level/items.cpp`) |

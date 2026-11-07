@@ -269,6 +269,7 @@ class Journal {
 	// True the first time: its name, photo and HP are written down.
 	bool KillCreature(int type, int level);
 	void HitByCreature(int type, int level);
+	// Kept for the tests and the save; the page no longer writes moves down, so not a new note.
 	void SeeMove(int type, int level, CreatureMove move);
 	// Hit with a weapon of this main type. True the first time: a new note.
 	bool TryDamage(int type, int level, DamageType damage);

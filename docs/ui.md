@@ -214,7 +214,7 @@ posts "Journal: <name>, photo and HP noted"; the first weapon type and venom tri
 
 On the pages: page numbers stamped in `INK_RED` in the top outer corner (`media/textures/fonts/courier.png`), the level pencilled
 above; underlined headings and the text in `INK_BLUE`; pencil (`PENCIL`, alpha 0.7) for what matters less (hints,
-captions of sketches). Creature pages have a margin column of labels (`SEEN`, `SAW`, `KILLED` in red, `TRIED`) and a
+captions of sketches). Creature pages have a margin column of labels (`SEEN`, `KILLED` in red, `TRIED`) and a
 form filled in as it is learnt (`HP = ~40`, a blank line while unknown).
 
 Creature pictures: the model's move clip, frame 0, from the side and a little above. Before the kill a pencil sketch

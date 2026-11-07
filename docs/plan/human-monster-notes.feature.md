@@ -35,6 +35,12 @@ The user's example, the giant scarab:
 
 * `bin/game --play tests/play/human-monster-notes.txt` (a save with every creature written down), press J, open the
   Creatures ribbon and leaf through.
-* Each creature page reads like a diary line with a reaction, no rule talk; the giant scarab's matches the example's
+* Each creature page reads like a diary line with a reaction, no rule talk, no SAW lines; the giant scarab's matches the example's
   tone.
 * The text fits the page, no cut-off lines.
+
+## Play-test feedback
+
+### Round 1 (2026-11-07)
+
+- [x] the SAW lines on a creature page are still there, remove them, no need for how the bite feels. Fixed: the SAW block is gone (`attackSentence`, `creatureMoveNote`, `content/texts/moves.txt` deleted); moves are still tracked (tests, save) but no longer mark a page new.

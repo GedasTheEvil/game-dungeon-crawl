@@ -92,8 +92,6 @@ TEST_CASE("every text the code asks for is in content/texts") {
 			continue;
 		(void)monsterNote(*kind);
 		CHECK(monsterKeys.insert(textSlug(kind->label)).second); // no two kinds share a note
-		for (int m = 0; m < CREATURE_MOVE_COUNT; m++)
-			(void)creatureMoveNote(static_cast<CreatureMove>(m), *kind);
 	}
 	for (int i = 0; i < ITEM_KIND_COUNT; i++)
 		(void)itemText(itemAt(i));

@@ -1,6 +1,6 @@
 # Shrine offerings: merge rings and amulets, offer spares for XP
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size M, needs nothing first.
+Status: solved 2026-11-08 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size M, needs nothing first.
 
 ## Idea
 
@@ -12,7 +12,7 @@ which have no use today. A confirmation asks before anything is given away.
 Today weapons and amulets upgrade in the inventory, anywhere (`ItemBag::CanUpgrade`, `Upgrade`); rings never
 upgrade. The user's rule: weapons are plain craft, the player joins the copies by hand, anywhere (unchanged). Amulets
 and rings are magic, the player has none: they upgrade only at a shrine, with a god's help (Isis and the four gods,
-[shrines-of-the-gods](solved/shrines-of-the-gods.feature.md)). This gives the shrines a second use.
+[shrines-of-the-gods](shrines-of-the-gods.feature.md)). This gives the shrines a second use.
 
 ## Plan
 
@@ -33,7 +33,7 @@ and rings are magic, the player has none: they upgrade only at a shrine, with a 
 * XP by worth (balance, the implementer's choice, tune by play): about a fraction of a normal kill at that depth,
   scaled by the item's rank: ring copper < silver < gold; amulet by `amuletWorth(tier)`; weapon by its base damage.
   It must not beat fighting: offering every spare of a level should give well under one player level.
-* Confirmation: a yes / no box in the shared UI look ([ui.md](../ui.md)): "Offer the Silver Lapis Ring to Ptah? It is
+* Confirmation: a yes / no box in the shared UI look ([ui.md](../../ui.md)): "Offer the Silver Lapis Ring to Ptah? It is
   gone for good." / "Merge two Copper Garnet Rings into a Silver Garnet Ring?". Enter / Esc.
 * Feedback: the god's beam (`SunBeam::PRAYER_LIGHT` tint) and a status line "Ptah accepts the offering. +40 XP" /
   "Ptah joins the rings: Silver Garnet Ring".

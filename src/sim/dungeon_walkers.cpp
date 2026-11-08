@@ -391,6 +391,96 @@ bool Dungeon::kite(Monster& mon, int dir) {
 	return true;
 }
 //======================================================================================
+// A shooter under a step (plan anubis-stuck-under-step). Not a kiter (it keeps its own band), and only a walker that
+// cannot get to the player: in open ground it chases and swings.
+int Dungeon::lineUpSide(const Monster& mon, int dir) const {
+	const MonsterKind& kind = *mon.Type();
+	const bool walks = kind.locomotion == Locomotion::Walk || leaps(kind.locomotion);
+	if (!kind.ranged || kind.kite || !walks || mon.OnRungs() || !mon.sameRow(mapY) ||
+		mon.PlayerGap(mapX) > kind.ranged->range)
+		return 0;
+	if (dir == 0) { // near enough by the row, but the player on the step is over its swing
+		const int side = mapX < mon.CentreX() ? -1 : 1;
+		return mon.Reaches(mapX, mapY, side) ? 0 : side;
+	}
+	if (!walksToBite(mon, dir)) // a step it cannot take on the way
+		return dir;
+	const float biteFront = mapX - static_cast<float>(dir) * (sim.player->HalfWidth() + MONSTER_BITE_REACH);
+	const float at = biteFront - static_cast<float>(dir) * mon.HalfWidth();
+	return mon.ReachesFrom(at, mapX, mapY, dir) ? 0 : dir; // there, its swing misses the player up on a step
+}
+//======================================================================================
+Dungeon::LineUp Dungeon::lineUpMove(const Monster& mon, int to) const {
+	const int dir = lineUpSide(mon, to);
+	const MonsterKind& kind = *mon.Type();
+	if (dir == 0 || !kind.ranged) // lineUpSide: a shooter
+		return LineUp::None;
+	if (shotLineClear(mon, mon.CentreX(), dir)) // lined up: it holds where one more step on would lose the line
+		return shotLineClear(mon, mon.CentreX() + static_cast<float>(dir) * mon.WalkStep(), dir) ? LineUp::None
+																								 : LineUp::Hold;
+	const float inRange = kind.ranged->range - mon.PlayerGap(mapX);
+	const float room = kiteRoom(mon, dir, inRange);
+	const auto spots = static_cast<int>(room / LINE_UP_PROBE);
+	for (int i = 1; i <= spots; i++)
+		if (shotLineClear(mon, mon.CentreX() - static_cast<float>(dir * i) * LINE_UP_PROBE, dir))
+			return LineUp::Back;
+	// No spot in range clears it. The player up on a step would poke it at will: it backs off to its range's edge
+	// and waits there. Cornered, or behind cover on its own floor (crouched behind a step), it does what it did.
+	if (mapY - static_cast<float>(mon.Row()) <= monsterFloor(mon) + STANDING_EPSILON)
+		return LineUp::None;
+	const float step = mon.WalkStep() * (kind.isBoss() ? LINE_UP_BOSS_PACE : 1.f);
+	if (room >= step)
+		return LineUp::Back;
+	return room < inRange ? LineUp::None : LineUp::Hold;
+}
+//======================================================================================
+// walkerReaches looks at the cells up to the player's, not at a step in it: here each sub-cell column on the way to
+// where it would bite from.
+bool Dungeon::walksToBite(const Monster& mon, int dir) const {
+	if (!walkerReaches(mon, dir))
+		return false;
+	const float biteFrom = mapX - static_cast<float>(dir) * (sim.player->HalfWidth() + MONSTER_BITE_REACH);
+	const float front = mon.seekProbeX(dir);
+	const auto probes = static_cast<int>(std::ceil((biteFrom - front) * static_cast<float>(dir) / LINE_UP_PROBE));
+	for (int i = 0; i < probes; i++)
+		if (stepAt(mon, front + static_cast<float>(dir * i) * LINE_UP_PROBE) == StepAhead::Stop)
+			return false;
+	return true;
+}
+//======================================================================================
+bool Dungeon::lineUp(Monster& mon, int dir) {
+	switch (lineUpMove(mon, dir)) {
+	case LineUp::Back:
+		mon.LineUp(-lineUpSide(mon, dir));
+		return true;
+	case LineUp::Hold:
+		mon.Stand();
+		return true;
+	case LineUp::None:
+		break;
+	}
+	return false;
+}
+//======================================================================================
+bool Dungeon::shotLineClear(const Monster& mon, float at, int dir) const {
+	const Monster::ShotPoint from = mon.ShotRelease(mapX, at, dir);
+	const float toY = mapY + SHOT_CHEST * sim.player->Height();
+	const float dx = mapX - from.x;
+	const float dy = toY - from.y;
+	const auto probes = static_cast<int>(std::ceil(std::hypot(dx, dy) / LINE_UP_PROBE));
+	for (int i = 1; i <= probes; i++) {
+		const float t = static_cast<float>(i) / static_cast<float>(probes);
+		const float x = from.x + dx * t;
+		const float y = from.y + dy * t;
+		if (sim.player->Covers(mapX, mapY, x, y)) // it ends on the player, as in updateShots
+			return true;
+		const auto col = static_cast<int>(std::floor(x)), row = static_cast<int>(std::floor(y));
+		if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)) || subcellAt(x, y))
+			return false;
+	}
+	return true;
+}
+//======================================================================================
 // The ladder the climber heads for: the run of rungs along the path from (col, row), up or down, to where the path
 // leaves the ladder.
 int Dungeon::climbEnd(int col, int row) const {
@@ -500,7 +590,7 @@ void Dungeon::updateWalker(Monster& mon) {
 	if (!mon.Alive() || monstersStandDown() || !mon.StepDue())
 		return;
 	int dir = mon.attackDirection(mapX, mapY);
-	if (followPath(mon, dir))
+	if (lineUp(mon, dir) || followPath(mon, dir)) // a shot from a spot in range beats a long climb round
 		return;
 	if (const int out = wayOutOfLight(mon); out != 0) { // a light shunner caught in the light runs for the dark
 		mon.Flee(false, out);

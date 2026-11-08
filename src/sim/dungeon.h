@@ -310,6 +310,24 @@ class Dungeon {
 	// A kiter that reaches the player that way: backs off, or stands in its band. False: the walker's rules go on (it
 	// closes in beyond its band, cornered it closes in nearer than near, or bites the player in reach).
 	bool kite(Monster& mon, int dir);
+	// A shooter under a step (plan anubis-stuck-under-step): a walker with a ranged attack and no KiteRules, on the
+	// player's row in its range, that cannot bite them (lineUpSide). Back: its shot from here hits the
+	// terrain first, and a spot behind it (within its range and its free run, kiteRoom) clears the line; or none does
+	// and the player stands up on a step: it backs off to its range's edge. Hold: the line is clear here and one step
+	// on would lose it, or it is at its range's edge. None: the walker's rules (in open ground, cornered, or behind
+	// cover on its own floor).
+	enum class LineUp : std::uint8_t { None, Back, Hold };
+	[[nodiscard]] LineUp lineUpMove(const Monster& mon, int dir) const;
+	// Such a shooter that cannot bite the player: the way to them, -1 / +1; 0: not one, or it bites. dir:
+	// Monster::attackDirection; 0 (near by the row) counts when its swing misses the player up on a step.
+	[[nodiscard]] int lineUpSide(const Monster& mon, int dir) const;
+	bool lineUp(Monster& mon, int dir); // does lineUpMove's; false: None
+	// A walker gets to where it bites the player from that way: walkerReaches, and no step it cannot take on the way,
+	// in the player's own cell too.
+	[[nodiscard]] bool walksToBite(const Monster& mon, int dir) const;
+	// The shot of mon, standing with its centre at map x at and turned dir to the player, reaches them: no wall and
+	// no solid sub-cell on the line from its release point to their chest (Dungeon::aimShot).
+	[[nodiscard]] bool shotLineClear(const Monster& mon, float at, int dir) const;
 	// A climber that has seen the player follows its path to them across floors (ClimbMap) while they are off its row
 	// or out of its reach along it; dir: Monster::attackDirection. On the rungs with the player in reach, it steps off
 	// them (rungsExit). False: the walker's rules go on (no path, given up).

@@ -1,0 +1,17 @@
+# Plan anubis-stuck-under-step, the boss: crouched (the down key held) on the step, under the boss's high swing, a spear in hand. Stand at the step's
+# right edge and poke the Anubis: it backs off faster than its guard and shoots a bolt that hits you.
+level tests/levels/anubis_step_boss
+god
+give melee 2
+equip spear
+hold right 1s
+jump
+hold right 600ms
+wait 300ms
+jump
+hold right 600ms
+wait 300ms
+jump
+hold right 600ms
+walk to 5.9
+crouch on

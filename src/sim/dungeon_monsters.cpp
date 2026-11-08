@@ -147,7 +147,8 @@ void Dungeon::UpdateMonsters() {
 		// A kiter the player comes at backs off (or leaps away) first (plan monster-kiting).
 		if (!monstersStandDown() && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) &&
 			clearRow(mon.HeadX(), mapX, mon.Row()) && kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 &&
-			!leapAwayTarget(mon, mon.attackDirection(mapX, mapY))) {
+			!leapAwayTarget(mon, mon.attackDirection(mapX, mapY)) &&
+			lineUpMove(mon, mon.attackDirection(mapX, mapY)) != LineUp::Back) { // under a step: back first
 			mon.AttackRanged();
 			continue;
 		}

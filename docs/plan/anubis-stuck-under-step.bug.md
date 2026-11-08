@@ -1,6 +1,6 @@
 # Anubis stuck under a step: backs off so its bolt clears
 
-Status: draft 2026-11-08, size M, needs nothing first.
+Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size M, needs nothing first.
 
 ## Repro
 
@@ -41,6 +41,30 @@ corner and splats (`Dungeon::updateShots`, `src/sim/dungeon_arrows.cpp`). Anubis
 * Checker: `monsterThreat` / the reckless threat ([checker-reckless-threat](solved/checker-reckless-threat.tooling.md)) may
   count such steps as safe spots; update it if the rule changes what the checker models.
 
+## Done
+
+* The rule ("line up", glossary), for every walker with a ranged attack and no kite rules: the Anubis, its boss, the
+  mummy priest (cobras and Apep do not walk; the baboon and Babi are kiters). It applies when the shooter cannot bite
+  the player: a step it cannot take on the way (`walksToBite`: `walkerReaches` missed a step in the player's own cell),
+  or its swing from the bite spot misses them up there (`Monster::ReachesFrom`; also with the player in bite reach by
+  the row, `attackDirection` 0, the draft's "right under it"). `Dungeon::lineUpMove` (`src/sim/dungeon_walkers.cpp`):
+  * the line from its release point (`Monster::ShotRelease`) to the player's chest meets a wall or a solid sub-cell
+    (`shotLineClear`, as `updateShots`, ending where `Player::Covers` the shot): it steps back, facing the player
+    (`Monster::LineUp`), while a spot behind it, within its range and its free run (`kiteRoom`), clears the line;
+  * lined up, it holds there while one more step on would lose the line (no shuffle back under the step);
+  * no spot in range clears it, the player up on a step (implementer's choice): it backs off to its range's edge and
+    waits there, out of a spear's reach. Behind cover on its own floor (crouched behind a step) or cornered, it does
+    what it did: cover stays cover;
+  * no shot while it still has to step back (the gate in `UpdateMonsters`).
+* It runs before the climber's path (`followPath`): a shot from a spot in range beats a long climb round.
+* Boss: `LINE_UP_BOSS_PACE` (1.5) times its walk step backing off; its bolt's range (2.0) finds lines its guard's (1.4)
+  does not. On a three-quarter step its bigger swing still reaches a standing player; crouched (a high blow ducked) it
+  lines up.
+* Checker: no change. `monsterReaches` models where a monster walks, not its shots; the rule changes no walk.
+* Tests: `tests/unit/anubis_step_test.cpp` on `tests/levels/anubis_step` and `anubis_step_boss` (three fail before the
+  fix: the guard's and the boss's bolt hit, the retreat to its range's edge). Play scripts: `tests/play/`
+  `anubis-stuck-under-step.txt` and `anubis-stuck-under-step-boss.txt`.
+
 ## Fixed when
 
 * A test that names the plan (unit or scenario): the player on a step over an Anubis guard that cannot reach them; within
@@ -50,6 +74,9 @@ corner and splats (`Dungeon::updateShots`, `src/sim/dungeon_arrows.cpp`). Anubis
 
 ## Play-test
 
-* A play script in `tests/play/anubis-stuck-under-step.txt` puts the player on a step with an Anubis guard below.
-  Stand there and poke it with a spear: it steps back and shoots a bolt that hits you.
-* Same with the Anubis boss: it gets out from under the step faster.
+* `bin/game --play tests/play/anubis-stuck-under-step.txt`: the script takes you up the steps to the edge of a step
+  three quarters high, a spear in hand (god mode). Poke the Anubis below: it steps back out of the spear's reach and
+  its bolt hits you, not the step.
+* Step back from the edge (towards the left end of the step): it backs off to the edge of its range and waits.
+* `bin/game --play tests/play/anubis-stuck-under-step-boss.txt`: the same with the boss, the down key held (its high
+  swing ducked): it backs off faster and its bolt hits you.

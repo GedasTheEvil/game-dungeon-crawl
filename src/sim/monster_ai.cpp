@@ -251,13 +251,33 @@ bool Monster::TakeShot(float px, float& outX, float& outY) {
 		type->model.Progress(state, playback) < type->ranged->release)
 		return false;
 	rangedReleased = true;
-	const float ahead = CentreX() + static_cast<float>(facing) * type->ranged->releaseAhead * HalfWidth();
-	const float edge = px - static_cast<float>(facing) * links.player->HalfWidth();
-	outX = facing > 0 ? std::min(ahead, edge) : facing < 0 ? std::max(ahead, edge) : CentreX();
-	outY = static_cast<float>(row) +
-		   (lift() + type->ranged->releaseY * type->model.referenceTop * type->scale * Figures::Scale()) /
-			   RenderConfig::TILE_SIZE;
+	const ShotPoint from = ShotRelease(px, CentreX(), facing);
+	outX = from.x;
+	outY = from.y;
 	return true;
+}
+
+Monster::ShotPoint Monster::ShotRelease(float px, float at, int dir) const {
+	const float releaseAhead = type->ranged ? type->ranged->releaseAhead : 1.f;
+	const float releaseY = type->ranged ? type->ranged->releaseY : 0.5f;
+	const float ahead = at + static_cast<float>(dir) * releaseAhead * HalfWidth();
+	const float edge = px - static_cast<float>(dir) * links.player->HalfWidth();
+	return {
+		dir > 0	  ? std::min(ahead, edge)
+		: dir < 0 ? std::max(ahead, edge)
+				  : at,
+		static_cast<float>(row) +
+			(lift() + releaseY * type->model.referenceTop * type->scale * Figures::Scale()) / RenderConfig::TILE_SIZE
+	};
+}
+
+void Monster::LineUp(int dir) {
+	if (!Alive())
+		return;
+	fleeDir = 0; // it backs off facing the player, for the shot
+	walked = WalkStep() * (type->isBoss() ? LINE_UP_BOSS_PACE : 1.f);
+	stepBy(walked * static_cast<float>(dir));
+	enter(ModelState::Move);
 }
 
 float Monster::seekProbeX(int dir) const { return CentreX() + static_cast<float>(dir) * HalfWidth(); }

@@ -337,6 +337,8 @@ class Monster {
 	[[nodiscard]] BiteCone Reach() const;
 	// The player's box at (px, py) touches its body or its bite's cone, turned dir (-1 / +1; 0: the body only).
 	[[nodiscard]] bool Reaches(float px, float py, int dir) const;
+	// The same, as if its centre stood at map x at (plan anubis-stuck-under-step: from where it would bite).
+	[[nodiscard]] bool ReachesFrom(float at, float px, float py, int dir) const;
 	// Ambushers, the entombed, the submerged, the coiled and the floating: true while still lurking; wakes (and returns
 	// false) once the player is close (MUMMY_WAKE_RANGE, SUBMERGED_WAKE_RANGE, COILED_WAKE_RANGE,
 	// FLOATING_WAKE_RANGE). An ambusher never wakes this way, only by Spring or a hit (plan interact-prompt).
@@ -354,6 +356,15 @@ class Monster {
 	// Once per shot, at the clip's release: true and the point (map units) the shot leaves from, never past the near
 	// edge of the player at px.
 	bool TakeShot(float px, float& outX, float& outY);
+	// Where its shot would leave from, standing with its centre at map x at, turned dir (-1 / +1) to the player at px.
+	struct ShotPoint {
+		float x = 0.f;
+		float y = 0.f;
+	};
+	[[nodiscard]] ShotPoint ShotRelease(float px, float at, int dir) const;
+	// A shooter whose shot hits a step (plan anubis-stuck-under-step): one step that way (dir -1 / +1), facing the
+	// player; a boss faster (LINE_UP_BOSS_PACE).
+	void LineUp(int dir);
 	// Burrowers: up, alerted and its dive is due (it waits for the player on its row).
 	[[nodiscard]] bool canDive(float py) const;
 	void Dive(float toX); // dives at once, comes up at tile-local x toX (see Burrow)

@@ -74,8 +74,11 @@ Monster::BiteCone Monster::Reach() const {
 	};
 }
 
-bool Monster::Reaches(float px, float py, int dir) const {
+bool Monster::Reaches(float px, float py, int dir) const { return ReachesFrom(CentreX(), px, py, dir); }
+
+bool Monster::ReachesFrom(float at, float px, float py, int dir) const {
 	const Player& player = *links.player;
+	const float shift = at - CentreX();
 	const float left = px - player.HalfWidth();
 	const float right = px + player.HalfWidth();
 	// A crouch (plan crouch) ducks a high swing; a low bite or a body blow finds the crouched player all the same.
@@ -84,12 +87,12 @@ bool Monster::Reaches(float px, float py, int dir) const {
 	// Its body off the row's floor, not down in a water basin: the player's box does not sink either.
 	const float bottom = BottomY() + sink / RenderConfig::TILE_SIZE;
 	const float height = TopY() - BottomY();
-	if (left <= Right() && right >= Left() && py <= bottom + height && top >= bottom)
+	if (left <= Right() + shift && right >= Left() + shift && py <= bottom + height && top >= bottom)
 		return true; // in its body: no safe spot inside it
 	if (dir == 0 || ducked)
 		return false;
 	const BiteCone cone = Reach();
-	const float mouthX = dir > 0 ? Right() : Left();
+	const float mouthX = (dir > 0 ? Right() : Left()) + shift;
 	const float mouthY = bottom + cone.mouthY * height;
 	const float near = dir > 0 ? left - mouthX : mouthX - right;
 	const float far = dir > 0 ? right - mouthX : mouthX - left;

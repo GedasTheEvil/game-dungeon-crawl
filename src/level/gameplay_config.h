@@ -120,6 +120,10 @@ constexpr float COWARD_SAFE_GAP = 4.5f;
 // near, so it does not jitter at the edge. The checker scores a kiter higher: it is hard to pin down.
 constexpr int KITE_CLOSING_MS = 300;
 constexpr float KITE_HYSTERESIS = 0.4f;
+// A shooter under a step (plan anubis-stuck-under-step, Dungeon::lineUpAway): the shot's line is probed every
+// LINE_UP_PROBE tiles, and so are the spots behind it; a boss steps back LINE_UP_BOSS_PACE times its walk step.
+constexpr float LINE_UP_PROBE = 0.05f;
+constexpr float LINE_UP_BOSS_PACE = 1.5f;
 constexpr float KITER_THREAT_FACTOR = 1.15f;
 // Light shunners (MonsterKind::shunsLight, the camel spider, plan camel-spider): a cell up to this many cells along the
 // row from a flame (a wall torch, a brazier, an oil lamp) is lit. It does not step into one, and one in its way is a

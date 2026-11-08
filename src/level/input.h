@@ -52,6 +52,11 @@ void processMouseActiveMotion(int a, int b);
 
 void processMousePassiveMotion(int a, int b);
 
-void processMouseEntry(int a);
+void processMouseEntry(int state);
+
+// The GLUT motion callbacks of a played game: the motion, then the pointer held in the window (plan
+// mouse-leaves-window). A scenario calls the process functions, no warp.
+void windowPassiveMotion(int x, int y);
+void windowActiveMotion(int x, int y);
 
 #endif

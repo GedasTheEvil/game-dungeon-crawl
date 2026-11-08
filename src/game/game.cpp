@@ -182,8 +182,8 @@ int main(int argc, char* argv[]) {
 			glutSpecialUpFunc(&specialKeyReleased);
 
 			glutMouseFunc(processMouse);
-			glutMotionFunc(processMouseActiveMotion);
-			glutPassiveMotionFunc(processMousePassiveMotion);
+			glutMotionFunc(windowActiveMotion);
+			glutPassiveMotionFunc(windowPassiveMotion);
 			glutEntryFunc(processMouseEntry);
 		}
 

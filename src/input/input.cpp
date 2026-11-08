@@ -14,6 +14,7 @@
 
 namespace {
 MouseLook mouseLook;
+bool pointerInside = true; // the pointer is over the window (GLUT entry): the pointer hold may warp it
 CameraLook cameraLook; // the look keys held, the time since the last look input
 // The walk keys held down, in GameplayAction order from MoveLeft.
 std::array<bool, 4> walkHeld{};
@@ -288,11 +289,16 @@ void stepCameraLook() {
 	camera.rotN = angles.n;
 }
 
+namespace {
+// The game is played, no screen over it: the cursor hidden and held in the window (plan mouse-leaves-window).
+bool pointerHidden() {
+	return Game().ui.screen == Screen::Gameplay && ScreenState::IsGameplayInteractionAllowed(Game());
+}
+} // namespace
+
 void followCursor() {
 	static int shown = -1;
-	const int cursor = Game().ui.screen == Screen::Gameplay && ScreenState::IsGameplayInteractionAllowed(Game())
-						   ? GLUT_CURSOR_NONE
-						   : GLUT_CURSOR_LEFT_ARROW;
+	const int cursor = pointerHidden() ? GLUT_CURSOR_NONE : GLUT_CURSOR_LEFT_ARROW;
 	if (cursor != std::exchange(shown, cursor))
 		glutSetCursor(cursor);
 }
@@ -722,7 +728,29 @@ void processMouseActiveMotion(int a, int b) {
 }
 
 // The cursor left or entered the window: the first motion back does not turn the camera by the way it went outside.
-void processMouseEntry(int a) {
-	(void)a;
+// Gone (another window over it, Alt+Tab): no warp until it is back.
+void processMouseEntry(int state) {
+	pointerInside = state == GLUT_ENTERED;
 	mouseLook.Forget();
+}
+
+namespace {
+// Plan mouse-leaves-window: while the game looks, the hidden pointer goes back to the window's centre before it
+// reaches an edge, so the look keeps turning and a click never lands outside. Not in a scenario (no GLUT callbacks).
+void holdPointer() {
+	if (!pointerInside || !pointerHidden())
+		return;
+	if (const std::optional<MouseLook::Point> to = mouseLook.Hold(Game().render.resX, Game().render.resY))
+		glutWarpPointer(to->x, to->y);
+}
+} // namespace
+
+void windowPassiveMotion(int x, int y) {
+	processMousePassiveMotion(x, y);
+	holdPointer();
+}
+
+void windowActiveMotion(int x, int y) {
+	processMouseActiveMotion(x, y);
+	holdPointer();
 }

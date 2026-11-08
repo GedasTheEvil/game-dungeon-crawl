@@ -130,6 +130,13 @@ TEST_CASE("a large monster does not reach the path through a crawl space, a smal
 	}
 }
 
+TEST_CASE("a trap between shields the path from a coward walker, not from a reckless one") {
+	// Plan checker-reckless-threat: the rat stops at the spikes, the anubis guard walks through them.
+	CHECK(checkLevel(drawn({"#######", "#S.E^t#", "#######"})).pathMonsters == 0);
+	CHECK(checkLevel(drawn({"#######", "#S.E^n#", "#######"})).pathMonsters == 1);
+	CHECK(checkLevel(drawn({"#######", "#S.E.t#", "#######"})).pathMonsters == 1);
+}
+
 TEST_CASE("a crawl space that ends at a drop or a trap is warned about") {
 	LevelGrid pit = drawn({"#########", "#S.E....#", "#######.#", "#########"});
 	cell(pit, 6, 2).shape = CRAWL_SPACE;

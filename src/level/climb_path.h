@@ -26,6 +26,9 @@ struct BodyFit {
 // every sub-cell column fits the body. True for a cell with no shape, dir 0 or no body.
 [[nodiscard]] bool shapePasses(const Tile* cells, int col, int row, int dir, BodyFit body);
 
+// A trap a coward walker stops at (Courage): spikes, a death trap, a dart plate, a rock fall not yet fallen, rhythm
+// spikes about to come out, a fire vent about to burn or burning, a poison drip's puddle.
+[[nodiscard]] bool walkerTrapAt(const Tile& cell);
 // A walker cannot step into it: out of the level, solid (a wall, deep water, a closed gate), a trap unless it is
 // reckless, or no floor under it; going dir with a body, a shape it does not pass (shapePasses).
 [[nodiscard]] bool

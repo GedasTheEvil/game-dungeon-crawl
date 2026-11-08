@@ -314,15 +314,19 @@ void checkStepTops(const Walker& walker, const std::vector<char>& expanded, Leve
 }
 
 // A monster spawned at (spawnCol, row) walks to col along the row, unless a shape on the way stops its body (plan
-// subcell-checker: a large one does not follow through a crawl space).
+// subcell-checker: a large one does not follow through a crawl space) or a trap before col stops a coward.
 bool monsterReaches(const LevelGrid& grid, int spawnCol, int row, int col) {
 	const MonsterKind* kind = monsterKind(grid.at(spawnCol, row).attr);
 	if (kind == nullptr)
 		return true;
 	const BodyFit body{kind->heightQuarters, kind->stepQuarters};
+	// A coward walker stops at a trap; a reckless one walks through it, a flyer over it, a leaper leaps it (plan
+	// checker-reckless-threat): a trap shields the player only from the cowards, as in the game.
+	const bool trapStops = kind->courage == Courage::Coward && kind->locomotion != Locomotion::Fly &&
+						   !leaps(kind->locomotion);
 	const int dir = col > spawnCol ? 1 : -1;
 	for (int c = spawnCol + dir; c != col + dir; c += dir)
-		if (!shapePasses(grid.cells, c, row, dir, body))
+		if (!shapePasses(grid.cells, c, row, dir, body) || (trapStops && c != col && walkerTrapAt(grid.at(c, row))))
 			return false;
 	return true;
 }

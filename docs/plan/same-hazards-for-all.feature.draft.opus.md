@@ -41,7 +41,7 @@ done, each point below is a change in one place.
   be hit by it at all; today they only hit the player, so this is only the shared timer, no new hit. Blind stays the
   player's (a monster has no view to blur).
 * **The level checker** (`level_check*.cpp`, `level_walker`) models trap damage to the player and to reckless monsters
-  ([checker-reckless-threat](checker-reckless-threat.bug.draft.opus.md)): switch it to the one formula, then fix every
+  ([checker-reckless-threat](solved/checker-reckless-threat.tooling.md)): switch it to the one formula, then fix every
   campaign level it flags (AGENTS.md: no warnings).
 * **Journal**: a creature's note on traps ("walks through spikes unharmed") reads its trap share as before.
 

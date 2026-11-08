@@ -78,7 +78,7 @@ PlayerHud::View playerHudView() {
 			view.ringWorn[hand] = true;
 			view.ringGem[hand] = {c.r, c.g, c.b};
 		}
-	view.statuses = statusList(stats);
+	view.statuses = statusList(stats, Game().dungeon.PlayerTerrainMood()); // a web: hostile (plan same-hazards-for-all)
 	view.poisoned = stats.vitals.poison.Any();
 	view.staminaSkillShown = stats.heka.HasStaminaSkill();
 	view.staminaSkillOn = Game().player->staminaSkills;

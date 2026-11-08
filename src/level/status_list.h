@@ -48,12 +48,14 @@ struct StatusList {
 
 // The conditions of a body, the player's or a monster's (plan monster-status-icons): the poison tiers weak first,
 // burning, out of action (the player's daze, a monster's stun), then the terrain's mood (native: a blessing card,
-// hostile: a condition card; the player has none yet). One place for the next condition both can have.
+// hostile: a condition card; the player's own affinity, PlayerStats::TerrainHostile). One place for the next condition
+// both can have.
 void addConditions(StatusList& list, const Vitals& vitals, TerrainMood mood = TerrainMood::Neutral);
 
 // The player's running effects in display order: blessings (resistance, Hapi, the gods in God order), then the
-// conditions (addConditions), then curses in Curse order, so the row reads by colour.
-[[nodiscard]] StatusList statusList(const PlayerStats& stats);
+// conditions (addConditions; mood: the player's terrain, Dungeon::PlayerTerrainMood, plan same-hazards-for-all),
+// then curses in Curse order, so the row reads by colour.
+[[nodiscard]] StatusList statusList(const PlayerStats& stats, TerrainMood mood = TerrainMood::Neutral);
 
 // A monster's (plan monster-status-icons): its conditions only, no blessings or curses (it prays at no shrine).
 [[nodiscard]] StatusList monsterStatuses(const Vitals& vitals, TerrainMood mood);

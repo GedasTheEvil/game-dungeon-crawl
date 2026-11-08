@@ -60,7 +60,7 @@ enum class Courage : unsigned char {
 	// Afraid of traps (spikes, death traps, a rock fall not yet fallen): a walker stops at their edge, a walk-jumper
 	// leaps over them.
 	Coward,
-	// Walks straight through them and takes their damage, cut by MonsterKind::trapDamagePct.
+	// Walks straight through them and takes their damage, cut by MonsterKind::trapPermille.
 	Reckless,
 };
 
@@ -314,7 +314,9 @@ struct MonsterKind {
 
 	Locomotion locomotion = Locomotion::Walk;
 	Courage courage = Courage::Coward;
-	int trapDamagePct = 100; // share of a trap's damage it takes (traps ignore armour); 0: immune
+	// Per-mille share of a trap's damage it takes (Vitals::TrapLoss, traps ignore armour); 0: immune. A reckless kind's
+	// is tuned so a walk through spikes costs about what it did before plan same-hazards-for-all.
+	int trapPermille = FULL_TRAP_SHARE;
 	// Presses a dart trap's plate at DART_PLATE_WEIGHT and up (plan poison-dart-trap): 0 flyers, 1 small ones (rats,
 	// scarabs), 2-3 large ones, more for bosses. Later traps may want more.
 	int weight = 2;

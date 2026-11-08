@@ -109,7 +109,7 @@ TEST_CASE(
 	world.Wait(500);
 	CHECK(world.X() > 5.4f);
 	CHECK(2000 - world.Hp() > 600); // one and a half crossings
-	CHECK(2000 - world.Hp() < 660); // and the hits, one streak over both
+	CHECK(2000 - world.Hp() < 675); // and the hits, one streak over both (no armour: plan same-hazards-for-all)
 }
 
 TEST_CASE("a jump costs stamina, it regenerates 5% a second, a level up refills it") {

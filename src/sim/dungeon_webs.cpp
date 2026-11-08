@@ -64,6 +64,26 @@ bool Dungeon::PlayerInWeb() const {
 	return !jump.jumping && !jump.falling && WebAt(col, row);
 }
 //======================================================================================
+Terrains Dungeon::PlayerTerrains() const {
+	const JumpState& jump = sim.player->jump;
+	return TerrainsAt(
+		static_cast<int>(std::floor(mapX)),
+		static_cast<int>(std::floor(mapY)),
+		!jump.jumping && !jump.falling,
+		false
+	);
+}
+//======================================================================================
+TerrainMood Dungeon::PlayerTerrainMood() const {
+	const PlayerStats& stats = sim.player->stats;
+	return terrainMood(PlayerTerrains(), stats.TerrainNative(), stats.TerrainHostile());
+}
+//======================================================================================
+TerrainFactors Dungeon::PlayerTerrainFactors() const {
+	const PlayerStats& stats = sim.player->stats;
+	return terrainFactors(PlayerTerrains(), stats.TerrainNative(), stats.TerrainHostile(), PLAYER_TERRAIN_ROWS);
+}
+//======================================================================================
 void Dungeon::burnWeb(int cell) {
 	if (const int k = webAt(cell); k >= 0) {
 		webs[static_cast<size_t>(k)].goneMs = GameClock::now();

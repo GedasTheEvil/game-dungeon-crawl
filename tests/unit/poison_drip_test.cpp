@@ -188,7 +188,7 @@ TEST_CASE("monsters: cowards keep out of the puddle, the reckless are poisoned o
 	const int hp = mon.Health();
 	mon.StandInDrip(true, true, world.random.gameplay); // the drop
 	CHECK(mon.PoisonMask() == 2); // medium
-	CHECK(hp - mon.Health() == DRIP_DROP_DAMAGE * mon.Type()->trapDamagePct / 100);
+	CHECK(hp - mon.Health() == DRIP_DROP_DAMAGE * mon.Type()->trapPermille / FULL_TRAP_SHARE);
 	mon.StandInDrip(false, false, world.random.gameplay);
 	mon.StandInDrip(true, false, world.random.gameplay); // back in
 	CHECK(mon.PoisonMask() == 3);

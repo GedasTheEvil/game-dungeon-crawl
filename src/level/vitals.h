@@ -39,7 +39,7 @@ struct Guard {
 
 class Vitals {
   private:
-	int trapCarry = 0; // hundredths of a HP of trap damage not taken yet (TrapShare)
+	int trapCarry = 0; // thousandths of a HP of trap damage not taken yet (TrapLoss)
 	int outUntilMs = -1; // out of action (KnockOut) until this GameClock time
 
   public:
@@ -49,6 +49,7 @@ class Vitals {
 	Burning burning; // not saved, it lasts seconds
 	bool inWater = false; // standing in half water: a hit's fire share is cut (inWaterResist), a fire put out
 	TrapHurt trapHurt; // the pace and ramp of a spike or death trap it stands in
+	int blazeReadyMs = 0; // GameClock: its next hit standing in a burning floor (Dungeon::updateBlazes)
 	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
 	bool burnByPlayer = false; // the fire is the player's doing: its kill is theirs, a trap's not
 
@@ -81,12 +82,13 @@ class Vitals {
 		burnByPlayer = source == HarmSource::Weapon || (burnByPlayer && burning.Any());
 		burning.Ignite(fire, ms);
 	}
-	// A trap's damage in hundredths of a HP, the share it lets through already taken: the whole HP due now, the
-	// fraction carried to the next (so the small trap hits count too).
-	int TrapShare(int hundredths) {
-		const int total = hundredths + trapCarry;
-		trapCarry = total % 100;
-		return total / 100;
+	// A trap's damage (plan same-hazards-for-all), hundredths of a HP before the body's share (per-mille,
+	// FULL_TRAP_SHARE all of it, 0 immune): the whole HP due now, the fraction carried to the next (so the small trap
+	// hits count too). Every trap hurts the player and the monsters through here.
+	int TrapLoss(int hundredths, int permille) {
+		const long long total = static_cast<long long>(hundredths) * std::max(0, permille) / 100 + trapCarry;
+		trapCarry = static_cast<int>(total % 1000);
+		return static_cast<int>(total / 1000);
 	}
 	// A poisoned hit: that tier (re)starts (halved: half the time, Serket's favour) unless the ward (percent, rolled on
 	// rng only when > 0) shrugs it off. True: it took.

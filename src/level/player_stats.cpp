@@ -284,7 +284,7 @@ void PlayerStats::EndCurses() {
 	keepHpShare(oldMax);
 }
 
-int PlayerStats::TrapDamage(int dmg) { return vitals.TrapShare(dmg * (100 - amulet.trapCutPercent)); }
+int PlayerStats::TrapDamage(int dmg) { return vitals.TrapLoss(dmg * 100, TrapPermille()); }
 
 void PlayerStats::Regenerate(bool safe, int tickMs) {
 	const bool healing = !vitals.poison.Any() && Alive() && vitals.hp < CurrentMaxHP();

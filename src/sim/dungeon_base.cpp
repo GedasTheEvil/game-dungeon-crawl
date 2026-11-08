@@ -230,91 +230,96 @@ std::optional<Dungeon::TrapContact> Dungeon::inTrap(float x, float y, float half
 	return std::nullopt;
 }
 //======================================================================================
-// Only walkers on the ground stand in a spike trap: flyers pass over, a leaper is in the air. The player and a reckless
-// walker touch it with their box; the others keep out of its cell and touch it with their centre only, or a death
-// trap's spikes, reaching into the next cells, would stab them standing beside it. A fire vent's jet fills
-// its cell (plan fire-jet-trap): it burns them all, the player in a jump too.
+int Dungeon::TrapWalkHundredths(
+	TrapHurt& hurt,
+	float x,
+	const std::optional<TrapContact>& here,
+	int maxHp,
+	std::optional<float> pace,
+	bool airborne
+) {
+	const float lastX = hurt.lastX;
+	hurt.lastX = x;
+	if (!here)
+		return 0;
+	int hundredths = 100 * hurt.hit();
+	const float moved = std::fabs(x - lastX);
+	if (airborne || moved > 1.f) // a jump over it only grazes it (the ramp); a teleport or a load is not a step
+		return hundredths;
+	const float speed = pace.value_or(moved * 1000.f / static_cast<float>(UPDATE_TICK_MS));
+	const double bell = TrapBell::trapCrossHundredths(here->type == Death, maxHp) *
+						TrapBell::share((lastX - here->centre) / here->half, here->offset) *
+						TrapBell::speedFactor(speed);
+	return hundredths + static_cast<int>(std::lround(bell));
+}
+//======================================================================================
+bool Dungeon::TrapVenomDue(TrapHurt& hurt, const std::optional<TrapContact>& here, int hundredths) {
+	if (!here || here->type != Death) {
+		hurt.venomed = false;
+		return false;
+	}
+	if (hurt.venomed || hundredths <= 0)
+		return false;
+	hurt.venomed = true;
+	return true;
+}
+//======================================================================================
+// Every trap hurts the player and the monsters by one rule (plan same-hazards-for-all); a kind differs only by its
+// numbers (trap share, resistances, poison ward). Only walkers on the ground stand in a spike trap: flyers pass over, a
+// leaper is in the air. The player and a reckless walker touch it with their box; the others keep out of its cell and
+// touch it with their centre only, or a death trap's spikes, reaching into the next cells, would stab them standing
+// beside it. A fire vent's jet fills its cell (plan fire-jet-trap): it burns them all, the player in a jump too.
 void Dungeon::updateTraps() {
-	const float half = sim.player->HalfWidth();
-	const std::optional<TrapContact> here = inTrap(mapX, mapY, half);
-	if (!here || here->type != Death)
-		playerVenomed = false;
-	updateTrapCrossing(here);
+	Player& player = *sim.player;
+	PlayerStats& stats = player.stats;
+	const float half = player.HalfWidth();
+	const std::optional<TrapContact> here = player.Alive() ? inTrap(mapX, mapY, half) : std::nullopt;
+	const bool airborne = player.jump.jumping || player.jump.falling;
+	const int walk = TrapWalkHundredths(stats.vitals.trapHurt, mapX, here, stats.CurrentMaxHP(), {}, airborne);
+	const bool venom = TrapVenomDue(stats.vitals.trapHurt, here, walk);
+	if (const int dmg = stats.TrapDamageHundredths(walk); dmg > 0)
+		player.TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events, true);
+	if (venom && player.Alive()) { // the death trap's tips are venomous: once per entry
+		sim.events->Status("The spike tips are wet with venom.");
+		player.Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
+	}
 	updateDrips();
-	const bool jet = !here && sim.player->Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
+	const bool jet = !here && player.Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
 	if (!jet)
 		playerScorched = false;
-	if (jet && sim.player->stats.vitals.trapHurt.hit() > 0) {
-		PlayerStats& stats = sim.player->stats;
-		const int perSecond = std::max(
-			FIRE_JET_HP_PER_SECOND * 100,
-			stats.CurrentMaxHP() * FIRE_JET_PERCENT_PER_SECOND
-		);
-		const int hundredths = perSecond * TRAP_HURT_INTERVAL_MS / 1000 + jetCarry;
-		jetCarry = hundredths % 100;
-		if (const int dmg = stats.TrapDamage(hundredths / 100); dmg > 0) {
-			sim.player->TakeHit(dmg, FIRE_JET_MIX, *sim.events);
-			const double warded = perSecond / 100.0 * (100 - stats.TrapWardPercent()) / 100.0;
-			sim.player->stats.vitals.burning.Ignite(fireDamage(1, FIRE_JET_MIX, stats.resist) * warded);
+	if (jet && stats.vitals.trapHurt.hit() > 0) {
+		const int perSecond = fireJetHundredthsPerSecond(stats.CurrentMaxHP());
+		if (const int dmg = stats.TrapDamageHundredths(perSecond * TRAP_HURT_INTERVAL_MS / 1000); dmg > 0) {
+			player.TakeHit(dmg, FIRE_JET_MIX, *sim.events);
+			const double share = perSecond / 100.0 * stats.TrapPermille() / FULL_TRAP_SHARE; // a second's fire
+			stats.vitals.burning.Ignite(fireDamage(1, FIRE_JET_MIX, stats.resist) * share);
 			if (!playerScorched) {
 				playerScorched = true;
 				sim.events->Status("The wall exhales. You smell your eyebrows.");
 			}
 		}
 	}
-	if (here)
-		if (const int dmg = sim.player->stats.TrapDamage(sim.player->stats.vitals.trapHurt.hit()); dmg > 0) {
-			sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
-			if (here->type == Death && !playerVenomed) { // the death trap's tips are venomous: once per entry
-				playerVenomed = true;
-				sim.events->Status("The spike tips are wet with venom.");
-				sim.player->Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
-			}
-		}
 	for (Monster& mon : monsters) {
 		if (!mon.Active() || !mon.Alive())
 			continue;
-		if (!mon.flies() && !mon.jumping())
-			if (const auto trap =
-					inTrap(mon.CentreX(), static_cast<float>(mon.Row()), mon.reckless() ? mon.HalfWidth() : 0.f)) {
-				mon.StandInTrap(
-					trap->type == Death ? std::optional(PoisonTier::Strong) : std::nullopt,
-					sim.random->gameplay
-				);
-				continue;
-			}
+		const std::optional<TrapContact> trap = mon.flies() || mon.jumping()
+													? std::nullopt
+													: inTrap(
+														  mon.CentreX(),
+														  static_cast<float>(mon.Row()),
+														  mon.reckless() ? mon.HalfWidth() : 0.f
+													  );
+		TrapHurt& hurt = mon.TrapState();
+		const int dealt = TrapWalkHundredths(hurt, mon.CentreX(), trap, mon.MaxHealth(), mon.WalkPace(), false);
+		if (TrapVenomDue(hurt, trap, dealt))
+			mon.TakePoison(PoisonTier::Strong, false, sim.random->gameplay);
+		if (trap) {
+			mon.TrapHitHundredths(dealt);
+			continue;
+		}
 		if (!mon.Hidden() && inFireJet(mon.Left(), mon.Right(), mon.Row()))
-			mon.StandInFire();
+			mon.StandInFire(fireJetHundredthsPerSecond(mon.MaxHealth()));
 	}
-}
-//======================================================================================
-// The player crossing a spike or death trap on foot: the way covered in it this tick, weighted by the bell (TrapBell),
-// its speed and the crossing's damage; armour does not help, the trap ward does. Dealt once a whole HP is due.
-void Dungeon::updateTrapCrossing(const std::optional<TrapContact>& here) {
-	const float lastX = trapLastX;
-	trapLastX = mapX;
-	const JumpState& jump = sim.player->jump;
-	if (!here || !sim.player->Alive() || jump.jumping || jump.falling) { // a jump over it only grazes it (TrapHurt)
-		trapBellCarry = 0;
-		return;
-	}
-	PlayerStats& stats = sim.player->stats;
-	const bool death = here->type == Death;
-	const int cross = TrapBell::crossHundredths(
-		death ? DEATH_TRAP_CROSS_HP : SPIKES_CROSS_HP,
-		death ? DEATH_TRAP_CROSS_PERCENT : SPIKES_CROSS_PERCENT,
-		stats.CurrentMaxHP()
-	);
-	const float moved = std::fabs(mapX - lastX);
-	if (moved > 1.f) // a teleport or a load, not a step
-		return;
-	const float speed = moved * 1000.f / static_cast<float>(UPDATE_TICK_MS);
-	const double dealt = cross * TrapBell::share((lastX - here->centre) / here->half, here->offset) *
-						 TrapBell::speedFactor(speed);
-	const int hundredths = static_cast<int>(std::lround(dealt)) + trapBellCarry;
-	trapBellCarry = hundredths % 100;
-	if (const int dmg = stats.TrapDamage(hundredths / 100); dmg > 0)
-		sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events, true);
 }
 //======================================================================================
 void Dungeon::updateMonsterPoison() {
@@ -521,12 +526,9 @@ void Dungeon::ceilingSpikesHit(int trap) {
 	PlayerStats& stats = player.stats;
 	sim.events->PlayCharacter(PLAYER_CHARACTER, CharacterSound::Attack); // the grunt, as a head bump's
 	sim.events->Status("Spikes in the ceiling!");
-	const int cross = TrapBell::crossHundredths(
-		death ? DEATH_TRAP_CROSS_HP : SPIKES_CROSS_HP,
-		death ? DEATH_TRAP_CROSS_PERCENT : SPIKES_CROSS_PERCENT,
-		stats.CurrentMaxHP()
-	);
-	if (const int dmg = stats.TrapDamage(cross / 100); dmg > 0)
+	const float walk = WALK_SPEED; // a whole walk through the floor kind, as a monster's (plan same-hazards-for-all)
+	const int hundredths = TrapBell::walkHundredths(death, stats.CurrentMaxHP(), walk, player.HalfWidth());
+	if (const int dmg = stats.TrapDamageHundredths(hundredths); dmg > 0)
 		player.TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events, true);
 	if (death && player.Alive()) {
 		sim.events->Status("The spike tips are wet with venom.");
@@ -602,7 +604,8 @@ bool Dungeon::PlayerCanSprint() const {
 //======================================================================================
 float Dungeon::groundWalkFactor() const {
 	const float slow = (GameClock::now() < sandSlowUntilMs ? SAND_SLOW_FACTOR : 1.f) * // a sand fall's
-					   (PlayerInWeb() ? WEB_SLOW_FACTOR : 1.f); // a web's (plan camel-spider-boss)
+					   PlayerTerrainFactors()
+						   .speed; // the terrain's: a web's (plans camel-spider-boss, same-hazards-for-all)
 	if (PlayerInQuicksand())
 		return slow * QUICKSAND_SPEED_FACTOR *
 			   std::max(0.f, 1.f - static_cast<float>(sunkMs) / static_cast<float>(QUICKSAND_STUCK_MS));

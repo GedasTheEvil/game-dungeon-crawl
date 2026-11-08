@@ -95,8 +95,10 @@ TEST_CASE(
 	REQUIRE(world.WalkTo(11.2f));
 	world.Wait(18000);
 	const int hp = monsterKind(MonsterAnubis)->maxHealth;
-	CHECK(world.Nearest() < hp); // a quarter of the darts' damage (trapDamagePct 25); immune to the poison
-	CHECK(world.Nearest() > hp - 20);
+	// Its trap share (tuned for the spikes' crossing, plan same-hazards-for-all) of the darts: a scratch at most;
+	// immune to the poison.
+	CHECK(world.Nearest() <= hp);
+	CHECK(world.Nearest() > hp - 5);
 	CHECK(world.dungeon.NearestMonsterPoison() == 0);
 }
 

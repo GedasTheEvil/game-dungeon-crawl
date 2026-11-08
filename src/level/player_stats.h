@@ -11,6 +11,7 @@
 #include "vitals.h"
 #include "run_stats.h"
 #include "shrines.h"
+#include "terrain.h"
 #include "skills.h"
 #include "world_events.h"
 #include <array>
@@ -179,9 +180,17 @@ class PlayerStats {
 	// The trap ward's cut of trap damage, and the chance a chest's trap or a tomb curse does not go off (plan
 	// trapped-chests); 100: immune.
 	[[nodiscard]] int TrapWardPercent() const { return amulet.trapCutPercent; }
-	// The share of a spike or death trap's damage the amulet lets through; the hundredths left over carry to the
-	// next hit, so the small spike hits are cut too (as Monster::StandInTrap).
+	// Its terrain affinity (plan same-hazards-for-all), as a monster kind's native and hostile terrains: the hook a
+	// blessing or a curse adds a terrain through. Today none native, webs hostile (PLAYER_HOSTILE_TERRAINS).
+	[[nodiscard]] Terrains TerrainNative() const { return {}; }
+	[[nodiscard]] Terrains TerrainHostile() const { return PLAYER_HOSTILE_TERRAINS; }
+	// The share of a trap's damage it takes, per-mille (Vitals::TrapLoss): all but the ward's.
+	[[nodiscard]] int TrapPermille() const { return FULL_TRAP_SHARE - 10 * amulet.trapCutPercent; }
+	// A trap's damage in whole HP, of it the share the amulet lets through (TrapPermille); the fraction left over
+	// carries to the next hit, so the small spike hits are cut too (Vitals::TrapLoss, as a monster's).
 	int TrapDamage(int dmg);
+	// The same for a damage in hundredths of a HP (a crossing's bell, a jet's tick).
+	int TrapDamageHundredths(int hundredths) { return vitals.TrapLoss(hundredths, TrapPermille()); }
 	// One update tick of the regeneration amulet: heals while `safe` (no monster can chase or attack the player) and
 	// no poison runs. The rubies heal too, also when not safe; not while poisoned either.
 	void Regenerate(bool safe, int tickMs);

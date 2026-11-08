@@ -240,7 +240,7 @@ void Dungeon::clearMonsters() {
 	nextWebMs = 0;
 	playerWebbed = false;
 	blazes.clear();
-	nextBlazeHitMs = 0;
+	sim.player->stats.vitals.blazeReadyMs = 0;
 	playerBlazed = false;
 	bossFight = BossFight{};
 	powerHit = PowerHitMark{};

@@ -114,11 +114,7 @@ int Monster::HeadBump(Rng& rng) {
 	return lost;
 }
 
-int Monster::TrapCrossHits() const {
-	const float tilesPerSecond = std::max(0.01f, WalkStep() * 1000.f / static_cast<float>(MONSTER_STEP_PERIOD_MS));
-	const float way = 1.f + 2.f * HalfWidth() * (1.f - TRAP_BOX_FORGIVE);
-	return static_cast<int>(std::ceil(way / tilesPerSecond * 1000.f / static_cast<float>(TRAP_HURT_INTERVAL_MS)));
-}
+float Monster::WalkPace() const { return WalkStep() * 1000.f / static_cast<float>(MONSTER_STEP_PERIOD_MS); }
 
 int Monster::CeilingSpikes(bool death, Rng& rng) {
 	if (!Alive())
@@ -126,7 +122,7 @@ int Monster::CeilingSpikes(bool death, Rng& rng) {
 	const int before = vitals.hp;
 	sound(CharacterSound::Attack); // the grunt, as a bump's
 	leap.bumpMemoryMs = GameClock::now() + MONSTER_HEAD_BUMP_MEMORY_MS;
-	TrapHit(TrapHurt::rampTotal(TrapCrossHits()));
+	TrapHitHundredths(TrapBell::walkHundredths(death, MaxHealth(), WalkPace(), HalfWidth()));
 	if (death)
 		TakePoison(PoisonTier::Strong, false, rng);
 	return before - vitals.hp;

@@ -392,8 +392,8 @@ class Dungeon {
 	// The ceiling trap (CeilingSpikes, CeilingDeath) the player's head at feet height y touches at ceilingAt's points,
 	// NoObject for none (plan ceiling-spikes).
 	[[nodiscard]] int ceilingTrapAt(float y) const;
-	// A jump into a ceiling trap: a whole walk over the floor kind (TrapBell::crossHundredths) through armour, the
-	// death trap's strong poison; it replaces the head bump (plan ceiling-spikes).
+	// A jump into a ceiling trap: a whole walk over the floor kind at the walk (TrapBell::walkHundredths, as a
+	// monster's), through armour, the death trap's strong poison; it replaces the head bump (plan ceiling-spikes).
 	void ceilingSpikesHit(int trap);
 	// The player's body height against the shapes: PLAYER_BODY_HEIGHT, crouched CROUCH_HEIGHT_FACTOR of it.
 	[[nodiscard]] float playerBodyHeight() const;
@@ -480,7 +480,6 @@ class Dungeon {
 	drawPoisonDrips(const CellRect& drawn); // the stain, the lump, the puddle and the falling venom, after the opaque
 	void addPoisonDripLights(const CellRect& drawn); // a faint green glow off each puddle
 	bool playerScorched = false; // the fire jet's line was told this entry (reset on leaving it)
-	int jetCarry = 0; // hundredths of a HP of the jet's damage not dealt yet
 	void drawFireVentTile(); // the vent low in the back wall
 	void drawFireJets(const CellRect& drawn); // the jets and the telegraph's glow, after the opaque tiles
 	void addFireVentLights(const CellRect& drawn); // the jets light the corridor, the telegraph glows
@@ -630,7 +629,7 @@ class Dungeon {
 	void aimShot(MonsterShot& v) const; // at the player as they stand: the chest, a big coal the feet
 	void updateShots();
 	// A floor burning where Babi's big coal landed (plan babi-boss, dungeon_blaze.cpp): the cell (map index) from
-	// startMs to endMs. The player standing in it, not in a jump, takes BLAZE_DAMAGE every BLAZE_TICK_MS and burns on.
+	// startMs to endMs. Whoever stands in it, not in a jump, takes BLAZE_DAMAGE every BLAZE_TICK_MS and burns on.
 	// Not saved.
 	struct Blaze {
 		int cell;
@@ -638,7 +637,6 @@ class Dungeon {
 		int endMs;
 	};
 	std::vector<Blaze> blazes;
-	int nextBlazeHitMs = 0; // GameClock: the player's next hit standing in a blaze
 	bool playerBlazed = false; // the player stood in a blaze on the last tick: the status line was told
 	void blazeAt(float x, float y, int ms); // the floor of the cell under (x, y) burns, unless it is wet or no floor
 	void updateBlazes();
@@ -683,21 +681,6 @@ class Dungeon {
 	void addBallLights(); // the burning balls'; same frame as addLights
 
 	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
-	// Feet at (x, y) in map units, half wide (a box; 0 a point), touch a spike or death trap's hitbox:
-	// TRAP_HITBOX_X/Y_SCALE x the trap's scale round the tile's bottom centre. The box is TRAP_BOX_FORGIVE narrower on
-	// each side (plan trap-player-box), so grazing an edge doesn't count.
-	// The trap it stands in: its tile type (Spike or Death) and x's offset from its middle in half widths (-1 to 1).
-	struct TrapContact {
-		int type;
-		float offset;
-		float centre; // its middle's map x
-		float half; // its hitbox's half width, widened by the box: the centre's span in it
-	};
-	[[nodiscard]] std::optional<TrapContact> inTrap(float x, float y, float half) const;
-	float trapLastX = 0.f; // the player's x on the tick before (updateTraps): the way covered in a trap
-	void updateTrapCrossing(const std::optional<TrapContact>& here);
-	int trapBellCarry = 0; // hundredths of a HP of the crossing's damage not dealt yet
-	bool playerVenomed = false; // the death trap's poison took this entry (reset on leaving it)
 	void updateTraps();
 	void updateMonsterPoison(); // the running poison of each monster; the player's poison kill is theirs
 	void updateBurning(); // the player's and each monster's fire (plan fire-damage); a monster's burning kill rewards
@@ -754,6 +737,31 @@ class Dungeon {
 	void updateAnimations(); // the portal scroll, the riddle mark, the treasure items
 
   public:
+	// Feet at (x, y) in map units, half wide (a box; 0 a point), touch a spike or death trap's hitbox:
+	// TRAP_HITBOX_X/Y_SCALE x the trap's scale round the tile's bottom centre. The box is TRAP_BOX_FORGIVE narrower on
+	// each side (plan trap-player-box), so grazing an edge doesn't count.
+	// The trap it stands in: its tile type (Spike or Death) and x's offset from its middle in half widths (-1 to 1).
+	struct TrapContact {
+		int type;
+		float offset;
+		float centre; // its middle's map x
+		float half; // its hitbox's half width, widened by the box: the centre's span in it
+	};
+	[[nodiscard]] std::optional<TrapContact> inTrap(float x, float y, float half) const;
+	// A body on foot at map x in a spike or death trap this tick (here; none: out of it), the player and a monster by
+	// one rule (plan same-hazards-for-all): the bell (TrapBell) over the way it covered since the tick before at its
+	// pace (tiles a second; none: the way this tick), times the trap's crossing, plus TrapHurt's ramp. Hundredths of a
+	// HP, before its trap share. Airborne (a jump over it) only the ramp: a graze.
+	[[nodiscard]] static int TrapWalkHundredths(
+		TrapHurt& hurt,
+		float x,
+		const std::optional<TrapContact>& here,
+		int maxHp,
+		std::optional<float> pace,
+		bool airborne
+	);
+	// The death trap's venom, once per entry (TrapHurt::venomed): true when it is due now.
+	[[nodiscard]] static bool TrapVenomDue(TrapHurt& hurt, const std::optional<TrapContact>& here, int hundredths);
 	Dungeon();
 	~Dungeon();
 	void Link(const SimLinks& links) { sim = links; } // once, before the first level
@@ -990,8 +998,15 @@ class Dungeon {
 	[[nodiscard]] bool WebAt(int col, int row) const { return IsInBounds(col, row) && webAt(MapIndex(col, row)) >= 0; }
 	// Scenario tests: a web over the floor of (col, row). False: no floor for one there (webFloor), or one lies there.
 	bool PlaceWeb(int col, int row);
-	// The player stands in a web (not in the air): the walk slows to WEB_SLOW_FACTOR (PlayerWalkFactor).
+	// The player stands in a web (not in the air): hostile terrain, the walk slows to WEB_SLOW_FACTOR
+	// (PlayerWalkFactor).
 	[[nodiscard]] bool PlayerInWeb() const;
+	// The terrains of the player's cell (TerrainsAt; in the air, none of the ground's) and what the player's affinity
+	// (PlayerStats::TerrainNative, TerrainHostile) makes of them (plan same-hazards-for-all): the walk's factor and
+	// the HUD's mood card.
+	[[nodiscard]] Terrains PlayerTerrains() const;
+	[[nodiscard]] TerrainMood PlayerTerrainMood() const;
+	[[nodiscard]] TerrainFactors PlayerTerrainFactors() const;
 	// The floor of (col, row) burns (Babi's big coal, plan babi-boss).
 	[[nodiscard]] bool BlazeAt(int col, int row) const;
 	// Scenario tests: the floor of (col, row) burns for ms. False: no dry floor there (blazeFloor).

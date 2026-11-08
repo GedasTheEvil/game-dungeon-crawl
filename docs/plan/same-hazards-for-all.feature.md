@@ -1,6 +1,6 @@
 # Same hazards for all: every trap and terrain hits the player and the monsters by one rule
 
-Status: draft 2026-11-06, size L, needs first: [shared-vitals](solved/shared-vitals.tooling.md), [terrain-affinity](solved/terrain-affinity.feature.md).
+Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-06, size L, needs first: [shared-vitals](solved/shared-vitals.tooling.md), [terrain-affinity](solved/terrain-affinity.feature.md).
 
 ## Idea
 
@@ -57,3 +57,37 @@ done, each point below is a change in one place.
   today's damage; a unit test per reckless kind pins it).
 * Babi in his own blaze: immune by fire resistance, or native fire from terrain-affinity.
 * Whether the player's terrain card shows always or only when the mood is not neutral (likely only then).
+
+## Done
+
+* **One trap formula** (`Dungeon::TrapWalkHundredths`, `TrapBell::walkHundredths`): every body on foot in spikes or a
+  death trap takes the bell over the way it covered at its pace (the player's measured, a monster's walk) times
+  `max(floor, percent of max HP)`, plus `TrapHurt`'s ramp, times its trap share. The share is per-mille now
+  (`MonsterKind::trapPermille`, `PlayerStats::TrapPermille`, `Vitals::TrapLoss`): the old percent could not hold a
+  boss's share (below 1%). Traps ignore armour for every body (the player's ramp hits too). The death trap's venom:
+  once per entry for both (`TrapVenomDue`). Ceiling spikes: a whole walk at the walk pace for both.
+* **Re-tune** (per-mille): Anubis guard 19, mummy 440, Anubis boss 4, scorpion queen 72, Apep 71, Sobek 84, mummy
+  priest 75, Seth 78, Rerek 78, Babi 11: each reckless kind's walk through spikes within ±25% of before
+  (`same_hazards_test.cpp` pins it). Cowards keep 1000.
+* **Side effects for the play-test** (one share for all traps): darts, rocks, sand falls, drips and wall stabs keep
+  their constants but use the new share, so the Anubis guard and the bosses barely feel them; the fire jet has one
+  rule (`fireJetHundredthsPerSecond`, `FIRE_JET_MONSTER_HP_PER_SECOND` gone): a mummy (weak to fire) now melts in
+  a jet in about a second, a coward caught in one dies; a giant rat pouncing into ceiling spikes dies (the player's
+  floor of 200 HP, as a new player).
+* **Blaze**: hits every body on the ground by one timer (`Vitals::blazeReadyMs`); a monster native to fire (Babi, his
+  baboons) is unharmed; no XP for its kill.
+* **Webs / terrain for the player**: `PlayerStats::TerrainNative` / `TerrainHostile` (the hook; today webs hostile),
+  `PLAYER_TERRAIN_ROWS` (a web only slows the player to `WEB_SLOW_FACTOR`), `Dungeon::PlayerTerrainFactors` drives the
+  walk; the HUD shows the mood card only when not neutral.
+* **Head bump and conditions**: already one rule (`rollHeadBumpDaze`, `Vitals::KnockOut`); no new hits.
+* **Checker**: it models no trap damage numbers (a weight per trap on the path); the reckless reach is
+  [checker-reckless-threat](solved/checker-reckless-threat.tooling.md). All campaign levels pass with no warnings.
+* **Journal**: no creature note reads the trap share; nothing to change.
+
+## Play-test
+
+* `bin/game --play tests/play/same-hazards-for-all.txt`: wake the mummy behind the spikes; it walks into them and
+  dies there, as before. Cross the spikes yourself: as deadly as before.
+* In a Mother of Webs fight, stand in a web: slowed as before, a grey terrain card shows on the HUD.
+* In Babi's fight: his burning floor hurts you as before, not him or his baboons.
+* Watch for the side effects above (jets, darts on the Anubis guard): say if the new numbers feel wrong.

@@ -66,7 +66,10 @@ bool warned(const LevelReport& r, const std::string& part) {
 TEST_CASE("a jump into ceiling spikes costs a walk over the floor spikes, through armour; no bump") {
 	SimWorld world;
 	const int lost = jumpUnder(world, SPIKES_COL);
-	CHECK(lost == world.player.stats.HitDamage(SPIKES_CROSS_HP, SPIKE_ATTACK_MIX, true, false));
+	// The bell's whole crossing and the ramp of a walk through it, as a monster's (plan same-hazards-for-all).
+	const int walk = TrapBell::walkHundredths(false, 1000, WALK_SPEED, world.player.HalfWidth()) / 100;
+	CHECK(walk > SPIKES_CROSS_HP);
+	CHECK(lost == world.player.stats.HitDamage(walk, SPIKE_ATTACK_MIX, true, false));
 	CHECK(lost >= SPIKES_CROSS_HP * 9 / 10);
 	CHECK(heard(world, WorldSound::SpikeThunk));
 	CHECK_FALSE(heard(world, WorldSound::HeadBump));
@@ -125,9 +128,12 @@ TEST_CASE("a giant rat pouncing into ceiling spikes takes a walk through the flo
 	world.Tick();
 	CHECK(heard(world, WorldSound::SpikeThunk));
 	CHECK_FALSE(heard(world, WorldSound::HeadBump));
-	const int expected = TrapHurt::rampTotal(rat->TrapCrossHits()) * rat->Type()->trapDamagePct / 100;
+	const int expected = TrapBell::walkHundredths(false, rat->MaxHealth(), rat->WalkPace(), rat->HalfWidth()) *
+						 rat->Type()->trapPermille / FULL_TRAP_SHARE / 100;
 	CHECK(expected > 0);
-	CHECK(full - rat->Health() == std::min(full, expected));
+	CHECK(
+		full - std::max(0, rat->Health()) == std::min(full, expected)
+	); // the player's floor kills it, as a new player
 	CHECK_FALSE(rat->Reeling());
 	CHECK(rat->BumpedLately()); // no second pounce under them at once
 }

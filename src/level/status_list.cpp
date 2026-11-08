@@ -30,7 +30,7 @@ StatusList monsterStatuses(const Vitals& vitals, TerrainMood mood) {
 	return list;
 }
 
-StatusList statusList(const PlayerStats& stats) {
+StatusList statusList(const PlayerStats& stats, TerrainMood mood) {
 	using PlayerHud::Icon;
 	StatusList list;
 	if (stats.PotionResistLeftMs() > 0) {
@@ -51,7 +51,7 @@ StatusList statusList(const PlayerStats& stats) {
 	for (int g = 0; g < GOD_COUNT; g++)
 		if (const int left = stats.BlessingLeftMs(static_cast<God>(g)); left > 0)
 			list.Add({StatusKind::Blessing, GOD_ICONS[g], WHITE, 0, left});
-	addConditions(list, stats.vitals);
+	addConditions(list, stats.vitals, mood);
 	for (int c = 0; c < CURSE_COUNT; c++) {
 		const auto curse = static_cast<Curse>(c);
 		if (!stats.curses.Has(curse))

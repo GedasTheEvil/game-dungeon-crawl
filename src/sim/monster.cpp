@@ -277,29 +277,27 @@ bool Monster::StunHit(int ms, bool wasLurking) {
 	return true;
 }
 
-void Monster::StandInTrap(std::optional<PoisonTier> venom, Rng& rng) {
-	if (const int dmg = vitals.trapHurt.hit(); dmg > 0) {
-		TrapHit(dmg);
-		if (venom)
-			TakePoison(*venom, false, rng);
-	}
-}
-
-void Monster::TrapHit(int dmg) { trapHit(dmg * type->trapDamagePct); }
-
-void Monster::trapHit(int hundredthsDealt) {
-	if (const int hp = vitals.TrapShare(hundredthsDealt); hp > 0)
+void Monster::TrapHitHundredths(int hundredths) {
+	if (const int hp = vitals.TrapLoss(hundredths, type->trapPermille); hp > 0)
 		takeHit(hp); // no reward: the player must not farm kills with traps
 }
 
-void Monster::StandInFire() {
+void Monster::StandInFire(int perSecond) {
 	if (vitals.trapHurt.hit() <= 0)
 		return;
-	constexpr int HUNDREDTHS = FIRE_JET_MONSTER_HP_PER_SECOND * 100 * TRAP_HURT_INTERVAL_MS / 1000;
-	trapHit(HUNDREDTHS * type->trapDamagePct / 100 * type->resist[FIRE] / NORMAL);
+	const Resistances resist = vitals.Taken(type->resist);
+	TrapHitHundredths(perSecond * TRAP_HURT_INTERVAL_MS / 1000 * resist[FIRE] / NORMAL);
+	const double share = perSecond / 100.0 * type->trapPermille / FULL_TRAP_SHARE; // a second's fire, its share
 	if (Alive() && !vitals.inWater) // the player's fire stays theirs
-		vitals
-			.Ignite(fireDamage(FIRE_JET_MONSTER_HP_PER_SECOND, FIRE_JET_MIX, type->resist), BURN_MS, HarmSource::Trap);
+		vitals.Ignite(fireDamage(1, FIRE_JET_MIX, type->resist) * share, BURN_MS, HarmSource::Trap);
+}
+
+bool Monster::TakeHarm(int dmg, const DamageMix& mix, HarmSource source) {
+	const Harm harm{.damage = dmg, .mix = mix, .source = source};
+	const bool killed = takeHit(vitals.Cost(harm, Guard{type->resist}));
+	if (Alive() && !vitals.inWater && mix[FIRE] > 0)
+		vitals.Ignite(vitals.FireOf(harm, type->resist), harm.burnMs, harm.source);
+	return killed;
 }
 
 void Monster::StandInDrip(bool puddle, bool drop, Rng& rng) {

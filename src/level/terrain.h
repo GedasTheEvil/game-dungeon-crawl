@@ -63,7 +63,9 @@ enum class TerrainMood : unsigned char { Hostile, Neutral, Native };
 
 // Its factors in a cell: native in several terrains, per factor the strongest bonus (fastest, shortest interval,
 // hardest); hostile in several, the strongest penalty. No stacking. Neutral: all 1.
-[[nodiscard]] constexpr TerrainFactors terrainFactors(Terrains here, Terrains native, Terrains hostile) {
+// The rows: TERRAIN_ROWS for a monster, PLAYER_TERRAIN_ROWS for the player.
+[[nodiscard]] constexpr TerrainFactors
+terrainFactors(Terrains here, Terrains native, Terrains hostile, const TerrainRow* rows = TERRAIN_ROWS) {
 	const TerrainMood mood = terrainMood(here, native, hostile);
 	if (mood == TerrainMood::Neutral)
 		return {};
@@ -74,7 +76,7 @@ enum class TerrainMood : unsigned char { Hostile, Neutral, Native };
 	for (int t = 0; t < TERRAIN_COUNT; t++) {
 		if (!mine.has(static_cast<Terrain>(t)))
 			continue;
-		const TerrainRow& row = TERRAIN_ROWS[static_cast<std::size_t>(t)];
+		const TerrainRow& row = rows[static_cast<std::size_t>(t)];
 		const TerrainFactors& r = bonus ? row.native : row.hostile;
 		if (first) {
 			f = r;
@@ -87,6 +89,21 @@ enum class TerrainMood : unsigned char { Hostile, Neutral, Native };
 	}
 	return f;
 }
+
+// The player's terrain affinity (plan same-hazards-for-all), as a monster kind's: by default hostile to webs and
+// nothing else, so the game plays as before the plan; a blessing or a curse can add a native or hostile terrain
+// (PlayerStats::TerrainNative, TerrainHostile). Its rows are the monsters', but in a web the player only slows to
+// WEB_SLOW_FACTOR (plan camel-spider-boss): no slower bite, no weaker hit.
+constexpr TerrainRow PLAYER_TERRAIN_ROWS[] = {
+	TERRAIN_ROWS[0],
+	TERRAIN_ROWS[1],
+	TERRAIN_ROWS[2],
+	TERRAIN_ROWS[3],
+	{TERRAIN_ROWS[4].native, {WEB_SLOW_FACTOR, 1.f, 1.f}},
+	TERRAIN_ROWS[5],
+};
+static_assert(std::size(PLAYER_TERRAIN_ROWS) == TERRAIN_COUNT, "PLAYER_TERRAIN_ROWS: one row per Terrain");
+constexpr Terrains PLAYER_HOSTILE_TERRAINS = Terrains{Terrain::Web};
 
 // A slowed wader's (Wading::Slowed) speed factor in half water with the terrain's: a penalty does not stack with the
 // wade (the lower of the two), a bonus does.

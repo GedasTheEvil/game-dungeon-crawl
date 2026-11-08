@@ -66,7 +66,6 @@ class Monster {
 	Vitals vitals;
 	ModelState state = ModelState::Move;
 	int facing = 0; // -1 left, 0 the camera, +1 right
-	void trapHit(int hundredths); // a trap's damage in hundredths of a HP, carried over (Vitals::TrapShare)
 	float walked = 0.f; // tiles its last step went (Seek, Flee, BackOff); 0: it stood
 	// A walk step is drawn sliding from glideFrom to x over glideMs from glideAtMs (< 0: none), not as a jump.
 	float glideFrom = 0.f;
@@ -443,11 +442,14 @@ class Monster {
 	// at the landing (StunHit: a boss's shorter, with its cooldown). Returns the HP lost.
 	int HeadBump(Rng& rng);
 	// A leap into a ceiling trap (plan ceiling-spikes), instead of the bump: what a walk through the floor kind deals
-	// it (TrapHurt's ramp over its crossing at its walk speed, cut by trapDamagePct), the death trap's strong poison;
-	// no stun. Remembered as a bump (BumpedLately). Returns the HP lost.
+	// it (TrapBell::walkHundredths at its walk pace, cut by trapPermille), the death trap's strong poison; no stun.
+	// Remembered as a bump (BumpedLately). Returns the HP lost.
 	int CeilingSpikes(bool death, Rng& rng);
-	// TrapHurt hits a walk through a floor trap takes it: its box (TRAP_BOX_FORGIVE in) across the tile at its walk.
-	[[nodiscard]] int TrapCrossHits() const;
+	// Its walk in tiles a second (a trap crossing's pace, TrapBell).
+	[[nodiscard]] float WalkPace() const;
+	// The pace, ramp and last x of the trap it stands in (Dungeon::trapWalkHundredths).
+	TrapHurt& TrapState() { return vitals.trapHurt; }
+	Vitals& MonsterVitals() { return vitals; }
 	// It bumped its head lately (MONSTER_HEAD_BUMP_MEMORY_MS): Dungeon::pounce does not leap again under a ceiling.
 	[[nodiscard]] bool BumpedLately() const { return GameClock::now() < leap.bumpMemoryMs; }
 	// From the front edge of the player's box, facing dir (-1 / +1), to this box's near edge; < 0: they overlap.
@@ -481,16 +483,18 @@ class Monster {
 			vitals.Ignite(fire, BURN_MS, HarmSource::Weapon);
 	}
 	[[nodiscard]] int PoisonMask() const { return vitals.poison.Mask(); }
-	// Each tick it stands in a spike or death trap (see TrapHurt).
-	// venom: the death trap's poison tier, applied on a hit (no XP for the player's kill).
-	void StandInTrap(std::optional<PoisonTier> venom, Rng& rng);
-	// A trap's damage (TrapHurt, a falling rock), cut by trapDamagePct. A trap's kill gives no XP: the player must
-	// not farm kills with traps.
-	void TrapHit(int dmg);
-	// Each tick it stands in a fire vent's jet (plan fire-jet-trap): FIRE_JET_MONSTER_HP_PER_SECOND, dealt at
-	// TrapHurt's pace, all fire: its fire resistance counts on top of trapDamagePct, and it sets it burning (not in
-	// water). No XP for the kill.
-	void StandInFire();
+	// A trap's damage in whole HP (a falling rock, a dart), cut by trapPermille. A trap's kill gives no XP: the player
+	// must not farm kills with traps.
+	void TrapHit(int dmg) { TrapHitHundredths(dmg * 100); }
+	// The same in hundredths of a HP (a crossing's bell, a jet's tick), carried over (Vitals::TrapLoss).
+	void TrapHitHundredths(int hundredths);
+	// A tick in a fire vent's jet (plan fire-jet-trap) that deals perSecond hundredths of a HP a second
+	// (fireJetHundredthsPerSecond), at TrapHurt's pace: cut by trapPermille and its fire resistance, and it sets it
+	// burning (not in water). No XP for the kill.
+	void StandInFire(int perSecond);
+	// A hit that is nobody's weapon (Babi's blaze, plan same-hazards-for-all): its resistances, no armour; a fire share
+	// sets it burning. A kill by source Trap gives no XP. True: this hit killed it.
+	bool TakeHarm(int dmg, const DamageMix& mix, HarmSource source);
 	// Each tick (plan poison-drip-trap): in a poison drip's puddle (on the ground), under its falling venom. Each
 	// poisons once per entry, the puddle weak, the drop medium on top of its hit (DRIP_DROP_DAMAGE, a trap's). No XP.
 	void StandInDrip(bool puddle, bool drop, Rng& rng);

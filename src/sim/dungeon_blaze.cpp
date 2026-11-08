@@ -1,7 +1,9 @@
-// A floor set burning by Babi's big coal (plan babi-boss, VolleyRules): the player standing in it burns. Drawn in
+// A floor set burning by Babi's big coal (plan babi-boss, VolleyRules): whoever stands in it burns, the player and the
+// monsters alike (plan same-hazards-for-all); a monster native to fire (Babi) walks in it unharmed. Drawn in
 // dungeon_render_blaze.cpp.
 #include "dungeon.h"
 #include "player.h"
+#include "monster.h"
 #include "../level/world_events.h"
 #include "../level/gameplay_config.h"
 #include <algorithm>
@@ -59,12 +61,27 @@ void Dungeon::updateBlazes() {
 		std::remove_if(blazes.begin(), blazes.end(), [now](const Blaze& b) { return now >= b.endMs; }),
 		blazes.end()
 	);
+	// One rule for every body: a hit every BLAZE_TICK_MS while it stands in it, the first on stepping in.
+	const auto due = [now](Vitals& vitals, bool in) {
+		if (!in || now < vitals.blazeReadyMs)
+			return false;
+		vitals.blazeReadyMs = now + BLAZE_TICK_MS;
+		return true;
+	};
 	const bool in = sim.player->Alive() && PlayerInBlaze();
 	if (in && !playerBlazed)
 		sim.events->Status("%s", "The floor is burning under your feet");
 	playerBlazed = in;
-	if (!in || now < nextBlazeHitMs)
+	if (due(sim.player->stats.vitals, in))
+		sim.player->TakeHit(BLAZE_DAMAGE, BLAZE_MIX, *sim.events);
+	if (blazes.empty())
 		return;
-	nextBlazeHitMs = now + BLAZE_TICK_MS;
-	sim.player->TakeHit(BLAZE_DAMAGE, BLAZE_MIX, *sim.events);
+	for (Monster& mon : monsters) {
+		if (!mon.Active() || !mon.Alive() || mon.flies() || mon.jumping() || mon.Hidden() ||
+			mon.Type()->native.has(Terrain::Fire))
+			continue;
+		const bool monIn = BlazeAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row());
+		if (due(mon.MonsterVitals(), monIn))
+			mon.TakeHarm(BLAZE_DAMAGE, BLAZE_MIX, HarmSource::Trap); // no XP: the coal is Babi's, not the player's
+	}
 }

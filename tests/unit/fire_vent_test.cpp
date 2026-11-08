@@ -173,23 +173,24 @@ TEST_CASE("a mummy in the jet takes double (weak to fire), and burns; its fire k
 	const MonsterLinks links{&world.player, &world.journal, &world.events, 1, &world.random.gameplay};
 	Monster burnt;
 	burnt.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterMummy)], 3, 1, links, world.random.effects);
-	REQUIRE(burnt.Type()->trapDamagePct == 50);
 	REQUIRE(burnt.Type()->resist[FIRE] == WEAK);
-	for (int k = 0; k < 10; k++) {
+	const int perSecond = fireJetHundredthsPerSecond(
+		burnt.MaxHealth()
+	); // the player's rule (plan same-hazards-for-all)
+	const int share = burnt.Type()->trapPermille;
+	for (int k = 0; k < 2; k++) {
 		world.Wait(TRAP_HURT_INTERVAL_MS);
-		burnt.StandInFire();
+		burnt.StandInFire(perSecond);
 	}
 	const int lostBurnt = burnt.MaxHealth() - burnt.Health();
-	// Ten hits of the floor rate's tenth of a second, at the mummy's trap share (50%), weak to fire (200%).
-	CHECK(
-		lostBurnt == 10 * FIRE_JET_MONSTER_HP_PER_SECOND * TRAP_HURT_INTERVAL_MS / 10 * 50 / 100 * WEAK / NORMAL / 100
-	);
+	// Two hits of a tenth of a second's rate, at the mummy's trap share, weak to fire (200%).
+	CHECK(lostBurnt == 2 * perSecond * TRAP_HURT_INTERVAL_MS / 1000 * WEAK / NORMAL * share / FULL_TRAP_SHARE / 100);
 	CHECK(burnt.Burns());
 	bool rewarded = false; // in the jet till it is nearly dead, then the fire alone finishes it
 	for (int t = 0; t < 60000 && burnt.Alive(); t += UPDATE_TICK_MS) {
 		world.Wait(UPDATE_TICK_MS);
-		if (burnt.Health() > 3)
-			burnt.StandInFire();
+		if (burnt.Health() > burnt.MaxHealth() / 2)
+			burnt.StandInFire(perSecond);
 		rewarded = burnt.UpdateBurning() || rewarded;
 	}
 	CHECK_FALSE(burnt.Alive());

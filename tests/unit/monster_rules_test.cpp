@@ -16,7 +16,7 @@ TEST_CASE("a reckless mummy sets off a rock fall and, too slow for its middle, i
 	const int hp = monsterKind(MonsterMummy)->maxHealth;
 	CHECK(world.Nearest() == hp);
 	world.Wait(8000);
-	CHECK(world.Nearest() == hp - 25); // half of 50 (trapDamagePct 50)
+	CHECK(world.Nearest() == hp - 50 * monsterKind(MonsterMummy)->trapPermille / FULL_TRAP_SHARE); // its share of 50
 }
 
 TEST_CASE("a reckless mummy stands in the spikes to strike; the ramp kills it, a trap's kill gives no XP") {

@@ -68,16 +68,21 @@ constexpr float CEILING_DEATH_STRETCH = 2.5f;
 // The player and the reckless walkers touch a spike or death trap with their box (plan trap-player-box), less this
 // share of their half width on each side: grazing its edge doesn't count.
 constexpr float TRAP_BOX_FORGIVE = 0.25f;
-// Crossing a spike or death trap on foot (the player only; TrapBell): over the whole hitbox at walking speed it deals
-// *_CROSS_HP, or *_CROSS_PERCENT of the max HP when more, spread over the hitbox as a bell curve (TRAP_BELL_SIGMA of
-// its half width): the middle hurts most, a step into its edge only a little. Faster costs more, up to
-// TRAP_SPRINT_FACTOR at a sprint (WALK_SPEED x 3). The TrapHurt ramp comes on top, so standing in it kills too.
+// Crossing a spike or death trap on foot (the player and a reckless monster alike, plan same-hazards-for-all;
+// TrapBell): over the whole hitbox at walking speed it deals *_CROSS_HP, or *_CROSS_PERCENT of the max HP when more,
+// spread over the hitbox as a bell curve (TRAP_BELL_SIGMA of its half width): the middle hurts most, a step into its
+// edge only a little. Faster costs more, up to TRAP_SPRINT_FACTOR at a sprint (WALK_SPEED x 3). The TrapHurt ramp
+// comes on top, so standing in it kills too. Then the body's trap share (FULL_TRAP_SHARE).
 constexpr int SPIKES_CROSS_HP = 200;
 constexpr int SPIKES_CROSS_PERCENT = 20;
 constexpr int DEATH_TRAP_CROSS_HP = 400;
 constexpr int DEATH_TRAP_CROSS_PERCENT = 40;
 constexpr float TRAP_BELL_SIGMA = 0.35f;
 constexpr float TRAP_SPRINT_FACTOR = 1.25f;
+
+// A body's share of a trap's damage in per-mille (plan same-hazards-for-all, Vitals::TrapLoss): the player's is cut by
+// the trap ward, a monster's is its kind's trapPermille. Traps ignore armour.
+constexpr int FULL_TRAP_SHARE = 1000;
 
 constexpr float STANDING_EPSILON = 0.05f; // above the floor by less than this still counts as standing on it
 constexpr float MONSTER_SEEK_STEP = 0.0042f;
@@ -212,8 +217,9 @@ constexpr int MOTHER_DOUSE_CELLS = 2;
 constexpr int WEB_BURN_MS = 700;
 constexpr int WEB_CUT_MS = 250;
 constexpr int SNUFF_MS = 900;
-// Babi (plan babi-boss, VolleyRules): his big coal sets the floor of a cell burning (Dungeon::Blaze). The player
-// standing in it, not in a jump, takes BLAZE_DAMAGE (all fire, armour counts) every BLAZE_TICK_MS and burns on.
+// Babi (plan babi-boss, VolleyRules): his big coal sets the floor of a cell burning (Dungeon::Blaze). Whoever stands
+// in it, not in a jump, takes BLAZE_DAMAGE (all fire, armour counts) every BLAZE_TICK_MS and burns on: the player and
+// the monsters alike (plan same-hazards-for-all), but a monster native to fire (Babi) is unharmed; no XP for its kill.
 constexpr int BLAZE_DAMAGE = 30;
 constexpr int BLAZE_TICK_MS = 500;
 constexpr int BLAZE_FADE_MS = 600; // the flames die down over the last of its time
@@ -588,14 +594,13 @@ constexpr float GUST_HAZE_CALM = 0.25f;
 constexpr float GUST_MUFFLE = 0.65f;
 constexpr int GUST_CROSS_MARGIN_MS = 300;
 
-// Fire vents (plan fire-jet-trap): the jet burns the player standing in it for FIRE_JET_PERCENT_PER_SECOND of their max
-// HP a second, at least FIRE_JET_HP_PER_SECOND, dealt each TRAP_HURT_INTERVAL_MS: a whole jet costs 540 HP or more,
-// the burning after a half more.
-// Monsters take FIRE_JET_MONSTER_HP_PER_SECOND (no boss melts in it). It sets them burning as from a hit of a second's
-// fire: a fifth of it a second for BURN_MS after.
+// Fire vents (plan fire-jet-trap): the jet burns whoever stands in it (the player and the monsters alike, plan
+// same-hazards-for-all) for FIRE_JET_PERCENT_PER_SECOND of their max HP a second, at least FIRE_JET_HP_PER_SECOND,
+// dealt each TRAP_HURT_INTERVAL_MS, cut by their trap share (a boss's is small: none melts in it): a whole jet costs
+// the player 540 HP or more, the burning after a half more. It sets them burning as from a hit of a second's fire: a
+// fifth of it a second for BURN_MS after.
 constexpr int FIRE_JET_PERCENT_PER_SECOND = 50;
 constexpr int FIRE_JET_HP_PER_SECOND = 450;
-constexpr int FIRE_JET_MONSTER_HP_PER_SECOND = 15;
 
 // Poison drips (plan poison-drip-trap): the puddle poisons (weak) whoever walks into it, once per entry, no damage,
 // when their middle is within DRIP_PUDDLE_HALF_WIDTH of the cell's; a jump clears it. On the cycle the lump falls into

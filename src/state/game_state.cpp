@@ -16,6 +16,7 @@
 #include "../level/texts.h"
 #include "../sim/dungeon_save.h"
 #include "../render/animated_model.h"
+#include "../render/brightness.h"
 #include "../render/ink.h"
 #include "../graphics/frame_rate.h"
 #include "../render/lighting.h"
@@ -396,7 +397,11 @@ void GameState::ApplySettings(bool save) {
 	FrameRate::set(settings.display.frameRate);
 	dungeon.SetCutScenes(settings.graphics.cutScenes);
 	dungeon.SetMotionEffects(settings.graphics.motionEffects);
-	Audio::SetVolumes(settings.sound.music, settings.sound.effects);
+	Audio::SetVolumes(
+		playedVolume(settings.sound.music, settings.sound),
+		playedVolume(settings.sound.effects, settings.sound)
+	);
+	Brightness::set(settings.display.brightness);
 	if (save)
 		SettingsFile::Save(settings);
 }

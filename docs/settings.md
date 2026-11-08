@@ -25,6 +25,7 @@ window_height = 500     ; 200-4320
 fullscreen = off
 animation_rate = 60     ; 0-240 model poses a second, blended between the key frames; 0: the key frames only
 frame_rate = 0          ; -1-240 frames a second drawn; 0: the monitor's (vsync), -1: unlimited
+brightness = 100        ; 70-150 percent, a gamma over the whole picture (menus and HUD too)
 
 [graphics]
 motion_effects = on     ; sprint blur, FOV kick, vignette
@@ -34,9 +35,15 @@ light_flicker = on      ; torches, braziers and lamps flicker
 cut_scenes = on         ; the view goes to a far gate a lever or a boss's death opens
 camera_recenter = on    ; a look around (mouse, look keys) eases back to straight ahead when left alone
 
+[mouse]
+sensitivity = 100       ; 20-300 percent, how far the view turns per mouse movement
+invert_y = off          ; on: moving the mouse up looks down
+
 [sound]
+master_volume = 100     ; 0-100, scales the music and the effects
 music_volume = 80       ; 0-100
 effects_volume = 100    ; 0-100
+mute = off              ; silences both, the volumes kept
 
 [controls]
 move_left = a, left
@@ -44,6 +51,12 @@ move_left = a, left
 ```
 
 (The `;` comments after the values above are for this page only. The parser reads comments on their own lines.)
+
+Options shows these on four tabs: Controls, Mouse (sensitivity, invert Y, camera recentre), Display (window size,
+fullscreen, brightness, the rest of `[display]` and `[graphics]`) and Sound. The Brightness row has a calibration box:
+a black square with an ankh a shade above black; set the brightness so the ankh is barely visible. The Window size row
+steps through the common sizes that fit the desktop, then the desktop's own size
+([settings-extras](plan/settings-extras.feature.md)).
 
 ## Controls
 

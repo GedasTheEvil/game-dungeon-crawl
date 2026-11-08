@@ -1,4 +1,8 @@
 #include "settings_ini.h"
+#include "input.h"
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
@@ -58,14 +62,19 @@ std::vector<Key> keysOf(Settings& s) {
 		{"display", "fullscreen", K::Bool, 0, 0, &s.display.fullscreen, nullptr},
 		{"display", "animation_rate", K::Int, 0, MAX_ANIMATION_RATE, nullptr, &s.display.animationRate},
 		{"display", "frame_rate", K::Int, FRAME_RATE_UNLIMITED, MAX_FRAME_RATE, nullptr, &s.display.frameRate},
+		{"display", "brightness", K::Int, MIN_BRIGHTNESS, MAX_BRIGHTNESS, nullptr, &s.display.brightness},
 		{"graphics", "motion_effects", K::Bool, 0, 0, &s.graphics.motionEffects, nullptr},
 		{"graphics", "toon", K::Bool, 0, 0, &s.graphics.toon, nullptr},
 		{"graphics", "blood", K::Bool, 0, 0, &s.graphics.blood, nullptr},
 		{"graphics", "light_flicker", K::Bool, 0, 0, &s.graphics.lightFlicker, nullptr},
 		{"graphics", "cut_scenes", K::Bool, 0, 0, &s.graphics.cutScenes, nullptr},
 		{"graphics", "camera_recenter", K::Bool, 0, 0, &s.graphics.cameraRecenter, nullptr},
+		{"mouse", "sensitivity", K::Int, MIN_MOUSE_SENSITIVITY, MAX_MOUSE_SENSITIVITY, nullptr, &s.mouse.sensitivity},
+		{"mouse", "invert_y", K::Bool, 0, 0, &s.mouse.invertY, nullptr},
+		{"sound", "master_volume", K::Int, 0, 100, nullptr, &s.sound.master},
 		{"sound", "music_volume", K::Int, 0, 100, nullptr, &s.sound.music},
 		{"sound", "effects_volume", K::Int, 0, 100, nullptr, &s.sound.effects},
+		{"sound", "mute", K::Bool, 0, 0, &s.sound.mute, nullptr},
 	};
 }
 
@@ -99,6 +108,45 @@ std::string readKey(Settings& settings, const std::string& section, const std::s
 }
 } // namespace
 
+float brightenedChannel(float value, int percent) {
+	return std::pow(std::clamp(value, 0.f, 1.f), 100.f / static_cast<float>(std::max(percent, 1)));
+}
+
+int playedVolume(int part, const Settings::Sound& sound) { return sound.mute ? 0 : part * sound.master / 100; }
+
+MouseTurn mouseTurnPerPixel(const Settings::Mouse& mouse) {
+	const float turn = MOUSE_LOOK_SENSITIVITY * static_cast<float>(mouse.sensitivity) / 100.f;
+	return {turn, mouse.invertY ? -turn : turn};
+}
+
+std::vector<WindowSize> windowSizes(int desktopW, int desktopH) {
+	constexpr std::array<WindowSize, 11> COMMON = {{
+		{800, 500},
+		{1024, 640},
+		{1280, 720},
+		{1366, 768},
+		{1600, 900},
+		{1920, 1080},
+		{2560, 1440},
+		{3200, 1800},
+		{3840, 2160},
+		{5120, 2880},
+		{7680, 4320},
+	}};
+	const bool known = desktopW > 0 && desktopH > 0;
+	std::vector<WindowSize> sizes;
+	for (const WindowSize& size : COMMON)
+		if (!known || (size.w <= desktopW && size.h <= desktopH))
+			sizes.push_back(size);
+	const WindowSize desktop = {std::min(desktopW, MAX_WINDOW_W), std::min(desktopH, MAX_WINDOW_H)};
+	if (known && desktop.w >= MIN_WINDOW_W && desktop.h >= MIN_WINDOW_H &&
+		std::ranges::find(sizes, desktop) == sizes.end())
+		sizes.push_back(desktop);
+	if (sizes.empty())
+		sizes.push_back(COMMON.front());
+	return sizes;
+}
+
 bool frameRedrawDue(int lastDrawMs, int nowMs, int frameRate) {
 	if (frameRate <= 0)
 		return true;
@@ -120,7 +168,8 @@ Settings parseSettings(std::istream& in, std::vector<std::string>& warnings) {
 				continue;
 			}
 			section = lower(trim(line.substr(1, line.size() - 2)));
-			if (section != "display" && section != "graphics" && section != "sound" && section != "controls")
+			if (section != "display" && section != "graphics" && section != "sound" && section != "mouse" &&
+				section != "controls")
 				warnings.push_back(where + "unknown section [" + section + "]");
 			continue;
 		}
@@ -145,12 +194,14 @@ std::string writeSettings(const Settings& settings) {
 	out << "; Dungeon crawl settings. The game rewrites this file on every change: own comments and unknown keys "
 		   "are lost.\n";
 	out << "\n; Window size in pixels, fullscreen on/off, model poses a second (0: the key frames only), "
-		   "frames a second (0: the monitor's, -1: unlimited).\n[display]\n";
+		   "frames a second (0: the monitor's, -1: unlimited), "
+		   "brightness in percent (70-150).\n[display]\n";
 	out << "window_width = " << settings.display.width << "\n";
 	out << "window_height = " << settings.display.height << "\n";
 	out << "fullscreen = " << onOff(settings.display.fullscreen) << "\n";
 	out << "animation_rate = " << settings.display.animationRate << "\n";
 	out << "frame_rate = " << settings.display.frameRate << "\n";
+	out << "brightness = " << settings.display.brightness << "\n";
 	out << "\n; Visual effects, each on/off.\n[graphics]\n";
 	out << "motion_effects = " << onOff(settings.graphics.motionEffects) << "\n";
 	out << "toon = " << onOff(settings.graphics.toon) << "\n";
@@ -158,9 +209,14 @@ std::string writeSettings(const Settings& settings) {
 	out << "light_flicker = " << onOff(settings.graphics.lightFlicker) << "\n";
 	out << "cut_scenes = " << onOff(settings.graphics.cutScenes) << "\n";
 	out << "camera_recenter = " << onOff(settings.graphics.cameraRecenter) << "\n";
-	out << "\n; Volumes 0-100.\n[sound]\n";
+	out << "\n; Mouse look speed in percent (20-300), invert_y on/off.\n[mouse]\n";
+	out << "sensitivity = " << settings.mouse.sensitivity << "\n";
+	out << "invert_y = " << onOff(settings.mouse.invertY) << "\n";
+	out << "\n; Volumes 0-100 (master scales the other two), mute on/off.\n[sound]\n";
+	out << "master_volume = " << settings.sound.master << "\n";
 	out << "music_volume = " << settings.sound.music << "\n";
 	out << "effects_volume = " << settings.sound.effects << "\n";
+	out << "mute = " << onOff(settings.sound.mute) << "\n";
 	out << "\n; Up to two keys and one mouse button an action, \"none\" to clear. Names: docs/settings.md.\n"
 		   "[controls]\n";
 	for (int i = 0; i < BIND_ACTION_COUNT; i++) {

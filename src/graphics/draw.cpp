@@ -14,6 +14,7 @@
 #include "../render/ui_draw.h"
 #include "../input/input_actions.h"
 #include "../render/lighting.h"
+#include "../render/brightness.h"
 #include "../render/ink.h"
 #include "../render/motion_fx.h"
 #include "fire.h"
@@ -178,6 +179,7 @@ void Draw() {
 		Game().ui.death.Draw(Game().render.resX, Game().render.resY);
 		break;
 	}
+	Brightness::apply(Game().render.resX, Game().render.resY); // plan settings-extras
 	glFlush();
 	Scenario::onFrameRendered();
 	glutSwapBuffers();

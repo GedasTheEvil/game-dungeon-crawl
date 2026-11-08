@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <optional>
 #include <string>
+#include <vector>
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
 #include "../state/settings.h"
@@ -32,6 +33,7 @@ MouseInput mouseInput(const InputKey& key) {
 constexpr std::array<OptionRow, 10> DISPLAY_ROWS = {{
 	{OptionId::WindowSize, OptionKind::Choice, "Window size", "Click for the next size, or drag the window"},
 	{OptionId::Fullscreen, OptionKind::Switch, "Fullscreen", "The whole screen, no window frame"},
+	{OptionId::Brightness, OptionKind::Slider, "Brightness", "Set the ankh in the black box barely visible"},
 	{OptionId::AnimationRate,
 	 OptionKind::Choice,
 	 "Animation rate",
@@ -42,11 +44,18 @@ constexpr std::array<OptionRow, 10> DISPLAY_ROWS = {{
 	{OptionId::Blood, OptionKind::Switch, "Blood", "Blood splashes of hits and deaths"},
 	{OptionId::LightFlicker, OptionKind::Switch, "Light flicker", "Torches, braziers and lamps flicker"},
 	{OptionId::CutScenes, OptionKind::Switch, "Cut-scenes", "The view goes to a far gate as it opens"},
+}};
+// Plan settings-extras: the mouse rows, and the camera's recentre beside them.
+constexpr std::array<OptionRow, 3> MOUSE_ROWS = {{
+	{OptionId::MouseSensitivity, OptionKind::Slider, "Mouse sensitivity", "How far the view turns as the mouse moves"},
+	{OptionId::InvertY, OptionKind::Switch, "Invert mouse Y", "Moving the mouse up looks down"},
 	{OptionId::CameraRecenter, OptionKind::Switch, "Camera recentre", "A look around eases back when left alone"},
 }};
-constexpr std::array<OptionRow, 2> SOUND_ROWS = {{
+constexpr std::array<OptionRow, 4> SOUND_ROWS = {{
+	{OptionId::Master, OptionKind::Slider, "Master volume", "Scales the music and the effects"},
 	{OptionId::Music, OptionKind::Slider, "Music volume", "The soundtrack"},
 	{OptionId::Effects, OptionKind::Slider, "Effects volume", "Hits, jumps, levers and gates"},
+	{OptionId::Mute, OptionKind::Switch, "Mute", "Silence, the volumes kept"},
 }};
 
 OptionRows optionRows(int tab) {
@@ -54,14 +63,11 @@ OptionRows optionRows(int tab) {
 		return {SOUND_ROWS.data(), static_cast<int>(SOUND_ROWS.size())};
 	if (tab == DISPLAY_TAB)
 		return {DISPLAY_ROWS.data(), static_cast<int>(DISPLAY_ROWS.size())};
+	if (tab == MOUSE_TAB)
+		return {MOUSE_ROWS.data(), static_cast<int>(MOUSE_ROWS.size())};
 	return {DISPLAY_ROWS.data(), 0}; // the Controls tab has its own table
 }
 
-// The window sizes the Window size row steps through.
-struct WindowSize {
-	int w, h;
-};
-constexpr std::array<WindowSize, 5> WINDOW_SIZES = {{{800, 500}, {1024, 640}, {1280, 720}, {1600, 900}, {1920, 1080}}};
 // The poses a second the Animation rate row steps through; 0: the key frames only (plan model-frame-interpolation).
 constexpr std::array<int, 4> ANIMATION_RATES = {0, 24, 30, 60};
 // The choices the Frame rate row steps through (plan frame-rate-cap).
@@ -82,13 +88,55 @@ bool& switchOf(OptionId id) {
 		return s.graphics.cutScenes;
 	case OptionId::CameraRecenter:
 		return s.graphics.cameraRecenter;
+	case OptionId::InvertY:
+		return s.mouse.invertY;
+	case OptionId::Mute:
+		return s.sound.mute;
 	default:
 		return s.graphics.motionEffects;
 	}
 }
 
 int& sliderOf(OptionId id) {
-	return id == OptionId::Music ? Game().settings.sound.music : Game().settings.sound.effects;
+	Settings& s = Game().settings;
+	switch (id) {
+	case OptionId::Brightness:
+		return s.display.brightness;
+	case OptionId::MouseSensitivity:
+		return s.mouse.sensitivity;
+	case OptionId::Master:
+		return s.sound.master;
+	case OptionId::Music:
+		return s.sound.music;
+	default:
+		return s.sound.effects;
+	}
+}
+
+// A slider's values: lowest, highest, and the step of a key press or a drag.
+struct SliderRange {
+	int lo, hi, step;
+};
+
+SliderRange sliderRange(OptionId id) {
+	if (id == OptionId::Brightness)
+		return {MIN_BRIGHTNESS, MAX_BRIGHTNESS, 5};
+	if (id == OptionId::MouseSensitivity)
+		return {MIN_MOUSE_SENSITIVITY, MAX_MOUSE_SENSITIVITY, 10};
+	return {0, 100, 5};
+}
+
+// A sound slider plays a sample at its new volume.
+bool samplesEffects(OptionId id) { return id == OptionId::Effects || id == OptionId::Master; }
+
+// The brightness row's calibration (plan settings-extras): a black box with an ankh a shade above black. The
+// brightness pass lightens or darkens it with the rest of the picture.
+void drawCalibration(const Rect& control) {
+	constexpr float NEAR_BLACK = 0.06f;
+	const Rect box = {control.x - 11.f, control.y - 0.2f, 8.f, control.h + 0.4f};
+	fillRect(box, BLACK, BLACK, 1.f);
+	strokeRect(box, GOLD_DIM, 1.f, 1.f);
+	drawIcon(Icon::Ankh, box.cx(), box.cy(), box.h * 0.45f, {NEAR_BLACK, NEAR_BLACK, NEAR_BLACK});
 }
 
 Rect optionBand(int row) {
@@ -190,8 +238,11 @@ void MainMenu::DrawRows() {
 			control = r;
 		} else {
 			// Track, the filled part, the knob; the number to the right.
-			int level = sliderOf(row.id);
-			float t = static_cast<float>(level) / 100.f;
+			const int level = sliderOf(row.id);
+			const SliderRange range = sliderRange(row.id);
+			const float t = static_cast<float>(level - range.lo) / static_cast<float>(range.hi - range.lo);
+			if (row.id == OptionId::Brightness)
+				drawCalibration(control);
 			Rect track = {control.x, control.cy() - 0.6f, control.w, 1.2f};
 			fillRect(track, WELL, WELL, 1.f);
 			fillRect({track.x, track.y, track.w * t, track.h}, LAPIS_HOVER_TOP, LAPIS, 1.f);
@@ -314,19 +365,20 @@ void MainMenu::ActivateOption(int row, int step) {
 			ShowToast("Leave fullscreen to pick a window size");
 			return;
 		}
-		// The next larger size, after the largest the smallest; stepping back the other way round.
+		// The next larger size, after the largest the smallest; stepping back the other way round. The sizes go up
+		// to the desktop's (plan settings-extras).
+		const std::vector<WindowSize> sizes = windowSizes(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
 		auto larger = [&](const WindowSize& size) {
 			return size.w > display.width || (size.w == display.width && size.h > display.height);
 		};
 		auto smaller = [&](const WindowSize& size) {
 			return size.w < display.width || (size.w == display.width && size.h < display.height);
 		};
-		WindowSize next = step > 0 ? WINDOW_SIZES.front() : WINDOW_SIZES.back();
+		WindowSize next = step > 0 ? sizes.front() : sizes.back();
 		if (step > 0) {
-			if (const auto it = std::ranges::find_if(WINDOW_SIZES, larger); it != WINDOW_SIZES.end())
+			if (const auto it = std::ranges::find_if(sizes, larger); it != sizes.end())
 				next = *it;
-		} else if (const auto it = std::ranges::find_if(WINDOW_SIZES.rbegin(), WINDOW_SIZES.rend(), smaller);
-				   it != WINDOW_SIZES.rend())
+		} else if (const auto it = std::ranges::find_if(sizes.rbegin(), sizes.rend(), smaller); it != sizes.rend())
 			next = *it;
 		display.width = next.w;
 		display.height = next.h;
@@ -369,9 +421,10 @@ void MainMenu::StepOption(int row, int step) {
 		return;
 	}
 	int& level = sliderOf(option.id);
-	level = std::clamp(level + 5 * step, 0, 100);
+	const SliderRange range = sliderRange(option.id);
+	level = std::clamp(level + range.step * step, range.lo, range.hi);
 	Game().ApplySettings(true);
-	if (option.id == OptionId::Effects)
+	if (samplesEffects(option.id))
 		Game().assets.sounds.lever.Play(); // a sample at the new volume
 }
 
@@ -381,8 +434,10 @@ void MainMenu::SetSlider(int row, int x) {
 	float cy = 0.f;
 	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, 0, cx, cy);
 	Rect track = optionControl(row, option.kind);
-	float t = std::clamp((cx - track.x) / track.w, 0.f, 1.f);
-	sliderOf(option.id) = static_cast<int>(std::lround(t * 20.f)) * 5; // steps of 5
+	const float t = std::clamp((cx - track.x) / track.w, 0.f, 1.f);
+	const SliderRange range = sliderRange(option.id);
+	const float steps = static_cast<float>(range.hi - range.lo) / static_cast<float>(range.step);
+	sliderOf(option.id) = range.lo + static_cast<int>(std::lround(t * steps)) * range.step;
 	Game().ApplySettings(false);
 }
 

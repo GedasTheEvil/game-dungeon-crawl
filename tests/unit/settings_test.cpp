@@ -1,6 +1,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/input.h"
 #include "../../src/level/settings_ini.h"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -80,15 +81,16 @@ TEST_CASE("a bad value warns and keeps the default") {
 
 TEST_CASE("unknown keys and sections and broken lines warn") {
 	std::vector<std::string> warnings;
-	parse("[display]\nbrightness = 3\n[cheats]\ngod = on\nno equals sign\n[open\n", warnings);
+	parse("[display]\ngamma = 3\n[cheats]\ngod = on\nno equals sign\n[open\n", warnings);
 	CHECK(warnings.size() == 5);
 }
 
 TEST_CASE("what is written reads back the same") {
 	Settings s;
-	s.display = {1600, 900, true, 24, 30};
+	s.display = {1600, 900, true, 24, 30, 130};
 	s.graphics = {false, true, false, false};
-	s.sound = {35, 0};
+	s.mouse = {250, true};
+	s.sound = {60, 35, 0, true};
 	s.controls.Bind(BindAction::Jump, 0, InputKey::Char(','));
 	s.controls.Bind(BindAction::Attack, MOUSE_SLOT, InputKey::Mouse(2));
 	s.controls.Clear(BindAction::Journal, 0);
@@ -104,6 +106,60 @@ TEST_CASE("what is written reads back the same") {
 	CHECK(back.display.animationRate == 24);
 	CHECK(back.display.frameRate == 30);
 	CHECK(back.sound.music == 35);
+	CHECK(back.display.brightness == 130);
+	CHECK(back.mouse.sensitivity == 250);
+	CHECK(back.mouse.invertY);
+	CHECK(back.sound.master == 60);
+	CHECK(back.sound.mute);
+}
+
+// Plan settings-extras: brightness, mouse, master volume and mute, the window sizes.
+TEST_CASE("the new settings: defaults, ranges and what they do") {
+	const Settings defaults = parse("");
+	CHECK(defaults.display.brightness == 100);
+	CHECK(defaults.mouse.sensitivity == 100);
+	CHECK_FALSE(defaults.mouse.invertY);
+	CHECK(defaults.sound.master == 100);
+	CHECK_FALSE(defaults.sound.mute);
+
+	std::vector<std::string> warnings;
+	const Settings bad = parse("[display]\nbrightness = 200\n[mouse]\nsensitivity = 5\n", warnings);
+	CHECK(warnings.size() == 2);
+	CHECK(bad.display.brightness == 100);
+	CHECK(bad.mouse.sensitivity == 100);
+
+	SUBCASE("brightness: a gamma, black and white stay, the darks move") {
+		CHECK(brightenedChannel(0.2f, 100) == doctest::Approx(0.2f));
+		CHECK(brightenedChannel(0.f, 150) == doctest::Approx(0.f));
+		CHECK(brightenedChannel(1.f, 70) == doctest::Approx(1.f));
+		CHECK(brightenedChannel(0.2f, 150) > 0.3f);
+		CHECK(brightenedChannel(0.2f, 70) < 0.12f);
+	}
+	SUBCASE("the played volume: part times master, none when muted") {
+		Settings::Sound sound;
+		sound.master = 50;
+		CHECK(playedVolume(80, sound) == 40);
+		sound.mute = true;
+		CHECK(playedVolume(80, sound) == 0);
+	}
+	SUBCASE("mouse: the sensitivity scales the turn, invert Y flips the y") {
+		const MouseTurn normal = mouseTurnPerPixel({});
+		CHECK(normal.x == doctest::Approx(MOUSE_LOOK_SENSITIVITY));
+		CHECK(normal.y == doctest::Approx(MOUSE_LOOK_SENSITIVITY));
+		const MouseTurn fast = mouseTurnPerPixel({200, true});
+		CHECK(fast.x == doctest::Approx(2 * MOUSE_LOOK_SENSITIVITY));
+		CHECK(fast.y == doctest::Approx(-2 * MOUSE_LOOK_SENSITIVITY));
+	}
+	SUBCASE("window sizes up to the desktop, the desktop's own last") {
+		const std::vector<WindowSize> sizes = windowSizes(2560, 1600);
+		CHECK(sizes.front() == WindowSize{800, 500});
+		CHECK(std::ranges::find(sizes, WindowSize{2560, 1440}) != sizes.end());
+		CHECK(std::ranges::find(sizes, WindowSize{3200, 1800}) == sizes.end());
+		CHECK(sizes.back() == WindowSize{2560, 1600});
+		CHECK(windowSizes(1920, 1080).back() == WindowSize{1920, 1080});
+		CHECK(windowSizes(0, 0).size() == 11);
+		CHECK(windowSizes(640, 480) == std::vector<WindowSize>{{640, 480}});
+	}
 }
 
 TEST_CASE("bindings") {

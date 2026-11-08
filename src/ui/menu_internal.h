@@ -76,10 +76,11 @@ Rect visibleArea();
 
 // ---- options ----------------------------------------------------------------
 
-constexpr std::array<const char*, 3> TABS = {"Controls", "Display", "Sound"};
+constexpr std::array<const char*, 4> TABS = {"Controls", "Mouse", "Display", "Sound"};
 constexpr int CONTROLS_TAB = 0;
-constexpr int DISPLAY_TAB = 1;
-constexpr int SOUND_TAB = 2;
+constexpr int MOUSE_TAB = 1;
+constexpr int DISPLAY_TAB = 2;
+constexpr int SOUND_TAB = 3;
 
 enum class MouseInput : std::uint8_t { None, Left, Middle, Right };
 
@@ -91,14 +92,19 @@ enum class OptionId : std::uint8_t {
 	Fullscreen,
 	AnimationRate,
 	FrameRate,
+	Brightness,
 	MotionEffects,
 	Toon,
 	Blood,
 	LightFlicker,
 	CutScenes,
 	CameraRecenter,
+	MouseSensitivity,
+	InvertY,
+	Master,
 	Music,
-	Effects
+	Effects,
+	Mute
 };
 
 struct OptionRow {

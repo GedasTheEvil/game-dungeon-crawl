@@ -660,11 +660,13 @@ namespace {
 // Only the game turns the camera; the screens over it (the riddle too) keep the position fresh (MouseLook).
 void lookAt(int x, int y) {
 	const MouseLook::Turn turn = mouseLook.Motion(x, y, Game().ui.screen == Screen::Gameplay);
-	if (turn.dx != 0 || turn.dy != 0)
-		PlayerActionController::applyCameraDelta(
-			MOUSE_LOOK_SENSITIVITY * static_cast<float>(turn.dx),
-			MOUSE_LOOK_SENSITIVITY * static_cast<float>(turn.dy)
-		);
+	if (turn.dx == 0 && turn.dy == 0)
+		return;
+	const MouseTurn perPixel = mouseTurnPerPixel(Game().settings.mouse); // plan settings-extras
+	PlayerActionController::applyCameraDelta(
+		perPixel.x * static_cast<float>(turn.dx),
+		perPixel.y * static_cast<float>(turn.dy)
+	);
 }
 } // namespace
 

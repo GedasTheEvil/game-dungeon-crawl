@@ -510,7 +510,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 			const OptionRow option = optionRows(optionsTab)[dragging - OPTION_BASE];
 			dragging = NONE;
 			Game().ApplySettings(true);
-			if (option.id == OptionId::Effects)
+			if (option.id == OptionId::Effects || option.id == OptionId::Master)
 				Game().assets.sounds.lever.Play(); // a sample at the new volume
 		}
 		return;

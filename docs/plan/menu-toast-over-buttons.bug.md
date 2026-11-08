@@ -1,6 +1,6 @@
 # Main menu toast painted over the buttons
 
-Status: draft 2026-11-08, size S, needs nothing first.
+Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
 
 ## Repro
 

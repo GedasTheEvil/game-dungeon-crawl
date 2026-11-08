@@ -170,8 +170,7 @@ Settings parseSettings(std::istream& in, std::vector<std::string>& warnings) {
 			}
 			section = lower(trim(line.substr(1, line.size() - 2)));
 			if (section != "display" && section != "graphics" && section != "gameplay" && section != "sound" &&
-				section != "mouse" &&
-				section != "controls")
+				section != "mouse" && section != "controls")
 				warnings.push_back(where + "unknown section [" + section + "]");
 			continue;
 		}

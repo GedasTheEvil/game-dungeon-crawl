@@ -34,7 +34,36 @@ bool parseBoon(const std::string& value, Boon& boon) {
 	auto [end, ec] = std::from_chars(number.data(), number.data() + number.size(), boon.amount);
 	return ec == std::errc{} && end == number.data() + number.size() && boon.amount > 0;
 }
+
+// The style words, in InscriptionStyle order.
+constexpr const char* STYLE_WORDS[INSCRIPTION_STYLE_COUNT] =
+	{"cartouche", "column", "row", "stela", "serekh", "seth-serekh", "twin-serekh"};
 } // namespace
+
+bool parseInscriptionStyle(const std::string& word, InscriptionStyle& style) {
+	const auto* found = std::find(std::begin(STYLE_WORDS), std::end(STYLE_WORDS), word);
+	if (found == std::end(STYLE_WORDS))
+		return false;
+	style = static_cast<InscriptionStyle>(found - std::begin(STYLE_WORDS));
+	return true;
+}
+
+const char* frameWord(InscriptionStyle style) {
+	switch (style) {
+	case InscriptionStyle::Cartouche:
+		return "cartouche";
+	case InscriptionStyle::Column:
+	case InscriptionStyle::Row:
+		return "panel";
+	case InscriptionStyle::Stela:
+		return "stela";
+	case InscriptionStyle::Serekh:
+	case InscriptionStyle::SethSerekh:
+	case InscriptionStyle::TwinSerekh:
+		return "serekh";
+	}
+	return "cartouche";
+}
 
 std::string boonText(const Boon& boon) {
 	const std::string n = std::to_string(boon.amount);
@@ -111,12 +140,8 @@ void ParseInscriptions(
 		} else if (key == "N") {
 			current.note = value;
 		} else if (key == "style") {
-			const char* const styles[] = {"cartouche", "column", "row", "stela"};
-			const auto* found = std::find(std::begin(styles), std::end(styles), value);
-			if (found == std::end(styles))
-				error("style: must be cartouche, column, row or stela, line ignored");
-			else
-				current.style = static_cast<InscriptionStyle>(found - std::begin(styles));
+			if (!parseInscriptionStyle(value, current.style))
+				error("style: must be cartouche, column, row, stela, serekh, seth-serekh or twin-serekh, line ignored");
 		} else if (key == "G") {
 			std::istringstream codes(value);
 			current.glyphs.clear();

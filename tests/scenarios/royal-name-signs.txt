@@ -1,0 +1,60 @@
+# Plan royal-name-signs: the name cartouche of tests/levels/name_gate in each frame (a serekh with the falcon, Seth's,
+# both, Merneith's stela, Tutankhamun's six-sign cartouche), up close on the wall; the journal pages; the gate's scroll
+# asks for the name written in the serekh.
+seed 1
+god
+level tests/levels/name_gate
+names tests/names/narmer.txt
+heka 1
+learn words_of_thoth
+wait 30
+walk to 5.5
+wait 10
+screenshot narmer_wall
+interact
+wait 5
+level tests/levels/name_gate
+names tests/names/peribsen.txt
+wait 30
+walk to 5.5
+wait 10
+screenshot peribsen_wall
+level tests/levels/name_gate
+names tests/names/khasekhemwy.txt
+wait 30
+walk to 5.5
+wait 10
+screenshot khasekhemwy_wall
+level tests/levels/name_gate
+names tests/names/merneith.txt
+wait 30
+walk to 5.5
+wait 10
+screenshot merneith_wall
+level tests/levels/name_gate
+names tests/names/tutankhamun.txt
+wait 30
+walk to 5.5
+wait 10
+screenshot tutankhamun_wall
+level tests/levels/name_gate
+names tests/names/narmer.txt
+wait 30
+walk to 5.5
+wait 5
+interact
+wait 5
+expect journal_inscriptions >= 1
+key j
+wait 5
+key down
+wait 45
+screenshot journal_narmer
+key esc
+wait 5
+walk to 10.5
+wait 5
+interact
+wait 5
+expect riddle == 1
+screenshot scroll_serekh

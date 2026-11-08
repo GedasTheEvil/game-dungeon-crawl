@@ -428,6 +428,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Container:
 	case CommandType::Riddles:
 	case CommandType::Inscriptions:
+	case CommandType::Names:
 	case CommandType::Chest:
 	case CommandType::Camera:
 	case CommandType::Motion:
@@ -502,6 +503,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"stun", CommandType::Stun, noArgs, ""},
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
 		{"inscriptions", CommandType::Inscriptions, oneWord, "<file|directory>"},
+		{"names", CommandType::Names, oneWord, "<file|directory>"},
 		{"prop", CommandType::Prop, parseProp, "<col> <name>: a prop of DECOR_NAMES (web, pottery, ...)"},
 		{"torch", CommandType::Torch, parseTorch, "<col> on|off: a wall torch, its light"},
 		{"mirror",

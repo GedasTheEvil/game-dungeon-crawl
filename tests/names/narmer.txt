@@ -1,0 +1,6 @@
+# Plan royal-name-signs: one name, so every level has it (the names command, docs/testing.md).
+name: Narmer
+frame: serekh
+G: K8 U23
+A: narmer
+N: Joined the two lands with one palette.

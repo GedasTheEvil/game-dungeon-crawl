@@ -31,9 +31,15 @@ struct Boon {
 // "Might +1", "Max health +10%"; empty for none.
 [[nodiscard]] std::string boonText(const Boon& boon);
 
-// The frame on the wall (style: line), a plate each (inscription_layout.h). The order of the plates.
-enum class InscriptionStyle : unsigned char { Cartouche, Column, Row, Stela };
-constexpr int INSCRIPTION_STYLE_COUNT = 4;
+// The frame on the wall (style: line), a plate each (inscription_layout.h). The order of the plates. The serekhs
+// frame the early kings' names (plan royal-name-signs): the palace façade with the Horus falcon on top, Seth's
+// animal instead (Peribsen), or both (Khasekhemwy).
+enum class InscriptionStyle : unsigned char { Cartouche, Column, Row, Stela, Serekh, SethSerekh, TwinSerekh };
+constexpr int INSCRIPTION_STYLE_COUNT = 7;
+// The style's word in the files: "cartouche", ..., "seth-serekh", "twin-serekh". False for an unknown word.
+[[nodiscard]] bool parseInscriptionStyle(const std::string& word, InscriptionStyle& style);
+// What the gate's scroll calls the frame: "cartouche", "serekh", "stela", ...
+[[nodiscard]] const char* frameWord(InscriptionStyle style);
 
 struct InscriptionText {
 	int id = 0;

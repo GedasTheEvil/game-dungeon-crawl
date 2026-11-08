@@ -104,8 +104,11 @@ void ParseNames(
 			for (std::string code; codes >> code;)
 				current.glyphs.push_back(code);
 			current.glyphSource = source + ":" + std::to_string(lineNo);
+		} else if (key == "frame") {
+			if (!parseInscriptionStyle(value, current.frame))
+				error("frame: must be cartouche, serekh, seth-serekh, twin-serekh, stela, column or row, line ignored");
 		} else {
-			error("expected name:, title:, A:, G: or N:, line ignored");
+			error("expected name:, title:, frame:, A:, G: or N:, line ignored");
 		}
 	}
 	finish();

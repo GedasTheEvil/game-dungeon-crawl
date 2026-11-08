@@ -36,7 +36,7 @@ TEST_CASE("every G: code of the texts and the names is in the shipped sheet") {
 	for (size_t i = 0; i < names.Size(); i++) {
 		CAPTURE(names.At(i).name);
 		CHECK_FALSE(names.At(i).glyphs.empty()); // each name spells itself
-		CHECK(names.At(i).glyphs.size() <= static_cast<size_t>(signCap(InscriptionStyle::Cartouche)));
+		CHECK(names.At(i).glyphs.size() <= static_cast<size_t>(signCap(names.At(i).frame)));
 	}
 }
 
@@ -84,7 +84,8 @@ TEST_CASE("the layout: caps per style, every sign inside the plate, the colour c
 			CHECK(q.colour < SIGN_COLOURS);
 		}
 	}
-	CHECK(signCap(InscriptionStyle::Cartouche) == 5);
+	CHECK(signCap(InscriptionStyle::Cartouche) == 6);
+	CHECK(signCap(InscriptionStyle::Serekh) == 4);
 	CHECK(signCap(InscriptionStyle::Column) == 7);
 	CHECK(signCap(InscriptionStyle::Stela) == 12);
 

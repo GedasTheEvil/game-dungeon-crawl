@@ -1,0 +1,6 @@
+# Plan royal-name-signs: one name, so every level has it (the names command, docs/testing.md).
+name: Peribsen
+frame: seth-serekh
+G: O1 F34 S29 N35
+A: peribsen
+N: Put Seth's animal over his name instead of Horus's falcon. Brave.

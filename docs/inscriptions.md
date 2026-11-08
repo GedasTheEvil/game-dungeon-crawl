@@ -56,7 +56,7 @@ N: A crocodile in the water. Oddly specific. Noted.
 |---|---|
 | `id: N` | Text id, 1 to 256 (`INSCRIPTION_MAX`), the tile's attribute (100 is a name cartouche, no text: skip it). Each id once over all files. |
 | `title: TEXT` | Heading of the journal page only. |
-| `style: NAME` | The frame on the wall: `cartouche` (an upright royal oval, up to 5 signs), `column` (up to 7), `row` (up to 7) or `stela` (a round-topped slab with a winged sun, up to 12 in columns). Default: `cartouche`. Another name is a load error. |
+| `style: NAME` | The frame on the wall: `cartouche` (an upright royal oval, up to 6 signs), `column` (up to 7), `row` (up to 7), `stela` (a round-topped slab with a winged sun, up to 12 in columns), or a serekh of the early kings (up to 4): `serekh`, `seth-serekh`, `twin-serekh` ([names](names.md)). Default: `cartouche`. Another name is a load error. |
 | `G: CODES` | The signs by [Gardiner code](https://en.wikipedia.org/wiki/List_of_Egyptian_hieroglyphs), separated by spaces: `A1`, `M23`, `Aa1`, `N35A`. They are drawn with the Noto Sans Egyptian Hieroglyphs font (SIL Open Font License, package `fonts-noto-extra`). Signs past the style's cap are not drawn. |
 | `T: TEXT` | Translation, one line each. Long lines wrap on the journal page. About six lines fit in the hand font; a longer text is written smaller (up to seven lines). |
 | `N: TEXT` | The archaeologist's comment: pencilled at the bottom of the journal page only. Keep it to one short line. |

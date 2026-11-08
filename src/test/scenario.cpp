@@ -578,6 +578,11 @@ bool runInstant(const Command& cmd) {
 		report(cmd, problems.empty(), std::to_string(Game().inscriptions.Size()) + " inscriptions");
 		return true;
 	}
+	case CommandType::Names: { // plan royal-name-signs: one name file makes every level's name that file's
+		const std::vector<std::string> problems = Game().names.Load(cmd.arg);
+		report(cmd, problems.empty(), std::to_string(Game().names.Size()) + " names");
+		return true;
+	}
 	case CommandType::SaveGame: // relative paths land in the output directory
 		report(
 			cmd,

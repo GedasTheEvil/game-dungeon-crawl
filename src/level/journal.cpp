@@ -10,7 +10,7 @@ constexpr const char* TAG = "journal";
 // whether each was translated, 8: fire among the damage types (the poison's tried bit moved up one), 9: and each
 // inscription's boon, 10: and its name cartouche picture, 11: and the diary pages, 12: and the
 // expedition's pages, 14: and the new entries
-constexpr int VERSION = 14;
+constexpr int VERSION = 15;
 constexpr int NOTES_PER_KIND_VERSION = 5;
 constexpr int INSCRIPTIONS_VERSION = 6;
 constexpr int TRANSLATED_VERSION = 7;
@@ -21,6 +21,7 @@ constexpr int DIARY_VERSION = 11;
 constexpr int PAGES_VERSION = 12;
 constexpr int GLYPHS_VERSION = 13; // a name cartouche's signs instead of its picture
 constexpr int NEW_MARKS_VERSION = 14;
+constexpr int FRAME_VERSION = 15; // a name's frame (plan royal-name-signs)
 constexpr unsigned OLD_TRIED_POISON = 1U << 3; // before fire
 constexpr int MIN_LATE_XP = 50;
 
@@ -293,7 +294,7 @@ void Journal::Dump(std::ostream& out) const {
 		out << ' ' << std::quoted(i.note) << ' ' << i.translated << ' ' << static_cast<int>(i.boon.kind) << ' '
 			<< i.boon.amount << ' ';
 		writeLines(out, i.glyphs);
-		out << '\n';
+		out << ' ' << static_cast<int>(i.frame) << '\n';
 	}
 	out << diary.size();
 	for (DiaryPage d : diary)
@@ -374,6 +375,11 @@ int Journal::loadEntries(std::istream& in) {
 		int picture = 0; // an old name cartouche's picture: its signs did not spell the name, dropped
 		if (version >= GLYPHS_VERSION ? !readLines(in, e.glyphs) : version >= PICTURE_VERSION && !(in >> picture))
 			return version;
+		int frame = 0;
+		if (version >= FRAME_VERSION && !(in >> frame))
+			return version;
+		if (frame > 0 && frame < INSCRIPTION_STYLE_COUNT)
+			e.frame = static_cast<InscriptionStyle>(frame);
 		if (kind > 0 && kind < BOON_KIND_COUNT && e.boon.amount > 0)
 			e.boon.kind = static_cast<BoonKind>(kind);
 		else

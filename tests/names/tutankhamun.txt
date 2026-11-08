@@ -1,0 +1,8 @@
+# Plan royal-name-signs: one name, so every level has it (the names command, docs/testing.md).
+name: Tutankhamun
+G: M17 Y5 N35 X1 G43 S34
+A: tutankhamun
+A: tutankhamen
+A: tutankhamon
+A: tut
+N: A minor king with a major tomb.

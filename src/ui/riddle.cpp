@@ -219,7 +219,9 @@ void Riddle::AskName(const RoyalName& name) {
 	knownName = name.name;
 	for (char& c : knownName)
 		c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
-	shown = RiddleEntry{"The sealed way", {"Speak the name written in the cartouche."}, name.answers, "", name.source};
+	// The frame it is written in (plan royal-name-signs): "the cartouche", "the serekh", "the stela".
+	const std::string asked = std::string("Speak the name written in the ") + frameWord(name.frame) + ".";
+	shown = RiddleEntry{"The sealed way", {asked}, name.answers, "", name.source};
 	reward = 0;
 	late = false;
 	nameGate = true;

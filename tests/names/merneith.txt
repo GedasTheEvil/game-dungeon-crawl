@@ -1,0 +1,8 @@
+# Plan royal-name-signs: one name, so every level has it (the names command, docs/testing.md).
+name: Merneith
+frame: stela
+G: U6 R24
+title: queen
+A: merneith
+A: meritneith
+N: Ruled for her son, buried among the kings.

@@ -266,6 +266,7 @@ std::optional<JournalInscription> Dungeon::nameCartouchePage(bool translated) co
 		translated
 	};
 	page.glyphs = name->glyphs;
+	page.frame = name->frame;
 	return page;
 }
 //======================================================================================

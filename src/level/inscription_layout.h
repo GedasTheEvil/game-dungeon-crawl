@@ -15,7 +15,7 @@
 #include <vector>
 
 constexpr const char* HIEROGLYPH_MANIFEST = MEDIA_DIR "textures/decorations/hieroglyphs.txt";
-constexpr int PLATE_GRID = 2; // inscription_plates.png: a plate per InscriptionStyle, row by row from the top left
+constexpr int PLATE_GRID = 3; // inscription_plates.png: a plate per InscriptionStyle, row by row from the top left
 constexpr int HIEROGLYPH_SHEET_GRID = 16; // hieroglyphs.png: a sign per cell, manifest order
 constexpr float HIEROGLYPH_GUTTER = 4.f / 128.f; // the share of a cell kept clear around its sign
 
@@ -64,8 +64,9 @@ struct SignQuad {
 	int colour;
 };
 
-// Where the signs go on the style's plate: a column (cartouche, column), a row, or the stela's columns of 4 read
-// right to left. Codes the sheet lacks are left out; each sign keeps its width / height, centred in its slot.
+// Where the signs go on the style's plate: a column (cartouche, column), a row, the stela's columns of 4 read
+// right to left, or the serekh's name box (a column of 2, a row of 3 or 4). Codes the sheet lacks are left out; each
+// sign keeps its width / height, centred in its slot.
 [[nodiscard]] std::vector<SignQuad>
 inscriptionLayout(InscriptionStyle style, const std::vector<std::string>& glyphs, const HieroglyphSheet& sheet);
 

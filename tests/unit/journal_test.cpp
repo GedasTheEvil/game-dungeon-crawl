@@ -262,3 +262,20 @@ TEST_CASE("the new marks survive a save and load; older saves have none") {
 	REQUIRE(oldJournal.Notes().size() == 1);
 	CHECK_FALSE(oldJournal.AnyNew());
 }
+
+TEST_CASE("a copied royal name keeps its frame through a save (plan royal-name-signs)") {
+	Journal j;
+	JournalInscription page;
+	page.id = NAME_CARTOUCHE_ID;
+	page.level = 4;
+	page.glyphs = {"K8", "U23"};
+	page.frame = InscriptionStyle::SethSerekh;
+	REQUIRE(j.ReadInscription(page));
+	std::stringstream s;
+	j.Dump(s);
+	Journal loaded;
+	loaded.Load(s);
+	REQUIRE(loaded.Inscriptions().size() == 1);
+	CHECK(loaded.Inscriptions()[0].glyphs == page.glyphs);
+	CHECK(loaded.Inscriptions()[0].frame == InscriptionStyle::SethSerekh);
+}

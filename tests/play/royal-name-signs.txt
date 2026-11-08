@@ -1,0 +1,7 @@
+# Plan royal-name-signs: the test level's name cartouche shows Narmer in a serekh (falcon on top). Swap the names
+# line for tests/names/peribsen.txt (Seth), khasekhemwy.txt (both), merneith.txt (stela) or tutankhamun.txt.
+god
+level tests/levels/name_gate
+names tests/names/narmer.txt
+heka 1
+learn words_of_thoth

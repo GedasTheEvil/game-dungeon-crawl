@@ -188,7 +188,7 @@ void Dungeon::drawInscriptionTile(int i, int j) {
 		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID), false);
 		return;
 	}
-	const InscriptionStyle style = text != nullptr ? text->style : InscriptionStyle::Cartouche;
+	const InscriptionStyle style = text != nullptr ? text->style : name->frame;
 	const float tile = RenderConfig::TILE_SIZE;
 	const float side = INSCRIPTION_SIZE * tile;
 	constexpr float WHITE[3] = {1, 1, 1};

@@ -52,6 +52,7 @@ struct JournalInscription {
 	// A name cartouche (id NAME_CARTOUCHE_ID, plan secret-name-gates): the name in signs, a copy of its G: line (plan
 	// composed-inscriptions); one per level, so the level tells them apart. Empty for any other inscription.
 	std::vector<std::string> glyphs;
+	InscriptionStyle frame = InscriptionStyle::Cartouche; // a name's frame (plan royal-name-signs): cartouche, serekh
 
 	[[nodiscard]] bool SameInscription(const JournalInscription& other) const {
 		return id == other.id && (id != NAME_CARTOUCHE_ID || level == other.level);

@@ -530,7 +530,7 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 			top - GLYPHS_TOP - GLYPHS_SIDE,
 			GLYPHS_SIDE,
 			0.f,
-			source != nullptr ? source->style : InscriptionStyle::Cartouche,
+			source != nullptr ? source->style : e.frame,
 			source != nullptr ? source->glyphs : e.glyphs,
 			{decor.inscriptionPlates, decor.hieroglyphTex, decor.hieroglyphs},
 			paper

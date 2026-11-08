@@ -2,8 +2,8 @@
 
     python3 tools/textures/inscriptions.py [content-dir] [out-dir]
 
-    inscription_plates.png  the empty frames, 2 x 2 cells of 512 px in INSCRIPTION_STYLES order (cartouche, column,
-                            row, stela; src/level/inscription_layout.h)
+    inscription_plates.png  the empty frames, 3 x 3 cells of 512 px in InscriptionStyle order (cartouche, column,
+                            row, stela, serekh, seth-serekh, twin-serekh; src/level/inscriptions.h)
     hieroglyphs.png         the hieroglyph sheet: 16 x 16 cells of 128 px, one sign each, white fill and ink outline
                             (the game tints the fill with the paint colour)
     hieroglyphs.txt         its manifest: one line per cell, row by row from the top left, the Gardiner code and the
@@ -14,10 +14,12 @@ sorted, so the cell order is stable. G: lists the signs by Gardiner code (A1, M2
 Sans Egyptian Hieroglyphs font (SIL Open Font License; Debian/Ubuntu package fonts-noto-extra). The game lays them
 out in the plate of the inscription's style (inscriptionLayout in src/level/inscription_layout.cpp):
 
-    cartouche  an upright royal oval on its bar, the signs in a column (up to 5)
+    cartouche  an upright royal oval on its bar, the signs in a column (up to 6)
     column     a framed panel, the signs in a column (up to 7)
     row        a framed panel, the signs in a row (up to 7)
     stela      a round-topped slab with a winged sun, the signs in columns read right to left (up to 12)
+    serekh     the early kings' palace façade with the Horus falcon on top, the signs in its name box (up to 4;
+               plan royal-name-signs); seth-serekh has Seth's animal on top (Peribsen), twin-serekh both (Khasekhemwy)
 
 Rerun after adding a sign no G: line used before; the game reads the texts, styles and G: lines at start-up.
 """
@@ -32,13 +34,13 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from decals import INK, PAINT, S, bleed, layer, weather  # noqa: E402
 
-PLATE_GRID = 2  # PLATE_GRID in src/level/inscription_layout.h; the plates are drawn at S = 512 px
+PLATE_GRID = 3  # PLATE_GRID in src/level/inscription_layout.h; the plates are drawn at S = 512 px
 SIGN_GRID = 16  # HIEROGLYPH_SHEET_GRID
 SIGN_PX = 128  # a sign's cell; drawn at S and scaled down
 SIGN_GUTTER = 4  # px of a cell kept clear around the sign (HIEROGLYPH_GUTTER), so filtering does not reach the next
 SIGN_OUTLINE = 21  # the ink outline's MaxFilter size at S: about a cartouche's outline before
 FONT = "/usr/share/fonts/truetype/noto/NotoSansEgyptianHieroglyphs-Regular.ttf"
-STYLES = ("cartouche", "column", "row", "stela")
+STYLES = ("cartouche", "column", "row", "stela", "serekh", "seth-serekh", "twin-serekh")
 WHITE = (255, 255, 255, 235)  # the fill; the paint colours have this alpha too
 
 
@@ -141,7 +143,62 @@ def stela():
     return weather(img, 104, 0.35)
 
 
-DRAW = {"cartouche": cartouche, "column": column, "row": row, "stela": stela}
+def crest(img, code, box, colour, mirror=False):
+    """The animal on top of a serekh, the font's sign filled with paint and inked, fitted into box."""
+    x0, y0, x1, y1 = box
+    mask = glyph_mask(sign(code), 400)
+    if mirror:
+        mask = mask.transpose(Image.FLIP_LEFT_RIGHT)
+    scale = min((x1 - x0) / mask.width, (y1 - y0) / mask.height)
+    mask = mask.resize((max(1, int(mask.width * scale)), max(1, int(mask.height * scale))), Image.LANCZOS)
+    at = (x0 + (x1 - x0 - mask.width) // 2, y1 - mask.height)  # standing on the serekh's top
+    outline = Image.new("L", (mask.width + 16, mask.height + 16), 0)
+    outline.paste(mask, (8, 8))
+    outline = outline.filter(ImageFilter.MaxFilter(9))
+    img.paste(Image.new("RGBA", outline.size, INK), (at[0] - 8, at[1] - 8), outline)
+    img.paste(Image.new("RGBA", mask.size, colour), at, mask)
+
+
+def serekh_frame(crests, seed):
+    """The palace façade: the name box over a recessed niche front, the crests (code, colour, mirror) on its top."""
+    img = layer()
+    d = ImageDraw.Draw(img)
+    d.rectangle([150, 182, 362, 494], fill=(232, 216, 170, 110), outline=INK, width=10)
+    d.rectangle([150, 182, 362, 494], outline=PAINT["gold"], width=4)
+    d.line([(156, 346), (356, 346)], fill=INK, width=8)
+    # The niches of the palace front: the doors' recesses, nested.
+    for k in range(5):
+        x = 166 + k * 38
+        d.rectangle([x, 360, x + 28, 480], outline=INK, width=4)
+        d.rectangle([x + 8, 372, x + 20, 480], fill=PAINT["red"], outline=INK, width=3)
+    width = 190 // len(crests)
+    for k, (code, colour, mirror) in enumerate(crests):
+        x0 = 161 + k * width
+        crest(img, code, (x0, 24, x0 + width, 176), colour, mirror)
+    return weather(img, seed, 0.35)
+
+
+def serekh():
+    return serekh_frame([("G5", PAINT["gold"], False)], 105)
+
+
+def seth_serekh():
+    return serekh_frame([("E20", PAINT["red"], False)], 106)
+
+
+def twin_serekh():  # Horus and Seth face each other
+    return serekh_frame([("G5", PAINT["gold"], True), ("E20", PAINT["red"], False)], 107)
+
+
+DRAW = {
+    "cartouche": cartouche,
+    "column": column,
+    "row": row,
+    "stela": stela,
+    "serekh": serekh,
+    "seth-serekh": seth_serekh,
+    "twin-serekh": twin_serekh,
+}
 
 
 def main(content, out):

@@ -1,6 +1,7 @@
 # The royal names of the name gates (plan secret-name-gates, docs/names.md). One entry per name: name:, then an A:
 # line per accepted spelling (compared like riddle answers), an optional title: (default king) and N: comment.
-# G: spells the name in signs by Gardiner code, as on its cartouche (up to 5; docs/names.md).
+# G: spells the name in signs by Gardiner code, as on its monuments; frame: the cartouche (default), or the serekh
+# of the early kings (plan royal-name-signs; docs/names.md).
 
 name: Khufu
 G: Aa1 G43 I9 G43
@@ -9,10 +10,12 @@ A: cheops
 N: The Great Pyramid's owner. Not a modest man.
 
 name: Djoser
-G: D45 D21
+frame: serekh
+G: R8 D21 F32
 A: djoser
 A: zoser
-N: First pyramid, six steps. Imhotep did the sums.
+A: netjerikhet
+N: First pyramid, six steps. His serekh calls him Netjerikhet.
 
 name: Sneferu
 G: S29 F35 I9 D21 G43
@@ -54,7 +57,7 @@ A: nefertiti
 N: The most famous face in Berlin.
 
 name: Tutankhamun
-G: M17 N35 X1 G43 S34
+G: M17 Y5 N35 X1 G43 S34
 A: tutankhamun
 A: tutankhamen
 A: tutankhamon
@@ -80,7 +83,8 @@ A: merneptah
 N: Thirteenth son of Ramesses. Patience pays.
 
 name: Narmer
-G: N35 D21 U23
+frame: serekh
+G: K8 U23
 A: narmer
 N: Joined the two lands with one palette.
 
@@ -155,12 +159,14 @@ A: cleopatra
 N: Closer in time to the moon landing than to the pyramids.
 
 name: Hor-Aha
-G: G5 D34
+frame: serekh
+G: D34
 A: horaha
 A: aha
 N: "The fighting Horus". Killed by a hippo, they say.
 
 name: Den
+frame: serekh
 G: D46 N35
 A: den
 A: dewen
@@ -193,12 +199,14 @@ A: haremhab
 N: A general who made himself king. And scratched out the ones before.
 
 name: Peribsen
-G: Q3 D21 F34 S29 N35
+frame: seth-serekh
+G: O1 F34 S29 N35
 A: peribsen
 N: Put Seth's animal over his name instead of Horus's falcon. Brave.
 
 name: Khasekhemwy
-G: N28 S42 Z4
+frame: twin-serekh
+G: N28 S42 S42
 A: khasekhemwy
 A: khasekhemui
 N: Horus and Seth both on his name. He made peace between them.
@@ -225,29 +233,34 @@ N: A Macedonian general's line. There were fifteen of them, all Ptolemy.
 # More names for the rebuilt campaign's 54 levels (plan denser-levels), spelled with signs already on the sheet.
 
 name: Djer
-G: I10 D21
+frame: serekh
+G: M37
 A: djer
 N: First dynasty. Later Egyptians took his tomb for the tomb of Osiris.
 
 name: Semerkhet
-G: S29 G17 D21 Aa1 X1
+frame: serekh
+G: S29 U23 F32
 A: semerkhet
 N: A short reign and a big tomb. The usual ratio.
 
 name: Qaa
-G: N29 D36 D36
+frame: serekh
+G: N29 D36
 A: qaa
 A: qa'a
-N: The last king of the first dynasty. Two letters, one of them twice.
+N: Last king of the first dynasty. Two signs, one of them an arm.
 
 name: Anedjib
-G: M17 N35 I10 D58
+frame: serekh
+G: V26 F34
 A: anedjib
 A: adjib
 N: Safe of heart, his name says. A rare boast.
 
 name: Merneith
-G: U6 N35 X1
+frame: stela
+G: U6 R24
 title: queen
 A: merneith
 A: meritneith

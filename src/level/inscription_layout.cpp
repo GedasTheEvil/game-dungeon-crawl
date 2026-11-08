@@ -114,12 +114,16 @@ std::vector<std::string> checkSigns(const HieroglyphSheet& sheet, const Inscript
 int signCap(InscriptionStyle style) {
 	switch (style) {
 	case InscriptionStyle::Cartouche:
-		return 5;
+		return 6; // Tutankhamun's amn-tut-ankh (plan royal-name-signs)
 	case InscriptionStyle::Column:
 	case InscriptionStyle::Row:
 		return 7;
 	case InscriptionStyle::Stela:
 		return 12;
+	case InscriptionStyle::Serekh:
+	case InscriptionStyle::SethSerekh:
+	case InscriptionStyle::TwinSerekh:
+		return 4; // a Horus name is short: Peribsen's pr-ib-sn is the longest
 	}
 	return 0;
 }
@@ -158,6 +162,19 @@ inscriptionLayout(InscriptionStyle style, const std::vector<std::string>& glyphs
 		}
 		break;
 	}
+	case InscriptionStyle::Serekh: // the name box above the palace façade, the animal on top is the plate's
+	case InscriptionStyle::SethSerekh:
+	case InscriptionStyle::TwinSerekh:
+		if (cells.size() <= 2) {
+			column(out, cells, sheet, 168, 196, 344, 338, 0);
+		} else { // a row, as Peribsen's and Semerkhet's
+			const float slot = (348.f - 164.f) / static_cast<float>(cells.size());
+			for (size_t k = 0; k < cells.size(); k++) {
+				const Slot s{164 + static_cast<float>(k) * slot + slot * 0.05f, 206, slot * 0.9f, 122};
+				out.push_back(place(cells[k], sheet.Aspect(cells[k]), s, static_cast<int>(k) % SIGN_COLOURS));
+			}
+		}
+		break;
 	}
 	return out;
 }

@@ -3,6 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/level_check.h"
+#include "../../src/level/inscription_layout.h"
 #include "../../src/level/names.h"
 #include "../../src/level/run_stats.h"
 #include "sim_world.h"
@@ -291,4 +292,46 @@ TEST_CASE("the campaign's secret rooms: about every second level, each name gate
 	}
 	CHECK(rooms >= 12);
 	CHECK(static_cast<size_t>(rooms) <= shippedNames().Size());
+}
+
+TEST_CASE("royal name signs: early kings in a serekh, the signs as on the monuments (plan royal-name-signs)") {
+	const NameList names = shippedNames();
+	auto find = [&](const std::string& name) -> const RoyalName& {
+		for (size_t i = 0; i < names.Size(); i++)
+			if (names.At(i).name == name)
+				return names.At(i);
+		FAIL("no name " << name);
+		return names.At(0);
+	};
+	using G = std::vector<std::string>;
+	// The first kings wrote their Horus name in a serekh, the falcon on top; Peribsen put Seth there, Khasekhemwy both.
+	for (const char* early : {"Narmer", "Hor-Aha", "Djer", "Den", "Anedjib", "Semerkhet", "Qaa", "Djoser"}) {
+		CAPTURE(early);
+		CHECK(find(early).frame == InscriptionStyle::Serekh);
+	}
+	CHECK(find("Peribsen").frame == InscriptionStyle::SethSerekh);
+	CHECK(find("Khasekhemwy").frame == InscriptionStyle::TwinSerekh);
+	CHECK(find("Merneith").frame == InscriptionStyle::Stela); // her name on her tomb stela, no Horus falcon
+	CHECK(find("Huni").frame == InscriptionStyle::Cartouche); // cartouches start with him
+	CHECK(find("Khufu").frame == InscriptionStyle::Cartouche);
+	CHECK(find("Narmer").glyphs == G{"K8", "U23"}); // the catfish and the chisel
+	CHECK(find("Anedjib").glyphs == G{"V26", "F34"}); // Adjib, starting with the ad
+	CHECK(find("Merneith").glyphs == G{"U6", "R24"}); // Neith's sign
+	CHECK(find("Tutankhamun").glyphs == G{"M17", "Y5", "N35", "X1", "G43", "S34"}); // no sign dropped
+	for (size_t i = 0; i < names.Size(); i++) {
+		CAPTURE(names.At(i).name);
+		CHECK(names.At(i).glyphs.size() <= static_cast<size_t>(signCap(names.At(i).frame))); // all of it drawn
+	}
+}
+
+TEST_CASE("a name file's frame: line picks the frame, a wrong one is told by line (plan royal-name-signs)") {
+	std::istringstream in("name: Den\nframe: serekh\nA: den\nname: Bad\nframe: oval\nA: bad\n");
+	std::vector<RoyalName> out;
+	std::vector<std::string> errors;
+	ParseNames(in, "t.txt", out, errors);
+	REQUIRE(out.size() == 2);
+	CHECK(out[0].frame == InscriptionStyle::Serekh);
+	CHECK(out[1].frame == InscriptionStyle::Cartouche);
+	REQUIRE(errors.size() == 1);
+	CHECK(errors[0].find("t.txt:5:") == 0);
 }

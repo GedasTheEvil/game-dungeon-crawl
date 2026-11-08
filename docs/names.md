@@ -6,7 +6,12 @@ cartouche." The right name opens it for good: from then on it is a plain telepor
 it. Wrong names can be retried; there is no hint and no XP for the name itself. Esc walks away and the gate stays
 sealed. Until it is opened, its plasma breathes into transparency and back.
 
-The name is written in a name cartouche (`:`, an inscription with the text id 100) elsewhere on the same level. Read with
+The name is written in a name cartouche (`:`, an inscription with the text id 100) elsewhere on the same level. The
+early kings, before cartouches came in with Huni, wrote their Horus name in a serekh instead: the palace façade with
+the falcon on top (Seth's animal for Peribsen, both for Khasekhemwy). Their name cartouche draws that frame, and the
+scroll asks for "the name written in the serekh" ([plan](plan/royal-name-signs.bug.md)). Merneith, a
+queen with no Horus name, has hers on her tomb stela. Djoser's serekh holds his Horus name Netjerikhet (the gate
+takes both). Read with
 the hieroglyph skill (Words of Thoth), the journal page says "The name of the king: KHUFU". Without the skill the signs
 are copied like any other inscription, and the gate's scroll, after a wrong name, says "A name is asked. The wall glyphs
 I copied might hold it." Learning the skill later translates the copy, name and all.
@@ -35,7 +40,8 @@ N: Ramesses the Great. Built half of Egypt, signed the other half.
 | `name: TEXT` | The name as the journal writes it, in capitals: "The name of the king: RAMESSES". |
 | `title: TEXT` | Optional. Who bore it: "The name of the queen: NEFERTITI". Default: `king`. |
 | `A: TEXT` | An accepted spelling, one line each. Compared like a riddle's answer ([riddles](riddles.md)): letters and digits only, lower case, so `Hor-Aha` matches `A: horaha`. At most 32 characters. |
-| `G: CODES` | The name in signs by Gardiner code, as on its real cartouche (`Khufu`: `Aa1 G43 I9 G43`), up to 5: drawn in the name cartouche like an inscription's `G:` line ([inscriptions](inscriptions.md)). |
+| `G: CODES` | The name in signs by Gardiner code, as on its monuments (`Khufu`: `Aa1 G43 I9 G43`): up to 6 in a cartouche, 4 in a serekh, drawn like an inscription's `G:` line ([inscriptions](inscriptions.md)). A serekh's crowning animal is part of its frame, not of `G:`. |
+| `frame: STYLE` | Optional. The frame the name is written in: `cartouche` (default), `serekh` (the Horus falcon on top), `seth-serekh` (Seth's animal), `twin-serekh` (both), or any other inscription style (`stela`). |
 | `N: TEXT` | Optional. The archaeologist's comment, pencilled on the journal page before "Something on this level wants to hear it." Keep it to 70 characters: the page has two lines for both. |
 
 A name without an `A:` line is skipped. Use plain ASCII: the fonts have no other characters.

@@ -59,7 +59,10 @@ TEST_CASE("an inscription file: entries by id, its style and signs, problems tol
 	CHECK(errors[1] == "f.txt:12: id must be 1 to 256, entry skipped");
 	CHECK(errors[2] == "f.txt:13: T: before any id: line, ignored");
 	CHECK(errors[3].find("f.txt:16:") == 0);
-	CHECK(errors[4] == "f.txt:17: style: must be cartouche, column, row or stela, line ignored");
+	CHECK(
+		errors[4] ==
+		"f.txt:17: style: must be cartouche, column, row, stela, serekh, seth-serekh or twin-serekh, line ignored"
+	);
 }
 
 TEST_CASE("an inscription read twice is written in the journal once, and kept by a save and load") {

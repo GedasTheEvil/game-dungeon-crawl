@@ -5,6 +5,7 @@
 // start-up like the riddles. Each run gives every campaign level its own name; its name cartouche spells it.
 // Shared by the game and the tests, so no GL here.
 
+#include "inscriptions.h"
 #include <cstdint>
 #include <istream>
 #include <string>
@@ -21,6 +22,8 @@ struct RoyalName {
 	std::vector<std::string> answers; // normalized, see NormalizeAnswer
 	std::string note; // the archaeologist's comment, optional
 	std::vector<std::string> glyphs; // the name in signs by Gardiner code, the G: line (plan composed-inscriptions)
+	// The frame it is written in, the frame: line (plan royal-name-signs): a cartouche from Huni on, a serekh before.
+	InscriptionStyle frame = InscriptionStyle::Cartouche;
 	std::string source; // "file:line" of the name: line, for messages
 	std::string glyphSource; // "file:line" of the G: line
 

@@ -54,6 +54,7 @@ enum class CommandType : unsigned char {
 	Stun,
 	Riddles,
 	Inscriptions,
+	Names,
 	Prop,
 	Torch,
 	Mirror,

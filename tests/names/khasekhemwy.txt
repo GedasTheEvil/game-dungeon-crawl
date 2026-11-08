@@ -1,0 +1,7 @@
+# Plan royal-name-signs: one name, so every level has it (the names command, docs/testing.md).
+name: Khasekhemwy
+frame: twin-serekh
+G: N28 S42 S42
+A: khasekhemwy
+A: khasekhemui
+N: Horus and Seth both on his name. He made peace between them.

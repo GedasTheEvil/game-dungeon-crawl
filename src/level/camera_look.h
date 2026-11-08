@@ -9,8 +9,9 @@
 #include <cstdint>
 
 // The camera peek (plan controls-smoothing): rotM / rotN, the turn off straight ahead. A look key held turns it at a
-// steady CAMERA_LOOK_KEY_SPEED, whatever the desktop's key repeat. With recentring on, once no look input (a look key
-// held, a mouse motion that turned it) came for CAMERA_RECENTER_DELAY_MS, the peek eases back to 0.
+// steady CAMERA_LOOK_KEY_SPEED, whatever the desktop's key repeat. With recentring on, once no look key was held for
+// CAMERA_RECENTER_DELAY_MS, a look-key peek eases back to 0. A mouse turn is where the player looks: it cancels the
+// recentre until a look key is used again (plan camera-recentre-undoes-mouse-look).
 constexpr float CAMERA_LOOK_KEY_SPEED = 60.f; // degrees a second
 constexpr int CAMERA_RECENTER_DELAY_MS = 1500;
 constexpr float CAMERA_RECENTER_TAU_MS = 160.f; // the easing's time constant: settled (5%) after about 0.5 s
@@ -24,10 +25,17 @@ class CameraLook {
 		float n = 0.f; // up / down, CAMERA_ROTATE_LIMIT_Y
 	};
 
-	void Hold(Dir dir, bool down) { held[static_cast<size_t>(dir)] = down; }
+	void Hold(Dir dir, bool down) {
+		held[static_cast<size_t>(dir)] = down;
+		if (down)
+			mouseSet = false;
+	}
 	void Release() { held.fill(false); }
-	// The mouse turned the camera: the easing stops and waits again.
-	void Looked() { idleMs = 0; }
+	// The mouse turned the camera: the easing stops, and stays off until a look key is pressed again.
+	void Looked() {
+		idleMs = 0;
+		mouseSet = true;
+	}
 
 	// One tick of dtMs: the held keys turn the camera; else, with recenter, after the delay it eases back.
 	Angles Step(Angles a, int dtMs, bool recenter) {
@@ -39,7 +47,7 @@ class CameraLook {
 			return Clamp(a);
 		}
 		idleMs = std::min(idleMs + dtMs, CAMERA_RECENTER_DELAY_MS);
-		if (!recenter || idleMs < CAMERA_RECENTER_DELAY_MS)
+		if (!recenter || mouseSet || idleMs < CAMERA_RECENTER_DELAY_MS)
 			return a;
 		const float keep = std::exp(-static_cast<float>(dtMs) / CAMERA_RECENTER_TAU_MS);
 		return {ease(a.m, keep), ease(a.n, keep)};
@@ -55,6 +63,7 @@ class CameraLook {
   private:
 	std::array<bool, 4> held{};
 	int idleMs = 0;
+	bool mouseSet = false; // the mouse turned it last: no recentre
 
 	[[nodiscard]] float axis(Dir dir) const { return held[static_cast<size_t>(dir)] ? 1.f : 0.f; }
 	static float ease(float angle, float keep) {

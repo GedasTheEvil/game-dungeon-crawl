@@ -49,7 +49,7 @@ constexpr std::array<OptionRow, 10> DISPLAY_ROWS = {{
 constexpr std::array<OptionRow, 3> MOUSE_ROWS = {{
 	{OptionId::MouseSensitivity, OptionKind::Slider, "Mouse sensitivity", "How far the view turns as the mouse moves"},
 	{OptionId::InvertY, OptionKind::Switch, "Invert mouse Y", "Moving the mouse up looks down"},
-	{OptionId::CameraRecenter, OptionKind::Switch, "Camera recentre", "A look around eases back when left alone"},
+	{OptionId::CameraRecenter, OptionKind::Switch, "Camera recentre", "A look-key peek eases back when left alone"},
 }};
 constexpr std::array<OptionRow, 4> SOUND_ROWS = {{
 	{OptionId::Master, OptionKind::Slider, "Master volume", "Scales the music and the effects"},

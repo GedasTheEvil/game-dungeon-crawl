@@ -33,7 +33,7 @@ toon = off              ; cel bands and ink outlines (F1)
 blood = on              ; blood splashes
 light_flicker = on      ; torches, braziers and lamps flicker
 cut_scenes = on         ; the view goes to a far gate a lever or a boss's death opens
-camera_recenter = on    ; a look around (mouse, look keys) eases back to straight ahead when left alone
+camera_recenter = on    ; a look-key peek eases back to straight ahead when left alone (a mouse turn stays)
 
 [mouse]
 sensitivity = 100       ; 20-300 percent, how far the view turns per mouse movement
@@ -76,7 +76,7 @@ same input on two actions is a warning: the first action in the list below keeps
 | `sprint` | `shift, right_shift` | Sprint while held |
 | `attack` | `v, enter, mouse_left` | Attack |
 | `interact` | `e, f12, mouse_middle` | Pick up, pull a lever, answer a riddle |
-| `look_left` | `home` | Turn the camera while held (the mouse turns it too); with `camera_recenter` on, the view eases back once left alone |
+| `look_left` | `home` | Turn the camera while held (the mouse turns it too); with `camera_recenter` on, a look-key peek eases back once left alone (a mouse turn stays) |
 | `look_right` | `end` | |
 | `look_up` | `page_up` | |
 | `look_down` | `page_down` | |

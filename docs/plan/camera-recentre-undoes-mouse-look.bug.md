@@ -1,6 +1,6 @@
 # Camera recentre undoes the mouse look
 
-Status: draft 2026-11-08, size S, needs nothing first.
+Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
 
 ## Repro
 
@@ -26,6 +26,13 @@ After `CAMERA_RECENTER_DELAY_MS` (1.5 s) without look input, `CameraLook::Step` 
   ("A look-key peek eases back when left alone").
 * Implementer's choice if that feels wrong in play: default the option to off instead. Say which in the plan.
 * Interplay with [mouse-leaves-window](mouse-leaves-window.bug.draft.opus.md): independent, either can go first.
+
+## Done
+
+* The suggested fix (not the default-off one): `CameraLook::Looked` (a mouse turn) sets `mouseSet`, which stops the
+  recentre until a look key is pressed again (`Hold(dir, true)`). The hint reads "A look-key peek eases back when left
+  alone"; docs/settings.md and the glossary say so too.
+* Test: `tests/unit/camera_look_test.cpp`, "a mouse turn stays after a long idle, a look-key peek still eases back".
 
 ## Fixed when
 

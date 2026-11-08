@@ -28,7 +28,7 @@ struct Settings {
 		bool blood = true; // the blood splashes
 		bool lightFlicker = true; // torches, braziers and lamps flicker
 		bool cutScenes = true; // the camera shows a gate a lever opened off the screen (plan cinematic-effects)
-		bool cameraRecenter = true; // a mouse or look-key peek eases back when left alone (plan controls-smoothing)
+		bool cameraRecenter = true; // a look-key peek eases back when left alone (plan controls-smoothing)
 	} graphics;
 	struct Mouse {
 		int sensitivity = 100; // percent of MOUSE_LOOK_SENSITIVITY (plan settings-extras)

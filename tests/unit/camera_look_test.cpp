@@ -88,3 +88,19 @@ TEST_CASE("camera look: with recentring off the peek stays") {
 	CHECK(a.m == 15.f);
 	CHECK(a.n == 5.f);
 }
+
+// Plan camera-recentre-undoes-mouse-look: the mouse is where the player looks, the recentre is for a look-key peek.
+TEST_CASE("camera look: a mouse turn stays after a long idle, a look-key peek still eases back") {
+	CameraLook look;
+	look.Looked(); // the mouse turned it to here
+	Angles a = run(look, {20.f, -5.f}, 3 * CAMERA_RECENTER_DELAY_MS / UPDATE_TICK_MS);
+	CHECK(a.m == 20.f);
+	CHECK(a.n == -5.f);
+
+	look.Hold(Dir::Left, true); // a look-key peek: the recentre is back
+	a = run(look, a, 1);
+	look.Hold(Dir::Left, false);
+	a = run(look, a, 2 * CAMERA_RECENTER_DELAY_MS / UPDATE_TICK_MS + 100);
+	CHECK(a.m == 0.f);
+	CHECK(a.n == 0.f);
+}

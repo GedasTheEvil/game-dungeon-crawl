@@ -1,4 +1,4 @@
-# Shrine offerings: merge rings, offer spares for XP
+# Shrine offerings: merge rings and amulets, offer spares for XP
 
 Status: draft 2026-11-08, size M, needs nothing first.
 
@@ -10,9 +10,9 @@ the god for XP: rings, amulets, and weapons, above all the copies of a weapon al
 which have no use today. A confirmation asks before anything is given away.
 
 Today weapons and amulets upgrade in the inventory, anywhere (`ItemBag::CanUpgrade`, `Upgrade`); rings never
-upgrade. The shrine-only rule for rings is on purpose: it gives the shrines (Isis and the four gods,
-[shrines-of-the-gods](solved/shrines-of-the-gods.feature.md)) a second use. Weapons and amulets keep their inventory
-upgrade.
+upgrade. The user's rule: weapons are plain craft, the player joins the copies himself, anywhere (unchanged). Amulets
+and rings are magic, the player has none: they upgrade only at a shrine, with a god's help (Isis and the four gods,
+[shrines-of-the-gods](solved/shrines-of-the-gods.feature.md)). This gives the shrines a second use.
 
 ## Plan
 
@@ -35,12 +35,14 @@ upgrade.
   "Ptah joins the rings: Silver Garnet Ring".
 * Optional, the implementer's choice: the god flavours the reward (Montu favours weapons, Ptah amulets, ...: +50% XP
   for those). Leave out if it bloats the plan.
-* Glossary rows: offering, merge (ring). Unit tests for merge rules (gold cannot, worn ring stays worn, needs two)
+* Glossary rows: offering, merge (ring); the amulet tier row: upgraded at a shrine. Unit tests for merge rules (gold
+  cannot, worn ring stays worn, needs two), amulet upgrade (not away from a shrine, yes at one; a weapon anywhere)
   and offer rules (last copy cannot, worn cannot).
 
 ## Play-test
 
 * (play script: a shrine, two Copper Garnet Rings, a Gold ring, a level-5 weapon with spare copies, a spare amulet)
-* At the shrine, open the inventory: merge the copper rings, see a Silver Garnet Ring; the gold ring has no Merge.
+* Away from the shrine: the amulet's Upgrade is disabled, "Only at a shrine"; a weapon still upgrades.
+* At the shrine, open the inventory: upgrade the amulet; merge the copper rings, see a Silver Garnet Ring; the gold ring has no Merge.
 * Offer a spare weapon copy and an amulet: the confirmation shows, XP is gained, the item is gone.
 * Away from the shrine: no Offer / Merge.

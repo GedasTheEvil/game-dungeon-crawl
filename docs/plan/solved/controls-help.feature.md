@@ -1,6 +1,6 @@
 # Controls help and first-level hints
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-08 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-10-30, size L, needs nothing first. From the project audit of 2026-10-30.
 
 Opus: a new menu sub-screen and in-level teaching.
 

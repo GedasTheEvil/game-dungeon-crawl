@@ -1,5 +1,0 @@
-# human-monster-notes: a journal with every creature written down (all 36 killed), to read the new notes.
-seed 1
-god
-level tests/levels/rats
-loadgame tests/saves/human_monster_notes.sav

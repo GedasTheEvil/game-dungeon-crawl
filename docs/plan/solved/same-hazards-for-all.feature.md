@@ -1,13 +1,13 @@
 # Same hazards for all: every trap and terrain hits the player and the monsters by one rule
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-06, size L, needs first: [shared-vitals](solved/shared-vitals.tooling.md), [terrain-affinity](solved/terrain-affinity.feature.md).
+Status: solved 2026-11-08 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-06, size L, needs first: [shared-vitals](shared-vitals.tooling.md), [terrain-affinity](terrain-affinity.feature.md).
 
 ## Idea
 
 From the user: the player is, in a way, one more monster that walks in and kills everything. So a trap, a poison, a
 fire or a terrain treats every living thing by the same rule; a kind differs only by its numbers (resistances, trap
 share, poison ward, native and hostile terrains), never by a separate code path. What stays the player's alone:
-equipment, shrines and blessings, curses, skills, XP. With [shared-vitals](solved/shared-vitals.tooling.md)
+equipment, shrines and blessings, curses, skills, XP. With [shared-vitals](shared-vitals.tooling.md)
 done, each point below is a change in one place.
 
 ## Plan
@@ -31,7 +31,7 @@ done, each point below is a change in one place.
   * Webs: today a floor web slows the player (`WEB_SLOW_FACTOR`) and is a terrain for monsters. Make the web the
     terrain for the player too (below), with `WEB_SLOW_FACTOR` as the player's hostile speed in it.
   * Head bump: one rule (already near: `Player::HeadBump`, `Monster::HeadBump`), the daze / stun by the same roll.
-* **Terrain for the player** (needs [terrain-affinity](solved/terrain-affinity.feature.md)): the player has a
+* **Terrain for the player** (needs [terrain-affinity](terrain-affinity.feature.md)): the player has a
   terrain affinity like a monster kind: by default hostile to web (the slow above) and nothing else, so today's game
   plays the same. The hook is what matters: a blessing or a curse can later add a native or a hostile terrain (e.g. a
   god's favour makes water native: faster, harder hits there; a curse makes light hostile). Only the hook and the web
@@ -41,7 +41,7 @@ done, each point below is a change in one place.
   be hit by it at all; today they only hit the player, so this is only the shared timer, no new hit. Blind stays the
   player's (a monster has no view to blur).
 * **The level checker** (`level_check*.cpp`, `level_walker`) models trap damage to the player and to reckless monsters
-  ([checker-reckless-threat](solved/checker-reckless-threat.tooling.md)): switch it to the one formula, then fix every
+  ([checker-reckless-threat](checker-reckless-threat.tooling.md)): switch it to the one formula, then fix every
   campaign level it flags (AGENTS.md: no warnings).
 * **Journal**: a creature's note on traps ("walks through spikes unharmed") reads its trap share as before.
 
@@ -49,7 +49,7 @@ done, each point below is a change in one place.
 
 * Shrines and blessings for monsters, equipment for monsters.
 * Balance of the bosses (separate follow-ups after the play-test).
-* The icons over the monsters: [monster-status-icons](solved/monster-status-icons.feature.md).
+* The icons over the monsters: [monster-status-icons](monster-status-icons.feature.md).
 
 ## Open points (implementer's choice)
 
@@ -81,7 +81,7 @@ done, each point below is a change in one place.
   walk; the HUD shows the mood card only when not neutral.
 * **Head bump and conditions**: already one rule (`rollHeadBumpDaze`, `Vitals::KnockOut`); no new hits.
 * **Checker**: it models no trap damage numbers (a weight per trap on the path); the reckless reach is
-  [checker-reckless-threat](solved/checker-reckless-threat.tooling.md). All campaign levels pass with no warnings.
+  [checker-reckless-threat](checker-reckless-threat.tooling.md). All campaign levels pass with no warnings.
 * **Journal**: no creature note reads the trap share; nothing to change.
 
 ## Play-test

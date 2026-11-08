@@ -9,7 +9,7 @@ sealed. Until it is opened, its plasma breathes into transparency and back.
 The name is written in a name cartouche (`:`, an inscription with the text id 100) elsewhere on the same level. The
 early kings, before cartouches came in with Huni, wrote their Horus name in a serekh instead: the palace façade with
 the falcon on top (Seth's animal for Peribsen, both for Khasekhemwy). Their name cartouche draws that frame, and the
-scroll asks for "the name written in the serekh" ([plan](plan/royal-name-signs.bug.md)). Merneith, a
+scroll asks for "the name written in the serekh" ([plan](plan/solved/royal-name-signs.bug.md)). Merneith, a
 queen with no Horus name, has hers on her tomb stela. Djoser's serekh holds his Horus name Netjerikhet (the gate
 takes both). Read with
 the hieroglyph skill (Words of Thoth), the journal page says "The name of the king: KHUFU". Without the skill the signs

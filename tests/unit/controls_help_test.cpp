@@ -107,3 +107,19 @@ TEST_CASE("first hints: the dungeon tells a gap or a ledge ahead and a ladder at
 	REQUIRE(world.WalkTo(static_cast<float>(LEDGE_COL) - 0.4f));
 	CHECK(world.dungeon.PlayerFacesJump(1));
 }
+
+TEST_CASE("first hints: each shows once a run, one at a time, and a thing already done needs none") {
+	std::uint32_t shown = 0;
+	HintPacer pacer;
+	CHECK(HintPacer::Pending(shown, FirstHint::Jump, false));
+	CHECK_FALSE(pacer.Offer(shown, FirstHint::Jump, false, 0)); // no gap ahead yet
+	CHECK(pacer.Offer(shown, FirstHint::Jump, true, 0));
+	CHECK(shown == hintBit(FirstHint::Jump));
+	CHECK_FALSE(HintPacer::Pending(shown, FirstHint::Jump, false)); // once a run
+
+	CHECK_FALSE(pacer.Offer(shown, FirstHint::Climb, true, HintPacer::HINT_GAP_MS - 1)); // too soon after the jump's
+	CHECK(pacer.Offer(shown, FirstHint::Climb, true, HintPacer::HINT_GAP_MS));
+
+	CHECK_FALSE(HintPacer::Pending(shown, FirstHint::Sprint, true)); // already sprinted: marked, no word
+	CHECK((shown & hintBit(FirstHint::Sprint)) != 0);
+}

@@ -1,6 +1,6 @@
 # Human-like monster notes: what the archaeologist felt, not how the monster works
 
-Status: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size M, needs nothing first.
+Status: solved 2026-11-08 (play-tested by the user). Was: implemented 2026-11-06, waiting for the user's play-test. Was: draft 2026-11-06, size M, needs nothing first.
 
 ## Idea
 

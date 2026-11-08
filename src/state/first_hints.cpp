@@ -6,38 +6,24 @@
 #include <cmath>
 
 namespace {
-constexpr int HINT_GAP_MS = 7000; // after a hint, the next waits this long: one at a time, each read
 constexpr int WALK_BEFORE_SPRINT_MS = 4000; // walked this long without a sprint: the sprint hint
 constexpr float WALK_STEP = 0.001f; // tiles: a tick that moved the player at least this far walked
 
 struct Watch {
-	int lastHintMs = -HINT_GAP_MS;
+	HintPacer pacer;
 	int walkedMs = 0;
 	float lastX = 0.f;
 	float lastY = 0.f;
 };
 Watch watch;
 
-// True while the hint may still show: not shown and not done yet. done: the player already did it, so it is marked
-// shown without a word.
-bool pending(FirstHint hint, bool done) {
-	std::uint32_t& shown = Game().player->stats.run.hints;
-	if ((shown & hintBit(hint)) != 0)
-		return false;
-	if (done) {
-		shown |= hintBit(hint);
-		return false;
-	}
-	return true;
-}
+bool pending(FirstHint hint, bool done) { return HintPacer::Pending(Game().player->stats.run.hints, hint, done); }
 
-// Shows it now if possible and no other hint showed lately; true when shown.
+// Shows it now if the pacer lets it; true when shown.
 bool offer(FirstHint hint, bool possible, int now) {
-	if (!possible || now - watch.lastHintMs < HINT_GAP_MS)
+	if (!watch.pacer.Offer(Game().player->stats.run.hints, hint, possible, now))
 		return false;
-	Game().player->stats.run.hints |= hintBit(hint);
 	Game().events.Status(StatusTone::Hint, "%s", hintText(hint, Game().settings.controls).c_str());
-	watch.lastHintMs = now;
 	return true;
 }
 } // namespace

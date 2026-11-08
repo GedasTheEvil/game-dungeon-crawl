@@ -47,4 +47,16 @@ constexpr int FIRST_HINT_COUNT = static_cast<int>(FirstHint::QuickAntidote) + 1;
 // The run's shown hints, a bit per FirstHint (RunStats::hints).
 [[nodiscard]] constexpr std::uint32_t hintBit(FirstHint hint) { return 1u << static_cast<unsigned>(hint); }
 
+// The first hints' pace: each once a run (shown: RunStats::hints), one at a time, the next HINT_GAP_MS after the last.
+struct HintPacer {
+	static constexpr int HINT_GAP_MS = 7000; // after a hint, the next waits this long: each read
+	int lastHintMs = -HINT_GAP_MS;
+
+	// True while the hint may still show: not shown and not done yet. done: the player already did it, so it is
+	// marked shown without a word.
+	[[nodiscard]] static bool Pending(std::uint32_t& shown, FirstHint hint, bool done);
+	// True when it shows now: possible and no other hint showed lately; marks it shown.
+	[[nodiscard]] bool Offer(std::uint32_t& shown, FirstHint hint, bool possible, int now);
+};
+
 #endif

@@ -1,6 +1,6 @@
 # More settings
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-10-30, size M, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-08 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-10-30, size M, needs nothing first. From the project audit of 2026-10-30.
 
 Opus: a shader change (brightness) and several Options rows.
 
@@ -34,7 +34,7 @@ music and effects volume (`src/level/settings_ini.h`, Options rows in `src/ui/me
   (`mute`). No mute key: the switch covers it, and the free F keys are left to the controls-help plan.
 * Window size row: the common sizes up to 7680x4320 that fit the desktop (`glutGet(GLUT_SCREEN_*)`), then the
   desktop's own size (`windowSizes`).
-* Unit tests: `tests/unit/settings_test.cpp`; screenshots: `tests/scenarios/settings_extras.txt`.
+* Unit tests: `tests/unit/settings_test.cpp`; screenshots: `tests/scenarios/solved/settings_extras.txt`.
 
 ## Play-test
 

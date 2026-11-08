@@ -1,3 +1,0 @@
-# Plan same-hazards-for-all: walk right to wake the mummy behind the spikes; it walks into them and dies there, as
-# before (its trap share re-tuned for the one formula). Then cross the spikes yourself: as deadly as before at level 1.
-level tests/levels/reckless_spikes

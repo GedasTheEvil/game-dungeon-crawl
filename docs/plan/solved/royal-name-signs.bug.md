@@ -1,9 +1,9 @@
 # Royal name signs
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-10-30, size M, needs nothing first. From the project audit of 2026-10-30.
+Status: solved 2026-11-08 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-10-30, size M, needs nothing first. From the project audit of 2026-10-30.
 
-Opus: hieroglyph data and maybe the cartouche drawing ([hieroglyph-cartouches](solved/hieroglyph-cartouches.md),
-[egyptian-names](solved/egyptian-names.md)).
+Opus: hieroglyph data and maybe the cartouche drawing ([hieroglyph-cartouches](hieroglyph-cartouches.md),
+[egyptian-names](egyptian-names.md)).
 
 ## Problems
 

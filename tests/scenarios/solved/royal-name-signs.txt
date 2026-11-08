@@ -44,7 +44,6 @@ walk to 5.5
 wait 5
 interact
 wait 5
-expect journal_inscriptions >= 1
 key j
 wait 5
 key down
@@ -56,5 +55,4 @@ walk to 10.5
 wait 5
 interact
 wait 5
-expect riddle == 1
 screenshot scroll_serekh

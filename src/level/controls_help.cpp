@@ -113,3 +113,21 @@ std::string hintText(FirstHint hint, const Bindings& bindings) {
 		return std::string(t.what) + ": " + keys + " up, " + down + " down";
 	return std::string(t.what) + ": " + keys + t.after;
 }
+
+bool HintPacer::Pending(std::uint32_t& shown, FirstHint hint, bool done) {
+	if ((shown & hintBit(hint)) != 0)
+		return false;
+	if (done) {
+		shown |= hintBit(hint);
+		return false;
+	}
+	return true;
+}
+
+bool HintPacer::Offer(std::uint32_t& shown, FirstHint hint, bool possible, int now) {
+	if (!possible || now - lastHintMs < HINT_GAP_MS)
+		return false;
+	shown |= hintBit(hint);
+	lastHintMs = now;
+	return true;
+}

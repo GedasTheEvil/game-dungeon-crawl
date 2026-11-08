@@ -306,7 +306,7 @@ why in the toast.
 
 ### How to Play
 
-The keys as bound now ([controls-help](plan/controls-help.feature.md)), a main and in-game menu
+The keys as bound now ([controls-help](plan/solved/controls-help.feature.md)), a main and in-game menu
 sub-screen (`helpD`, `menu_help.cpp`). Panel as Options; three columns 44 wide, 2 apart: Move and Saves, Fight and
 Items, Screens (`controlsHelp`, `src/level/controls_help.h`). Each group a `body` `GOLD` heading over a `BRONZE`
 rule, then striped rows 3.4 high: the action in `small` `LABEL` left, its key caps in `small` `GOLD` right. At the
@@ -353,7 +353,7 @@ The gameplay status lines (`Game().ShowStatus`, world `Status` events; `MessageL
 over the running game: up to three stacked, oldest at the top, 1.5 apart, each a `panel` (fill alpha 0.92) sized to
 its text, min 40 wide, the first one's top edge at y 86, centred, with the picture-frame drop shadow. `hudBody` font
 (4.2) in `GOLD`; good news (`StatusTone::Good`: level up, heka taken, a curse lifted) in faience green, dangers
-(`StatusTone::Danger`: curse, poison) in a light red, first hints (`StatusTone::Hint`, [controls-help](plan/controls-help.feature.md)) in a light lapis blue. One line per `'\n'`, 5 apart. Each fades in over 150 ms and out
+(`StatusTone::Danger`: curse, poison) in a light red, first hints (`StatusTone::Hint`, [controls-help](plan/solved/controls-help.feature.md)) in a light lapis blue. One line per `'\n'`, 5 apart. Each fades in over 150 ms and out
 over the last 500 ms of its time (3 s, toned ones 6 s); `panel`'s `frameAlpha` fades the frame and studs with it. A
 line told again while it shows merges into it: XP gains add up, others count "(x2)".
 

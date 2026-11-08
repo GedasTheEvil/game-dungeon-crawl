@@ -59,7 +59,7 @@ Options shows these on four tabs: Controls, Mouse (sensitivity, invert Y, camera
 fullscreen, brightness, the rest of `[display]` and `[graphics]`) and Sound. The Brightness row has a calibration box:
 a black square with an ankh a shade above black; set the brightness so the ankh is barely visible. The Window size row
 steps through the common sizes that fit the desktop, then the desktop's own size
-([settings-extras](plan/settings-extras.feature.md)).
+([settings-extras](plan/solved/settings-extras.feature.md)).
 
 ## Controls
 

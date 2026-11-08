@@ -579,7 +579,7 @@ void specialKeyPressed(int key, int x, int y) {
 		Game().settings.graphics.toon = !Game().settings.graphics.toon;
 		Game().ApplySettings(true);
 	}
-	if (key == SPECIAL_TOGGLE_HITBOXES)
+	if (key == SPECIAL_TOGGLE_HITBOXES && Game().debug) // plan controls-help: a debug key, only with --debug
 		Game().render.Hitboxes = !Game().render.Hitboxes;
 	if (key == SPECIAL_QUICK_SAVE)
 		Game().Quicksave();

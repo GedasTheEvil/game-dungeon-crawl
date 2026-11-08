@@ -14,14 +14,15 @@
 namespace menu_internal {
 // ---- layout ----------------------------------------------------------------
 
-Rect menuPanel(int count) { return count > 6 ? TALL_MENU_PANEL : MENU_PANEL; }
+Rect menuPanel(int count) { return count > 7 ? FULL_MENU_PANEL : count > 6 ? TALL_MENU_PANEL : MENU_PANEL; }
 
-// The buttons sit in the middle of the panel; more of them are closer together.
+// The buttons sit in the middle of the panel; more of them are closer together, eight a little lower too.
 Rect buttonRect(int index, int count) {
 	const Rect panel = menuPanel(count);
-	float step = std::min(BUTTON_STEP, (panel.h - 2 * BUTTON_MARGIN - BUTTON_H) / static_cast<float>(count - 1));
-	float first = panel.cy() + step * static_cast<float>(count - 1) / 2 - BUTTON_H / 2;
-	return {CENTRE - BUTTON_W / 2, first - static_cast<float>(index) * step, BUTTON_W, BUTTON_H};
+	const float h = count > 7 ? FULL_BUTTON_H : BUTTON_H;
+	float step = std::min(BUTTON_STEP, (panel.h - 2 * BUTTON_MARGIN - h) / static_cast<float>(count - 1));
+	float first = panel.cy() + step * static_cast<float>(count - 1) / 2 - h / 2;
+	return {CENTRE - BUTTON_W / 2, first - static_cast<float>(index) * step, BUTTON_W, h};
 }
 
 // Slots 1-3 in the left column, 4-6 in the right one, top to bottom. Load Game: AUTOSAVE_TARGET and QUICKSAVE_TARGET
@@ -62,6 +63,7 @@ enum class MenuAction : std::uint8_t {
 	Load,
 	Records,
 	Options,
+	Help,
 	Credits,
 	MainMenu,
 	Quit
@@ -74,30 +76,33 @@ struct MenuButton {
 	bool primary;
 };
 
-constexpr std::array<MenuButton, 6> MAIN_BUTTONS = {{
+constexpr std::array<MenuButton, 7> MAIN_BUTTONS = {{
 	{"New Game", Icon::Play, MenuAction::NewGame, true},
 	{"Load Game", Icon::Load, MenuAction::Load, false},
 	{"Hall of Records", Icon::Podium, MenuAction::Records, false},
 	{"Options", Icon::Gear, MenuAction::Options, false},
+	{"How to Play", Icon::KeyCap, MenuAction::Help, false},
 	{"Credits", Icon::Ankh, MenuAction::Credits, false},
 	{"Exit", Icon::Exit, MenuAction::Quit, false},
 }};
 // With a save (plan autosave, retry-latest-save): Continue (the newest save) first, New Game under it.
-constexpr std::array<MenuButton, 7> CONTINUE_BUTTONS = {{
+constexpr std::array<MenuButton, 8> CONTINUE_BUTTONS = {{
 	{"Continue", Icon::Play, MenuAction::Continue, true},
 	{"New Game", Icon::Pyramid, MenuAction::NewGame, false},
 	{"Load Game", Icon::Load, MenuAction::Load, false},
 	{"Hall of Records", Icon::Podium, MenuAction::Records, false},
 	{"Options", Icon::Gear, MenuAction::Options, false},
+	{"How to Play", Icon::KeyCap, MenuAction::Help, false},
 	{"Credits", Icon::Ankh, MenuAction::Credits, false},
 	{"Exit", Icon::Exit, MenuAction::Quit, false},
 }};
-constexpr std::array<MenuButton, 6> IN_GAME_BUTTONS = {{
+constexpr std::array<MenuButton, 7> IN_GAME_BUTTONS = {{
 	{"Return to Game", Icon::Play, MenuAction::Resume, true},
 	{"Journal", Icon::Book, MenuAction::Journal, false},
 	{"Save Game", Icon::Save, MenuAction::Save, false},
 	{"Load Game", Icon::Load, MenuAction::Load, false},
 	{"Options", Icon::Gear, MenuAction::Options, false},
+	{"How to Play", Icon::KeyCap, MenuAction::Help, false},
 	{"Main Menu", Icon::Pyramid, MenuAction::MainMenu, false},
 }};
 
@@ -148,6 +153,11 @@ void MainMenu::Draw() {
 		records.Draw(heading, body, small, pointer.hovered - RECORDS_BASE, pointer.pressed - RECORDS_BASE);
 		DrawBackButton();
 		DrawFooter(records.Hint().c_str());
+	} else if (helpD) {
+		DrawBackground("How to Play");
+		DrawHelp();
+		DrawBackButton();
+		DrawFooter("Arrows: move    Enter: pick    Esc: back");
 	} else if (creditsD) {
 		DrawBackground("Credits");
 		DrawCredits();
@@ -195,11 +205,12 @@ void MainMenu::EndFrame() {
 }
 
 void MainMenu::DrawBackground(const char* caption) {
-	bool wide = saveD || loadD || optionsD || recordsD;
+	bool wide = saveD || loadD || optionsD || recordsD || helpD;
 	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
 	titleBar(title, CENTRE, caption, wide ? 58.f : 44.f);
 	panel(
 		recordsD   ? records.Panel()
+		: helpD	   ? HELP_PANEL
 		: creditsD ? CREDITS_PANEL
 		: optionsD ? OPTIONS_PANEL
 		: loadD	   ? LOAD_PANEL
@@ -253,7 +264,7 @@ void MainMenu::DrawFooter(const char* hint) {
 		textCentered(
 			body,
 			CENTRE,
-			saveD || loadD || optionsD || creditsD || recordsD ? 5.6f : 12.f,
+			saveD || loadD || optionsD || creditsD || recordsD || helpD ? 5.6f : 12.f,
 			toast.text.c_str(),
 			{1.f, 0.9f, 0.6f},
 			alpha
@@ -266,6 +277,12 @@ void MainMenu::DrawFooter(const char* hint) {
 std::vector<MainMenu::Placed> MainMenu::Targets() const {
 	std::vector<Placed> targets;
 	if (recordsD || creditsD) {
+		targets.push_back({BACK, BACK_BUTTON});
+		return targets;
+	}
+	if (helpD) {
+		targets.push_back({HELP_KEYS, helpKeysButton()});
+		targets.push_back({HELP_HINTS, helpHintsSwitch()});
 		targets.push_back({BACK, BACK_BUTTON});
 		return targets;
 	}
@@ -324,7 +341,7 @@ int MainMenu::TargetAt(int x, int y) {
 
 int MainMenu::SubScreen() const {
 	return (inGame ? 1 : 0) | (saveD ? 2 : 0) | (loadD ? 4 : 0) | (optionsD ? 8 : 0) | (creditsD ? 16 : 0) |
-		   (recordsD ? 32 : 0);
+		   (recordsD ? 32 : 0) | (helpD ? 64 : 0);
 }
 
 // A key moves the focus (pointer.hovered) to the next target that way, or picks it like a click. With no focus yet,
@@ -391,6 +408,17 @@ void MainMenu::Activate(int target) {
 		records.Activate(target - RECORDS_BASE);
 		return;
 	}
+	if (helpD) {
+		if (target == HELP_HINTS) {
+			Game().settings.gameplay.hints = !Game().settings.gameplay.hints;
+			Game().ApplySettings(true);
+		} else if (target == HELP_KEYS) {
+			ResetSubScreens();
+			optionsD = true;
+			optionsTab = CONTROLS_TAB;
+		}
+		return;
+	}
 	if (optionsD) {
 		if (target >= BIND_BASE)
 			StartCapture(target);
@@ -454,6 +482,9 @@ void MainMenu::Activate(int target) {
 		break;
 	case MenuAction::Options:
 		optionsD = true;
+		break;
+	case MenuAction::Help:
+		helpD = true;
 		break;
 	case MenuAction::Credits:
 		creditsD = true;
@@ -603,6 +634,7 @@ void MainMenu::SpecialKeyPressed(int key) {
 void MainMenu::ResetSubScreens() {
 	confirm.Cancel();
 	creditsD = false;
+	helpD = false;
 	recordsD = false;
 	saveD = false;
 	loadD = false;

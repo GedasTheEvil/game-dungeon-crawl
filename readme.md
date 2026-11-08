@@ -97,6 +97,9 @@ These are the defaults: Options > Controls changes them (all but `Esc` and the F
 window size, fullscreen, the frame rate, the graphics effects and the volumes. The choices are kept in `saves/settings.ini`
 ([docs/settings.md](docs/settings.md)).
 
+The menu's How to Play page lists the keys as they are bound now; the first level hints at each the first time it is
+needed (switch the hints off on that page).
+
 ## Levels
 
 The campaign has 54 levels in twelve zones, one for each hour of the night, all but the necropolis ending with a

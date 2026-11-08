@@ -436,6 +436,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::ToonBlurFirst:
 	case CommandType::CutScenes:
 	case CommandType::Hitboxes:
+	case CommandType::Hints:
 	case CommandType::KillBoss:
 	case CommandType::HurtBoss:
 	case CommandType::PoisonBoss:
@@ -474,6 +475,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"toonblurfirst", CommandType::ToonBlurFirst, onOff, "<on|off>"},
 		{"cutscenes", CommandType::CutScenes, onOff, "<on|off>"},
 		{"hitboxes", CommandType::Hitboxes, onOff, "<on|off>"},
+		{"hints", CommandType::Hints, onOff, "<on|off> (the first hints in any run, plan controls-help)"},
 		{"screenshot", CommandType::Screenshot, parseScreenshot, "<name> (no slashes)"},
 		{"dump", CommandType::Dump, noArgs, ""},
 		{"expect", CommandType::Expect, parseExpect, "<field|<item><id>[.level]> <==|!=|<|<=|>|>=> <number>"},
@@ -591,7 +593,8 @@ const std::vector<FieldDef>& fieldDefs() {
 		{"deaths", Field::Deaths},
 		{"death_screen", Field::DeathScreen},
 		{"quicksave", Field::Quicksave},
-		{"latest_save", Field::LatestSave}
+		{"latest_save", Field::LatestSave},
+		{"hints", Field::Hints}
 	};
 	return DEFS;
 }

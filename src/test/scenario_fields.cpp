@@ -121,6 +121,8 @@ float Scenario::fieldValue(const Command& cmd) {
 			   : latest->kind == Kind::Quicksave ? -2.f
 												 : static_cast<float>(latest->slot + 1);
 	}
+	case Field::Hints: // plan controls-help
+		return static_cast<float>(Game().player->stats.run.hints);
 	case Field::Heka:
 		return static_cast<float>(Game().player->stats.heka.Free());
 	case Field::Skills:

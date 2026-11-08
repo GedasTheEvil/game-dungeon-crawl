@@ -13,13 +13,15 @@
 #include "../render/ui_draw.h"
 
 /// @file menu.h
-/// Main menu, in-game menu and its save / load / options / credits / Hall of Records screens.
+/// Main menu, in-game menu and its save / load / options / How to Play / credits / Hall of Records screens.
 
 class MainMenu {
   private:
 	static constexpr int NONE = -1;
 	// Click targets: menu buttons and save slots use their index.
 	static constexpr int BACK = 100; // Back button of the sub-screens
+	static constexpr int HELP_HINTS = 110; // How to Play: the hints switch (plan controls-help)
+	static constexpr int HELP_KEYS = 111; // How to Play: to Options > Controls
 	static constexpr int TAB_BASE = 200; // options tabs
 	static constexpr int OPTION_BASE = 300; // Options > Display / Sound: the row's switch, choice or slider
 	static constexpr int RESET_CONTROLS = 390; // Options > Controls: back to the default keys
@@ -57,6 +59,7 @@ class MainMenu {
 	void StartCapture(int target);
 	void Bind(const InputKey& key);
 	void DrawCredits();
+	void DrawHelp(); // How to Play (plan controls-help, menu_help.cpp)
 	void DrawBackButton();
 	void DrawFooter(const char* hint);
 	int TargetAt(int x, int y);
@@ -88,6 +91,7 @@ class MainMenu {
 	bool optionsD = false;
 	bool creditsD = false;
 	bool recordsD = false;
+	bool helpD = false; // How to Play (plan controls-help)
 	void Draw();
 	void MouseFunction(int button, int state, int x, int y);
 	void MousePassiveMotion(int x, int y);
@@ -97,7 +101,7 @@ class MainMenu {
 	void CaptureKey(const InputKey& key); // Esc cancels, Delete clears the binding
 	// A sub-screen or the confirm box is open: Esc backs out of it.
 	[[nodiscard]] bool InSubScreen() const {
-		return saveD || loadD || optionsD || creditsD || recordsD || confirm.Open();
+		return saveD || loadD || optionsD || creditsD || recordsD || helpD || confirm.Open();
 	}
 	void ResetSubScreens();
 	// Esc or Back: the confirm box says no, a run's details back to the Hall of Records' list, any other sub-screen

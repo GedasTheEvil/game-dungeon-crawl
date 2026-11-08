@@ -94,6 +94,9 @@ class GameState {
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	Leaderboard leaderboard; // the won runs, saves/leaderboard.txt (plan leaderboard)
 	int savedPlayMs = 0; // the run's play time at the last save or load (UnsavedProgress)
+	// The first hints show in a campaign run (plan controls-help); scenario `hints on` shows them in any run.
+	bool hintsAnyRun = false;
+	bool debug = false; // --debug: F3 shows the hitboxes (plan controls-help)
 
 	GameState();
 	~GameState();

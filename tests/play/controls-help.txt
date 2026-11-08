@@ -1,0 +1,3 @@
+# Play-test of plan controls-help: level 1 with the first hints on (as in a New Game run). Esc: How to Play.
+level 1
+hints on

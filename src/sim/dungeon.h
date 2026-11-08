@@ -889,6 +889,11 @@ class Dungeon {
 	// Walking into a ladder cell from the side keeps the walk / idle clip until climbing pulls the player over. Not
 	// after a daze made them let go (lostGrip).
 	[[nodiscard]] bool PlayerOnLadder() const;
+	// First hints (plan controls-help): a ladder in the player's cell or the one under their feet.
+	[[nodiscard]] bool PlayerAtLadder() const;
+	// First hints: standing on a floor, facing dir (-1 / +1) a jump within a step: a gap of a cell or two with a floor
+	// beyond it, or a wall one cell high with room over it and the player.
+	[[nodiscard]] bool PlayerFacesJump(int dir) const;
 	// Climb clip phase: one cycle per tile climbed, running on (at half rate) while moving sideways on the ladder.
 	[[nodiscard]] float ClimbPhase() const;
 	int Type(float x, float y);

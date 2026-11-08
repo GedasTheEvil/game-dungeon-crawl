@@ -9,6 +9,7 @@
 #include "../core/logger.h"
 #include "../core/paths.h"
 #include "../level/zone_music.h"
+#include "first_hints.h"
 #include <filesystem>
 #include <map>
 #include <string>
@@ -141,6 +142,7 @@ void tick() {
 	Game().player->stats.Regenerate(Game().dungeon.PlayerSafe(), UPDATE_TICK_MS);
 	Game().dungeon.AnimateMonsters();
 	Game().player->Animate();
+	updateFirstHints();
 	PlayerHud::tick(Game().player->stats.CurrentHP(), Game().player->stats.CurrentMaxHP());
 	glutPostRedisplay();
 }

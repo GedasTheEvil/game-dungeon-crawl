@@ -32,6 +32,7 @@ enum class CommandType : unsigned char {
 	ToonBlurFirst,
 	CutScenes,
 	Hitboxes,
+	Hints,
 	Screenshot,
 	Dump,
 	Expect,
@@ -132,7 +133,8 @@ enum class Field : unsigned char {
 	Deaths,
 	DeathScreen,
 	Quicksave,
-	LatestSave
+	LatestSave,
+	Hints, // the first hints shown this run, a bit per FirstHint (plan controls-help)
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };
 

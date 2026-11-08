@@ -109,6 +109,14 @@ void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
 		bar(cx + 0.1f * s, cy - 0.6f * s, cx + 0.95f * s, cy + 0.75f * s, c);
 		bar(cx + 0.45f * s, cy - 0.95f * s, cx + 0.45f * s + t, cy - 0.6f * s, c);
 		break;
+	case Icon::KeyCap: // a key cap seen from above (How to Play, plan controls-help): the frame, a letter's stroke
+		bar(cx - 0.9f * s, cy - 0.9f * s, cx + 0.9f * s, cy - 0.9f * s + t, c);
+		bar(cx - 0.9f * s, cy + 0.9f * s - t, cx + 0.9f * s, cy + 0.9f * s, c);
+		bar(cx - 0.9f * s, cy - 0.9f * s, cx - 0.9f * s + t, cy + 0.9f * s, c);
+		bar(cx + 0.9f * s - t, cy - 0.9f * s, cx + 0.9f * s, cy + 0.9f * s, c);
+		bar(cx - 0.35f * s, cy - 0.45f * s, cx - 0.35f * s + t, cy + 0.45f * s, c);
+		bar(cx - 0.35f * s, cy - 0.45f * s, cx + 0.4f * s, cy - 0.45f * s + t, c);
+		break;
 	case Icon::Podium: // the winners' steps: second, first, third
 		bar(cx - 0.95f * s, cy - 0.85f * s, cx - 0.35f * s, cy + 0.05f * s, c);
 		bar(cx - 0.3f * s, cy - 0.85f * s, cx + 0.3f * s, cy + 0.6f * s, c);

@@ -77,9 +77,9 @@ constexpr int CHARACTER_SOUND_COUNT = 6;
 }
 constexpr int PLAYER_CHARACTER = 0; // WorldEvents::PlayCharacter's who for the player; a monster gives its type
 
-// How a status line shows (plan message-log): a plain one, good news (a level up, heka taken) or a danger (a curse,
-// poison). The two last stay longer and have a colour.
-enum class StatusTone : unsigned char { Plain, Good, Danger };
+// How a status line shows (plan message-log): a plain one, good news (a level up, heka taken), a danger (a curse,
+// poison) or a first hint (how to do a thing, plan controls-help). All but the plain one stay longer and have a colour.
+enum class StatusTone : unsigned char { Plain, Good, Danger, Hint };
 
 // A safe moment for the autosave (plan autosave): the app writes it, unless the player is in danger then
 // (Dungeon::PlayerInDanger; a level start is always safe).

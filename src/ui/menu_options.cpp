@@ -335,7 +335,7 @@ void MainMenu::DrawControls(float left, float right) {
 		small,
 		(left + right) / 2,
 		FIXED_KEYS_Y,
-		"Fixed:  Esc menu / back    F1 toon shading    F3 hitboxes    F5 quick save    F9 quick load    mouse movement "
+		"Fixed:  Esc menu / back    F1 toon shading    F5 quick save    F9 quick load    mouse movement "
 		"looks around",
 		LABEL_DIM
 	);

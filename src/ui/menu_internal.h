@@ -20,7 +20,9 @@ constexpr float CENTRE = CANVAS_W / 2;
 // ---- layout ----------------------------------------------------------------
 
 constexpr Rect MENU_PANEL = {46, 19, 68, 64};
-constexpr Rect TALL_MENU_PANEL = {46, 10, 68, 74}; // the main menu with Continue: seven buttons (plan autosave)
+constexpr Rect TALL_MENU_PANEL = {46, 10, 68, 74}; // seven buttons (plan autosave)
+constexpr Rect FULL_MENU_PANEL = {46, 7, 68, 78}; // the main menu with Continue: eight buttons (plan controls-help)
+constexpr float FULL_BUTTON_H = 8.f; // eight buttons are a little lower
 constexpr float BUTTON_W = 56.f;
 constexpr float BUTTON_H = 9.f;
 constexpr float BUTTON_STEP = 11.5f;
@@ -69,6 +71,20 @@ constexpr float SLIDER_VALUE_W = 9.f; // the number right of the slider
 // The credits sheet is square; it sits in its own frame, not stretched over the window.
 constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
 constexpr Rect CREDITS_PANEL = {CREDITS_SHEET.x - 3, CREDITS_SHEET.y - 3, CREDITS_SHEET.w + 6, CREDITS_SHEET.h + 6};
+
+// How to Play (plan controls-help): the bound keys in three columns of groups, the hints switch and a button to
+// Options > Controls at the foot of the right column.
+constexpr Rect HELP_PANEL = OPTIONS_PANEL;
+constexpr float HELP_LEFT = HELP_PANEL.x + 5;
+constexpr float HELP_COLUMN_W = 44.f;
+constexpr float HELP_COLUMN_GAP = 2.f;
+constexpr float HELP_TOP = HELP_PANEL.y + HELP_PANEL.h - 5.f; // the first heading's top
+constexpr float HELP_ROW_H = 3.4f;
+constexpr float HELP_GROUP_GAP = 2.f;
+constexpr float HELP_TILE_H = 6.f;
+
+Rect helpHintsSwitch();
+Rect helpKeysButton();
 
 Rect slotRect(int slot, bool load);
 Rect tabRect(int tab);
@@ -127,7 +143,7 @@ Rect resetButton();
 
 // ---- icons -----------------------------------------------------------------
 
-enum class Icon : std::uint8_t { Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book, Podium };
+enum class Icon : std::uint8_t { Play, Save, Load, Gear, Ankh, Exit, Pyramid, Back, Book, Podium, KeyCap };
 void drawIcon(Icon icon, float cx, float cy, float s, Color c);
 
 constexpr float MOUSE_W = 2.6f;

@@ -39,6 +39,9 @@ camera_recenter = on    ; a look around (mouse, look keys) eases back to straigh
 sensitivity = 100       ; 20-300 percent, how far the view turns per mouse movement
 invert_y = off          ; on: moving the mouse up looks down
 
+[gameplay]
+hints = on              ; the first hints: how to jump, climb, attack, ... the first time it is possible in a run
+
 [sound]
 master_volume = 100     ; 0-100, scales the music and the effects
 music_volume = 80       ; 0-100
@@ -89,7 +92,7 @@ same input on two actions is a warning: the first action in the list below keeps
 | `skills` | `k` | Open / close the Heka screen (skills) |
 
 Fixed, not in the file: `Esc` (menu / back, so a bad mapping can always be undone), `F1` (toon shading) to `F11`
-(`F3`: hitboxes, `F5`: quick save, `F9`: quick load), and mouse movement (looks around). The menus, the inventory, the Heka screen and the journal
+(`F5`: quick save, `F9`: quick load; `F3` shows the hitboxes only with `bin/game --debug`), and mouse movement (looks around). The menus, the inventory, the Heka screen and the journal
 move their focus or selection with the arrow keys and the keys bound to move left / right and climb up / down; Enter,
 Space or the interact key picks ([keyboard-menus](plan/solved/keyboard-menus.md)). Left / Right on an Options row
 change it. The inventory's `U` (upgrade) and `Tab` (next tab) are fixed. On the draft map the wheel and `+` / `-` zoom,

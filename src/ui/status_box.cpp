@@ -11,6 +11,7 @@ namespace StatusBox {
 namespace {
 constexpr Color GOOD = {0.55f, 0.88f, 0.72f}; // faience green: a level up, heka taken
 constexpr Color DANGER = {1.f, 0.48f, 0.34f}; // a curse, poison
+constexpr Color HINT = {0.66f, 0.80f, 1.f}; // lapis light: a first hint (plan controls-help)
 
 Color toneColour(StatusTone tone) {
 	switch (tone) {
@@ -18,6 +19,8 @@ Color toneColour(StatusTone tone) {
 		return GOOD;
 	case StatusTone::Danger:
 		return DANGER;
+	case StatusTone::Hint:
+		return HINT;
 	case StatusTone::Plain:
 		break;
 	}

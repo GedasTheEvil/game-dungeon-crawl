@@ -77,6 +77,8 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 // SDL redefines main as SDL_main; without this, Windows builds fail with "WinMain@16" undefined.
 #undef main
 
+static bool debugFlag = false; // --debug: the debug keys (F3 hitboxes, plan controls-help)
+
 // The command line: a scenario run, a hand-played level or scenario (Scenario::loadPlay), or the plain game.
 // False: bad arguments, usage printed.
 static bool parseArgs(int argc, char* argv[]) {
@@ -84,6 +86,8 @@ static bool parseArgs(int argc, char* argv[]) {
 	for (int i = 1; i < argc; i++) {
 		if (std::string(argv[i]) == "--no-sound")
 			setenv("SDL_AUDIODRIVER", "dummy", 1); // no music or sound effects, for runs in the background
+		else if (std::string(argv[i]) == "--debug")
+			debugFlag = true;
 		else
 			args.emplace_back(argv[i]);
 	}
@@ -103,7 +107,8 @@ static bool parseArgs(int argc, char* argv[]) {
 	} else if (!args.empty()) {
 		fprintf(
 			stderr,
-			"usage: %s [--no-sound] [--level N|PATH|gen:SEED:D[:ZONE] | --play SCENARIO.txt | SCENARIO.txt...]\n",
+			"usage: %s [--no-sound] [--debug] [--level N|PATH|gen:SEED:D[:ZONE] | --play SCENARIO.txt | "
+			"SCENARIO.txt...]\n",
 			argv[0]
 		);
 		ok = false;
@@ -130,6 +135,7 @@ int main(int argc, char* argv[]) {
 
 		// Initialize game state
 		CreateGame();
+		Game().debug = debugFlag;
 		if (const std::string out = Scenario::outputDir(); !out.empty()) // never the real board in saves/
 			Game().leaderboard.SetPath(out + "/leaderboard.txt");
 		if (isScenario) {

@@ -66,6 +66,7 @@ void RunStats::Dump(std::ostream& out) const {
 	out << "\nNAMES " << nameSeed << '\n';
 	out << "DEATHS " << deaths << '\n';
 	out << "SECRETS " << secrets << '\n';
+	out << "HINTS " << hints << '\n';
 }
 
 void RunStats::LoadDump(std::istream& in) {
@@ -118,6 +119,14 @@ void RunStats::LoadDump(std::istream& in) {
 		in.clear();
 		in.seekg(secretsAt);
 		secrets = 0;
+		return;
+	}
+	// From the first hints on (plan controls-help).
+	const auto hintsAt = in.tellg();
+	if (!(in >> tag) || tag != "HINTS" || !(in >> hints)) {
+		in.clear();
+		in.seekg(hintsAt);
+		hints = 0;
 	}
 }
 

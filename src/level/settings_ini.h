@@ -34,6 +34,9 @@ struct Settings {
 		int sensitivity = 100; // percent of MOUSE_LOOK_SENSITIVITY (plan settings-extras)
 		bool invertY = false; // the mouse moved up looks down
 	} mouse;
+	struct Gameplay {
+		bool hints = true; // the first hints: a status line the first time a thing is possible (plan controls-help)
+	} gameplay;
 	struct Sound {
 		int master = 100; // scales music and effects (plan settings-extras)
 		int music = 80; // volume 0-100

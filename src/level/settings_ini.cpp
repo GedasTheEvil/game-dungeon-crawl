@@ -71,6 +71,7 @@ std::vector<Key> keysOf(Settings& s) {
 		{"graphics", "camera_recenter", K::Bool, 0, 0, &s.graphics.cameraRecenter, nullptr},
 		{"mouse", "sensitivity", K::Int, MIN_MOUSE_SENSITIVITY, MAX_MOUSE_SENSITIVITY, nullptr, &s.mouse.sensitivity},
 		{"mouse", "invert_y", K::Bool, 0, 0, &s.mouse.invertY, nullptr},
+		{"gameplay", "hints", K::Bool, 0, 0, &s.gameplay.hints, nullptr},
 		{"sound", "master_volume", K::Int, 0, 100, nullptr, &s.sound.master},
 		{"sound", "music_volume", K::Int, 0, 100, nullptr, &s.sound.music},
 		{"sound", "effects_volume", K::Int, 0, 100, nullptr, &s.sound.effects},
@@ -168,7 +169,8 @@ Settings parseSettings(std::istream& in, std::vector<std::string>& warnings) {
 				continue;
 			}
 			section = lower(trim(line.substr(1, line.size() - 2)));
-			if (section != "display" && section != "graphics" && section != "sound" && section != "mouse" &&
+			if (section != "display" && section != "graphics" && section != "gameplay" && section != "sound" &&
+				section != "mouse" &&
 				section != "controls")
 				warnings.push_back(where + "unknown section [" + section + "]");
 			continue;
@@ -212,6 +214,8 @@ std::string writeSettings(const Settings& settings) {
 	out << "\n; Mouse look speed in percent (20-300), invert_y on/off.\n[mouse]\n";
 	out << "sensitivity = " << settings.mouse.sensitivity << "\n";
 	out << "invert_y = " << onOff(settings.mouse.invertY) << "\n";
+	out << "\n; Gameplay help, on/off.\n[gameplay]\n";
+	out << "hints = " << onOff(settings.gameplay.hints) << "\n";
 	out << "\n; Volumes 0-100 (master scales the other two), mute on/off.\n[sound]\n";
 	out << "master_volume = " << settings.sound.master << "\n";
 	out << "music_volume = " << settings.sound.music << "\n";

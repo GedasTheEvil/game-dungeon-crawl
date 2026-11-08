@@ -6,7 +6,7 @@ parts below instead of drawing their own.
 
 | Screen | Code | Canvas |
 |---|---|---|
-| Main / in-game menu, Save, Load, Options, Credits | `src/ui/menu.cpp` (`MainMenu`), its Options `menu_options.cpp`, Save / Load slots `menu_slots.cpp`, icons `menu_icons.cpp`, shared layout `menu_internal.h` | 160 x 100 |
+| Main / in-game menu, Save, Load, Options, How to Play, Credits | `src/ui/menu.cpp` (`MainMenu`), its Options `menu_options.cpp`, How to Play `menu_help.cpp`, Save / Load slots `menu_slots.cpp`, icons `menu_icons.cpp`, shared layout `menu_internal.h` | 160 x 100 |
 | Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/level/leaderboard.h`) | 160 x 100 |
 | Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
@@ -91,7 +91,8 @@ screens with tabs (inventory, journal, Heka).
 
 * Menu buttons: `{46, 19, 68, 64}`
 * Save slots: `{12, 22, 136, 62}`; Load: `{12, 20, 136, 65}` (the autosave and the quick save side by side across the top, the slots 12.5 high under them)
-* Main menu with Continue (seven buttons): `{46, 10, 68, 74}`
+* Seven buttons (main menu, in-game menu): `{46, 10, 68, 74}`; the main menu with Continue (eight, 8 high): `{46, 7, 68, 78}`
+* How to Play: `{6, 20, 148, 64}`, as Options
 * Death screen: `{46, 28, 68, 38}`, two 56 x 9 buttons
 * Options: `{6, 20, 148, 64}`
 * Inventory items `{4, 13, 92, 72}` + details `{100, 13, 56, 72}`
@@ -128,8 +129,8 @@ Styles:
   `LAPIS`→`LAPIS_DARK`, `GOLD` 2.5 px frame, `GOLD_DIM` inner line.
 * **Stone**: all other actions and the save slots. `STONE_TOP`→`STONE_BOTTOM`, `BRONZE` 1.5 px frame; the `GOLD_DIM` inner line only on hover.
 
-One lapis button per group. Menu buttons are 56 x 9, 11.5 apart, centred in the panel; the in-game menu's six are
-10.2 apart. Back is `{63, 9.5, 34, 8}`.
+One lapis button per group. Menu buttons are 56 x 9, 11.5 apart, centred in the panel; six or seven are 10.2 apart, eight 8 high and
+9.4 apart. Back is `{63, 9.5, 34, 8}`.
 Label colour: `GOLD` (lapis) or `LABEL` (stone), `TEXT_HOVER` when hovered.
 An action fires on mouse **up** over the same target it went down on ([Clicks](#clicks)).
 
@@ -303,6 +304,15 @@ the line in `body` `INK`, the lore in `small` `INK_FADED`, a status line, and th
 when it cannot): the first press turns it to "Sure? Learn" with a pulsing ring, the second learns. A refused press says
 why in the toast.
 
+### How to Play
+
+The keys as bound now ([controls-help](plan/controls-help.feature.md)), a main and in-game menu
+sub-screen (`helpD`, `menu_help.cpp`). Panel as Options; three columns 44 wide, 2 apart: Move and Saves, Fight and
+Items, Screens (`controlsHelp`, `src/level/controls_help.h`). Each group a `body` `GOLD` heading over a `BRONZE`
+rule, then striped rows 3.4 high: the action in `small` `LABEL` left, its key caps in `small` `GOLD` right. At the
+right column's foot two tiles 6 high: Change keys (stone, opens Options > Controls) over the first hints' switch
+(lapis while on).
+
 ### Hall of Records
 
 The leaderboard ([plan/leaderboard.md](plan/solved/leaderboard.md)), a main menu sub-screen (`recordsD`). List: panel
@@ -343,7 +353,7 @@ The gameplay status lines (`Game().ShowStatus`, world `Status` events; `MessageL
 over the running game: up to three stacked, oldest at the top, 1.5 apart, each a `panel` (fill alpha 0.92) sized to
 its text, min 40 wide, the first one's top edge at y 86, centred, with the picture-frame drop shadow. `hudBody` font
 (4.2) in `GOLD`; good news (`StatusTone::Good`: level up, heka taken, a curse lifted) in faience green, dangers
-(`StatusTone::Danger`: curse, poison) in a light red. One line per `'\n'`, 5 apart. Each fades in over 150 ms and out
+(`StatusTone::Danger`: curse, poison) in a light red, first hints (`StatusTone::Hint`, [controls-help](plan/controls-help.feature.md)) in a light lapis blue. One line per `'\n'`, 5 apart. Each fades in over 150 ms and out
 over the last 500 ms of its time (3 s, toned ones 6 s); `panel`'s `frameAlpha` fades the frame and studs with it. A
 line told again while it shows merges into it: XP gains add up, others count "(x2)".
 
@@ -452,8 +462,8 @@ add the colour); call it only after `beginText()`, go back with `beginShapes()`.
 
 ## Menu sub-screens
 
-Save, Load, Options, Credits and the Hall of Records are flags on `MainMenu` (`saveD`, `loadD`, `optionsD`,
-`creditsD`, `recordsD`). A new one needs:
+Save, Load, Options, How to Play, Credits and the Hall of Records are flags on `MainMenu` (`saveD`, `loadD`,
+`optionsD`, `helpD`, `creditsD`, `recordsD`). A new one needs:
 
 1. A flag, added to `InSubScreen()` and cleared in `ResetSubScreens()` (Esc then backs out of it by itself, `BackOut()`).
 2. A branch in `MainMenu::Draw()`: `DrawBackground(caption)`, the contents, `DrawBackButton()`, `DrawFooter(hint)`.

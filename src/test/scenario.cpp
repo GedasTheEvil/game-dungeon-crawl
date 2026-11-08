@@ -369,6 +369,11 @@ bool runInstant(const Command& cmd) {
 		Game().render.Hitboxes = cmd.a > 0.5f;
 		report(cmd, true, "");
 		return true;
+	case CommandType::Hints: // plan controls-help: the first hints also outside a campaign run
+		Game().hintsAnyRun = cmd.a > 0.5f;
+		Game().settings.gameplay.hints = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return true;
 	case CommandType::Screenshot:
 		gRunner.pendingShot = cmd.arg;
 		report(cmd, true, "");

@@ -1,0 +1,26 @@
+# How to Play and the first hints (plan controls-help): the in-game menu's How to Play page, its Back button and the
+# hints switch hovered; then the jump hint at a gap, once a run, and none while the hints are off.
+level tests/levels/first_hints
+wait 10
+key esc
+wait 2
+screenshot ingame_menu
+click 50 26.7
+wait 2
+screenshot how_to_play
+mouse 75.3 27
+wait 2
+screenshot how_to_play_hover_hints
+mouse 50 13
+wait 2
+screenshot how_to_play_hover_back
+click 50 13
+wait 2
+key esc
+wait 2
+expect hints == 0
+hints on
+walk to 4.6
+wait 5
+expect hints == 1
+screenshot jump_hint

@@ -654,6 +654,39 @@ bool Dungeon::PlayerOnLadder() const {
 	return !floorBelow(mapX, mapY) || heightOverFloor() >= STANDING_EPSILON;
 }
 //======================================================================================
+bool Dungeon::PlayerAtLadder() const {
+	const auto col = static_cast<int>(mapX);
+	const auto row = static_cast<int>(mapY);
+	return (IsInBounds(col, row) && MapAt(col, row).type == Ladder) ||
+		   (IsInBounds(col, row - 1) && MapAt(col, row - 1).type == Ladder);
+}
+//======================================================================================
+bool Dungeon::PlayerFacesJump(int dir) const {
+	constexpr float REACH = 0.9f; // tiles from the player's centre to the cell's edge
+	const auto col = static_cast<int>(mapX);
+	const auto row = static_cast<int>(mapY);
+	if (heightOverFloor() >= STANDING_EPSILON || !floorBelow(mapX, mapY) || PlayerOnLadder())
+		return false;
+	const float edge = static_cast<float>(dir > 0 ? col + 1 : col);
+	const int ahead = col + dir;
+	if (std::fabs(edge - mapX) > REACH || !IsInBounds(ahead, row) || !IsInBounds(ahead, row - 1))
+		return false;
+	const Tile next = MapAt(ahead, row);
+	if (isWall(next)) // a ledge: one cell high, open over it and over the player
+		return IsInBounds(col, row + 1) && IsInBounds(ahead, row + 1) && !isSolidTile(MapAt(col, row + 1)) &&
+			   !isSolidTile(MapAt(ahead, row + 1));
+	if (isSolidTile(next) || next.type == Ladder || isFloor(MapAt(ahead, row - 1)))
+		return false;
+	for (int k = 2; k <= 3; k++) { // a gap: a floor a cell or two beyond the hole
+		const int beyond = col + k * dir;
+		if (!IsInBounds(beyond, row) || !IsInBounds(beyond, row - 1) || isSolidTile(MapAt(beyond, row)))
+			return false;
+		if (isFloor(MapAt(beyond, row - 1)))
+			return true;
+	}
+	return false;
+}
+//======================================================================================
 float Dungeon::ClimbPhase() const { return mapY + CLIMB_SIDE_RATE * mapX; }
 //======================================================================================
 int Dungeon::Type(float x, float y) { return Map(x, y).type; }

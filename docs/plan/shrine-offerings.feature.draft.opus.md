@@ -10,15 +10,19 @@ the god for XP: rings, amulets, and weapons, above all the copies of a weapon al
 which have no use today. A confirmation asks before anything is given away.
 
 Today weapons and amulets upgrade in the inventory, anywhere (`ItemBag::CanUpgrade`, `Upgrade`); rings never
-upgrade. The user's rule: weapons are plain craft, the player joins the copies himself, anywhere (unchanged). Amulets
+upgrade. The user's rule: weapons are plain craft, the player joins the copies by hand, anywhere (unchanged). Amulets
 and rings are magic, the player has none: they upgrade only at a shrine, with a god's help (Isis and the four gods,
 [shrines-of-the-gods](solved/shrines-of-the-gods.feature.md)). This gives the shrines a second use.
 
 ## Plan
 
 * Offer happens from the inventory, not a new shrine screen: while the player stands at a shrine (the same reach as
-  Pray), the item card gets an "Offer" button (and "Merge" for a ring with a twin). Away from a shrine the buttons
-  are hidden or disabled with a hint "Only at a shrine". Pray (E) on the shrine stays as is.
+  Pray), the item card gets an "Offer" button, "Merge" for a ring with a twin, and the amulet's "Upgrade". Away from
+  a shrine Offer and Merge are hidden; the amulet's Upgrade shows disabled with a hint "Only at a shrine" (so the
+  player learns where to go). Pray (E) on the shrine stays as is. Weapons upgrade anywhere, as today.
+* Amulet upgrade: the same rules as today (`UpgradePoints`, `amuletWorth`, spares largest first), only the place
+  changes: `CanUpgrade` for an amulet also needs the player at a shrine. The game's hints and the How to Play page
+  that mention the amulet upgrade say so.
 * Merge (rings): two rings of the same gem and metal, metal below gold → one ring of the next metal, same gem. Worn
   rings count only if a spare is left (like amulet spares: the worn one is not taken unless the player chooses it);
   a worn ring that merges stays worn on its hand as the new metal. Gold: no Merge button.

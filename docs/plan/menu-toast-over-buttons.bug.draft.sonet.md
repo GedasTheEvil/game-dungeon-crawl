@@ -32,4 +32,4 @@ other main-page toasts ("Could not load the newest save", ...).
 
 ## Play-test
 
-* In game, Esc, Save Game, pick a slot: "Saved to slot N" shows clear of the buttons, readable.
+* `bin/game --play tests/play/menu-toast-over-buttons.txt`: Esc, Save Game, pick a slot: "Saved to slot N" shows in the hint line under the menu panel, clear of the buttons, readable.

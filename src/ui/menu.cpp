@@ -260,16 +260,14 @@ void MainMenu::DrawBackButton() {
 
 void MainMenu::DrawFooter(const char* hint) {
 	beginText();
-	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f) // under the Back button where there is one
-		textCentered(
-			body,
-			CENTRE,
-			saveD || loadD || optionsD || creditsD || recordsD || helpD ? 5.6f : 12.f,
-			toast.text.c_str(),
-			{1.f, 0.9f, 0.6f},
-			alpha
-		);
-	textCentered(small, CENTRE, 2.2f, hint, LABEL_DIM);
+	const bool subScreen = saveD || loadD || optionsD || creditsD || recordsD || helpD;
+	const float alpha = toast.Alpha(GameClock::now());
+	// Under the Back button on a sub-screen. The main page's panel reaches down to y 7, so there the toast takes the
+	// hint's line while it shows (plan menu-toast-over-buttons).
+	if (alpha > 0.f)
+		textCentered(body, CENTRE, subScreen ? 5.6f : 2.2f, toast.text.c_str(), {1.f, 0.9f, 0.6f}, alpha);
+	if (alpha <= 0.f || subScreen)
+		textCentered(small, CENTRE, 2.2f, hint, LABEL_DIM);
 }
 
 // ---- input -----------------------------------------------------------------

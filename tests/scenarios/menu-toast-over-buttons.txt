@@ -1,0 +1,23 @@
+# Plan menu-toast-over-buttons: the main page's toast ("Saved to slot 1", "Could not load the newest save") clears
+# every button. Also a sub-screen toast (Options, a fixed key) under the Back button.
+level tests/levels/classic1
+wait 10
+key esc
+mouse 50 50
+wait 2
+click 50 56.1
+wait 2
+click 30 71
+wait 2
+screenshot main_toast_saved
+wait 200
+screenshot main_toast_gone
+# Sub-screen toast: Options > Controls, Reset to defaults (under the Back button)
+click 50 35.7
+wait 2
+mouse 77.6 32.4
+wait 2
+click 77.6 32.4
+wait 2
+wait 3
+screenshot options_toast

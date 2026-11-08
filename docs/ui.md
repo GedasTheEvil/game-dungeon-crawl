@@ -52,8 +52,8 @@ Vertical bands used by every 160 x 100 screen:
 | 91.5 | title rule |
 | 88 | title baseline |
 | ~13–85 | panels |
-| 9.5–17.5 | Back button (menu sub-screens); toasts at y 12 on the main menu, under the Back button (baseline 5.6) on a sub-screen |
-| 2.2 | key hint footer |
+| 9.5–17.5 | Back button (menu sub-screens); toasts under the Back button (baseline 5.6) on a sub-screen |
+| 2.2 | key hint footer; on the main menu page a toast takes its place while it shows (the panel leaves no free band) |
 
 ## Frame order
 
@@ -179,7 +179,7 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 
 * Key hint: `textCentered(small, 80, 2.2, hint, LABEL_DIM)`, keys and actions separated by 4 spaces
   (`"Click or Enter: load a slot    Esc: back"`).
-* Toast: `body` font, `{1, 0.9, 0.6}`, above the footer, shown 2200 ms and faded out over the last 600 ms.
+* Toast: `body` font, `{1, 0.9, 0.6}`, above the footer on a menu sub-screen (under Back, 5.6), in the hint's line on the main menu page (its panel reaches down to y 7: nothing is free; the hint is hidden meanwhile), shown 2200 ms and faded out over the last 600 ms.
 * Over the game, "Autosaved" ([autosave](plan/solved/autosave.md)) is such a toast too: `hudBody` `GOLD` with a black
   shadow, top left on the HUD's canvas (`drawAutosaved`, `graphics/draw.cpp`).
 

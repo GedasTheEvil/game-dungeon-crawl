@@ -398,6 +398,8 @@ text: A little shrine in the rock, Isis on her throne inside, her wings spread o
 	the offering table. I knelt and asked her, feeling foolish. Every curse on me lifted at once, and for a while
 	none would take: the next one slid off like water. It does not last, two minutes or so, but she does not tire of
 	being asked. She hid her son from Seth in the marshes; she can hide one archaeologist for a moment.
+	The offering table takes more than bread: a spare amulet or ring, a weapon I have no more use for, and I come
+	away wiser. Her magic grows an amulet and joins two rings into a finer one; my hands could never do that.
 
 [note.wall-spikes]
 title: Wall spikes
@@ -491,24 +493,28 @@ title: The Shrine of Montu
 text: Another little naos, this one painted red. Montu stands in it with a falcon's head and the sun on it, his
 	khopesh raised. Thebes prayed to him before a war. I prayed before the next hall, and my arm felt ten years
 	younger: Might up by five, for two minutes. Then it was my own arm again. He does not mind being asked twice.
+	His table takes my spares too, and he works the magic of amulets and rings as Isis does.
 
 [note.shrine-of-ptah]
 title: The Shrine of Ptah
 text: Ptah of Memphis in his skullcap, wrapped like a mummy, holding his sceptre with the djed pillar on it. He
 	made the world by speaking it; he made my skin harder by my asking. Armor up by five for two minutes. The
 	craftsmen's god keeps his work short and good.
+	He joins two rings into a finer one, and takes my spares for something better than gold.
 
 [note.shrine-of-amun]
 title: The Shrine of Amun
 text: Amun the hidden one, blue-skinned on his throne, the tall plumes on his head, rams on the wall behind him.
 	I asked him for breath and got it: every wound closed, and for two minutes more life in me than I have. When
 	it ends the extra goes, but the healing stays. The king of the gods is generous with those who kneel.
+	He takes my spares and works amulets and rings for me, as every shrine's god does.
 
 [note.shrine-of-serket]
 title: The Shrine of Serket
 text: Serket with her scorpion on her head, its tail curled over her brow. Her priests treated stings and snakebites;
 	she still does. The poison in me went at once, and for two minutes nothing with a sting could make it stay.
 	Her children bite me as before, they just don't matter.
+	Her table takes my spares, and she works amulets and rings as the other gods do.
 
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the

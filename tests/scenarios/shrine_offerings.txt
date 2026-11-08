@@ -1,0 +1,85 @@
+# Plan shrine-offerings: at the Shrine of Isis in lvl18 (col 37, row 11) amulets upgrade, two rings merge into one of the
+# next metal and spares are offered for XP, each after a yes in the confirm box; away from it the amulet's Upgrade says
+# "At a shrine" and nothing happens, a weapon still upgrades.
+seed 1
+level 18 at 34 11
+god
+peace
+wait 10
+give amulet 8 2
+give ring 0 2
+give ring 2 2
+give melee 1 13
+key i
+wait 5
+
+# away from the shrine: the amulet waits, the weapon upgrades
+select lesser_amulet_of_health
+wait 5
+screenshot amulet_away
+key u
+expect amulet8 == 2
+select short_sword
+key u
+key u
+key u
+key u
+expect melee1.level == 5
+key esc
+
+walk to 37.5
+wait 10
+key i
+wait 5
+select lesser_amulet_of_health
+wait 5
+screenshot amulet_at_shrine
+key u
+expect amulet8 == 0
+expect amulet9 == 1
+
+# the ring merge, asked first; No (esc) keeps them
+select copper_ring_of_regeneration
+wait 5
+screenshot ring_at_shrine
+key u
+wait 5
+screenshot merge_asked
+key esc
+expect ring0 == 2
+key u
+key enter
+wait 5
+screenshot merged
+expect ring0 == 0
+expect ring1 == 1
+
+# gold does not merge; offering one gives XP
+select gold_ring_of_regeneration
+key u
+expect ring2 == 2
+expect xp == 0
+key o
+wait 5
+screenshot offer_asked
+key enter
+wait 5
+screenshot offered
+expect ring2 == 1
+expect xp == 600
+
+# a level-5 weapon's spares (13 copies, 11 taken by its levels)
+select short_sword
+key o
+key enter
+key o
+key enter
+key o
+key enter
+expect melee1 == 11
+expect melee1.level == 5
+expect xp == 1000
+key esc
+wait 300ms
+screenshot beam
+quit

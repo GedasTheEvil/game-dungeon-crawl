@@ -8,6 +8,9 @@
 #include "../level/bindings.h"
 #include "../level/pointer.h"
 #include "../render/ui_draw.h"
+#include "confirm_box.h"
+#include "../level/inventory_layout.h"
+#include "../level/shrines.h"
 #include <iosfwd>
 #include <optional>
 
@@ -15,7 +18,16 @@
 class Inventory {
   private:
 	// Clickable things on the screen.
-	enum class Target : unsigned char { None, Slot, Tab, SortButton, UseButton, UpgradeButton };
+	enum class Target : unsigned char {
+		None,
+		Slot,
+		Tab,
+		SortButton,
+		UseButton,
+		UpgradeButton,
+		OfferButton,
+		MergeButton
+	};
 
 	static constexpr int NO_SLOT = -1;
 	static constexpr int NO_TAB = -1;
@@ -39,6 +51,7 @@ class Inventory {
 	int lastFrameMs = 0;
 
 	ui::Toast toast; // feedback line after an action
+	ConfirmBox confirm; // "Offer the ... to Ptah?" over the screen (plan shrine-offerings)
 
 	// Last quick drink (H / 0 in game), for the cooldown and the HUD slot flash.
 	std::optional<int> quickDrinkMs;
@@ -52,6 +65,18 @@ class Inventory {
 	[[nodiscard]] static Item* Model(ItemKind kind);
 	[[nodiscard]] bool CanUse(int slot, const char** reason) const;
 	[[nodiscard]] bool CanUpgrade(int slot) const;
+	// The god whose shrine the player stands at (plan shrine-offerings): amulets upgrade, rings merge and spares are
+	// offered only there.
+	[[nodiscard]] static std::optional<God> Shrine();
+	[[nodiscard]] static AtShrine AtOne() { return Shrine() ? AtShrine::Yes : AtShrine::No; }
+	// What a shrine would allow: an amulet's upgrade or a ring's merge (the slot's pulsing arrow, the Upgrade button
+	// that says where to go).
+	[[nodiscard]] bool ReadyAtShrine(int slot) const;
+	[[nodiscard]] InventoryLayout::ShrineRow ShrineButtons() const; // the selected item's shrine row
+	void AskOffer(int slot);
+	void AskMerge(int slot);
+	void Offer(ItemKind kind);
+	void Merge(ItemKind ring);
 	// Mouse button down on the slot and still over it: the slot tile is pushed in.
 	[[nodiscard]] bool SlotHeld(int slot) const { return pointer.Held({Target::Slot, slot}); }
 	[[nodiscard]] bool SlotHovered(int slot) const { return pointer.hovered == Pick{Target::Slot, slot}; }
@@ -97,6 +122,7 @@ class Inventory {
 	void DrawButton(Target which, const char* label, bool enabled);
 	void DrawStatus();
 	void DrawFooter();
+	void DrawShrineButtons();
 
   public:
 	Inventory();
@@ -154,6 +180,8 @@ class Inventory {
 	// Weapon damage with its level bonus.
 	[[nodiscard]] int EquippedDamage() const;
 	void BagLoaded(); // a save game was read into the bag (dungeon_save.h): the selection follows it
+	// The confirm box is open: it takes every key, Esc too (input.cpp).
+	[[nodiscard]] bool Asking() const { return confirm.Open(); }
 };
 
 #endif

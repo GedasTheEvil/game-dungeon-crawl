@@ -26,6 +26,13 @@ constexpr int MAX_WEAPON_LEVEL = 5;
 [[nodiscard]] int amuletWorth(AmuletTier tier);
 [[nodiscard]] std::optional<ItemKind> nextTier(ItemKind amulet); // nullopt: grand, the top
 
+// Shrine offerings (plan shrine-offerings). Amulets and rings are magic: they upgrade (an amulet) or merge (two rings
+// of a gem and metal into one of the next metal) only at a god's shrine. Weapons are plain craft: anywhere. At a
+// shrine a spare (Spares) is offered for XP by its rank (offerXP).
+enum class AtShrine : bool { No, Yes };
+[[nodiscard]] std::optional<ItemKind> nextMetal(ItemKind ring); // nullopt: gold, the top
+[[nodiscard]] int offerXP(ItemKind kind); // 0: no offering (a potion)
+
 // The player as the bag's rules see it (whether a potion or an item can be used now).
 struct BagUser {
 	bool alive = true;
@@ -119,11 +126,21 @@ class ItemBag {
 	// last, if both hands wear it); else on the free hand, left first, or in place of the one worn longer (the caller
 	// applies ringBonus(Rings())). False if Block says no.
 	bool Use(ItemKind kind, const BagUser& player);
-	// A weapon: its copies reach upgradeCost. An amulet: UpgradePoints reach its worth (amuletWorth), below grand.
-	[[nodiscard]] bool CanUpgrade(ItemKind kind, bool alive) const;
+	// A weapon: its copies reach upgradeCost. An amulet: at a shrine, UpgradePoints reach its worth (amuletWorth),
+	// below grand.
+	[[nodiscard]] bool CanUpgrade(ItemKind kind, bool alive, AtShrine shrine) const;
 	// False if CanUpgrade says no. An amulet becomes one of the next tier (nextTier), the spares paying largest first;
 	// the worn one stays worn (the caller applies amuletBonus(Worn())).
-	bool Upgrade(ItemKind kind, bool alive);
+	bool Upgrade(ItemKind kind, bool alive, AtShrine shrine);
+	// What could be offered (plan shrine-offerings): a weapon's copies past the ones its top level took (none below
+	// MAX_WEAPON_LEVEL: they still count towards it), an amulet's or a ring's not worn. Potions: none.
+	[[nodiscard]] int Spares(ItemKind kind) const;
+	[[nodiscard]] bool CanOffer(ItemKind kind, bool alive, AtShrine shrine) const;
+	bool Offer(ItemKind kind, bool alive, AtShrine shrine); // one spare gone; the caller gives offerXP
+	// Two rings of the gem and metal, below gold: one of the next metal (nextMetal) instead. A hand that wore one of
+	// the two wears the new ring (the caller applies ringBonus(Rings())); a second such hand comes free.
+	[[nodiscard]] bool CanMerge(ItemKind ring, bool alive, AtShrine shrine) const;
+	bool Merge(ItemKind ring, bool alive, AtShrine shrine);
 	// The points the spares of an amulet's type could pay to upgrade it: the ones of its tier or lower, but the
 	// amulet itself and the worn one.
 	[[nodiscard]] int UpgradePoints(ItemKind amulet) const;

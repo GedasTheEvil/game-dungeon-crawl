@@ -168,6 +168,8 @@ class PlayerStats {
 	// +AMUN_MAX_HP_PERCENT, healed to it. Serket: the poison cured, no poison lands (twice as long with Serket's
 	// favour). BLESSING_MS each. Its status line, the sound and the field note.
 	void Pray(God g, WorldEvents& events);
+	// An offering at the god's shrine (plan shrine-offerings): only the prayer's beam in the god's tint.
+	void Offered(God g);
 	// The blessings' time runs out; the status box says when one ends. Amun's end keeps the HP within the max, >= 1.
 	void AdvanceBlessings(int ms, WorldEvents& events);
 	void EndBlessings(); // death or a new game: all gone

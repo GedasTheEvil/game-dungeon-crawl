@@ -493,6 +493,10 @@ void keyPressed(unsigned char key, int x, int y) {
 		return;
 	}
 
+	if (screen == Screen::Inventory && Game().ui.inventory->Asking()) { // its confirm box takes every key, Esc too
+		Game().ui.inventory->KeyPressed(key);
+		return;
+	}
 	if (key == KEY_ESCAPE) // esc
 	{
 		// Esc backs out of the inventory or the map to the game, of a journal the in-game menu opened back to the menu;
@@ -552,6 +556,10 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 	if (Game().ui.screen == Screen::Gameplay && Game().ui.winEntry.Typing()) { // no quick save or load either
 		Game().ui.winEntry.SpecialKeyPressed(key);
+		return;
+	}
+	if (Game().ui.screen == Screen::Inventory && Game().ui.inventory->Asking()) {
+		Game().ui.inventory->SpecialKeyPressed(key);
 		return;
 	}
 	if (Game().ui.screen == Screen::Menu)

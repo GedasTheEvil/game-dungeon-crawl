@@ -198,7 +198,68 @@ bool Inventory::CanUse(int slot, const char** reason) const {
 	return block == UseBlock::None;
 }
 
-bool Inventory::CanUpgrade(int slot) const { return bag.CanUpgrade(kindOf(slot), Game().player->Alive()); }
+bool Inventory::CanUpgrade(int slot) const { return bag.CanUpgrade(kindOf(slot), Game().player->Alive(), AtOne()); }
+
+std::optional<God> Inventory::Shrine() { return Game().dungeon.ShrineHere(); }
+
+bool Inventory::ReadyAtShrine(int slot) const {
+	const bool alive = Game().player->Alive();
+	return isRing(slot) ? bag.CanMerge(kindOf(slot), alive, AtShrine::Yes)
+						: bag.CanUpgrade(kindOf(slot), alive, AtShrine::Yes);
+}
+
+ShrineRow Inventory::ShrineButtons() const {
+	if (!Shrine() || isPotion(selectedSlot) || !bag.Found(kindOf(selectedSlot)))
+		return ShrineRow::None;
+	return isRing(selectedSlot) ? ShrineRow::OfferMerge : ShrineRow::Offer;
+}
+
+// "a spare Club", "the Lesser Amulet of Armor", "the Copper Garnet Ring"
+void Inventory::AskOffer(int slot) {
+	const ItemKind kind = kindOf(slot);
+	const std::optional<God> god = Shrine();
+	if (!god || !bag.CanOffer(kind, Game().player->Alive(), AtShrine::Yes))
+		return;
+	const std::string what = (isWeapon(slot) ? "a spare " : "the ") + std::string(itemText(kind).name);
+	confirm.Ask("Offer " + what + " to " + godDef(*god).name + "? It is gone for good.", [this, kind] { Offer(kind); });
+}
+
+void Inventory::AskMerge(int slot) {
+	const ItemKind ring = kindOf(slot);
+	const std::optional<ItemKind> next = nextMetal(ring);
+	if (!next || !bag.CanMerge(ring, Game().player->Alive(), AtOne()))
+		return;
+	std::string two = itemText(ring).name; // "Copper Ring of Reach" -> "Copper Rings of Reach"
+	if (const size_t at = two.find("Ring"); at != std::string::npos)
+		two.insert(at + 4, "s");
+	confirm.Ask("Merge two " + two + " into a " + itemText(*next).name + "?", [this, ring] { Merge(ring); });
+}
+
+void Inventory::Offer(ItemKind kind) {
+	const std::optional<God> god = Shrine();
+	if (!god || !bag.Offer(kind, Game().player->Alive(), AtShrine::Yes))
+		return;
+	const int xp = offerXP(kind);
+	Game().player->stats.Offered(*god);
+	Game().assets.sounds.shrinePray[static_cast<int>(*god)].Play();
+	Game().player->stats.AddXP(xp, Game().events);
+	char buf[64];
+	snprintf(buf, sizeof(buf), "%s accepts the offering. +%d XP", godDef(*god).name, xp);
+	ShowToast(buf);
+}
+
+void Inventory::Merge(ItemKind ring) {
+	const std::optional<God> god = Shrine();
+	const std::optional<ItemKind> next = nextMetal(ring);
+	if (!god || !next || !bag.Merge(ring, Game().player->Alive(), AtShrine::Yes))
+		return;
+	const ItemKind merged = *next;
+	ApplyRings();
+	Game().player->stats.Offered(*god);
+	Game().assets.sounds.shrinePray[static_cast<int>(*god)].Play();
+	Select(itemIndex(merged));
+	ShowToast(std::string(godDef(*god).name) + " joins the rings: " + itemText(merged).name);
+}
 
 void Inventory::ApplyRings() { Game().player->stats.WearRings(ringBonus(bag.Rings())); }
 
@@ -217,7 +278,11 @@ void Inventory::WearOnHand(int slot, Hand hand) {
 
 void Inventory::Upgrade(int slot) {
 	const ItemKind kind = kindOf(slot);
-	if (!bag.Upgrade(kind, Game().player->Alive()))
+	if (::isAmulet(kind) && !Shrine() && ReadyAtShrine(slot)) {
+		ShowToast("Only a god can work this magic: upgrade it at a shrine");
+		return;
+	}
+	if (!bag.Upgrade(kind, Game().player->Alive(), AtOne()))
 		return;
 	// An amulet: one of the next tier now; worn, it keeps the HP share.
 	if (const std::optional<ItemKind> upgraded = ::isAmulet(kind) ? nextTier(kind) : std::nullopt) {
@@ -344,7 +409,7 @@ void Inventory::ToggleSort(SortOrder order) { SetSort(Sort() == order ? SortOrde
 int Inventory::SelectedPosition() const { return positionOf(bag, Sort(), selectedSlot); }
 
 bool Inventory::TwoButtons() const {
-	return isWeapon(selectedSlot) || isRing(selectedSlot) || (isAmulet(selectedSlot) && CanUpgrade(selectedSlot));
+	return isWeapon(selectedSlot) || isRing(selectedSlot) || (isAmulet(selectedSlot) && ReadyAtShrine(selectedSlot));
 }
 
 void Inventory::ScrollBy(int rows) {
@@ -392,13 +457,15 @@ void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock:
 // ---- input -----------------------------------------------------------------
 
 void Inventory::UpdateHover(float x, float y) {
-	const Hit hit = hitAt(bag, tab, Sort(), Scroll(), TwoButtons(), x, y);
+	const Hit hit = hitAt(bag, tab, Sort(), Scroll(), TwoButtons(), ShrineButtons(), x, y);
 	pointer.Move(
 		hit.slot != NO_HIT				? Pick{Target::Slot, hit.slot}
 		: hit.tab != NO_HIT				? Pick{Target::Tab, hit.tab}
 		: hit.sort != NO_HIT			? Pick{Target::SortButton, hit.sort}
 		: hit.button == Button::Use		? Pick{Target::UseButton}
 		: hit.button == Button::Upgrade ? Pick{Target::UpgradeButton}
+		: hit.button == Button::Offer	? Pick{Target::OfferButton}
+		: hit.button == Button::Merge	? Pick{Target::MergeButton}
 										: Pick{}
 	);
 }
@@ -407,6 +474,10 @@ void Inventory::MouseMotion(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(x, y, cx, cy);
+	if (confirm.Open()) {
+		confirm.Move(cx, cy);
+		return;
+	}
 	UpdateHover(cx, cy);
 }
 
@@ -416,6 +487,12 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(x, y, cx, cy);
+	if (confirm.Open()) {
+		confirm.Button(button, state == GLUT_DOWN, cx, cy);
+		if (!confirm.Open())
+			pointer.Clear();
+		return;
+	}
 	UpdateHover(cx, cy);
 
 	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
@@ -452,6 +529,12 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 		else
 			Upgrade(selectedSlot);
 		return;
+	case Target::OfferButton:
+		AskOffer(selectedSlot);
+		return;
+	case Target::MergeButton:
+		AskMerge(selectedSlot);
+		return;
 	case Target::Tab:
 		SwitchTab(groupAt(fired.index));
 		return;
@@ -468,12 +551,25 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 }
 
 void Inventory::KeyPressed(unsigned char key) {
+	if (confirm.Open()) {
+		if (key == KEY_ESCAPE)
+			confirm.Cancel();
+		else
+			confirm.Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
+		if (!confirm.Open())
+			pointer.Clear();
+		return;
+	}
 	if (const NavKey nav = navKeyOf(InputKey::Char(key), Game().settings.controls); nav != NavKey::None) {
 		Navigate(nav);
 		return;
 	}
-	if (key == 'u' || key == 'U')
+	if ((key == 'u' || key == 'U') && isRing(selectedSlot))
+		AskMerge(selectedSlot); // a ring's upgrade: the merge (plan shrine-offerings)
+	else if (key == 'u' || key == 'U')
 		Upgrade(selectedSlot);
+	else if (key == 'o' || key == 'O')
+		AskOffer(selectedSlot);
 	else if (key == KEY_TAB)
 		NextTab();
 	// the number keys do nothing here: picking is by mouse and the move keys
@@ -545,7 +641,16 @@ void Inventory::EquipNext(bool ranged) {
 	}
 }
 
-void Inventory::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
+void Inventory::SpecialKeyPressed(int key) {
+	const NavKey nav = navKeyOf(InputKey::Special(key), Game().settings.controls);
+	if (!confirm.Open()) {
+		Navigate(nav);
+		return;
+	}
+	confirm.Navigate(nav);
+	if (!confirm.Open())
+		pointer.Clear();
+}
 
 // ---- drawing ---------------------------------------------------------------
 
@@ -606,6 +711,8 @@ void Inventory::Draw() {
 	DrawHints();
 	DrawFooter();
 	ScreenTabs::Draw();
+	if (confirm.Open())
+		confirm.Draw(heading, body, small, area);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -772,8 +879,8 @@ void Inventory::DrawSlot(int slot) {
 			strokeRect(badge, GOLD_DIM, 1.f, 1.f);
 		}
 
-	// Upgrade ready: a pulsing gold arrow under the level.
-	if (CanUpgrade(slot)) {
+	// Upgrade ready (an amulet's or a ring's at a shrine): a pulsing gold arrow under the level.
+	if (ReadyAtShrine(slot)) {
 		float pulse = 0.6f + 0.4f * std::sin(static_cast<float>(GameClock::now()) * 0.006f);
 		float ax = r.x + r.w - 2.8f;
 		float ay = r.y + r.h - 7.8f;
@@ -1007,8 +1114,10 @@ void Inventory::DrawDetails() {
 			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, copiesY + 0.2f, buf, INK_FADED);
 		}
 	}
-	textCentered(small, cx, LORE_Y, info.lore1, INK_FADED);
-	textCentered(small, cx, LORE_Y - 3.4f, info.lore2, INK_FADED);
+	if (ShrineButtons() == ShrineRow::None) { // at a shrine its buttons take the lore's place
+		textCentered(small, cx, LORE_Y, info.lore1, INK_FADED);
+		textCentered(small, cx, LORE_Y - 3.4f, info.lore2, INK_FADED);
+	}
 	DrawDetailRules();
 }
 
@@ -1056,14 +1165,35 @@ void Inventory::DrawButtons() {
 			bag.RingOn(Hand::Right) == kindOf(selectedSlot) ? "Take off" : "Right hand",
 			canUse
 		);
-	else if (TwoButtons())
-		DrawButton(Target::UpgradeButton, "Upgrade", CanUpgrade(selectedSlot));
+	else if (TwoButtons()) // an amulet ready away from a shrine: where to go
+		DrawButton(
+			Target::UpgradeButton,
+			isAmulet(selectedSlot) && !Shrine() ? "At a shrine" : "Upgrade",
+			CanUpgrade(selectedSlot)
+		);
+	DrawShrineButtons();
+}
+
+// At a shrine (plan shrine-offerings): Offer a spare, and Merge two rings.
+void Inventory::DrawShrineButtons() {
+	const ShrineRow row = ShrineButtons();
+	if (row == ShrineRow::None)
+		return;
+	const bool alive = Game().player->Alive();
+	DrawButton(Target::OfferButton, "Offer", bag.CanOffer(kindOf(selectedSlot), alive, AtShrine::Yes));
+	if (row == ShrineRow::OfferMerge)
+		DrawButton(Target::MergeButton, "Merge", bag.CanMerge(kindOf(selectedSlot), alive, AtShrine::Yes));
 }
 
 void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 	bool hovered = enabled && pointer.hovered.target == which;
 	bool held = hovered && pointer.Held({which});
-	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON : (TwoButtons() ? EQUIP_BUTTON : WIDE_BUTTON);
+	Rect r = which == Target::UpgradeButton ? UPGRADE_BUTTON
+			 : which == Target::MergeButton ? MERGE_BUTTON
+			 : which == Target::OfferButton
+				 ? (ShrineButtons() == ShrineRow::OfferMerge ? OFFER_BUTTON : SHRINE_WIDE_BUTTON)
+			 : TwoButtons() ? EQUIP_BUTTON
+							: WIDE_BUTTON;
 	r = tile(r, enabled ? TileStyle::Lapis : TileStyle::PapyrusDisabled, hovered, held);
 
 	beginText();
@@ -1137,8 +1267,12 @@ void Inventory::DrawFooter() {
 		small,
 		CENTRE,
 		2.2f,
-		"Click: select    Right click / Enter: use    U: upgrade    Arrows: browse    Tab: next group    I / "
-		"Esc: close",
+		Shrine()
+			? "Click: select    Right click / Enter: use    U: upgrade    O: offer    Arrows: browse    Tab: next "
+			  "group    I / "
+			  "Esc: close"
+			: "Click: select    Right click / Enter: use    U: upgrade    Arrows: browse    Tab: next group    I / "
+			  "Esc: close",
 		{0.55f, 0.45f, 0.30f}
 	);
 }

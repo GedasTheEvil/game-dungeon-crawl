@@ -109,6 +109,31 @@ std::optional<ItemKind> nextTier(ItemKind amulet) {
 	return amuletKind(a.type, static_cast<AmuletTier>(static_cast<int>(a.tier) + 1));
 }
 
+std::optional<ItemKind> nextMetal(ItemKind ring) {
+	const Ring r = ringOf(ring);
+	if (r.metal == RingMetal::Gold)
+		return std::nullopt;
+	return ringKind(r.gem, static_cast<RingMetal>(static_cast<int>(r.metal) + 1));
+}
+
+namespace {
+// What an offering gives (plan shrine-offerings): well under a fight's worth, so offering never beats fighting. An
+// amulet: OFFER_XP_PER_POINT for each of its points (amuletWorth), lesser 100 to grand 800.
+constexpr int OFFER_XP_WEAPON = 200;
+constexpr int OFFER_XP_PER_POINT = 100;
+constexpr int OFFER_XP_RING[RING_METAL_COUNT] = {150, 300, 600}; // copper, silver, gold
+} // namespace
+
+int offerXP(ItemKind kind) {
+	if (isWeapon(kind))
+		return OFFER_XP_WEAPON;
+	if (isAmulet(kind))
+		return OFFER_XP_PER_POINT * amuletWorth(amuletOf(kind).tier);
+	if (isRing(kind))
+		return OFFER_XP_RING[static_cast<int>(ringOf(kind).metal)];
+	return 0;
+}
+
 void ItemBag::Reset() {
 	for (int& count : counts)
 		count = 0;
@@ -273,16 +298,17 @@ int ItemBag::UpgradePoints(ItemKind amulet) const {
 	return points;
 }
 
-bool ItemBag::CanUpgrade(ItemKind kind, bool alive) const {
+bool ItemBag::CanUpgrade(ItemKind kind, bool alive, AtShrine shrine) const {
 	if (!alive)
 		return false;
 	if (isAmulet(kind))
-		return nextTier(kind) && Count(kind) > 0 && UpgradePoints(kind) >= amuletWorth(amuletOf(kind).tier);
+		return shrine == AtShrine::Yes && nextTier(kind) && Count(kind) > 0 &&
+			   UpgradePoints(kind) >= amuletWorth(amuletOf(kind).tier);
 	return isWeapon(kind) && Level(kind) < MAX_WEAPON_LEVEL && Count(kind) >= upgradeCost(Level(kind));
 }
 
-bool ItemBag::Upgrade(ItemKind kind, bool alive) {
-	if (!CanUpgrade(kind, alive))
+bool ItemBag::Upgrade(ItemKind kind, bool alive, AtShrine shrine) {
+	if (!CanUpgrade(kind, alive, shrine))
 		return false;
 	if (!isAmulet(kind)) {
 		levels[itemIndex(kind)]++;
@@ -309,6 +335,51 @@ bool ItemBag::Upgrade(ItemKind kind, bool alive) {
 	Add(*upgraded);
 	if (wasWorn)
 		worn = upgraded;
+	return true;
+}
+
+int ItemBag::Spares(ItemKind kind) const {
+	if (isWeapon(kind))
+		return Level(kind) >= MAX_WEAPON_LEVEL ? std::max(0, Count(kind) - upgradeCost(MAX_WEAPON_LEVEL - 1)) : 0;
+	if (isAmulet(kind))
+		return std::max(0, Count(kind) - (worn == kind ? 1 : 0));
+	if (isRing(kind))
+		return std::max(0, Count(kind) - HandsWearing(kind));
+	return 0;
+}
+
+bool ItemBag::CanOffer(ItemKind kind, bool alive, AtShrine shrine) const {
+	return alive && shrine == AtShrine::Yes && Spares(kind) > 0;
+}
+
+bool ItemBag::Offer(ItemKind kind, bool alive, AtShrine shrine) {
+	if (!CanOffer(kind, alive, shrine))
+		return false;
+	counts[itemIndex(kind)]--;
+	return true;
+}
+
+bool ItemBag::CanMerge(ItemKind ring, bool alive, AtShrine shrine) const {
+	return alive && shrine == AtShrine::Yes && isRing(ring) && nextMetal(ring) && Count(ring) >= 2;
+}
+
+bool ItemBag::Merge(ItemKind ring, bool alive, AtShrine shrine) {
+	const std::optional<ItemKind> next = nextMetal(ring);
+	if (!next || !CanMerge(ring, alive, shrine))
+		return false;
+	const ItemKind merged = *next;
+	counts[itemIndex(ring)] -= 2;
+	Add(merged);
+	// The hands that wore more of the ring than are left: the first wears the new one, any other comes free.
+	bool given = false;
+	for (std::optional<ItemKind>& on : rings)
+		if (on == ring && HandsWearing(ring) > Count(ring)) {
+			if (!given && HandsWearing(merged) < Count(merged))
+				on = merged;
+			else
+				on.reset();
+			given = true;
+		}
 	return true;
 }
 

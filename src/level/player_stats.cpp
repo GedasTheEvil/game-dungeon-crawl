@@ -323,6 +323,11 @@ void PlayerStats::AdvanceWaterBlessing(int ms, WorldEvents& events) {
 		events.Status("The water is deep again");
 }
 
+void PlayerStats::Offered(God g) {
+	prayed_ms = GameClock::now();
+	prayed_god = g;
+}
+
 void PlayerStats::Pray(God g, WorldEvents& events) {
 	int& left = blessing_left_ms[static_cast<size_t>(g)];
 	switch (g) {

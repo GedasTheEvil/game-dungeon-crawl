@@ -34,7 +34,16 @@ Rect sortRect(int order) {
 	return {x, TAB_Y, SORT_W[std::clamp(order, 0, SORT_ORDER_COUNT - 1)], TAB_H};
 }
 
-Hit hitAt(const ItemBag& bag, ItemGroup tab, SortOrder sort, int scroll, bool twoButtons, float x, float y) {
+Hit hitAt(
+	const ItemBag& bag,
+	ItemGroup tab,
+	SortOrder sort,
+	int scroll,
+	bool twoButtons,
+	ShrineRow shrineRow,
+	float x,
+	float y
+) {
 	Hit hit;
 	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		if (itemGroup(itemAt(slot)) == tab && slotVisible(bag, sort, slot, scroll) &&
@@ -54,6 +63,11 @@ Hit hitAt(const ItemBag& bag, ItemGroup tab, SortOrder sort, int scroll, bool tw
 	} else if (UPGRADE_BUTTON.contains(x, y)) {
 		hit.button = Button::Upgrade;
 	}
+	const Rect offer = shrineRow == ShrineRow::OfferMerge ? OFFER_BUTTON : SHRINE_WIDE_BUTTON;
+	if (shrineRow != ShrineRow::None && offer.contains(x, y))
+		hit.button = Button::Offer;
+	else if (shrineRow == ShrineRow::OfferMerge && MERGE_BUTTON.contains(x, y))
+		hit.button = Button::Merge;
 	return hit;
 }
 

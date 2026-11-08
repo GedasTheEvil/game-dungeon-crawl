@@ -1,6 +1,6 @@
 # Shrine offerings: merge rings and amulets, offer spares for XP
 
-Status: draft 2026-11-08, size M, needs nothing first.
+Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size M, needs nothing first.
 
 ## Idea
 
@@ -27,9 +27,9 @@ and rings are magic, the player has none: they upgrade only at a shrine, with a 
   rings count only if a spare is left (like amulet spares: the worn one is not taken unless the player chooses it);
   a worn ring that merges stays worn on its hand as the new metal. Gold: no Merge button.
 * Offer (any ring, amulet or weapon copy): the item leaves the bag, the player gains XP by its worth. What can be
-  offered: a weapon only its copies beyond the one held (never the last copy, never the equipped weapon's last); an
-  amulet a spare (not the worn one); a ring a spare (not a worn one). Weapon copies below level 5 can be offered too,
-  but the confirmation warns that they would raise the weapon's level.
+  offered: a weapon only its copies past the 11 its level 5 took (decided in implementing: below level 5 a copy still
+  counts towards the next level, and weapon copies are cumulative, so offering one would undo progress); an amulet a
+  spare (not the worn one); a ring a spare (not a worn one).
 * XP by worth (balance, the implementer's choice, tune by play): about a fraction of a normal kill at that depth,
   scaled by the item's rank: ring copper < silver < gold; amulet by `amuletWorth(tier)`; weapon by its base damage.
   It must not beat fighting: offering every spare of a level should give well under one player level.
@@ -45,8 +45,9 @@ and rings are magic, the player has none: they upgrade only at a shrine, with a 
 
 ## Play-test
 
-* (play script: a shrine, two Copper Garnet Rings, a Gold ring, a level-5 weapon with spare copies, a spare amulet)
-* Away from the shrine: the amulet's Upgrade is disabled, "Only at a shrine"; a weapon still upgrades.
-* At the shrine, open the inventory: upgrade the amulet; merge the copper rings, see a Silver Garnet Ring; the gold ring has no Merge.
-* Offer a spare weapon copy and an amulet: the confirmation shows, XP is gained, the item is gone.
-* Away from the shrine: no Offer / Merge.
+* `bin/game --play tests/play/shrine-offerings.txt`: lvl18, the Shrine of Isis 3 steps right; two lesser health
+  amulets, two copper and two gold garnet rings, 13 short swords (U four times: level 5, two spares).
+* Here, open the inventory (I): the amulet's Upgrade button says "At a shrine", greyed; the sword upgrades.
+* Walk onto the shrine, I: under the item an Offer row (and Merge for a ring), the lore gone. Upgrade the amulet.
+* Merge the copper rings: a yes / no box, then a Silver Garnet Ring. Gold: Merge greyed.
+* Offer a gold ring and a spare sword: the box, the XP in the bar and the toast; close: the beam on the shrine.

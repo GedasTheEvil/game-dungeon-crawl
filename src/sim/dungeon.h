@@ -12,6 +12,7 @@
 #include "../level/level.h"
 #include "../level/climb_path.h"
 #include "../level/curses.h"
+#include "../level/shrines.h"
 #include "../level/view_window.h"
 #include "sim_links.h"
 #include "../level/sun_beam.h"
@@ -926,6 +927,9 @@ class Dungeon {
 	// gate last, as it may take the player away (Answer a riddle gate, Enter the exit or a teleporter not in the air,
 	// Take the ankh). Keys are picked up on touch: None.
 	[[nodiscard]] Interaction InteractVerb() const;
+	// The god whose shrine stands in the player's cell (Pray's reach): offerings and the magic items' upgrades there
+	// (plan shrine-offerings). None elsewhere.
+	[[nodiscard]] std::optional<God> ShrineHere() const;
 	// The glint over an unread inscription in (col, row) (plan interact-prompt), 0..1: 1 not read yet, dimmer once
 	// copied without the skill, 0 translated, too worn to read, or no inscription.
 	[[nodiscard]] float InscriptionGlint(int col, int row) const;

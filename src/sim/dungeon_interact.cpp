@@ -92,6 +92,13 @@ void Dungeon::Interact() {
 	}
 }
 //======================================================================================
+std::optional<God> Dungeon::ShrineHere() const {
+	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
+	if (!IsInBounds(col, row))
+		return std::nullopt;
+	return shrineGod(decoration.decor[MapIndex(col, row)].type);
+}
+//======================================================================================
 Interaction Dungeon::InteractVerb() const {
 	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
 	if (!IsInBounds(col, row))

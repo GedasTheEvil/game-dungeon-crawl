@@ -106,20 +106,20 @@ TEST_CASE("using takes a potion out and equips a weapon") {
 TEST_CASE("upgrades take enough copies, up to the max level") {
 	ItemBag bag;
 	bag.Add(ItemKind::ShortSword);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, true)); // 1 of 2
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, true, AtShrine::Yes)); // 1 of 2
 	bag.Add(ItemKind::ShortSword);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, false)); // dead
-	CHECK(bag.Upgrade(ItemKind::ShortSword, true));
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, false, AtShrine::Yes)); // dead
+	CHECK(bag.Upgrade(ItemKind::ShortSword, true, AtShrine::Yes));
 	CHECK(bag.Level(ItemKind::ShortSword) == 2);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, true)); // 2 of 4
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ShortSword, true, AtShrine::Yes)); // 2 of 4
 	for (int i = 0; i < 20; i++)
 		bag.Add(ItemKind::ShortSword);
-	while (bag.Upgrade(ItemKind::ShortSword, true)) {
+	while (bag.Upgrade(ItemKind::ShortSword, true, AtShrine::Yes)) {
 	}
 	CHECK(bag.Level(ItemKind::ShortSword) == MAX_WEAPON_LEVEL);
 	bag.Add(ItemKind::SmallHealth);
 	bag.Add(ItemKind::SmallHealth);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::SmallHealth, true)); // potions have no levels
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::SmallHealth, true, AtShrine::Yes)); // potions have no levels
 }
 
 TEST_CASE("potion gains") {
@@ -225,7 +225,7 @@ TEST_CASE("the bag survives a save and a load") {
 	bag.Add(ItemKind::SelfBow);
 	bag.Add(ItemKind::SelfBow);
 	bag.Add(ItemKind::LargeStamina);
-	CHECK(bag.Upgrade(ItemKind::SelfBow, true));
+	CHECK(bag.Upgrade(ItemKind::SelfBow, true, AtShrine::Yes));
 	CHECK(bag.Use(ItemKind::SelfBow, BagUser{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
@@ -427,7 +427,7 @@ TEST_CASE("an amulet is put on, swapped and taken off; it stays in the bag") {
 	CHECK(bag.Use(ItemKind::ArmorMinor, player)); // again: off
 	CHECK_FALSE(bag.Worn().has_value());
 	CHECK(bag.Count(ItemKind::ArmorMinor) == 1);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorMinor, true));
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorMinor, true, AtShrine::Yes));
 	CHECK(bag.Block(ItemKind::ArmorMinor, BagUser{false, 0, 50, 0, 100}) == UseBlock::Dead);
 }
 
@@ -516,7 +516,7 @@ TEST_CASE("sort by strength: weapons by damage now, amulets by tier, strong poti
 	// the dagger levelled up past the club: damage now, not the base
 	for (int copies = 0; copies < 30; copies++)
 		bag.Add(ItemKind::Dagger);
-	while (bag.Upgrade(ItemKind::Dagger, true)) {
+	while (bag.Upgrade(ItemKind::Dagger, true, AtShrine::Yes)) {
 	}
 	weapons = tabOrder(bag, ItemGroup::Weapons, SortOrder::Strength);
 	CHECK(weapons[1] == ItemKind::Dagger);
@@ -565,21 +565,21 @@ TEST_CASE("amulet upgrade: each tier step takes its worth from same-type spares"
 	CHECK(amuletWorth(AmuletTier::Lesser) == 1);
 	CHECK(amuletWorth(AmuletTier::Grand) == 8);
 	bag.Add(ItemKind::ArmorLesser);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, true)); // no spare
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, true, AtShrine::Yes)); // no spare
 	bag.Add(ItemKind::StrengthLesser);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, true)); // another type pays nothing
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, true, AtShrine::Yes)); // another type pays nothing
 	bag.Add(ItemKind::ArmorLesser);
 	CHECK(bag.UpgradePoints(ItemKind::ArmorLesser) == 1);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, false)); // dead
-	CHECK(bag.Upgrade(ItemKind::ArmorLesser, true)); // lesser -> minor: + 1 lesser
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, false, AtShrine::Yes)); // dead
+	CHECK(bag.Upgrade(ItemKind::ArmorLesser, true, AtShrine::Yes)); // lesser -> minor: + 1 lesser
 	CHECK(bag.Count(ItemKind::ArmorLesser) == 0);
 	CHECK(bag.Count(ItemKind::ArmorMinor) == 1);
 	CHECK(bag.Found(ItemKind::ArmorMinor));
 
 	bag.Add(ItemKind::ArmorLesser);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorMinor, true)); // 1 of 2 points
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorMinor, true, AtShrine::Yes)); // 1 of 2 points
 	bag.Add(ItemKind::ArmorLesser);
-	CHECK(bag.Upgrade(ItemKind::ArmorMinor, true)); // minor -> normal: 2 lessers
+	CHECK(bag.Upgrade(ItemKind::ArmorMinor, true, AtShrine::Yes)); // minor -> normal: 2 lessers
 	CHECK(bag.Count(ItemKind::ArmorLesser) == 0);
 	CHECK(bag.Count(ItemKind::ArmorNormal) == 1);
 
@@ -589,7 +589,7 @@ TEST_CASE("amulet upgrade: each tier step takes its worth from same-type spares"
 	bag.Add(ItemKind::ArmorLesser);
 	bag.Add(ItemKind::ArmorLesser);
 	CHECK(bag.UpgradePoints(ItemKind::ArmorNormal) == 5);
-	CHECK(bag.Upgrade(ItemKind::ArmorNormal, true));
+	CHECK(bag.Upgrade(ItemKind::ArmorNormal, true, AtShrine::Yes));
 	CHECK(bag.Count(ItemKind::ArmorGrand) == 1);
 	CHECK(bag.Count(ItemKind::ArmorNormal) == 0);
 	CHECK(bag.Count(ItemKind::ArmorMinor) == 0);
@@ -597,7 +597,7 @@ TEST_CASE("amulet upgrade: each tier step takes its worth from same-type spares"
 
 	// grand is the top; a grand never pays for a lower one
 	bag.Add(ItemKind::ArmorGrand);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorGrand, true));
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorGrand, true, AtShrine::Yes));
 	CHECK(bag.UpgradePoints(ItemKind::ArmorLesser) == 0);
 }
 
@@ -607,7 +607,7 @@ TEST_CASE("amulet upgrade: largest spares first, the normal one before minors") 
 	bag.Add(ItemKind::HealthNormal);
 	bag.Add(ItemKind::HealthMinor);
 	bag.Add(ItemKind::HealthMinor);
-	CHECK(bag.Upgrade(ItemKind::HealthNormal, true));
+	CHECK(bag.Upgrade(ItemKind::HealthNormal, true, AtShrine::Yes));
 	CHECK(bag.Count(ItemKind::HealthNormal) == 0);
 	CHECK(bag.Count(ItemKind::HealthMinor) == 2);
 	CHECK(bag.Count(ItemKind::HealthGrand) == 1);
@@ -619,14 +619,14 @@ TEST_CASE("amulet upgrade: the worn one is upgraded and stays worn, never a spar
 	bag.Add(ItemKind::StrengthLesser);
 	bag.Add(ItemKind::StrengthLesser);
 	REQUIRE(bag.Use(ItemKind::StrengthLesser, player));
-	CHECK(bag.Upgrade(ItemKind::StrengthLesser, true));
+	CHECK(bag.Upgrade(ItemKind::StrengthLesser, true, AtShrine::Yes));
 	CHECK(bag.Worn() == ItemKind::StrengthMinor);
 	CHECK(bag.Count(ItemKind::StrengthLesser) == 0);
 
 	// two minors, one worn: the worn one goes up, the other pays
 	bag.Add(ItemKind::StrengthMinor);
 	CHECK(bag.UpgradePoints(ItemKind::StrengthMinor) == 2);
-	CHECK(bag.Upgrade(ItemKind::StrengthMinor, true));
+	CHECK(bag.Upgrade(ItemKind::StrengthMinor, true, AtShrine::Yes));
 	CHECK(bag.Worn() == ItemKind::StrengthNormal);
 	CHECK(bag.Count(ItemKind::StrengthMinor) == 0);
 	CHECK(bag.Count(ItemKind::StrengthNormal) == 1);
@@ -640,7 +640,7 @@ TEST_CASE("amulet upgrade: the worn one is upgraded and stays worn, never a spar
 	bag.Add(ItemKind::StrengthLesser);
 	CHECK(bag.UpgradePoints(ItemKind::StrengthMinor) == 1);
 	bag.Add(ItemKind::StrengthLesser);
-	REQUIRE(bag.Upgrade(ItemKind::StrengthMinor, true));
+	REQUIRE(bag.Upgrade(ItemKind::StrengthMinor, true, AtShrine::Yes));
 	CHECK(bag.Worn() == ItemKind::StrengthLesser);
 	CHECK(bag.Count(ItemKind::StrengthLesser) == 1); // the worn one
 	CHECK(bag.Count(ItemKind::StrengthNormal) == 2);
@@ -651,7 +651,7 @@ TEST_CASE("amulet upgrade: the worn one is upgraded and stays worn, never a spar
 	other.Add(ItemKind::TrapWardMinor);
 	REQUIRE(other.Use(ItemKind::TrapWardLesser, player));
 	CHECK(other.UpgradePoints(ItemKind::TrapWardMinor) == 0);
-	CHECK_FALSE(other.CanUpgrade(ItemKind::TrapWardMinor, true));
+	CHECK_FALSE(other.CanUpgrade(ItemKind::TrapWardMinor, true, AtShrine::Yes));
 }
 
 TEST_CASE("regeneration: normal + normal -> grand") {
@@ -659,9 +659,111 @@ TEST_CASE("regeneration: normal + normal -> grand") {
 	CHECK(*nextTier(ItemKind::RegenerationNormal) == ItemKind::RegenerationGrand);
 	CHECK_FALSE(nextTier(ItemKind::RegenerationGrand).has_value());
 	bag.Add(ItemKind::RegenerationNormal);
-	CHECK_FALSE(bag.CanUpgrade(ItemKind::RegenerationNormal, true));
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::RegenerationNormal, true, AtShrine::Yes));
 	bag.Add(ItemKind::RegenerationNormal);
-	CHECK(bag.Upgrade(ItemKind::RegenerationNormal, true));
+	CHECK(bag.Upgrade(ItemKind::RegenerationNormal, true, AtShrine::Yes));
 	CHECK(bag.Count(ItemKind::RegenerationGrand) == 1);
 	CHECK(bag.Count(ItemKind::RegenerationNormal) == 0);
+}
+
+// Plan shrine-offerings: amulets and rings are magic, they upgrade only at a shrine; weapons anywhere.
+TEST_CASE("shrine-offerings: an amulet upgrades only at a shrine, a weapon anywhere") {
+	ItemBag bag;
+	bag.Add(ItemKind::ArmorLesser);
+	bag.Add(ItemKind::ArmorLesser);
+	CHECK_FALSE(bag.CanUpgrade(ItemKind::ArmorLesser, true, AtShrine::No));
+	CHECK_FALSE(bag.Upgrade(ItemKind::ArmorLesser, true, AtShrine::No));
+	CHECK(bag.Count(ItemKind::ArmorLesser) == 2);
+	CHECK(bag.Upgrade(ItemKind::ArmorLesser, true, AtShrine::Yes));
+	bag.Add(ItemKind::ShortSword);
+	bag.Add(ItemKind::ShortSword);
+	CHECK(bag.Upgrade(ItemKind::ShortSword, true, AtShrine::No));
+}
+
+TEST_CASE("shrine-offerings: two rings of a gem and metal merge into one of the next metal, gold is the top") {
+	ItemBag bag;
+	bag.Add(ItemKind::GarnetCopper);
+	CHECK_FALSE(bag.CanMerge(ItemKind::GarnetCopper, true, AtShrine::Yes)); // needs two
+	bag.Add(ItemKind::GarnetCopper);
+	CHECK_FALSE(bag.CanMerge(ItemKind::GarnetCopper, true, AtShrine::No)); // only at a shrine
+	CHECK_FALSE(bag.CanMerge(ItemKind::GarnetCopper, false, AtShrine::Yes)); // dead
+	CHECK(bag.Merge(ItemKind::GarnetCopper, true, AtShrine::Yes));
+	CHECK(bag.Count(ItemKind::GarnetCopper) == 0);
+	CHECK(bag.Count(ItemKind::GarnetSilver) == 1);
+	CHECK(bag.Found(ItemKind::GarnetSilver));
+	bag.Add(ItemKind::GarnetGold);
+	bag.Add(ItemKind::GarnetGold);
+	CHECK_FALSE(nextMetal(ItemKind::GarnetGold));
+	CHECK_FALSE(bag.CanMerge(ItemKind::GarnetGold, true, AtShrine::Yes));
+	CHECK_FALSE(bag.CanMerge(ItemKind::ArmorLesser, true, AtShrine::Yes)); // not a ring
+}
+
+TEST_CASE("shrine-offerings: a worn ring that merges stays worn as the new metal, a second hand comes free") {
+	ItemBag bag;
+	bag.Add(ItemKind::LapisCopper);
+	bag.Add(ItemKind::LapisCopper);
+	REQUIRE(bag.WearOn(ItemKind::LapisCopper, Hand::Right, true));
+	REQUIRE(bag.Merge(ItemKind::LapisCopper, true, AtShrine::Yes));
+	CHECK(bag.RingOn(Hand::Right) == ItemKind::LapisSilver);
+	CHECK_FALSE(bag.RingOn(Hand::Left));
+
+	bag.Add(ItemKind::JasperCopper);
+	bag.Add(ItemKind::JasperCopper);
+	bag.Add(ItemKind::JasperCopper);
+	REQUIRE(bag.WearOn(ItemKind::JasperCopper, Hand::Left, true));
+	REQUIRE(bag.WearOn(ItemKind::JasperCopper, Hand::Right, true));
+	REQUIRE(bag.Merge(ItemKind::JasperCopper, true, AtShrine::Yes)); // one copper left: one hand keeps it
+	CHECK(bag.Count(ItemKind::JasperCopper) == 1);
+	const int copperHands = (bag.RingOn(Hand::Left) == ItemKind::JasperCopper ? 1 : 0) +
+							(bag.RingOn(Hand::Right) == ItemKind::JasperCopper ? 1 : 0);
+	const int silverHands = (bag.RingOn(Hand::Left) == ItemKind::JasperSilver ? 1 : 0) +
+							(bag.RingOn(Hand::Right) == ItemKind::JasperSilver ? 1 : 0);
+	CHECK(copperHands == 1);
+	CHECK(silverHands == 1);
+
+	ItemBag both;
+	both.Add(ItemKind::GarnetCopper);
+	both.Add(ItemKind::GarnetCopper);
+	REQUIRE(both.WearOn(ItemKind::GarnetCopper, Hand::Left, true));
+	REQUIRE(both.WearOn(ItemKind::GarnetCopper, Hand::Right, true));
+	REQUIRE(both.Merge(ItemKind::GarnetCopper, true, AtShrine::Yes));
+	CHECK(both.RingOn(Hand::Left) == ItemKind::GarnetSilver);
+	CHECK_FALSE(both.RingOn(Hand::Right));
+}
+
+TEST_CASE("shrine-offerings: only spares are offered, never a worn item or a weapon copy still to count") {
+	ItemBag bag;
+	CHECK(bag.Spares(ItemKind::Club) == 0); // level 1: its copies count towards the next level
+	while (bag.Level(ItemKind::Club) < MAX_WEAPON_LEVEL) {
+		bag.Add(ItemKind::Club);
+		bag.Upgrade(ItemKind::Club, true, AtShrine::No);
+	}
+	CHECK(bag.Spares(ItemKind::Club) == 0); // the copies the top level took
+	bag.Add(ItemKind::Club);
+	CHECK(bag.Spares(ItemKind::Club) == 1);
+	CHECK_FALSE(bag.CanOffer(ItemKind::Club, true, AtShrine::No));
+	CHECK(bag.Offer(ItemKind::Club, true, AtShrine::Yes));
+	CHECK(bag.Spares(ItemKind::Club) == 0);
+	CHECK(bag.Level(ItemKind::Club) == MAX_WEAPON_LEVEL);
+
+	bag.Add(ItemKind::ArmorMinor);
+	REQUIRE(bag.Use(ItemKind::ArmorMinor, BagUser{}));
+	CHECK(bag.Spares(ItemKind::ArmorMinor) == 0); // the worn one
+	bag.Add(ItemKind::ArmorMinor);
+	CHECK(bag.Offer(ItemKind::ArmorMinor, true, AtShrine::Yes));
+	CHECK(bag.Worn() == ItemKind::ArmorMinor);
+
+	bag.Add(ItemKind::CrystalSilver);
+	REQUIRE(bag.WearOn(ItemKind::CrystalSilver, Hand::Left, true));
+	CHECK_FALSE(bag.CanOffer(ItemKind::CrystalSilver, true, AtShrine::Yes));
+	CHECK_FALSE(bag.CanOffer(ItemKind::SmallHealth, true, AtShrine::Yes)); // potions are not offered
+	CHECK_FALSE(bag.CanOffer(ItemKind::Club, false, AtShrine::Yes)); // dead
+}
+
+TEST_CASE("shrine-offerings: an offering gives XP by the item's rank") {
+	CHECK(offerXP(ItemKind::SmallHealth) == 0);
+	CHECK(offerXP(ItemKind::GarnetCopper) < offerXP(ItemKind::GarnetSilver));
+	CHECK(offerXP(ItemKind::GarnetSilver) < offerXP(ItemKind::GarnetGold));
+	CHECK(offerXP(ItemKind::ArmorLesser) < offerXP(ItemKind::ArmorGrand));
+	CHECK(offerXP(ItemKind::Club) > 0);
 }

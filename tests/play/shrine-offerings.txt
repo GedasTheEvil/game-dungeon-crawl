@@ -1,0 +1,6 @@
+# Plan shrine-offerings: lvl18 three steps left of the Shrine of Isis (col 37, row 11).
+level 18 at 34 11
+give amulet 8 2
+give ring 0 2
+give ring 2 2
+give melee 1 13

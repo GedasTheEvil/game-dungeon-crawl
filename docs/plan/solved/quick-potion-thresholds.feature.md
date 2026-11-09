@@ -1,6 +1,6 @@
 # Quick potion picks the large one at 60% health, 20% stamina
 
-Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size S, needs nothing first.
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size S, needs nothing first.
 
 ## Idea
 

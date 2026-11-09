@@ -1,10 +1,10 @@
 # Sky-iron rings, a tier above gold
 
-Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size M, needs first: [resistance-tiers](resistance-tiers.feature.md).
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size M, needs first: [resistance-tiers](../resistance-tiers.feature.md).
 
 ## Idea
 
-A fourth ring metal above gold (`RingMetal`, today copper < silver < gold, [ring-accessories](solved/ring-accessories.md)).
+A fourth ring metal above gold (`RingMetal`, today copper < silver < gold, [ring-accessories](ring-accessories.md)).
 Garnet example from the user: heals `max(1, 1% of max HP)` every 2 s, the fastest regeneration in the game. The other
 gems get a boost of a similar step.
 
@@ -39,13 +39,13 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
   per hour) summed with the flat one in `PlayerStats`; still not while poisoned. Two sky-iron garnets: twice.
   The ring card text: "Heals 1% health (at least 1) every 2 s".
 * Band texture `ringBandTexture(SkyIron)`: dark grey iron, the etched crystal lattice, a cold sheen. Blender 5
-  ([modeling.md](../modeling.md)) or a texture script, as the other bands were made.
+  ([modeling.md](../../modeling.md)) or a texture script, as the other bands were made.
 * HUD ring dot setting (`player_hud.cpp`, gold setting today): fine as is, or a dark setting for sky iron.
 * Lore and field note for the first sky-iron ring ("iron of heaven, fallen from Nut's body").
 * Balance (user, 2026-11-09): one ring stays weaker than an amulet; two can beat one. Fix the glossary's ring row
   ("Weaker than an amulet" -> one ring is).
 * Sky-iron amethyst (user, 2026-11-09): a share of 100 % on the amethyst rule of
-  [resistance-tiers](resistance-tiers.feature.md): every rate one whole tier toward more damage
+  [resistance-tiers](../resistance-tiers.feature.md): every rate one whole tier toward more damage
   (immune -> tough -> resists -> normal -> weak -> vulnerable; vulnerable stays). The only amethyst that moves immune.
   Two sky irons: two tiers (the 200 % cap); a sky iron with a gold: 150 % (tough -> 75). Bosses get it too (it is the
   ring, not the monster). Poison resistance is not touched.

@@ -413,3 +413,13 @@ TEST_CASE("the first ring of each gem writes its field note") {
 	REQUIRE(journal.Notes().size() == 1);
 	CHECK(journal.Notes()[0] == ringNote(RingGem::Jasper));
 }
+
+TEST_CASE("the first sky-iron ring writes the note Sky iron, once (plan sky-iron-rings)") {
+	CHECK(std::string(fieldNoteText(FieldNote::SkyIron).title) == "Sky iron");
+	Journal journal;
+	ItemBag bag;
+	bag.Find(ItemKind::GarnetGold, journal);
+	bag.Find(ItemKind::GarnetSkyIron, journal);
+	bag.Find(ItemKind::LapisSkyIron, journal);
+	CHECK(journal.Notes() == std::vector{ringNote(RingGem::Garnet), FieldNote::SkyIron, ringNote(RingGem::Lapis)});
+}

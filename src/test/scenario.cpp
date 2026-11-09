@@ -482,6 +482,10 @@ bool runInstant(const Command& cmd) {
 		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
 		report(cmd, true, stateLine());
 		return true;
+	case CommandType::Tire: // straight off the stamina, to test the stamina potions and the HUD
+		Game().player->stats.SetStamina(std::max(0, Game().player->stats.Stamina() - static_cast<int>(cmd.a)));
+		report(cmd, true, stateLine());
+		return true;
 	case CommandType::FireHit: // a fire attack's hit (plan fire-damage): through the armour, it sets the player burning
 		Game().player->TakeHit(static_cast<int>(cmd.a), FIRE_HIT, Game().events);
 		report(cmd, true, stateLine());

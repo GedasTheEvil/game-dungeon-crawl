@@ -209,15 +209,17 @@ TEST_CASE("a save from before the antidote loads with none") {
 	CHECK(bag.Equipped() == ItemKind::Club);
 }
 
-TEST_CASE("the quick heal takes the weakest potion that gets the player out of danger") {
-	// 100 max: danger under 35. Small heals 25.
-	CHECK(*quickPotion(QuickKind::Health, 50, 100, 1, 1) == ItemKind::SmallHealth);
-	CHECK(*quickPotion(QuickKind::Health, 5, 100, 1, 1) == ItemKind::LargeHealth); // 5 + 25 = 30 < 35
+TEST_CASE("the quick potion takes the large one at 60% health, 20% stamina (plan quick-potion-thresholds)") {
+	CHECK(*quickPotion(QuickKind::Health, 61, 100, 1, 1) == ItemKind::SmallHealth);
+	CHECK(*quickPotion(QuickKind::Health, 60, 100, 1, 1) == ItemKind::LargeHealth);
+	CHECK(*quickPotion(QuickKind::Health, 5, 100, 1, 1) == ItemKind::LargeHealth);
 	CHECK(*quickPotion(QuickKind::Health, 5, 100, 1, 0) == ItemKind::SmallHealth);
 	CHECK(*quickPotion(QuickKind::Health, 50, 100, 0, 1) == ItemKind::LargeHealth);
 	CHECK_FALSE(quickPotion(QuickKind::Health, 50, 100, 0, 0).has_value());
 	CHECK_FALSE(quickPotion(QuickKind::Health, 100, 100, 1, 1).has_value());
-	CHECK(*quickPotion(QuickKind::Stamina, 10, 100, 1, 1) == ItemKind::SmallStamina);
+	CHECK(*quickPotion(QuickKind::Stamina, 21, 100, 1, 1) == ItemKind::SmallStamina);
+	CHECK(*quickPotion(QuickKind::Stamina, 20, 100, 1, 1) == ItemKind::LargeStamina);
+	CHECK(*quickPotion(QuickKind::Stamina, 20, 100, 1, 0) == ItemKind::SmallStamina);
 }
 
 TEST_CASE("the bag survives a save and a load") {

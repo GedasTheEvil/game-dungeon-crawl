@@ -5,13 +5,14 @@
 #include <cstdint>
 #include <optional>
 
-// Health under this percent of max after the small potion: the quick heal takes the large one, if there is one.
-constexpr int QUICK_HEAL_DANGER_PERCENT = 35;
+// Health at or under this percent of max: the quick heal takes the large potion, if there is one (else the small one).
+constexpr int QUICK_LARGE_HEALTH_PERCENT = 60;
+// Stamina at or under this percent of max: the quick stamina key takes the large potion, if there is one.
+constexpr int QUICK_LARGE_STAMINA_PERCENT = 20;
 constexpr int QUICK_DRINK_COOLDOWN_MS = 1000; // mashing the key does not drink the whole stack
 
-// The hotkeys H (health) and 0 (stamina) drink the weakest potion of their kind that gets the player out of danger:
-// the small one, unless it would leave them in danger and a large one is there. Out of danger means health at or above
-// QUICK_HEAL_DANGER_PERCENT of max, stamina enough for a jump (JUMP_STAMINA_COST).
+// The hotkeys H (health) and 0 (stamina) drink the small potion of their kind, unless the current value is at or under
+// QUICK_LARGE_HEALTH_PERCENT / QUICK_LARGE_STAMINA_PERCENT of max and a large one is there.
 enum class QuickKind : std::uint8_t { Health, Stamina };
 
 // The potion to drink, nullopt when nothing is missing (current >= max) or none of that kind is left.

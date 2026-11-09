@@ -1,6 +1,6 @@
 # Quick potion picks the large one at 60% health, 20% stamina
 
-Status: draft 2026-11-09, size S, needs nothing first.
+Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size S, needs nothing first.
 
 ## Idea
 
@@ -25,6 +25,8 @@ a jump's cost (`JUMP_STAMINA_COST`) after it. The user wants simpler, earlier th
 
 ## Play-test
 
-* `bin/game --play tests/play/quick-potion-thresholds.txt` (small and large healing and stamina potions given, health
-  and stamina lowered): the HUD's healing slot shows the large potion at 60% health and below, the small one above.
-* Stamina: the large potion at 20% and below, the small one above. H / 0 drink what the slot shows.
+* `bin/game --play tests/play/quick-potion-thresholds.txt` (3 each of the small and large healing and stamina potions;
+  health lowered by 40 and stamina by 80 of 100): the healing slot shows the large potion at 60% health and below, the
+  small one above (drink with H: the slot flips to the small one at 61%+).
+* Stamina: the slot shows the large potion at 20% and below, the small one above (stamina regenerates; 0 drinks what
+  the slot shows). Command `tire N` takes N stamina off.

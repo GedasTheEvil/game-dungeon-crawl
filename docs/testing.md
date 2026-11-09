@@ -152,6 +152,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory), or a special key by its name in [settings.md](settings.md) (`key left`, `key f12`, `key f1`). |
 | `hurt N` | The player loses N HP straight away (no armour, ignores `god`), to test healing and the HUD. |
+| `tire N` | The player loses N stamina straight away (down to 0), to test the stamina potions and the HUD. It regenerates as usual. |
 | `firehit N` | The player takes an N HP fire hit, as from a fire attack: armour does not stop it, the fire guard cuts it, and it sets them burning for a few seconds ([fire damage](plan/solved/fire-damage.md)). No damage in `god` mode, but the burning shows. |
 | `blind MS` | The player is blinded for MS milliseconds, as by a blinding spit ([plan](plan/solved/giant-cobra-blinding-spit.md)): the dark green edges, the blur; wading clears it twice as fast. Works in `god` mode too. |
 | `daze MS` | The player is dazed for MS milliseconds, as by a giant bat's screech ([plan](plan/solved/giant-bat-screech.md)): half the walk speed, no sprint, no jump, a ladder let go of; the view wobbles (with motion effects on). Works in `god` mode too. |

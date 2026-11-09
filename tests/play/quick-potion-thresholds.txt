@@ -1,0 +1,9 @@
+# Plan quick-potion-thresholds: small and large healing and stamina potions. The HUD's healing slot (H) shows the large
+# potion at 60% health and below, the small one above; the stamina slot (0) the same at 20% stamina.
+level tests/levels/classic1
+give potion 0 3
+give potion 1 3
+give potion 5 3
+give potion 6 3
+hurt 40
+tire 80

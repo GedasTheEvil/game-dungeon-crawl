@@ -419,6 +419,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Campaign:
 	case CommandType::Poison:
 	case CommandType::Hurt:
+	case CommandType::Tire:
 	case CommandType::FireHit:
 	case CommandType::Blind:
 	case CommandType::Daze:
@@ -496,6 +497,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"xp", CommandType::Xp, numberAtLeast<0>, "<non-negative number>"},
 		{"gear", CommandType::Gear, parseGear, "<armour> <might> <max HP %>: the potions' and amulets' gains"},
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},
+		{"tire", CommandType::Tire, numberAtLeast<0>, "<stamina>"},
 		{"firehit", CommandType::FireHit, numberAtLeast<1>, "<hp>"},
 		{"blind", CommandType::Blind, numberAtLeast<1>, "<ms>"},
 		{"daze", CommandType::Daze, numberAtLeast<1>, "<ms>"},

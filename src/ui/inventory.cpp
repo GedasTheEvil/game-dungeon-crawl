@@ -15,6 +15,7 @@
 #include <array>
 #include <cmath>
 #include <cstdio>
+#include <utility>
 #include <vector>
 
 // Layout works on a 160 x 100 canvas (y up) that keeps its aspect ratio and is centred on the window;
@@ -237,8 +238,10 @@ void Inventory::AskMerge(int slot) {
 
 void Inventory::Offer(ItemKind kind) {
 	const std::optional<God> god = Shrine();
+	const HeldItems before = Held();
 	if (!god || !bag.Offer(kind, Game().player->Alive(), AtShrine::Yes))
 		return;
+	KeepPlaces(before);
 	const int xp = offerXP(kind);
 	Game().player->stats.Offered(*god);
 	Game().assets.sounds.shrinePray[static_cast<int>(*god)].Play();
@@ -251,8 +254,10 @@ void Inventory::Offer(ItemKind kind) {
 void Inventory::Merge(ItemKind ring) {
 	const std::optional<God> god = Shrine();
 	const std::optional<ItemKind> next = nextMetal(ring);
+	const HeldItems before = Held();
 	if (!god || !next || !bag.Merge(ring, Game().player->Alive(), AtShrine::Yes))
 		return;
+	KeepPlaces(before);
 	const ItemKind merged = *next;
 	ApplyRings();
 	Game().player->stats.Offered(*god);
@@ -282,8 +287,10 @@ void Inventory::Upgrade(int slot) {
 		ShowToast("Only a god can work this magic: upgrade it at a shrine");
 		return;
 	}
+	const HeldItems before = Held();
 	if (!bag.Upgrade(kind, Game().player->Alive(), AtOne()))
 		return;
+	KeepPlaces(before);
 	// An amulet: one of the next tier now; worn, it keeps the HP share.
 	if (const std::optional<ItemKind> upgraded = ::isAmulet(kind) ? nextTier(kind) : std::nullopt) {
 		if (bag.Worn() == upgraded)
@@ -303,7 +310,9 @@ void Inventory::Use(int slot) {
 	if (!CanUse(slot, nullptr))
 		return;
 	if (::isPotion(kind)) {
+		const HeldItems before = Held();
 		ShowToast(DrinkPotion(kind));
+		KeepPlaces(before);
 		return;
 	}
 	if (::isRing(kind)) { // the quick way: off if worn, else on the free hand (or in place of the older one)
@@ -395,7 +404,7 @@ void Inventory::Select(int slot) {
 	tab = groupOf(slot);
 	tabSlot[static_cast<int>(tab)] = slot;
 	int& scroll = scrollRow[static_cast<int>(tab)]; // the selected slot in view
-	const int row = rowOf(bag, Sort(), slot);
+	const int row = rowOf(Order(), slot);
 	scroll = std::clamp(scroll, row - VISIBLE_ROWS + 1, row);
 }
 
@@ -406,7 +415,27 @@ void Inventory::SetSort(SortOrder order) {
 
 void Inventory::ToggleSort(SortOrder order) { SetSort(Sort() == order ? SortOrder::Found : order); }
 
-int Inventory::SelectedPosition() const { return positionOf(bag, Sort(), selectedSlot); }
+int Inventory::SelectedPosition() const { return positionOf(Order(), selectedSlot); }
+
+HeldItems Inventory::Held() const {
+	HeldItems held{};
+	for (int i = 0; i < ITEM_KIND_COUNT; i++)
+		held[static_cast<size_t>(i)] = bag.Count(itemAt(i)) > 0;
+	return held;
+}
+
+void Inventory::KeepPlaces(const HeldItems& before) {
+	const HeldItems now = Held();
+	for (size_t i = 0; i < now.size(); i++)
+		usedUpHere[i] = usedUpHere[i] || (before[i] && !now[i]);
+}
+
+GridOrder Inventory::Order(ItemGroup group) const {
+	HeldItems held = Held();
+	for (size_t i = 0; i < held.size(); i++)
+		held[i] = held[i] || usedUpHere[i];
+	return tabOrder(bag, group, sortOrder[static_cast<int>(group)], held);
+}
 
 bool Inventory::TwoButtons() const {
 	return isWeapon(selectedSlot) || isRing(selectedSlot) || (isAmulet(selectedSlot) && ReadyAtShrine(selectedSlot));
@@ -422,9 +451,7 @@ void Inventory::SwitchTab(ItemGroup group) {
 		return;
 	const int last = tabSlot[static_cast<int>(group)];
 	// A new game: the first found.
-	Select(
-		bag.Found(kindOf(last)) ? last : itemIndex(tabOrder(bag, group, sortOrder[static_cast<int>(group)]).front())
-	);
+	Select(bag.Found(kindOf(last)) ? last : itemIndex(Order(group).front()));
 }
 
 void Inventory::NextTab() {
@@ -440,9 +467,9 @@ void Inventory::NextTab() {
 // Arrow keys stay in the open tab: left / right walk its slots in the grid's order, up / down move a row (down onto a
 // shorter last row: its last slot).
 void Inventory::MoveSelection(int dx, int dy) {
-	const std::vector<ItemKind> order = tabOrder(bag, tab, Sort());
+	const GridOrder order = Order();
 	const int count = static_cast<int>(order.size());
-	const int position = positionOf(bag, Sort(), selectedSlot);
+	const int position = positionOf(order, selectedSlot);
 	int target = position + dx;
 	if (dy > 0)
 		target = position - COLUMNS;
@@ -457,7 +484,7 @@ void Inventory::ShowToast(const std::string& text) { toast.Show(text, GameClock:
 // ---- input -----------------------------------------------------------------
 
 void Inventory::UpdateHover(float x, float y) {
-	const Hit hit = hitAt(bag, tab, Sort(), Scroll(), TwoButtons(), ShrineButtons(), x, y);
+	const Hit hit = hitAt(Order(), Scroll(), TwoButtons(), ShrineButtons(), x, y);
 	pointer.Move(
 		hit.slot != NO_HIT				? Pick{Target::Slot, hit.slot}
 		: hit.tab != NO_HIT				? Pick{Target::Tab, hit.tab}
@@ -655,6 +682,8 @@ void Inventory::SpecialKeyPressed(int key) {
 // ---- drawing ---------------------------------------------------------------
 
 void Inventory::Draw() {
+	if (std::exchange(reopened, false))
+		Select(selectedSlot); // a used-up item may have moved (plan empty-slots-last)
 	int now = GameClock::now();
 	int elapsed = now - lastFrameMs;
 	lastFrameMs = now;
@@ -674,7 +703,7 @@ void Inventory::Draw() {
 	glDisable(GL_DEPTH_TEST);
 
 	// The slots of the rows in view, in the grid's order.
-	const std::vector<ItemKind> order = tabOrder(bag, tab, Sort());
+	const GridOrder order = Order();
 	constexpr size_t SHOWN = static_cast<size_t>(COLUMNS) * VISIBLE_ROWS;
 	std::vector<int> shown;
 	for (size_t p = static_cast<size_t>(Scroll()) * COLUMNS; p < order.size() && shown.size() < SHOWN; p++)
@@ -829,7 +858,7 @@ void Inventory::DrawHints() {
 }
 
 void Inventory::DrawSlot(int slot) {
-	Rect r = slotRect(bag, Sort(), slot, Scroll());
+	Rect r = slotRect(Order(), slot, Scroll());
 	bool hovered = SlotHovered(slot);
 	bool selected = slot == selectedSlot;
 	bool held = SlotHeld(slot);
@@ -902,7 +931,7 @@ void Inventory::DrawSlot(int slot) {
 void Inventory::DrawSlotModel(int slot) {
 	if (!bag.Found(kindOf(slot)))
 		return; // a question mark instead (DrawSlotLabels)
-	Rect r = slotRect(bag, Sort(), slot, Scroll());
+	Rect r = slotRect(Order(), slot, Scroll());
 	bool held = SlotHeld(slot);
 	Item* model = Model(kindOf(slot));
 
@@ -927,7 +956,7 @@ void Inventory::DrawSlotModel(int slot) {
 }
 
 void Inventory::DrawSlotLabels(int slot) {
-	Rect r = slotRect(bag, Sort(), slot, Scroll());
+	Rect r = slotRect(Order(), slot, Scroll());
 	if (SlotHeld(slot))
 		r.y -= TILE_SINK;
 	bool owned = bag.Count(kindOf(slot)) > 0;

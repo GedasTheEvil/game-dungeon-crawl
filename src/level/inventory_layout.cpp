@@ -3,22 +3,24 @@
 
 namespace InventoryLayout {
 
-int positionOf(const ItemBag& bag, SortOrder sort, int slot) { return tabPosition(bag, itemAt(slot), sort); }
+int positionOf(const GridOrder& order, int slot) {
+	return static_cast<int>(std::find(order.begin(), order.end(), itemAt(slot)) - order.begin());
+}
 
 int rowsOf(ItemGroup group) { return (groupItems(group).count + COLUMNS - 1) / COLUMNS; }
 
-int rowOf(const ItemBag& bag, SortOrder sort, int slot) { return positionOf(bag, sort, slot) / COLUMNS; }
+int rowOf(const GridOrder& order, int slot) { return positionOf(order, slot) / COLUMNS; }
 
-Rect slotRect(const ItemBag& bag, SortOrder sort, int slot, int scroll) {
-	const int position = positionOf(bag, sort, slot);
+Rect slotRect(const GridOrder& order, int slot, int scroll) {
+	const int position = positionOf(order, slot);
 	const float x0 = ITEMS_PANEL.cx() - GRID_W / 2;
 	const auto column = static_cast<float>(position % COLUMNS);
-	const auto row = static_cast<float>(rowOf(bag, sort, slot) - scroll);
+	const auto row = static_cast<float>(rowOf(order, slot) - scroll);
 	return {x0 + column * (SLOT_W + SLOT_GAP), TOP_ROW_Y - row * (SLOT_H + SLOT_GAP), SLOT_W, SLOT_H};
 }
 
-bool slotVisible(const ItemBag& bag, SortOrder sort, int slot, int scroll) {
-	const int row = rowOf(bag, sort, slot);
+bool slotVisible(const GridOrder& order, int slot, int scroll) {
+	const int row = rowOf(order, slot);
 	return row >= scroll && row < scroll + VISIBLE_ROWS;
 }
 
@@ -34,21 +36,11 @@ Rect sortRect(int order) {
 	return {x, TAB_Y, SORT_W[std::clamp(order, 0, SORT_ORDER_COUNT - 1)], TAB_H};
 }
 
-Hit hitAt(
-	const ItemBag& bag,
-	ItemGroup tab,
-	SortOrder sort,
-	int scroll,
-	bool twoButtons,
-	ShrineRow shrineRow,
-	float x,
-	float y
-) {
+Hit hitAt(const GridOrder& order, int scroll, bool twoButtons, ShrineRow shrineRow, float x, float y) {
 	Hit hit;
-	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
-		if (itemGroup(itemAt(slot)) == tab && slotVisible(bag, sort, slot, scroll) &&
-			slotRect(bag, sort, slot, scroll).contains(x, y))
-			hit.slot = slot;
+	for (ItemKind kind : order)
+		if (slotVisible(order, itemIndex(kind), scroll) && slotRect(order, itemIndex(kind), scroll).contains(x, y))
+			hit.slot = itemIndex(kind);
 	for (int group = 0; group < ITEM_GROUP_COUNT; group++)
 		if (tabRect(group).contains(x, y))
 			hit.tab = group;

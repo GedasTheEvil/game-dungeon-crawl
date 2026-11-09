@@ -114,14 +114,14 @@ TEST_CASE("every tab's visible slots fit the items panel, apart, under its tabs,
 					CAPTURE(g);
 					CAPTURE(s);
 					CAPTURE(scroll);
-					const auto sort = static_cast<SortOrder>(s);
+					const GridOrder order = tabOrder(bag, group, static_cast<SortOrder>(s));
 					std::vector<Rect> shown;
 					int visible = 0;
 					for (int slot = 0; slot < ITEM_KIND_COUNT; slot++) {
-						if (itemGroup(itemAt(slot)) != group || !slotVisible(bag, sort, slot, scroll))
+						if (itemGroup(itemAt(slot)) != group || !slotVisible(order, slot, scroll))
 							continue;
 						visible++;
-						const Rect r = slotRect(bag, sort, slot, scroll);
+						const Rect r = slotRect(order, slot, scroll);
 						CHECK(r.within(ITEMS_PANEL));
 						CHECK(r.y + r.h <= TAB_Y);
 						shown.push_back(r);
@@ -139,49 +139,42 @@ TEST_CASE("a click on the centre of a slot, a tab, a sort or a use button hits i
 		CAPTURE(win.w);
 		for (int g = 0; g < ITEM_GROUP_COUNT; g++) {
 			const auto group = static_cast<ItemGroup>(g);
+			const GridOrder byName = tabOrder(bag, group, SortOrder::Name);
 			for (int slot = 0; slot < ITEM_KIND_COUNT; slot++) {
-				if (itemGroup(itemAt(slot)) != group || !slotVisible(bag, SortOrder::Name, slot, 0))
+				if (itemGroup(itemAt(slot)) != group || !slotVisible(byName, slot, 0))
 					continue;
-				const Rect r = slotRect(bag, SortOrder::Name, slot, 0);
+				const Rect r = slotRect(byName, slot, 0);
 				float x = 0.f, y = 0.f;
 				click(win, r.cx(), r.cy(), x, y);
-				const Hit hit = hitAt(bag, group, SortOrder::Name, 0, true, ShrineRow::None, x, y);
+				const Hit hit = hitAt(byName, 0, true, ShrineRow::None, x, y);
 				CHECK(hit.slot == slot);
 				CHECK(hit.tab == NO_HIT);
 				CHECK(hit.button == Button::None);
 			}
 			float x = 0.f, y = 0.f;
 			click(win, tabRect(g).cx(), tabRect(g).cy(), x, y);
-			CHECK(hitAt(bag, group, SortOrder::Found, 0, true, ShrineRow::None, x, y).tab == g);
+			CHECK(hitAt(tabOrder(bag, group), 0, true, ShrineRow::None, x, y).tab == g);
 		}
 		for (int o = 1; o < SORT_ORDER_COUNT; o++) {
 			float x = 0.f, y = 0.f;
 			click(win, sortRect(o).cx(), sortRect(o).cy(), x, y);
-			CHECK(hitAt(bag, ItemGroup::Weapons, SortOrder::Found, 0, true, ShrineRow::None, x, y).sort == o);
+			CHECK(hitAt(tabOrder(bag, ItemGroup::Weapons), 0, true, ShrineRow::None, x, y).sort == o);
 		}
 		float x = 0.f, y = 0.f;
 		click(win, WIDE_BUTTON.cx(), WIDE_BUTTON.cy(), x, y);
-		CHECK(hitAt(bag, ItemGroup::Potions, SortOrder::Found, 0, false, ShrineRow::None, x, y).button == Button::Use);
+		CHECK(hitAt(tabOrder(bag, ItemGroup::Potions), 0, false, ShrineRow::None, x, y).button == Button::Use);
 		click(win, EQUIP_BUTTON.cx(), EQUIP_BUTTON.cy(), x, y);
-		CHECK(hitAt(bag, ItemGroup::Weapons, SortOrder::Found, 0, true, ShrineRow::None, x, y).button == Button::Use);
+		CHECK(hitAt(tabOrder(bag, ItemGroup::Weapons), 0, true, ShrineRow::None, x, y).button == Button::Use);
 		click(win, UPGRADE_BUTTON.cx(), UPGRADE_BUTTON.cy(), x, y);
-		CHECK(
-			hitAt(bag, ItemGroup::Weapons, SortOrder::Found, 0, true, ShrineRow::None, x, y).button == Button::Upgrade
-		);
+		CHECK(hitAt(tabOrder(bag, ItemGroup::Weapons), 0, true, ShrineRow::None, x, y).button == Button::Upgrade);
 		// At a shrine (plan shrine-offerings): Offer alone is wide, with Merge it shares the row; none away from it.
 		click(win, SHRINE_WIDE_BUTTON.cx(), SHRINE_WIDE_BUTTON.cy(), x, y);
-		CHECK(
-			hitAt(bag, ItemGroup::Weapons, SortOrder::Found, 0, true, ShrineRow::Offer, x, y).button == Button::Offer
-		);
-		CHECK(hitAt(bag, ItemGroup::Weapons, SortOrder::Found, 0, true, ShrineRow::None, x, y).button == Button::None);
+		CHECK(hitAt(tabOrder(bag, ItemGroup::Weapons), 0, true, ShrineRow::Offer, x, y).button == Button::Offer);
+		CHECK(hitAt(tabOrder(bag, ItemGroup::Weapons), 0, true, ShrineRow::None, x, y).button == Button::None);
 		click(win, OFFER_BUTTON.cx(), OFFER_BUTTON.cy(), x, y);
-		CHECK(
-			hitAt(bag, ItemGroup::Rings, SortOrder::Found, 0, true, ShrineRow::OfferMerge, x, y).button == Button::Offer
-		);
+		CHECK(hitAt(tabOrder(bag, ItemGroup::Rings), 0, true, ShrineRow::OfferMerge, x, y).button == Button::Offer);
 		click(win, MERGE_BUTTON.cx(), MERGE_BUTTON.cy(), x, y);
-		CHECK(
-			hitAt(bag, ItemGroup::Rings, SortOrder::Found, 0, true, ShrineRow::OfferMerge, x, y).button == Button::Merge
-		);
+		CHECK(hitAt(tabOrder(bag, ItemGroup::Rings), 0, true, ShrineRow::OfferMerge, x, y).button == Button::Merge);
 	}
 }
 

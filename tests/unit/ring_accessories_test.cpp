@@ -214,6 +214,7 @@ TEST_CASE("the feldspar runs the poison out sooner, its bite a second the same")
 }
 
 TEST_CASE("the lapis brings the stamina back faster") {
+	GameClock::enableVirtual(); // alone in its shard: advance moves nothing on the real clock
 	auto regained = [](std::optional<ItemKind> ring) {
 		PlayerStats stats;
 		stats.WearRings(ringBonus(worn(ring, std::nullopt)));

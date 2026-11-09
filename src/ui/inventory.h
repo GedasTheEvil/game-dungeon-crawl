@@ -39,6 +39,10 @@ class Inventory {
 	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
 	int scrollRow[ITEM_GROUP_COUNT] = {}; // rows each tab is scrolled down
 	SortOrder sortOrder[ITEM_GROUP_COUNT] = {}; // per tab: found first at the start; saved with the tab (UiViewState)
+	// The items the open screen used up (plan empty-slots-last: drunk, upgraded, offered, merged away): they keep
+	// their place among the held ones until it closes.
+	HeldItems usedUpHere{};
+	bool reopened = true; // closed since the last Draw: the selection is brought back into view
 	// A target and which one: the slot, the tab, or the SortOrder past Found of a sort button.
 	struct Pick {
 		Target target = Target::None;
@@ -95,6 +99,11 @@ class Inventory {
 	void SwitchTab(ItemGroup group); // to the slot it selected last
 	void NextTab(); // Tab: the next enabled tab, wrapping round
 	[[nodiscard]] SortOrder Sort() const { return sortOrder[static_cast<int>(tab)]; }
+	[[nodiscard]] HeldItems Held() const; // count > 0
+	void KeepPlaces(const HeldItems& before); // the ones held before and none left now go to usedUpHere
+	// The tab's grid order: tabOrder in its sort, the items in usedUpHere still held.
+	[[nodiscard]] InventoryLayout::GridOrder Order(ItemGroup group) const;
+	[[nodiscard]] InventoryLayout::GridOrder Order() const { return Order(tab); } // the open tab's
 	// A click on a sort button: that order for the open tab, or found first again if it was on.
 	void ToggleSort(SortOrder order);
 	// Two buttons under the details (use and upgrade): a weapon, or an amulet the spares can upgrade; a ring's left and
@@ -134,6 +143,11 @@ class Inventory {
 	void ViewFrom(const UiViewState& view);
 	void AddItem(ItemKind kind); // found: its journal notes (ItemBag::Find)
 	void Draw();
+	// Once a tick while the screen is not open: the items it used up sort as empty again.
+	void ForgetUsedUp() {
+		usedUpHere = {};
+		reopened = true;
+	}
 	void MouseFunction(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
 	void KeyPressed(unsigned char key);

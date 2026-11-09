@@ -7,6 +7,7 @@
 #include "items.h"
 #include "quick_potion.h"
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <iosfwd>
 #include <optional>
@@ -164,8 +165,14 @@ enum class SortOrder : std::uint8_t { Found, Name, Strength, Recent };
 constexpr int SORT_ORDER_COUNT = 4;
 
 // A tab's items in the order the inventory shows them (plan inventory-sorting): the ones found first, in `sort` order,
-// then the ones not found yet in ItemKind order, so the found ones fill the first rows without gaps.
+// then the ones not found yet in ItemKind order, so the found ones fill the first rows without gaps. Potions, amulets
+// and rings: the found ones held first, then the empty ones (plan empty-slots-last), each in `sort` order.
 [[nodiscard]] std::vector<ItemKind> tabOrder(const ItemBag& bag, ItemGroup group, SortOrder sort = SortOrder::Found);
+// The same, with `held` saying which of them count as held (count > 0 in the plain one): the open inventory counts an
+// item used up since it opened as still held, so it keeps its place.
+using HeldItems = std::array<bool, ITEM_KIND_COUNT>;
+[[nodiscard]] std::vector<ItemKind>
+tabOrder(const ItemBag& bag, ItemGroup group, SortOrder sort, const HeldItems& held);
 // kind's place in its tab's tabOrder.
 [[nodiscard]] int tabPosition(const ItemBag& bag, ItemKind kind, SortOrder sort = SortOrder::Found);
 

@@ -1,0 +1,34 @@
+# Used-up potions sort after the held ones, before the ones not found (plan empty-slots-last). Used up in the open
+# inventory, the slot keeps its place until the next opening.
+seed 1
+god
+level tests/levels/classic1
+wait 30
+give potion 2
+give potion 7
+give potion 1
+key i
+wait 5
+# found first: large health, might, antidote
+select might
+expect tab == 1
+expect selected == 1
+key enter
+wait 5
+expect potion2 == 0
+expect selected == 1
+screenshot used_up_open
+
+# closed and opened again: might after the held ones, the ones not found after it
+key i
+wait 5
+key i
+wait 5
+expect selected == 2
+screenshot reopened
+select large_health
+expect selected == 0
+sort name
+select might
+expect selected == 2
+quit

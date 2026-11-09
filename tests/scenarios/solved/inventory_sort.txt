@@ -14,22 +14,22 @@ wait 5
 select short_sword
 expect selected == 2
 
-# by name: club, dagger, self-bow, short sword
+# by name: Acacia Club, Bronze Sword, Flint Knife, Nubian Bow
 mouse 48.3 80.6
 wait 5
 screenshot hover_name
 click 48.3 80.6
 wait 5
 screenshot by_name
-expect selected == 3
+expect selected == 1
 
-# by strength: short sword 35, self-bow 12, club 10, dagger 8
+# by strength: short sword, club, dagger, self-bow
 click 51.8 80.6
 wait 5
 screenshot by_strength
 expect selected == 0
 select club
-expect selected == 2
+expect selected == 1
 
 # recent: the last found first (short sword, dagger, self-bow, club); a fresh club comes up
 click 55.3 80.6
@@ -57,5 +57,5 @@ expect selected == 1
 sort strength
 expect selected == 0
 select short_sword
-expect selected == 3
+expect selected == 1
 quit

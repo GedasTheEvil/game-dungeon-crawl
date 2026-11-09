@@ -153,6 +153,8 @@ void Update() {
 	followCursor();
 	tick();
 	if (Game().cacheLoaded) {
+		if (Game().ui.screen != Screen::Inventory)
+			Game().ui.inventory->ForgetUsedUp();
 		Game().ui.winEntry.Follow();
 		Game().ui.death.Follow();
 	}

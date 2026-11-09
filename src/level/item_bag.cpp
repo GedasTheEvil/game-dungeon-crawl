@@ -198,15 +198,32 @@ bool sortsBefore(const ItemBag& bag, SortOrder sort, ItemKind a, ItemKind b) {
 } // namespace
 
 std::vector<ItemKind> tabOrder(const ItemBag& bag, ItemGroup group, SortOrder sort) {
+	HeldItems held{};
+	for (int i = 0; i < ITEM_KIND_COUNT; i++)
+		held[static_cast<size_t>(i)] = bag.Count(itemAt(i)) > 0;
+	return tabOrder(bag, group, sort, held);
+}
+
+std::vector<ItemKind> tabOrder(const ItemBag& bag, ItemGroup group, SortOrder sort, const HeldItems& held) {
+	// Its tier: 0 held, 1 empty (found, none left; plan empty-slots-last), 2 not found. Weapons: held or empty is 0.
+	const bool emptyLast = group != ItemGroup::Weapons;
+	const auto tier = [&](ItemKind kind) {
+		if (!bag.Found(kind))
+			return 2;
+		return emptyLast && !held[static_cast<size_t>(itemIndex(kind))] ? 1 : 0;
+	};
 	const ItemRange range = groupItems(group);
 	std::vector<ItemKind> order;
 	order.reserve(static_cast<size_t>(range.count));
-	for (bool found : {true, false})
-		for (int i = range.first; i < range.first + range.count; i++)
-			if (bag.Found(itemAt(i)) == found)
-				order.push_back(itemAt(i));
-	const auto foundEnd = std::find_if(order.begin(), order.end(), [&](ItemKind k) { return !bag.Found(k); });
-	std::stable_sort(order.begin(), foundEnd, [&](ItemKind a, ItemKind b) { return sortsBefore(bag, sort, a, b); });
+	for (int i = range.first; i < range.first + range.count; i++)
+		order.push_back(itemAt(i));
+	std::stable_sort(order.begin(), order.end(), [&](ItemKind a, ItemKind b) {
+		const int ta = tier(a);
+		const int tb = tier(b);
+		if (ta != tb)
+			return ta < tb;
+		return ta < 2 && sortsBefore(bag, sort, a, b); // not found: ItemKind order
+	});
 	return order;
 }
 

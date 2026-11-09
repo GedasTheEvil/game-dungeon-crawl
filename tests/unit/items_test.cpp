@@ -482,13 +482,18 @@ TEST_CASE("a tab shows the found items first, each part in ItemKind order") {
 	CHECK(tabOrder(bag, ItemGroup::Amulets).size() == static_cast<size_t>(AMULET_KIND_COUNT));
 }
 
-TEST_CASE("an item used up stays in the found part") {
+TEST_CASE("a potion used up goes after the held ones, before the ones not found (plan empty-slots-last)") {
 	ItemBag bag;
 	bag.Add(ItemKind::Might);
+	bag.Add(ItemKind::Antidote);
 	const BagUser player{true, 50, 50, 100, 100, false};
+	REQUIRE(tabPosition(bag, ItemKind::Might) == 0);
 	REQUIRE(bag.Use(ItemKind::Might, player));
 	CHECK(bag.Count(ItemKind::Might) == 0);
-	CHECK(tabPosition(bag, ItemKind::Might) == 0);
+	CHECK(tabPosition(bag, ItemKind::Antidote) == 0);
+	for (int s = 0; s < SORT_ORDER_COUNT; s++) // in every sort order
+		CHECK(tabPosition(bag, ItemKind::Might, static_cast<SortOrder>(s)) == 1);
+	CHECK(tabPosition(bag, ItemKind::SmallHealth) == 2);
 }
 
 TEST_CASE("sort by name: A to Z among the found, the rest after in ItemKind order") {

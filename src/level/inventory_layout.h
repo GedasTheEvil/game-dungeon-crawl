@@ -7,6 +7,7 @@
 #include "ui_layout.h"
 #include "item_bag.h"
 #include "items.h"
+#include <vector>
 
 namespace InventoryLayout {
 using ui::Rect;
@@ -41,13 +42,15 @@ constexpr float SORT_W[SORT_ORDER_COUNT] = {0.f, 6.f, 4.5f, 6.f};
 constexpr float SORT_GAP = 1.f;
 constexpr float SORTS_W = SORT_W[1] + SORT_W[2] + SORT_W[3] + 2 * SORT_GAP;
 
-// In its tab's grid: the found items first, in `sort` order (tabOrder).
-[[nodiscard]] int positionOf(const ItemBag& bag, SortOrder sort, int slot);
+// A tab's grid order: its items as the grid shows them (tabOrder, kept while the inventory is open).
+using GridOrder = std::vector<ItemKind>;
+// The slot's place in its tab's grid `order`.
+[[nodiscard]] int positionOf(const GridOrder& order, int slot);
 [[nodiscard]] int rowsOf(ItemGroup group);
-[[nodiscard]] int rowOf(const ItemBag& bag, SortOrder sort, int slot);
+[[nodiscard]] int rowOf(const GridOrder& order, int slot);
 // Its tab scrolled down by `scroll` rows.
-[[nodiscard]] Rect slotRect(const ItemBag& bag, SortOrder sort, int slot, int scroll);
-[[nodiscard]] bool slotVisible(const ItemBag& bag, SortOrder sort, int slot, int scroll);
+[[nodiscard]] Rect slotRect(const GridOrder& order, int slot, int scroll);
+[[nodiscard]] bool slotVisible(const GridOrder& order, int slot, int scroll);
 // The tabs leave the right end of the row to the sort buttons.
 [[nodiscard]] Rect tabRect(int group);
 [[nodiscard]] Rect sortRect(int order);
@@ -60,21 +63,12 @@ enum class ShrineRow : std::uint8_t { None, Offer, OfferMerge };
 constexpr int NO_HIT = -1;
 enum class Button : signed char { None, Use, Upgrade, Offer, Merge };
 struct Hit {
-	int slot = NO_HIT; // a visible slot of the open tab
+	int slot = NO_HIT; // a visible slot of the open tab (its grid `order`)
 	int tab = NO_HIT;
 	int sort = NO_HIT; // a SortOrder past Found
 	Button button = Button::None;
 };
-[[nodiscard]] Hit hitAt(
-	const ItemBag& bag,
-	ItemGroup tab,
-	SortOrder sort,
-	int scroll,
-	bool twoButtons,
-	ShrineRow shrineRow,
-	float x,
-	float y
-);
+[[nodiscard]] Hit hitAt(const GridOrder& order, int scroll, bool twoButtons, ShrineRow shrineRow, float x, float y);
 } // namespace InventoryLayout
 
 #endif

@@ -149,7 +149,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `cutscenes on\|off` | Options > Display > Cut-scenes: a lever or a boss's death that opens a gate off the screen shows it ([cinematic effects](plan/solved/cinematic-effects.md)). Off in scenarios, so their timings stay; any `key` skips a cut-scene playing. |
 | `hitboxes on\|off` | Debug outlines (F3 with `--debug`): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |
 | `hints on\|off` | The first hints ([controls-help](plan/solved/controls-help.feature.md)) in this run, though it is no campaign run; also their switch. Off by default in scenarios (no campaign run). |
-| `gifts on\|off` | Every shrine offering brings a gift ([offering-gift](plan/offering-gift.feature.md)); the god's weights still pick which. Off by default. |
+| `gifts on\|off` | Every shrine offering brings a gift ([offering-gift](plan/solved/offering-gift.feature.md)); the god's weights still pick which. Off by default. |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory), or a special key by its name in [settings.md](settings.md) (`key left`, `key f12`, `key f1`). |
 | `hurt N` | The player loses N HP straight away (no armour, ignores `god`), to test healing and the HUD. |

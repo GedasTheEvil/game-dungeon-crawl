@@ -1,8 +1,0 @@
-# Plan offering-gift: a shrine of Amun at col 5 (mostly items), `gifts on` so every offering brings a gift (the
-# game itself: 1 in 10). In the bag: 10 small health potions. Walk right to the shrine, I, select the potion, then O
-# and Enter a few times: each toast names the gift (Might, Armor, max health, max stamina or an item).
-level tests/levels/resistance_tiers
-god
-gifts on
-prop 5 shrine_amun
-give potion 0 10

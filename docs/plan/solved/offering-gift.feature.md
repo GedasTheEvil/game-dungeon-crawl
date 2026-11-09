@@ -1,12 +1,12 @@
 # Offering gift: a shrine god sometimes answers an offering with a gift
 
-Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size M, needs nothing first.
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size M, needs nothing first.
 
 ## Idea
 
-From the user. An offering at a shrine ([shrine-offerings](solved/shrine-offerings.feature.md),
-[offering-xp-scaling](solved/offering-xp-scaling.feature.md)) gives XP. Now, about 1 offering in 10, the god also
-gives a random gift on top of the XP. Like the [inscription boons](solved/inscription-boons.md), it is a lottery:
+From the user. An offering at a shrine ([shrine-offerings](shrine-offerings.feature.md),
+[offering-xp-scaling](offering-xp-scaling.feature.md)) gives XP. Now, about 1 offering in 10, the god also
+gives a random gift on top of the XP. Like the [inscription boons](inscription-boons.md), it is a lottery:
 nothing hints at it beforehand.
 
 Gifts (the user; full heal dropped 2026-11-09):

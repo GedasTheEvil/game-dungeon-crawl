@@ -107,7 +107,7 @@ bin/game --no-sound --level 7            # the same, silent (any flag combines w
 number; after a map file or a generated level, whatever the dungeon's level number gives).
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
-`seed`, `god`, `peace`, `level`, `give`, `equip`, `wear`, `xp`, `gear`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `firehit`, `blind`, `daze`, `prop`,
+`seed`, `god`, `peace`, `level`, `give`, `equip`, `wear`, `xp`, `gear`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `tire`, `firehit`, `blind`, `daze`, `prop`,
 `torch`, `mirror`, `container`, `riddles`, `inscriptions`, `names`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `hints`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.

@@ -516,6 +516,14 @@ text: Serket with her scorpion on her head, its tail curled over her brow. Her p
 	Her children bite me as before, they just don't matter.
 	Her table takes my spares, and she works amulets and rings as the other gods do.
 
+# Plan sky-iron-rings: written with the first sky-iron ring, from two gold rings at a shrine.
+[note.sky-iron]
+title: Sky iron
+text: Two gold rings went onto the table, one came back, and it is not gold. Dark grey, cold, a fine lattice of
+	lines etched across it like frost. Bia-n-pet, the old texts call it, the iron of heaven: it falls from Nut's
+	body as shooting stars, rarer than any gold, and the gods' own bones are said to be of it. The boy king took a
+	dagger of it into his tomb. The gem in it does more than gold ever let it.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).
@@ -548,38 +556,39 @@ p3: Life without end, the signs said. I do not know yet what that means. Someone
 	there. Now someone does.
 
 # The ring notes (plan ring-accessories): one per RingGem in order, [note.ring-<gem>], the numbers of the copper,
-# silver and gold rings.
+# silver, gold and sky-iron rings.
 [note.ring-garnet]
 title: Garnet ring
 text: A ring, a garnet in it. Rings are worn one on each hand, two at once, and both count, even two of the same.
 	This one heals me slowly, also with something at my throat: 1 health every 8, 5 or 3 seconds, copper, silver,
-	gold. Not while poison runs.
+	gold; sky iron, a hundredth of all my health every 2 seconds. Not while poison runs.
 
 [note.ring-lapis]
 title: Lapis lazuli ring
 text: Lapis lazuli, night blue with flecks of gold, brought from far over the mountains. My breath comes back
-	faster with it: stamina returns 15, 25 or 40 percent faster, copper to gold. Rings go one on each hand, two at
+	faster with it: stamina returns 15, 25, 40 or 60 percent faster, copper to sky iron. Rings go one on each hand, two at
 	once.
 
 [note.ring-feldspar]
 title: Green feldspar ring
 text: Green feldspar, the colour of fresh papyrus. It does not keep the venom out, but it washes it out of me
-	sooner: poison wears off 20, 35 or 50 percent faster, copper to gold. It bites as hard while it lasts. Rings go
+	sooner: poison wears off 20, 35, 50 or 70 percent faster, copper to sky iron. It bites as hard while it lasts. Rings go
 	one on each hand, two at once.
 
 [note.ring-jasper]
 title: Yellow jasper ring
-text: A yellow jasper, a sliver of the sun. I walk and sprint 5, 8 or 12 percent faster with it, copper to gold. A
-	jump carries me no farther: the gaps stay as wide as they are. Rings go one on each hand, two at once.
+text: A yellow jasper, a sliver of the sun. I walk and sprint 5, 8, 12 or 17 percent faster with it, copper to sky
+	iron. A jump carries me no farther: the gaps stay as wide as they are. Rings go one on each hand, two at once.
 
 [note.ring-crystal]
 title: Rock crystal ring
-text: Rock crystal, clear as air. My weapon reaches a little farther with it, 10, 15 or 25 percent, copper to gold;
-	a bow aims farther too. A knife does not become a spear. Rings go one on each hand, two at once.
+text: Rock crystal, clear as air. My weapon reaches a little farther with it, 10, 15, 25 or 35 percent, copper to
+	sky iron; a bow aims farther too. A knife does not become a spear. Rings go one on each hand, two at once.
 
 [note.ring-amethyst]
 title: Amethyst ring
 text: An amethyst, the rarest of them. My blows go through what a hide or a shell holds back: a creature takes my
-	hits as if a tenth, a fifth or half a step worse off, copper, silver, gold; two gold rings, a whole step: tough
-	becomes resists, normal becomes weak. What it is vulnerable to stays so, and nothing moves what it is immune to.
+	hits as if a tenth, a fifth or half a step worse off, copper, silver, gold; two gold rings or one of sky iron, a
+	whole step: tough becomes resists, normal becomes weak. What it is vulnerable to stays so. Only sky iron moves
+	what it is immune to.
 	Rings go one on each hand, two at once.

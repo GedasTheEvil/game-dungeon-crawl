@@ -76,6 +76,7 @@ PlayerHud::View playerHudView() {
 		if (std::optional<ItemKind> ring = Game().ui.inventory->Bag().RingOn(static_cast<Hand>(hand))) {
 			const Rgb c = ringGemColour(ringOf(*ring).gem);
 			view.ringWorn[hand] = true;
+			view.ringSkyIron[hand] = ringOf(*ring).metal == RingMetal::SkyIron;
 			view.ringGem[hand] = {c.r, c.g, c.b};
 		}
 	view.statuses = statusList(stats, Game().dungeon.PlayerTerrainMood()); // a web: hostile (plan same-hazards-for-all)

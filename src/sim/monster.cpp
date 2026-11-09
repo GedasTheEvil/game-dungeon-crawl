@@ -246,8 +246,8 @@ bool Monster::takeHit(int dmg) {
 	return true;
 }
 
-bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix, int amethystPercent) {
-	const Resistances resist = amethystResist(type->resist, amethystPercent);
+bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix, int amethystPercent, bool amethystMovesImmune) {
+	const Resistances resist = amethystResist(type->resist, amethystPercent, amethystMovesImmune);
 	const Harm harm{
 		.damage = dmg,
 		.mix = mix,

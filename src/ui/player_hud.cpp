@@ -218,13 +218,14 @@ void drawStamina(const PlayerHud::View& v) {
 	bolt(ICON_X, bar.cy(), AMBER_TOP);
 }
 
-// A worn ring's gem: a lozenge in its colour on a gold setting.
+// A worn ring's gem: a lozenge in its colour on a gold setting, a dark iron one for sky iron.
 void drawRings(const PlayerHud::View& v) {
+	constexpr Color SKY_IRON_SETTING = {0.30f, 0.32f, 0.36f};
 	for (int hand = 0; hand < HAND_COUNT; hand++) {
 		if (!v.ringWorn[hand])
 			continue;
 		const float x = RING_X + RING_STEP * static_cast<float>(hand);
-		diamond(x, RING_Y, RING_SIZE + 0.45f, GOLD_DIM, 1.f);
+		diamond(x, RING_Y, RING_SIZE + 0.45f, v.ringSkyIron[hand] ? SKY_IRON_SETTING : GOLD_DIM, 1.f);
 		diamond(x, RING_Y, RING_SIZE, v.ringGem[hand], 1.f);
 		diamond(x - 0.3f, RING_Y + 0.3f, RING_SIZE * 0.3f, {1.f, 1.f, 1.f}, 0.8f); // the glint
 	}

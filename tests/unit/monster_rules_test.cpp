@@ -424,8 +424,9 @@ TEST_CASE("the Anubis boss is immune to fire, its guard only tough; no other kin
 	CHECK(fireDamage(100, {0, 0, 0, 100}, boss.resist) == doctest::Approx(0.0)); // no burning
 	// A flaming arrow: the pierce share still hits, the fire share does nothing.
 	CHECK(resistedDamage(100, {0, 0, 40, 60}, boss.resist) == 40);
-	// The amethyst does not move an immune rate.
+	// The amethyst does not move an immune rate; a sky-iron one does (plan sky-iron-rings): the boss's fire to tough.
 	CHECK(amethystResist(boss.resist, 100)[FIRE] == IMMUNE);
+	CHECK(amethystResist(boss.resist, 100, true)[FIRE] == TOUGH);
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		for (float rate : monsterKind(type)->resist)
 			CHECK_MESSAGE((rate > IMMUNE || type == MonsterAnubisBoss), monsterKind(type)->name, " is immune");

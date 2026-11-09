@@ -103,27 +103,34 @@ enum class ItemKind : std::uint8_t {
 	QuickShotsMinor,
 	QuickShotsNormal,
 	QuickShotsGrand,
-	// The rings (plan ring-accessories), one inventory row per gem: copper, silver, gold.
+	// The rings (plan ring-accessories), one inventory row per gem: copper, silver, gold, sky iron (plan
+	// sky-iron-rings).
 	GarnetCopper, // the first ring
 	GarnetSilver,
 	GarnetGold,
+	GarnetSkyIron,
 	LapisCopper,
 	LapisSilver,
 	LapisGold,
+	LapisSkyIron,
 	FeldsparCopper,
 	FeldsparSilver,
 	FeldsparGold,
+	FeldsparSkyIron,
 	JasperCopper,
 	JasperSilver,
 	JasperGold,
+	JasperSkyIron,
 	CrystalCopper,
 	CrystalSilver,
 	CrystalGold,
+	CrystalSkyIron,
 	AmethystCopper,
 	AmethystSilver,
 	AmethystGold,
+	AmethystSkyIron,
 };
-constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::AmethystGold) + 1;
+constexpr int ITEM_KIND_COUNT = static_cast<int>(ItemKind::AmethystSkyIron) + 1;
 constexpr int WEAPON_KIND_COUNT = static_cast<int>(ItemKind::SmallHealth); // the first potion
 constexpr int FIRST_AMULET = static_cast<int>(ItemKind::StrengthLesser);
 constexpr int FIRST_RING = static_cast<int>(ItemKind::GarnetCopper);
@@ -178,7 +185,9 @@ constexpr int MELEE_WEAPON = 1;
 constexpr int RANGED_WEAPON = 2;
 constexpr int POTION = 3;
 constexpr int AMULET = 4; // id: the amulet's place among the amulets (0 = lesser strength)
-constexpr int RING = 5; // id: the ring's place among the rings (0 = copper garnet)
+constexpr int RING = 5; // id: the ring's place among the copper to gold rings (0 = copper garnet), then the sky-iron
+// ones by gem (SKY_IRON_RING_FILE_ID + gem), so the ids of before sky iron keep reading
+constexpr int SKY_IRON_RING_FILE_ID = 18;
 } // namespace ItemType
 
 struct ItemFileId {
@@ -410,8 +419,9 @@ enum class RingGem : std::uint8_t {
 	Amethyst, // cuts through the monsters' resistances
 };
 constexpr int RING_GEM_COUNT = 6;
-enum class RingMetal : std::uint8_t { Copper, Silver, Gold };
-constexpr int RING_METAL_COUNT = 3;
+// Sky iron (plan sky-iron-rings): meteoric iron, the gods' metal, above gold; only from merging two gold rings.
+enum class RingMetal : std::uint8_t { Copper, Silver, Gold, SkyIron };
+constexpr int RING_METAL_COUNT = 4;
 
 struct Ring {
 	RingGem gem;
@@ -438,31 +448,37 @@ enum class Hand : std::uint8_t { Left, Right };
 constexpr int HAND_COUNT = 2;
 using WornRings = std::array<std::optional<ItemKind>, HAND_COUNT>;
 
-// One ring's numbers, by metal (copper, silver, gold). Both worn rings always count, two of the same too; the sums
-// stop at the caps below.
+// One ring's numbers, by metal (copper, silver, gold, sky iron). Both worn rings always count, two of the same too; the
+// sums stop at the caps below.
 namespace RingEffect {
-constexpr std::array<int, RING_METAL_COUNT> GARNET_MS_PER_HP = {8000, 5000, 3000};
-constexpr std::array<int, RING_METAL_COUNT> LAPIS_PERCENT = {15, 25, 40}; // faster stamina regeneration
-constexpr std::array<int, RING_METAL_COUNT> FELDSPAR_PERCENT = {20, 35, 50}; // poison's time runs this much faster
-constexpr std::array<int, RING_METAL_COUNT> JASPER_PERCENT = {5, 8, 12}; // walk, sprint and climb speed
-constexpr std::array<int, RING_METAL_COUNT> CRYSTAL_PERCENT = {10, 15, 25}; // weapon reach
+constexpr std::array<int, RING_METAL_COUNT> GARNET_MS_PER_HP = {8000, 5000, 3000, 0}; // sky iron: GARNET_SKY_IRON_MS
+constexpr std::array<int, RING_METAL_COUNT> LAPIS_PERCENT = {15, 25, 40, 60}; // faster stamina regeneration
+constexpr std::array<int, RING_METAL_COUNT> FELDSPAR_PERCENT = {20, 35, 50, 70}; // poison's time runs this much faster
+constexpr std::array<int, RING_METAL_COUNT> JASPER_PERCENT = {5, 8, 12, 17}; // walk, sprint and climb speed
+constexpr std::array<int, RING_METAL_COUNT> CRYSTAL_PERCENT = {10, 15, 25, 35}; // weapon reach
 // Of a resistance tier: a monster's rates move this share of a tier toward more damage (amethystResist, plan
 // resistance-tiers).
-constexpr std::array<int, RING_METAL_COUNT> AMETHYST_PERCENT = {10, 20, 50};
-constexpr int JASPER_CAP = 20;
-constexpr int CRYSTAL_CAP = 40;
+constexpr std::array<int, RING_METAL_COUNT> AMETHYST_PERCENT = {10, 20, 50, 100}; // sky iron also moves IMMUNE
+constexpr int JASPER_CAP = 25;
+constexpr int CRYSTAL_CAP = 50;
 constexpr int AMETHYST_CAP = 200; // two tiers
 constexpr int MS_PER_HOUR = 3600000;
+// The sky-iron garnet: max(1, 1% of max HP) every 2 s, in percent of max HP an hour (RingBonus::regenPercentPerHour).
+constexpr int GARNET_SKY_IRON_MS = 2000;
+constexpr int GARNET_SKY_IRON_PERCENT_PER_HOUR = MS_PER_HOUR / GARNET_SKY_IRON_MS;
 } // namespace RingEffect
 
 // What the worn rings give together, all zero without one.
 struct RingBonus {
-	int regenHpPerHour = 0; // the rubies: HP an hour, also with monsters about; not while poisoned
+	int regenHpPerHour = 0; // the garnets: HP an hour, also with monsters about; not while poisoned
+	// The sky-iron garnets: percent of max HP an hour, max HP counted as at least 100 (at least 1 HP a ring's step).
+	int regenPercentPerHour = 0;
 	int staminaRegenPercent = 0; // more stamina regeneration (PlayerStats::RegenerateStamina)
 	int poisonFasterPercent = 0; // the poison's time left runs down this much faster (Poison::Advance)
 	int speedPercent = 0; // faster walk, sprint and climb on the ground; not the jump
 	int reachPercent = 0; // more weapon reach, melee and ranged
 	int amethystPercent = 0; // a monster's rates move this share of a tier toward more damage (amethystResist)
+	bool amethystMovesImmune = false; // a sky-iron amethyst worn: an immune rate moves too
 };
 [[nodiscard]] RingBonus ringBonus(const WornRings& worn);
 // What the worn rings give together in the gem's effect, for the ring card: "heals 1 health every 1.5 s", "walk and

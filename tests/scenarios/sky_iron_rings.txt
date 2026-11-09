@@ -1,0 +1,37 @@
+# Plan sky-iron-rings: two gold garnets and two gold amethysts merge at a shrine of Isis into sky-iron ones (the field
+# note "Sky iron" written); worn, the HUD shows dark settings, the garnet heals 1 HP every 2 s (50 max HP), the card
+# and its lore show the metal.
+seed 1
+level tests/levels/interact
+peace
+hurt 30
+give ring 2 2
+give ring 17 2
+prop 4 shrine_isis
+walk to 4.5
+key i
+select gold_ring_of_regeneration
+key u
+key enter
+wait 10
+expect ring18 == 1
+expect ring2 == 0
+select gold_ring_of_sundering
+key u
+key enter
+wait 10
+expect ring23 == 1
+expect journal_notes >= 1
+wear sky-iron_ring_of_regeneration left
+wear sky-iron_ring_of_sundering right
+select sky-iron_ring_of_regeneration
+wait 10
+screenshot card
+key esc
+wait 10
+screenshot hud
+expect hp == 20
+wait 2100ms
+expect hp == 21
+wait 4000ms
+expect hp == 23

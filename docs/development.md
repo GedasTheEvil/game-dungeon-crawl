@@ -103,9 +103,11 @@ The facts live in one table each; the compiler and the unit tests point at the r
   its vessel. A weapon also needs its HUD icon (`tools/textures/hud_icons.py`, in `ItemKind` order).
 * **Amulet type:** a value in `AmuletType`, its four `ItemKind` values and a row in `AMULET_TYPES`
   (`src/level/items.cpp`: model, amounts, texts); its bonus in `amuletBonus`.
-* **Ring gem:** a value in `RingGem`, its three `ItemKind` values (copper, silver, gold) and a row in `RING_GEMS`
+* **Ring gem:** a value in `RingGem`, its four `ItemKind` values (copper, silver, gold, sky iron) and a row in `RING_GEMS`
   (`src/level/items.cpp`: names, slug, label, colour); its effect line in `ringEffect`, its bonus in `RingBonus` /
-  `ringBonus` (`level/items.*`); models `tools/blender/models/rings.py`.
+  `ringBonus` (`level/items.*`); models `tools/blender/models/rings.py`. A ring metal: `RingMetal`, the `RingEffect`
+  columns, `METAL_WORDS` / `METAL_TEXTURES`, its file ids (`fileIdOf`, `itemFromFile`: a new metal's ids go after the
+  last, as sky iron's `SKY_IRON_RING_FILE_ID`), `nextMetal`, `OFFER_XP_RING`, a band palette in `rings.py`.
 * **Lock colour:** a row in `LOCK_COLOURS` (`level.h`) and its textures.
 * Then the docs: the unit tests (`tests/unit/docs_test.cpp`) fail until `tools/editor/readme.md` and
   `docs/levels.md` list it.

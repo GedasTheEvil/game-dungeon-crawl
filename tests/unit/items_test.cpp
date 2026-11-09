@@ -687,7 +687,7 @@ TEST_CASE("shrine-offerings: an amulet upgrades only at a shrine, a weapon anywh
 	CHECK(bag.Upgrade(ItemKind::ShortSword, true, AtShrine::No));
 }
 
-TEST_CASE("shrine-offerings: two rings of a gem and metal merge into one of the next metal, gold is the top") {
+TEST_CASE("shrine-offerings: two rings of a gem and metal merge into one of the next metal, sky iron is the top") {
 	ItemBag bag;
 	bag.Add(ItemKind::GarnetCopper);
 	CHECK_FALSE(bag.CanMerge(ItemKind::GarnetCopper, true, AtShrine::Yes)); // needs two
@@ -700,8 +700,12 @@ TEST_CASE("shrine-offerings: two rings of a gem and metal merge into one of the 
 	CHECK(bag.Found(ItemKind::GarnetSilver));
 	bag.Add(ItemKind::GarnetGold);
 	bag.Add(ItemKind::GarnetGold);
-	CHECK_FALSE(nextMetal(ItemKind::GarnetGold));
-	CHECK_FALSE(bag.CanMerge(ItemKind::GarnetGold, true, AtShrine::Yes));
+	CHECK(nextMetal(ItemKind::GarnetGold) == ItemKind::GarnetSkyIron); // plan sky-iron-rings
+	CHECK(bag.Merge(ItemKind::GarnetGold, true, AtShrine::Yes));
+	CHECK(bag.Count(ItemKind::GarnetSkyIron) == 1);
+	bag.Add(ItemKind::GarnetSkyIron);
+	CHECK_FALSE(nextMetal(ItemKind::GarnetSkyIron));
+	CHECK_FALSE(bag.CanMerge(ItemKind::GarnetSkyIron, true, AtShrine::Yes));
 	CHECK_FALSE(bag.CanMerge(ItemKind::ArmorLesser, true, AtShrine::Yes)); // not a ring
 }
 
@@ -771,6 +775,7 @@ TEST_CASE("shrine-offerings: an offering gives XP by the item's rank") {
 	CHECK(offerXP(ItemKind::SmallHealth) == 0);
 	CHECK(offerXP(ItemKind::GarnetCopper) < offerXP(ItemKind::GarnetSilver));
 	CHECK(offerXP(ItemKind::GarnetSilver) < offerXP(ItemKind::GarnetGold));
+	CHECK(offerXP(ItemKind::GarnetGold) < offerXP(ItemKind::GarnetSkyIron));
 	CHECK(offerXP(ItemKind::ArmorLesser) < offerXP(ItemKind::ArmorGrand));
 	CHECK(offerXP(ItemKind::Club) > 0);
 }

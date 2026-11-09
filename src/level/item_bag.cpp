@@ -111,7 +111,7 @@ std::optional<ItemKind> nextTier(ItemKind amulet) {
 
 std::optional<ItemKind> nextMetal(ItemKind ring) {
 	const Ring r = ringOf(ring);
-	if (r.metal == RingMetal::Gold)
+	if (r.metal == RingMetal::SkyIron)
 		return std::nullopt;
 	return ringKind(r.gem, static_cast<RingMetal>(static_cast<int>(r.metal) + 1));
 }
@@ -121,7 +121,7 @@ namespace {
 // amulet: OFFER_XP_PER_POINT for each of its points (amuletWorth), lesser 100 to grand 800.
 constexpr int OFFER_XP_WEAPON = 200;
 constexpr int OFFER_XP_PER_POINT = 100;
-constexpr int OFFER_XP_RING[RING_METAL_COUNT] = {150, 300, 600}; // copper, silver, gold
+constexpr int OFFER_XP_RING[RING_METAL_COUNT] = {150, 300, 600, 1200}; // copper, silver, gold, sky iron
 } // namespace
 
 int offerXP(ItemKind kind) {
@@ -532,6 +532,8 @@ void ItemBag::Find(ItemKind kind, Journal& journal) {
 	}
 	if (isRing(kind)) {
 		journal.LearnNote(ringNote(ringOf(kind).gem));
+		if (ringOf(kind).metal == RingMetal::SkyIron)
+			journal.LearnNote(FieldNote::SkyIron);
 		return;
 	}
 	if (isPotion(kind)) {

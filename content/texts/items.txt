@@ -186,3 +186,8 @@ lore2: Your arm grows long.
 [item.ring-amethyst]
 lore1: Purple of the dusk.
 lore2: No hide is thick enough.
+
+# All six sky-iron rings (plan sky-iron-rings): the metal's lore, not the gem's.
+[item.ring-sky-iron]
+lore1: Iron of heaven,
+lore2: fallen from Nut's body.

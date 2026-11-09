@@ -1,7 +1,10 @@
 """Procedural rings (plan ring-accessories): the band with its raised setting (ring_band) and the cut gem that sits in
-it (ring_gem), two models so the engine can draw the gem see-through over the opaque band (Item::DrawPart). All 18
-rings share them: the band baked once per metal (ring_band_copper, ring_band_silver, ring_band_gold), the gem baked
-once in pale greys the engine tints per gem (ringGemColour in src/level/items.cpp).
+it (ring_gem), two models so the engine can draw the gem see-through over the opaque band (Item::DrawPart). All 24
+rings share them: the band baked once per metal (ring_band_copper, ring_band_silver, ring_band_gold,
+ring_band_sky_iron), the gem baked once in pale greys the engine tints per gem (ringGemColour in src/level/items.cpp).
+
+Sky iron (plan sky-iron-rings): meteoric iron, dark grey with a cold blue sheen and the etched Widmanstaetten lattice,
+three sets of thin crossing lines (etch_lattice), so it reads apart from silver and the gem stands out.
 
     MCP:  p = ".../tools/blender/models/rings.py"; g = {"__file__": p, "__name__": "rings"}
           exec(open(p).read(), g); g["build"](bake=False)      # then g["export"](objs)
@@ -47,6 +50,8 @@ METALS = [
     ("ring_band_copper", {"metal": metal((0.70, 0.34, 0.16)), "metal_dark": metal((0.38, 0.15, 0.06))}),
     ("ring_band_silver", {"metal": metal((0.80, 0.82, 0.86)), "metal_dark": metal((0.46, 0.48, 0.53))}),
     ("ring_band_gold", {"metal": metal((0.85, 0.60, 0.16)), "metal_dark": metal((0.48, 0.31, 0.08))}),
+    ("ring_band_sky_iron", {"metal": metal((0.075, 0.08, 0.095)), "metal_dark": metal((0.03, 0.032, 0.04)),
+                            "etch": (0.24, 0.26, 0.31)}),
 ]
 COL = {
     "metal": metal((0.85, 0.60, 0.16)),
@@ -68,6 +73,60 @@ def materials(palette=None):
         "gem_pavilion": stripes("u", 1 / 16, [(1, "gem_mid"), (1, "gem_dark")]),
     }
     return {name: common.make_material("ring_" + name, spec, pal) for name, spec in specs.items()}
+
+
+def etch_lattice(mat, line_rgb):
+    """Widmanstaetten etching over the material's base colour: three sets of thin parallel lines, 60 degrees apart,
+    in object space (seamless over the hoop), lighter where they lie."""
+    nt = mat.node_tree
+    bsdf = nt.nodes["Principled BSDF"]
+    base = bsdf.inputs["Base Color"]
+    if base.links:
+        under = base.links[0].from_socket
+    else:
+        rgb = nt.nodes.new("ShaderNodeRGB")
+        rgb.outputs[0].default_value = tuple(base.default_value)
+        under = rgb.outputs[0]
+    coord = nt.nodes.new("ShaderNodeTexCoord")
+    lines = None
+    for k, (rx, rz) in enumerate(((0, 0), (60, 30), (-60, 70))):
+        mapping = nt.nodes.new("ShaderNodeMapping")
+        mapping.inputs["Rotation"].default_value = (math.radians(rx), math.radians(25 * k), math.radians(rz))
+        wave = nt.nodes.new("ShaderNodeTexWave")
+        wave.wave_type = "BANDS"
+        wave.wave_profile = "SAW"
+        wave.inputs["Scale"].default_value = 28.0 + 6 * k
+        wave.inputs["Distortion"].default_value = 0.4
+        wave.inputs["Detail"].default_value = 1.0
+        thin = nt.nodes.new("ShaderNodeMapRange")  # the saw's top 7%: a thin line
+        thin.inputs["From Min"].default_value = 0.93
+        thin.inputs["From Max"].default_value = 0.98
+        nt.links.new(coord.outputs["Object"], mapping.inputs["Vector"])
+        nt.links.new(mapping.outputs["Vector"], wave.inputs["Vector"])
+        nt.links.new(wave.outputs["Fac"], thin.inputs["Value"])
+        if lines is None:
+            lines = thin.outputs["Result"]
+        else:
+            mx = nt.nodes.new("ShaderNodeMath")
+            mx.operation = "MAXIMUM"
+            nt.links.new(lines, mx.inputs[0])
+            nt.links.new(thin.outputs["Result"], mx.inputs[1])
+            lines = mx.outputs[0]
+    mix = nt.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    mix.inputs["B"].default_value = (*line_rgb, 1.0)
+    nt.links.new(lines, mix.inputs["Factor"])
+    nt.links.new(under, mix.inputs["A"])
+    nt.links.new(mix.outputs["Result"], base)
+
+
+def band_materials(palette):
+    """The band's materials in a metal's palette, the sky iron's etched."""
+    M = materials(palette)
+    if "etch" in palette:
+        for name in ("metal", "metal_plain"):
+            etch_lattice(M[name], palette["etch"])
+    return M
 
 
 def build_band(b, M):
@@ -132,7 +191,7 @@ def build(bake=True, tex_dir=None):
             if name == "ring_band":  # a texture per metal; it shows the first
                 texs = []
                 for stem, palette in METALS:
-                    materials(palette)
+                    band_materials(palette)
                     texs.append(common.bake_texture(obj, os.path.join(out, stem + ".png"), TEX_SIZE, "item_" + stem, ao_distance=0.012))
                 materials()
                 tex = texs[0]

@@ -1,6 +1,6 @@
 # Sky-iron rings, a tier above gold
 
-Status: draft 2026-11-09, size M, needs first: [resistance-tiers](resistance-tiers.feature.md).
+Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size M, needs first: [resistance-tiers](resistance-tiers.feature.md).
 
 ## Idea
 
@@ -51,6 +51,28 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
   ring, not the monster). Poison resistance is not touched.
 
 
+## Implementation notes
+
+* Source: merge only (two gold rings at a shrine). No chest roll: sky iron stays the reward of merging.
+* `ItemKind`: the sky-iron rings sit in each gem's row (`GarnetSkyIron` after `GarnetGold`). The ring file ids of
+  copper to gold are unchanged (0-17); sky iron is `ItemType::SKY_IRON_RING_FILE_ID` + gem (18-23), so levels, saves
+  and scripts keep reading.
+* Garnet: `RingBonus::regenPercentPerHour` (1800 a sky-iron ring), summed with the flat rate in
+  `PlayerStats::Regenerate`, max HP counted as at least 100 (the "at least 1"). Card "Heals 1% health (at least 1)
+  every 2 s"; sum "heals 2% health every 2 s", with a gold one "heals 1% health every 2 s, 1 every 3.0 s".
+* Amethyst: `RingBonus::amethystMovesImmune` (any sky-iron amethyst worn) lets `amethystResist` move an immune rate,
+  by the whole sum: sky iron + gold on immune 37.5, two sky irons resists. Without a sky iron (two gold) immune stays.
+* Lore: all six sky-iron rings share `[item.ring-sky-iron]` ("Iron of heaven, / fallen from Nut's body."). Field note
+  `FieldNote::SkyIron` ([note.sky-iron]) at the first sky-iron ring, from a merge or a find. The gem notes list the
+  sky-iron numbers.
+* Band texture `ring_band_sky_iron` (`tools/blender/models/rings.py`, `etch_lattice`): dark iron, three sets of
+  crossing etched lines in object space. HUD: a dark iron setting under the gem instead of gold.
+* Offer XP 1200. Glossary rows ring (one ring weaker than an amulet), sky iron, merge.
+
 ## Play-test
 
-* 
+* `bin/game --play tests/play/sky-iron-rings.txt`: a shrine of Isis at col 5, 20 / 50 HP.
+* At the shrine, I, Rings: U on the Gold Garnet, then the Gold Amethyst: "Sky-Iron Garnet Ring" and "Sky-Iron Amethyst
+  Ring", dark etched bands, short names "IV"; the journal gets the note "Sky iron".
+* Wear both: the HUD gem dots sit on dark settings; health climbs 1 every 2 s.
+* E at the brazier, fire arrows on the Anubis boss (col 26): fire hurts it now (immune moved to tough), it can burn.

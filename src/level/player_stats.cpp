@@ -288,10 +288,12 @@ int PlayerStats::TrapDamage(int dmg) { return vitals.TrapLoss(dmg * 100, TrapPer
 
 void PlayerStats::Regenerate(bool safe, int tickMs) {
 	const bool healing = !vitals.poison.Any() && Alive() && vitals.hp < CurrentMaxHP();
-	if (rings.regenHpPerHour <= 0 || !healing)
+	// The garnets, also in a fight: the flat HP an hour and the sky-iron ones' share of max HP (at least 1 HP a step).
+	const int ringHpPerHour = rings.regenHpPerHour + std::max(CurrentMaxHP(), 100) * rings.regenPercentPerHour / 100;
+	if (ringHpPerHour <= 0 || !healing)
 		ring_regen_carry = 0;
-	else { // the rubies, also in a fight
-		ring_regen_carry += tickMs * rings.regenHpPerHour;
+	else {
+		ring_regen_carry += tickMs * ringHpPerHour;
 		vitals.hp = std::min(CurrentMaxHP(), vitals.hp + ring_regen_carry / RingEffect::MS_PER_HOUR);
 		ring_regen_carry %= RingEffect::MS_PER_HOUR;
 	}

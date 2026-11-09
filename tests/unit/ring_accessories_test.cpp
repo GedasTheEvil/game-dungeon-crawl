@@ -45,7 +45,7 @@ float walked(std::optional<ItemKind> ring, int ms, bool jump) {
 }
 } // namespace
 
-TEST_CASE("rings: six gems, three metals, named by both") {
+TEST_CASE("rings: six gems, four metals, named by both") {
 	CHECK(isRing(ItemKind::GarnetCopper));
 	CHECK_FALSE(isAmulet(ItemKind::GarnetCopper));
 	CHECK_FALSE(isRing(ItemKind::PiercingGrand));
@@ -58,6 +58,18 @@ TEST_CASE("rings: six gems, three metals, named by both") {
 		CHECK(itemFromFile(id.type, id.id) == itemAt(i));
 	}
 	CHECK_FALSE(itemFromFile(ItemType::RING, RING_KIND_COUNT).has_value());
+	// The file ids of the rings from before sky iron keep reading (plan sky-iron-rings); sky iron comes after them.
+	CHECK(itemFromFile(ItemType::RING, 17) == ItemKind::AmethystGold);
+	CHECK(itemFromFile(ItemType::RING, 3) == ItemKind::LapisCopper);
+	CHECK(fileIdOf(ItemKind::GarnetSkyIron).id == ItemType::SKY_IRON_RING_FILE_ID);
+	CHECK(itemFromFile(ItemType::RING, ItemType::SKY_IRON_RING_FILE_ID + 5) == ItemKind::AmethystSkyIron);
+	CHECK(std::string(itemText(ItemKind::GarnetSkyIron).name) == "Sky-Iron Garnet Ring");
+	CHECK(std::string(itemText(ItemKind::GarnetSkyIron).shortName) == "Garnet IV");
+	CHECK(std::string(itemText(ItemKind::GarnetSkyIron).label) == "sky-iron ring of regeneration");
+	CHECK(std::string(itemText(ItemKind::GarnetSkyIron).effect) == "Heals 1% health (at least 1) every 2 s");
+	CHECK(std::string(itemText(ItemKind::LapisSkyIron).lore1) == "Iron of heaven,");
+	CHECK(std::string(itemText(ItemKind::JasperSkyIron).effect) == "Walk and sprint 17% faster");
+	CHECK(std::string(ringBandTexture(RingMetal::SkyIron)) == "ring_band_sky_iron");
 	CHECK(std::string(itemText(ItemKind::GarnetGold).name) == "Gold Garnet Ring");
 	CHECK(std::string(itemText(ItemKind::GarnetGold).shortName) == "Garnet III");
 	CHECK(std::string(itemText(ItemKind::GarnetGold).label) == "gold ring of regeneration");
@@ -79,8 +91,17 @@ TEST_CASE("the ring bonus: both hands count, the same gem stacks, two identical 
 	);
 	CHECK(ringBonus(worn(ItemKind::JasperCopper, ItemKind::JasperCopper)).speedPercent == 10);
 	CHECK(ringBonus(worn(ItemKind::JasperCopper, ItemKind::JasperSilver)).speedPercent == 13);
-	CHECK(ringBonus(worn(ItemKind::JasperGold, ItemKind::JasperGold)).speedPercent == RingEffect::JASPER_CAP);
-	CHECK(ringBonus(worn(ItemKind::CrystalGold, ItemKind::CrystalGold)).reachPercent == RingEffect::CRYSTAL_CAP);
+	CHECK(ringBonus(worn(ItemKind::JasperGold, ItemKind::JasperGold)).speedPercent == 24);
+	CHECK(ringBonus(worn(ItemKind::JasperSkyIron, ItemKind::JasperGold)).speedPercent == RingEffect::JASPER_CAP);
+	CHECK(ringBonus(worn(ItemKind::CrystalGold, ItemKind::CrystalGold)).reachPercent == 50);
+	CHECK(ringBonus(worn(ItemKind::CrystalSkyIron, ItemKind::CrystalSkyIron)).reachPercent == RingEffect::CRYSTAL_CAP);
+	CHECK(ringBonus(worn(ItemKind::LapisSkyIron, std::nullopt)).staminaRegenPercent == 60);
+	CHECK(ringBonus(worn(ItemKind::FeldsparSkyIron, std::nullopt)).poisonFasterPercent == 70);
+	// Sky iron (plan sky-iron-rings): a whole tier, and it moves immune; two: two tiers, the cap.
+	CHECK(ringBonus(worn(ItemKind::AmethystSkyIron, ItemKind::AmethystGold)).amethystPercent == 150);
+	CHECK(ringBonus(worn(ItemKind::AmethystSkyIron, ItemKind::AmethystSkyIron)).amethystPercent == 200);
+	CHECK(ringBonus(worn(ItemKind::AmethystSkyIron, std::nullopt)).amethystMovesImmune);
+	CHECK_FALSE(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystGold)).amethystMovesImmune);
 	CHECK(ringBonus(worn(ItemKind::AmethystSilver, ItemKind::AmethystSilver)).amethystPercent == 40);
 	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystCopper)).amethystPercent == 60);
 	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystSilver)).amethystPercent == 70);
@@ -96,6 +117,14 @@ TEST_CASE("the ring bonus: both hands count, the same gem stacks, two identical 
 	CHECK(
 		ringSumText(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)), RingGem::Garnet) ==
 		"heals 1 health every 1.5 s"
+	);
+	CHECK(
+		ringSumText(ringBonus(worn(ItemKind::GarnetSkyIron, ItemKind::GarnetSkyIron)), RingGem::Garnet) ==
+		"heals 2% health every 2 s"
+	);
+	CHECK(
+		ringSumText(ringBonus(worn(ItemKind::GarnetSkyIron, ItemKind::GarnetGold)), RingGem::Garnet) ==
+		"heals 1% health every 2 s, 1 every 3.0 s"
 	);
 	CHECK(ringSumText(mixed, RingGem::Jasper).empty());
 }
@@ -200,6 +229,21 @@ TEST_CASE("the garnet heals in a fight too, but not while poisoned") {
 	CHECK(stats.CurrentHP() == hp + 3); // two: 1 every 1.5 s
 }
 
+TEST_CASE("the sky-iron garnet heals 1% of max HP every 2 s, at least 1 (plan sky-iron-rings)") {
+	auto healed = [](int maxHpPercent, std::optional<ItemKind> second) {
+		PlayerStats stats; // 50 max HP
+		stats.AddMaxHP(maxHpPercent);
+		stats.LoseHP(stats.CurrentMaxHP() - 1);
+		stats.WearRings(ringBonus(worn(ItemKind::GarnetSkyIron, second)));
+		for (int ms = 0; ms < 20000; ms += UPDATE_TICK_MS)
+			stats.Regenerate(false, UPDATE_TICK_MS);
+		return stats.CurrentHP() - 1;
+	};
+	CHECK(healed(0, std::nullopt) == 10); // 50 max HP, under 100: 1 every 2 s
+	CHECK(healed(500, std::nullopt) == 30); // 300 max HP: 3 every 2 s
+	CHECK(healed(500, ItemKind::GarnetSkyIron) == 60); // two: twice
+}
+
 TEST_CASE("the feldspar runs the poison out sooner, its bite a second the same") {
 	Poison plain;
 	Poison washed;
@@ -279,6 +323,13 @@ TEST_CASE("the amethyst moves each rate a share of a tier up the ladder (plan re
 	CHECK(amethystResist({VULNERABLE, VULNERABLE, VULNERABLE, VULNERABLE}, 50)[0] == VULNERABLE);
 	// Immune stays immune: no copper, silver or gold ring moves it.
 	CHECK(amethystResist({IMMUNE, TOUGH, NORMAL, NORMAL}, 200)[0] == IMMUNE);
+	// Only a sky iron does (plan sky-iron-rings): one a tier, with a gold half a tier more, two of them two tiers.
+	CHECK(
+		amethystResist({IMMUNE, TOUGH, NORMAL, VULNERABLE}, 100, true) == Resistances{TOUGH, RESISTS, WEAK, VULNERABLE}
+	);
+	CHECK(amethystResist({IMMUNE, TOUGH, NORMAL, NORMAL}, 150, true)[0] == 37.5f);
+	CHECK(amethystResist({IMMUNE, TOUGH, NORMAL, NORMAL}, 150, true)[1] == 75.f);
+	CHECK(amethystResist({IMMUNE, TOUGH, NORMAL, NORMAL}, 200, true)[0] == RESISTS);
 
 	// A sword on a giant scarab (it resists a cut): more damage with the gold amethyst, as the player's hit.
 	auto dealt = [](std::optional<ItemKind> ring) {

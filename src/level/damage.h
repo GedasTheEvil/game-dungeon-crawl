@@ -70,10 +70,11 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL, NORMAL};
 
 // The amethyst rings (plan resistance-tiers): each rate moves `percent` of a tier up the ladder (RESIST_TIERS), the
 // step the gap to the next tier: rate + (next - rate) * share. Over 100% it goes on into the tier after; VULNERABLE is
-// the top. IMMUNE stays (only a whole-tier ring may move it: sky-iron-rings). Gold (50%) on TOUGH: 37.5.
-[[nodiscard]] constexpr Resistances amethystResist(Resistances resist, int percent) {
+// the top. IMMUNE stays, unless movesImmune: a sky-iron amethyst is worn (plan sky-iron-rings), then it climbs like the
+// others. Gold (50%) on TOUGH: 37.5.
+[[nodiscard]] constexpr Resistances amethystResist(Resistances resist, int percent, bool movesImmune = false) {
 	for (float& rate : resist) {
-		if (rate <= IMMUNE || percent <= 0)
+		if ((rate <= IMMUNE && !movesImmune) || percent <= 0)
 			continue;
 		float left = static_cast<float>(percent) / 100.f; // tiers still to climb
 		for (size_t i = 1; i < RESIST_TIERS.size() && left > 0.f; i++) {

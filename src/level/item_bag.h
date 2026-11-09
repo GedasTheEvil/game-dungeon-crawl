@@ -31,7 +31,7 @@ constexpr int MAX_WEAPON_LEVEL = 5;
 // of a gem and metal into one of the next metal) only at a god's shrine. Weapons are plain craft: anywhere. At a
 // shrine a spare (Spares) is offered for XP by its rank (offerXP).
 enum class AtShrine : bool { No, Yes };
-[[nodiscard]] std::optional<ItemKind> nextMetal(ItemKind ring); // nullopt: gold, the top
+[[nodiscard]] std::optional<ItemKind> nextMetal(ItemKind ring); // nullopt: sky iron, the top
 [[nodiscard]] int offerXP(ItemKind kind); // 0: no offering (a potion)
 
 // The player as the bag's rules see it (whether a potion or an item can be used now).
@@ -138,8 +138,8 @@ class ItemBag {
 	[[nodiscard]] int Spares(ItemKind kind) const;
 	[[nodiscard]] bool CanOffer(ItemKind kind, bool alive, AtShrine shrine) const;
 	bool Offer(ItemKind kind, bool alive, AtShrine shrine); // one spare gone; the caller gives offerXP
-	// Two rings of the gem and metal, below gold: one of the next metal (nextMetal) instead. A hand that wore one of
-	// the two wears the new ring (the caller applies ringBonus(Rings())); a second such hand comes free.
+	// Two rings of the gem and metal, below sky iron: one of the next metal (nextMetal) instead. A hand that wore one
+	// of the two wears the new ring (the caller applies ringBonus(Rings())); a second such hand comes free.
 	[[nodiscard]] bool CanMerge(ItemKind ring, bool alive, AtShrine shrine) const;
 	bool Merge(ItemKind ring, bool alive, AtShrine shrine);
 	// The points the spares of an amulet's type could pay to upgrade it: the ones of its tier or lower, but the

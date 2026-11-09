@@ -259,6 +259,8 @@ void Inventory::Merge(ItemKind ring) {
 		return;
 	KeepPlaces(before);
 	const ItemKind merged = *next;
+	if (ringOf(merged).metal == RingMetal::SkyIron)
+		Game().journal.LearnNote(FieldNote::SkyIron);
 	ApplyRings();
 	Game().player->stats.Offered(*god);
 	Game().assets.sounds.shrinePray[static_cast<int>(*god)].Play();

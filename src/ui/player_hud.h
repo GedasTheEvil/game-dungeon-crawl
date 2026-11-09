@@ -66,6 +66,7 @@ struct View {
 	// The worn rings (plan ring-accessories), left and right hand: a gem each in its colour, under the key sockets.
 	bool ringWorn[HAND_COUNT] = {};
 	ui::Color ringGem[HAND_COUNT] = {};
+	bool ringSkyIron[HAND_COUNT] = {}; // a sky-iron ring (plan sky-iron-rings): a dark iron setting, not gold
 	// The running effects in display order (statusList), each a card with an icon. poisoned: the health bar is green.
 	StatusList statuses;
 	bool poisoned = false;

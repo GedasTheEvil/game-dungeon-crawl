@@ -37,7 +37,7 @@ to do there; check the journal says "immune" for both.
 * The amethyst rings move on this ladder (user, 2026-11-09; replaces today's "share of the way to NORMAL",
   `cutResistances`, and the 20 / 40 / 80 % of commit aff43332). A ring moves each rate a share of the way to the
   next tier up: copper 10 %, silver 20 %, gold 50 % (the sky iron of
-  [sky-iron-rings](sky-iron-rings.feature.draft.opus.md): 100 %, a whole tier). The step is the gap to the next tier:
+  [sky-iron-rings](sky-iron-rings.feature.md): 100 %, a whole tier). The step is the gap to the next tier:
   `rate + (next - rate) * share`; a share over 100 % goes on into the tier after.
   | Rate | Copper | Silver | Gold | Two gold |
   |---|---|---|---|---|
@@ -65,7 +65,7 @@ to do there; check the journal says "immune" for both.
 * Halves kept: `Resistances` holds `float` rates (37.5 stays 37.5), the damage worked out from them, rounded once.
 * `amethystResist` (was `cutResistances`) walks `RESIST_TIERS`; `RingBonus::amethystPercent` (was `resistCutPercent`).
 * Immune: no copper, silver or gold ring moves it, two gold rings neither (the draft: "only a sky iron moves it").
-  The sky-iron move is left to [sky-iron-rings](sky-iron-rings.feature.draft.opus.md).
+  The sky-iron move is left to [sky-iron-rings](sky-iron-rings.feature.md).
 * A hit for 0 (only immune types): no blood splash; the journal status says "immune to fire". No other cue.
 * Ring card: "Resistances 50% of a tier weaker"; sum: "resistances 70% of a tier weaker", "a tier", "two tiers".
 * `validKinds`: a common monster is never immune, a boss may be.

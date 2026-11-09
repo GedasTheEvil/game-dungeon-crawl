@@ -34,7 +34,7 @@ class PlayerStats {
 	AmuletBonus amulet; // the worn amulet's (Wear); Armor, MaxHP and Might above are without it
 	int regen_carry_ms = 0; // regeneration time not yet turned into HP
 	RingBonus rings; // the worn rings' (WearRings)
-	int ring_regen_carry = 0; // the rubies' ms x HP an hour not yet turned into HP
+	int ring_regen_carry = 0; // the garnets' ms x HP an hour not yet turned into HP
 	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
 	int resist_left_ms = 0;
 	int water_left_ms = 0; // the Blessing of Hapi's time left (plan water-blessing-potion)
@@ -201,8 +201,6 @@ class PlayerStats {
 	[[nodiscard]] const RingBonus& Rings() const { return rings; }
 	// The feldspar rings: the poison's time runs down this much faster.
 	[[nodiscard]] int PoisonFasterPercent() const { return rings.poisonFasterPercent; }
-	// The amethyst rings: the share of a monster's resistances the player's weapon hits ignore.
-	[[nodiscard]] int AmethystPercent() const { return rings.amethystPercent; }
 	// Tiles: the weapon's reach with the Sharp eye skill (weaponReach) and the rock crystal rings.
 	[[nodiscard]] float WeaponReach(ItemKind weapon) const {
 		return weaponReach(weapon, heka) * static_cast<float>(100 + rings.reachPercent) / 100.f;

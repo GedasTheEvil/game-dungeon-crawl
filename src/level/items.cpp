@@ -501,8 +501,9 @@ constexpr std::array<RingGemDef, RING_GEM_COUNT> RING_GEMS = {{
 	{"Crystal", "crystal", "reach", {0.82f, 0.92f, 1.f}}, // near clear, a cold blue
 	{"Amethyst", "amethyst", "sundering", {0.62f, 0.22f, 0.92f}},
 }};
-constexpr const char* METAL_WORDS[RING_METAL_COUNT] = {"Copper", "Silver", "Gold"};
-constexpr const char* METAL_TEXTURES[RING_METAL_COUNT] = {"ring_band_copper", "ring_band_silver", "ring_band_gold"};
+constexpr const char* METAL_WORDS[RING_METAL_COUNT] = {"Copper", "Silver", "Gold", "Sky-Iron"};
+constexpr const char* METAL_TEXTURES[RING_METAL_COUNT] =
+	{"ring_band_copper", "ring_band_silver", "ring_band_gold", "ring_band_sky_iron"};
 
 const RingGemDef& gemDef(RingGem gem) { return RING_GEMS[static_cast<size_t>(gem)]; }
 
@@ -512,7 +513,15 @@ std::string ringEffect(Ring r) {
 	char effect[64];
 	switch (r.gem) {
 	case RingGem::Garnet:
-		std::snprintf(effect, sizeof(effect), "Heals 1 health every %d s", RingEffect::GARNET_MS_PER_HP[m] / 1000);
+		if (r.metal == RingMetal::SkyIron)
+			std::snprintf(
+				effect,
+				sizeof(effect),
+				"Heals 1%% health (at least 1) every %d s",
+				RingEffect::GARNET_SKY_IRON_MS / 1000
+			);
+		else
+			std::snprintf(effect, sizeof(effect), "Heals 1 health every %d s", RingEffect::GARNET_MS_PER_HP[m] / 1000);
 		break;
 	case RingGem::Lapis:
 		std::snprintf(effect, sizeof(effect), "Stamina returns %d%% faster", RingEffect::LAPIS_PERCENT[m]);
@@ -550,7 +559,9 @@ struct RingTexts {
 			for (char& c : labels[i])
 				c = static_cast<char>(c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c);
 			effects[i] = ringEffect(r);
-			const std::string lore = std::string("ring_") + def.slug;
+			// The sky-iron rings share the metal's lore (plan sky-iron-rings), the others the gem's.
+			const std::string lore = r.metal == RingMetal::SkyIron ? std::string("ring_sky_iron")
+																   : std::string("ring_") + def.slug;
 			texts[i] = {
 				names[i].c_str(),
 				shortNames[i].c_str(),
@@ -579,7 +590,10 @@ RingBonus ringBonus(const WornRings& worn) {
 		const auto m = static_cast<size_t>(r.metal);
 		switch (r.gem) {
 		case RingGem::Garnet:
-			bonus.regenHpPerHour += RingEffect::MS_PER_HOUR / RingEffect::GARNET_MS_PER_HP[m];
+			if (r.metal == RingMetal::SkyIron)
+				bonus.regenPercentPerHour += RingEffect::GARNET_SKY_IRON_PERCENT_PER_HOUR;
+			else
+				bonus.regenHpPerHour += RingEffect::MS_PER_HOUR / RingEffect::GARNET_MS_PER_HP[m];
 			break;
 		case RingGem::Lapis:
 			bonus.staminaRegenPercent += RingEffect::LAPIS_PERCENT[m];
@@ -595,6 +609,7 @@ RingBonus ringBonus(const WornRings& worn) {
 			break;
 		case RingGem::Amethyst:
 			bonus.amethystPercent += RingEffect::AMETHYST_PERCENT[m];
+			bonus.amethystMovesImmune = bonus.amethystMovesImmune || r.metal == RingMetal::SkyIron;
 			break;
 		}
 	}
@@ -676,15 +691,27 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 std::string ringSumText(const RingBonus& bonus, RingGem gem) {
 	char text[64] = "";
 	switch (gem) {
-	case RingGem::Garnet:
-		if (bonus.regenHpPerHour > 0)
+	case RingGem::Garnet: {
+		const double flatEvery = bonus.regenHpPerHour > 0
+									 ? static_cast<double>(RingEffect::MS_PER_HOUR) / 1000.0 / bonus.regenHpPerHour
+									 : 0.0;
+		const int percent = bonus.regenPercentPerHour / RingEffect::GARNET_SKY_IRON_PERCENT_PER_HOUR;
+		const int skyEvery = RingEffect::GARNET_SKY_IRON_MS / 1000;
+		if (percent > 0 && bonus.regenHpPerHour > 0)
 			std::snprintf(
 				text,
 				sizeof(text),
-				"heals 1 health every %.1f s",
-				static_cast<double>(RingEffect::MS_PER_HOUR) / 1000.0 / bonus.regenHpPerHour
+				"heals %d%% health every %d s, 1 every %.1f s",
+				percent,
+				skyEvery,
+				flatEvery
 			);
+		else if (percent > 0)
+			std::snprintf(text, sizeof(text), "heals %d%% health every %d s", percent, skyEvery);
+		else if (bonus.regenHpPerHour > 0)
+			std::snprintf(text, sizeof(text), "heals 1 health every %.1f s", flatEvery);
 		break;
+	}
 	case RingGem::Lapis:
 		if (bonus.staminaRegenPercent > 0)
 			std::snprintf(text, sizeof(text), "stamina returns %d%% faster", bonus.staminaRegenPercent);
@@ -738,8 +765,16 @@ constexpr std::array<PotionModelDef, POTION_MODEL_COUNT> POTION_MODELS = {{
 const PotionModelDef& potionModelDef(PotionModel model) { return POTION_MODELS[static_cast<size_t>(model)]; }
 
 ItemFileId fileIdOf(ItemKind kind) {
-	if (isRing(kind))
-		return {ItemType::RING, itemIndex(kind) - FIRST_RING};
+	if (isRing(kind)) {
+		const Ring r = ringOf(kind);
+		const int gem = static_cast<int>(r.gem);
+		return {
+			ItemType::RING,
+			r.metal == RingMetal::SkyIron
+				? ItemType::SKY_IRON_RING_FILE_ID + gem
+				: gem * ItemType::SKY_IRON_RING_FILE_ID / RING_GEM_COUNT + static_cast<int>(r.metal)
+		};
+	}
 	if (isAmulet(kind))
 		return {ItemType::AMULET, itemIndex(kind) - FIRST_AMULET};
 	return ITEMS[static_cast<size_t>(itemIndex(kind))].file;
@@ -748,8 +783,14 @@ ItemFileId fileIdOf(ItemKind kind) {
 std::optional<ItemKind> itemFromFile(int type, int id) {
 	if (type == ItemType::AMULET)
 		return id >= 0 && id < AMULET_KIND_COUNT ? std::optional(itemAt(FIRST_AMULET + id)) : std::nullopt;
-	if (type == ItemType::RING)
-		return id >= 0 && id < RING_KIND_COUNT ? std::optional(itemAt(FIRST_RING + id)) : std::nullopt;
+	if (type == ItemType::RING) {
+		constexpr int OLD_METALS = ItemType::SKY_IRON_RING_FILE_ID / RING_GEM_COUNT; // copper, silver, gold
+		if (id >= 0 && id < ItemType::SKY_IRON_RING_FILE_ID)
+			return ringKind(static_cast<RingGem>(id / OLD_METALS), static_cast<RingMetal>(id % OLD_METALS));
+		if (id >= ItemType::SKY_IRON_RING_FILE_ID && id < ItemType::SKY_IRON_RING_FILE_ID + RING_GEM_COUNT)
+			return ringKind(static_cast<RingGem>(id - ItemType::SKY_IRON_RING_FILE_ID), RingMetal::SkyIron);
+		return std::nullopt;
+	}
 	for (int i = 0; i < FIRST_AMULET; i++)
 		if (ITEMS[static_cast<size_t>(i)].file.type == type && ITEMS[static_cast<size_t>(i)].file.id == id)
 			return itemAt(i);

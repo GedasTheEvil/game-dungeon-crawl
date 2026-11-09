@@ -1,6 +1,6 @@
 # Sky-iron rings, a tier above gold
 
-Status: draft 2026-11-09, size M, needs nothing first.
+Status: draft 2026-11-09, size L, needs nothing first.
 
 ## Idea
 
@@ -18,7 +18,7 @@ Metal: **meteoric iron**, "sky iron" (Egyptian *bia-n-pet*, "iron of heaven"). W
 Rejected: electrum (gold-silver alloy, prized for obelisk tips, but pale gold, hard to tell from gold on the HUD and
 in the world; also odd as "above gold" when it is half silver); orichalcum (Greek, Atlantis).
 
-Name in texts: "Sky-Iron Garnet Ring" (the item name pattern "Gold Garnet Ring"). Glossary row.
+Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Ring" (the item name pattern "Gold Garnet Ring"). Glossary row.
 
 ## Plan
 
@@ -34,7 +34,7 @@ Name in texts: "Sky-Iron Garnet Ring" (the item name pattern "Gold Garnet Ring")
   | Feldspar | 20 / 35 / 50 % | 70 % |
   | Jasper | 5 / 8 / 12 % | 17 %, `JASPER_CAP` 20 -> 25 |
   | Crystal | 10 / 15 / 25 % | 35 %, `CRYSTAL_CAP` 40 -> 50 |
-  | Amethyst | 25 / 50 / 100 % | gold already cuts to NORMAL: sky iron goes 25 % past it, toward weak (a resistance below NORMAL); `AMETHYST_CAP` to match. Or the implementer finds a better step |
+  | Amethyst | 25 / 50 / 100 % | 150 %: past NORMAL toward the new "weak" (see below) |
 * Garnet: `RingBonus::regenHpPerHour` is a flat rate; the percent of max HP needs a second field (e.g. `regenMaxHpPermille`
   per hour) summed with the flat one in `PlayerStats`; still not while poisoned. Two sky-iron garnets: twice.
   The ring card text: "Heals 1% health (at least 1) every 2 s".
@@ -42,8 +42,21 @@ Name in texts: "Sky-Iron Garnet Ring" (the item name pattern "Gold Garnet Ring")
   ([modeling.md](../modeling.md)) or a texture script, as the other bands were made.
 * HUD ring dot setting (`player_hud.cpp`, gold setting today): fine as is, or a dark setting for sky iron.
 * Lore and field note for the first sky-iron ring ("iron of heaven, fallen from Nut's body").
-* Check the amulet balance: regeneration amulet (grand) vs two sky-iron garnets; rings stay "weaker than an amulet,
-  or what no amulet gives" (glossary), unless the user agrees otherwise. Open question for the user.
+* Balance (user, 2026-11-09): one ring stays weaker than an amulet; two can beat one. Fix the glossary's ring row
+  ("Weaker than an amulet" -> one ring is).
+* New resistance step, for the amethyst (user, 2026-11-09). Today: weak 200, normal 100, resists 50, tough 25.
+  New ladder: **vulnerable** 200 (today's "weak", renamed), **weak** 150 (new), normal 100, resists 50, tough 25.
+  * `damage.h`: `VULNERABLE = 200`, `WEAK = 150`; every `WEAK` user today means 200: rename them to `VULNERABLE`
+    (monster tables, the boss rule "no boss has a weakness" = no vulnerability, the flaming arrows' "weak to fire").
+    No monster changes its numbers here; giving some monsters the new 150 step is a separate balance question.
+  * `resistanceWord`: `> WEAK` "vulnerable", `> NORMAL` "weak", ... The journal (`content/texts/journal.txt`),
+    status texts, scenario script words, glossary rows (resistance, weakness, hostile terrain, flaming arrows).
+    The curse Weakness and the poison tier "weak" are other things: leave them.
+  * Amethyst past 100 %: the part over 100 moves each rate below WEAK the rest of the way from NORMAL to WEAK
+    (100 + 50 * (p - 100) / 100): one sky-iron amethyst 150 % -> a resisted or normal type ends at 125, two (cap 200)
+    at 150 = weak. A vulnerable type stays 200 (never lowered). Bosses get it too: it is the ring, not the monster.
+    `AMETHYST_CAP` 200. Ring card text: "cuts every resistance; normal hits weak spots" or plainer.
+
 
 ## Play-test
 

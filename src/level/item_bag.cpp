@@ -117,20 +117,55 @@ std::optional<ItemKind> nextMetal(ItemKind ring) {
 }
 
 namespace {
-// What an offering gives (plan shrine-offerings): well under a fight's worth, so offering never beats fighting. An
-// amulet: OFFER_XP_PER_POINT for each of its points (amuletWorth), lesser 100 to grand 800.
+// What an offering gives (plan shrine-offerings, offering-xp-scaling): a base, well under a fight's worth, plus a share
+// of the player's total XP, so it grows with them. An amulet's base: OFFER_XP_PER_POINT for each of its points
+// (amuletWorth), lesser 100 to grand 800.
 constexpr int OFFER_XP_WEAPON = 200;
 constexpr int OFFER_XP_PER_POINT = 100;
 constexpr int OFFER_XP_RING[RING_METAL_COUNT] = {150, 300, 600, 1200}; // copper, silver, gold, sky iron
+constexpr int OFFER_XP_LESSER_POTION = 200;
+constexpr int OFFER_XP_GREATER_POTION = 350;
+// The shares of total XP, in 1/10000: weapon and lesser potion 0.1 %, greater potion 0.2 %, rank I to IV 0.05 % to 0.4
+// %.
+constexpr int SHARE_WEAPON = 10;
+constexpr int SHARE_LESSER_POTION = 10;
+constexpr int SHARE_GREATER_POTION = 20;
+constexpr int SHARE_BY_RANK[4] = {5, 10, 20, 40};
+
+constexpr bool isGreaterPotion(ItemKind potion) {
+	switch (potion) {
+	case ItemKind::LargeHealth:
+	case ItemKind::LargeStamina:
+	case ItemKind::GreaterResistance:
+	case ItemKind::WaterBlessing:
+	case ItemKind::Might:
+	case ItemKind::Armor:
+	case ItemKind::Life:
+		return true;
+	default: // small health, small stamina, antidote, lesser resistance
+		return false;
+	}
+}
+
+int withShare(int base, int share, double totalXP) {
+	return base + static_cast<int>(static_cast<long long>(std::max(0.0, totalXP)) * share / 10000);
+}
 } // namespace
 
-int offerXP(ItemKind kind) {
+int offerXP(ItemKind kind, double totalXP) {
 	if (isWeapon(kind))
-		return OFFER_XP_WEAPON;
-	if (isAmulet(kind))
-		return OFFER_XP_PER_POINT * amuletWorth(amuletOf(kind).tier);
-	if (isRing(kind))
-		return OFFER_XP_RING[static_cast<int>(ringOf(kind).metal)];
+		return withShare(OFFER_XP_WEAPON, SHARE_WEAPON, totalXP);
+	if (isPotion(kind))
+		return isGreaterPotion(kind) ? withShare(OFFER_XP_GREATER_POTION, SHARE_GREATER_POTION, totalXP)
+									 : withShare(OFFER_XP_LESSER_POTION, SHARE_LESSER_POTION, totalXP);
+	if (isAmulet(kind)) {
+		const int tier = static_cast<int>(amuletOf(kind).tier); // lesser I .. grand IV
+		return withShare(OFFER_XP_PER_POINT * amuletWorth(amuletOf(kind).tier), SHARE_BY_RANK[tier], totalXP);
+	}
+	if (isRing(kind)) {
+		const int metal = static_cast<int>(ringOf(kind).metal); // copper I .. sky iron IV
+		return withShare(OFFER_XP_RING[metal], SHARE_BY_RANK[metal], totalXP);
+	}
 	return 0;
 }
 
@@ -362,7 +397,7 @@ int ItemBag::Spares(ItemKind kind) const {
 		return std::max(0, Count(kind) - (worn == kind ? 1 : 0));
 	if (isRing(kind))
 		return std::max(0, Count(kind) - HandsWearing(kind));
-	return 0;
+	return Count(kind); // a potion: nothing wears it
 }
 
 bool ItemBag::CanOffer(ItemKind kind, bool alive, AtShrine shrine) const {

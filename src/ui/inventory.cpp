@@ -210,7 +210,7 @@ bool Inventory::ReadyAtShrine(int slot) const {
 }
 
 ShrineRow Inventory::ShrineButtons() const {
-	if (!Shrine() || isPotion(selectedSlot) || !bag.Found(kindOf(selectedSlot)))
+	if (!Shrine() || !bag.Found(kindOf(selectedSlot)))
 		return ShrineRow::None;
 	return isRing(selectedSlot) ? ShrineRow::OfferMerge : ShrineRow::Offer;
 }
@@ -221,8 +221,15 @@ void Inventory::AskOffer(int slot) {
 	const std::optional<God> god = Shrine();
 	if (!god || !bag.CanOffer(kind, Game().player->Alive(), AtShrine::Yes))
 		return;
-	const std::string what = (isWeapon(slot) ? "a spare " : "the ") + std::string(itemText(kind).name);
-	confirm.Ask("Offer " + what + " to " + godDef(*god).name + "? It is gone for good.", [this, kind] { Offer(kind); });
+	const std::string what = (isWeapon(slot)   ? "a spare "
+							  : isPotion(slot) ? "a "
+											   : "the ") +
+							 std::string(itemText(kind).name);
+	const int xp = offerXP(kind, Game().player->stats.CurrentXP());
+	confirm.Ask(
+		"Offer " + what + " to " + godDef(*god).name + " for " + std::to_string(xp) + " XP? It is gone for good.",
+		[this, kind] { Offer(kind); }
+	);
 }
 
 void Inventory::AskMerge(int slot) {
@@ -242,7 +249,7 @@ void Inventory::Offer(ItemKind kind) {
 	if (!god || !bag.Offer(kind, Game().player->Alive(), AtShrine::Yes))
 		return;
 	KeepPlaces(before);
-	const int xp = offerXP(kind);
+	const int xp = offerXP(kind, Game().player->stats.CurrentXP());
 	Game().player->stats.Offered(*god);
 	Game().assets.sounds.shrinePray[static_cast<int>(*god)].Play();
 	Game().player->stats.AddXP(xp, Game().events);

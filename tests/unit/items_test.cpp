@@ -767,15 +767,60 @@ TEST_CASE("shrine-offerings: only spares are offered, never a worn item or a wea
 	bag.Add(ItemKind::CrystalSilver);
 	REQUIRE(bag.WearOn(ItemKind::CrystalSilver, Hand::Left, true));
 	CHECK_FALSE(bag.CanOffer(ItemKind::CrystalSilver, true, AtShrine::Yes));
-	CHECK_FALSE(bag.CanOffer(ItemKind::SmallHealth, true, AtShrine::Yes)); // potions are not offered
 	CHECK_FALSE(bag.CanOffer(ItemKind::Club, false, AtShrine::Yes)); // dead
 }
 
 TEST_CASE("shrine-offerings: an offering gives XP by the item's rank") {
-	CHECK(offerXP(ItemKind::SmallHealth) == 0);
-	CHECK(offerXP(ItemKind::GarnetCopper) < offerXP(ItemKind::GarnetSilver));
-	CHECK(offerXP(ItemKind::GarnetSilver) < offerXP(ItemKind::GarnetGold));
-	CHECK(offerXP(ItemKind::GarnetGold) < offerXP(ItemKind::GarnetSkyIron));
-	CHECK(offerXP(ItemKind::ArmorLesser) < offerXP(ItemKind::ArmorGrand));
-	CHECK(offerXP(ItemKind::Club) > 0);
+	CHECK(offerXP(ItemKind::GarnetCopper, 0) < offerXP(ItemKind::GarnetSilver, 0));
+	CHECK(offerXP(ItemKind::GarnetSilver, 0) < offerXP(ItemKind::GarnetGold, 0));
+	CHECK(offerXP(ItemKind::GarnetGold, 0) < offerXP(ItemKind::GarnetSkyIron, 0));
+	CHECK(offerXP(ItemKind::ArmorLesser, 0) < offerXP(ItemKind::ArmorGrand, 0));
+	CHECK(offerXP(ItemKind::Club, 0) > 0);
+}
+
+TEST_CASE("offering-xp-scaling: an offering is a base plus a share of total XP, rounded down") {
+	struct Row {
+		ItemKind kind;
+		int atZero, atBig;
+	};
+	const Row rows[] = {
+		{ItemKind::Club, 200, 300},
+		{ItemKind::SmallHealth, 200, 300},
+		{ItemKind::SmallStamina, 200, 300},
+		{ItemKind::Antidote, 200, 300},
+		{ItemKind::LesserResistance, 200, 300},
+		{ItemKind::LargeHealth, 350, 550},
+		{ItemKind::LargeStamina, 350, 550},
+		{ItemKind::GreaterResistance, 350, 550},
+		{ItemKind::WaterBlessing, 350, 550},
+		{ItemKind::Might, 350, 550},
+		{ItemKind::Armor, 350, 550},
+		{ItemKind::Life, 350, 550},
+		{ItemKind::ArmorLesser, 100, 150},
+		{ItemKind::ArmorMinor, 200, 300},
+		{ItemKind::ArmorNormal, 400, 600},
+		{ItemKind::ArmorGrand, 800, 1200},
+		{ItemKind::GarnetCopper, 150, 200},
+		{ItemKind::GarnetSilver, 300, 400},
+		{ItemKind::GarnetGold, 600, 800},
+		{ItemKind::GarnetSkyIron, 1200, 1600},
+	};
+	for (const Row& row : rows) {
+		CHECK(offerXP(row.kind, 0) == row.atZero);
+		CHECK(offerXP(row.kind, 100000) == row.atBig);
+	}
+	CHECK(offerXP(ItemKind::Club, 1999) == 200 + 1); // 0.1 % of 1999 is 1.999
+}
+
+TEST_CASE("offering-xp-scaling: a potion's spares are all its copies and it can be offered") {
+	ItemBag bag;
+	bag.Add(ItemKind::SmallHealth);
+	bag.Add(ItemKind::SmallHealth);
+	CHECK(bag.Spares(ItemKind::SmallHealth) == bag.Count(ItemKind::SmallHealth));
+	CHECK(bag.Spares(ItemKind::SmallHealth) == 2);
+	CHECK_FALSE(bag.CanOffer(ItemKind::SmallHealth, true, AtShrine::No));
+	CHECK(bag.Offer(ItemKind::SmallHealth, true, AtShrine::Yes));
+	CHECK(bag.Count(ItemKind::SmallHealth) == 1);
+	CHECK(bag.Offer(ItemKind::SmallHealth, true, AtShrine::Yes));
+	CHECK_FALSE(bag.CanOffer(ItemKind::SmallHealth, true, AtShrine::Yes));
 }

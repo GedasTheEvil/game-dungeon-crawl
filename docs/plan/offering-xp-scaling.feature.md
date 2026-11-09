@@ -1,6 +1,6 @@
 # Offerings scale with total XP, potions can be offered
 
-Status: draft 2026-11-09, size S, needs nothing first.
+Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size S, needs nothing first.
 
 ## Idea
 

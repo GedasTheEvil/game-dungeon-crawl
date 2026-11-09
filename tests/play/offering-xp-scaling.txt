@@ -1,0 +1,13 @@
+# Plan offering-xp-scaling: a shrine of Ptah at col 5, god mode, 100000 XP. In the bag: a spare Club (level 5 plus
+# its extra copy), small and large health potions, a spare lesser amulet of armor, a spare copper garnet ring.
+# The Club is level 1: press U on it 4 times first (its copies past level 5 are the spares). I, then O on each: the confirm names the XP (weapon 200 + 0.1 %, small potion 200 + 0.1 %, large 350 + 0.2 %,
+# amulet 100 + 0.05 %, ring 150 + 0.05 %).
+level tests/levels/resistance_tiers
+god
+xp 100000
+prop 5 shrine_ptah
+give melee 0 100
+give potion 0 2
+give potion 1 2
+give amulet 4 2
+give ring 0 2

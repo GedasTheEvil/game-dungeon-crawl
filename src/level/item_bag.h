@@ -32,7 +32,9 @@ constexpr int MAX_WEAPON_LEVEL = 5;
 // shrine a spare (Spares) is offered for XP by its rank (offerXP).
 enum class AtShrine : bool { No, Yes };
 [[nodiscard]] std::optional<ItemKind> nextMetal(ItemKind ring); // nullopt: sky iron, the top
-[[nodiscard]] int offerXP(ItemKind kind); // 0: no offering (a potion)
+// A base plus a share of the player's total XP (plan offering-xp-scaling), rounded down: weapon and lesser potion
+// 200 + 0.1 %, greater potion 350 + 0.2 %, an amulet's or ring's base plus 0.05 / 0.1 / 0.2 / 0.4 % by rank I to IV.
+[[nodiscard]] int offerXP(ItemKind kind, double totalXP);
 
 // The player as the bag's rules see it (whether a potion or an item can be used now).
 struct BagUser {
@@ -134,7 +136,7 @@ class ItemBag {
 	// the worn one stays worn (the caller applies amuletBonus(Worn())).
 	bool Upgrade(ItemKind kind, bool alive, AtShrine shrine);
 	// What could be offered (plan shrine-offerings): a weapon's copies past the ones its top level took (none below
-	// MAX_WEAPON_LEVEL: they still count towards it), an amulet's or a ring's not worn. Potions: none.
+	// MAX_WEAPON_LEVEL: they still count towards it), an amulet's or a ring's not worn, all of a potion's.
 	[[nodiscard]] int Spares(ItemKind kind) const;
 	[[nodiscard]] bool CanOffer(ItemKind kind, bool alive, AtShrine shrine) const;
 	bool Offer(ItemKind kind, bool alive, AtShrine shrine); // one spare gone; the caller gives offerXP

@@ -40,6 +40,7 @@ less than today.
 ## Play-test
 
 * `bin/game --play tests/play/offering-xp-scaling.txt`: open the inventory at the shrine.
-* Offer the spare weapon: the XP shown is 200 + 0.1 % of your total XP.
+* Upgrade the Club to level 5 first (U 4 times: no play command sets a weapon level), then offer a spare Club: the XP
+  shown is 200 + 0.1 % of your total XP.
 * On the potions tab, offer a small potion (200 + 0.1 %) and a large one (350 + 0.2 %); the counts drop by one.
 * Offer a spare amulet and a spare ring: today's XP plus, by rank, 0.05 % (I) up to 0.4 % (IV) of total XP.

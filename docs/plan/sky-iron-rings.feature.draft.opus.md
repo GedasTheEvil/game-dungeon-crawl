@@ -48,8 +48,10 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
   [resistance-tiers](resistance-tiers.feature.draft.opus.md) (immune 0, tough 25, resists 50, normal 100, weak 150,
   vulnerable 200). One tier down alone would be weaker than gold against tough (gold lifts tough to normal), so:
   gold's full cut first (tough, resists -> normal), then one tier down: normal -> weak, weak -> vulnerable,
-  vulnerable stays, immune -> tough (the lower amethysts leave immune alone). Two sky-iron amethysts: no more
-  (`AMETHYST_CAP`); bosses get it too (it is the ring, not the monster). Poison resistance is not touched.
+  vulnerable stays, immune -> tough (the lower amethysts leave immune alone). Each worn sky-iron amethyst is one
+  tier (user, 2026-11-09): two go two tiers down (tough, resists, normal -> vulnerable; immune -> resists).
+  `RingBonus` gets a tier count next to `resistCutPercent` (a sky iron adds 100 % cut and one tier); a sky iron with
+  a lower amethyst: the full cut and one tier. Bosses get it too (it is the ring, not the monster). Poison resistance is not touched.
   Ring card text: "Every foe one step weaker to your blows" or plainer.
 
 

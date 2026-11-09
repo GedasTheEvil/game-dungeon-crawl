@@ -414,6 +414,9 @@ constexpr int STARGATE_FADE_MS = 800;
 // When the seventh fails, and when the dial is over.
 constexpr int STARGATE_FAIL_AT_MS = (STARGATE_CHEVRONS - 1) * STARGATE_CHEVRON_MS + STARGATE_TURN_MS;
 constexpr int STARGATE_DIAL_MS = STARGATE_FAIL_AT_MS + STARGATE_FAIL_MS + STARGATE_FADE_MS;
+// The first dial of the Stargate, and the first press on its dial device, each pay at least this much XP (a riddle's
+// worth if that is more).
+constexpr int STARGATE_MIN_XP = 20000;
 // A sealed name gate's plasma (plan secret-name-gates) breathes down to NAME_GATE_MIN_ALPHA and back once per
 // NAME_GATE_BREATH_MS; opened, it shimmers for NAME_GATE_SHIMMER_MS, then holds steady.
 constexpr float NAME_GATE_BREATH_MS = 1500.f;

@@ -10,6 +10,9 @@
 #include <cmath>
 
 namespace {
+// What the first dial, and the first press on the dial device, pay.
+int stargateXP(const PlayerStats& stats) { return std::max(stats.RiddleXP(), STARGATE_MIN_XP); }
+
 // The dial's steps, in order: a chevron's turn each (the seventh's too), the seventh failing, the end.
 constexpr int STEP_FAIL = STARGATE_CHEVRONS;
 constexpr int STEP_END = STARGATE_CHEVRONS + 1;
@@ -33,7 +36,13 @@ void Dungeon::startDial() {
 //======================================================================================
 void Dungeon::pressDialDevice() {
 	sim.events->Play(WorldSound::DialPress);
-	sim.events->Status("The red dome sinks with a dull clunk. Nothing happens.");
+	const auto& notes = sim.journal->Notes();
+	if (std::find(notes.begin(), notes.end(), FieldNote::DialDevice) == notes.end()) {
+		const int xp = stargateXP(sim.player->stats); // the first press
+		sim.events->Status("The red dome sinks with a dull clunk. Nothing happens. +%d XP", xp);
+		sim.player->stats.AddXP(xp, *sim.events);
+	} else
+		sim.events->Status("The red dome sinks with a dull clunk. Nothing happens.");
 	sim.events->Note(FieldNote::DialDevice);
 }
 //======================================================================================
@@ -50,7 +59,7 @@ void Dungeon::updateDial() {
 		else if (step == STEP_FAIL) {
 			const auto& notes = sim.journal->Notes();
 			if (std::find(notes.begin(), notes.end(), FieldNote::Stargate) == notes.end()) {
-				const int xp = sim.player->stats.RiddleXP(); // the first dial: a riddle's worth
+				const int xp = stargateXP(sim.player->stats); // the first dial
 				sim.events->Status("Chevron seven... will not lock. +%d XP", xp);
 				sim.player->stats.AddXP(xp, *sim.events);
 			} else

@@ -52,15 +52,22 @@ TEST_CASE("the Stargate: Dial while it is still, Press on its dial device") {
 	world.WaitTicks(1);
 	CHECK(played(world, WorldSound::DialPress) == 1);
 	CHECK(noted(world, FieldNote::DialDevice));
-	CHECK(world.Told("Nothing happens"));
+	CHECK(world.Told("Nothing happens. +"));
+	CHECK(world.Xp() >= STARGATE_MIN_XP); // the first press pays
+
+	const int xp = world.Xp();
+	world.journal.LearnNote(FieldNote::DialDevice); // the app writes the note down
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.Xp() == xp); // only the first press pays
 }
 
-TEST_CASE("dialled, six chevrons lock one by one, the seventh flickers out, the first dial gives a riddle's XP") {
+TEST_CASE("dialled, six chevrons lock one by one, the seventh flickers out, the first dial gives the Stargate's XP") {
 	SimWorld world;
 	load(world);
 	REQUIRE(world.WalkTo(GATE_COL + 0.5f));
 	const int xp = world.Xp();
-	const int reward = world.player.stats.RiddleXP();
+	const int reward = std::max(world.player.stats.RiddleXP(), STARGATE_MIN_XP);
 	const float rest = world.dungeon.StargateTrackDeg(GATE_COL, ROW);
 	world.Interact();
 	world.Wait(STARGATE_TURN_MS / 2);

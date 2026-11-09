@@ -527,7 +527,7 @@ std::string ringEffect(Ring r) {
 		std::snprintf(effect, sizeof(effect), "Weapon reach +%d%%", RingEffect::CRYSTAL_PERCENT[m]);
 		break;
 	case RingGem::Amethyst:
-		std::snprintf(effect, sizeof(effect), "Cuts %d%% of resistances", RingEffect::AMETHYST_PERCENT[m]);
+		std::snprintf(effect, sizeof(effect), "Resistances %d%% of a tier weaker", RingEffect::AMETHYST_PERCENT[m]);
 		break;
 	}
 	return effect;
@@ -594,13 +594,13 @@ RingBonus ringBonus(const WornRings& worn) {
 			bonus.reachPercent += RingEffect::CRYSTAL_PERCENT[m];
 			break;
 		case RingGem::Amethyst:
-			bonus.resistCutPercent += RingEffect::AMETHYST_PERCENT[m];
+			bonus.amethystPercent += RingEffect::AMETHYST_PERCENT[m];
 			break;
 		}
 	}
 	bonus.speedPercent = std::min(bonus.speedPercent, RingEffect::JASPER_CAP);
 	bonus.reachPercent = std::min(bonus.reachPercent, RingEffect::CRYSTAL_CAP);
-	bonus.resistCutPercent = std::min(bonus.resistCutPercent, RingEffect::AMETHYST_CAP);
+	bonus.amethystPercent = std::min(bonus.amethystPercent, RingEffect::AMETHYST_CAP);
 	return bonus;
 }
 
@@ -702,10 +702,15 @@ std::string ringSumText(const RingBonus& bonus, RingGem gem) {
 			std::snprintf(text, sizeof(text), "weapon reach +%d%%", bonus.reachPercent);
 		break;
 	case RingGem::Amethyst:
-		if (bonus.resistCutPercent >= RingEffect::AMETHYST_CAP)
-			std::snprintf(text, sizeof(text), "ignores resistances");
-		else if (bonus.resistCutPercent > 0)
-			std::snprintf(text, sizeof(text), "cuts %d%% of resistances", bonus.resistCutPercent);
+		if (bonus.amethystPercent > 0 && bonus.amethystPercent % 100 == 0)
+			std::snprintf(
+				text,
+				sizeof(text),
+				"resistances %s weaker",
+				bonus.amethystPercent == 100 ? "a tier" : "two tiers"
+			);
+		else if (bonus.amethystPercent > 0)
+			std::snprintf(text, sizeof(text), "resistances %d%% of a tier weaker", bonus.amethystPercent);
 		break;
 	}
 	return text;

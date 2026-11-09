@@ -20,18 +20,29 @@ constexpr auto FIRE = static_cast<size_t>(DamageType::Fire);
 
 // A weapon's or a monster's attack damage, in percent per type; adds up to 100.
 using DamageMix = std::array<int, DAMAGE_TYPE_COUNT>;
-// A monster type's (or the player's) share of each damage type it takes, in percent.
-using Resistances = std::array<int, DAMAGE_TYPE_COUNT>;
+// A monster type's (or the player's) share of each damage type it takes, in percent. Not whole: the amethyst rings
+// move a rate a share of a tier (amethystResist: 37.5).
+using Resistances = std::array<float, DAMAGE_TYPE_COUNT>;
 
-constexpr int WEAK = 200;
+// The tiers (plan resistance-tiers), the most damage taken first.
+constexpr int VULNERABLE = 200;
+constexpr int WEAK = 150;
 constexpr int NORMAL = 100;
 constexpr int RESISTS = 50;
 constexpr int TOUGH = 25;
+constexpr int IMMUNE = 0; // the type does no damage: no minimum of 1 (resistedDamage)
+constexpr std::array<int, 6> RESIST_TIERS = {IMMUNE, TOUGH, RESISTS, NORMAL, WEAK, VULNERABLE};
 constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL, NORMAL};
 
-// How the journal writes a rate down: "weak", "normal", "resists", "tough".
-[[nodiscard]] constexpr const char* resistanceWord(int rate) {
-	return rate > NORMAL ? "weak" : rate == NORMAL ? "normal" : rate >= RESISTS ? "resists" : "tough";
+// How the journal writes a rate down: "vulnerable", "weak", "normal", "resists", "tough", "immune". A rate between
+// two tiers (an amethyst's) takes the word of the tier under it.
+[[nodiscard]] constexpr const char* resistanceWord(float rate) {
+	return rate >= VULNERABLE ? "vulnerable"
+		   : rate >= WEAK	  ? "weak"
+		   : rate >= NORMAL	  ? "normal"
+		   : rate >= RESISTS  ? "resists"
+		   : rate > IMMUNE	  ? "tough"
+							  : "immune";
 }
 
 // The type the weapon deals most of: the one the journal learns from its hit.
@@ -43,34 +54,56 @@ constexpr Resistances NO_RESISTANCES = {NORMAL, NORMAL, NORMAL, NORMAL};
 	return static_cast<DamageType>(best);
 }
 
-// A weapon hit of `damage` after the monster's resistances: sum(damage * share * rate), rounded, at least 1.
-[[nodiscard]] inline int resistedDamage(int damage, const DamageMix& mix, const Resistances& resist) {
-	long sum = 0;
-	for (int t = 0; t < DAMAGE_TYPE_COUNT; t++)
-		sum += static_cast<long>(mix[t]) * resist[t];
-	const double dealt = static_cast<double>(damage) * static_cast<double>(sum) / 10000.0;
-	return std::max(1, static_cast<int>(std::lround(dealt)));
+// A hit's damage rounded, at least 1, unless every type it deals is an immune one (plan resistance-tiers): then 0.
+[[nodiscard]] inline int hitDamage(double dealt, bool hurts) {
+	return hurts ? std::max(1, static_cast<int>(std::lround(dealt))) : 0;
 }
 
-// The amethyst rings (plan ring-accessories): each rate under NORMAL moves `percent` of the way to NORMAL (RESISTS at
-// 25%: 62). Weaknesses stay.
-[[nodiscard]] constexpr Resistances cutResistances(Resistances resist, int percent) {
-	for (int& rate : resist)
-		if (rate < NORMAL)
-			rate += (NORMAL - rate) * std::min(percent, 100) / 100;
+// A weapon hit of `damage` after the monster's resistances: sum(damage * share * rate), rounded, at least 1 (0 if it
+// only deals types it is immune to).
+[[nodiscard]] inline int resistedDamage(int damage, const DamageMix& mix, const Resistances& resist) {
+	double sum = 0.0;
+	for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
+		sum += static_cast<double>(mix[t]) * resist[t];
+	return hitDamage(static_cast<double>(damage) * sum / 10000.0, sum > 0.0);
+}
+
+// The amethyst rings (plan resistance-tiers): each rate moves `percent` of a tier up the ladder (RESIST_TIERS), the
+// step the gap to the next tier: rate + (next - rate) * share. Over 100% it goes on into the tier after; VULNERABLE is
+// the top. IMMUNE stays (only a whole-tier ring may move it: sky-iron-rings). Gold (50%) on TOUGH: 37.5.
+[[nodiscard]] constexpr Resistances amethystResist(Resistances resist, int percent) {
+	for (float& rate : resist) {
+		if (rate <= IMMUNE || percent <= 0)
+			continue;
+		float left = static_cast<float>(percent) / 100.f; // tiers still to climb
+		for (size_t i = 1; i < RESIST_TIERS.size() && left > 0.f; i++) {
+			const auto next = static_cast<float>(RESIST_TIERS[i]);
+			if (rate >= next)
+				continue;
+			const auto below = static_cast<float>(RESIST_TIERS[i - 1]);
+			const float toNext = (next - rate) / (next - below); // the share of this tier left to climb
+			if (left < toNext) {
+				rate += left * (next - below);
+				left = 0.f;
+			} else {
+				rate = next;
+				left -= toNext;
+			}
+		}
+	}
 	return resist;
 }
 
 // The resistances of one standing in water (plan fire-in-water): its fire rate is WATER_FIRE_DAMAGE_PCT % of the
 // usual, the other types as they are.
 [[nodiscard]] inline Resistances inWaterResist(Resistances resist) {
-	resist[FIRE] = static_cast<int>(std::lround(resist[FIRE] * WATER_FIRE_DAMAGE_PCT / 100.0));
+	resist[FIRE] = resist[FIRE] * WATER_FIRE_DAMAGE_PCT / 100.f;
 	return resist;
 }
 
 // The fire share of a hit of `damage` after the resistances, in HP (not rounded); 0 for a hit without fire.
 [[nodiscard]] inline double fireDamage(int damage, const DamageMix& mix, const Resistances& resist) {
-	return static_cast<double>(damage) * mix[FIRE] * resist[FIRE] / 10000.0;
+	return static_cast<double>(damage) * mix[FIRE] * static_cast<double>(resist[FIRE]) / 10000.0;
 }
 
 // How the traps hurt the player (plan monster-attack-damage-types).
@@ -96,13 +129,13 @@ constexpr int ARMOR_HALVES = 50;
 playerHitDamage(int damage, const DamageMix& mix, const Resistances& resist, int armor, bool ignoreArmor) {
 	if (ignoreArmor)
 		return resistedDamage(damage, mix, resist);
-	long sum = 0;
+	double sum = 0.0;
 	for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
-		sum += t == FIRE ? 0 : static_cast<long>(mix[t]) * resist[t];
-	const double other = static_cast<double>(damage) * static_cast<double>(sum) / 10000.0;
+		sum += t == FIRE ? 0.0 : static_cast<double>(mix[t]) * resist[t];
+	const double other = static_cast<double>(damage) * sum / 10000.0;
 	const double kept = static_cast<double>(ARMOR_HALVES) / static_cast<double>(ARMOR_HALVES + std::max(0, armor));
-	const double dealt = fireDamage(damage, mix, resist) + other * kept;
-	return std::max(1, static_cast<int>(std::lround(dealt)));
+	const double fire = fireDamage(damage, mix, resist);
+	return hitDamage(fire + other * kept, sum > 0.0 || fire > 0.0);
 }
 
 // Fire sets its target burning (plan fire-damage): for BURN_MS it takes BURN_TICK_PERCENT % of the hit's fire share a

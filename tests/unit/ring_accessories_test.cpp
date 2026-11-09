@@ -81,9 +81,18 @@ TEST_CASE("the ring bonus: both hands count, the same gem stacks, two identical 
 	CHECK(ringBonus(worn(ItemKind::JasperCopper, ItemKind::JasperSilver)).speedPercent == 13);
 	CHECK(ringBonus(worn(ItemKind::JasperGold, ItemKind::JasperGold)).speedPercent == RingEffect::JASPER_CAP);
 	CHECK(ringBonus(worn(ItemKind::CrystalGold, ItemKind::CrystalGold)).reachPercent == RingEffect::CRYSTAL_CAP);
-	CHECK(ringBonus(worn(ItemKind::AmethystSilver, ItemKind::AmethystSilver)).resistCutPercent == 80);
-	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystCopper)).resistCutPercent == 100);
-	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystSilver)).resistCutPercent == 100);
+	CHECK(ringBonus(worn(ItemKind::AmethystSilver, ItemKind::AmethystSilver)).amethystPercent == 40);
+	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystCopper)).amethystPercent == 60);
+	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystSilver)).amethystPercent == 70);
+	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystGold)).amethystPercent == 100);
+	CHECK(
+		ringSumText(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystSilver)), RingGem::Amethyst) ==
+		"resistances 70% of a tier weaker"
+	);
+	CHECK(
+		ringSumText(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystGold)), RingGem::Amethyst) ==
+		"resistances a tier weaker"
+	);
 	CHECK(
 		ringSumText(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)), RingGem::Garnet) ==
 		"heals 1 health every 1.5 s"
@@ -256,11 +265,20 @@ TEST_CASE("the rock crystal reaches farther, melee and ranged, times the Sharp e
 	CHECK(stats.WeaponReach(ItemKind::SelfBow) == doctest::Approx(weaponReach(ItemKind::SelfBow) * 1.3f * 1.25f));
 }
 
-TEST_CASE("the amethyst cuts through resistances, weaknesses stay") {
-	const Resistances scarab = {NORMAL, RESISTS, WEAK, TOUGH};
-	CHECK(cutResistances(scarab, 25) == Resistances{NORMAL, 62, WEAK, 43});
-	CHECK(cutResistances(scarab, 50) == Resistances{NORMAL, 75, WEAK, 62});
-	CHECK(cutResistances(scarab, 100) == Resistances{NORMAL, NORMAL, WEAK, NORMAL});
+TEST_CASE("the amethyst moves each rate a share of a tier up the ladder (plan resistance-tiers)") {
+	// The plan's table: copper 10%, silver 20%, gold 50%, two gold 100% (a whole tier).
+	const Resistances tiers = {TOUGH, RESISTS, NORMAL, WEAK};
+	CHECK(amethystResist(tiers, 10) == Resistances{27.5f, 55.f, 105.f, 155.f});
+	CHECK(amethystResist(tiers, 20) == Resistances{30.f, 60.f, 110.f, 160.f});
+	CHECK(amethystResist(tiers, 50) == Resistances{37.5f, 75.f, 125.f, 175.f});
+	CHECK(amethystResist(tiers, 100) == Resistances{RESISTS, NORMAL, WEAK, VULNERABLE});
+	// Gold and silver: 70%; over a whole tier it goes on into the next; vulnerable is the top.
+	CHECK(amethystResist(tiers, 70) == Resistances{42.5f, 85.f, 135.f, 185.f});
+	CHECK(amethystResist(tiers, 150) == Resistances{75.f, 125.f, 175.f, VULNERABLE});
+	CHECK(amethystResist(tiers, 200) == Resistances{NORMAL, WEAK, VULNERABLE, VULNERABLE});
+	CHECK(amethystResist({VULNERABLE, VULNERABLE, VULNERABLE, VULNERABLE}, 50)[0] == VULNERABLE);
+	// Immune stays immune: no copper, silver or gold ring moves it.
+	CHECK(amethystResist({IMMUNE, TOUGH, NORMAL, NORMAL}, 200)[0] == IMMUNE);
 
 	// A sword on a giant scarab (it resists a cut): more damage with the gold amethyst, as the player's hit.
 	auto dealt = [](std::optional<ItemKind> ring) {
@@ -276,7 +294,7 @@ TEST_CASE("the amethyst cuts through resistances, weaknesses stay") {
 		return before - world.dungeon.NearestMonsterHealth();
 	};
 	CHECK(dealt(std::nullopt) == 25); // 35 x (85% x 50 + 15% x 200)
-	CHECK(dealt(ItemKind::AmethystGold) == 37); // 35 x (85% x 90 + 15% x 200)
+	CHECK(dealt(ItemKind::AmethystGold) == 33); // 35 x (85% x 75 + 15% x 200)
 }
 
 TEST_CASE("chests hold a ring now and then: the metal by depth, the amethyst rarer") {

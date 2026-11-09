@@ -1,6 +1,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/damage.h"
 #include <cmath>
+#include <string>
 
 TEST_CASE("without resistances a typed hit deals what it did untyped") {
 	for (int dmg : {1, 2, 9, 26, 110, 1000})
@@ -37,14 +38,31 @@ TEST_CASE("the resistance scales the raw hit before the armour") {
 TEST_CASE("fire: a share like the others; armour does not stop it, only the fire guard cuts it") {
 	const DamageMix fire = {0, 0, 0, 100};
 	CHECK(resistedDamage(10, fire, NO_RESISTANCES) == 10);
-	CHECK(resistedDamage(10, fire, {NORMAL, NORMAL, NORMAL, WEAK}) == 20);
+	CHECK(resistedDamage(10, fire, {NORMAL, NORMAL, NORMAL, VULNERABLE}) == 20);
 	// A fire arrow (40 pierce, 60 fire) on a mummy: 10 * (40 * 25 + 60 * 200) / 10000 = 13.
-	CHECK(resistedDamage(10, {0, 0, 40, 60}, {RESISTS, WEAK, TOUGH, WEAK}) == 13);
+	CHECK(resistedDamage(10, {0, 0, 40, 60}, {RESISTS, VULNERABLE, TOUGH, VULNERABLE}) == 13);
 	for (int armor : {0, 3, 12, 40})
 		CHECK(playerHitDamage(20, fire, NO_RESISTANCES, armor, false) == 20);
 	CHECK(playerHitDamage(20, fire, {NORMAL, NORMAL, NORMAL, 20}, 12, false) == 4); // grand fire guard
 	// A mixed hit: the armour takes its share of the blunt share only.
 	CHECK(playerHitDamage(20, {40, 0, 0, 60}, NO_RESISTANCES, 50, false) == 16); // 12 fire + 8 / 2
+}
+
+TEST_CASE("the tiers' words, vulnerable to immune (plan resistance-tiers)") {
+	CHECK(std::string(resistanceWord(VULNERABLE)) == "vulnerable");
+	CHECK(std::string(resistanceWord(WEAK)) == "weak");
+	CHECK(std::string(resistanceWord(NORMAL)) == "normal");
+	CHECK(std::string(resistanceWord(RESISTS)) == "resists");
+	CHECK(std::string(resistanceWord(TOUGH)) == "tough");
+	CHECK(std::string(resistanceWord(IMMUNE)) == "immune");
+	CHECK(std::string(resistanceWord(37.5f)) == "tough"); // between two tiers: the one under it
+	CHECK(std::string(resistanceWord(175.f)) == "weak");
+	CHECK(resistedDamage(10, {100}, {WEAK, NORMAL, NORMAL, NORMAL}) == 15);
+	CHECK(resistedDamage(10, {100}, {37.5f, NORMAL, NORMAL, NORMAL}) == 4); // 3.75, the half kept
+	// Immune: no minimum of 1, armour or not.
+	CHECK(resistedDamage(10, {0, 0, 0, 100}, {NORMAL, NORMAL, NORMAL, IMMUNE}) == 0);
+	CHECK(playerHitDamage(10, {0, 0, 0, 100}, {NORMAL, NORMAL, NORMAL, IMMUNE}, 20, false) == 0);
+	CHECK(resistedDamage(1, {50, 0, 0, 50}, {TOUGH, NORMAL, NORMAL, IMMUNE}) == 1); // a hurting share: at least 1
 }
 
 namespace {
@@ -77,7 +95,7 @@ TEST_CASE("burning: a fifth of the fire share a second for 3 s; a stronger fire 
 
 TEST_CASE("fire in water: a tenth of the fire share, the rest unchanged (plan fire-in-water)") {
 	CHECK(inWaterResist(NO_RESISTANCES) == Resistances{NORMAL, NORMAL, NORMAL, 10});
-	CHECK(inWaterResist({RESISTS, WEAK, TOUGH, WEAK}) == Resistances{RESISTS, WEAK, TOUGH, 20});
+	CHECK(inWaterResist({RESISTS, VULNERABLE, TOUGH, VULNERABLE}) == Resistances{RESISTS, VULNERABLE, TOUGH, 20});
 	const DamageMix anubis = {0, 0, 0, 100};
 	CHECK(playerHitDamage(100, anubis, inWaterResist(NO_RESISTANCES), 0, false) == 10);
 	CHECK(playerHitDamage(100, anubis, NO_RESISTANCES, 0, false) == 100);

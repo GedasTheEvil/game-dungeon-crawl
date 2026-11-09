@@ -1,6 +1,6 @@
 # Sky-iron rings, a tier above gold
 
-Status: draft 2026-11-09, size M, needs first: [resistance-tiers](resistance-tiers.feature.draft.opus.md).
+Status: draft 2026-11-09, size M, needs first: [resistance-tiers](resistance-tiers.feature.md).
 
 ## Idea
 
@@ -45,7 +45,7 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
 * Balance (user, 2026-11-09): one ring stays weaker than an amulet; two can beat one. Fix the glossary's ring row
   ("Weaker than an amulet" -> one ring is).
 * Sky-iron amethyst (user, 2026-11-09): a share of 100 % on the amethyst rule of
-  [resistance-tiers](resistance-tiers.feature.draft.opus.md): every rate one whole tier toward more damage
+  [resistance-tiers](resistance-tiers.feature.md): every rate one whole tier toward more damage
   (immune -> tough -> resists -> normal -> weak -> vulnerable; vulnerable stays). The only amethyst that moves immune.
   Two sky irons: two tiers (the 200 % cap); a sky iron with a gold: 150 % (tough -> 75). Bosses get it too (it is the
   ring, not the monster). Poison resistance is not touched.

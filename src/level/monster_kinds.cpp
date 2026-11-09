@@ -37,48 +37,50 @@ constexpr DamageMix BABI_MIX = {40, 30, 30}; // Babi: a two-handed blow, then th
 // How each group takes blunt, slash, pierce and fire damage (plans damage-types-and-resistances, fire-damage). Each
 // weapon is the best against some: the club against bats, mimics and the Anubis guard, the sword against worms, plants
 // and mummies, the spear (and the bow) against scarabs, fire (a brazier's arrows) against mummies, plants, worms and
-// eggs. A boss has no weak spot (bossResist).
-// The rule (plan skill-flaming-arrows): whoever resists pierce (an arrow barely scratches it) is weak to fire, which
-// the flaming arrows add. Exceptions, on purpose: the scorpion, a desert hunter used to heat, the water lotus, a
+// eggs. A boss has no weak spot (bossResist): neither weak nor vulnerable.
+// The rule (plan skill-flaming-arrows): whoever resists pierce (an arrow barely scratches it) is vulnerable to fire,
+// which the flaming arrows add. Exceptions, on purpose: the scorpion, a desert hunter used to heat, the water lotus, a
 // wet stem that barely burns, and the ushabti, fired in a kiln (a unit test keeps the list: every new monster follows
 // the rule or joins it).
-constexpr Resistances WORM_RESIST = {RESISTS, WEAK, NORMAL, WEAK}; // soft: a blow squashes, a blade cuts, fire shrivels
+constexpr Resistances WORM_RESIST =
+	{RESISTS, VULNERABLE, NORMAL, VULNERABLE}; // soft: a blow squashes, a blade cuts, fire shrivels
 constexpr Resistances SCARAB_RESIST =
-	{NORMAL, RESISTS, WEAK, NORMAL}; // the shell turns a blade, a point goes between plates
+	{NORMAL, RESISTS, VULNERABLE, NORMAL}; // the shell turns a blade, a point goes between plates
 constexpr Resistances PLANT_RESIST =
-	{TOUGH, WEAK, TOUGH, WEAK}; // dry stems: a blade cuts, fire catches; points, blows go astray
+	{TOUGH, VULNERABLE, TOUGH, VULNERABLE}; // dry stems: a blade cuts, fire catches; points, blows go astray
 constexpr Resistances BAT_RESIST =
-	{WEAK, RESISTS, TOUGH, WEAK}; // swat it; an arrow goes through the wing, and thin membranes burn
+	{VULNERABLE, RESISTS, TOUGH, VULNERABLE}; // swat it; an arrow goes through the wing, and thin membranes burn
 constexpr Resistances MIMIC_RESIST =
-	{WEAK, RESISTS, TOUGH, WEAK}; // wood: crack it; a point only sticks in it, and dry wood burns
+	{VULNERABLE, RESISTS, TOUGH, VULNERABLE}; // wood: crack it; a point only sticks in it, and dry wood burns
 constexpr Resistances MIMIC_JAR_RESIST = {
-	WEAK,
+	VULNERABLE,
 	RESISTS,
 	TOUGH,
-	WEAK
+	VULNERABLE
 }; // fired clay: a blow shatters it, an edge or a point glances off; fire scorches its mouth
 constexpr Resistances ANUBIS_RESIST =
-	{WEAK, RESISTS, NORMAL, TOUGH}; // bronze dents, a blade glances off, stone does not burn
-constexpr Resistances MUMMY_RESIST = {RESISTS, WEAK, TOUGH, WEAK}; // dry linen tears and burns; nothing inside to stab
+	{VULNERABLE, RESISTS, NORMAL, TOUGH}; // bronze dents, a blade glances off, stone does not burn
+constexpr Resistances MUMMY_RESIST =
+	{RESISTS, VULNERABLE, TOUGH, VULNERABLE}; // dry linen tears and burns; nothing inside to stab
 constexpr Resistances CROCODILE_RESIST =
 	{NORMAL, RESISTS, NORMAL, RESISTS}; // the scutes turn a blade, wet hide a flame
 constexpr Resistances SCORPION_RESIST =
-	{WEAK, NORMAL, RESISTS, NORMAL}; // a blow cracks the thin shell; a point glances off; fire: the exception
+	{VULNERABLE, NORMAL, RESISTS, NORMAL}; // a blow cracks the thin shell; a point glances off; fire: the exception
 constexpr Resistances COBRA_RESIST =
-	{RESISTS, WEAK, NORMAL, NORMAL}; // the coils give under a blow; a blade cuts the body
+	{RESISTS, VULNERABLE, NORMAL, NORMAL}; // the coils give under a blow; a blade cuts the body
 constexpr Resistances EGG_CLUSTER_RESIST =
-	{NORMAL, WEAK, RESISTS, WEAK}; // a blade slits the leathery eggs, fire cooks them
+	{NORMAL, VULNERABLE, RESISTS, VULNERABLE}; // a blade slits the leathery eggs, fire cooks them
 constexpr Resistances LOTUS_RESIST =
-	{RESISTS, WEAK, TOUGH, RESISTS}; // a blade cuts the soft stem; blows and points bend it, wet it barely burns
+	{RESISTS, VULNERABLE, TOUGH, RESISTS}; // a blade cuts the soft stem; blows and points bend it, wet it barely burns
 constexpr Resistances CAMEL_SPIDER_RESIST =
-	{NORMAL, WEAK, RESISTS, WEAK}; // a blade lops the long legs, a point misses the slim body; fire
+	{NORMAL, VULNERABLE, RESISTS, VULNERABLE}; // a blade lops the long legs, a point misses the slim body; fire
 constexpr Resistances HIPPO_RESIST =
 	{RESISTS, NORMAL, NORMAL, RESISTS}; // a blow sinks into the fat, wet hide barely burns
 // Glazed faience shatters under a blow; a point skids off the glaze; fired in a kiln, a flame only warms it (an
 // exception to the fire rule).
-constexpr Resistances USHABTI_RESIST = {WEAK, NORMAL, RESISTS, TOUGH};
+constexpr Resistances USHABTI_RESIST = {VULNERABLE, NORMAL, RESISTS, TOUGH};
 constexpr Resistances BABOON_RESIST =
-	{NORMAL, NORMAL, WEAK, RESISTS}; // lean, an arrow finds it; it lives by the lake of fire
+	{NORMAL, NORMAL, VULNERABLE, RESISTS}; // lean, an arrow finds it; it lives by the lake of fire
 
 // Chance a poisoning does not take (plan monster-poison). The rest have none, like the player without an amulet.
 // Immune: no blood to carry it (the dead, bronze, a stem, wood, a nest of eggs).
@@ -209,12 +211,19 @@ constexpr PounceRules GIANT_RAT_POUNCE = {.minGap = 2.f, .maxGap = 3.f, .cooldow
 constexpr PounceRules GIANT_SCARAB_POUNCE = {.minGap = 1.2f, .maxGap = 3.f, .cooldownMs = 3000, .landGap = 0.8f};
 constexpr PounceRules KHEPRI_POUNCE = {.minGap = 1.2f, .maxGap = 3.5f, .cooldownMs = 2500, .landGap = 1.05f};
 
-// A boss has no weakness: where its kin is weak, it takes the damage normally.
+// A boss has no weakness: where its kin is weak or vulnerable, it takes the damage normally. An IMMUNE rate stays.
 constexpr Resistances bossResist(Resistances kin) {
-	for (int& rate : kin)
+	for (float& rate : kin)
 		rate = rate > NORMAL ? NORMAL : rate;
 	return kin;
 }
+
+// The Anubis boss (plan resistance-tiers): fire does it no harm, where its kin, the Anubis guard, is only tough.
+constexpr Resistances ANUBIS_BOSS_RESIST = [] {
+	Resistances resist = bossResist(ANUBIS_RESIST);
+	resist[FIRE] = IMMUNE;
+	return resist;
+}();
 
 // By MonsterTypeId, from 1. Small ones are quick and bite often but barely hurt; big ones are slow, hit hard and take
 // long to kill. Flyers roost on the ceiling and swoop through the player (Monster::Fly). HP and damage (plan
@@ -629,7 +638,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .xp = 30000,
 	 .attackMix = ANUBIS_MIX,
 	 .melee = HIGH_BLOW,
-	 .resist = bossResist(ANUBIS_RESIST),
+	 .resist = ANUBIS_BOSS_RESIST,
 	 .courage = Courage::Reckless,
 	 .trapPermille = 4,
 	 .weight = 4,
@@ -1473,8 +1482,9 @@ constexpr bool validKinds() {
 				kind.melee.height != kin.height) // and strikes at its kin's height (plan crouch)
 				return false;
 		}
-		for (int rate : kind.resist)
-			if (rate <= 0) // every type hurts
+		for (float rate : kind.resist)
+			if (rate < IMMUNE ||
+				(rate <= IMMUNE && !kind.isBoss())) // every type hurts a common one; a boss may be immune
 				return false;
 		for (size_t t = 0; kind.isBoss() && t < kind.resist.size(); t++)
 			if (kind.resist[t] > NORMAL || kind.resist[t] > KINDS[static_cast<size_t>(kind.kin - 1)].resist[t])
@@ -1486,7 +1496,7 @@ static_assert(
 	validKinds(),
 	"KINDS: one row per MonsterTypeId in order, attack and ranged mixes of 100%, hatchers with a nest, "
 	"bosses with a kin (its sand burrowing, light shunning, terrain affinity, kiting and climbing too), sane terrain "
-	"affinities, swimmers native to water, no weakness and no resistance "
+	"affinities, swimmers native to water, no immunity but a boss's, no weakness and no resistance "
 	"worse "
 	"than the kin's, poison included, a reach no shorter than the kin's, volleys of at least one shot"
 );

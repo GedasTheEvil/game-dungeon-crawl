@@ -378,8 +378,8 @@ struct MonsterKind {
 	// climbRise 0: no climb clip, the walk clip stands in on the clock.
 	float climbRise = 0.f;
 	float climbGrip = 0.f;
-	// A boss's common kin (the Anubis boss: the Anubis guard). A boss has no weakness (WEAK) and resists every damage
-	// type at least as well as its kin (plan boss-resistances).
+	// A boss's common kin (the Anubis boss: the Anubis guard). A boss is neither weak nor vulnerable and resists
+	// every damage type at least as well as its kin (plan boss-resistances).
 	int kin = 0;
 	BossRules boss{}; // summons minions, its death opens the boss gates (BOSS_LOCK); at most one per level
 	GenPick generated{}; // levelgen's random monsters

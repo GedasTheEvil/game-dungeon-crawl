@@ -202,7 +202,7 @@ class PlayerStats {
 	// The feldspar rings: the poison's time runs down this much faster.
 	[[nodiscard]] int PoisonFasterPercent() const { return rings.poisonFasterPercent; }
 	// The amethyst rings: the share of a monster's resistances the player's weapon hits ignore.
-	[[nodiscard]] int ResistCutPercent() const { return rings.resistCutPercent; }
+	[[nodiscard]] int AmethystPercent() const { return rings.amethystPercent; }
 	// Tiles: the weapon's reach with the Sharp eye skill (weaponReach) and the rock crystal rings.
 	[[nodiscard]] float WeaponReach(ItemKind weapon) const {
 		return weaponReach(weapon, heka) * static_cast<float>(100 + rings.reachPercent) / 100.f;

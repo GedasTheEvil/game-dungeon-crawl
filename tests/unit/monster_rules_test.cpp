@@ -287,7 +287,7 @@ TEST_CASE("fire arrows from a brazier: the mummy takes double from fire and burn
 	CHECK(world.dungeon.NearestMonsterBurns());
 	CHECK(world.player.fireArrows == FIRE_ARROW_SHOTS - 1);
 	CHECK(world.Told("Mummy catches fire"));
-	CHECK(world.Told("weak to fire"));
+	CHECK(world.Told("vulnerable to fire"));
 	CHECK(world.Creature(MonsterMummy)->Tried(DamageType::Fire));
 	// It burns a fifth of its fire share (8.4) a second for 3 s: 5.
 	world.Wait(3500);
@@ -397,7 +397,7 @@ TEST_CASE("flaming arrows: a brazier-lit arrow gets no bonus and costs no stamin
 	CHECK(world.player.stats.Stamina() >= stamina);
 }
 
-TEST_CASE("the rule: every kind that resists pierce is weak to fire, except a named list") {
+TEST_CASE("the rule: every kind that resists pierce is vulnerable to fire, except a named list") {
 	// On purpose: the scorpions (desert hunters, used to heat), the water lotus (a wet stem barely burns) and the
 	// ushabti (faience, fired in a kiln).
 	const std::set<int> exceptions =
@@ -407,13 +407,28 @@ TEST_CASE("the rule: every kind that resists pierce is weak to fire, except a na
 		if (kind.resist[static_cast<size_t>(DamageType::Pierce)] >= NORMAL || exceptions.contains(type))
 			continue;
 		// A boss has no weak spot (bossResist): its fire is normal at least.
-		const int fire = kind.resist[FIRE];
+		const float fire = kind.resist[FIRE];
 		CHECK_MESSAGE(kind.isBoss() ? fire >= NORMAL : fire > NORMAL, kind.name, " resists pierce but not fire");
 	}
-	CHECK(monsterKind(MonsterBat)->resist[FIRE] == WEAK);
-	CHECK(monsterKind(MonsterMimic)->resist[FIRE] == WEAK);
+	CHECK(monsterKind(MonsterBat)->resist[FIRE] == VULNERABLE);
+	CHECK(monsterKind(MonsterMimic)->resist[FIRE] == VULNERABLE);
 	CHECK(monsterKind(MonsterVampireBat)->resist[FIRE] == NORMAL); // the boss follows through bossResist
 	CHECK(monsterKind(MonsterScorpion)->resist[FIRE] == NORMAL);
+}
+
+TEST_CASE("the Anubis boss is immune to fire, its guard only tough; no other kind is immune (plan resistance-tiers)") {
+	const MonsterKind& boss = *monsterKind(MonsterAnubisBoss);
+	CHECK(boss.resist[FIRE] == IMMUNE);
+	CHECK(monsterKind(MonsterAnubis)->resist[FIRE] == TOUGH);
+	CHECK(resistedDamage(100, {0, 0, 0, 100}, boss.resist) == 0); // pure fire: nothing, not even 1
+	CHECK(fireDamage(100, {0, 0, 0, 100}, boss.resist) == doctest::Approx(0.0)); // no burning
+	// A flaming arrow: the pierce share still hits, the fire share does nothing.
+	CHECK(resistedDamage(100, {0, 0, 40, 60}, boss.resist) == 40);
+	// The amethyst does not move an immune rate.
+	CHECK(amethystResist(boss.resist, 100)[FIRE] == IMMUNE);
+	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
+		for (float rate : monsterKind(type)->resist)
+			CHECK_MESSAGE((rate > IMMUNE || type == MonsterAnubisBoss), monsterKind(type)->name, " is immune");
 }
 
 TEST_CASE("the checker scores a swimmer in half water higher: its native terrain (plan terrain-affinity)") {

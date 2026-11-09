@@ -227,7 +227,8 @@ bool Monster::takeHit(int dmg) {
 	alerted = true;
 	if (Alive()) {
 		vitals.Lose(dmg);
-		blood->Splash(scale);
+		if (dmg > 0) // an immune type's hit draws no blood (plan resistance-tiers)
+			blood->Splash(scale);
 		if (type->call && !called && Alive() && vitals.hp * 100 < type->maxHealth * type->call->belowPct)
 			called = callDue = true; // squeals; Dungeon::UpdateMonsters gathers the pack
 	}
@@ -245,8 +246,8 @@ bool Monster::takeHit(int dmg) {
 	return true;
 }
 
-bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix, int resistCutPercent) {
-	const Resistances resist = cutResistances(type->resist, resistCutPercent);
+bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix, int amethystPercent) {
+	const Resistances resist = amethystResist(type->resist, amethystPercent);
 	const Harm harm{
 		.damage = dmg,
 		.mix = mix,
@@ -286,7 +287,8 @@ void Monster::StandInFire(int perSecond) {
 	if (vitals.trapHurt.hit() <= 0)
 		return;
 	const Resistances resist = vitals.Taken(type->resist);
-	TrapHitHundredths(perSecond * TRAP_HURT_INTERVAL_MS / 1000 * resist[FIRE] / NORMAL);
+	const int perHit = perSecond * TRAP_HURT_INTERVAL_MS / 1000; // hundredths of a HP, before the fire rate
+	TrapHitHundredths(static_cast<int>(static_cast<float>(perHit) * resist[FIRE] / NORMAL));
 	const double share = perSecond / 100.0 * type->trapPermille / FULL_TRAP_SHARE; // a second's fire, its share
 	if (Alive() && !vitals.inWater) // the player's fire stays theirs
 		vitals.Ignite(fireDamage(1, FIRE_JET_MIX, type->resist) * share, BURN_MS, HarmSource::Trap);

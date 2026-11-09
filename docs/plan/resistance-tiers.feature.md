@@ -1,6 +1,6 @@
 # Resistance tiers: immune, weak, vulnerable
 
-Status: draft 2026-11-09, size L, needs nothing first.
+Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size L, needs nothing first.
 
 ## Idea
 
@@ -60,6 +60,20 @@ to do there; check the journal says "immune" for both.
   exists for tough; else none.
 * Unit tests: the word per rate, `bossResist` keeps immune, the amethyst table above, the amethyst skips immune, the Anubis boss takes 0 fire.
 
+## Implementation notes
+
+* Halves kept: `Resistances` holds `float` rates (37.5 stays 37.5), the damage worked out from them, rounded once.
+* `amethystResist` (was `cutResistances`) walks `RESIST_TIERS`; `RingBonus::amethystPercent` (was `resistCutPercent`).
+* Immune: no copper, silver or gold ring moves it, two gold rings neither (the draft: "only a sky iron moves it").
+  The sky-iron move is left to [sky-iron-rings](sky-iron-rings.feature.draft.opus.md).
+* A hit for 0 (only immune types): no blood splash; the journal status says "immune to fire". No other cue.
+* Ring card: "Resistances 50% of a tier weaker"; sum: "resistances 70% of a tier weaker", "a tier", "two tiers".
+* `validKinds`: a common monster is never immune, a boss may be.
+
 ## Play-test
 
-* 
+* `bin/game --play tests/play/resistance-tiers.txt`: a brazier at the start (E: fire arrows), two gold amethysts worn.
+* Walk up, the Anubis guard steps out of the wall; fire arrows on it: it burns, the status says "barely hurt by fire".
+* Fire arrows on the Anubis boss: only the stab share hurts, it never catches fire, the status says "immune to fire";
+  journal (J): FIRE = immune.
+* Inventory, rings tab: an amethyst card says "Resistances 50% of a tier weaker", the sum "a tier weaker".

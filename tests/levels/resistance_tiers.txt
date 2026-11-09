@@ -1,0 +1,6 @@
+; The Anubis guard and the Anubis boss in one hall (plan resistance-tiers): the guard at col 10 (tough to fire), the
+; boss at col 26 (immune to fire), the entrance at col 1.
+##############################
+#............................#
+#S........n...............N.E#
+##############################

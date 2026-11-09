@@ -446,10 +446,12 @@ constexpr std::array<int, RING_METAL_COUNT> LAPIS_PERCENT = {15, 25, 40}; // fas
 constexpr std::array<int, RING_METAL_COUNT> FELDSPAR_PERCENT = {20, 35, 50}; // poison's time runs this much faster
 constexpr std::array<int, RING_METAL_COUNT> JASPER_PERCENT = {5, 8, 12}; // walk, sprint and climb speed
 constexpr std::array<int, RING_METAL_COUNT> CRYSTAL_PERCENT = {10, 15, 25}; // weapon reach
-constexpr std::array<int, RING_METAL_COUNT> AMETHYST_PERCENT = {20, 40, 80}; // of a resistance's way to NORMAL
+// Of a resistance tier: a monster's rates move this share of a tier toward more damage (amethystResist, plan
+// resistance-tiers).
+constexpr std::array<int, RING_METAL_COUNT> AMETHYST_PERCENT = {10, 20, 50};
 constexpr int JASPER_CAP = 20;
 constexpr int CRYSTAL_CAP = 40;
-constexpr int AMETHYST_CAP = 100;
+constexpr int AMETHYST_CAP = 200; // two tiers
 constexpr int MS_PER_HOUR = 3600000;
 } // namespace RingEffect
 
@@ -460,7 +462,7 @@ struct RingBonus {
 	int poisonFasterPercent = 0; // the poison's time left runs down this much faster (Poison::Advance)
 	int speedPercent = 0; // faster walk, sprint and climb on the ground; not the jump
 	int reachPercent = 0; // more weapon reach, melee and ranged
-	int resistCutPercent = 0; // a monster's resistance moves this share of the way to NORMAL (cutResistances)
+	int amethystPercent = 0; // a monster's rates move this share of a tier toward more damage (amethystResist)
 };
 [[nodiscard]] RingBonus ringBonus(const WornRings& worn);
 // What the worn rings give together in the gem's effect, for the ring card: "heals 1 health every 1.5 s", "walk and

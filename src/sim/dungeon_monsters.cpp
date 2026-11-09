@@ -346,11 +346,13 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 	const MonsterType& type = *mon.Type();
 	if (mix && sim.journal->TryDamage(type.id, levelNumber, mainType(*mix))) {
 		const DamageType main = mainType(*mix);
-		const int rate = type.resist[static_cast<size_t>(main)];
-		const char* how = rate > NORMAL		? "weak to"
-						  : rate == NORMAL	? "no resistance to"
-						  : rate >= RESISTS ? "resists"
-											: "barely hurt by";
+		const float rate = type.resist[static_cast<size_t>(main)];
+		const char* how = rate >= VULNERABLE ? "vulnerable to"
+						  : rate > NORMAL	 ? "weak to"
+						  : rate == NORMAL	 ? "no resistance to"
+						  : rate >= RESISTS	 ? "resists"
+						  : rate > IMMUNE	 ? "barely hurt by"
+											 : "immune to";
 		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
 	}
 	if (mix) // the crushing, cleaving and piercing amulets (plan amulet-extras)
@@ -359,7 +361,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 	const bool wasBurning = mon.Burns();
 	const bool wasLurking = mon.lurking();
 	mon.Provoke();
-	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix, sim.player->stats.ResistCutPercent()) : mon.takeHit(dmg);
+	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix, sim.player->stats.AmethystPercent()) : mon.takeHit(dmg);
 	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()));
 	if (mix && (*mix)[FIRE] > 0)
 		sim.events->Note(FieldNote::Fire);

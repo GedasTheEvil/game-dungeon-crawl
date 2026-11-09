@@ -1,7 +1,0 @@
-# Plan empty-slots-last: potions tab. Drink the only Might in the open inventory: it stays put. Close and reopen: it
-# sits after the held potions, before the ones not found.
-level tests/levels/classic1
-give potion 0 3
-give potion 2
-give potion 7 2
-give potion 1

@@ -81,7 +81,8 @@ TEST_CASE("the ring bonus: both hands count, the same gem stacks, two identical 
 	CHECK(ringBonus(worn(ItemKind::JasperCopper, ItemKind::JasperSilver)).speedPercent == 13);
 	CHECK(ringBonus(worn(ItemKind::JasperGold, ItemKind::JasperGold)).speedPercent == RingEffect::JASPER_CAP);
 	CHECK(ringBonus(worn(ItemKind::CrystalGold, ItemKind::CrystalGold)).reachPercent == RingEffect::CRYSTAL_CAP);
-	CHECK(ringBonus(worn(ItemKind::AmethystSilver, ItemKind::AmethystSilver)).resistCutPercent == 100);
+	CHECK(ringBonus(worn(ItemKind::AmethystSilver, ItemKind::AmethystSilver)).resistCutPercent == 80);
+	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystCopper)).resistCutPercent == 100);
 	CHECK(ringBonus(worn(ItemKind::AmethystGold, ItemKind::AmethystSilver)).resistCutPercent == 100);
 	CHECK(
 		ringSumText(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)), RingGem::Garnet) ==
@@ -275,7 +276,7 @@ TEST_CASE("the amethyst cuts through resistances, weaknesses stay") {
 		return before - world.dungeon.NearestMonsterHealth();
 	};
 	CHECK(dealt(std::nullopt) == 25); // 35 x (85% x 50 + 15% x 200)
-	CHECK(dealt(ItemKind::AmethystGold) == 40); // 35 x (85% x 100 + 15% x 200)
+	CHECK(dealt(ItemKind::AmethystGold) == 37); // 35 x (85% x 90 + 15% x 200)
 }
 
 TEST_CASE("chests hold a ring now and then: the metal by depth, the amethyst rarer") {

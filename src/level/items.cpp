@@ -526,12 +526,9 @@ std::string ringEffect(Ring r) {
 	case RingGem::Crystal:
 		std::snprintf(effect, sizeof(effect), "Weapon reach +%d%%", RingEffect::CRYSTAL_PERCENT[m]);
 		break;
-	case RingGem::Amethyst: {
-		constexpr const char* SHARES[RING_METAL_COUNT] =
-			{"Cuts a quarter of resistances", "Cuts half of resistances", "Ignores resistances"};
-		std::snprintf(effect, sizeof(effect), "%s", SHARES[m]);
+	case RingGem::Amethyst:
+		std::snprintf(effect, sizeof(effect), "Cuts %d%% of resistances", RingEffect::AMETHYST_PERCENT[m]);
 		break;
-	}
 	}
 	return effect;
 }

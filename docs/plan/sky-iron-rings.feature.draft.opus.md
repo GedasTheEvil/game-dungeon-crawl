@@ -34,7 +34,7 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
   | Feldspar | 20 / 35 / 50 % | 70 % |
   | Jasper | 5 / 8 / 12 % | 17 %, `JASPER_CAP` 20 -> 25 |
   | Crystal | 10 / 15 / 25 % | 35 %, `CRYSTAL_CAP` 40 -> 50 |
-  | Amethyst | 25 / 50 / 100 % of the way to NORMAL | gold's cut, then every rate one tier down (below) |
+  | Amethyst | 20 / 40 / 80 % of the way to NORMAL | the full cut (100 %), then every rate one tier down (below) |
 * Garnet: `RingBonus::regenHpPerHour` is a flat rate; the percent of max HP needs a second field (e.g. `regenMaxHpPermille`
   per hour) summed with the flat one in `PlayerStats`; still not while poisoned. Two sky-iron garnets: twice.
   The ring card text: "Heals 1% health (at least 1) every 2 s".
@@ -46,8 +46,8 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
   ("Weaker than an amulet" -> one ring is).
 * Sky-iron amethyst (user, 2026-11-09): "one tier down" on the ladder of
   [resistance-tiers](resistance-tiers.feature.draft.opus.md) (immune 0, tough 25, resists 50, normal 100, weak 150,
-  vulnerable 200). One tier down alone would be weaker than gold against tough (gold lifts tough to normal), so:
-  gold's full cut first (tough, resists -> normal), then one tier down: normal -> weak, weak -> vulnerable,
+  vulnerable 200). One tier down alone would be weaker than gold against tough (gold lifts tough 80 % of the way), so:
+  the full cut first (tough, resists -> normal), then one tier down: normal -> weak, weak -> vulnerable,
   vulnerable stays, immune -> tough (the lower amethysts leave immune alone). Each worn sky-iron amethyst is one
   tier (user, 2026-11-09): two go two tiers down (tough, resists, normal -> vulnerable; immune -> resists).
   `RingBonus` gets a tier count next to `resistCutPercent` (a sky iron adds 100 % cut and one tier); a sky iron with

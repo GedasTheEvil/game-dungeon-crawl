@@ -579,6 +579,6 @@ text: Rock crystal, clear as air. My weapon reaches a little farther with it, 10
 
 [note.ring-amethyst]
 title: Amethyst ring
-text: An amethyst, the rarest of them. My blows go through what a hide or a shell holds back: a quarter, half or all
-	of a creature's resistance is gone, copper, silver, gold. What a creature is weak to stays so. Rings go one on
+text: An amethyst, the rarest of them. My blows go through what a hide or a shell holds back: a fifth, two fifths or
+	four fifths of a creature's resistance is gone, copper, silver, gold; two together, all of it. What a creature is weak to stays so. Rings go one on
 	each hand, two at once.

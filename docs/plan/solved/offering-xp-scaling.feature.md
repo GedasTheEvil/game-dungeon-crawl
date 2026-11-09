@@ -1,10 +1,10 @@
 # Offerings scale with total XP, potions can be offered
 
-Status: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size S, needs nothing first.
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-09, waiting for the user's play-test. Was: draft 2026-11-09, size S, needs nothing first.
 
 ## Idea
 
-The user: today a spare weapon offered at a shrine gives a flat 200 XP ([shrine-offerings](solved/shrine-offerings.feature.md)).
+The user: today a spare weapon offered at a shrine gives a flat 200 XP ([shrine-offerings](shrine-offerings.feature.md)).
 It should grow with the player: 200 + 0.1 % of the current total XP. Potions can be offered too: a lesser one for
 200 + 0.1 % of total XP, a greater one for 350 + 0.2 %.
 Rings and amulets by rank (I to IV): today's base plus 0.05 %, 0.1 %, 0.2 %, 0.4 % of total XP. No offering gives

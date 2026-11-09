@@ -1,6 +1,6 @@
 # Resistance tiers: immune, weak, vulnerable
 
-Status: draft 2026-11-09, size M, needs nothing first.
+Status: draft 2026-11-09, size L, needs nothing first.
 
 ## Idea
 
@@ -34,13 +34,31 @@ to do there; check the journal says "immune" for both.
 * `bossResist`: caps at NORMAL as now (a boss is neither weak nor vulnerable); an `IMMUNE` rate passes through.
   The Anubis boss: its fire set to `IMMUNE` after `bossResist` (its kin, the Anubis guard, stays tough: the boss is
   stronger, AGENTS.md Boss abilities). Its own fire bolt: no change. A flaming arrow on it: the fire part does 0.
-* Immune vs the amethyst rings (`cutResistances`): copper to gold cut a rate below NORMAL toward NORMAL; today an
-  immune 0 would become normal under a gold amethyst. Rule: the amethyst does not touch `IMMUNE`
-  (the sky-iron amethyst of [sky-iron-rings](sky-iron-rings.feature.draft.opus.md) moves it one tier).
+* The amethyst rings move on this ladder (user, 2026-11-09; replaces today's "share of the way to NORMAL",
+  `cutResistances`, and the 20 / 40 / 80 % of commit aff43332). A ring moves each rate a share of the way to the
+  next tier up: copper 10 %, silver 20 %, gold 50 % (the sky iron of
+  [sky-iron-rings](sky-iron-rings.feature.draft.opus.md): 100 %, a whole tier). The step is the gap to the next tier:
+  `rate + (next - rate) * share`; a share over 100 % goes on into the tier after.
+  | Rate | Copper | Silver | Gold | Two gold |
+  |---|---|---|---|---|
+  | tough 25 | 27.5 | 30 | 37.5 | 50 (resists) |
+  | resists 50 | 55 | 60 | 75 | 100 (normal) |
+  | normal 100 | 105 | 110 | 125 | 150 (weak) |
+  | weak 150 | 155 | 160 | 175 | 200 (vulnerable) |
+  * Normal and weak rates go up too (not today: the amethyst only lifts resistances).
+  * Two rings: the shares add up (gold + silver 70 %), up to 200 % (two sky irons, two tiers); vulnerable is the top,
+    never passed.
+  * Immune: copper to gold leave it alone; only a sky iron moves it (to tough).
+  * The rates are whole percents today (`Resistances`): keep the halves (tenths, or the damage worked out from the
+    unrounded rate) so 37.5 stays 37.5; the implementer's choice.
+  * `RingEffect::AMETHYST_PERCENT` {10, 20, 50}, `AMETHYST_CAP` 200 (in percent of a tier). The ring card ("Cuts 80% of
+    resistances" today) and its sum text: "a tenth / a fifth / half a tier toward more damage" or plainer; the
+    journal note `note.ring-amethyst`; the glossary ring row. The unit tests of `ring_accessories_test.cpp` (the
+    scarab hit, the sums).
 * Hits for 0: no "no damage" chip-damage minimum on an immune type (check `resistedDamage` and the minimum-1 rules),
   a mixed hit still does its other types' share. A visible cue (a "immune" float or the dull hit sound) if one
   exists for tough; else none.
-* Unit tests: the word per rate, `bossResist` keeps immune, the amethyst skips immune, the Anubis boss takes 0 fire.
+* Unit tests: the word per rate, `bossResist` keeps immune, the amethyst table above, the amethyst skips immune, the Anubis boss takes 0 fire.
 
 ## Play-test
 

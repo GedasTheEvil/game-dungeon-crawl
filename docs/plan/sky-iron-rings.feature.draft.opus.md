@@ -34,7 +34,7 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
   | Feldspar | 20 / 35 / 50 % | 70 % |
   | Jasper | 5 / 8 / 12 % | 17 %, `JASPER_CAP` 20 -> 25 |
   | Crystal | 10 / 15 / 25 % | 35 %, `CRYSTAL_CAP` 40 -> 50 |
-  | Amethyst | 20 / 40 / 80 % of the way to NORMAL | the full cut (100 %), then every rate one tier down (below) |
+  | Amethyst | 10 / 20 / 50 % of a tier (resistance-tiers) | a whole tier (below) |
 * Garnet: `RingBonus::regenHpPerHour` is a flat rate; the percent of max HP needs a second field (e.g. `regenMaxHpPermille`
   per hour) summed with the flat one in `PlayerStats`; still not while poisoned. Two sky-iron garnets: twice.
   The ring card text: "Heals 1% health (at least 1) every 2 s".
@@ -44,15 +44,11 @@ Name in texts (user agreed; "divine iron" the alternative): "Sky-Iron Garnet Rin
 * Lore and field note for the first sky-iron ring ("iron of heaven, fallen from Nut's body").
 * Balance (user, 2026-11-09): one ring stays weaker than an amulet; two can beat one. Fix the glossary's ring row
   ("Weaker than an amulet" -> one ring is).
-* Sky-iron amethyst (user, 2026-11-09): "one tier down" on the ladder of
-  [resistance-tiers](resistance-tiers.feature.draft.opus.md) (immune 0, tough 25, resists 50, normal 100, weak 150,
-  vulnerable 200). One tier down alone would be weaker than gold against tough (gold lifts tough 80 % of the way), so:
-  the full cut first (tough, resists -> normal), then one tier down: normal -> weak, weak -> vulnerable,
-  vulnerable stays, immune -> tough (the lower amethysts leave immune alone). Each worn sky-iron amethyst is one
-  tier (user, 2026-11-09): two go two tiers down (tough, resists, normal -> vulnerable; immune -> resists).
-  `RingBonus` gets a tier count next to `resistCutPercent` (a sky iron adds 100 % cut and one tier); a sky iron with
-  a lower amethyst: the full cut and one tier. Bosses get it too (it is the ring, not the monster). Poison resistance is not touched.
-  Ring card text: "Every foe one step weaker to your blows" or plainer.
+* Sky-iron amethyst (user, 2026-11-09): a share of 100 % on the amethyst rule of
+  [resistance-tiers](resistance-tiers.feature.draft.opus.md): every rate one whole tier toward more damage
+  (immune -> tough -> resists -> normal -> weak -> vulnerable; vulnerable stays). The only amethyst that moves immune.
+  Two sky irons: two tiers (the 200 % cap); a sky iron with a gold: 150 % (tough -> 75). Bosses get it too (it is the
+  ring, not the monster). Poison resistance is not touched.
 
 
 ## Play-test

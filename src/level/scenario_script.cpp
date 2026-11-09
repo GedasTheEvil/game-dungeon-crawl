@@ -438,6 +438,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::CutScenes:
 	case CommandType::Hitboxes:
 	case CommandType::Hints:
+	case CommandType::Gifts:
 	case CommandType::KillBoss:
 	case CommandType::HurtBoss:
 	case CommandType::PoisonBoss:
@@ -477,6 +478,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"cutscenes", CommandType::CutScenes, onOff, "<on|off>"},
 		{"hitboxes", CommandType::Hitboxes, onOff, "<on|off>"},
 		{"hints", CommandType::Hints, onOff, "<on|off> (the first hints in any run, plan controls-help)"},
+		{"gifts", CommandType::Gifts, onOff, "<on|off> (every offering brings a gift, plan offering-gift)"},
 		{"screenshot", CommandType::Screenshot, parseScreenshot, "<name> (no slashes)"},
 		{"dump", CommandType::Dump, noArgs, ""},
 		{"expect", CommandType::Expect, parseExpect, "<field|<item><id>[.level]> <==|!=|<|<=|>|>=> <number>"},

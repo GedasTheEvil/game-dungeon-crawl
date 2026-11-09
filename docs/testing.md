@@ -108,7 +108,7 @@ number; after a map file or a generated level, whatever the dungeon's level numb
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
 `seed`, `god`, `peace`, `level`, `give`, `equip`, `wear`, `xp`, `gear`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `tire`, `firehit`, `blind`, `daze`, `prop`,
-`torch`, `mirror`, `container`, `riddles`, `inscriptions`, `names`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `hints`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
+`torch`, `mirror`, `container`, `riddles`, `inscriptions`, `names`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `hints`, `gifts`, `killboss`, `hurtboss`, `poisonboss`, `poisonmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
 `--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.
@@ -149,6 +149,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `cutscenes on\|off` | Options > Display > Cut-scenes: a lever or a boss's death that opens a gate off the screen shows it ([cinematic effects](plan/solved/cinematic-effects.md)). Off in scenarios, so their timings stay; any `key` skips a cut-scene playing. |
 | `hitboxes on\|off` | Debug outlines (F3 with `--debug`): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |
 | `hints on\|off` | The first hints ([controls-help](plan/solved/controls-help.feature.md)) in this run, though it is no campaign run; also their switch. Off by default in scenarios (no campaign run). |
+| `gifts on\|off` | Every shrine offering brings a gift ([offering-gift](plan/offering-gift.feature.md)); the god's weights still pick which. Off by default. |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory), or a special key by its name in [settings.md](settings.md) (`key left`, `key f12`, `key f1`). |
 | `hurt N` | The player loses N HP straight away (no armour, ignores `god`), to test healing and the HUD. |

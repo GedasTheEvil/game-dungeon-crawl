@@ -374,6 +374,10 @@ bool runInstant(const Command& cmd) {
 		Game().settings.gameplay.hints = cmd.a > 0.5f;
 		report(cmd, true, "");
 		return true;
+	case CommandType::Gifts: // plan offering-gift: every offering brings a gift, the god's weights pick which
+		Game().alwaysGift = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return true;
 	case CommandType::Screenshot:
 		gRunner.pendingShot = cmd.arg;
 		report(cmd, true, "");

@@ -185,3 +185,32 @@ std::vector<ItemKind> RollTrappedChestLoot(ItemKind placed, const OwnedWeapons& 
 	loot.push_back(RollCursedMimicLoot(owned, level, rng));
 	return loot;
 }
+
+ItemKind RollTreasureWeapon(bool melee, int difficulty, Rng& rng) {
+	auto allowed = [melee, difficulty](int i) {
+		const ItemKind kind = itemAt(i);
+		return isRanged(kind) != melee && weaponDef(kind).generatedFrom <= difficulty;
+	};
+	int kinds = 0;
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+		kinds += allowed(i) ? 1 : 0;
+	int pick = rng.range(0, kinds - 1);
+	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
+		if (allowed(i) && pick-- == 0)
+			return itemAt(i);
+	return ItemKind::Club;
+}
+
+ItemKind RollTreasureItem(int difficulty, Rng& rng) {
+	const int roll = rng.range(0, 99);
+	if (roll < 62) { // a potion by its weight
+		int pick = rng.range(0, 99);
+		int i = WEAPON_KIND_COUNT;
+		while (i < FIRST_AMULET - 1 && pick >= potionDef(itemAt(i)).generatedWeight) {
+			pick -= potionDef(itemAt(i)).generatedWeight;
+			i++;
+		}
+		return itemAt(i);
+	}
+	return RollTreasureWeapon(roll < 88, difficulty, rng);
+}

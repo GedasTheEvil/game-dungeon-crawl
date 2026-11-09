@@ -319,6 +319,16 @@ constexpr int ZONE_COUNT = static_cast<int>(sizeof(ZONES) / sizeof(ZONES[0]));
 
 constexpr int CAMPAIGN_LEVELS = ZONES[ZONE_COUNT - 1].last;
 
+// The levelgen difficulty (1 to 10) a campaign level was built with: the rebuild's ramp over the campaign (plan
+// denser-levels, tools/balance difficultyOf). Outside the campaign (0, a test level): 1.
+[[nodiscard]] constexpr int campaignDifficulty(int level) {
+	if (level < 1)
+		return 1;
+	if (level > CAMPAIGN_LEVELS)
+		return 10;
+	return 1 + (9 * (level - 1) + CAMPAIGN_LEVELS / 2) / (CAMPAIGN_LEVELS - 1);
+}
+
 // The zone of a campaign level, nullptr outside the campaign (a generated or test level).
 [[nodiscard]] constexpr const Zone* zoneOf(int number) {
 	for (const Zone& zone : ZONES)

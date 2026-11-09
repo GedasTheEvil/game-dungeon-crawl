@@ -30,6 +30,9 @@ class RunStats {
 	uint32_t nameSeed = 0;
 	// The first hints shown this run (plan controls-help), a bit per FirstHint (hintBit): each shows once a run.
 	uint32_t hints = 0;
+	// Offerings made at the shrines this run, merges not counted (plan offering-gift): with nameSeed, the seed of the
+	// next offering's gift roll, so a quick load gives the same gift again.
+	int offerings = 0;
 
 	void Slay(int monsterType);
 	void Drink(ItemKind potion);
@@ -42,8 +45,9 @@ class RunStats {
 	[[nodiscard]] int PlayMs() const;
 	[[nodiscard]] const std::vector<int>& LevelMs() const { return levelMs; } // [level - 1]: time in play there
 
-	// "RUN ...", "NAMES seed", "DEATHS n", "SECRETS n" and "HINTS bits" lines after the player stats; a save without
-	// them (or broken) leaves a fresh, non-campaign run (seed 0, no deaths, no secrets, no hints shown).
+	// "RUN ...", "NAMES seed", "DEATHS n", "SECRETS n" and "HINTS bits" and "OFFERINGS n" lines after the player stats;
+	// a save without them (or broken) leaves a fresh, non-campaign run (seed 0, no deaths, no secrets, no hints shown,
+	// no offerings).
 	void Dump(std::ostream& out) const;
 	void LoadDump(std::istream& in);
 	// A save game's text with its "DEATHS" line set to `count` (plan autosave: a death rewrites the autosave's count,

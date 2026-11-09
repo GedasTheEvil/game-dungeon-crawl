@@ -80,6 +80,7 @@ class Inventory {
 	void AskOffer(int slot);
 	void AskMerge(int slot);
 	void Offer(ItemKind kind);
+	std::string Gift(God god); // after an offering (plan offering-gift)
 	void Merge(ItemKind ring);
 	// Mouse button down on the slot and still over it: the slot tile is pushed in.
 	[[nodiscard]] bool SlotHeld(int slot) const { return pointer.Held({Target::Slot, slot}); }

@@ -33,6 +33,7 @@ enum class CommandType : unsigned char {
 	CutScenes,
 	Hitboxes,
 	Hints,
+	Gifts,
 	Screenshot,
 	Dump,
 	Expect,

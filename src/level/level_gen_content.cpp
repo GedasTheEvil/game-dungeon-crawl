@@ -1,6 +1,7 @@
 #include "level_builder.h"
 #include "inscriptions.h"
 #include "level_check.h"
+#include "loot.h"
 #include <algorithm>
 #include <cmath>
 #include <optional>
@@ -68,7 +69,7 @@ void LevelBuilder::placeForkContent() {
 		}
 	tombRooms.push_back(right);
 	const int end = right.x1;
-	put(end, right.row, rng.chance(0.5f) ? chestOf(randomWeapon(true)) : rareChest());
+	put(end, right.row, rng.chance(0.5f) ? chestOf(RollTreasureWeapon(true, d, rng)) : rareChest());
 	busy[index(end, right.row)] = 1;
 	Tile bones = g.at(end - 1, right.row);
 	if (freeCell(end - 1, right.row) && !hasPlacedProp(bones.dressing)) {
@@ -245,35 +246,7 @@ Tile LevelBuilder::randomTreasure() {
 	return chest;
 }
 
-Tile LevelBuilder::randomChest() {
-	int roll = rng.range(0, 99);
-	if (roll < 62) { // a potion by its weight (PotionDef::generatedWeight)
-		int pick = rng.range(0, 99);
-		int i = WEAPON_KIND_COUNT;
-		while (i < FIRST_AMULET - 1 && pick >= potionDef(itemAt(i)).generatedWeight) {
-			pick -= potionDef(itemAt(i)).generatedWeight;
-			i++;
-		}
-		return chestOf(itemAt(i));
-	}
-	// The weapons come in by depth, like in the campaign (WeaponDef::generatedFrom): the deeper, the more kinds.
-	return chestOf(randomWeapon(roll < 88));
-}
-
-ItemKind LevelBuilder::randomWeapon(bool melee) {
-	auto allowed = [this, melee](int i) {
-		const ItemKind kind = itemAt(i);
-		return isRanged(kind) != melee && weaponDef(kind).generatedFrom <= d;
-	};
-	int kinds = 0;
-	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
-		kinds += allowed(i) ? 1 : 0;
-	int pick = rng.range(0, kinds - 1);
-	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
-		if (allowed(i) && pick-- == 0)
-			return itemAt(i);
-	return ItemKind::Club;
-}
+Tile LevelBuilder::randomChest() { return chestOf(RollTreasureItem(d, rng)); }
 
 Tile LevelBuilder::chestOf(ItemKind kind) {
 	const ItemFileId file = fileIdOf(kind);

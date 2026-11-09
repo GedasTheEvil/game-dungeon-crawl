@@ -67,6 +67,7 @@ void RunStats::Dump(std::ostream& out) const {
 	out << "DEATHS " << deaths << '\n';
 	out << "SECRETS " << secrets << '\n';
 	out << "HINTS " << hints << '\n';
+	out << "OFFERINGS " << offerings << '\n';
 }
 
 void RunStats::LoadDump(std::istream& in) {
@@ -127,6 +128,14 @@ void RunStats::LoadDump(std::istream& in) {
 		in.clear();
 		in.seekg(hintsAt);
 		hints = 0;
+		return;
+	}
+	// From the offering gifts on (plan offering-gift).
+	const auto offeringsAt = in.tellg();
+	if (!(in >> tag) || tag != "OFFERINGS" || !(in >> offerings)) {
+		in.clear();
+		in.seekg(offeringsAt);
+		offerings = 0;
 	}
 }
 

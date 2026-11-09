@@ -1,0 +1,32 @@
+# Plan offering-gift: with `gifts on` every offering brings a gift, Montu's mostly Might; the toast names it.
+seed 1
+level tests/levels/resistance_tiers
+god
+peace
+gifts on
+prop 5 shrine_montu
+give potion 0 6
+walk to 5.5
+wait 10
+key i
+wait 5
+select small_health
+key o
+key enter
+wait 5
+screenshot first_gift
+key o
+key enter
+key o
+key enter
+key o
+key enter
+key o
+key enter
+key o
+key enter
+wait 5
+screenshot gifts
+expect armor == 1
+expect might > 0
+quit

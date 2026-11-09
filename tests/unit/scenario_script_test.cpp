@@ -34,6 +34,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"cutscenes", "cutscenes on"},
 	{"hitboxes", "hitboxes off"},
 	{"hints", "hints on"},
+	{"gifts", "gifts on"},
 	{"screenshot", "screenshot start"},
 	{"dump", "dump"},
 	{"expect", "expect hp >= 10"},

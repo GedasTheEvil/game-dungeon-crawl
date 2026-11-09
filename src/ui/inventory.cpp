@@ -1,5 +1,6 @@
 #include "inventory.h"
 #include "../level/player_stats.h"
+#include "../level/offering_gift.h"
 #include "../graphics/item.h"
 #include "../state/game_state.h"
 #include "../core/logger.h"
@@ -255,7 +256,26 @@ void Inventory::Offer(ItemKind kind) {
 	Game().player->stats.AddXP(xp, Game().events);
 	char buf[64];
 	snprintf(buf, sizeof(buf), "%s accepts the offering. +%d XP", godDef(*god).name, xp);
-	ShowToast(buf);
+	ShowToast(buf + Gift(*god));
+}
+
+// Plan offering-gift: now and then the god gives a gift on top; its toast text (". Montu grants a gift: Might +1"),
+// empty for none.
+std::string Inventory::Gift(God god) {
+	PlayerStats& stats = Game().player->stats;
+	const OfferingGift gift =
+		RollOfferingGift(god, Game().dungeon.LevelNumber(), stats.run.nameSeed, stats.run.offerings, Game().alwaysGift);
+	stats.run.offerings++;
+	const std::string giver = std::string(". ") + godDef(god).name + " grants ";
+	if (gift.boon.Any())
+		return giver + "a gift: " + stats.Grant(gift.boon);
+	if (gift.item) {
+		AddItem(*gift.item);
+		const std::string name = itemText(*gift.item).name;
+		const bool vowel = std::string("AEIOU").find(name.front()) != std::string::npos;
+		return giver + (vowel ? "an " : "a ") + name;
+	}
+	return "";
 }
 
 void Inventory::Merge(ItemKind ring) {

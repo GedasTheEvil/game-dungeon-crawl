@@ -37,6 +37,13 @@ constexpr int AMETHYST_WEIGHT = 1;
 ItemKind RollRing(int level, Rng& rng);
 std::optional<ItemKind> RollChestRing(int level, Rng& rng);
 
+// A generated level's treasure chest item (levelgen) on a level of `difficulty` (1 to 10): 62 % a potion by its
+// weight (PotionDef::generatedWeight), else a weapon whose WeaponDef::generatedFrom the difficulty reached, melee 26 %,
+// ranged 12 %. Also an offering gift's item (offering_gift.h).
+ItemKind RollTreasureItem(int difficulty, Rng& rng);
+// A melee or ranged weapon a generated chest may hold at the difficulty: its kinds come in by depth.
+ItemKind RollTreasureWeapon(bool melee, int difficulty, Rng& rng);
+
 // A boss's amulet: normal or grand (grand at BOSS_GRAND_PERCENT_PER_LEVEL per level, 10% on level 5), any type.
 constexpr int BOSS_GRAND_PERCENT_PER_LEVEL = 2;
 ItemKind RollBossAmulet(int level, Rng& rng);

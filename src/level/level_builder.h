@@ -328,7 +328,6 @@ class LevelBuilder {
 	void putHapi(int col, int row);
 	Tile randomTreasure();
 	Tile randomChest();
-	[[nodiscard]] ItemKind randomWeapon(bool melee);
 	static Tile chestOf(ItemKind kind);
 	int randomMonster();
 	int zoneMonster(int col, int row, bool dark);

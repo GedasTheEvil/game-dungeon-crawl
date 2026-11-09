@@ -1,6 +1,6 @@
 # Camera recentre undoes the mouse look
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
 
 ## Repro
 
@@ -17,7 +17,7 @@ moves the mouse back.
 
 After `CAMERA_RECENTER_DELAY_MS` (1.5 s) without look input, `CameraLook::Step` (`src/level/camera_look.h`) eases
 `rotM` / `rotN` back to 0, for a mouse look too (`CameraLook::Looked` only restarts the delay). Added by
-[controls-smoothing](solved/controls-smoothing.md), switch in [settings-extras](solved/settings-extras.feature.md).
+[controls-smoothing](controls-smoothing.md), switch in [settings-extras](settings-extras.feature.md).
 
 ## Notes
 
@@ -25,7 +25,7 @@ After `CAMERA_RECENTER_DELAY_MS` (1.5 s) without look input, `CameraLook::Step` 
   (until a look key is used again), so a view the mouse set stays. Keep the option for the keys; reword its hint
   ("A look-key peek eases back when left alone").
 * Implementer's choice if that feels wrong in play: default the option to off instead. Say which in the plan.
-* Interplay with [mouse-leaves-window](mouse-leaves-window.bug.md): independent, either can go first.
+* Interplay with [mouse-leaves-window](../mouse-leaves-window.bug.md): independent, either can go first.
 
 ## Done
 

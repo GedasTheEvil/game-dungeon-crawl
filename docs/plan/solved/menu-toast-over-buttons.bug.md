@@ -1,6 +1,6 @@
 # Main menu toast painted over the buttons
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
 
 ## Repro
 
@@ -10,7 +10,7 @@ Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 202
 ## Expected
 
 The toast sits in a free spot of the main page, readable, not over a button. It reads like part of the shared UI look
-([ui.md](../ui.md#footer-and-toast)), e.g. in the footer area above the hint line, or on a small panel of its own.
+([ui.md](../../ui.md#footer-and-toast)), e.g. in the footer area above the hint line, or on a small panel of its own.
 
 ## Actual
 
@@ -20,7 +20,7 @@ other main-page toasts ("Could not load the newest save", ...).
 
 ## Notes
 
-* Check the layout table in [ui.md](../ui.md) (rows by y) for the free band on the main page; move the toast there and
+* Check the layout table in [ui.md](../../ui.md) (rows by y) for the free band on the main page; move the toast there and
   update that table row and the "Footer and toast" section.
 * If no band is free, give the toast a backing (the shared panel / tile style) so it never reads as painted on.
 * Sub-screen toasts (under Back, 5.6) only if they overlap something too; check with a screenshot.

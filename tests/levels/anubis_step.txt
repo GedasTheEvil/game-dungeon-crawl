@@ -1,4 +1,4 @@
-; An Anubis under a step (plan anubis-stuck-under-step; tests/unit/anubis_step_test.cpp, tests/play/anubis-stuck-under-step.txt):
+; An Anubis under a step (plan anubis-stuck-under-step; tests/unit/anubis_step_test.cpp):
 ; a step three quarters high at cols 4 and 5, over the Anubis's swing (a quarter step at col 2 and a half step at
 ; col 3 the way up, a jump each); the Anubis at col 8, the entrance at col 1;
 ; the hall two cells high, room to stand on the step.

@@ -1,6 +1,6 @@
 # Mouse leaves the window during mouse look
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size S, needs nothing first.
 
 ## Repro
 

@@ -1,2 +1,0 @@
-# Plan menu-toast-over-buttons: Esc, Save Game, pick a slot: "Saved to slot N" shows in the hint line, clear of the buttons.
-level tests/levels/classic1

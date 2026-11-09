@@ -1,10 +1,10 @@
 # Anubis stuck under a step: backs off so its bolt clears
 
-Status: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size M, needs nothing first.
+Status: solved 2026-11-09 (play-tested by the user). Was: implemented 2026-11-08, waiting for the user's play-test. Was: draft 2026-11-08, size M, needs nothing first.
 
 ## Repro
 
-1. A level with an Anubis guard and a step (a shaped cell, [level-subcells](solved/level-subcells.md)) the player can
+1. A level with an Anubis guard and a step (a shaped cell, [level-subcells](level-subcells.md)) the player can
    stand on but Anubis cannot reach with its melee.
 2. Stand on the step, Anubis comes right under it.
 3. Hit it with a spear (reach) over and over.
@@ -24,7 +24,7 @@ corner and splats (`Dungeon::updateShots`, `src/sim/dungeon_arrows.cpp`). Anubis
 
 ## Notes
 
-* Existing pieces to reuse: the kiting back-off ([monster-kiting](solved/monster-kiting.md): `Monster::BackOff`,
+* Existing pieces to reuse: the kiting back-off ([monster-kiting](monster-kiting.md): `Monster::BackOff`,
   `Dungeon::kiteRoom`, `kiteAway` in `src/sim/dungeon_walkers.cpp`, `dungeon_monsters.cpp` ~118-150). Anubis is not a
   kiter and must not become one in open ground (it chases and swings); this is a narrower rule: "melee cannot reach
   and the bolt's line is blocked by terrain: step back until it is clear, within the bolt's range".
@@ -36,9 +36,9 @@ corner and splats (`Dungeon::updateShots`, `src/sim/dungeon_arrows.cpp`). Anubis
 * Boss: the Anubis boss (`kin` anubis) gets the same rule, stronger where it makes sense (backs off faster, or its
   bolt aims higher / lobs over the edge). AGENTS.md, Boss abilities.
 * Other shooters with the same hole (cobra spit, baboon, Babi; `ranged` without `kite`): check them; same fix if
-  they have it. [subcell-campaign](solved/subcell-campaign.feature.md) uses steps as cover against shooters on purpose
+  they have it. [subcell-campaign](subcell-campaign.feature.md) uses steps as cover against shooters on purpose
   (crouch behind a step): keep that cover, the shooter just has to move for a line, not shoot through.
-* Checker: `monsterThreat` / the reckless threat ([checker-reckless-threat](solved/checker-reckless-threat.tooling.md)) may
+* Checker: `monsterThreat` / the reckless threat ([checker-reckless-threat](checker-reckless-threat.tooling.md)) may
   count such steps as safe spots; update it if the rule changes what the checker models.
 
 ## Done

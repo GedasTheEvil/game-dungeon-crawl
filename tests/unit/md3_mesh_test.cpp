@@ -2,6 +2,8 @@
 #include "../../src/core/paths.h"
 #include "../../src/core/worker_pool.h"
 #include "../../src/sim/md3_mesh.h"
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <future>
@@ -49,4 +51,25 @@ TEST_CASE("the worker pool runs every job and hands back its result") {
 		results.push_back(pool.Run([i] { return i * i; }));
 	for (int i = 0; i < 50; i++)
 		CHECK(results[static_cast<size_t>(i)].get() == i * i);
+}
+
+TEST_CASE("the player's idle keeps both feet planted (plan player-idle-stance)") {
+	Md3Mesh mesh;
+	REQUIRE(mesh.Load(MEDIA_DIR "models/characters/archeologist.md3"));
+	mesh.Centrify(); // frame 0 height 1 (about 1.9 m)
+	REQUIRE(mesh.frameCount > 1);
+	int feet = 0;
+	float drift = 0.f; // the farthest a boot vertex moves from its frame 0 place
+	for (int i = 0; i < mesh.vertexCount; i++) {
+		const std::array<float, 3> rest = mesh.Vertex(0, i);
+		if (rest[1] > 0.04f) // the boots below the ankles
+			continue;
+		feet++;
+		for (int f = 1; f < mesh.frameCount; f++) {
+			const std::array<float, 3> v = mesh.Vertex(f, i);
+			drift = std::max(drift, std::hypot(v[0] - rest[0], v[1] - rest[1], v[2] - rest[2]));
+		}
+	}
+	CHECK(feet > 0);
+	CHECK(drift < 0.005f); // under 1 cm
 }

@@ -1,6 +1,6 @@
 # Player idle: feet planted, a natural standing idle
 
-Status: draft 2026-11-11, size M, needs nothing first.
+Status: implemented 2026-11-11, waiting for the user's play-test. Was: draft 2026-11-11, size M, needs nothing first.
 
 ## Idea
 

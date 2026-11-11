@@ -8,7 +8,8 @@ Built like anubis.py: modelled facing +Y (right side +X), then the rig object is
 so the exported model faces -Y (the player uses rotA = +-70 / -110 from the camera, forward = game +Z).
 
 The player's files are used differently from monsters:
-  archeologist.md3       idle (shown when standing still),
+  archeologist.md3       idle (shown when standing still; the weight shifts from foot to foot, both feet planted:
+                         plant_feet solves the legs, plan player-idle-stance),
   archeologist_walk.md3  walk cycle (shown while moving; the weapon swing is drawn separately),
   archeologist_die.md3   death (plays once, holds the last frame),
   archeologist_jump.md3  forward jump (plays once from take-off, holds the landing crouch; the game moves the body),
@@ -461,20 +462,68 @@ def key_pose(rig, p, frame):
             pb.keyframe_insert("location", frame=frame)
 
 
+IDLE_SHIFT = 0.026  # the hips move this far over the loaded foot and back (m)
+IDLE_DROP = 0.006  # the hips this much below the rest height, so the knees stay soft (m)
+
+
 def idle_poses():
+    """The trunk and arms of the idle (plan player-idle-stance); plant_feet then solves the legs so the feet stay
+    flat where they stand. The weight goes slowly from one foot to the other (the hips over the loaded foot, its side
+    of the pelvis up, the other knee bends), the chest leans against it and breathes, the raised fists follow the
+    chest with a little lag, the head looks around. Frame 0: the weight in the middle."""
     frames = CLIPS[0][2]
     out = []
-    for f in range(0, frames + 1, 2):
+    for f in range(frames + 1):
         w = 2 * math.pi * f / frames
         breath = math.sin(2 * w)
         shift = math.sin(w)
+        lag = math.sin(w - 0.7)
         p = add(pose(),
-                pelvis=(0, 0, 2.5 * shift), spine=(0, 0, -1.2 * shift), chest=(1.2 * breath, 0, -1.3 * shift),
-                head=(1.5 * math.sin(w + 1), 9 * math.sin(w - 0.6), 0),
-                thigh_R=(0, 0, -2.5 * shift), thigh_L=(0, 0, -2.5 * shift),
-                upperarm_R=(2 * breath, 0, 0), upperarm_L=(2 * breath, 0, 0), forearm_R=(-2 * breath, 0, 0), forearm_L=(-2 * breath, 0, 0))
+                pelvis=(0, 0, 2.2 * shift), spine=(0.6 * breath, 0, -1.6 * shift), chest=(1.4 * breath, 1.5 * math.sin(w + 0.4), -1.8 * shift),
+                neck=(0, 0, 0.8 * shift), head=(1.5 * math.sin(w + 1), 10 * math.sin(w - 0.6), 0.6 * shift),
+                upperarm_R=(2.5 * breath + 2 * lag, 0, 1.5 * lag), upperarm_L=(2.5 * breath - 2 * lag, 0, 1.5 * lag),
+                forearm_R=(-2 * breath + 2 * lag, 0, 0), forearm_L=(-2 * breath - 2 * lag, 0, 0),
+                hand_R=(3 * math.sin(w - 1.2), 0, 0), hand_L=(-3 * math.sin(w - 1.2), 0, 0))
+        p["root_loc"] = (IDLE_SHIFT * shift, 0.004 * math.sin(2 * w + 0.5), -IDLE_DROP - 0.003 * (1 - breath))
         out.append((f, p))
     return out
+
+
+def plant_feet(rig, frames):
+    """Key the legs so each foot stays at its rest place, flat on the floor: a two-bone solve per leg, the knee
+    bending forward, on top of the keyed trunk (the idle; plan player-idle-stance)."""
+    scene = bpy.context.scene
+    pbs = rig.pose.bones
+    worst = 0.0
+    for f in frames:
+        scene.frame_set(f)
+        bpy.context.view_layer.update()
+        for s in (1, -1):
+            thigh, shin, foot = (pbs[side_name(b, s)] for b in ("thigh", "shin", "foot"))
+            l1, l2 = thigh.bone.length, shin.bone.length
+            hip, ankle = thigh.head.copy(), foot.bone.head_local.copy()
+            d = min((ankle - hip).length, 0.9995 * (l1 + l2))
+            worst = max(worst, (ankle - hip).length / (l1 + l2))
+            u = (ankle - hip).normalized()
+            fwd = V((0, 1, 0))
+            n = (fwd - u * fwd.dot(u)).normalized()
+            a = math.acos(max(-1.0, min(1.0, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d))))
+            knee = hip + l1 * (math.cos(a) * u + math.sin(a) * n)
+            for pb, tip in ((thigh, knee), (shin, ankle)):
+                m = pb.matrix.copy()
+                rot = m.col[1].xyz.normalized().rotation_difference((tip - pb.head).normalized()).to_matrix().to_4x4()
+                new = rot @ m.to_3x3().to_4x4()
+                new.translation = m.translation
+                pb.matrix = new
+                bpy.context.view_layer.update()
+            rest = foot.bone.matrix_local.copy()
+            rest.translation = foot.head
+            foot.matrix = rest
+            bpy.context.view_layer.update()
+            for pb in (thigh, shin, foot):
+                pb.keyframe_insert("rotation_euler", frame=f)
+    if worst > 0.9995:
+        print("plant_feet: a leg overstretched ({:.4f} of its length), the foot lifts".format(worst))
 
 
 def walk_poses():
@@ -778,6 +827,8 @@ def make_actions(rig, obj, hat_verts):
             continue
         if name != "archeologist_die":
             make_cyclic(rig, act)
+        if name == "archeologist_idle":
+            plant_feet(rig, range(frames + 1))
         floor_fix(rig, obj, frames + (1 if name != "archeologist_die" else 0), skip)
         if name == "archeologist_die":
             drop_hat(rig, obj, hat_verts)
@@ -795,6 +846,8 @@ def make_actions(rig, obj, hat_verts):
         looping = name != "archeologist_crouch_down"
         if looping:
             make_cyclic(rig, act)
+        else:
+            plant_feet(rig, [0])  # frame 0 is the idle's frame 0
         floor_fix(rig, obj, frames + (1 if looping else 0), skip)
         acts[name] = act
     name, _, frames = CLIMB

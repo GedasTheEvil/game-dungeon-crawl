@@ -172,7 +172,7 @@ void PlayerStats::AddMaxHP(int hpPart) {
 	vitals.hp = CurrentMaxHP();
 }
 
-bool PlayerStats::Learn(SkillId id, bool force) {
+bool PlayerStats::Learn(SkillId id, bool force, LearnCure* cure) {
 	const int oldMaxHP = CurrentMaxHP();
 	const int oldMaxStamina = MaxStamina();
 	if (!heka.Learn(id, force))
@@ -180,6 +180,16 @@ bool PlayerStats::Learn(SkillId id, bool force) {
 	if (vitals.hp > 0)
 		vitals.hp += std::max(0, CurrentMaxHP() - oldMaxHP);
 	AddStamina(MaxStamina() - oldMaxStamina);
+	LearnCure cured = LearnCure::None;
+	if (id == SkillId::SerketsFavour && vitals.poison.Any()) {
+		vitals.poison.Cure();
+		cured = LearnCure::Poison;
+	} else if (id == SkillId::BlessingOfIsis && curses.Any()) {
+		EndCurses();
+		cured = LearnCure::Curses;
+	}
+	if (cure != nullptr)
+		*cure = cured;
 	return true;
 }
 

@@ -1,0 +1,8 @@
+# Plan learn-skill-cures: a free heka point each, poisoned and cursed (two kinds, one greater). Open the Heka screen,
+# learn Serket's favour (the poison goes, the toast says so), then Blessing of Isis (the curses go, the toast says so).
+level tests/levels/resistance_tiers
+god
+heka 2
+poison strong
+curse weakness greater
+curse slowness

@@ -162,3 +162,38 @@ TEST_CASE("Shrines of the gods: the props, the glyphs, the notes saved by number
 		CHECK(std::string(fieldNoteText(shrineNote(g)).text) != "");
 	}
 }
+
+TEST_CASE(
+	"Learning a skill (plan learn-skill-cures): Serket's favour cures the poison, Blessing of Isis lifts the curses"
+) {
+	Player player;
+	WorldEvents events;
+	Rng rng(1);
+	for (int boss = 1; boss <= 3; boss++)
+		player.stats.heka.Earn(boss * 5);
+	player.Poison(PoisonTier::Strong, events, rng);
+	player.stats.curses.Lay(Curse::Weakness, CurseGrade::Greater);
+	player.stats.curses.Lay(Curse::Slowness, CurseGrade::Lesser);
+	LearnCure cure = LearnCure::None;
+	REQUIRE(player.stats.Learn(SkillId::Dodge, true, &cure)); // another skill: nothing cured
+	CHECK(cure == LearnCure::None);
+	CHECK(player.stats.vitals.poison.Any());
+	CHECK(player.stats.curses.Any());
+	REQUIRE(player.stats.Learn(SkillId::SerketsFavour, true, &cure));
+	CHECK(cure == LearnCure::Poison);
+	CHECK_FALSE(player.stats.vitals.poison.Any());
+	CHECK(player.stats.curses.Any()); // only the poison
+	CHECK_FALSE(player.stats.Blessed(God::Serket)); // no ward
+	REQUIRE(player.stats.Learn(SkillId::BlessingOfIsis, true, &cure));
+	CHECK(cure == LearnCure::Curses);
+	CHECK_FALSE(player.stats.curses.Any());
+	CHECK_FALSE(player.stats.IsisWarded());
+
+	Player healthy; // nothing running: nothing to say
+	healthy.stats.heka.Earn(5);
+	healthy.stats.heka.Earn(10);
+	REQUIRE(healthy.stats.Learn(SkillId::SerketsFavour, true, &cure));
+	CHECK(cure == LearnCure::None);
+	REQUIRE(healthy.stats.Learn(SkillId::BlessingOfIsis, true, &cure));
+	CHECK(cure == LearnCure::None);
+}

@@ -1,6 +1,6 @@
 # Learning Serket's favour cures poison, Blessing of Isis lifts curses
 
-Status: draft 2026-11-11, size S, needs nothing first.
+Status: implemented 2026-11-11, waiting for the user's play-test. Was: draft 2026-11-11, size S, needs nothing first.
 
 ## Idea
 

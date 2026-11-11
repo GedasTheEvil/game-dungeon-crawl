@@ -92,10 +92,15 @@ void SkillsScreen::PressLearn() {
 		return;
 	}
 	confirming = false;
-	Game().player->stats.Learn(id);
+	LearnCure cure = LearnCure::None;
+	Game().player->stats.Learn(id, false, &cure);
 	if (const std::optional<FieldNote> note = skillNote(id))
 		Game().journal.LearnNote(*note);
 	std::string learnt = std::string("Learnt: ") + def.name;
+	if (cure == LearnCure::Poison)
+		learnt += ". The poison is gone";
+	else if (cure == LearnCure::Curses)
+		learnt += ". The curses lift";
 	if (id == SkillId::Hieroglyphs) {
 		const std::vector<Boon> boons = Game().journal.TranslateInscriptions();
 		const int copies = static_cast<int>(boons.size());

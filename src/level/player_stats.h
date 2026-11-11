@@ -21,6 +21,9 @@
 
 constexpr int HP_PER_LEVEL = 12; // max HP gained per level up
 
+// What learning a skill cured (plan learn-skill-cures).
+enum class LearnCure { None, Poison, Curses };
+
 // The player's level, XP, might, armour, HP and stamina (sprint drains it, it regenerates). Saved with the game.
 class PlayerStats {
   private:
@@ -110,8 +113,9 @@ class PlayerStats {
 		return cursedMaxHP(MaxHP + MaxHP * percent / 100, curses);
 	}
 	// Spends a heka on the skill (Heka::Learn); a health or stamina skill gives the new share of the max on top (no
-	// heal beyond it). False: nothing learnt.
-	bool Learn(SkillId id, bool force = false);
+	// heal beyond it). False: nothing learnt. Serket's favour cures a running poison and the Blessing of Isis lifts
+	// every curse, once (plan learn-skill-cures); `cure` tells which one did something.
+	bool Learn(SkillId id, bool force = false, LearnCure* cure = nullptr);
 	[[nodiscard]] int CurrentLevel() const { return level; }
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }

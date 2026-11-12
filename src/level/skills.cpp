@@ -14,8 +14,8 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Power hit", "Held blows hit harder, for stamina", false},
 	{"Sharp eye", "Ranged weapons reach 30% farther", false},
 	{"Favour of Hapi", "Wade faster, jump out of water", false},
-	{"Serket's favour", "Poisons last half as long", false},
-	{"Blessing of Isis", "Curses last half as long", false},
+	{"Serket's favour", "Poisons last half as long, 10% resisted", false},
+	{"Blessing of Isis", "Curses last half as long, 10% resisted", false},
 	// Plan skill-flaming-arrows: a stamina skill, switched with the stamina-skill key.
 	{"Flaming arrows", "Bow shots burn, for stamina", false},
 	// Plan heka-surplus: stats (PlayerStats), Seshat's exploration and the trapped containers.

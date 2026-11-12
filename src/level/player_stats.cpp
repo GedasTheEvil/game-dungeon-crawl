@@ -258,11 +258,25 @@ void PlayerStats::keepHpShare(int oldMax) {
 		);
 }
 
-bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
+bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events, Rng& rng) {
 	if (IsisWarded()) { // plan shrine-of-isis: from any source, every kind and grade
 		events.Status(StatusTone::Good, "Isis turns the curse away");
 		return false;
 	}
+	const int resist = CurseResistPercent();
+	if (resist > 0 && rng.percent(resist)) { // plan skill-god-resist
+		events.Status(StatusTone::Good, "Isis's blessing turns the curse away");
+		return false;
+	}
+	TakeCurse(c, grade, events);
+	return true;
+}
+
+int PlayerStats::CurseResistPercent() const {
+	return std::min(100, heka.Has(SkillId::BlessingOfIsis) ? ISIS_RESIST_PERCENT : 0);
+}
+
+void PlayerStats::TakeCurse(Curse c, CurseGrade grade, WorldEvents& events) {
 	const int oldMax = CurrentMaxHP();
 	// Blessing of Isis (plan skill-blessing-of-isis): curses last half as long.
 	const int duration = heka.Has(SkillId::BlessingOfIsis) ? CURSE_MS_ISIS : CURSE_MS;
@@ -274,7 +288,6 @@ bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events) {
 	const CurseDef& def = curseDef(c);
 	events.Status(StatusTone::Danger, "%s", fresh ? def.startLine : def.againLine);
 	events.Note(curseNote(c));
-	return true;
 }
 
 void PlayerStats::AdvanceCurses(int ms, WorldEvents& events) {
@@ -322,7 +335,8 @@ void PlayerStats::WearRings(const RingBonus& bonus) {
 }
 
 int PlayerStats::PoisonResistPercent() const {
-	return std::min(100, amulet.poisonResistPercent + PotionResistPercent());
+	const int skill = heka.Has(SkillId::SerketsFavour) ? SERKET_RESIST_PERCENT : 0; // plan skill-god-resist
+	return std::min(100, amulet.poisonResistPercent + PotionResistPercent() + skill);
 }
 
 void PlayerStats::AdvanceResistance(int ms) { resist_left_ms = std::max(0, resist_left_ms - ms); }

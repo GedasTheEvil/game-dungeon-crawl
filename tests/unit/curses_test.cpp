@@ -69,17 +69,17 @@ TEST_CASE("weakness cuts Might, greater weakness past zero; clumsiness cuts the 
 	WorldEvents events;
 	stats.AddMight(4);
 	CHECK(stats.Damage(20) == 24);
-	stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
 	CHECK(stats.CurrentMight() == 2);
 	CHECK(stats.Damage(20) == 22);
-	stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events);
+	stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events, testRng());
 	CHECK(stats.CurrentMight() == -1);
 	CHECK(stats.Damage(20) == 19);
 	CHECK(stats.Damage(0) == 1);
 	stats.EndCurses();
-	stats.LayCurse(Curse::Clumsiness, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Clumsiness, CurseGrade::Lesser, events, testRng());
 	CHECK(stats.Damage(20) == 19); // 24 less a fifth
-	stats.LayCurse(Curse::Clumsiness, CurseGrade::Greater, events);
+	stats.LayCurse(Curse::Clumsiness, CurseGrade::Greater, events, testRng());
 	CHECK(stats.Damage(20) == 12);
 	CHECK(stats.Damage(-4) == 1);
 }
@@ -88,14 +88,14 @@ TEST_CASE("vulnerability cuts the armour; disease the max HP, the HP keeping its
 	PlayerStats stats = freshStats();
 	WorldEvents events;
 	stats.AddArmor(10);
-	stats.LayCurse(Curse::Vulnerability, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Vulnerability, CurseGrade::Lesser, events, testRng());
 	CHECK(stats.CurrentArmor() == 4);
 
 	stats.LoseHP(25); // 25 of 50
-	stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events, testRng());
 	CHECK(stats.CurrentMaxHP() == 35);
 	CHECK(stats.CurrentHP() == 18); // half, rounded
-	stats.LayCurse(Curse::Disease, CurseGrade::Greater, events);
+	stats.LayCurse(Curse::Disease, CurseGrade::Greater, events, testRng());
 	CHECK(stats.CurrentMaxHP() == 15);
 	stats.AdvanceCurses(CURSE_MS, events);
 	CHECK(stats.CurrentMaxHP() == 50);
@@ -107,7 +107,7 @@ TEST_CASE("vulnerability cuts the armour; disease the max HP, the HP keeping its
 TEST_CASE("fatigue drops the stamina to a fifth and stops it coming back; a potion still works") {
 	PlayerStats stats = freshStats();
 	WorldEvents events;
-	stats.LayCurse(Curse::Fatigue, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Fatigue, CurseGrade::Lesser, events, testRng());
 	CHECK(stats.Stamina() == 20);
 	for (int i = 0; i < 10; i++) {
 		GameClock::advance(1000);
@@ -124,7 +124,7 @@ TEST_CASE("fatigue drops the stamina to a fifth and stops it coming back; a poti
 	CHECK(stats.Stamina() > 50);
 
 	stats.SetStamina(5); // under a fifth: not raised
-	stats.LayCurse(Curse::Fatigue, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Fatigue, CurseGrade::Lesser, events, testRng());
 	CHECK(stats.Stamina() == 5);
 }
 
@@ -134,7 +134,7 @@ TEST_CASE("slowness halves the walk and sprints at 1.25 tiles a second") {
 	stats.SetSprintRequested(true);
 	CHECK(stats.WalkFactor(false) == 1.f);
 	CHECK(stats.SprintMoveMultiplier() == 3.f);
-	stats.LayCurse(Curse::Slowness, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Slowness, CurseGrade::Lesser, events, testRng());
 	CHECK(stats.WalkFactor(false) == 0.5f);
 	CHECK(stats.WalkFactor(false) * stats.SprintMoveMultiplier() == doctest::Approx(1.25f));
 }
@@ -142,8 +142,8 @@ TEST_CASE("slowness halves the walk and sprints at 1.25 tiles a second") {
 TEST_CASE("a curse tells the player on start, again and at the end, and writes its note once") {
 	PlayerStats stats = freshStats();
 	WorldEvents events;
-	stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
-	stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
+	stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
 	stats.AdvanceCurses(CURSE_MS, events);
 	std::vector<std::string> lines;
 	int notes = 0;
@@ -184,13 +184,13 @@ TEST_CASE("a hit rolls the entries in order, one curse a hit; death and a new ga
 	CHECK(player.stats.curses.Has(Curse::Fatigue));
 	CHECK_FALSE(player.stats.curses.Has(Curse::Insanity));
 
-	player.stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events);
+	player.stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events, testRng());
 	player.TakeHit(10000, DamageMix{100, 0, 0}, events, true);
 	REQUIRE_FALSE(player.Alive());
 	CHECK_FALSE(player.stats.curses.Any());
 	CHECK_FALSE(player.Curse(sure, events, rng)); // the dead are not cursed
 	player.Reanimate();
-	player.stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events);
+	player.stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events, testRng());
 	player.Reanimate();
 	CHECK_FALSE(player.stats.curses.Any());
 	CHECK(player.stats.CurrentHP() == player.stats.CurrentMaxHP());

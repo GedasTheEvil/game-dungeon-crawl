@@ -144,7 +144,7 @@ bool Player::Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng) {
 		return false;
 	for (const CurseEntry& e : entries)
 		if (e.percent > 0 && rng.percent(e.percent))
-			return stats.LayCurse(e.kind, e.grade, events);
+			return stats.LayCurse(e.kind, e.grade, events, rng);
 	return false;
 }
 
@@ -163,7 +163,13 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 			HarmSource::Monster,
 			stats.heka.Has(SkillId::SerketsFavour)
 		)) {
-		events.Status(stats.PotionResistPercent() > 0 ? "You resist the poison" : "Your amulet wards off the poison");
+		// The source named, plan skill-god-resist: the potion, else the amulet, else only the skill.
+		const char* line = "Serket's favour spares you the venom";
+		if (stats.PotionResistPercent() > 0)
+			line = "You resist the poison";
+		else if (stats.AmuletPoisonResistPercent() > 0)
+			line = "Your amulet wards off the poison";
+		events.Status("%s", line);
 		return;
 	}
 	if (!poisoned)

@@ -13,8 +13,8 @@ constexpr int ROW = 2; // tests/levels/interact: the corridor's row
 constexpr int SHRINE_COL = 4; // a cell with nothing to interact with
 
 void curse(Player& player, WorldEvents& events) {
-	REQUIRE(player.stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events));
-	REQUIRE(player.stats.LayCurse(Curse::Insanity, CurseGrade::Lesser, events));
+	REQUIRE(player.stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events, testRng()));
+	REQUIRE(player.stats.LayCurse(Curse::Insanity, CurseGrade::Lesser, events, testRng()));
 	REQUIRE(player.stats.curses.Any());
 }
 } // namespace
@@ -49,8 +49,8 @@ TEST_CASE("Protection of Isis: no curse lands, of any kind or grade, from a mons
 	static_cast<void>(events.Take());
 	const int cursed = player.stats.run.cursed;
 	for (int c = 0; c < CURSE_COUNT; c++) {
-		CHECK_FALSE(player.stats.LayCurse(static_cast<Curse>(c), CurseGrade::Lesser, events));
-		CHECK_FALSE(player.stats.LayCurse(static_cast<Curse>(c), CurseGrade::Greater, events));
+		CHECK_FALSE(player.stats.LayCurse(static_cast<Curse>(c), CurseGrade::Lesser, events, testRng()));
+		CHECK_FALSE(player.stats.LayCurse(static_cast<Curse>(c), CurseGrade::Greater, events, testRng()));
 	}
 	CHECK_FALSE(player.stats.curses.Any());
 	CHECK(player.stats.run.cursed == cursed); // not counted

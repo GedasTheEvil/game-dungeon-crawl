@@ -1,6 +1,6 @@
 # Serket's favour and Blessing of Isis: 10% to resist poison or a curse
 
-Status: draft 2026-11-12, size S, needs nothing first.
+Status: implemented 2026-11-12, waiting for the user's play-test. Was: draft 2026-11-12, size S, needs nothing first.
 
 ## Idea
 
@@ -44,7 +44,8 @@ On top of what they already do (half as long, the longer shrine ward, the cure o
 
 ## Play-test
 
-* `bin/game --play tests/play/skill-god-resist.txt` (setup: god, both skills learnt, a room with poisoning and
-  cursing monsters).
+* `bin/game --play tests/play/skill-god-resist.txt` (god mode, both skills learnt, a hall with scorpions and a cobra
+  that poison and mummies and a giant bat that curse; the script's level is `tests/levels/skill_god_resist`).
 * Get hit many times: now and then "Serket's favour spares you the venom" and no poison card.
 * Same for curses: now and then "Isis's blessing turns the curse away" and no curse card.
+* The Heka cards read "..., 10% resisted"; the field notes of both skills tell the 10%.

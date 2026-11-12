@@ -100,7 +100,8 @@ text: The guardian's heka, the magic the gods hold, went into me. It tastes of r
 [note.serkets-favour]
 title: Serket's favour
 text: Serket likes me. Her children still bite, but they hurt me less: every poison on me lasts half as long, with
-	the same damage each second. At her shrine she listens twice as long: four minutes without venom. The day she
+	the same damage each second, and one in ten does not
+	land at all. At her shrine she listens twice as long: four minutes without venom. The day she
 	took me in, she drew out the venom I carried.
 
 [note.sharp-eye]
@@ -162,7 +163,8 @@ text: The water parts for me now. Not much, but enough to stop wading like a her
 
 [note.blessing-of-isis]
 title: Blessing of Isis
-text: Isis has a knot for every curse. She ties fast. The day she blessed me, she untied the curses I carried.
+text: Isis has a knot for every curse. She ties fast. Every curse on me lasts half as long, and one in ten does not
+	land at all. At her shrine she shields me twice as long. The day she blessed me, she untied the curses I carried.
 
 [note.water-blessing]
 title: Blessing of Hapi

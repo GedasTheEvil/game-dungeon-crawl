@@ -65,7 +65,7 @@ std::string Dungeon::fireChestTrap(int cell) {
 //======================================================================================
 void Dungeon::tombCurse(Curse c, const char* execration) {
 	sim.events->Status("%s", execration); // stacked over the curse's own line (plan message-log)
-	sim.player->stats.LayCurse(c, CurseGrade::Lesser, *sim.events);
+	sim.player->stats.LayCurse(c, CurseGrade::Lesser, *sim.events, sim.random->gameplay);
 	sim.events->Note(FieldNote::TombCurses);
 }
 //======================================================================================

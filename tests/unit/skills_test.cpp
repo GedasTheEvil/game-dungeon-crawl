@@ -101,16 +101,16 @@ TEST_CASE("Blessing of Isis: with the skill a curse that takes runs half as long
 	Player blessed;
 	blessed.stats.heka.Earn(5);
 	REQUIRE(blessed.stats.heka.Learn(SkillId::BlessingOfIsis, true));
-	plain.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
-	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	plain.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
+	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
 	CHECK(plain.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS);
 	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
 	// A restarted curse is halved too, and so is a greater one replacing a lesser one.
 	blessed.stats.curses.Advance(60000);
-	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
 	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
 	blessed.stats.curses.Advance(30000);
-	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events);
+	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events, testRng());
 	CHECK(blessed.stats.curses.Grade(Curse::Weakness) == CurseGrade::Greater);
 	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
 }
@@ -262,7 +262,7 @@ TEST_CASE("Dodge: a plant's bites are sometimes dodged") {
 		  }) > 0);
 }
 
-TEST_CASE("Serket's favour: with the skill a poison that takes runs half as long; the resistance roll is the same") {
+TEST_CASE("Serket's favour: with the skill a poison that takes runs half as long; one roll over the resists") {
 	WorldEvents events;
 	Player plain;
 	Player blessed;
@@ -274,7 +274,10 @@ TEST_CASE("Serket's favour: with the skill a poison that takes runs half as long
 	blessed.Poison(PoisonTier::Medium, events, b);
 	CHECK(plain.stats.vitals.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs);
 	CHECK(blessed.stats.vitals.poison.LeftMs(PoisonTier::Medium) == POISON_TIERS[1].durationMs / 2);
-	CHECK(a.next() == b.next()); // no extra roll
+	Rng one(3); // plan skill-god-resist: the skill's 10% is one roll (the sum), the plain player rolls none
+	one.percent(SERKET_RESIST_PERCENT);
+	CHECK(b.next() == one.next());
+	CHECK(a.next() == Rng(3).next());
 }
 
 TEST_CASE("Sharp eye: ranged weapons reach 30% farther, melee ones the same") {
@@ -336,4 +339,111 @@ TEST_CASE("Quiver of Neith: the shots come back 25% faster, on top of a cat amul
 	CHECK(stats.ShotRecoveryPace().delayMs == 888); // speed 225%
 	CHECK(stats.ShotRecoveryPace().everyMs == 1111);
 	CHECK(skillDef(SkillId::QuiverOfNeith).sealed == false);
+}
+
+namespace {
+Player godPlayer(SkillId skill) {
+	Player p;
+	p.stats.heka.Earn(5);
+	REQUIRE(p.stats.heka.Learn(skill, true));
+	return p;
+}
+} // namespace
+
+TEST_CASE("skill-god-resist: Blessing of Isis resists about 10% of curses, none without the skill") {
+	WorldEvents events;
+	Player plain;
+	Player blessed = godPlayer(SkillId::BlessingOfIsis);
+	CHECK(plain.stats.CurseResistPercent() == 0);
+	CHECK(blessed.stats.CurseResistPercent() == ISIS_RESIST_PERCENT);
+	Rng rng(5);
+	int plainResisted = 0, blessedResisted = 0;
+	for (int i = 0; i < 2000; i++) {
+		plain.stats.EndCurses();
+		blessed.stats.EndCurses();
+		plainResisted += plain.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, rng) ? 0 : 1;
+		blessedResisted += blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, rng) ? 0 : 1;
+	}
+	CHECK(plainResisted == 0);
+	CHECK(blessedResisted > 140);
+	CHECK(blessedResisted < 260);
+	CHECK(blessed.stats.run.cursed == 2000 - blessedResisted); // a resisted curse counts for nothing
+}
+
+TEST_CASE("skill-god-resist: Serket's favour resists about 10% of poisons, none without the skill") {
+	WorldEvents events;
+	Player plain;
+	Player blessed = godPlayer(SkillId::SerketsFavour);
+	CHECK(plain.stats.PoisonResistPercent() == 0);
+	CHECK(blessed.stats.PoisonResistPercent() == SERKET_RESIST_PERCENT);
+	Rng rng(5);
+	int plainHit = 0, blessedHit = 0;
+	for (int i = 0; i < 2000; i++) {
+		plain.stats.vitals.poison.Cure();
+		blessed.stats.vitals.poison.Cure();
+		plain.Poison(PoisonTier::Weak, events, rng);
+		blessed.Poison(PoisonTier::Weak, events, rng);
+		plainHit += plain.stats.vitals.poison.Any() ? 1 : 0;
+		blessedHit += blessed.stats.vitals.poison.Any() ? 1 : 0;
+	}
+	CHECK(plainHit == 2000);
+	CHECK(blessedHit > 1740);
+	CHECK(blessedHit < 1860);
+}
+
+TEST_CASE("skill-god-resist: the skill's 10% adds to the amulet and the potion, 100% the upper limit") {
+	Player p = godPlayer(SkillId::SerketsFavour);
+	AmuletBonus amulet;
+	amulet.poisonResistPercent = 20;
+	p.stats.Wear(amulet, true);
+	CHECK(p.stats.PoisonResistPercent() == 30);
+	PotionGain potion;
+	potion.resistPercent = 50;
+	p.stats.Drink(potion);
+	CHECK(p.stats.PoisonResistPercent() == 80);
+	amulet.poisonResistPercent = 95;
+	p.stats.Wear(amulet, true);
+	CHECK(p.stats.PoisonResistPercent() == 100);
+	WorldEvents events;
+	Rng rng(1);
+	for (int i = 0; i < 50; i++) { // a sure ward: never poisoned
+		p.Poison(PoisonTier::Weak, events, rng);
+		CHECK_FALSE(p.stats.vitals.poison.Any());
+	}
+}
+
+TEST_CASE("skill-god-resist: the resisted line names its source") {
+	WorldEvents events;
+	Rng rng(1);
+	auto lastStatus = [&] {
+		std::string text;
+		for (const WorldEvent& e : events.Take())
+			if (e.kind == WorldEvent::Kind::Status)
+				text = e.text;
+		return text;
+	};
+	Player amuleted = godPlayer(SkillId::SerketsFavour);
+	AmuletBonus amulet;
+	amulet.poisonResistPercent = 100;
+	amuleted.stats.Wear(amulet, true);
+	amuleted.Poison(PoisonTier::Weak, events, rng);
+	CHECK(lastStatus() == "Your amulet wards off the poison");
+	Player skilled = godPlayer(SkillId::SerketsFavour);
+	std::string line;
+	for (int i = 0; i < 200 && line.empty(); i++) { // the skill alone: about one try in ten is spared
+		skilled.stats.vitals.poison.Cure();
+		skilled.Poison(PoisonTier::Weak, events, rng);
+		const std::string text = lastStatus();
+		if (text.find("spares") != std::string::npos)
+			line = text;
+	}
+	CHECK(line == "Serket's favour spares you the venom");
+	skilled.stats.vitals.poison.Cure();
+	Player isis = godPlayer(SkillId::BlessingOfIsis);
+	for (int i = 0; i < 200 && line != "Isis's blessing turns the curse away"; i++) {
+		isis.stats.EndCurses();
+		isis.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, rng);
+		line = lastStatus();
+	}
+	CHECK(line == "Isis's blessing turns the curse away");
 }

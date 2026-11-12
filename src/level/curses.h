@@ -18,6 +18,10 @@ constexpr int CURSE_COUNT = 8;
 enum class CurseGrade : std::uint8_t { Lesser, Greater };
 
 constexpr int CURSE_MS = 120000; // every curse lasts 2 minutes
+// Serket's favour and Blessing of Isis (plan skill-god-resist): the chance, in percent, that a poison or a curse does
+// not land. Added to the item and blessing resists, 100 the upper limit.
+constexpr int SERKET_RESIST_PERCENT = 10;
+constexpr int ISIS_RESIST_PERCENT = 10;
 constexpr int CURSE_MS_ISIS = CURSE_MS / 2; // with the Blessing of Isis skill (plan skill-blessing-of-isis)
 // The Protection of Isis (plan shrine-of-isis): prayed for at a Shrine of Isis, no curse lands; twice as long with the
 // Blessing of Isis skill.

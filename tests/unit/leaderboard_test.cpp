@@ -201,8 +201,8 @@ TEST_CASE("a poisoning that takes and a curse count; a warded poisoning does not
 	GameRandom random;
 	random.Seed(1);
 	player.Poison(PoisonTier::Weak, events, random.gameplay);
-	player.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events);
-	player.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events); // laid again
+	player.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
+	player.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng()); // laid again
 	CHECK(player.stats.run.poisoned == 1);
 	CHECK(player.stats.run.cursed == 2);
 	player.stats.Wear(amuletBonus(ItemKind::PoisonWardGrand), true);

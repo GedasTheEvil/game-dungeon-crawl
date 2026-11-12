@@ -150,7 +150,8 @@ class PlayerStats {
 	// already the worn one's.
 	void Wear(const AmuletBonus& bonus, bool keepShare);
 	// The chance a poisoned hit does not poison: the amulet's and a running resistance potion's added up, at most 100.
-	[[nodiscard]] int PoisonResistPercent() const;
+	[[nodiscard]] int AmuletPoisonResistPercent() const { return amulet.poisonResistPercent; }
+	[[nodiscard]] int PoisonResistPercent() const; // amulet + potion + Serket's favour 10%, max 100
 	[[nodiscard]] int PotionResistPercent() const { return resist_left_ms > 0 ? resist_percent : 0; }
 	[[nodiscard]] int PotionResistLeftMs() const { return resist_left_ms; }
 	void AdvanceResistance(int ms); // the potion's time runs out
@@ -219,7 +220,13 @@ class PlayerStats {
 	// Lays a curse (plan curses): its status line, the field note the first time. Disease keeps the HP's share of the
 	// max HP; fatigue drops the stamina to FATIGUE_STAMINA_PERCENT. Returns true; false when the Protection of Isis
 	// wards it off (a line of its own, no curse, not counted).
-	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events);
+	// Plan skill-god-resist: the Isis ward turns it away, then CurseResistPercent is rolled on rng. True: it landed.
+	bool LayCurse(Curse c, CurseGrade grade, WorldEvents& events, Rng& rng);
+	// The curse itself, no ward and no resist roll (the scenario `curse` command).
+	void TakeCurse(Curse c, CurseGrade grade, WorldEvents& events);
+	// The chance a curse does not land: Blessing of Isis skill 10% (plan skill-god-resist), future sources add; max
+	// 100.
+	[[nodiscard]] int CurseResistPercent() const;
 	void AdvanceCurses(int ms, WorldEvents& events); // the curses' time runs out, each with its status line
 	void EndCurses(); // death or a new game: all gone
 	Curses curses;

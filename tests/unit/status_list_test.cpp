@@ -1,6 +1,7 @@
 // The HUD's status cards (plan curse-blessing-cards): the running effects in one list, by kind, with their icons, pips
 // and tints.
 #include "../../external/doctest/doctest.h"
+#include "sim_world.h"
 #include "../../src/level/player_stats.h"
 #include "../../src/level/status_list.h"
 #include "../../src/level/world_events.h"
@@ -12,8 +13,8 @@ TEST_CASE("the status list orders a mixed set by kind: blessings, conditions, cu
 	PlayerStats stats;
 	WorldEvents events;
 	// Laid in the opposite order to the display.
-	stats.LayCurse(Curse::Fatigue, CurseGrade::Lesser, events);
-	stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events);
+	stats.LayCurse(Curse::Fatigue, CurseGrade::Lesser, events, testRng());
+	stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events, testRng());
 	stats.vitals.poison.Apply(PoisonTier::Medium);
 	stats.vitals.poison.Apply(PoisonTier::Weak);
 	PotionGain resist;
@@ -72,7 +73,7 @@ TEST_CASE("every effect at once fits the list") {
 	PlayerStats stats;
 	WorldEvents events;
 	for (int c = 0; c < CURSE_COUNT; c++)
-		stats.LayCurse(static_cast<Curse>(c), CurseGrade::Lesser, events);
+		stats.LayCurse(static_cast<Curse>(c), CurseGrade::Lesser, events, testRng());
 	for (int t = 0; t < POISON_TIER_COUNT; t++)
 		stats.vitals.poison.Apply(static_cast<PoisonTier>(t));
 	stats.vitals.burning.Ignite(5.0, 1000);

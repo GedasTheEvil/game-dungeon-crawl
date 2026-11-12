@@ -1,0 +1,8 @@
+# Plan skill-god-resist: both god skills learnt, a hall with scorpions and a cobra (poison) and mummies and a giant bat
+# (curses). Get hit many times: now and then "Serket's favour spares you the venom" or "Isis's blessing turns the curse
+# away", and no card for that hit.
+level tests/levels/skill_god_resist
+god
+heka 2
+learn serkets_favour
+learn blessing_of_isis

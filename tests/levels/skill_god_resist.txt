@@ -1,0 +1,5 @@
+; Poisoners (scorpions j, cobra c) and cursers (mummies u, a giant bat F) in a hall, the player at col 2
+; (plan skill-god-resist play script).
+##############################
+#S....j..j..c..u..u......F..E#
+##############################

@@ -1,6 +1,6 @@
 # A save cut in the bag, or with an unknown bag tag, quits the game
 
-Status: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-13 (play-tested by the user). Was: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
 ## Problem
 

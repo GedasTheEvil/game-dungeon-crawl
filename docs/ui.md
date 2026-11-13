@@ -260,7 +260,7 @@ it lies over the sheet's margin. The wheel (round the mouse) and `+` / `-` zoom 
 new level starts at 1x ([map-symbols-and-zoom](plan/solved/map-symbols-and-zoom.md)).
 
 Walls, hatching, outlines, water and the "you are here" ring are pencil strokes in code. The symbols are sprites
-([map-legend-sprites](plan/map-legend-sprites.feature.md)): `media/textures/ui/map_marks.png`, 8 x 6 cells
+([map-legend-sprites](plan/solved/map-legend-sprites.feature.md)): `media/textures/ui/map_marks.png`, 8 x 6 cells
 of 128 px, mipmapped, the same sprite on the sketch and in the legend (`markQuad`). A sprite holds the map cell in its
 middle with an eighth of its width free on every side (`MAP_MARK_MARGIN`), so strokes may run a little over the cell.
 `MARK_DEFS` has one row a mark: its legend name, its tint, its turn, the cell of its second look.
@@ -294,7 +294,7 @@ for those cells: from then on run it to a side file (`map_marks.py out.png`) and
 A new mark: a sprite in the next free cell (a function in the script's `MARKS`), a `MapMark` before `None` with its
 `MARK_DEFS` row, a case in `thingMark` (an object or a fixture) or `propMark` (a prop). Inserting one in the middle
 moves the cells after it, the second looks' too. `tests/unit/map_marks_test.cpp` fails for a tile type or a usable
-prop without a mark; `tests/scenarios/map_marks.txt` shows them all.
+prop without a mark; `tests/scenarios/solved/map_marks.txt` shows them all.
 
 ### Inventory group tabs
 

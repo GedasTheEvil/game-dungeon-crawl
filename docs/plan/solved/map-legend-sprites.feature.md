@@ -1,10 +1,10 @@
 # Map: legend symbols from a sprite sheet, shrines and other missing marks
 
-Status: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the user.
+Status: solved 2026-11-13 (play-tested by the user). Was: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the user.
 
 ## Idea
 
-Two things on the draft map (`src/ui/map_view.cpp`, [ui.md](../ui.md#draft-map)):
+Two things on the draft map (`src/ui/map_view.cpp`, [ui.md](../../ui.md#draft-map)):
 
 1. The symbols ("legend items", `MapMark`) are pencil strokes in C++ (`symbol()`, about 240 lines). Move them to a
    sprite sheet, so a symbol is corrected in an image editor, without touching code.

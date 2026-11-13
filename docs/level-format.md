@@ -61,6 +61,15 @@ with the next press, then a mirror (turn it); a gate (exit, teleporter) comes la
 about a monster spawn, ladder, gate, door, treasure (trapped too) or mirror in front of them; a key or a floor trap there is fine. The map
 screen shows one symbol a cell, the object's, else the fixture's.
 
+Pressure plates ([pressure-plate](plan/pressure-plate.feature.md)): a `PressurePlate` (`-`, wall layer:
+a stone, a mirror or an emptied chest can stand on it) has a lock colour and the weight it needs; while every plate of
+a colour carries its weight, the silver plate gates of that colour (`Gate`, colour `BOSS_LOCK` + the lock colour,
+glyphs `1` to `4`) stand open, under it they come down (not on anyone in the gate's cell). Weights: the player 2, a
+`Stone` (`;`) 4, an emptied chest or a mirror 2, a monster or its body `MonsterKind::weight`. The player drags stones,
+mirrors, emptied chests and bodies along the bare flat floor (no water, sand or shape, on a wall cell).
+`levelcheck` opens the plate gates once the player reaches a plate of their colour, and warns when the things on the
+plate's flat floor run weigh less than it needs, about a plate without plate gates and plate gates without a plate.
+
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
 cannot sprint or jump while standing in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both) (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
 floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (a swimmer: the

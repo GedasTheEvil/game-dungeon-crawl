@@ -76,7 +76,8 @@ TEST_CASE("every tile type and monster type has a glyph in the legend") {
 TEST_CASE("glyphs the game does not know") {
 	CHECK(tileGlyph({MonsterSpawn, 99, 0}) == UNKNOWN_MONSTER_GLYPH);
 	CHECK(tileGlyph({Key, 9, 0}) == UNKNOWN_KEY_GLYPH);
-	CHECK(tileGlyph({Gate, 9, 0}) == UNKNOWN_GATE_GLYPH);
+	CHECK(tileGlyph({Gate, GATE_COLOUR_COUNT + 1, 0}) == UNKNOWN_GATE_GLYPH);
+	CHECK(tileGlyph({Gate, plateGateColour(1), 0}) == '1'); // plan pressure-plate
 	CHECK(tileGlyph({Key, BOSS_LOCK, 0}) == UNKNOWN_KEY_GLYPH); // no boss key
 	CHECK(tileGlyph({Gate, BOSS_LOCK, 0}) == 'Z');
 	for (const GlyphDef& g : glyphLegend())

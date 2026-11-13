@@ -161,6 +161,20 @@ constexpr std::array<TileDef, TILE_TYPE_COUNT> TILES = {{
 	 true,
 	 '\'',
 	 "ceiling_death.png"},
+	{"PressurePlate",
+	 "A pressure plate in the floor, with a gem of its colour. While every plate of its colour carries its weight "
+	 "(the player 2, a stone 4, an emptied chest or a mirror 2, a monster or its body its own weight), the plate gates "
+	 "of that colour stand open; under it they close. Attribute: the lock colour. Value: the weight it needs.",
+	 true,
+	 true,
+	 '-',
+	 "pressure_plate.png"},
+	{"Stone",
+	 "A loose stone block. The player drags it (the drag key) along the bare flat floor, onto a pressure plate.",
+	 true,
+	 true,
+	 ';',
+	 "stone.png"},
 }};
 
 constexpr std::array<StructureDef, STRUCTURE_COUNT> STRUCTURES = {{
@@ -226,12 +240,14 @@ std::vector<GlyphDef> buildLegend() {
 		{'l', {LightShaft, 0, 0}, "light shaft (beam down; other ways: 'def')"},
 		{'(', {Mirror, 0, 0}, "mirror (pointing down; other ways: 'def')"},
 		{'a', {SunDisc, 1, 0}, "sun disc (red; other colours: 'def')"},
+		{'-', {PressurePlate, 1, 3}, "pressure plate (red, weight 3; others: 'def')"},
+		{';', {Stone, 0, 0}, "stone (a block to drag)"},
 		{'=', {Page, 1, 0}, "expedition page (number 1; others: 'def')"},
 	};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))
 			legend.push_back({kind->glyph, {MonsterSpawn, type, 0}, kind->label});
-	for (int colour = 1; colour <= BOSS_LOCK; colour++) {
+	for (int colour = 1; colour <= GATE_COLOUR_COUNT; colour++) {
 		const LockColour& lock = lockColour(colour);
 		if (lock.keyGlyph != '\0')
 			legend.push_back({lock.keyGlyph, {Key, colour, 0}, lock.name});

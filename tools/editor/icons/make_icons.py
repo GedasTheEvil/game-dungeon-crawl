@@ -363,8 +363,26 @@ def page():  # a torn papyrus sheet lying on a skull
     save(img, "page.png")
 
 
+def pressure_plate():  # plan pressure-plate: a slab in the floor with a gem, a silver gate raised over it
+    img, d = canvas(GOLD, 25)
+    d.rectangle(p(18, 6, 46, 40), outline=(200, 205, 215), width=2 * SS)  # the silver gate, up
+    for x in (24, 32, 40):
+        d.line(p(x, 8, x, 38), fill=(170, 175, 188), width=SS)
+    d.rectangle(p(10, 50, 54, 58), fill=STONE, outline=GOLD_DIM, width=SS)
+    d.ellipse(p(28, 44, 36, 52), fill=RED_LIGHT, outline=GOLD, width=SS)  # the gem
+    save(img, "pressure_plate.png")
+
+
+def stone():  # plan pressure-plate: a squared stone block to drag
+    img, d = canvas(GOLD, 20)
+    poly(d, [(14, 26), (46, 22), (52, 30), (52, 58), (14, 58)], STONE, STONE_DARK, 1)
+    poly(d, [(14, 26), (46, 22), (52, 30), (20, 33)], (140, 110, 78))  # lit top
+    d.line(p(24, 42, 34, 46), fill=STONE_DARK, width=SS)  # a crack
+    save(img, "stone.png")
+
+
 def later_tiles():
-    for f in (wall_spikes, sun_disc, fire_vent, poison_drip, sand_gust, light_shaft, mirror, page):
+    for f in (wall_spikes, sun_disc, fire_vent, poison_drip, sand_gust, light_shaft, mirror, page, pressure_plate, stone):
         f()
     ceiling_spikes("ceiling_spikes.png", tall=False)
     ceiling_spikes("ceiling_death.png", tall=True)

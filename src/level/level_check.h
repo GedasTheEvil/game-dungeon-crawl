@@ -16,6 +16,9 @@
 //   - interacting with a teleporter moves the player to its partner (both ways); a name gate too (the name spoken),
 //     but the exit, the keys, the levers and the name cartouche must be found with it sealed;
 //   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open;
+//   - reaching a pressure plate (plan pressure-plate) holds it down: the plate gates of its colour open (they share the
+//     colour's bit with its keys and levers); checkLocks warns when the things on the plate's flat floor run (stones,
+//     mirrors, treasures, monsters' bodies) weigh less than it needs, so the player can leave it held;
 //   - turning a mirror (plan sunlight-mirrors) lights every sun disc a beam can reach with the mirrors the player
 //     reaches from there set as needed (sun_beam.h): the gates of its colour open; a disc lit as the level starts
 //     opens them from the start (and is warned about);

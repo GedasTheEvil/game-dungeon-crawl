@@ -112,13 +112,15 @@ struct DecorSet {
 // Null if the file failed to load.
 struct MechanismSet {
 	Texture keyTex[LOCK_COLOUR_COUNT], gateTex[LOCK_COLOUR_COUNT], leverBaseTex[LOCK_COLOUR_COUNT];
+	// Plan pressure-plate: the silver plate gates and the pressure plates, per lock colour.
+	Texture plateGateTex[LOCK_COLOUR_COUNT], weightPlateTex[LOCK_COLOUR_COUNT];
 	Texture leverHandleTex, rockTex, crackTex, bossGateTex, plateTex, dartHolesTex, spikeSlotsTex, wallSpikesTex,
 		fireVentTex;
 	Texture sunDiscTex[LOCK_COLOUR_COUNT], mirrorStandTex, mirrorTex, mirrorPointerTex; // plan sunlight-mirrors
 	Texture ringPlatformTex, ringHousingTex, ringTex; // plan ring-transporter
 	std::unique_ptr<AnimatedModel> key, gate, leverBase;
 	std::unique_ptr<AnimatedModel> leverHandle, rock, crack, plate, dartHoles, spikeSlots, wallSpikes, fireVent;
-	std::unique_ptr<AnimatedModel> sunDisc, mirrorStand, mirror, mirrorPointer;
+	std::unique_ptr<AnimatedModel> sunDisc, weightPlate, mirrorStand, mirror, mirrorPointer;
 	std::unique_ptr<AnimatedModel> ringPlatform, ringHousing, ring;
 };
 

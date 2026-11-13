@@ -547,6 +547,15 @@ constexpr float DART_PLATE_HALF_WIDTH = 0.27f; // the slab (mechanism.py): a cen
 constexpr float DART_HALF_WIDTH = 0.1f; // a dart takes a body whose box comes this near its hole
 constexpr int DART_REARM_MS = 3000;
 
+// Pressure plates (plan pressure-plate): the weight on one is the player's (PLAYER_WEIGHT), the monsters' and their
+// bodies' (MonsterKind::weight, a body at least 1) whose centre is within PRESSURE_PLATE_HALF_WIDTH of the plate's,
+// and the things in its cell: a stone, an emptied chest, a mirror. A held plate sinks PRESSURE_PLATE_SINK (as a dart
+// plate); its plate gates move as a key gate (GATE_OPEN_MS), up and down.
+constexpr int STONE_WEIGHT = 4;
+constexpr int CHEST_WEIGHT = 2;
+constexpr int MIRROR_WEIGHT = 2;
+constexpr float PRESSURE_PLATE_HALF_WIDTH = 0.35f;
+
 // Trapped chests (plan trapped-chests, ChestTrap in loot.h): the trap goes off as the lid lifts. The darts out of the
 // lock hit the player who opens it (CHEST_DART_DAMAGE, cut by the trap ward, and medium poison); the gas hangs over
 // the chest for CHEST_GAS_MS, and a player within CHEST_GAS_HALF_WIDTH of its middle takes weak poison every

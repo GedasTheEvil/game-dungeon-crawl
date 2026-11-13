@@ -252,7 +252,8 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 
 	glPushMatrix();
 	glTranslatef(
-		RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE,
+		RenderConfig::ITEM_OFFSET_X +
+			(look.x + dragShift(cell)) * RenderConfig::TILE_SIZE, // dragged (plan pressure-plate)
 		0,
 		RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE
 	);
@@ -534,6 +535,9 @@ void Dungeon::drawFixture(int i, int j) {
 	case CeilingDeath:
 		drawCeilingTrap(i, j);
 		break;
+	case PressurePlate:
+		drawPressurePlateTile(i, j);
+		break;
 	default: // none, or not a wall type: the reader keeps those out of the wall layer
 		break;
 	}
@@ -591,6 +595,10 @@ void Dungeon::drawTileContent(int i, int j) {
 	case CeilingSpikes:
 	case CeilingDeath:
 	case LightShaft: // nothing but its beam and the glow where it comes in (drawSunBeams)
+	case PressurePlate: // in the wall layer (drawFixture)
+		break;
+	case Stone:
+		drawStoneTile(i, j);
 		break;
 	case Mirror:
 		drawMirrorTile(i, j);

@@ -53,6 +53,8 @@ enum class MapMark : std::uint8_t {
 	Stargate,
 	Dial,
 	Brazier,
+	PressurePlate, // plan pressure-plate
+	Stone,
 	None,
 };
 constexpr int MARK_COUNT = static_cast<int>(MapMark::None);
@@ -95,14 +97,14 @@ constexpr MarkDef MARK_DEFS[MARK_COUNT] = {
 	{"Treasure"},
 	{"Treasure, taken"},
 	{"Key", MarkTint::Lock},
-	{"Gate", MarkTint::Lock, MarkTurn::None, 38}, // open
-	{"Boss gate", MarkTint::None, MarkTurn::None, 39}, // open, the seal broken
-	{"Lever", MarkTint::Lock, MarkTurn::None, 40}, // pulled
+	{"Gate", MarkTint::Lock, MarkTurn::None, 40}, // open
+	{"Boss gate", MarkTint::None, MarkTurn::None, 41}, // open, the seal broken
+	{"Lever", MarkTint::Lock, MarkTurn::None, 42}, // pulled
 	{"Spikes"},
 	{"Death trap"},
 	{"Ceiling spikes"},
 	{"Ceiling death trap"},
-	{"Rock fall", MarkTint::None, MarkTurn::None, 41}, // fallen
+	{"Rock fall", MarkTint::None, MarkTurn::None, 43}, // fallen
 	{"Dart plate"},
 	{"Wall spikes"},
 	{"Fire vent"},
@@ -122,6 +124,8 @@ constexpr MarkDef MARK_DEFS[MARK_COUNT] = {
 	{"Stargate"},
 	{"Dial device"},
 	{"Brazier"},
+	{"Pressure plate", MarkTint::Lock},
+	{"Stone block"},
 };
 [[nodiscard]] constexpr const MarkDef& markDef(MapMark m) { return MARK_DEFS[static_cast<int>(m)]; }
 
@@ -193,6 +197,10 @@ constexpr MarkDef MARK_DEFS[MARK_COUNT] = {
 		return t.value == 0 ? MapMark::Page : MapMark::None;
 	case Ankh:
 		return MapMark::Ankh;
+	case PressurePlate:
+		return MapMark::PressurePlate;
+	case Stone:
+		return MapMark::Stone;
 	default:
 		return MapMark::None;
 	}
@@ -271,6 +279,8 @@ struct MarkSprite {
 	}
 	if (def.tint == MarkTint::Lock && isLockColour(s.thing.attr))
 		sprite.lock = s.thing.attr;
+	else if (def.tint == MarkTint::Lock && s.thing.type == Gate && isPlateGateColour(s.thing.attr))
+		sprite.lock = plateLockOf(s.thing.attr); // a silver plate gate: its plates' colour (plan pressure-plate)
 	return sprite;
 }
 

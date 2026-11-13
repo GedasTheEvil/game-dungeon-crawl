@@ -1,0 +1,28 @@
+# Plan pressure-plate (tests/levels/pressure_plate): the stone dragged onto the red plate, the silver plate gate rising;
+# the blue plate under the player, its gate up, then coming down as they step off; the gold and green plates and gates.
+# The rules: tests/unit/pressure_plate_test.cpp.
+seed 1
+god
+resolution 1024 768
+level tests/levels/pressure_plate at 4 2
+hold left 100ms
+wait 10
+screenshot stone_and_plate
+key r
+walk to 6.75
+key r
+walk to 8.2
+wait 30
+screenshot gate_rising
+wait 90
+screenshot gate_up
+walk to 11.5
+wait 120
+screenshot blue_held
+walk to 12.5
+wait 20
+screenshot blue_coming_down
+expect x < 13
+level tests/levels/pressure_plate at 17 2
+wait 10
+screenshot green_plates

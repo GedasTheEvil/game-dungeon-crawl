@@ -475,6 +475,20 @@ class Dungeon {
 	void pressPlate(int col, int row, bool byPlayer);
 	void updateDarts();
 	void drawDartPlateTile(int i, int j); // the plate and the dart holes above it
+	// Pressure plates (dungeon_plates.cpp, plan pressure-plate): each tick the weight on every plate; while all plates
+	// of a colour carry theirs, its plate gates open, else they close (not on anyone standing in the gate's cell).
+	std::vector<char> plateDown = std::vector<char>(MAP_CELL_COUNT, 0); // a plate carries its weight (drawn sunk)
+	bool platesSettled = false; // the first tick after a load sets plateDown without a click
+	std::vector<Motion> closingGates; // c = 3 while in here, then 0 (closed)
+	int platesOpened =
+		0; // bit (colour - 1): its plate gates opened once on this visit (the status line, the cut-scene)
+	void updatePlates();
+	void openPlateGate(int cell, int now); // from closed, or back up from closing
+	void closePlateGate(int cell, int now); // from open, or back down from opening
+	void finishClosedGates();
+	[[nodiscard]] bool gateCellFree(int cell) const; // no one in the gate's cell: it may come down
+	void drawPressurePlateTile(int i, int j);
+	void drawStoneTile(int i, int j);
 	void drawInscriptionTile(int i, int j); // its atlas cell on the back wall
 	void drawDarts(); // with the frame origin of DrawMonsters
 	// Rhythm traps (dungeon_spikes.cpp, plans rhythm-traps, fire-jet-trap, poison-drip-trap): each wall spikes', fire
@@ -522,10 +536,18 @@ class Dungeon {
 	[[nodiscard]] float mirrorAngle(int cell) const;
 	[[nodiscard]] float mirrorFaceDeg(int cell) const; // mirrorAngle without the swing
 	void drawMirrorTile(int i, int j); // the stand, the mirror and the pointer showing its way
-	// Dragging (dungeon_drag.cpp, plan mirror-drag): the cell of the thing held (map index, -1: none) and its centre's
-	// x less the player's, kept while it is dragged: it stays on that side, the player faces it.
+	// Dragging (dungeon_drag.cpp, plans mirror-drag, pressure-plate): what is held, its cell (map index, -1: none),
+	// a body's monster slot, and the thing's centre's x less the player's, kept while it is dragged: it stays on that
+	// side, the player faces it.
+	enum class DragKind : std::uint8_t {
+		Object, // a mirror or a stone (isDraggable): the object moves cell to cell
+		Chest, // an emptied chest: its container (containers[]) moves, a dropped chest from then on
+		Body, // a dead monster: its centre follows the player
+	};
 	struct Drag {
+		DragKind kind = DragKind::Object;
 		int cell = -1;
+		int slot = -1; // monsters[] of a Body
 		float offset = 0.f;
 	} drag;
 	// The thing let go: its cell, the map x it was drawn off its centre then, when (it slides back, dragShift).
@@ -537,9 +559,12 @@ class Dungeon {
 	// A cell the player and a dragged thing may stand in: the flat corridor. Open and dry, no sand, no shape, on a
 	// whole solid cell; for the thing (thing true) also no object, no fixture and no prop the player uses.
 	[[nodiscard]] bool dragGround(int col, int row, bool thing) const;
-	// The draggable thing in the player's cell, else in the next cell they face (facing -1 / +1) within DRAG_REACH: its
-	// cell, else -1.
-	[[nodiscard]] int draggableAt(int facing) const;
+	// The draggable thing in the player's cell, else in the next cell they face (facing -1 / +1) within DRAG_REACH: an
+	// object first, then an emptied chest, then a body (its cell -1: none). offset unset.
+	[[nodiscard]] Drag findDraggable(int facing) const;
+	[[nodiscard]] Drag thingIn(int col, int row) const; // the draggable thing in the cell, findDraggable's order
+	[[nodiscard]] bool stillHeld() const; // the thing held is still there (a mirror not gone, a body not cleared)
+	[[nodiscard]] float heldCentre() const; // map x of the thing held: its cell's centre, a body's own
 	// The walk moves the player to x: the thing comes along into its cell. False: refused (the player stays put).
 	[[nodiscard]] bool dragTo(float x);
 	void updateDrag(); // once a tick: lets go when the player can no longer drag (dead, in the air, held, ...)
@@ -865,8 +890,9 @@ class Dungeon {
 	// The water over everything in it (the player too), see-through: after the player, in Draw's frame.
 	void DrawWater();
 	bool Move(float dirX, float dirY); // false: blocked or held (PlayerHeldBy), the player did not move
-	// Dragging (plan mirror-drag): the drag key takes hold of a draggable thing (isDraggable) in the player's cell or
-	// the next one they face (facing -1 / +1), or lets go. Held, the player crouches facing it and walks backwards
+	// Dragging (plans mirror-drag, pressure-plate): the drag key takes hold of a draggable thing (a mirror, a stone, an
+	// emptied chest, a monster's body: findDraggable) in the player's cell or the next one they face (facing -1 / +1),
+	// or lets go. Held, the player crouches facing it and walks backwards
 	// pulling it (or forwards pushing it) at DRAG_WALK_FACTOR of the crouched walk, the thing a cell at a time; only on
 	// the flat corridor (dragGround). True: took hold.
 	bool ToggleDrag(int facing);
@@ -875,7 +901,13 @@ class Dungeon {
 	// Dragging: the way the player looks, at the thing (-1 / +1). Else 0.
 	[[nodiscard]] int DragFacing() const;
 	// Not dragging, a draggable thing within reach the way the player faces (the first hint).
-	[[nodiscard]] bool PlayerCanDrag(int facing) const { return !Dragging() && draggableAt(facing) >= 0; }
+	// The weight on the pressure plate in (col, row) (plan pressure-plate): the player, monsters and bodies over it,
+	// the stone, emptied chest or mirror in its cell.
+	[[nodiscard]] int WeightOn(int col, int row) const;
+	[[nodiscard]] bool PlateDown(int col, int row) const {
+		return IsInBounds(col, row) && plateDown[MapIndex(col, row)] != 0;
+	}
+	[[nodiscard]] bool PlayerCanDrag(int facing) const { return !Dragging() && findDraggable(facing).cell >= 0; }
 	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR (WADE_SPEED_FACTOR_HAPI with the
 	// Favour of Hapi skill, plan skill-blessing-of-hapi).
 	[[nodiscard]] bool PlayerWading() const;

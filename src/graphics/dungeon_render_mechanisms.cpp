@@ -27,6 +27,7 @@ constexpr float LEVER_ANGLE = 35.f; // degrees either side of upright; + tips th
 constexpr float ROCK_START_Y = 0.65f; // rock bottom when it breaks loose (rock is 0.3 tall)
 constexpr float ROCK_DEPTH = 0.5f; // in the middle of the corridor, where the player walks
 constexpr float DART_PLATE_SINK = 0.025f; // a pressed plate is flush with the floor
+constexpr float STONE_SCALE = 1.6f; // a stone block to drag (plan pressure-plate): the rock fall's boulder, bigger
 // Wall spikes: pushed this far back into the wall, their tips are just inside it. Out, they shoot out in
 // SPIKES_THRUST_MS and slide back in over the last SPIKES_RETRACT_MS of their time out; in the telegraph the tips
 // twitch out of the slots, up to SPIKES_TWITCH.
@@ -157,12 +158,16 @@ void Dungeon::drawGateTile(int i, int j) {
 	float lift = 0.f;
 	if (gateState(tile) == GateState::Open)
 		lift = 1.f;
-	else if (gateState(tile) == GateState::Opening)
-		for (const Motion& m : openingGates)
+	else if (gateState(tile) == GateState::Opening || gateState(tile) == GateState::Closing) {
+		// A plate gate comes down the way it went up (plan pressure-plate).
+		const bool up = gateState(tile) == GateState::Opening;
+		for (const Motion& m : up ? openingGates : closingGates)
 			if (m.cell == MapIndex(i, j)) {
-				float p = motionProgress(m.startMs, GATE_OPEN_MS);
-				lift = p * p * (3.f - 2.f * p);
+				const float p = motionProgress(m.startMs, GATE_OPEN_MS);
+				const float s = p * p * (3.f - 2.f * p);
+				lift = up ? s : 1.f - s;
 			}
+	}
 	if (lift >= 1.f)
 		return; // up inside the ceiling
 
@@ -173,7 +178,9 @@ void Dungeon::drawGateTile(int i, int j) {
 	if (tile.attr == BOSS_LOCK) {
 		if (set.gate != nullptr)
 			set.gate->Show(AnimPlayback{}, set.bossGateTex.ID());
-	} else
+	} else if (isPlateGateColour(tile.attr))
+		showColour(set.gate, set.plateGateTex, plateLockOf(tile.attr));
+	else
 		showColour(set.gate, set.gateTex, tile.attr);
 	glPopMatrix();
 }
@@ -232,6 +239,30 @@ void Dungeon::drawDartPlateTile(int i, int j) {
 	if (platePressed(MapAt(i, j)))
 		glTranslatef(0, -DART_PLATE_SINK, 0);
 	showModel(sim.assets->mechanisms.plate.get());
+	glPopMatrix();
+}
+//======================================================================================
+// Plan pressure-plate: the slab with its gem, sunk while it carries its weight.
+void Dungeon::drawPressurePlateTile(int i, int j) {
+	const Fixture plate = MapAt(i, j).fixture;
+	glPushMatrix();
+	enterPropSpace();
+	if (PlateDown(i, j))
+		glTranslatef(0, -DART_PLATE_SINK, 0);
+	showColour(sim.assets->mechanisms.weightPlate, sim.assets->mechanisms.weightPlateTex, plate.attr);
+	glPopMatrix();
+}
+//======================================================================================
+// A loose stone block (plan pressure-plate): the rock fall's boulder, bigger, its own turn per cell.
+void Dungeon::drawStoneTile(int i, int j) {
+	const int cell = MapIndex(i, j);
+	glPushMatrix();
+	glTranslatef(dragShift(cell) * RenderConfig::TILE_SIZE, 0, 0);
+	enterPropSpace();
+	glTranslatef(0, 0, ROCK_DEPTH);
+	glRotatef(static_cast<float>(cell % 5) * 70.f, 0, 1, 0);
+	glScalef(STONE_SCALE, STONE_SCALE, STONE_SCALE);
+	showModel(sim.assets->mechanisms.rock.get());
 	glPopMatrix();
 }
 //======================================================================================

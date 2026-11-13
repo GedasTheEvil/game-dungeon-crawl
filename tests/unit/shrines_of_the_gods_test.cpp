@@ -155,7 +155,7 @@ TEST_CASE("Shrines of the gods: the props, the glyphs, the notes saved by number
 	CHECK(decorGlyph(DECOR_SHRINE_SERKET) == 'S');
 	CHECK(static_cast<int>(FieldNote::ShrineOfMontu) == static_cast<int>(FieldNote::QuiverOfNeith) + 1);
 	CHECK(static_cast<int>(FieldNote::SkyIron) == static_cast<int>(FieldNote::ShrineOfSerket) + 1);
-	CHECK(static_cast<int>(FieldNote::SkyIron) + 1 == FIELD_NOTE_COUNT); // plan sky-iron-rings
+	CHECK(static_cast<int>(FieldNote::PressurePlates) + 1 == FIELD_NOTE_COUNT); // plans sky-iron-rings, pressure-plate
 	for (const God g : NEW_GODS) {
 		CAPTURE(godDef(g).name);
 		CHECK(std::string(fieldNoteText(shrineNote(g)).title) == std::string("The Shrine of ") + godDef(g).name);

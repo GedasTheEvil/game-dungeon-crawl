@@ -37,7 +37,7 @@ Choices monsterTypes() {
 // Key and lever colours; gates also take the boss lock.
 Choices lockColours(bool withBoss) {
 	Choices colours;
-	for (int colour = 1; colour <= (withBoss ? BOSS_LOCK : LOCK_COLOUR_COUNT); colour++)
+	for (int colour = 1; colour <= (withBoss ? GATE_COLOUR_COUNT : LOCK_COLOUR_COUNT); colour++)
 		colours.push_back({colour, lockColour(colour).name, lockColour(colour).choice});
 	return colours;
 }
@@ -248,6 +248,10 @@ CellHint describeCell(const Tile& cell) {
 	case SunDisc:
 		hint.attribute = field("lock colour", LOCK_CHOICES, cell.attr, "no colour, opens nothing");
 		hint.value = field("state", ZERO_ONLY, cell.value, "keep it 0");
+		break;
+	case PressurePlate: // plan pressure-plate
+		hint.attribute = field("lock colour", LOCK_CHOICES, cell.attr, "no colour, opens nothing");
+		hint.value = anyNumber("weight", cell.value, "the weight it needs: the player 2, a stone 4, a chest 2");
 		break;
 	case WallSpikes:
 	case FireVent:

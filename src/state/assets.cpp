@@ -36,6 +36,10 @@ void loadMechanisms(MechanismSet& set) {
 		set.leverBaseTex[c].LoadPNG(path);
 		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/sun_disc_%s.png", LOCK_COLOURS[c].name);
 		set.sunDiscTex[c].LoadPNG(path);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/gate_plate_%s.png", LOCK_COLOURS[c].name);
+		set.plateGateTex[c].LoadPNG(path);
+		snprintf(path, sizeof(path), MEDIA_DIR "textures/mechanisms/weight_plate_%s.png", LOCK_COLOURS[c].name);
+		set.weightPlateTex[c].LoadPNG(path);
 	}
 	set.key = loadStaticModel(MEDIA_DIR "models/mechanisms/key.md3", set.keyTex[0]);
 	set.gate = loadStaticModel(MEDIA_DIR "models/mechanisms/gate.md3", set.gateTex[0]);
@@ -58,6 +62,7 @@ void loadMechanisms(MechanismSet& set) {
 	set.fireVentTex.LoadPNG(MEDIA_DIR "textures/mechanisms/fire_vent.png");
 	set.fireVent = loadStaticModel(MEDIA_DIR "models/mechanisms/fire_vent.md3", set.fireVentTex);
 	set.sunDisc = loadStaticModel(MEDIA_DIR "models/mechanisms/sun_disc.md3", set.sunDiscTex[0]);
+	set.weightPlate = loadStaticModel(MEDIA_DIR "models/mechanisms/weight_plate.md3", set.weightPlateTex[0]);
 	set.mirrorStandTex.LoadPNG(MEDIA_DIR "textures/mechanisms/mirror_stand.png");
 	set.mirrorStand = loadStaticModel(MEDIA_DIR "models/mechanisms/mirror_stand.md3", set.mirrorStandTex);
 	set.mirrorTex.LoadPNG(MEDIA_DIR "textures/mechanisms/mirror.png");

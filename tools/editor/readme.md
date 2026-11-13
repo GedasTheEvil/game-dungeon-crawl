@@ -200,6 +200,8 @@ wall layer, the others in the object layer. Objects palette: `None`, `Door`, `De
 | 24 | SandGust | Wind: speed (0 normal, 1 fast, 2 slow), plus 3 for a wind to the left (else to the right) | Phase, 0 to 7 (eighths of the cycle) | A sandstorm hall's wind ([plan](../../docs/plan/solved/sandstorm-halls.md)), in the wall layer for its cycle: gusts of sand blow along the row through the cell, 2 s of every 7 s (fast 1.6 of 5.6 s, slow 2.4 of 8.4 s); for 1.2 s before, the hiss rises and grit skitters along the floor. A gust pushes the player downwind at 1.6 tiles a second, faster than the walk (not on a ladder), and the light monsters (the small walkers, the flyers; no boss) at 1.2; arrows and spit drift. Near a hall the haze closes in, in a gust the wind drowns the other sounds. No hurt. Mark each cell of the hall; the cells left out are its shelters, where the wind does not reach; the game draws a sandstone pillar on the windward side of each (no prop needed). Give the gusts upwind a higher phase: the gust rolls down the hall. The checker warns when a run of them cannot be crossed against the wind in one calm (in sand at most 2 cells at normal speed, 3 slow; on stone 3, 4 slow), blows both ways, has no floor under it or spikes, a death trap or quicksand in it, or blows the player into a drop, a trap or quicksand at its downwind end. Put a floor under it. |
 | 25 | CeilingSpikes | Unused (0) | Unused (0) | Ceiling trap ([plan](../../docs/plan/solved/ceiling-spikes.md)), in the wall layer: the floor spikes upside down on the underside of every solid sub-cell over open space in the cell's shape (not the bottom row). Walking, crouching and standing under them are safe. A jump into them, the player's or a monster's, at any speed, costs what a walk over the floor spikes costs (200 HP or 20% of the max HP, through armour, the trap ward helps) instead of the head bump, with no daze; a monster takes its walk through the floor kind. Cowardly leapers do not leap under them; the reckless and the pouncers do (a lure: wait under them for a pounce). Only on a shaped cell with a ceiling a jump reaches: the loader and the checker reject any other. The checker warns when the only way on jumps into them (a quarter step under them). |
 | 26 | CeilingDeath | Unused (0) | Unused (0) | Ceiling death trap, as `CeilingSpikes`: a jump into it costs a walk over the death trap (400 HP or 40%) and its tips poison strongly. |
+| 27 | PressurePlate | Lock colour, see below | The weight it needs, 1 and up | A pressure plate in the floor with a gem of its colour ([pressure plate](../../docs/plan/pressure-plate.feature.md)), in the wall layer so a thing can stand on it. While every plate of its colour carries its weight, the silver plate gates of that colour (Gate, colour 6 to 9) stand open; under it they come down (not on anyone in the gate's cell). Weights: the player 2, a stone 4, an emptied chest or a mirror 2, a monster or its body its own weight (rats and scarabs 1, most 2, the big ones 3 to 6). The player drags things onto it (the drag key: stones, mirrors, emptied chests, bodies). The checker warns when the stones, mirrors, chests and monsters on its flat floor run weigh less than it needs, and about a plate without plate gates or plate gates without a plate. Put a wall under it. |
+| 28 | Stone | - | - | A loose stone block ([pressure plate](../../docs/plan/pressure-plate.feature.md)): the player drags it along the bare flat floor (no water, sand or steps), onto a pressure plate (weight 4). |
 
 Spikes and death traps: walking over one costs the player a bell curve of damage over it (the middle most, the edge a
 nick), about 200 HP for the spikes and 400 for the death trap, or 20% / 40% of the max HP when more; a quarter more at
@@ -280,9 +282,11 @@ leads to (`levelcheck` warns otherwise).
 | 3 | Green | Turquoise |
 | 4 | Gold | Gold |
 | 5 | Boss (gates only) | Obsidian |
+| 6 to 9 | Plate gate (gates only): red, blue, green, gold | the plate's gem |
 
 Keys, gates and levers with the same colour belong together. A boss gate (colour 5) has no key or lever: it opens
-when the level's boss dies.
+when the level's boss dies. A plate gate (colour 5 + the lock colour, a silver gate) has no key or lever: the
+pressure plates (type 27) of the lock colour hold it open.
 
 ### Treasure: item type (attribute) and item id (value)
 

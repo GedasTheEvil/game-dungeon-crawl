@@ -43,7 +43,7 @@ enum DungeonTileType : unsigned char {
 	Treasure = 8,
 	Ankh = 9,
 	Key = 10, // b = lock colour; picked up on touch, then the cell has no object
-	Gate = 11, // b = lock colour or BOSS_LOCK, c: 0 closed, 2 opening, 1 open; only open gates let the player through
+	Gate = 11, // b = lock colour, BOSS_LOCK or a plate gate colour; c: 0 closed, 2 opening, 1 open, 3 closing
 	Lever = 12, // b = lock colour, c = 1 when pulled; pulling opens every gate of that colour
 	RockFall = 13, // loose ceiling, walkable; b: 0 rock, 1 sand (SAND_FALL); c: 0 armed, 2 falling, 1 fallen
 	DartPlate = 14, // pressure plate in the floor: poison darts from the back wall above it; c: 0 armed, 1 pressed
@@ -77,6 +77,11 @@ enum DungeonTileType : unsigned char {
 	// a jump into them hurts as a walk over the floor kind. In the wall layer, as the poison drip's lump; b, c unused.
 	CeilingSpikes = 25,
 	CeilingDeath = 26, // the death trap's spikes on a ceiling: its tips poison strongly
+	// A pressure plate in the floor (plan pressure-plate): b = lock colour, c = the weight it needs (at least 1).
+	// While every plate of a colour carries its weight (Dungeon::weightOn), the plate gates of that colour stand open;
+	// under it they close. In the wall layer, so a stone, a chest or a mirror can stand on it.
+	PressurePlate = 27,
+	Stone = 28, // a loose stone block (plan pressure-plate): dragged onto a pressure plate, its weight holds it down
 };
 // The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
 constexpr int EXPEDITION_PAGE_COUNT = 24;
@@ -84,7 +89,8 @@ constexpr int EXPEDITION_PAGE_COUNT = 24;
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {
 	return type == Lever || type == Inscription || type == WallSpikes || type == SunDisc || type == FireVent ||
-		   type == PoisonDrip || type == SandGust || type == CeilingSpikes || type == CeilingDeath;
+		   type == PoisonDrip || type == SandGust || type == CeilingSpikes || type == CeilingDeath ||
+		   type == PressurePlate;
 }
 // Ceiling spikes or a ceiling death trap (plan ceiling-spikes).
 [[nodiscard]] constexpr bool isCeilingTrap(int type) { return type == CeilingSpikes || type == CeilingDeath; }
@@ -155,7 +161,17 @@ constexpr int LOCK_COLOUR_COUNT = 4;
 inline bool isLockColour(int colour) { return colour >= 1 && colour <= LOCK_COLOUR_COUNT; }
 // A gate's colour can also be the boss lock: no key or lever, the level's boss dying opens it.
 constexpr int BOSS_LOCK = LOCK_COLOUR_COUNT + 1;
-inline bool isGateColour(int colour) { return isLockColour(colour) || colour == BOSS_LOCK; }
+// Or a plate gate's (plan pressure-plate): BOSS_LOCK + lock colour, a silver gate the pressure plates of that colour
+// hold open.
+[[nodiscard]] constexpr bool isPlateGateColour(int colour) {
+	return colour > BOSS_LOCK && colour <= BOSS_LOCK + LOCK_COLOUR_COUNT;
+}
+[[nodiscard]] constexpr int plateGateColour(int lock) { return BOSS_LOCK + lock; } // a lock colour's plate gates
+[[nodiscard]] constexpr int plateLockOf(int gateColour) { return gateColour - BOSS_LOCK; } // isPlateGateColour
+constexpr int GATE_COLOUR_COUNT = BOSS_LOCK + LOCK_COLOUR_COUNT;
+inline bool isGateColour(int colour) {
+	return isLockColour(colour) || colour == BOSS_LOCK || isPlateGateColour(colour);
+}
 
 struct LockColour {
 	const char* name; // texture names (key_<name>.png, ...), messages
@@ -164,13 +180,17 @@ struct LockColour {
 	char gateGlyph;
 	const char* choice; // the editor's list
 };
-// By colour id - 1, the boss lock last.
-constexpr LockColour LOCK_COLOURS[BOSS_LOCK] = {
+// By colour id - 1: the lock colours, the boss lock, the plate gates.
+constexpr LockColour LOCK_COLOURS[GATE_COLOUR_COUNT] = {
 	{"red", "Carnelian", 'r', 'R', "Red (Carnelian)"},
 	{"blue", "Lapis", 'b', 'B', "Blue (Lapis)"},
 	{"green", "Turquoise", 'g', 'G', "Green (Turquoise)"},
 	{"gold", "Gold", 'y', 'Y', "Gold"},
 	{"boss", "Obsidian", '\0', 'Z', "Boss gate, opens when the level's boss dies"},
+	{"plate_red", "Carnelian", '\0', '1', "Plate gate, red: open while the red pressure plates are held"},
+	{"plate_blue", "Lapis", '\0', '2', "Plate gate, blue: open while the blue pressure plates are held"},
+	{"plate_green", "Turquoise", '\0', '3', "Plate gate, green: open while the green pressure plates are held"},
+	{"plate_gold", "Gold", '\0', '4', "Plate gate, gold: open while the gold pressure plates are held"},
 };
 // colour must be isGateColour.
 inline const LockColour& lockColour(int colour) { return LOCK_COLOURS[colour - 1]; }
@@ -257,8 +277,9 @@ inline void setObject(Tile& cell, const Tile& object) {
 	cell.value = object.value;
 }
 inline void clearObject(Tile& cell) { setObject(cell, Tile{}); }
-// A thing the player can drag along the floor (plan mirror-drag): a mirror.
-[[nodiscard]] inline bool isDraggable(const Tile& t) { return t.type == Mirror; }
+// An object the player can drag along the floor (plan mirror-drag): a mirror, a stone (plan pressure-plate). An
+// emptied chest and a monster's body drag too (Dungeon::findDraggable).
+[[nodiscard]] inline bool isDraggable(const Tile& t) { return t.type == Mirror || t.type == Stone; }
 // A container with an item: a plain Treasure or a TrappedTreasure (plan trapped-chests).
 [[nodiscard]] inline bool isTreasure(const Tile& t) { return t.type == Treasure || t.type == TrappedTreasure; }
 inline void setFixture(Tile& cell, const Fixture& fixture) { cell.fixture = fixture; }
@@ -283,7 +304,8 @@ inline void setThing(Tile& cell, const Tile& thing) {
 [[nodiscard]] inline Tile fixtureAsTile(const Fixture& f) { return Tile{f.type, f.attr, f.value}; }
 
 // A Gate's and a RockFall's value: their state, as stored in level files and save games.
-enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2 };
+// Closing: a plate gate coming down (plan pressure-plate).
+enum class GateState : std::uint8_t { Closed = 0, Open = 1, Opening = 2, Closing = 3 };
 enum class RockState : std::uint8_t { Armed = 0, Fallen = 1, Falling = 2 };
 // A RockFall's attribute: a rock, or a sand fall (plan desert-chapter) that pours from a ceiling crack and buries the
 // cell under a drift (it turns to Sand): a lighter hit and a short slow, no stones.

@@ -47,14 +47,18 @@ from decor import blob, box, ground, place, prism, revolve, rod, rot  # noqa: E4
 
 COLL = "mechanism_new"
 MODELS = ["key", "gate", "lever_base", "lever_handle", "rock", "ceiling_crack", "pressure_plate", "dart_holes", "spike_slots",
-          "wall_spikes", "sun_disc", "mirror_stand", "mirror", "mirror_pointer", "fire_vent", "ring_platform", "ring_housing", "ring"]
-COLOURED = {"key", "gate", "lever_base", "sun_disc"}  # one texture per lock colour
+          "wall_spikes", "sun_disc", "mirror_stand", "mirror", "mirror_pointer", "fire_vent", "ring_platform", "ring_housing", "ring",
+          "weight_plate"]
+COLOURED = {"key", "gate", "lever_base", "sun_disc", "weight_plate"}  # one texture per lock colour
 LOCK_COLOURS = ["red", "blue", "green", "gold"]  # lock colour 1..4
 BOSS_COLOURED = {"gate"}  # plus a "boss" variant: lock colour 5, opened by the level's boss dying
+# Plus "plate_<colour>" variants (plan pressure-plate): the plate gate, silver where the key gate is gold, the gems of
+# its pressure plates' colour (lock colour 6..9 in the game).
+PLATE_COLOURED = {"gate"}
 TEX_SIZE = {"key": 256, "gate": 512, "lever_base": 256, "lever_handle": 256, "rock": 256, "ceiling_crack": 256,
             "pressure_plate": 256, "dart_holes": 256, "spike_slots": 256, "wall_spikes": 256, "sun_disc": 256,
             "mirror_stand": 256, "mirror": 256, "mirror_pointer": 128, "fire_vent": 256, "ring_platform": 256,
-            "ring_housing": 256, "ring": 256}
+            "ring_housing": 256, "ring": 256, "weight_plate": 256}
 SPACING = 1.4  # models are spread along X in the scene (bake/review only; export is at the origin)
 BAKE_LIFT = {"key": 0.35, "rock": 0.3, "ring": 0.4}  # free models hang in the air while baking, as in game
 
@@ -95,7 +99,15 @@ COL = {
 }
 
 
-def materials():
+SILVER = {  # the plate gate's metal (plan pressure-plate), in place of the gold
+    "gold": metal((0.80, 0.81, 0.84)),
+    "gold_dark": metal((0.44, 0.45, 0.49)),
+    "polished": metal((0.95, 0.96, 0.98)),
+}
+
+
+def materials(palette=None):
+    palette = palette or COL
     stripes = decor.stripes
     specs = {
         "gold": stripes("v", 0.02, [(4, "gold"), (1, "gold_dark")], "LINEAR"),
@@ -119,11 +131,15 @@ def materials():
         "accent": ("solid", "accent"),
         "frieze": stripes("u", 0.05, [(3, "accent"), (1, "gold")]),
     }
-    return {name: common.make_material("mech_" + name, spec, COL) for name, spec in specs.items()}
+    return {name: common.make_material("mech_" + name, spec, palette) for name, spec in specs.items()}
 
 
 def set_lock_colour(M, colour):
-    """Recolour the gem materials in place (same meshes and UVs, a new bake per colour)."""
+    """Recolour the gem materials in place (same meshes and UVs, a new bake per colour). A "plate_<colour>" variant
+    also turns the gold to silver; any other turns it back (make_material rebuilds the same materials in place)."""
+    plate = colour.startswith("plate_")
+    materials(dict(COL, **SILVER) if plate else COL)
+    colour = colour[len("plate_"):] if plate else colour
     g = GEMS[colour]
     for key in ("gem", "glint", "accent"):
         M[key].node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (*g[key], 1.0)
@@ -368,6 +384,22 @@ def build_pressure_plate(b, M):
     b.add(ellipsoid((body[-1].x, -0.33, top + 0.004), (0.045, 0.04, 0.005), n=12, rings=4), M["stone_dark"], "root")
 
 
+def build_weight_plate(b, M):
+    """The pressure plate of a plate gate (plan pressure-plate): a dressed sandstone slab in the floor as the dart
+    trap's, but plain, with a gem of its lock colour in a gold bezel in the middle, so it does not read as a trap.
+    Raised a little: the engine sinks it (DART_PLATE_SINK) while it carries its weight."""
+    x0, x1, y0, y1, top = -0.27, 0.27, -0.24, -0.84, 0.028
+    b.add(slab([(x0 - 0.025, y0 + 0.025), (x1 + 0.025, y0 + 0.025), (x1 + 0.025, y1 - 0.025), (x0 - 0.025, y1 - 0.025)][::-1],
+               -0.002, 0.004), M["crack"], "root")
+    b.add(slab([(x0, y0), (x1, y0), (x1, y1), (x0, y1)][::-1], 0.0, top), M["stone_light"], "root")
+    b.add(slab([(x0 + 0.03, y0 - 0.03), (x1 - 0.03, y0 - 0.03), (x1 - 0.03, y1 + 0.03), (x0 + 0.03, y1 + 0.03)][::-1],
+               top, top + 0.003), M["stone"], "root")  # a raised frame line
+    c = V((0.0, (y0 + y1) / 2, top + 0.003))
+    b.add(ellipsoid(c, (0.1, 0.1, 0.012), n=16, rings=4), M["gold_plain"], "root")  # the bezel
+    b.add(ellipsoid(c + V((0, 0, 0.006)), (0.075, 0.075, 0.03), n=16, rings=6), M["gem"], "root", "gem")
+    b.add(ellipsoid(c + V((-0.025, 0.02, 0.03)), (0.016, 0.02, 0.006), n=6, rings=3), M["glint"], "root", "gem")
+
+
 DART_HEIGHT = 0.3  # the engine's DART_HEIGHT and DART_HOLE_X (src/level/gameplay_config.h): where the darts leave
 DART_HOLE_X = (-0.22, 0.0, 0.22)
 
@@ -593,6 +625,7 @@ BUILDERS = {
     "ring_platform": build_ring_platform,
     "ring_housing": build_ring_housing,
     "ring": build_ring,
+    "weight_plate": build_weight_plate,
 }
 
 # Suns per model (x tilt deg, z turn deg, energy) and sky strength; default = decor.py's light.
@@ -602,6 +635,7 @@ LIGHT = {
     "rock": ([(50, 0, 0.7), (60, 150, 0.25)], 0.5),
     "ceiling_crack": ([(-30, 0, 0.5), (60, 0, 0.3)], 0.6),
     "pressure_plate": ([(50, 0, 0.6), (70, 160, 0.25)], 0.55),
+    "weight_plate": ([(50, 0, 0.6), (70, 160, 0.25)], 0.55),
     "dart_holes": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
     "spike_slots": ([(20, 0, 0.6), (60, 0, 0.3)], 0.55),
     "wall_spikes": ([(20, 0, 0.6), (70, 0, 0.35), (70, 180, 0.2)], 0.55),
@@ -686,7 +720,8 @@ def variants(name):
     """Texture variants of a model: its lock colours, or None for one plain texture."""
     if name not in COLOURED:
         return [None]
-    return LOCK_COLOURS + (["boss"] if name in BOSS_COLOURED else [])
+    return (LOCK_COLOURS + (["boss"] if name in BOSS_COLOURED else [])
+            + (["plate_" + c for c in LOCK_COLOURS] if name in PLATE_COLOURED else []))
 
 
 def extents(obj):

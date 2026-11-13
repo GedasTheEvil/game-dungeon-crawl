@@ -1,0 +1,4 @@
+# Plan pressure-plate: the test corridor. Drag the stone (R) onto the red plate, through its silver gate; the blue
+# plate holds its gate only under the player; open the chest at col 16 and drag it onto a green plate, stand on the other.
+god
+level tests/levels/pressure_plate at 4 2

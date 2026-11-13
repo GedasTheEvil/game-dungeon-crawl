@@ -527,6 +527,13 @@ text: Two gold rings went onto the table, one came back, and it is not gold. Dar
 	body as shooting stars, rarer than any gold, and the gods' own bones are said to be of it. The boy king took a
 	dagger of it into his tomb. The gem in it does more than gold ever let it.
 
+[note.pressure-plates]
+title: Pressure plates
+text: A slab in the floor with a gem set in it, and it gives a little under my boots. Somewhere a silver gate went
+	up; the moment I stepped off, it came down again. The priests counted on weight, not on keys: a stone block, an
+	empty chest, even what is left of a guardian will hold a plate down as well as I can, and better. Drag something
+	heavy onto it, then walk through. Some gates want two plates held at once.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

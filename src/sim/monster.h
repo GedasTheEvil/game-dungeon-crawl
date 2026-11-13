@@ -178,6 +178,8 @@ class Monster {
 	// hurt-spiders-ignore-light).
 	[[nodiscard]] bool ShunsLight() const { return type->shunsLight && vitals.hp >= type->maxHealth; }
 	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
+	// Its body dragged by the player (plan pressure-plate): the centre to map x. The spawn tile (Col) stays.
+	void DragBodyTo(float centreX) { x = centreX - static_cast<float>(col) - 0.5f; }
 	// Hitbox: the model's half width (CharacterModel::HalfWidth) at its drawn scale, map units. Height: BottomY, TopY.
 	[[nodiscard]] float HalfWidth() const;
 	[[nodiscard]] float Left() const { return CentreX() - HalfWidth(); }

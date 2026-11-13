@@ -208,8 +208,9 @@ enum class FieldNote : unsigned char {
 	ShrineOfAmun,
 	ShrineOfSerket,
 	SkyIron, // the first sky-iron ring (plan sky-iron-rings)
+	PressurePlates, // the first plate gate a pressure plate opened (plan pressure-plate)
 };
-constexpr int FIELD_NOTE_COUNT = 78 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 79 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

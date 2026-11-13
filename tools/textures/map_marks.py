@@ -3,7 +3,7 @@
     python3 tools/textures/map_marks.py [out.png]
 
 Pencil strokes on clear, drawn at 4x and downsampled (plan map-legend-sprites). Cell order must match MapMark in
-src/level/map_marks.h: a mark's sprite is the cell of its number, then from cell 38 on the second looks
+src/level/map_marks.h: a mark's sprite is the cell of its number, then from cell 40 on the second looks
 (MarkDef::stateCell): the gate open, the boss gate open, the lever pulled, the rock fallen. A sprite holds the map
 cell in its middle, MARGIN of its width free on every side (MAP_MARK_MARGIN). Strokes are in map cell units, y up,
 as the map drew them in code before the sheet. White sprites (key, gate, lever, sun disc) are tinted by the map with
@@ -291,6 +291,21 @@ def rock_fallen(sk):  # a boulder on the floor
     sk.loop(0.5, 0.25, 0.28, 0.2, 7, GRAPHITE, 0.9, 0)
 
 
+def pressure_plate(sk):
+    """A slab in the floor with a gem on it (plan pressure-plate); white, tinted with its lock colour."""
+    sk.pencil(0.18, 0.08, 0.82, 0.08, WHITE, 0.95, 0)
+    sk.pencil(0.18, 0.18, 0.82, 0.18, WHITE, 0.95, 1)
+    sk.pencil(0.18, 0.08, 0.18, 0.18, WHITE, 0.9, 2)
+    sk.pencil(0.82, 0.08, 0.82, 0.18, WHITE, 0.9, 3)
+    sk.loop(0.5, 0.3, 0.09, 0.08, 6, WHITE, 0.95, 4, 0.02)
+
+
+def stone(sk):
+    """A squared stone block on the floor, to drag (plan pressure-plate)."""
+    sk.path([(0.26, 0.06), (0.74, 0.06), (0.76, 0.52), (0.24, 0.5), (0.26, 0.06)], GRAPHITE, 0.95, 0)
+    sk.pencil(0.3, 0.3, 0.46, 0.34, GRAPHITE, 0.6, 7)
+
+
 def dart_plate(sk):
     """A slab in the floor, the three dart holes in the wall above it."""
     sk.pencil(0.2, 0.08, 0.8, 0.08, GRAPHITE, 0.95, 0)
@@ -497,7 +512,9 @@ MARKS = [
     stargate,
     dial,
     brazier,
-    gate_open,  # 38
+    pressure_plate,
+    stone,
+    gate_open,  # 40
     boss_gate_open,
     lever_pulled,
     rock_fallen,

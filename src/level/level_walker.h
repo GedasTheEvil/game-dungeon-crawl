@@ -79,7 +79,15 @@ struct Edge {
 
 inline int nodeOf(int state) { return state / MASKS; }
 inline int maskOf(int state) { return state % MASKS; }
-inline int bitOf(int colour) { return isGateColour(colour) ? 1 << (colour - 1) : 0; }
+// A plate gate shares its lock colour's bit (plan pressure-plate): reaching a plate of the colour opens both, a small
+// over-estimate on a level that has a key or lever and a plate of one colour; MASKS stays 1 << BOSS_LOCK.
+inline int bitOf(int colour) {
+	if (isPlateGateColour(colour)) {
+		const int lock = plateLockOf(colour);
+		return lock >= 1 ? 1 << (lock - 1) : 0;
+	}
+	return isGateColour(colour) ? 1 << (colour - 1) : 0;
+}
 inline int subCell(int x, int y) { return (y / SUBCELLS) * LEVEL_WIDTH + x / SUBCELLS; }
 inline bool subInBounds(int x, int y) { return x >= 0 && x < SUB_WIDTH && y >= 0 && y < SUB_HEIGHT; }
 
@@ -234,8 +242,12 @@ class Walker {
 	}
 
 	// Picks up what the player touches in this cell. Reaching the boss counts as killing it: the boss gates open.
+	// Reaching a pressure plate holds it down (plan pressure-plate): its plate gates open; checkLocks warns when no
+	// weight on its floor run can stay on it.
 	[[nodiscard]] int touch(int col, int row, int mask) const {
 		Tile t = grid.at(col, row);
+		if (t.fixture.type == PressurePlate && isLockColour(t.fixture.attr))
+			mask |= bitOf(t.fixture.attr);
 		if (t.type == MonsterSpawn && isBossMonster(t.attr))
 			return mask | bitOf(BOSS_LOCK);
 		return t.type == Key && isLockColour(t.attr) ? mask | bitOf(t.attr) : mask; // no key opens the boss lock

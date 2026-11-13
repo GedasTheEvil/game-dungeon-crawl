@@ -10,6 +10,7 @@
 #include "spike_cycle.h"
 #include "sun_beam.h"
 #include "tile_defs.h"
+#include "gameplay_config.h"
 #include <algorithm>
 #include <cstdio>
 #include <map>
@@ -20,6 +21,76 @@
 #include "level_check.h"
 
 namespace levelcheck {
+namespace {
+// What a dragged thing or a body standing in the cell would weigh on a pressure plate (plan pressure-plate). A
+// treasure counts as a chest: its look is rolled, a jar or a coffin does not drag (an over-estimate).
+int dragWeight(const Tile& t) {
+	switch (t.type) {
+	case Stone:
+		return STONE_WEIGHT;
+	case Mirror:
+		return MIRROR_WEIGHT;
+	case Treasure:
+	case TrappedTreasure:
+		return CHEST_WEIGHT;
+	case MonsterSpawn:
+		if (const MonsterKind* kind = monsterKind(t.attr))
+			return std::max(1, kind->weight); // its body, once slain
+		return 0;
+	default:
+		return 0;
+	}
+}
+
+// The flat floor the player can drag things along (Dungeon::dragGround): open and dry, no shape, not solid, on rock.
+bool dragFloor(const LevelGrid& grid, int col, int row) {
+	if (col < 0 || col >= LEVEL_WIDTH || row < 1 || row >= LEVEL_HEIGHT)
+		return false;
+	const Tile& t = grid.at(col, row);
+	return t.structure == Structure::Empty && !hasShape(t) && !isSolidTile(t) && isWall(grid.at(col, row - 1));
+}
+
+// Pressure plates (plan pressure-plate): a lock colour and a weight; a plate's colour needs plate gates and the gates
+// a plate; the things on the plate's floor run (the flat floor round it, up to rock, a closed gate or a step) weigh
+// enough to hold it down without the player.
+void checkPlates(const LevelGrid& grid, LevelReport& r) {
+	int plateMask = 0, plateGateMask = 0;
+	for (int cell = 0; cell < CELLS; cell++) {
+		const Tile& t = grid.cells[cell];
+		if (t.type == Gate && isPlateGateColour(t.attr))
+			plateGateMask |= bitOf(t.attr);
+		const Fixture& f = t.fixture;
+		if (f.type != PressurePlate)
+			continue;
+		if (!isLockColour(f.attr)) {
+			r.errors.push_back("bad lock colour " + std::to_string(f.attr) + " at " + at(cell));
+			continue;
+		}
+		if (f.value < 1) {
+			r.errors.push_back("a pressure plate needs a weight of 1 or more at " + at(cell));
+			continue;
+		}
+		plateMask |= bitOf(f.attr);
+		const int col = cell % LEVEL_WIDTH, row = cell / LEVEL_WIDTH;
+		int weight = dragFloor(grid, col, row) ? dragWeight(t) : 0;
+		for (int dir : {-1, 1})
+			for (int c = col + dir; dragFloor(grid, c, row); c += dir)
+				weight += dragWeight(grid.at(c, row));
+		if (weight < f.value)
+			r.warnings.push_back(
+				"the " + std::string(lockColour(f.attr).name) + " pressure plate at " + at(cell) + " needs " +
+				std::to_string(f.value) + ", its floor run holds " + std::to_string(weight) + " to drag onto it"
+			);
+	}
+	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++) {
+		if ((plateMask & bitOf(c)) != 0 && (plateGateMask & bitOf(c)) == 0)
+			r.warnings.push_back(std::string("a ") + lockColour(c).name + " pressure plate, but no plate gate of it");
+		if ((plateGateMask & bitOf(c)) != 0 && (plateMask & bitOf(c)) == 0)
+			r.warnings.push_back(std::string("no ") + lockColour(c).name + " pressure plate holds its plate gates");
+	}
+}
+} // namespace
+
 void checkLocks(const LevelGrid& grid, LevelReport& r) {
 	int keyMask = 0, leverMask = 0, gateMask = 0;
 	for (int cell = 0; cell < CELLS; cell++) {
@@ -35,12 +106,13 @@ void checkLocks(const LevelGrid& grid, LevelReport& r) {
 		}
 		if (t.type == Key)
 			keyMask |= bitOf(t.attr);
-		if (t.type == Gate && gateState(t) == GateState::Closed)
+		if (t.type == Gate && gateState(t) == GateState::Closed && !isPlateGateColour(t.attr))
 			gateMask |= bitOf(t.attr);
 	}
 	for (int c = 1; c <= LOCK_COLOUR_COUNT; c++)
 		if ((gateMask & bitOf(c)) != 0 && ((keyMask | leverMask) & bitOf(c)) == 0)
 			r.warnings.push_back(std::string("no key, lever or sun disc opens the ") + lockColour(c).name + " gates");
+	checkPlates(grid, r);
 
 	bool bossGates = false;
 	for (const Tile& t : grid.cells)

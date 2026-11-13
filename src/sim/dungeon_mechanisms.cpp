@@ -21,6 +21,10 @@ void Dungeon::resetMechanisms() {
 		if (t.type == Key && isLockColour(t.attr))
 			levelKeys |= lockBit(t.attr);
 	openingGates.clear();
+	closingGates.clear();
+	std::fill(plateDown.begin(), plateDown.end(), 0);
+	platesSettled = false;
+	platesOpened = 0;
 	cutScene = {};
 	cutShot = {};
 	fallingRocks.clear();
@@ -34,6 +38,8 @@ void Dungeon::resetMechanisms() {
 	for (Tile& t : map)
 		if (t.type == Gate && gateState(t) == GateState::Opening)
 			setGateState(t, GateState::Open);
+		else if (t.type == Gate && gateState(t) == GateState::Closing) // a plate gate: the plates open it again
+			setGateState(t, GateState::Closed);
 		else if (t.type == RockFall && rockState(t) == RockState::Falling)
 			setRockState(t, RockState::Fallen);
 		else if (platePressed(t))
@@ -86,6 +92,7 @@ void Dungeon::updateMechanisms() {
 	}
 
 	finishOpenedGates();
+	updatePlates();
 	updateSunBeams();
 	updateRocks();
 	updateDartTraps();
@@ -185,6 +192,8 @@ void Dungeon::bumpGate(int col, int row) {
 	char text[96];
 	if (gate.attr == BOSS_LOCK)
 		snprintf(text, sizeof(text), "%s", "Sealed. It opens when its guardian falls.");
+	else if (isPlateGateColour(gate.attr)) // plan pressure-plate
+		snprintf(text, sizeof(text), "A silver gate. A %s pressure plate holds it up.", lockColour(gate.attr).gem);
 	else
 		snprintf(
 			text,

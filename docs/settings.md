@@ -76,7 +76,7 @@ same input on two actions is a warning: the first action in the list below keeps
 | `sprint` | `shift, right_shift` | Sprint while held |
 | `attack` | `v, enter, mouse_left` | Attack |
 | `interact` | `e, f12, mouse_middle` | Pick up, pull a lever, answer a riddle |
-| `drag` | `r` | Take hold of a mirror in the next cell, let go ([mirror-drag](plan/mirror-drag.feature.md)) |
+| `drag` | `r` | Take hold of a mirror in the next cell, let go ([mirror-drag](plan/solved/mirror-drag.feature.md)) |
 | `look_left` | `home` | Turn the camera while held (the mouse turns it too); with `camera_recenter` on, a look-key peek eases back once left alone (a mouse turn stays) |
 | `look_right` | `end` | |
 | `look_up` | `page_up` | |

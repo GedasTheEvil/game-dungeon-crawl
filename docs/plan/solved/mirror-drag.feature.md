@@ -1,6 +1,6 @@
 # Drag mirrors along the flat corridor
 
-Status: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
+Status: solved 2026-11-13 (play-tested by the user). Was: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
 
 ## Idea
 

@@ -84,6 +84,7 @@ constexpr ActionInfo ACTIONS[BIND_ACTION_COUNT] = {
 	{"sprint", "Sprint (hold)"},
 	{"attack", "Attack"},
 	{"interact", "Interact"},
+	{"drag", "Drag, let go"},
 	{"look_left", "Look left"},
 	{"look_right", "Look right"},
 	{"look_up", "Look up"},
@@ -133,6 +134,7 @@ Bindings::Bindings() {
 	set(BindAction::Sprint, sp(SHIFT_LEFT), sp(SHIFT_RIGHT), none());
 	set(BindAction::Attack, ch('v'), ch(13), InputKey::Mouse(0));
 	set(BindAction::Interact, ch('e'), sp(F12), InputKey::Mouse(1));
+	set(BindAction::Drag, ch('r'), none(), none());
 	set(BindAction::LookLeft, sp(HOME), none(), none());
 	set(BindAction::LookRight, sp(END), none(), none());
 	set(BindAction::LookUp, sp(PAGE_UP), none(), none());

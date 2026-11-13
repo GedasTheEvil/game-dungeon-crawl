@@ -14,6 +14,7 @@ enum class GameplayAction : unsigned char {
 	Jump,
 	Attack,
 	Interact,
+	Drag, // take hold of a mirror or let go (Dungeon::ToggleDrag, plan mirror-drag)
 	QuickHeal, // drink the best fitting healing potion (Inventory::QuickDrink)
 	QuickStamina, // the same for stamina
 	StaminaSkills, // switch the learned stamina skills on or off (Player::staminaSkills)

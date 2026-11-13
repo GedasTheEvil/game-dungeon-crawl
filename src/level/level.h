@@ -257,6 +257,8 @@ inline void setObject(Tile& cell, const Tile& object) {
 	cell.value = object.value;
 }
 inline void clearObject(Tile& cell) { setObject(cell, Tile{}); }
+// A thing the player can drag along the floor (plan mirror-drag): a mirror.
+[[nodiscard]] inline bool isDraggable(const Tile& t) { return t.type == Mirror; }
 // A container with an item: a plain Treasure or a TrappedTreasure (plan trapped-chests).
 [[nodiscard]] inline bool isTreasure(const Tile& t) { return t.type == Treasure || t.type == TrappedTreasure; }
 inline void setFixture(Tile& cell, const Fixture& fixture) { cell.fixture = fixture; }

@@ -16,6 +16,13 @@ constexpr float PLAYER_BODY_HEIGHT = PLAYER_CLIMB_HEADROOM;
 constexpr float CROUCH_HEIGHT_FACTOR = 0.55f;
 constexpr float CROUCH_WALK_FACTOR = 1.f / 3.f;
 constexpr int CROUCH_TRANSITION_MS = 200;
+// Dragging (plan mirror-drag): the player is crouched, the walk DRAG_WALK_FACTOR of the crouched one (a quarter of the
+// walk). The drag key takes hold of a thing in the player's cell or the next one they face, its centre at most
+// DRAG_REACH tiles from theirs; the player steps to DRAG_HOLD tiles from it, the hands on it, and keeps that while
+// dragging.
+constexpr float DRAG_WALK_FACTOR = 0.75f;
+constexpr float DRAG_REACH = 1.05f;
+constexpr float DRAG_HOLD = 0.25f;
 // Update() runs once a tick (game.cpp's timer, the scenario tick). A held walk key moves the player once a tick
 // (stepHeldWalk), so the walk speed is WALK_SPEED on every machine, not the key repeat rate.
 constexpr int UPDATE_TICK_MS = 16;

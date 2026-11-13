@@ -28,6 +28,8 @@ void Dungeon::resetMechanisms() {
 	chestGas.clear();
 	mirrorSwings.clear();
 	litDiscs.clear();
+	drag = {};
+	dragSettle = {};
 	// A save taken mid-motion finishes it on load.
 	for (Tile& t : map)
 		if (t.type == Gate && gateState(t) == GateState::Opening)

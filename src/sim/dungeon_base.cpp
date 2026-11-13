@@ -85,13 +85,16 @@ void Dungeon::updateCrouch() {
 		player.crouched = false;
 		return;
 	}
-	if (player.crouchHeld && !player.crouched)
-		player.crouched = !player.jump.jumping && !player.jump.falling && Map(mapX, mapY).type != Ladder;
-	else if (!player.crouchHeld && player.crouched)
+	const bool down = player.crouchHeld || Dragging(); // dragging, bent over the thing held (plan mirror-drag)
+	if (down && !player.crouched)
+		player.crouched = !player.jump.jumping && !player.jump.falling &&
+						  (Dragging() || Map(mapX, mapY).type != Ladder);
+	else if (!down && player.crouched)
 		player.crouched = !roomToStand();
 }
 //======================================================================================
 void Dungeon::UpdateMovementState() {
+	updateDrag();
 	updateCrouch();
 	if (sim.player->Dazed() && PlayerOnLadder()) { // a screech: the hands let go (plan giant-bat-screech)
 		lostGrip = true;
@@ -342,10 +345,10 @@ bool Dungeon::Move(float dirX, float dirY) {
 	const float startX = mapX;
 	const float startY = mapY;
 	if (dirX != 0) {
-		playerFacing = dirX > 0 ? 1 : -1;
 		const int dir = dirX > 0 ? 1 : -1;
+		playerFacing = Dragging() ? DragFacing() : dir; // dragging, the player looks at the thing held
 		const float probeX = mapX + dirX + static_cast<float>(dir) * sim.player->HalfWidth();
-		if (!bodyBlocked(mapX + dirX, dir, mapY))
+		if (!bodyBlocked(mapX + dirX, dir, mapY) && (!Dragging() || dragTo(mapX + dirX)))
 			mapX += dirX;
 		else if (Map(probeX, mapY).type == Gate)
 			bumpGate(static_cast<int>(probeX), static_cast<int>(mapY));
@@ -568,7 +571,7 @@ bool Dungeon::AttackAllowed(bool tell) {
 	}
 	if (sim.player->crouched) { // plan crouch: no strike back from a duck
 		if (tell)
-			sim.events->Status("%s", "Stand up to strike");
+			sim.events->Status("%s", Dragging() ? "Let go to strike" : "Stand up to strike");
 		return false;
 	}
 	if (!PlayerOnLadder())
@@ -589,7 +592,8 @@ bool Dungeon::PlayerWaterBlessed() const {
 float Dungeon::PlayerWalkFactor() const {
 	const float daze = sim.player->Dazed() ? DAZE_WALK_FACTOR : 1.f;
 	const float crouch = sim.player->crouched ? CROUCH_WALK_FACTOR : 1.f;
-	return daze * crouch * groundWalkFactor();
+	const float drag = Dragging() ? DRAG_WALK_FACTOR : 1.f; // plan mirror-drag
+	return daze * crouch * drag * groundWalkFactor();
 }
 //======================================================================================
 float Dungeon::PlayerStepFactor() const {

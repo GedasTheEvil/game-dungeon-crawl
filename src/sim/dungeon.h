@@ -522,6 +522,29 @@ class Dungeon {
 	[[nodiscard]] float mirrorAngle(int cell) const;
 	[[nodiscard]] float mirrorFaceDeg(int cell) const; // mirrorAngle without the swing
 	void drawMirrorTile(int i, int j); // the stand, the mirror and the pointer showing its way
+	// Dragging (dungeon_drag.cpp, plan mirror-drag): the cell of the thing held (map index, -1: none) and its centre's
+	// x less the player's, kept while it is dragged: it stays on that side, the player faces it.
+	struct Drag {
+		int cell = -1;
+		float offset = 0.f;
+	} drag;
+	// The thing let go: its cell, the map x it was drawn off its centre then, when (it slides back, dragShift).
+	struct DragSettle {
+		int cell = -1;
+		float from = 0.f;
+		int startMs = 0;
+	} dragSettle;
+	// A cell the player and a dragged thing may stand in: the flat corridor. Open and dry, no sand, no shape, on a
+	// whole solid cell; for the thing (thing true) also no object, no fixture and no prop the player uses.
+	[[nodiscard]] bool dragGround(int col, int row, bool thing) const;
+	// The draggable thing in the player's cell, else in the next cell they face (facing -1 / +1) within DRAG_REACH: its
+	// cell, else -1.
+	[[nodiscard]] int draggableAt(int facing) const;
+	// The walk moves the player to x: the thing comes along into its cell. False: refused (the player stays put).
+	[[nodiscard]] bool dragTo(float x);
+	void updateDrag(); // once a tick: lets go when the player can no longer drag (dead, in the air, held, ...)
+	// Map x the dragged thing in cell is drawn off its cell's centre (0 for any other).
+	[[nodiscard]] float dragShift(int cell) const;
 	void drawSunDiscTile(int i, int j);
 	void drawSunBeams(); // after the opaque scene, drawSummonEffects' frame
 	void addSunLights(const CellRect& drawn);
@@ -842,6 +865,17 @@ class Dungeon {
 	// The water over everything in it (the player too), see-through: after the player, in Draw's frame.
 	void DrawWater();
 	bool Move(float dirX, float dirY); // false: blocked or held (PlayerHeldBy), the player did not move
+	// Dragging (plan mirror-drag): the drag key takes hold of a draggable thing (isDraggable) in the player's cell or
+	// the next one they face (facing -1 / +1), or lets go. Held, the player crouches facing it and walks backwards
+	// pulling it (or forwards pushing it) at DRAG_WALK_FACTOR of the crouched walk, the thing a cell at a time; only on
+	// the flat corridor (dragGround). True: took hold.
+	bool ToggleDrag(int facing);
+	void LetGo(); // lets go of the thing held, if any
+	[[nodiscard]] bool Dragging() const { return drag.cell >= 0; }
+	// Dragging: the way the player looks, at the thing (-1 / +1). Else 0.
+	[[nodiscard]] int DragFacing() const;
+	// Not dragging, a draggable thing within reach the way the player faces (the first hint).
+	[[nodiscard]] bool PlayerCanDrag(int facing) const { return !Dragging() && draggableAt(facing) >= 0; }
 	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR (WADE_SPEED_FACTOR_HAPI with the
 	// Favour of Hapi skill, plan skill-blessing-of-hapi).
 	[[nodiscard]] bool PlayerWading() const;

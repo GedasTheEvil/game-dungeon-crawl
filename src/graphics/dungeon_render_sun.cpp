@@ -48,6 +48,7 @@ void Dungeon::drawMirrorTile(int i, int j) {
 	const MechanismSet& set = sim.assets->mechanisms;
 	const int cell = MapIndex(i, j);
 	glPushMatrix();
+	glTranslatef(dragShift(cell) * RenderConfig::TILE_SIZE, 0, 0); // dragged, it follows the player (plan mirror-drag)
 	enterPropSpace();
 	if (set.mirrorStand != nullptr)
 		set.mirrorStand->Show();

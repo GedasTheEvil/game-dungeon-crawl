@@ -35,6 +35,7 @@ enum class BindAction : std::uint8_t {
 	Sprint,
 	Attack,
 	Interact,
+	Drag, // take hold of a mirror, let go (plan mirror-drag)
 	LookLeft,
 	LookRight,
 	LookUp,

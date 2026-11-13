@@ -38,8 +38,9 @@ enum class FirstHint : std::uint8_t {
 	QuickHeal, // the first potion of each quick key in the bag
 	QuickStamina,
 	QuickAntidote,
+	Drag, // a mirror in reach (plan mirror-drag)
 };
-constexpr int FIRST_HINT_COUNT = static_cast<int>(FirstHint::QuickAntidote) + 1;
+constexpr int FIRST_HINT_COUNT = static_cast<int>(FirstHint::Drag) + 1;
 
 // "Jump: Space or RMB". The key part follows the bindings; an action with nothing bound names the Options.
 [[nodiscard]] std::string hintText(FirstHint hint, const Bindings& bindings);

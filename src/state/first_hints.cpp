@@ -64,6 +64,9 @@ void updateFirstHints() {
 	if (pending(FirstHint::QuickAntidote, false) &&
 		offer(FirstHint::QuickAntidote, inventory.Count(ItemKind::Antidote) > 0, now))
 		return;
+	if (pending(FirstHint::Drag, dungeon.Dragging()) &&
+		offer(FirstHint::Drag, dungeon.PlayerCanDrag(Game().camera.Facing()), now))
+		return;
 	if (pending(FirstHint::Sprint, player.stats.IsSprinting()))
 		offer(FirstHint::Sprint, watch.walkedMs >= WALK_BEFORE_SPRINT_MS, now);
 }

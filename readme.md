@@ -80,6 +80,7 @@ The game runs on Linux. Build it (see [docs/development.md](docs/development.md)
 | Sprint (hold)                    | `Shift`                   |        |
 | Attack                           | `V`, `Enter`              | Left   |
 | Interact: pick up, lever, riddle | `E`, `F12`                | Middle |
+| Drag a mirror, let go            | `R`                       |        |
 | Look around                      | `PgUp` `PgDn`, `Home` `End` | Move |
 | Next melee / ranged weapon       | `1` `2`                   |        |
 | Drink healing / stamina potion   | `3` `4`, `H` `0`          |        |

@@ -1,0 +1,4 @@
+# Plan mirror-drag: the test corridor. Grab the mirror at the left (R), pull it under the light shaft, let go, turn it
+# right (E twice): the sun disc lights. The sand and water at the far right refuse it.
+god
+level tests/levels/mirror_drag at 6 2

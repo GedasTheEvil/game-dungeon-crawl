@@ -44,13 +44,13 @@ class PlayerActionController {
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			walk(-PLAYER_MOVE_STEP * moveMultiplier, 0);
-			Game().camera.rotW = -110;
+			face(-1);
 			if (!Game().player->jump.jumping)
 				Game().player->setModelState(ModelState::Move);
 			break;
 		case GameplayAction::MoveRight:
 			walk(PLAYER_MOVE_STEP * moveMultiplier, 0);
-			Game().camera.rotW = 70;
+			face(1);
 			if (!Game().player->jump.jumping)
 				Game().player->setModelState(ModelState::Move);
 			break;
@@ -71,6 +71,9 @@ class PlayerActionController {
 			break;
 		case GameplayAction::Interact:
 			Game().dungeon.Interact();
+			break;
+		case GameplayAction::Drag:
+			Game().dungeon.ToggleDrag(Game().camera.Facing());
 			break;
 		case GameplayAction::QuickHeal: // allowed during a swing: drinking does not change it
 			if (!insane())
@@ -127,6 +130,12 @@ class PlayerActionController {
 	}
 
   private:
+	// The player turns to walk dir (-1 / +1); dragging, they keep looking at the thing held (plan mirror-drag).
+	static void face(int dir) {
+		const int drag = Game().dungeon.DragFacing();
+		Game().camera.rotW = (drag != 0 ? drag : dir) > 0 ? 70.f : -110.f;
+	}
+
 	// Held by a crocodile or a scorpion (Dungeon::PlayerHeldBy; plans crocodile-hold-bite, giant-scorpion-grab): the
 	// walk keys only turn the player, no drink, no interact. The jump and the attack refuse in the dungeon. True: the
 	// action is refused.
@@ -335,6 +344,8 @@ GameplayAction gameplayActionOf(BindAction action) {
 		return GameplayAction::Attack;
 	case BindAction::Interact:
 		return GameplayAction::Interact;
+	case BindAction::Drag:
+		return GameplayAction::Drag;
 	case BindAction::QuickHeal:
 		return GameplayAction::QuickHeal;
 	case BindAction::QuickStamina:

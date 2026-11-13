@@ -1,0 +1,27 @@
+# Plan mirror-drag (tests/levels/mirror_drag): the player takes hold of the mirror at col 5 (key r), crouches facing
+# it and pulls it backwards under the light shaft at col 8; let go, it settles in its cell, turned it lights the sun
+# disc at col 14. The rules: tests/unit/mirror_drag_test.cpp.
+seed 1
+god
+resolution 1024 768
+level tests/levels/mirror_drag at 6 2
+hold left 100ms
+wait 10
+screenshot before
+key r
+wait 20
+expect crouched == 1
+screenshot holding
+hold right 2s
+screenshot pulling
+walk to 8.75
+key r
+wait 30
+expect crouched == 0
+screenshot let_go
+walk to 8.5
+interact
+wait 10
+interact
+wait 30
+screenshot lit

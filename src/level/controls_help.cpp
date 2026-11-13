@@ -67,6 +67,7 @@ std::vector<HelpGroup> controlsHelp(const Bindings& b) {
 		{"Items",
 		 {
 			 row(b, A::Interact, "Open, pull, read"),
+			 row(b, A::Drag, "Drag a mirror, let go"),
 			 row(b, A::QuickHeal, "Drink healing"),
 			 row(b, A::QuickStamina, "Drink stamina"),
 			 row(b, A::QuickAntidote, "Drink antidote"),
@@ -104,6 +105,7 @@ std::string hintText(FirstHint hint, const Bindings& bindings) {
 		{BindAction::QuickHeal, "Drink a healing potion", ""},
 		{BindAction::QuickStamina, "Drink a stamina potion", ""},
 		{BindAction::QuickAntidote, "Drink an antidote", ""},
+		{BindAction::Drag, "Drag the mirror", " (again to let go)"},
 	};
 	const Text& t = TEXTS[std::to_underlying(hint)];
 	const std::string keys = spoken(bindings.Of(t.action));

@@ -18,6 +18,7 @@
 #include <fstream>
 #include <optional>
 #include <string>
+#include <utility>
 
 constexpr int HP_PER_LEVEL = 12; // max HP gained per level up
 
@@ -164,7 +165,7 @@ class PlayerStats {
 	void EndWaterBlessing() { water_left_ms = 0; }
 	// The gods' blessings (plans shrine-of-isis, shrines-of-the-gods, shrines.h): prayed for at the god's shrine.
 	[[nodiscard]] bool Blessed(God g) const { return BlessingLeftMs(g) > 0; }
-	[[nodiscard]] int BlessingLeftMs(God g) const { return blessing_left_ms[static_cast<size_t>(g)]; }
+	[[nodiscard]] int BlessingLeftMs(God g) const { return blessing_left_ms[std::to_underlying(g)]; }
 	// The Protection of Isis: no curse lands while it lasts.
 	[[nodiscard]] bool IsisWarded() const { return Blessed(God::Isis); }
 	[[nodiscard]] int IsisWardLeftMs() const { return BlessingLeftMs(God::Isis); }

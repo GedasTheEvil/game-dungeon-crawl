@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <utility>
 
 // The player's key bindings (Options > Controls, [controls] in saves/settings.ini): each action has up to two keys
 // and one mouse button. GL-free, so the unit tests and the settings parser use it too.
@@ -67,13 +68,13 @@ struct Binding {
 class Bindings {
   public:
 	Bindings(); // the defaults
-	[[nodiscard]] const Binding& Of(BindAction action) const { return table[static_cast<size_t>(action)]; }
-	void Set(BindAction action, const Binding& binding) { table[static_cast<size_t>(action)] = binding; }
+	[[nodiscard]] const Binding& Of(BindAction action) const { return table[std::to_underlying(action)]; }
+	void Set(BindAction action, const Binding& binding) { table[std::to_underlying(action)] = binding; }
 	[[nodiscard]] std::optional<BindAction> ActionFor(const InputKey& key) const;
 	// Puts the key into the action's slot (keys into 0 / 1, a mouse button into MOUSE_SLOT). A key bound elsewhere
 	// moves here; returns the action it was taken from.
 	std::optional<BindAction> Bind(BindAction action, int slot, const InputKey& key);
-	void Clear(BindAction action, int slot) { table[static_cast<size_t>(action)].Slot(slot) = {}; }
+	void Clear(BindAction action, int slot) { table[std::to_underlying(action)].Slot(slot) = {}; }
 	// Removes a key bound to more than one action from all but the first; returns how many it removed.
 	int RemoveDuplicates();
 	bool operator==(const Bindings& o) const;

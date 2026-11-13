@@ -1,5 +1,6 @@
 // The HUD's status cards (plan curse-blessing-cards): the running effects in one list, by kind, with their icons, pips
 // and tints.
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/player_stats.h"

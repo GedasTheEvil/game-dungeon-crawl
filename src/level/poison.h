@@ -8,6 +8,7 @@
 #include <array>
 #include <cstdint>
 #include <iosfwd>
+#include <utility>
 
 enum class PoisonTier : std::uint8_t { Weak, Medium, Strong };
 constexpr int POISON_TIER_COUNT = 3;
@@ -37,7 +38,7 @@ class Poison {
 	// Time passes: the HP the running tiers take in it, the percent tiers by the victim's max HP. fasterPercent (the
 	// feldspar rings): the time left runs down that much faster, the damage a second stays.
 	int Advance(int ms, int maxHp, int fasterPercent = 0);
-	[[nodiscard]] int LeftMs(PoisonTier tier) const { return tiers[static_cast<size_t>(tier)].leftMs; }
+	[[nodiscard]] int LeftMs(PoisonTier tier) const { return tiers[std::to_underlying(tier)].leftMs; }
 	[[nodiscard]] bool Running(PoisonTier tier) const { return LeftMs(tier) > 0; }
 	[[nodiscard]] bool Any() const;
 	[[nodiscard]] int Mask() const; // bit per running tier: weak 1, medium 2, strong 4

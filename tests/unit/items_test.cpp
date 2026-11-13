@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <utility>
 
 TEST_CASE("every item converts to its file id and back") {
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
@@ -405,13 +406,13 @@ TEST_CASE("the bonus of each amulet") {
 	CHECK(amuletBonus(ItemKind::VenomGrand).venomTier == PoisonTier::Strong);
 	CHECK(amuletBonus(ItemKind::StrengthGrand).venomPercent == 0);
 	const Resistances pierce = amuletBonus(ItemKind::PierceWardGrand).resist;
-	CHECK(pierce[static_cast<size_t>(DamageType::Pierce)] == 60);
-	CHECK(pierce[static_cast<size_t>(DamageType::Blunt)] == NORMAL);
-	CHECK(amuletBonus(ItemKind::BluntWardLesser).resist[static_cast<size_t>(DamageType::Blunt)] == 92);
+	CHECK(pierce[std::to_underlying(DamageType::Pierce)] == 60);
+	CHECK(pierce[std::to_underlying(DamageType::Blunt)] == NORMAL);
+	CHECK(amuletBonus(ItemKind::BluntWardLesser).resist[std::to_underlying(DamageType::Blunt)] == 92);
 	CHECK(pierce[FIRE] == NORMAL);
 	CHECK(amuletBonus(ItemKind::FireWardLesser).resist[FIRE] == 80);
 	CHECK(amuletBonus(ItemKind::FireWardGrand).resist[FIRE] == 20); // never more than 80% off: fire always hurts
-	CHECK(amuletBonus(ItemKind::FireWardGrand).resist[static_cast<size_t>(DamageType::Pierce)] == NORMAL);
+	CHECK(amuletBonus(ItemKind::FireWardGrand).resist[std::to_underlying(DamageType::Pierce)] == NORMAL);
 }
 
 TEST_CASE("an amulet is put on, swapped and taken off; it stays in the bag") {

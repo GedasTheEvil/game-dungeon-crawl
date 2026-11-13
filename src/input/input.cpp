@@ -257,7 +257,7 @@ void executeGameplayAction(GameplayAction action) { PlayerActionController::exec
 // The down key held is the crouch key too (plan crouch): Dungeon::updateCrouch crouches the player off a ladder.
 void setWalkHeld(GameplayAction move, bool held) {
 	if (isMove(move))
-		walkHeld[static_cast<size_t>(move) - static_cast<size_t>(GameplayAction::MoveLeft)] = held;
+		walkHeld[std::to_underlying(move) - std::to_underlying(GameplayAction::MoveLeft)] = held;
 	if (move == GameplayAction::MoveDown)
 		Game().player->crouchHeld = held;
 }
@@ -274,7 +274,7 @@ void stepHeldWalk() {
 	for (size_t i = 0; i < walkHeld.size(); i++)
 		if (walkHeld[i])
 			PlayerActionController::execute(
-				static_cast<GameplayAction>(static_cast<size_t>(GameplayAction::MoveLeft) + i)
+				static_cast<GameplayAction>(std::to_underlying(GameplayAction::MoveLeft) + i)
 			);
 }
 

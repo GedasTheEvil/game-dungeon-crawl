@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <deque>
 #include <vector>
+#include <utility>
 #include "../core/paths.h"
 
 using namespace ui;
@@ -196,7 +197,7 @@ float JournalScreen::RidingDepth(int ribbon) const {
 }
 
 int JournalScreen::EntryOnPage(int side) const {
-	int page = spread[static_cast<size_t>(section)] * 2 + side;
+	int page = spread[std::to_underlying(section)] * 2 + side;
 	return page < PageCount(section) ? page : -1;
 }
 
@@ -233,7 +234,7 @@ void JournalScreen::OpenDiary(const char* closes) {
 	turn = {};
 	pointer.Clear();
 	section = Section::Diary;
-	spread[static_cast<size_t>(section)] = SpreadCount(section) - 1;
+	spread[std::to_underlying(section)] = SpreadCount(section) - 1;
 	closesTo = closes;
 	Game().assets.sounds.pageTurn.Play();
 }
@@ -251,7 +252,7 @@ void JournalScreen::GoTo(Opening to) {
 		return;
 	if (turn.active) // a turn under way lands first
 		FinishTurn();
-	if (to.section == section && to.spread == spread[static_cast<size_t>(section)])
+	if (to.section == section && to.spread == spread[std::to_underlying(section)])
 		return;
 	StartTurn(to, false);
 }
@@ -261,7 +262,7 @@ void JournalScreen::StartTurn(Opening to, bool dragged) {
 	Opening from = Open();
 	if (pagesFailed) { // nothing to bend: straight there
 		section = to.section;
-		spread[static_cast<size_t>(section)] = to.spread;
+		spread[std::to_underlying(section)] = to.spread;
 		return;
 	}
 	turn = {};
@@ -279,7 +280,7 @@ void JournalScreen::StartTurn(Opening to, bool dragged) {
 void JournalScreen::FinishTurn() {
 	if (turn.target > 0) {
 		section = turn.to.section;
-		spread[static_cast<size_t>(section)] = turn.to.spread;
+		spread[std::to_underlying(section)] = turn.to.spread;
 	}
 	turn = {};
 }
@@ -315,9 +316,9 @@ JournalScreen::Hit JournalScreen::HitAt(float x, float y) const {
 		if (!underPage && ribbonRect(i, place.left, place.depth).contains(x, y))
 			return {Target::Ribbon, i};
 	}
-	if (spread[static_cast<size_t>(section)] > 0 && cornerRect(0).contains(x, y))
+	if (spread[std::to_underlying(section)] > 0 && cornerRect(0).contains(x, y))
 		return {Target::PrevPage, 0};
-	if (spread[static_cast<size_t>(section)] < SpreadCount(section) - 1 && cornerRect(1).contains(x, y))
+	if (spread[std::to_underlying(section)] < SpreadCount(section) - 1 && cornerRect(1).contains(x, y))
 		return {Target::NextPage, 0};
 	if (CanAnswer(0) && answerRect(0).contains(x, y))
 		return {Target::AnswerLeft, 0};
@@ -516,7 +517,7 @@ void JournalScreen::Draw() {
 	turn.progress = turn.active ? curlProgress(curl) : 0.f;
 
 	std::array<int, PAGE_SLOTS> tex{};
-	auto slot = [&tex](PageSlot k) -> int& { return tex[static_cast<size_t>(k)]; };
+	auto slot = [&tex](PageSlot k) -> int& { return tex[std::to_underlying(k)]; };
 	if (!turning) {
 		slot(PageSlot::Left) = RenderPage(PageSlot::Left, open, 0, true);
 		slot(PageSlot::Right) = RenderPage(PageSlot::Right, open, 1, true);
@@ -594,7 +595,7 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 	Rect r = {side == 0 ? p.x - overhang : p.x, p.y, p.w + overhang, p.h};
 	Rect area = visibleArea();
 	float perUnit = static_cast<float>(Game().render.resY) / area.h;
-	RenderTarget& target = pages[static_cast<size_t>(slot)];
+	RenderTarget& target = pages[std::to_underlying(slot)];
 	if (!target.Begin(static_cast<int>(std::lround(r.w * perUnit)), static_cast<int>(std::lround(r.h * perUnit)))) {
 		pagesFailed = true;
 		return 0;
@@ -751,7 +752,7 @@ void JournalScreen::DrawCorners() {
 	if (turn.active)
 		return;
 	beginShapes();
-	int open = spread[static_cast<size_t>(section)];
+	int open = spread[std::to_underlying(section)];
 	if (open > 0)
 		cornerArrow(cornerRect(0), true, pointer.hovered.target == Target::PrevPage ? INK_RED : PENCIL);
 	if (open < SpreadCount(section) - 1)

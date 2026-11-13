@@ -3,6 +3,7 @@
 #include "monster.h"
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include "figures.h"
 #include "../level/journal.h"
 #include "../level/gameplay_config.h"
@@ -44,7 +45,7 @@ void Monster::showBurrow() {
 		return;
 	const float p = burrowProgress();
 	const auto last = static_cast<float>(type->model.Clip(ModelState::Rise).frames - 1);
-	playback[static_cast<size_t>(ModelState::Rise)] = {last * (burrow.phase == BurrowPhase::Dive ? 1.f - p : p), 0};
+	playback[std::to_underlying(ModelState::Rise)] = {last * (burrow.phase == BurrowPhase::Dive ? 1.f - p : p), 0};
 }
 
 bool Monster::canDive(float py) const {

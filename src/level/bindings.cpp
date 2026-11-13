@@ -1,6 +1,7 @@
 #include "bindings.h"
 #include <cctype>
 #include <cstdio>
+#include <utility>
 
 namespace {
 // GLUT special key codes (GLUT_KEY_*; Shift, Ctrl and Alt are freeglut's). input.h names the ones the game uses.
@@ -122,7 +123,7 @@ const InputKey* Binding::First() const {
 
 Bindings::Bindings() {
 	auto set = [this](BindAction action, InputKey a, InputKey b, InputKey mouse) {
-		table[static_cast<size_t>(action)] = {{a, b}, mouse};
+		table[std::to_underlying(action)] = {{a, b}, mouse};
 	};
 	set(BindAction::MoveLeft, ch('a'), sp(LEFT), none());
 	set(BindAction::MoveRight, ch('d'), sp(RIGHT), none());
@@ -194,7 +195,7 @@ std::optional<BindAction> Bindings::Bind(BindAction action, int slot, const Inpu
 				if (static_cast<BindAction>(i) != action)
 					from = static_cast<BindAction>(i);
 			}
-	table[static_cast<size_t>(action)].Slot(slot) = key;
+	table[std::to_underlying(action)].Slot(slot) = key;
 	return from;
 }
 
@@ -225,9 +226,9 @@ bool Bindings::operator==(const Bindings& o) const {
 	return true;
 }
 
-const char* bindActionName(BindAction action) { return ACTIONS[static_cast<size_t>(action)].name; }
+const char* bindActionName(BindAction action) { return ACTIONS[std::to_underlying(action)].name; }
 
-const char* bindActionLabel(BindAction action) { return ACTIONS[static_cast<size_t>(action)].label; }
+const char* bindActionLabel(BindAction action) { return ACTIONS[std::to_underlying(action)].label; }
 
 bool isReservedKey(const InputKey& key) {
 	if (key.kind == InputKey::Kind::Char)

@@ -1,6 +1,8 @@
 // The dung ball (plan scarab-dung-ball): the giant scarab turns its back on the player and kicks a ball at them along
 // the row; it hits a player on the floor, a jump clears it, it falls into a pit, sinks in water, breaks at the end of
 // its roll, rolls over traps; one ball per cooldown. Khepri's is bigger, faster, from farther, and burns.
+#include <utility>
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 
@@ -68,7 +70,7 @@ TEST_CASE("the giant scarab and Khepri roll dung balls, the small scarab none; K
 	CHECK(mainType(giant.roll->mix) == DamageType::Blunt);
 	for (const MonsterKind* kind : {&giant, &khepri}) {
 		CHECK(&ClipFilesOf(*kind) == &ROLLER_CLIPS);
-		const MonsterType& type = SimWorld::monsterTypes()[static_cast<size_t>(kind->id)];
+		const MonsterType& type = SimWorld::monsterTypes()[std::to_underlying(kind->id)];
 		CHECK(type.model.Clip(ModelState::AttackRanged).present);
 		CHECK(type.model.Clip(ModelState::Jump).present);
 	}

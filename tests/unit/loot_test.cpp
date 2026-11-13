@@ -1,3 +1,4 @@
+
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/loot.h"
 

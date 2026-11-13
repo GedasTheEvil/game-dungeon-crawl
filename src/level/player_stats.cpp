@@ -355,7 +355,7 @@ void PlayerStats::Offered(God g) {
 }
 
 void PlayerStats::Pray(God g, WorldEvents& events) {
-	int& left = blessing_left_ms[static_cast<size_t>(g)];
+	int& left = blessing_left_ms[std::to_underlying(g)];
 	switch (g) {
 	case God::Isis: {
 		const bool lifted = curses.Any();
@@ -471,7 +471,7 @@ void PlayerStats::Dump(std::ostream& f) const {
 	vitals.poison.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 	f << "WATER " << water_left_ms << "\n";
-	f << "ISIS " << blessing_left_ms[static_cast<size_t>(God::Isis)] << "\n";
+	f << "ISIS " << blessing_left_ms[std::to_underlying(God::Isis)] << "\n";
 	f << "GODS"; // plan shrines-of-the-gods: the other gods' blessings, in God order
 	for (int g = 1; g < GOD_COUNT; g++)
 		f << " " << blessing_left_ms[static_cast<size_t>(g)];
@@ -523,7 +523,7 @@ void PlayerStats::LoadDump(std::istream& f) {
 		f.clear();
 		f.seekg(isis);
 	} else
-		f >> blessing_left_ms[static_cast<size_t>(God::Isis)];
+		f >> blessing_left_ms[std::to_underlying(God::Isis)];
 	const auto gods = f.tellg();
 	if (!(f >> tag) || tag != "GODS") { // a save from before the shrines of the other gods
 		f.clear();

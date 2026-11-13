@@ -8,6 +8,7 @@
 #include <array>
 #include <cmath>
 #include <string>
+#include <utility>
 
 #include "gameplay_config.h"
 
@@ -16,7 +17,7 @@ enum class DamageType : unsigned char { Blunt, Slash, Pierce, Fire };
 constexpr int DAMAGE_TYPE_COUNT = 4;
 
 constexpr std::array<const char*, DAMAGE_TYPE_COUNT> DAMAGE_TYPE_NAMES = {"smash", "cut", "stab", "fire"};
-constexpr auto FIRE = static_cast<size_t>(DamageType::Fire);
+constexpr auto FIRE = std::to_underlying(DamageType::Fire);
 
 // A weapon's or a monster's attack damage, in percent per type; adds up to 100.
 using DamageMix = std::array<int, DAMAGE_TYPE_COUNT>;

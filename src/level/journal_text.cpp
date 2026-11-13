@@ -4,6 +4,7 @@
 #include "texts.h"
 #include <algorithm>
 #include <array>
+#include <utility>
 
 const char* monsterNote(const MonsterKind& kind) {
 	return gameText("monster." + textSlug(kind.label) + ".note").c_str();
@@ -11,7 +12,7 @@ const char* monsterNote(const MonsterKind& kind) {
 
 namespace {
 // The [note.<slug>] of each FieldNote but the amulets' (note.<amulet model>), in FieldNote order.
-constexpr std::array<const char*, static_cast<size_t>(FieldNote::AmuletFirst)> FIELD_NOTE_SLUGS = {
+constexpr std::array<const char*, std::to_underlying(FieldNote::AmuletFirst)> FIELD_NOTE_SLUGS = {
 	"health",
 	"levels",
 	"stamina",
@@ -106,7 +107,7 @@ const FieldNoteText& fieldNoteText(FieldNote note) {
 		}
 		return notes;
 	}();
-	return NOTES[static_cast<size_t>(note)];
+	return NOTES[std::to_underlying(note)];
 }
 
 const DiaryText& diaryText(DiaryPage page) {
@@ -126,7 +127,7 @@ const DiaryText& diaryText(DiaryPage page) {
 		}
 		return diary;
 	}();
-	return DIARY[static_cast<size_t>(page)];
+	return DIARY[std::to_underlying(page)];
 }
 
 const ExpeditionPageText& expeditionPageText(int number) {

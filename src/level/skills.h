@@ -6,6 +6,7 @@
 #include <istream>
 #include <ostream>
 #include <vector>
+#include <utility>
 
 // Skills and heka, the points that buy them (plan skills): each boss killed gives one heka, the player spends it on a
 // skill on the Heka screen. Skills are permanent, one heka each, no respec.
@@ -53,7 +54,7 @@ struct SkillDef {
 	bool sealed;
 };
 extern const std::array<SkillDef, SKILL_COUNT> SKILLS;
-[[nodiscard]] inline const SkillDef& skillDef(SkillId id) { return SKILLS[static_cast<size_t>(id)]; }
+[[nodiscard]] inline const SkillDef& skillDef(SkillId id) { return SKILLS[std::to_underlying(id)]; }
 // The details, under the effect on its card (content/texts/skills.txt).
 [[nodiscard]] const char* skillLore(SkillId id);
 

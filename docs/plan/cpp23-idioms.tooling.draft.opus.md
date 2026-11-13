@@ -3,7 +3,7 @@
 Status: draft 2026-11-13, size M, needs [cpp23-standard](solved/cpp23-standard.tooling.md) first.
 
 Rank 4 of 5 in the C++23 set: fewer sites and each one is a judgement call, so the gain per hour is lower than
-[cpp23-enum-index](cpp23-enum-index.tooling.draft.sonet.md).
+[cpp23-enum-index](solved/cpp23-enum-index.tooling.md).
 
 ## Problem
 

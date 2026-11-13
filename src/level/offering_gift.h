@@ -11,6 +11,7 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <utility>
 
 // Percent of the offerings that bring a gift, whatever is offered.
 constexpr int OFFERING_GIFT_PERCENT = 10;
@@ -33,7 +34,7 @@ constexpr std::array<std::array<int, GIFT_KIND_COUNT>, GOD_COUNT> GIFT_WEIGHTS =
 	{15, 10, 15, 50, 10}, // Serket
 }};
 [[nodiscard]] constexpr int giftWeight(God god, GiftKind kind) {
-	return GIFT_WEIGHTS[static_cast<size_t>(god)][static_cast<size_t>(kind)];
+	return GIFT_WEIGHTS[std::to_underlying(god)][std::to_underlying(kind)];
 }
 
 struct OfferingGift {

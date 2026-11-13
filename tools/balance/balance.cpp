@@ -24,6 +24,7 @@
 #include <map>
 #include <optional>
 #include <vector>
+#include <utility>
 
 namespace {
 // The target campaign (plan campaign-zones, Zones decided 2026-10-21): the levels of each ZoneId.
@@ -797,7 +798,7 @@ int main(int argc, char** argv) {
 				auto& types = const_cast<MonsterTypes&>(
 					SimWorld::monsterTypes()
 				); // NOLINT(cppcoreguidelines-pro-type-const-cast): the tool's own copy
-				BossRules& boss = types[static_cast<size_t>(kind->id)].boss;
+				BossRules& boss = types[std::to_underlying(kind->id)].boss;
 				boss.maxAlive = value;
 				boss.minAlive = std::min(boss.minAlive, value);
 			} else if (std::strcmp(argv[i], "--armor") == 0)

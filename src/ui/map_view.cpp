@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <utility>
 
 using namespace ui;
 
@@ -376,9 +377,9 @@ std::vector<LegendRow> legendRows(const Dungeon& d) {
 		for (int i = 0; i < LEVEL_WIDTH; i++)
 			if (d.Explored(i, j)) {
 				const ShownMark shown = shownMark(d, i, j);
-				if (shown.mark != MapMark::None && !seen[static_cast<size_t>(shown.mark)]) {
-					seen[static_cast<size_t>(shown.mark)] = true;
-					samples[static_cast<size_t>(shown.mark)] = shown;
+				if (shown.mark != MapMark::None && !seen[std::to_underlying(shown.mark)]) {
+					seen[std::to_underlying(shown.mark)] = true;
+					samples[std::to_underlying(shown.mark)] = shown;
 				}
 			}
 	std::vector<LegendRow> rows;

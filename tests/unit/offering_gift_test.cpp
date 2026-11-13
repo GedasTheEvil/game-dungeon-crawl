@@ -4,6 +4,7 @@
 #include "../../src/level/player_stats.h"
 #include "../../src/level/run_stats.h"
 #include <sstream>
+#include <utility>
 
 namespace {
 constexpr int ROLLS = 20000;
@@ -64,7 +65,7 @@ TEST_CASE("offering gift: each god gives every kind, by its weights") {
 		for (int i = 0; i < ROLLS; i++) {
 			const OfferingGift gift = RollOfferingGift(god, 20, 5U, i, true);
 			REQUIRE(gift.Any());
-			count[static_cast<size_t>(kindOf(gift))]++;
+			count[std::to_underlying(kindOf(gift))]++;
 		}
 		for (int k = 0; k < GIFT_KIND_COUNT; k++) {
 			const int expected = ROLLS * giftWeight(god, static_cast<GiftKind>(k)) / 100;

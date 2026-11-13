@@ -7,11 +7,12 @@
 #include "sim_world.h"
 #include <set>
 #include <string>
+#include <utility>
 
 namespace {
-constexpr size_t BLUNT = static_cast<size_t>(DamageType::Blunt);
-constexpr size_t SLASH = static_cast<size_t>(DamageType::Slash);
-constexpr size_t PIERCE = static_cast<size_t>(DamageType::Pierce);
+constexpr size_t BLUNT = std::to_underlying(DamageType::Blunt);
+constexpr size_t SLASH = std::to_underlying(DamageType::Slash);
+constexpr size_t PIERCE = std::to_underlying(DamageType::Pierce);
 } // namespace
 
 TEST_CASE("the typed might amulets: four tiers, +10 / 20 / 30 / 50% of one damage type") {

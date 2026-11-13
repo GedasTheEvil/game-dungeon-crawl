@@ -7,6 +7,7 @@
 #include "sim_world.h"
 #include <string>
 #include <vector>
+#include <utility>
 
 namespace {
 constexpr int DRIP_COL = 5, ROW = 2; // tests/levels/poison_drips: a drip at col 5, a staggered run at cols 10, 12, 14
@@ -174,12 +175,12 @@ TEST_CASE("monsters: cowards keep out of the puddle, the reckless are poisoned o
 	REQUIRE(world.Load("tests/levels/empty_row"));
 	const MonsterLinks links{&world.player, &world.journal, &world.events, 1, &world.random.gameplay};
 	Monster mon;
-	mon.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterCrocodile)], 3, 1, links, world.random.effects);
+	mon.Spawn(SimWorld::monsterTypes()[std::to_underlying(MonsterCrocodile)], 3, 1, links, world.random.effects);
 	REQUIRE(mon.Type()->poisonResistPercent == 0);
 	mon.StandInDrip(true, false, world.random.gameplay);
 	CHECK(mon.PoisonMask() == 1); // weak
 	CHECK(mon.Health() == mon.MaxHealth()); // the puddle does no damage
-	const int weakMs = POISON_TIERS[static_cast<size_t>(PoisonTier::Weak)].durationMs;
+	const int weakMs = POISON_TIERS[std::to_underlying(PoisonTier::Weak)].durationMs;
 	for (int t = 0; t <= weakMs; t += UPDATE_TICK_MS) { // standing in it: not again, it wears off
 		mon.StandInDrip(true, false, world.random.gameplay);
 		mon.UpdatePoison();
@@ -194,7 +195,7 @@ TEST_CASE("monsters: cowards keep out of the puddle, the reckless are poisoned o
 	CHECK(mon.PoisonMask() == 3);
 
 	Monster rat; // the drop's poison kills it: no reward
-	rat.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterRat)], 3, 1, links, world.random.effects);
+	rat.Spawn(SimWorld::monsterTypes()[std::to_underlying(MonsterRat)], 3, 1, links, world.random.effects);
 	rat.StandInDrip(false, true, world.random.gameplay);
 	bool rewarded = false;
 	for (int t = 0; t < 60000 && rat.Alive(); t += UPDATE_TICK_MS)

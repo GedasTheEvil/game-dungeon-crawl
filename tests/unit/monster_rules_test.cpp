@@ -4,6 +4,7 @@
 #include "../../src/level/level_check.h"
 #include "sim_world.h"
 #include <set>
+#include <utility>
 
 TEST_CASE("a reckless mummy sets off a rock fall and, too slow for its middle, is only grazed") {
 	SimWorld world; // tests/levels/reckless_rock: the mummy across a rock fall from the player
@@ -404,7 +405,7 @@ TEST_CASE("the rule: every kind that resists pierce is vulnerable to fire, excep
 		{MonsterScorpion, MonsterGiantScorpion, MonsterScorpionQueen, MonsterLotus, MonsterUshabti};
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++) {
 		const MonsterKind& kind = *monsterKind(type);
-		if (kind.resist[static_cast<size_t>(DamageType::Pierce)] >= NORMAL || exceptions.contains(type))
+		if (kind.resist[std::to_underlying(DamageType::Pierce)] >= NORMAL || exceptions.contains(type))
 			continue;
 		// A boss has no weak spot (bossResist): its fire is normal at least.
 		const float fire = kind.resist[FIRE];

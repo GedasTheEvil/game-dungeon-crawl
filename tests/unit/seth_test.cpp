@@ -1,6 +1,8 @@
 // Seth, the red hippo (plan hippo-boss): the hippo's boss. Lies in the water, charges farther and faster than the
 // hippo, a wall stuns him, and as the stun ends he roars a sandstorm that hits, shoves and blinds the player near him;
 // hippos dig out beside him; a spear's point goes in, blows sink into the fat.
+#include <utility>
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 
@@ -49,8 +51,8 @@ TEST_CASE("Seth is the hippo's boss: a longer, faster charge, the roar, hippos, 
 	CHECK(s.charge->speed > monsterKind(MonsterSobek)->charge->speed);
 	CHECK(s.roar);
 	CHECK(s.maxHealth > monsterKind(MonsterSobek)->maxHealth);
-	CHECK(s.resist[static_cast<size_t>(DamageType::Blunt)] == RESISTS);
-	CHECK(s.resist[static_cast<size_t>(DamageType::Pierce)] == NORMAL);
+	CHECK(s.resist[std::to_underlying(DamageType::Blunt)] == RESISTS);
+	CHECK(s.resist[std::to_underlying(DamageType::Pierce)] == NORMAL);
 }
 
 TEST_CASE("Seth charges through the player into the wall, then roars: a hit, a shove away, sand in the eyes") {

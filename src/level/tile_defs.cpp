@@ -2,6 +2,7 @@
 #include "inscriptions.h"
 #include "monster_kinds.h"
 #include <array>
+#include <utility>
 
 namespace {
 constexpr TileDef UNKNOWN = {"Unknown", "Not a tile type. The game treats it as open space.", true, true};
@@ -242,7 +243,7 @@ std::vector<GlyphDef> buildLegend() {
 
 const TileDef& tileDef(int type) { return isTileType(type) ? TILES[static_cast<size_t>(type)] : UNKNOWN; }
 
-const StructureDef& structureDef(Structure s) { return STRUCTURES[static_cast<size_t>(s)]; }
+const StructureDef& structureDef(Structure s) { return STRUCTURES[std::to_underlying(s)]; }
 
 char tileGlyph(const Tile& t) {
 	switch (t.type) {

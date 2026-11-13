@@ -8,6 +8,7 @@
 #include "../core/timer.h"
 #include <algorithm>
 #include <cstddef>
+#include <utility>
 
 constexpr int STICK_RETURN_MS = 400; // the throwing stick flies back to the hand, a look only
 
@@ -27,7 +28,7 @@ constexpr MissileRules MISSILE_RULES[MISSILE_KIND_COUNT] = {
 	{0.6f, 900.f, false, true, 1.2f, WorldSound::StoneHit, WorldSound::StoneWall}, // throwing stick
 	{1.f, 0.f, true, false, 1.f, WorldSound::ArrowHit, WorldSound::ArrowWall}, // javelin
 };
-inline const MissileRules& rulesOf(MissileKind kind) { return MISSILE_RULES[static_cast<size_t>(kind)]; }
+inline const MissileRules& rulesOf(MissileKind kind) { return MISSILE_RULES[std::to_underlying(kind)]; }
 
 // 0..1 of the way through a motion that started at startMs and lasts durationMs (game clock).
 inline float motionProgress(int startMs, int durationMs) {

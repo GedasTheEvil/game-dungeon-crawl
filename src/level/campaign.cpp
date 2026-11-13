@@ -2,6 +2,7 @@
 #include "zone_look.h"
 #include "../core/paths.h"
 #include <map>
+#include <utility>
 
 std::string campaignLevelFile(int number) { return CONTENT_DIR "levels/lvl" + std::to_string(number); }
 
@@ -21,7 +22,7 @@ std::string zoneTitle(ZoneId id) {
 		"Twelfth"
 	};
 	static_assert(sizeof(HOURS) / sizeof(HOURS[0]) == ZONE_ID_COUNT, "an hour a zone");
-	const auto hour = static_cast<size_t>(id);
+	const auto hour = std::to_underlying(id);
 	return std::string("The ") + HOURS[hour] + " Hour: " + zoneInfo(id).gate;
 }
 

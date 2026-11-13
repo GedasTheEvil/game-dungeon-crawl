@@ -2,13 +2,14 @@
 #include <algorithm>
 #include <numeric>
 #include <string>
+#include <utility>
 
 void RunStats::Slay(int monsterType) {
 	if (monsterType >= 0 && monsterType <= MONSTER_TYPE_MAX)
 		slain[static_cast<size_t>(monsterType)]++;
 }
 
-void RunStats::Drink(ItemKind potion) { drunk[static_cast<size_t>(potion)]++; }
+void RunStats::Drink(ItemKind potion) { drunk[std::to_underlying(potion)]++; }
 
 void RunStats::Hit(int dealt) {
 	damageDealt += dealt;

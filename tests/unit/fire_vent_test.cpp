@@ -5,6 +5,7 @@
 #include "sim_world.h"
 #include <string>
 #include <vector>
+#include <utility>
 
 namespace {
 constexpr int VENT_COL = 5, ROW = 2; // tests/levels/fire_vents: a vent at col 5, a pair at cols 10-11
@@ -172,7 +173,7 @@ TEST_CASE("a mummy in the jet takes double (vulnerable to fire), and burns; its 
 	REQUIRE(world.Load("tests/levels/empty_row"));
 	const MonsterLinks links{&world.player, &world.journal, &world.events, 1, &world.random.gameplay};
 	Monster burnt;
-	burnt.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterMummy)], 3, 1, links, world.random.effects);
+	burnt.Spawn(SimWorld::monsterTypes()[std::to_underlying(MonsterMummy)], 3, 1, links, world.random.effects);
 	REQUIRE(burnt.Type()->resist[FIRE] == VULNERABLE);
 	const int perSecond = fireJetHundredthsPerSecond(
 		burnt.MaxHealth()
@@ -206,7 +207,7 @@ TEST_CASE("fire in water: a monster or the player in water takes a tenth of a fi
 	const DamageMix flame = {0, 0, 0, 100}, bolt = {40, 0, 20, 40};
 	const auto lost = [&](bool water, const DamageMix& mix) {
 		Monster mon;
-		mon.Spawn(SimWorld::monsterTypes()[static_cast<size_t>(MonsterMummy)], 3, 1, links, world.random.effects);
+		mon.Spawn(SimWorld::monsterTypes()[std::to_underlying(MonsterMummy)], 3, 1, links, world.random.effects);
 		mon.SetInWater(water, false, 0.f);
 		const int before = mon.Health();
 		mon.TakeWeaponHit(10, mix);

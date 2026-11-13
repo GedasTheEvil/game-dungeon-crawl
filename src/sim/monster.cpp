@@ -1,6 +1,7 @@
 #include "monster.h"
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 #include "player.h"
 #include "figures.h"
@@ -383,7 +384,7 @@ void Monster::Animate(float px, float py) {
 		type->model.Advance(state, playback, type->riseMs, WalkClipSpeed());
 	showBurrow();
 	if (Grabbing()) // the attack clip held at the jaws or the claws wide, then shut on the player
-		playback[static_cast<size_t>(ModelState::Attack)] = {
+		playback[std::to_underlying(ModelState::Attack)] = {
 			grab.phase == GrabPhase::Tell ? Hold().tellFrame : Hold().holdFrame,
 			0
 		};

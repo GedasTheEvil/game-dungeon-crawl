@@ -1,6 +1,7 @@
 // Crouch (plan crouch): the crouch key held lowers the player under a crawl space, at a third of the walk speed, with
 // no sprint, jump, climb or attack; under the low ceiling they stay down with the key up. Crouched, a high swing and a
 // shot aimed at the standing chest miss, a low bite hits. The poses: tests/scenarios/solved/crouch.txt.
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 

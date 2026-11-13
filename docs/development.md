@@ -50,7 +50,7 @@ read their file arguments from the current directory.
 
 The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`). In new code:
 
-* `std::to_underlying` for an enum used as an index.
+* An enum as an index: `std::to_underlying(e)`, never `static_cast<size_t>(e)`.
 * `string::contains` (and `std::ranges::contains`) for a membership test.
 * `std::unreachable()` after an exhaustive switch.
 

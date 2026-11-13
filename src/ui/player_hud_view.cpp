@@ -4,6 +4,7 @@
 #include "../core/timer.h"
 #include "../state/game_state.h"
 #include <optional>
+#include <utility>
 
 namespace {
 // A quick slot: the potion its key would drink now, empty when none of that kind is left.
@@ -70,7 +71,7 @@ PlayerHud::View playerHudView() {
 		constexpr const char* TIERS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
 		const Amulet amulet = amuletOf(*worn);
 		view.slots[PlayerHud::AMULET_SLOT].icon = PlayerHud::amuletIcon(amulet.type);
-		view.slots[PlayerHud::AMULET_SLOT].badge = TIERS[static_cast<size_t>(amulet.tier)];
+		view.slots[PlayerHud::AMULET_SLOT].badge = TIERS[std::to_underlying(amulet.tier)];
 	}
 	for (int hand = 0; hand < HAND_COUNT; hand++)
 		if (std::optional<ItemKind> ring = Game().ui.inventory->Bag().RingOn(static_cast<Hand>(hand))) {

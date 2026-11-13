@@ -1,6 +1,8 @@
 // The Mother of Webs (plan camel-spider-boss): the camel spider's boss. Faster than it, she keeps out of the light
 // too, but puts out the torches and lamps she passes (never a brazier); she spins webs over the floor that slow the
 // player, a blade cuts them, fire burns them; camel spiders drop from the ceiling round her.
+#include <utility>
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/decor.h"
@@ -61,9 +63,9 @@ TEST_CASE("the Mother of Webs is the camel spider's boss: faster, shuns the ligh
 	CHECK(m.douseCells > LIGHT_SHUN_CELLS); // she puts a torch out before she reaches its light
 	REQUIRE(m.webs);
 	CHECK(m.webs->max > 0);
-	CHECK(m.resist[static_cast<size_t>(DamageType::Slash)] == NORMAL); // the camel spider's weaknesses, no more
+	CHECK(m.resist[std::to_underlying(DamageType::Slash)] == NORMAL); // the camel spider's weaknesses, no more
 	CHECK(m.resist[FIRE] == NORMAL);
-	CHECK(m.resist[static_cast<size_t>(DamageType::Pierce)] == RESISTS);
+	CHECK(m.resist[std::to_underlying(DamageType::Pierce)] == RESISTS);
 }
 
 TEST_CASE("in the dark she runs at the player faster than the camel spider, and her spiders drop round her") {

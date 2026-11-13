@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <future>
 #include <string>
+#include <utility>
 #include "../core/logger.h"
 #include "../level/gameplay_config.h"
 #include "../core/paths.h"
@@ -76,7 +77,7 @@ Item* ItemPrototypes::Of(ItemKind kind) const {
 	if (isRing(kind))
 		return rings[static_cast<size_t>(itemIndex(kind) - FIRST_RING)].get();
 	if (isAmulet(kind))
-		return amulets[static_cast<size_t>(amuletOf(kind).type)].get();
+		return amulets[std::to_underlying(amuletOf(kind).type)].get();
 	if (isPotion(kind))
 		return potions[static_cast<size_t>(itemIndex(kind) - WEAPON_KIND_COUNT)].get();
 	return weapons[static_cast<size_t>(itemIndex(kind))].get();
@@ -202,7 +203,7 @@ void loadPotions(ItemPrototypes& items) {
 		const PotionDef& def = potionDef(itemAt(WEAPON_KIND_COUNT + static_cast<int>(i)));
 		const PotionModelDef& model = potionModelDef(def.model);
 		auto item = std::make_unique<Item>();
-		const Item*& vessel = vessels[static_cast<size_t>(def.model)];
+		const Item*& vessel = vessels[std::to_underlying(def.model)];
 		if (vessel != nullptr) {
 			item->shareModel(*vessel, def.texture);
 			item->sharePart(*vessel);
@@ -234,7 +235,7 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	progress(span.at(WEAPON_KIND_COUNT, STEPS), "Loading item models", "Containers, potions, amulets and rings");
 	for (size_t i = 0; i < CONTAINER_COUNT; i++) // face the camera at rotA 0 (tools/blender/models/containers.py)
 		items.containers[i] = loadItem(CONTAINER_DEFS[i].model, CONTAINER_DEFS[i].scale);
-	const Item& coffin = *items.containers[static_cast<size_t>(Container::Coffin)];
+	const Item& coffin = *items.containers[std::to_underlying(Container::Coffin)];
 	items.cursedCoffin = std::make_unique<Item>();
 	items.cursedCoffin->shareModel(coffin, "container_coffin_cursed");
 	items.cursedCoffin->scale = coffin.scale;

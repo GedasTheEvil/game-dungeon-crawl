@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "controls_help.h"
 
 namespace {
@@ -103,7 +105,7 @@ std::string hintText(FirstHint hint, const Bindings& bindings) {
 		{BindAction::QuickStamina, "Drink a stamina potion", ""},
 		{BindAction::QuickAntidote, "Drink an antidote", ""},
 	};
-	const Text& t = TEXTS[static_cast<size_t>(hint)];
+	const Text& t = TEXTS[std::to_underlying(hint)];
 	const std::string keys = spoken(bindings.Of(t.action));
 	if (keys.empty())
 		return std::string(t.what) + ": bind a key in Options > Controls";

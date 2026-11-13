@@ -1,6 +1,8 @@
 // Babi (plan babi-boss): the baboon's boss. The baboon's kiting and throw, stronger: a wider band, a quicker retreat
 // and a leap over the gap behind him; volleys of two or three coals, every third throw a big coal that sets the floor
 // burning; baboons climb out round him; his death opens the boss gates.
+#include <utility>
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 
@@ -64,7 +66,7 @@ TEST_CASE("Babi is the baboon's boss: farther, wider, quicker, a leaper, volleys
 	CHECK(babi.ranged->volley->bigDamage > babi.ranged->damage);
 	CHECK(babi.resist[FIRE] < NORMAL); // resists fire, not immune
 	CHECK(babi.resist[FIRE] > 0);
-	CHECK(babi.resist[static_cast<size_t>(DamageType::Pierce)] == NORMAL); // the baboon's weakness gone
+	CHECK(babi.resist[std::to_underlying(DamageType::Pierce)] == NORMAL); // the baboon's weakness gone
 	CHECK(&ClipFilesOf(babi) == &THROWER_CLIPS);
 }
 

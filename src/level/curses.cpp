@@ -1,6 +1,7 @@
 #include "curses.h"
 #include <algorithm>
 #include <string>
+#include <utility>
 
 const std::array<CurseDef, CURSE_COUNT> CURSES = {{
 	{"Weakness", "Greater weakness", "A curse! You feel weak", "The weakness grips you again", "The weakness passes"},
@@ -28,7 +29,7 @@ int cut(int value, int percent) { return value * (100 - percent) / 100; }
 bool Curses::Lay(Curse c, CurseGrade grade) { return Lay(c, grade, CURSE_MS); }
 
 bool Curses::Lay(Curse c, CurseGrade grade, int durationMs) {
-	Running& r = running[static_cast<size_t>(c)];
+	Running& r = running[std::to_underlying(c)];
 	const bool fresh = r.leftMs <= 0;
 	if (fresh || grade == CurseGrade::Greater)
 		r.grade = grade;

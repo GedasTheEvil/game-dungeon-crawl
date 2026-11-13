@@ -10,6 +10,7 @@
 #include "sim_world.h"
 #include <sstream>
 #include <string>
+#include <utility>
 
 namespace {
 constexpr BagUser ALIVE{true, 1, 1, 1, 1};
@@ -363,12 +364,12 @@ TEST_CASE("chests hold a ring now and then: the metal by depth, the amethyst rar
 		std::array<int, RING_GEM_COUNT> gems{};
 		for (int i = 0; i < 6000; i++) {
 			const Ring ring = ringOf(RollRing(level, r));
-			count[static_cast<size_t>(ring.metal)]++;
-			gems[static_cast<size_t>(ring.gem)]++;
+			count[std::to_underlying(ring.metal)]++;
+			gems[std::to_underlying(ring.gem)]++;
 		}
-		const int amethyst = gems[static_cast<size_t>(RingGem::Amethyst)];
-		CHECK(amethyst > gems[static_cast<size_t>(RingGem::Garnet)] / 3);
-		CHECK(amethyst < gems[static_cast<size_t>(RingGem::Garnet)] * 2 / 3); // half the weight
+		const int amethyst = gems[std::to_underlying(RingGem::Amethyst)];
+		CHECK(amethyst > gems[std::to_underlying(RingGem::Garnet)] / 3);
+		CHECK(amethyst < gems[std::to_underlying(RingGem::Garnet)] * 2 / 3); // half the weight
 		return count;
 	};
 	const auto early = metals(1);

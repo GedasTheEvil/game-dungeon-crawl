@@ -1,4 +1,6 @@
 // The baboon of the Lake of Fire (plan baboon): a kiter that hurls burning coals and bites when cornered.
+#include <utility>
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 
@@ -26,7 +28,7 @@ TEST_CASE("the baboon is a kiter, a climber, its coal burns; resists fire, weak 
 	CHECK(kind.kite->backOffSpeed < 57.f); // slower than their sprint
 	CHECK(kind.climbs);
 	CHECK(kind.resist[FIRE] < NORMAL);
-	CHECK(kind.resist[static_cast<size_t>(DamageType::Pierce)] > NORMAL);
+	CHECK(kind.resist[std::to_underlying(DamageType::Pierce)] > NORMAL);
 	CHECK(&ClipFilesOf(kind) == &THROWER_CLIPS);
 }
 

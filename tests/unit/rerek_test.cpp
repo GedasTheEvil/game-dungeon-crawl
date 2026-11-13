@@ -1,6 +1,8 @@
 // Rerek, the sand serpent (plan worm-boss): the worm's boss. Lies under the sand, wakes and dives from farther than the
 // worm, swims under it faster, comes up under the player or (every other dive) past them in a spray of sand, swallows
 // the player into the sand, and worms dig out round him into the sand, where they lie in wait.
+#include <utility>
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 
@@ -67,8 +69,8 @@ TEST_CASE("Rerek is the worm's boss: the sand burrowing farther and faster, come
 	CHECK(r.spray);
 	CHECK_FALSE(r.poison);
 	CHECK(r.speed < monsterKind(MonsterApep)->speed); // out of sand he walks, slowly
-	CHECK(r.resist[static_cast<size_t>(DamageType::Blunt)] == RESISTS);
-	CHECK(r.resist[static_cast<size_t>(DamageType::Slash)] == NORMAL); // the worm's weakness dropped
+	CHECK(r.resist[std::to_underlying(DamageType::Blunt)] == RESISTS);
+	CHECK(r.resist[std::to_underlying(DamageType::Slash)] == NORMAL); // the worm's weakness dropped
 	CHECK(r.resist[FIRE] == NORMAL);
 }
 

@@ -3,12 +3,13 @@
 #include <istream>
 #include <string>
 #include <ostream>
+#include <utility>
 
 void Poison::Apply(PoisonTier tier, bool halved) {
-	TierTimer& t = tiers[static_cast<size_t>(tier)];
+	TierTimer& t = tiers[std::to_underlying(tier)];
 	if (t.leftMs <= 0)
 		t = {};
-	const int duration = POISON_TIERS[static_cast<size_t>(tier)].durationMs;
+	const int duration = POISON_TIERS[std::to_underlying(tier)].durationMs;
 	t.leftMs = halved ? duration / 2 : duration;
 }
 

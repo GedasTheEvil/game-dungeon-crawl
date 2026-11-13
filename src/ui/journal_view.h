@@ -104,7 +104,7 @@ class JournalScreen {
 
 	[[nodiscard]] int PageCount(Section s) const;
 	[[nodiscard]] int SpreadCount(Section s) const;
-	[[nodiscard]] Opening Open() const { return {section, spread[static_cast<size_t>(section)]}; }
+	[[nodiscard]] Opening Open() const { return {section, spread[std::to_underlying(section)]}; }
 	// Pages before a section's first one, before the open spread's left page, in the whole book (all sections).
 	[[nodiscard]] int FirstPage(int s) const;
 	[[nodiscard]] int PagesBefore(const Opening& at) const {

@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <utility>
 
 // The camera peek (plan controls-smoothing): rotM / rotN, the turn off straight ahead. A look key held turns it at a
 // steady CAMERA_LOOK_KEY_SPEED, whatever the desktop's key repeat. With recentring on, once no look key was held for
@@ -26,7 +27,7 @@ class CameraLook {
 	};
 
 	void Hold(Dir dir, bool down) {
-		held[static_cast<size_t>(dir)] = down;
+		held[std::to_underlying(dir)] = down;
 		if (down)
 			mouseSet = false;
 	}
@@ -65,7 +66,7 @@ class CameraLook {
 	int idleMs = 0;
 	bool mouseSet = false; // the mouse turned it last: no recentre
 
-	[[nodiscard]] float axis(Dir dir) const { return held[static_cast<size_t>(dir)] ? 1.f : 0.f; }
+	[[nodiscard]] float axis(Dir dir) const { return held[std::to_underlying(dir)] ? 1.f : 0.f; }
 	static float ease(float angle, float keep) {
 		const float eased = angle * keep;
 		return std::abs(eased) < CAMERA_RECENTER_SNAP ? 0.f : eased;

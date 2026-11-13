@@ -8,6 +8,7 @@
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include "../sim/render_config.h"
 #include "fire.h"
 #include "../render/lighting.h"
@@ -255,7 +256,7 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 		0,
 		RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE
 	);
-	Item& container = *sim.assets->items.containers[static_cast<size_t>(look.kind)];
+	Item& container = *sim.assets->items.containers[std::to_underlying(look.kind)];
 	container.rotA = look.yaw;
 	// A trapped one's tell (plan trapped-chests): darker, a stained brown, only with the player close by.
 	if (const float tell = chestTell(cell); tell > 0.f) {

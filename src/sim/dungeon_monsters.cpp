@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <utility>
 #include "../level/gameplay_config.h"
 #include "../level/loot.h"
 #include "render_config.h"
@@ -346,14 +347,14 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 	const MonsterType& type = *mon.Type();
 	if (mix && sim.journal->TryDamage(type.id, levelNumber, mainType(*mix))) {
 		const DamageType main = mainType(*mix);
-		const float rate = type.resist[static_cast<size_t>(main)];
+		const float rate = type.resist[std::to_underlying(main)];
 		const char* how = rate >= VULNERABLE ? "vulnerable to"
 						  : rate > NORMAL	 ? "weak to"
 						  : rate == NORMAL	 ? "no resistance to"
 						  : rate >= RESISTS	 ? "resists"
 						  : rate > IMMUNE	 ? "barely hurt by"
 											 : "immune to";
-		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[static_cast<size_t>(main)]);
+		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[std::to_underlying(main)]);
 	}
 	if (mix) // the crushing, cleaving and piercing amulets (plan amulet-extras)
 		dmg += dmg * sim.player->stats.TypeMightPercent(*mix) / 100;
@@ -382,7 +383,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 	if (!sim.player->stats.heka.Has(SkillId::Stun))
 		return;
-	const int chance = STUN_CHANCE_PERCENT * mix[static_cast<size_t>(DamageType::Blunt)] / 100;
+	const int chance = STUN_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Blunt)] / 100;
 	if (chance <= 0 || !sim.random->gameplay.percent(chance) || !mon.StunHit(STUN_MS, wasLurking))
 		return;
 	const auto& notes = sim.journal->Notes();

@@ -12,6 +12,7 @@
 #include <iosfwd>
 #include <optional>
 #include <vector>
+#include <utility>
 
 class Journal;
 
@@ -103,7 +104,7 @@ class ItemBag {
 	[[nodiscard]] ItemKind Equipped() const { return equipped; }
 	[[nodiscard]] std::optional<ItemKind> Worn() const { return worn; }
 	[[nodiscard]] const WornRings& Rings() const { return rings; }
-	[[nodiscard]] std::optional<ItemKind> RingOn(Hand hand) const { return rings[static_cast<size_t>(hand)]; }
+	[[nodiscard]] std::optional<ItemKind> RingOn(Hand hand) const { return rings[std::to_underlying(hand)]; }
 	[[nodiscard]] bool RingWorn(ItemKind ring) const { return HandsWearing(ring) > 0; }
 	// The ring card's hand buttons: the ring on that hand comes off; if it is the one there, it comes off. A ring worn
 	// on the other hand with no second copy held moves over. False if the ring is not held or the player is dead.

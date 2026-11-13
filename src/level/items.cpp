@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdio>
 #include <string>
+#include <utility>
 
 namespace {
 // The weapons, then the potions, in ItemKind order. A weapon's motion: grip, rest / windup / strike tilt, thrust, hit
@@ -419,13 +420,13 @@ constexpr std::array<PoisonTier, AMULET_TIER_COUNT> VENOM_TIERS =
 constexpr const char* POISON_TIER_WORDS[POISON_TIER_COUNT] = {"weak", "medium", "strong"};
 constexpr const char* TIER_NUMERALS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
 
-const AmuletTypeDef& typeDef(AmuletType type) { return AMULET_TYPES[static_cast<size_t>(type)]; }
+const AmuletTypeDef& typeDef(AmuletType type) { return AMULET_TYPES[std::to_underlying(type)]; }
 
 // Lore line 1 or 2 of an item's card: [item.<name>] in content/texts/items.txt, by its label (an amulet: its model).
 const char* loreLine(const char* name, int line) {
 	return gameText("item." + textSlug(name) + ".lore" + std::to_string(line)).c_str();
 }
-int amount(Amulet a) { return typeDef(a.type).amount[static_cast<size_t>(a.tier)]; }
+int amount(Amulet a) { return typeDef(a.type).amount[std::to_underlying(a.tier)]; }
 
 // Built once: the names are put together from the type and the tier.
 struct AmuletTexts {
@@ -452,8 +453,8 @@ struct AmuletTexts {
 				names[i] = "Grand " + noun;
 				break;
 			}
-			shortNames[i] = std::string(def.shortNoun) + " " + TIER_NUMERALS[static_cast<size_t>(a.tier)];
-			const std::string tierWord = TIER_WORDS[static_cast<size_t>(a.tier)];
+			shortNames[i] = std::string(def.shortNoun) + " " + TIER_NUMERALS[std::to_underlying(a.tier)];
+			const std::string tierWord = TIER_WORDS[std::to_underlying(a.tier)];
 			labels[i] = tierWord.empty() ? "" : tierWord + " ";
 			labels[i] += "amulet of ";
 			labels[i] += labelNoun;
@@ -468,7 +469,7 @@ struct AmuletTexts {
 					sizeof(effect),
 					def.effect,
 					amount(a),
-					POISON_TIER_WORDS[static_cast<size_t>(VENOM_TIERS[static_cast<size_t>(a.tier)])]
+					POISON_TIER_WORDS[std::to_underlying(VENOM_TIERS[std::to_underlying(a.tier)])]
 				);
 			else
 				std::snprintf(effect, sizeof(effect), def.effect, amount(a));
@@ -505,11 +506,11 @@ constexpr const char* METAL_WORDS[RING_METAL_COUNT] = {"Copper", "Silver", "Gold
 constexpr const char* METAL_TEXTURES[RING_METAL_COUNT] =
 	{"ring_band_copper", "ring_band_silver", "ring_band_gold", "ring_band_sky_iron"};
 
-const RingGemDef& gemDef(RingGem gem) { return RING_GEMS[static_cast<size_t>(gem)]; }
+const RingGemDef& gemDef(RingGem gem) { return RING_GEMS[std::to_underlying(gem)]; }
 
 // "Heals 1 health every 3 s", "Weapon reach +25%".
 std::string ringEffect(Ring r) {
-	const auto m = static_cast<size_t>(r.metal);
+	const auto m = std::to_underlying(r.metal);
 	char effect[64];
 	switch (r.gem) {
 	case RingGem::Garnet:
@@ -550,7 +551,7 @@ struct RingTexts {
 		for (size_t i = 0; i < texts.size(); i++) {
 			const Ring r = ringOf(itemAt(FIRST_RING + static_cast<int>(i)));
 			const RingGemDef& def = gemDef(r.gem);
-			const auto m = static_cast<size_t>(r.metal);
+			const auto m = std::to_underlying(r.metal);
 			names[i] = std::string(METAL_WORDS[m]) + " " + def.noun + " Ring";
 			shortNames[i] = std::string(def.noun) + " " + TIER_NUMERALS[m];
 			labels[i] = METAL_WORDS[m];
@@ -579,7 +580,7 @@ Rgb ringGemColour(RingGem gem) { return gemDef(gem).colour; }
 
 const char* ringGemSlug(RingGem gem) { return gemDef(gem).slug; }
 
-const char* ringBandTexture(RingMetal metal) { return METAL_TEXTURES[static_cast<size_t>(metal)]; }
+const char* ringBandTexture(RingMetal metal) { return METAL_TEXTURES[std::to_underlying(metal)]; }
 
 RingBonus ringBonus(const WornRings& worn) {
 	RingBonus bonus;
@@ -587,7 +588,7 @@ RingBonus ringBonus(const WornRings& worn) {
 		if (!on || !isRing(*on))
 			continue;
 		const Ring r = ringOf(*on);
-		const auto m = static_cast<size_t>(r.metal);
+		const auto m = std::to_underlying(r.metal);
 		switch (r.gem) {
 		case RingGem::Garnet:
 			if (r.metal == RingMetal::SkyIron)
@@ -651,32 +652,32 @@ AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
 		bonus.trapCutPercent = n;
 		break;
 	case AmuletType::BluntWard:
-		bonus.resist[static_cast<size_t>(DamageType::Blunt)] = NORMAL - n;
+		bonus.resist[std::to_underlying(DamageType::Blunt)] = NORMAL - n;
 		break;
 	case AmuletType::SlashWard:
-		bonus.resist[static_cast<size_t>(DamageType::Slash)] = NORMAL - n;
+		bonus.resist[std::to_underlying(DamageType::Slash)] = NORMAL - n;
 		break;
 	case AmuletType::PierceWard:
-		bonus.resist[static_cast<size_t>(DamageType::Pierce)] = NORMAL - n;
+		bonus.resist[std::to_underlying(DamageType::Pierce)] = NORMAL - n;
 		break;
 	case AmuletType::Regeneration:
 		bonus.regenHpPerSecond = n;
 		break;
 	case AmuletType::Venom:
 		bonus.venomPercent = n;
-		bonus.venomTier = VENOM_TIERS[static_cast<size_t>(a.tier)];
+		bonus.venomTier = VENOM_TIERS[std::to_underlying(a.tier)];
 		break;
 	case AmuletType::FireWard:
 		bonus.resist[FIRE] = NORMAL - n;
 		break;
 	case AmuletType::Crushing:
-		bonus.typeMightPercent[static_cast<size_t>(DamageType::Blunt)] = n;
+		bonus.typeMightPercent[std::to_underlying(DamageType::Blunt)] = n;
 		break;
 	case AmuletType::Cleaving:
-		bonus.typeMightPercent[static_cast<size_t>(DamageType::Slash)] = n;
+		bonus.typeMightPercent[std::to_underlying(DamageType::Slash)] = n;
 		break;
 	case AmuletType::Piercing:
-		bonus.typeMightPercent[static_cast<size_t>(DamageType::Pierce)] = n;
+		bonus.typeMightPercent[std::to_underlying(DamageType::Pierce)] = n;
 		break;
 	case AmuletType::Shots:
 		bonus.shotsPercent = n;
@@ -762,7 +763,7 @@ constexpr std::array<PotionModelDef, POTION_MODEL_COUNT> POTION_MODELS = {{
 }};
 } // namespace
 
-const PotionModelDef& potionModelDef(PotionModel model) { return POTION_MODELS[static_cast<size_t>(model)]; }
+const PotionModelDef& potionModelDef(PotionModel model) { return POTION_MODELS[std::to_underlying(model)]; }
 
 ItemFileId fileIdOf(ItemKind kind) {
 	if (isRing(kind)) {

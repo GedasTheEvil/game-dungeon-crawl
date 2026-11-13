@@ -3,6 +3,7 @@
 #include "monster.h"
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include "figures.h"
 #include "../level/journal.h"
 #include "../level/gameplay_config.h"
@@ -81,5 +82,5 @@ void Monster::showClimb() {
 						  climbLift();
 	const float phase = climbed / cycle - std::floor(climbed / cycle);
 	const auto frames = static_cast<float>(clip.frames);
-	playback[static_cast<size_t>(ModelState::Climb)] = {std::min(phase * frames, frames - 0.001f), 0};
+	playback[std::to_underlying(ModelState::Climb)] = {std::min(phase * frames, frames - 0.001f), 0};
 }

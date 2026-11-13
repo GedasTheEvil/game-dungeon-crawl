@@ -9,6 +9,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <utility>
 
 namespace {
 constexpr int LEGACY_SLOT_COUNT = 9; // saves from before the stamina potions and item levels
@@ -297,9 +298,9 @@ bool ItemBag::Use(ItemKind kind, const BagUser& player) {
 		worn = worn == kind ? std::nullopt : std::optional(kind);
 	else if (isRing(kind)) {
 		if (HandsWearing(kind) == 2) // off: the one put on last
-			rings[static_cast<size_t>(olderHand == Hand::Left ? Hand::Right : Hand::Left)].reset();
+			rings[std::to_underlying(olderHand == Hand::Left ? Hand::Right : Hand::Left)].reset();
 		else if (RingWorn(kind))
-			rings[static_cast<size_t>(RingOn(Hand::Left) == kind ? Hand::Left : Hand::Right)].reset();
+			rings[std::to_underlying(RingOn(Hand::Left) == kind ? Hand::Left : Hand::Right)].reset();
 		else if (!RingOn(Hand::Left))
 			PutOnHand(kind, Hand::Left);
 		else if (!RingOn(Hand::Right))
@@ -317,19 +318,19 @@ int ItemBag::HandsWearing(ItemKind ring) const {
 
 // The ring goes on `hand`, whatever was there comes off; the other hand's ring is now the one worn longer.
 void ItemBag::PutOnHand(ItemKind ring, Hand hand) {
-	rings[static_cast<size_t>(hand)] = ring;
+	rings[std::to_underlying(hand)] = ring;
 	olderHand = hand == Hand::Left ? Hand::Right : Hand::Left;
 }
 
 bool ItemBag::WearOn(ItemKind ring, Hand hand, bool alive) {
 	if (!alive || !isRing(ring) || Count(ring) <= 0)
 		return false;
-	std::optional<ItemKind>& on = rings[static_cast<size_t>(hand)];
+	std::optional<ItemKind>& on = rings[std::to_underlying(hand)];
 	if (on == ring) {
 		on.reset();
 		return true;
 	}
-	std::optional<ItemKind>& otherOn = rings[static_cast<size_t>(hand == Hand::Left ? Hand::Right : Hand::Left)];
+	std::optional<ItemKind>& otherOn = rings[std::to_underlying(hand == Hand::Left ? Hand::Right : Hand::Left)];
 	if (otherOn == ring && Count(ring) < 2) // the only one: it moves over
 		otherOn.reset();
 	PutOnHand(ring, hand);

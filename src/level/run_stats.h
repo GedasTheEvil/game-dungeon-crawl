@@ -9,6 +9,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <utility>
 
 // What the run did from New Game on (plan leaderboard): the leaderboard records it at the win. Kept in PlayerStats, so
 // it rides in the save game: a load puts the counters back, a fight replayed after a load counts once.
@@ -39,7 +40,7 @@ class RunStats {
 	void Hit(int dealt);
 	void AddPlayMs(int ms, int level); // a tick in play on the campaign level
 	[[nodiscard]] int Slain(int monsterType) const { return slain.at(static_cast<size_t>(monsterType)); }
-	[[nodiscard]] int Drunk(ItemKind potion) const { return drunk.at(static_cast<size_t>(potion)); }
+	[[nodiscard]] int Drunk(ItemKind potion) const { return drunk.at(std::to_underlying(potion)); }
 	[[nodiscard]] int SlainTotal() const;
 	[[nodiscard]] int DrunkTotal() const;
 	[[nodiscard]] int PlayMs() const;

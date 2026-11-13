@@ -12,6 +12,7 @@
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 namespace {
 // The held bow is drawn 12 units tall for its 1.2 m (ITEMS in level/items.cpp, items.py); arrow.md3 is in metres.
@@ -229,7 +230,7 @@ void Dungeon::drawMissiles() {
 	const auto firstRow = static_cast<float>(view().originRow);
 	const int now = GameClock::now();
 	for (const Missile& a : missiles) {
-		AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(a.kind)].get();
+		AnimatedModel* model = sim.assets->items.missiles[std::to_underlying(a.kind)].get();
 		if (!model)
 			continue;
 		const MissileRules& rules = rulesOf(a.kind);
@@ -364,7 +365,7 @@ void Dungeon::addBallLights() {
 //======================================================================================
 // The bow's arrow, smaller, pointing at the camera, from the back wall (-TILE_SIZE) out to the front (0).
 void Dungeon::drawDarts() {
-	AnimatedModel* model = sim.assets->items.missiles[static_cast<size_t>(MissileKind::Arrow)].get();
+	AnimatedModel* model = sim.assets->items.missiles[std::to_underlying(MissileKind::Arrow)].get();
 	if (dartTraps.darts.empty() || !model)
 		return;
 	const auto firstCol = static_cast<float>(view().firstCol()); // DrawMonsters' frame

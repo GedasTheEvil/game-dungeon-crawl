@@ -1,5 +1,6 @@
 // The cursed mimic (plan cursed-mimic): a darker chest that lies in wait like the mimic, then hops after the player,
 // leaps traps, and a quarter of its bites lay insanity. Killed, it leaves its chest where it died.
+
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/level_gen.h"

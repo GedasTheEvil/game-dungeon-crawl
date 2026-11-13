@@ -1142,7 +1142,7 @@ void Inventory::DrawDetails() {
 		const float typeY = STAT_Y + 2.5f * ROW;
 		// The damage mix, the main type first: what the monsters' resistances work on.
 		const DamageMix& mix = shown.mix;
-		const auto main = static_cast<size_t>(mainType(mix));
+		const auto main = std::to_underlying(mainType(mix));
 		text(body, labelX, typeY, "Type", INK_FADED);
 		snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[main], mix[main]);
 		text(body, valueX, typeY, buf, INK);

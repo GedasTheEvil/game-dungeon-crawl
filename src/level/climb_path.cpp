@@ -2,7 +2,6 @@
 #include "gameplay_config.h"
 #include <algorithm>
 #include <deque>
-#include <utility>
 
 namespace {
 bool inBounds(int col, int row) { return col >= 0 && col < LEVEL_WIDTH && row >= 0 && row < LEVEL_HEIGHT; }

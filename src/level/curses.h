@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <istream>
 #include <ostream>
+#include <utility>
 
 // Curses (plan curses): timed debuffs a monster's hit lays on the player. Several run at once; the same curse again
 // restarts its time (no stacking). They run out, end on death, or a prayer at a Shrine of Isis lifts them and wards
@@ -48,7 +49,7 @@ struct CurseDef {
 	const char* endLine; // ... when it runs out
 };
 extern const std::array<CurseDef, CURSE_COUNT> CURSES;
-[[nodiscard]] inline const CurseDef& curseDef(Curse c) { return CURSES[static_cast<size_t>(c)]; }
+[[nodiscard]] inline const CurseDef& curseDef(Curse c) { return CURSES[std::to_underlying(c)]; }
 
 // A monster's chance to lay a curse with a hit that lands (MonsterKind::meleeCurses, rangedCurses). percent 0: none.
 struct CurseEntry {
@@ -69,8 +70,8 @@ class Curses {
 	// Lays it for a custom duration in ms (used by skills that change curse time). Same grade rules as Lay.
 	bool Lay(Curse c, CurseGrade grade, int durationMs);
 	[[nodiscard]] bool Has(Curse c) const { return LeftMs(c) > 0; }
-	[[nodiscard]] int LeftMs(Curse c) const { return running[static_cast<size_t>(c)].leftMs; }
-	[[nodiscard]] CurseGrade Grade(Curse c) const { return running[static_cast<size_t>(c)].grade; }
+	[[nodiscard]] int LeftMs(Curse c) const { return running[std::to_underlying(c)].leftMs; }
+	[[nodiscard]] CurseGrade Grade(Curse c) const { return running[std::to_underlying(c)].grade; }
 	[[nodiscard]] bool Greater(Curse c) const { return Has(c) && Grade(c) == CurseGrade::Greater; }
 	[[nodiscard]] bool Any() const;
 	// Time passes; returns a bit per curse that ran out.

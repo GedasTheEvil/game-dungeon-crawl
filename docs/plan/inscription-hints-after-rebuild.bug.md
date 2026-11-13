@@ -1,6 +1,6 @@
 # Inscription hints and a notebook page that the campaign rebuild made wrong
 
-Status: draft 2026-11-13, size M, needs nothing first.
+Status: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
 
 From the lore audit of 2026-11-13. The texts of `content/inscriptions/campaign.txt` were written for the old
 35-level campaign; several carry a hint about the spot they stood on ("the green key is inside the pillar", "a hole
@@ -76,3 +76,10 @@ says so too ("lvl43: The third route fork").
 * `bin/game --level 41`: read the inscription by the ladder at (30, 39); its words fit this level.
 * `bin/game --level 38`, `--level 49`, `--level 50`: the Book of Gates text, the pillar text and Kha's text no longer
   promise a red door, a hole or a tomb that is not there.
+
+## Implemented
+
+Rewrote the hints of ids 8, 9, 14, 16, 20, 22, 27, 30 in `campaign.txt` (id 8 now lapis, turquoise, gold; the rest drop
+the spot, keep the real source lines and the `boon:`). The `# ---- level N` comments are now `# ---- lvlN` above each
+id, from the wall fixture lines. Page 22 says "A third fork ahead". Test: `inscription-hints-after-rebuild` in
+`tests/unit/inscriptions_test.cpp`.

@@ -1,8 +1,8 @@
-# The campaign's wall inscriptions, by level (plan hieroglyph-cartouches). Format: docs/inscriptions.md.
+# The campaign's wall inscriptions, by id; the comment above each names its level now (plan hieroglyph-cartouches). Format: docs/inscriptions.md.
 # Real texts in short translations, a few hints for the level they stand in. After changing a G: or style: line,
 # rebuild the atlas: python3 tools/textures/inscriptions.py
 
-# ---- level 6
+# ---- lvl14
 
 id: 1
 title: The offering formula
@@ -14,7 +14,7 @@ T: every good and pure thing on which a god lives,
 T: for the spirit of the one buried here.
 N: The standard tomb greeting. The ancient "Dear Sir or Madam".
 
-# ---- level 7: the first crocodile waits in the flooded stretch to the west.
+# ---- lvl29
 
 id: 2
 title: The curse of Meni
@@ -27,7 +27,7 @@ T: Never did I do a thing against him.
 T: It is the god who will judge him.
 N: A crocodile in the water. Oddly specific. Noted.
 
-# ---- level 8
+# ---- lvl15
 
 id: 3
 title: The ushabti spell
@@ -40,7 +40,7 @@ T: "Here I am!" you shall say, and your legs shall not tire.
 boon: stamina 10
 N: Servants who answer "Here I am!" My students never did.
 
-# ---- level 9
+# ---- lvl16
 
 id: 4
 title: The song of the harper
@@ -52,7 +52,7 @@ T: Make holiday, do not weary of it!
 T: No one goes away and comes back again.
 N: The cheeriest advice in Egypt, carved in a tomb. Naturally.
 
-# ---- level 10: the vampire bat (Bat of Shezmu) heals by part of the damage it deals.
+# ---- lvl9
 
 id: 5
 title: Shezmu, lord of the press
@@ -64,6 +64,8 @@ T: He drinks the life of those he bites:
 T: strike hard and fast, and keep your blood in you.
 N: So the big bat heals when it bites. Bring potions.
 
+# ---- lvl16
+
 id: 6
 title: The instruction of Ptahhotep
 style: column
@@ -74,7 +76,7 @@ T: the limits of art are never reached,
 T: and no craftsman ever reaches perfection.
 N: Advice for professors. I shall pretend I did not read it.
 
-# ---- level 11: the first mummies.
+# ---- lvl17
 
 id: 7
 title: Not dying a second time
@@ -86,29 +88,31 @@ T: I rise, I breathe the breath of life, I walk again.
 boon: life 10
 N: Book of the Dead, spell 44. The mummies took it rather literally.
 
-# ---- level 12: red key, green lever, gold key, in that order.
+# ---- lvl38
 
 id: 8
 title: The Book of Gates
 style: row
 G: O32 O32 O32 I14 R8 Z2
 T: Every hour of the night has its gate, every gate its keeper.
-T: The carnelian door opens first, then the turquoise,
+T: The lapis door opens first, then the turquoise,
 T: and the golden door last of all.
 T: Who knows the order passes.
-N: Red, then green, then gold. Even the ancients had keycards.
+N: Blue, then green, then gold. Even the ancients had keycards.
 
-# ---- level 13: rock falls, the first Anubis.
+# ---- lvl30
 
 id: 9
 title: A workmen's note
 style: row
 G: A9 A9 A1 Z2 O1
 T: Painted in red ochre by the crew of the left side:
-T: The ceiling is cracked here, sand runs from it.
-T: Do not linger under it. Work stops until the
+T: The ceilings are cracked, sand runs from them.
+T: Do not linger under them. Work stops until the
 T: stonecutters come. Day 12, the scribe Ramose.
 N: Ancient health and safety. Mind the loose ceilings.
+
+# ---- lvl15
 
 id: 10
 title: Anubis upon his mountain
@@ -119,7 +123,7 @@ T: foremost of the divine booth, he who is in the place
 T: of embalming. His statues keep watch, and they do not sleep.
 N: The jackal statues here look very... attentive.
 
-# ---- level 14
+# ---- lvl17
 
 id: 11
 title: The negative confession
@@ -131,7 +135,7 @@ T: I have not taken the offerings of the dead.
 T: I have not robbed a tomb.
 N: Book of the Dead, spell 125. That last one feels personal.
 
-# ---- level 15: the scorpion queen's brood hatches from the egg clusters.
+# ---- lvl20
 
 id: 12
 title: Serket
@@ -143,6 +147,8 @@ T: Her brood hatches from the eggs at her side:
 T: break the clutch, and she stands alone.
 N: Smash the eggs first. Sorry, little ones.
 
+# ---- lvl19
+
 id: 13
 title: A spell against stings
 style: column
@@ -153,7 +159,7 @@ T: the poison of Serket is cast out.
 T: You shall not rise, you shall not climb.
 N: Shouting at poison does not work. Antidotes do.
 
-# ---- level 16: the first dart trap, east of this inscription. A jump does not press the plate.
+# ---- lvl24
 
 id: 14
 title: The spitting wall
@@ -162,9 +168,9 @@ G: D58 X1 O36 I10 I10 Z2
 T: Cursed be the foot that treads on the slab
 T: before the house of the serpent.
 T: The wall shall spit its venom at him three times.
-N: A pressure plate ahead, darts in the wall. Jump over it.
+N: Darts in the wall, a plate under the foot. Look down.
 
-# ---- level 17
+# ---- lvl29
 
 id: 15
 title: Hymn to Hapi
@@ -176,20 +182,19 @@ T: He floods the fields that Ra has made,
 T: he gives drink to the desert.
 N: A lovely hymn. Hapi also floods corridors, it seems.
 
-# ---- level 18: the green key lies inside the pillar, reached round it.
+# ---- lvl41
 
 id: 16
 title: The djed of Osiris
 style: column
 G: R11 R11 R11 Q1 D4 A40
 T: The djed stands for ever, the backbone of Osiris.
-T: What is green rests within the pillar,
-T: in the house that has no door but the way around.
+T: At the new year the djed is raised, and Osiris stands again.
 T: Stand firm as the djed, and no blow shall break you.
 boon: armor 1
-N: The green key is inside the pillar? Pillars have insides now.
+N: A pillar that is a god's backbone. Stand firm, it says.
 
-# ---- level 19: Apep, the boss of level 20, burrows and comes up behind the player.
+# ---- lvl26
 
 id: 17
 title: The serpent of chaos
@@ -201,7 +206,7 @@ T: and he rises again behind the one he hunts.
 T: Turn, and face him where he comes up.
 N: A giant burrowing snake. And this way leads down.
 
-# ---- level 20
+# ---- lvl27
 
 id: 18
 title: Overthrowing Apep
@@ -215,7 +220,7 @@ T: The strength of Montu is in the arm that strikes you.
 boon: might 1
 N: The priests spat on him every day. I will use a weapon.
 
-# ---- level 21: the desert begins; sand slows, and the drifts hide worms.
+# ---- lvl33
 
 id: 46
 title: Sinuhe in the desert
@@ -228,7 +233,7 @@ T: Then I lifted my heart and gathered my limbs,
 T: for I heard the lowing of cattle.
 N: Sinuhe made it across. Somebody brought him milk. Nobody brings me milk.
 
-# ---- level 22
+# ---- lvl36
 
 id: 47
 title: Seth in the prow
@@ -241,7 +246,7 @@ T: and the serpent sinks into the sand.
 T: Every night the sun passes, because of him.
 N: So he had a good side. Apep certainly thought otherwise.
 
-# ---- level 23: the sand flows here; whoever stands still sinks.
+# ---- lvl38
 
 id: 48
 title: The ways of Rosetau
@@ -253,7 +258,7 @@ T: They are not seen, they are not perceived.
 T: Whoever stands still upon them is taken by the sand.
 N: The Amduat, fourth hour. With a footnote I do not remember from the papyrus.
 
-# ---- level 24: Seth waits below as the red hippopotamus; a spear is his bane.
+# ---- lvl37
 
 id: 49
 title: The red hippopotamus
@@ -265,7 +270,7 @@ T: And Horus took up his harpoon of copper
 T: and cast it at the majesty of Seth.
 N: Copper harpoon. I have a spear. Close enough, I hope.
 
-# ---- level 25
+# ---- lvl37
 
 id: 50
 title: The first harpoon
@@ -279,7 +284,7 @@ T: who slays the red one in the waters.
 boon: might 1
 N: The Edfu play, act two. Horus's arm, they say. My arm takes what it can get.
 
-# ---- level 26: the teleporter at the end of this passage leads to a hidden treasure cistern.
+# ---- lvl28
 
 id: 19
 title: A visitor's graffito
@@ -290,16 +295,18 @@ T: He found it as though heaven were within it,
 T: the sun rising in it.
 N: Ancient tourist graffiti. Some things never change.
 
+# ---- lvl30
+
 id: 20
 title: The cistern treasury
 style: column
 G: O1 S12 N35A N35A Z2
 T: Below the halls lies the treasury of the cistern.
-T: The priests went down by the gate of light
-T: at the end of this passage. Water above, gold below.
-N: A teleporter to a treasure room? Lead the way.
+T: Only the priests knew the way to it.
+T: Water above, gold below.
+N: Treasure under the water. Lead the way.
 
-# ---- level 27
+# ---- lvl30
 
 id: 21
 title: The satire of the trades
@@ -312,7 +319,7 @@ T: Be a scribe! It saves you from toil.
 boon: stamina 10
 N: Ancient career advice: be a scribe. I became an archaeologist.
 
-# ---- level 28: a dart trap right behind this inscription.
+# ---- lvl25
 
 id: 22
 title: The instruction of Amenemhat
@@ -322,9 +329,9 @@ T: Trust no brother, know no friend,
 T: make for yourself no intimates: it is worthless.
 T: When you lie down, guard your heart yourself,
 T: for no man has followers on the day of woe.
-N: A king's advice to his son. Paranoid, but this hall has darts.
+N: A king's advice to his son. Paranoid, but fair.
 
-# ---- level 29: Sobek, the boss of level 30, charges along the row.
+# ---- lvl31
 
 id: 23
 title: Sobek of Shedet
@@ -335,7 +342,7 @@ T: When he sees you, he charges straight along the water.
 T: Do not stand in his line; step aside, and strike.
 N: The crocodile god is near. Rule one: do not stand in front of him.
 
-# ---- level 30
+# ---- lvl32
 
 id: 24
 title: Hymn to Sobek
@@ -347,7 +354,7 @@ T: His children come from the water when he calls,
 T: and the lake is his.
 N: Lovely. I would still rather not meet him.
 
-# ---- level 31
+# ---- lvl48
 
 id: 25
 title: A tomb robber's confession
@@ -359,6 +366,8 @@ T: We took the gold, the amulets and the jewels,
 T: and we set fire to their coffins.
 N: Testimony from a robbery trial, 1100 BC. In my defence: I take notes.
 
+# ---- lvl49
+
 id: 26
 title: The curse of Khentika
 style: row
@@ -368,18 +377,18 @@ T: I shall seize his neck like a bird's.
 T: There will be judgment, and an end shall be made of him.
 N: I washed my hands this morning. That counts, surely.
 
-# ---- level 32: the drop just west of this inscription leads into the hidden chamber in the pillar.
+# ---- lvl49
 
 id: 27
 title: The treasury in the pillar
 style: column
 G: O28 O1 S12 D54 R8
 T: The house of eternity is within the pillar.
-T: Go down where the floor is open,
-T: and the gold of the god is yours.
-N: There is a hole in the floor right here. Subtle, ancients.
+T: The gold of the god lies in it,
+T: for him who is worthy of it.
+N: Gold in a pillar. I will look at every pillar from now on.
 
-# ---- level 33
+# ---- lvl50
 
 id: 28
 title: The heart scarab
@@ -393,7 +402,7 @@ T: Be granite in my breast, and do not crack.
 boon: armor 1
 N: Book of the Dead, spell 30B. Mine would tip it: too much coffee.
 
-# ---- level 34: the hidden tomb is below the exit hall, down the drop east of this inscription, out by the ladder.
+# ---- lvl54
 
 id: 29
 title: King of kings
@@ -406,16 +415,18 @@ T: and the strength of kings is his.
 boon: might 1
 N: As Diodorus tells it. Shelley had a few words about that.
 
+# ---- lvl50
+
 id: 30
 title: The overseer of works
 style: column
 G: G17 D21 A1 O1 S12
-T: Here rests the overseer of works Kha, beneath this floor,
-T: with his gold and his beer. Go down, if you dare;
-T: the way up is by the ladder of the workmen.
-N: A tomb below the floor. And a ladder out. How thoughtful.
+T: Here rests the overseer of works Kha, with his gold
+T: and his beer. Let none disturb him: the workmen
+T: who built his house were many, and they watch.
+N: A tomb with a name on it. Tomb robbers, take note.
 
-# ---- level 35: the Anubis boss guards the ankh; his mummies climb out of the coffins.
+# ---- lvl54
 
 id: 31
 title: Lord of the necropolis
@@ -425,6 +436,8 @@ T: Anubis, lord of the necropolis, weighs the heart
 T: of all who enter. His sleepers rise from their coffins
 T: to serve him. The ankh of life lies behind him.
 N: The ankh is behind the big jackal. Of course it is.
+
+# ---- lvl50
 
 id: 32
 title: Going forth by day
@@ -436,7 +449,7 @@ T: I go out into the day, I live after death,
 T: as Ra does every day.
 N: The "Book of the Dead" is really "Going Forth by Day". Fitting.
 
-# ---- The secret rooms behind the name gates (plan secret-name-gates): one lore text per room, levels 6 to 35.
+# ---- The secret rooms behind the name gates (plan secret-name-gates): one lore text per room, levels 2 to 52.
 
 id: 33
 title: The steward's hoard
@@ -567,6 +580,8 @@ T: and with it the breath of life that was his.
 N: The right of those who read. I like this rule. Very much.
 boon: life 10
 
+# ---- lvl33
+
 id: 51
 title: The water carriers
 style: row
@@ -576,6 +591,8 @@ T: Forty jars a day, from the oasis below.
 T: The jars we filled for ourselves
 T: we hid here, behind my lord's name.
 N: Three thousand years of rationing. The jars are dry. The rest is not.
+
+# ---- lvl34
 
 id: 52
 title: The servant of Seth

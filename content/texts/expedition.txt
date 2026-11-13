@@ -111,7 +111,7 @@ text: The chests are darker down here, and some of them follow you. One bit me a
 [page.22]
 heading: Day 38
 text: A lake of fire, and baboons on its shore who throw coals from afar. Corner them or run them down; never stand
-	in the open. The water is the one cool place here. A second fork ahead: the right is shorter. It always is.
+	in the open. The water is the one cool place here. A third fork ahead: the right is shorter. It always is.
 
 [page.23]
 heading: Day 40

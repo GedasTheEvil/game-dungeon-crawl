@@ -5,6 +5,8 @@
 #include "../../src/level/journal.h"
 #include "../../src/level/progression.h"
 #include "sim_world.h"
+#include <fstream>
+#include <iterator>
 #include <set>
 #include <sstream>
 #include "../../src/core/paths.h"
@@ -340,4 +342,36 @@ TEST_CASE("every inscription id has a text and a G: line") {
 		CAPTURE(text.source);
 		CHECK_FALSE(text.glyphs.empty());
 	}
+}
+
+TEST_CASE("inscription-hints-after-rebuild: no campaign text points at a spot the rebuild took away") {
+	InscriptionBook book;
+	REQUIRE(book.Load(CONTENT_DIR "inscriptions").empty());
+	const auto all = [&](int id) {
+		const InscriptionText* t = book.Find(id);
+		REQUIRE(t != nullptr);
+		std::string s = t->note;
+		for (const std::string& line : t->text)
+			s += " " + line;
+		return s;
+	};
+	const auto has = [&](int id, const char* word) { return all(id).find(word) != std::string::npos; };
+	CHECK_FALSE(has(8, "carnelian")); // lvl38 has a blue, a green and a gold door, no red
+	CHECK_FALSE(has(8, "Red,"));
+	CHECK_FALSE(has(16, "within the pillar")); // the green key is not in a pillar on lvl41
+	CHECK_FALSE(has(16, "green key"));
+	CHECK_FALSE(has(27, "Go down")); // no hole under it on lvl49
+	CHECK_FALSE(has(27, "hole in the floor"));
+	CHECK_FALSE(has(30, "beneath this floor")); // lvl50: solid rock below
+	CHECK_FALSE(has(30, "ladder"));
+	CHECK_FALSE(has(20, "gate of light")); // no teleporter on its row on lvl30
+	CHECK_FALSE(has(20, "teleporter"));
+	CHECK_FALSE(has(22, "has darts"));
+	CHECK_FALSE(has(14, "plate ahead"));
+	CHECK_FALSE(has(9, "cracked here"));
+
+	std::ifstream in(CONTENT_DIR "texts/expedition.txt");
+	REQUIRE(in);
+	const std::string file((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	CHECK(file.find("A second fork ahead") == std::string::npos); // page 22 is on the third fork, lvl43
 }

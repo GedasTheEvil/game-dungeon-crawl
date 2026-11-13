@@ -1,6 +1,6 @@
 # A save cut in the bag, or with an unknown bag tag, quits the game
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
 ## Problem
 
@@ -48,5 +48,8 @@ The game quits: `std::invalid_argument` from `std::stoi` in `ItemBag::Load`.
 
 ## Play-test
 
-* Not needed beyond the test (no gameplay change): copy a save, cut it after the `OFFERINGS` line, Load it: a "could
-  not load" message, the game keeps running.
+* Play command: `bin/game --level 1` (save once, then cut the copy).
+* Copy a save, cut it after the `OFFERINGS` line (or change `INV8` to `INV9`), Load it: a "could not load" message, the
+  game keeps running.
+* Implemented: `ItemBag::Load` parses the legacy count and type with `std::from_chars` and sets the failbit on a bad
+  token; no other `std::stoi` reads a save (only `dungeon_save.cpp:98`, caught). Test: `tests/unit/save_load_safety_test.cpp`.

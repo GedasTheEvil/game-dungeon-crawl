@@ -80,6 +80,30 @@ TEST_CASE("a broken save leaves the game as it was; a good one loads") {
 	CHECK(saved(world) == good);
 }
 
+// Plan save-bag-parse-crash: a save cut in the player's part, or with an unknown bag tag, is a broken save, not an
+// exception that quits the game.
+TEST_CASE("a save cut after the stats, or with an unknown bag tag, does not throw and leaves the game as it was") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/win_run"));
+	UiViewState view;
+	const SaveParts parts{world.dungeon, world.player, world.items, world.journal, view};
+	const std::string good = saved(world);
+
+	const size_t offerings = good.find("OFFERINGS ");
+	REQUIRE(offerings != std::string::npos);
+	const std::string cutStats = good.substr(0, good.find('\n', offerings) + 1);
+	CHECK_FALSE(loadSaveGame(cutStats, parts));
+	CHECK(saved(world) == good);
+
+	const size_t tag = good.find("INV8");
+	REQUIRE(tag != std::string::npos);
+	std::string newer = good;
+	newer[tag + 3] = '9';
+	CHECK_FALSE(loadSaveGame(newer, parts));
+	CHECK(saved(world) == good);
+}
+
 TEST_CASE("a slot shows the save's level, the character level and the play time") {
 	const std::string dir = "build/save_load_safety_slots";
 	std::filesystem::remove_all(dir);

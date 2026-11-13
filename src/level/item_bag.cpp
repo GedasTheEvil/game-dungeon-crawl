@@ -2,6 +2,7 @@
 #include "journal.h"
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstring>
 #include <istream>
@@ -463,6 +464,14 @@ void ItemBag::Save(std::ostream& out) const {
 	out << " " << static_cast<int>(olderHand) << "\n";
 }
 
+namespace {
+bool parseInt(const std::string& text, int& value) {
+	const char* end = text.data() + text.size();
+	const auto [stop, error] = std::from_chars(text.data(), end, value);
+	return error == std::errc() && stop == end;
+}
+} // namespace
+
 void ItemBag::Load(std::istream& in) {
 	RefillShots();
 	for (int& count : counts)
@@ -524,7 +533,12 @@ void ItemBag::Load(std::istream& in) {
 			in >> older;
 		}
 	} else {
-		counts[itemIndex(OLD_SLOTS[0])] = std::stoi(tok);
+		int first = 0;
+		if (!parseInt(tok, first)) { // neither a known tag nor a number: a broken save, or one from a newer build
+			in.setstate(std::ios::failbit);
+			return;
+		}
+		counts[itemIndex(OLD_SLOTS[0])] = first;
 		for (int slot = 1; slot < LEGACY_SLOT_COUNT; slot++)
 			in >> counts[itemIndex(OLD_SLOTS[slot])];
 
@@ -533,7 +547,10 @@ void ItemBag::Load(std::istream& in) {
 		// Peek at the next token: if it contains '.', it's mapX — rewind and skip.
 		auto pos = in.tellg();
 		if ((in >> tok) && tok.find('.') == std::string::npos) {
-			type = std::stoi(tok);
+			if (!parseInt(tok, type))
+				in.setstate(std::ios::failbit);
+			if (!in)
+				return;
 			if (!(in >> id))
 				in.clear();
 		} else {

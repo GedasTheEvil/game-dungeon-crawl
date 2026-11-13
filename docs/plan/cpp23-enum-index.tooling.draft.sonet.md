@@ -1,6 +1,6 @@
 # Index arrays by enum with std::to_underlying
 
-Status: draft 2026-11-13, size M, needs [cpp23-standard](cpp23-standard.tooling.draft.sonet.md) first.
+Status: draft 2026-11-13, size M, needs [cpp23-standard](solved/cpp23-standard.tooling.md) first.
 
 Rank 2 of 5 in the C++23 set: the most call sites and the most noise removed.
 

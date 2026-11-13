@@ -46,6 +46,14 @@ read their file arguments from the current directory.
   tests'
   sim (`tests/unit/sim_world.h`) on an arena hall; `BALANCE_TRACE=1` prints each fight once a second.
 
+### C++23
+
+The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`). In new code:
+
+* `std::to_underlying` for an enum used as an index.
+* `string::contains` (and `std::ranges::contains`) for a membership test.
+* `std::unreachable()` after an exhaustive switch.
+
 ## Project layout
 
 * `src/` - one directory per library, then the game ([Libraries](#libraries), plan src-dirs-by-layer): `core` (base),

@@ -1,6 +1,6 @@
 # Build with C++23
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-13. Was: draft 2026-11-13, size S, needs nothing first.
 
 Rank 1 of 5 in the C++23 set: the other four need it. Alone it changes no code; it lets new code use C++23.
 
@@ -25,6 +25,6 @@ feature. The toolchain is ready: g++ 15.2, clang-tidy and clang-format 21.1.
 
 ## Not in this plan
 
-No code rewrite. The follow-ups: [cpp23-enum-index](cpp23-enum-index.tooling.draft.sonet.md),
-[cpp23-string-contains](cpp23-string-contains.tooling.draft.sonet.md),
-[cpp23-idioms](cpp23-idioms.tooling.draft.opus.md), [cpp23-print](cpp23-print.tooling.draft.sonet.md).
+No code rewrite. The follow-ups: [cpp23-enum-index](../cpp23-enum-index.tooling.draft.sonet.md),
+[cpp23-string-contains](../cpp23-string-contains.tooling.draft.sonet.md),
+[cpp23-idioms](../cpp23-idioms.tooling.draft.opus.md), [cpp23-print](../cpp23-print.tooling.draft.sonet.md).

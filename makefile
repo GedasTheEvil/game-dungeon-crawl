@@ -8,8 +8,8 @@ MARCH=-march=native
 endif
 RM=rm -f
 # -Wno-missing-field-initializers: a table row in designated initializers leaves out what it does not need.
-CXXFLAGS=-std=c++20 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
-TIDY_CPPFLAGS=-std=c++20 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
+TIDY_CPPFLAGS=-std=c++23 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
 # Game and tools link only what they use: GL for every window, SDL (audio) for the game alone.
 GL_LIBS=-lX11 -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib
 SDL_LIBS=-lSDL_mixer -lSDL

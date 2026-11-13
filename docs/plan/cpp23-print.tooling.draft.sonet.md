@@ -1,6 +1,6 @@
 # Tools print with std::println
 
-Status: draft 2026-11-13, size M, needs [cpp23-standard](cpp23-standard.tooling.draft.sonet.md) first.
+Status: draft 2026-11-13, size M, needs [cpp23-standard](solved/cpp23-standard.tooling.md) first.
 
 Rank 5 of 5 in the C++23 set, the lowest gain: `-Wall` already checks `printf` format strings (`-Wformat`), so type
 safety is mostly there, and `<print>` costs compile time. Do it last, or drop it.

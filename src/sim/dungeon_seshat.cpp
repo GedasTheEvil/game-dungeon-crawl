@@ -25,7 +25,7 @@ std::vector<std::vector<int>> secretRooms(const Tile* cells) {
 			const int col = room[k] % LEVEL_WIDTH, row = room[k] / LEVEL_WIDTH;
 			const Tile& t = cells[room[k]];
 			open = t.type == Door && (t.attr == GateEntrance || t.attr == GateExit);
-			for (const auto [dc, dr] : {std::pair{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+			for (const auto& [dc, dr] : {std::pair{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
 				const int c = col + dc, r = row + dr;
 				if (c < 0 || c >= LEVEL_WIDTH || r < 0 || r >= LEVEL_HEIGHT)
 					continue;

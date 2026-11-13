@@ -1,6 +1,6 @@
 # Serket's favour and Blessing of Isis: 10% to resist poison or a curse
 
-Status: implemented 2026-11-12, waiting for the user's play-test. Was: draft 2026-11-12, size S, needs nothing first.
+Status: solved 2026-11-13 (play-tested by the user). Was: implemented 2026-11-12, waiting for the user's play-test. Was: draft 2026-11-12, size S, needs nothing first.
 
 ## Idea
 
@@ -10,7 +10,7 @@ From the user. Both god skills get one more bonus, always on once learnt:
 * Blessing of Isis: 10% chance that a curse does not land.
 
 On top of what they already do (half as long, the longer shrine ward, the cure on learning,
-[learn-skill-cures](solved/learn-skill-cures.feature.md)). From any source, like the shrine wards.
+[learn-skill-cures](learn-skill-cures.feature.md)). From any source, like the shrine wards.
 
 ## Plan
 

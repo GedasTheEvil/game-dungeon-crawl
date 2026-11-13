@@ -1,6 +1,6 @@
 # Map: legend symbols from a sprite sheet, shrines and other missing marks
 
-Status: draft 2026-11-13, size M, needs nothing first. From the user.
+Status: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the user.
 
 ## Idea
 
@@ -85,12 +85,27 @@ Open points (the implementer's choice unless the user says otherwise):
   prop with a verb in `InteractVerb` has one, every mark has a name and an atlas cell inside the sheet's grid.
 * Scenario with a screenshot: a test level with every mark, the map open, the legend complete.
 
+## Implemented
+
+* Marks, table and `cellMark` (object, else fixture, else a taken treasure, else prop) in `src/level/map_marks.h`;
+  the map draws sprites only (`markQuad`, `src/ui/map_view.cpp`); `symbol()` and its helpers are gone.
+* A mark a god ("Shrine of Isis" ...), the god's sign in the naos. The Stargate is one symbol on its cell.
+* The sphinx gate: two marks, "Sphinx gate" (gold) and "Sphinx gate, answered" (grey); the bare arch is gone.
+* The chest: a taken treasure leaves no `Treasure` object, only its open container (`ContainerCell::emptied`), and
+  showed nothing. It is now a pale X, "Treasure, taken". A chest opened but not yet emptied keeps the red X: the
+  loot is still there.
+* The mirror's whole sprite turns with it (post and all), as the draft's "turned by quarter turns" says.
+* The wobble in the sheet is half the old one (0.035 of a cell): at sprite size the old one read as scribble.
+* Left out: the names in a text file beside the sheet (open point; they stay in `MARK_DEFS`).
+* No campaign level has ceiling spikes yet: they show on the test level only.
+
 ## Play-test
 
-* `bin/game --level 9` (a Shrine of Isis), walk to the shrine, open the map `[M]`: the shrine has a symbol and a
-  legend row.
-* `bin/game --level 13` (Montu) or 7 (Amun): the same; with a mark a god, the row names the god.
-* A level with a sphinx gate: a golden question mark on the map; answer the riddle: it turns grey.
-* A level with a brazier: it shows.
-* Any level: the old symbols (ladder, chest, key, gate, lever, traps) look as before, sharp at 1x and zoomed in.
-* A level with a Stargate chamber and one with ceiling spikes: both show.
+* `bin/game --play tests/play/map-legend-sprites.txt`: walk right to the corridor's end, open the map `[M]`: every
+  mark has a symbol and a legend row, among them the five shrines by god, the Stargate, the dial device, the
+  brazier, ceiling spikes and the ceiling death trap. Zoom in (`+`): the symbols stay sharp.
+* `bin/game --level 9` (a Shrine of Isis) or 13 (Montu, braziers): the shrine and the braziers show once seen; the
+  old symbols (ladder, chest, key, gate, lever, traps) look as before.
+* Any level: the sphinx gate has a golden question mark; answer the riddle: it turns grey ("Sphinx gate, answered").
+* Take a treasure: its red X turns pale ("Treasure, taken").
+* `bin/game --level 48`: the Stargate and its dial device show in the chamber.

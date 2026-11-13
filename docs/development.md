@@ -92,7 +92,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
   name, editor text, decor flags, glyph, editor icon; the icon drawn by `tools/editor/icons/make_icons.py`), and its
   glyph in the legend. A thing on the back wall is a wall type: add it to `isWallType` (`level.h`), read it from
   `Tile::fixture` and draw it in `Dungeon::drawFixture`. `-Wswitch` then flags `Dungeon::drawTileContent`; the checker (`level_check.cpp`), the draft
-  map (`ui/map_view.cpp`: `markOf`, a `MapMark` with its legend name and symbol) and the editor's hints (`describeCell`, `tools/editor/tile_info.cpp`) need a look by hand.
+  map (`level/map_marks.h`: `thingMark`, a `MapMark` with its legend name and its sprite, [ui.md](ui.md#draft-map)) and the editor's hints (`describeCell`, `tools/editor/tile_info.cpp`) need a look by hand.
 * **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/level/monster_kinds.cpp`): names, glyph,
   threat, stats, model, resistances, wading, poison, ranged attack, boss summons, levelgen weights. Only the fields that differ
   from the defaults in `MonsterKind`.
@@ -220,7 +220,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `level/gameplay_confi
 | Options and the settings file | `Settings` (`level/settings_ini.*`, the file `state/settings.*`, [settings.md](settings.md)), the Options rows and key cells in `ui/menu_options.cpp` |
 | Frame rate cap | `graphics/frame_rate.*` (`FrameRate::set`, `idle`), `frameRedrawDue` (`level/settings_ini.*`) |
 | Brightness, mouse sensitivity, master volume, window sizes | `render/brightness.*` (`Brightness::apply`, before the swap in `graphics/draw.cpp`), `brightenedChannel`, `mouseTurnPerPixel`, `playedVolume`, `windowSizes` (`level/settings_ini.*`) |
-| Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (each section's pages `ui/journal_pages.cpp`; data `level/journal.*`, its words: creature moves, field notes, diary `level/journal_text.*`, the prose in `content/texts/`; the new game's prologue `GameState::NewGame`), `ui/map_view.*`, `ui/skills_*`, `ui/menu*`, `ui/riddle.*` |
+| Screens: inventory, journal, map, Heka, menu, riddle | `ui/inventory*`, `ui/journal_view.*` (each section's pages `ui/journal_pages.cpp`; data `level/journal.*`, its words: creature moves, field notes, diary `level/journal_text.*`, the prose in `content/texts/`; the new game's prologue `GameState::NewGame`), `ui/map_view.*` (its symbols: `level/map_marks.h`, the sheet `tools/textures/map_marks.py`, [ui.md](ui.md#draft-map)), `ui/skills_*`, `ui/menu*`, `ui/riddle.*` |
 | Player-facing prose: field notes, diary, expedition pages, creature moves, monster notes, skill and item lore | `content/texts/*.txt` ([texts.md](texts.md)), read by `gameText` (`level/texts.*`); the keys asked in `level/journal_text.cpp`, `level/skills.cpp`, `level/items.cpp` |
 | HUD (the quick slots: weapon, potions, antidote, amulet; the XP line and the level badge) | `ui/player_hud*` (`playerHudView` fills the slots), `ui/boss_bar.*`, `ui/status_box.*`, `ui/level_gem.*` |
 | Status cards (the player's HUD row, a monster's over its health bar, the boss's over its HUD bar) and the shared vitals they read (HP, poison, fire, water, daze / stun) | `Vitals`, `Harm`, `Guard` (`level/vitals.h`, plan shared-vitals); `addConditions`, `statusList`, `monsterStatuses` (`level/status_list.*`); `PlayerHud::drawStatusCard` (`ui/player_hud.cpp`), `drawStatusRow` (`graphics/monster_draw.cpp`), `BossBar::draw`; icons `tools/textures/hud_icons.py` |

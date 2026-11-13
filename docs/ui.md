@@ -251,13 +251,50 @@ window-wide one, so it stays in the same place. Its clicks are handled before th
 
 ### Draft map
 
-A pencil sketch of the explored cells on a portrait papyrus sheet, one symbol a cell (`MapMark`: the object, else
-the fixture), keys, gates, levers and sun discs in their lock colour, the boss gate in obsidian with a red seal,
-teleporters and ring platforms in teal, a name gate's cartouche in gold. Left of the sheet a narrower slip, the
-legend: a row per mark drawn so far (its first explored tile as the sample), then "You"; in a narrow window it lies
-over the sheet's margin. The wheel (round the mouse) and `+` / `-` zoom from the fit (1x) up to `MapZoom::MAX_CELL`;
-a drag and the arrows pan within the 1x view; the sketch is clipped to the sheet (clip planes). A new level starts at
-1x ([map-symbols-and-zoom](plan/solved/map-symbols-and-zoom.md)).
+A pencil sketch of the explored cells on a portrait papyrus sheet, one symbol a cell (`MapMark`,
+`src/level/map_marks.h`: the object, else the fixture, else a taken treasure's open container, else the prop: a shrine,
+the Stargate, its dial device, a brazier). Left of the sheet a narrower slip, the legend: a row per mark drawn so far
+(its first explored thing as the sample, so the row shows that one's colour and state), then "You"; in a narrow window
+it lies over the sheet's margin. The wheel (round the mouse) and `+` / `-` zoom from the fit (1x) up to
+`MapZoom::MAX_CELL`; a drag and the arrows pan within the 1x view; the sketch is clipped to the sheet (clip planes). A
+new level starts at 1x ([map-symbols-and-zoom](plan/solved/map-symbols-and-zoom.md)).
+
+Walls, hatching, outlines, water and the "you are here" ring are pencil strokes in code. The symbols are sprites
+([map-legend-sprites](plan/map-legend-sprites.feature.md)): `media/textures/ui/map_marks.png`, 8 x 6 cells
+of 128 px, mipmapped, the same sprite on the sketch and in the legend (`markQuad`). A sprite holds the map cell in its
+middle with an eighth of its width free on every side (`MAP_MARK_MARGIN`), so strokes may run a little over the cell.
+`MARK_DEFS` has one row a mark: its legend name, its tint, its turn, the cell of its second look.
+
+* Colour: keys, gates, levers and sun discs are white sprites, tinted with the lock colour's pencil
+  (`MarkTint::Lock`); every other colour is in the sprite (the entrance red, the exit blue, teleporters and ring
+  platforms teal, a name gate's cartouche gold, the boss gate obsidian with a red seal).
+* Two looks, a cell each (`MarkDef::stateCell`): a gate closed / open, the boss gate sealed / open, a lever up /
+  pulled, a rock fall armed / fallen.
+* A way: one sprite, turned by quarter turns (`MarkTurn`): a light shaft and a mirror are drawn pointing down, a
+  sandstorm blowing right.
+* A sphinx gate shows a golden question mark while its riddle is open, a grey one once answered (a mark each).
+* A treasure is a red X, a pale one once taken. Monsters (but a mimic, as the chest it plays), quicksand and plain
+  decor stay off the map.
+
+The sheet's cells, the first row at the PNG's top, in `MapMark` order:
+
+| Row | Cells |
+|---|---|
+| 1 | Entrance, Exit, Sphinx gate, Sphinx gate answered, Teleporter, Ring platform, Name gate, Ladder |
+| 2 | Treasure, Treasure taken, Key, Gate, Boss gate, Lever, Spikes, Death trap |
+| 3 | Ceiling spikes, Ceiling death trap, Rock fall, Dart plate, Wall spikes, Fire vent, Poison drip, Sandstorm |
+| 4 | Light shaft, Mirror, Sun disc, Inscription, Notebook page, Ankh, Shrine of Isis, Shrine of Montu |
+| 5 | Shrine of Ptah, Shrine of Amun, Shrine of Serket, Stargate, Dial device, Brazier, Gate open, Boss gate open |
+| 6 | Lever pulled, Rock fallen, then free |
+
+The sheet comes from `tools/textures/map_marks.py` (run by hand: `python3 tools/textures/map_marks.py`; no build step
+runs it). A symbol may also be corrected in an image editor. Once the PNG is edited by hand the script is out of date
+for those cells: from then on run it to a side file (`map_marks.py out.png`) and copy only the new cells over.
+
+A new mark: a sprite in the next free cell (a function in the script's `MARKS`), a `MapMark` before `None` with its
+`MARK_DEFS` row, a case in `thingMark` (an object or a fixture) or `propMark` (a prop). Inserting one in the middle
+moves the cells after it, the second looks' too. `tests/unit/map_marks_test.cpp` fails for a tile type or a usable
+prop without a mark; `tests/scenarios/map_marks.txt` shows them all.
 
 ### Inventory group tabs
 

@@ -1,0 +1,13 @@
+# Plan map-legend-sprites: every draft map mark on one corridor (tests/levels/map_marks), the five shrines, the
+# Stargate, its dial device and a brazier put on the free cells. Walk right to the end, then open the map [M].
+seed 1
+god
+level tests/levels/map_marks
+prop 23 shrine_isis
+prop 24 shrine_montu
+prop 25 shrine_ptah
+prop 26 shrine_amun
+prop 27 shrine_serket
+prop 28 stargate
+prop 29 dial_device
+prop 30 brazier

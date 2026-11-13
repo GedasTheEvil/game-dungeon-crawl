@@ -1,5 +1,5 @@
 #include "map_view.h"
-#include "../level/sun_beam.h"
+#include "../level/map_marks.h"
 #include "../render/ui_draw.h"
 #include "../graphics/gl_includes.h"
 #include "../state/game_state.h"
@@ -34,12 +34,7 @@ constexpr Color LOCK_PENCILS[LOCK_COLOUR_COUNT] = {
 	{0.14f, 0.48f, 0.18f}, // green
 	{0.80f, 0.58f, 0.08f}, // gold
 };
-constexpr Color ANKH_GOLD = {0.78f, 0.56f, 0.10f};
 constexpr Color WATER_BLUE = {0.16f, 0.38f, 0.70f};
-constexpr Color PLASMA = {0.10f, 0.50f, 0.55f}; // a teleporter's and a ring platform's
-constexpr Color PORTAL_BLUE = {0.14f, 0.36f, 0.80f}; // the exit's plasma (the entrance's is red)
-constexpr Color OBSIDIAN = {0.08f, 0.06f, 0.08f}; // the boss gate's
-constexpr Color SAND_PENCIL = {0.66f, 0.47f, 0.2f}; // a sandstorm hall's wind (plan sandstorm-halls)
 constexpr float WAVE_AMPLITUDE = 0.06f; // cells
 constexpr int WAVE_SEGMENTS = 8; // per wave, two crests
 
@@ -277,406 +272,45 @@ void outline(Sketch& sk, const Dungeon& d, int i, int j) {
 		sk.pencil(x, y + 1, x + 1, y + 1, GRAPHITE, 0.85f, cellSeed(i, j + 1, 11));
 }
 
-void arch(Sketch& sk, float x, float y, Color c, uint32_t seed) {
-	sk.pencil(x + 0.22f, y, x + 0.22f, y + 0.55f, c, 0.9f, seed);
-	sk.pencil(x + 0.78f, y, x + 0.78f, y + 0.55f, c, 0.9f, seed + 1);
-	constexpr int SEGMENTS = 4;
-	for (int k = 0; k < SEGMENTS; k++) {
-		float a0 = static_cast<float>(M_PI) * static_cast<float>(k) / SEGMENTS;
-		float a1 = static_cast<float>(M_PI) * static_cast<float>(k + 1) / SEGMENTS;
-		sk.pencil(
-			x + 0.5f + 0.28f * std::cos(a0),
-			y + 0.55f + 0.3f * std::sin(a0),
-			x + 0.5f + 0.28f * std::cos(a1),
-			y + 0.55f + 0.3f * std::sin(a1),
-			c,
-			0.9f,
-			seed + 2 + static_cast<uint32_t>(k)
-		);
+// One symbol from the sheet (media/textures/ui/map_marks.png, plan map-legend-sprites) over the cell whose lower left
+// corner is (x, y), `cell` wide, in canvas units. Between beginMarks and endMarks.
+void markQuad(float x, float y, float cell, const ShownMark& shown) {
+	const MarkSprite sprite = markSprite(shown);
+	const float w = 1.f / MAP_MARK_COLUMNS;
+	const float h = 1.f / MAP_MARK_ROWS;
+	const float u = w * static_cast<float>(sprite.cell % MAP_MARK_COLUMNS);
+	const int row = sprite.cell / MAP_MARK_COLUMNS;
+	const float v = 1.f - h * static_cast<float>(row + 1); // the PNG's first row is the top
+	// The sprite's corners from its lower left one, counterclockwise; a quarter turn clockwise shifts them by one.
+	const float corners[4][2] = {{u, v}, {u + w, v}, {u + w, v + h}, {u, v + h}};
+	const float size = cell / (1.f - 2.f * MAP_MARK_MARGIN); // the sprite's margin lies round the cell
+	const float left = x - size * MAP_MARK_MARGIN;
+	const float bottom = y - size * MAP_MARK_MARGIN;
+	const float quad[4][2] =
+		{{left, bottom}, {left + size, bottom}, {left + size, bottom + size}, {left, bottom + size}};
+	const Color tint = markDef(shown.mark).tint == MarkTint::Lock ? lockPencil(sprite.lock) : Color{1.f, 1.f, 1.f};
+	glColor4f(tint.r, tint.g, tint.b, 1.f);
+	for (int k = 0; k < 4; k++) {
+		const float* uv = corners[(k + sprite.turns) % 4];
+		glTexCoord2f(uv[0], uv[1]);
+		glVertex2f(quad[k][0], quad[k][1]);
 	}
 }
 
-void zigzag(Sketch& sk, float x, float y, float height, Color c, uint32_t seed) {
-	constexpr int TEETH = 3;
-	for (int k = 0; k < TEETH; k++) {
-		float left = x + 0.1f + 0.8f * static_cast<float>(k) / TEETH;
-		float right = x + 0.1f + 0.8f * static_cast<float>(k + 1) / TEETH;
-		float tip = (left + right) / 2;
-		sk.pencil(left, y + 0.05f, tip, y + height, c, 0.9f, seed + static_cast<uint32_t>(2 * k));
-		sk.pencil(tip, y + height, right, y + 0.05f, c, 0.9f, seed + static_cast<uint32_t>(2 * k + 1));
-	}
+void beginMarks() {
+	glEnable(GL_TEXTURE_2D);
+	Game().assets.textures.mapMarks.Bind();
+	glBegin(GL_QUADS);
 }
 
-// The teleporter's two columns, a capital on each.
-void columns(Sketch& sk, float x, float y, uint32_t seed) {
-	sk.pencil(x + 0.15f, y, x + 0.15f, y + 0.9f, GRAPHITE, 0.9f, seed);
-	sk.pencil(x + 0.85f, y, x + 0.85f, y + 0.9f, GRAPHITE, 0.9f, seed + 1);
-	sk.pencil(x + 0.07f, y + 0.9f, x + 0.23f, y + 0.9f, GRAPHITE, 0.9f, seed + 2);
-	sk.pencil(x + 0.77f, y + 0.9f, x + 0.93f, y + 0.9f, GRAPHITE, 0.9f, seed + 3);
+void endMarks() {
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
 }
 
-// What a cell's symbol shows, one legend row each (MARK_NAMES).
-enum class MapMark : std::uint8_t {
-	Entrance,
-	Exit,
-	SphinxGate,
-	Doorway,
-	Teleporter,
-	RingPlatform,
-	NameGate,
-	Ladder,
-	Treasure,
-	Key,
-	Gate,
-	BossGate,
-	Lever,
-	Spikes,
-	DeathTrap,
-	RockFall,
-	DartPlate,
-	WallSpikes,
-	FireVent,
-	PoisonDrip,
-	SandGust,
-	LightShaft,
-	Mirror,
-	SunDisc,
-	Inscription,
-	Page,
-	Ankh,
-	None,
-};
-constexpr int MARK_COUNT = static_cast<int>(MapMark::None);
-constexpr const char* MARK_NAMES[MARK_COUNT] = {
-	"Entrance",	   "Exit",		"Sphinx gate", "Sphinx",	  "Teleporter",	   "Ring platform", "Name gate",
-	"Ladder",	   "Treasure",	"Key",		   "Gate",		  "Boss gate",	   "Lever",			"Spikes",
-	"Death trap",  "Rock fall", "Dart plate",  "Wall spikes", "Fire vent",	   "Poison drip",	"Sandstorm",
-	"Light shaft", "Mirror",	"Sun disc",	   "Inscription", "Notebook page", "Ankh",
-};
-
-MapMark doorMark(const Tile& t) {
-	switch (t.attr) {
-	case GateEntrance:
-		return MapMark::Entrance;
-	case GateExit:
-		return MapMark::Exit;
-	case GateRiddle:
-		return MapMark::SphinxGate;
-	case GateTeleport:
-		return isNameGate(t) ? MapMark::NameGate : isRingPlatform(t) ? MapMark::RingPlatform : MapMark::Teleporter;
-	default:
-		return MapMark::Doorway;
-	}
-}
-
-// None: no object, a monster other than a mimic, a page taken.
-MapMark markOf(const Tile& t) {
-	switch (t.type) {
-	case Door:
-		return doorMark(t);
-	case MonsterSpawn: // only a mimic gets a symbol: the chest it pretends to be
-		if (const MonsterKind* kind = monsterKind(t.attr); kind == nullptr || !ambushes(kind->locomotion))
-			return MapMark::None;
-		return MapMark::Treasure;
-	case Treasure:
-	case TrappedTreasure: // the map does not tell them apart
-		return MapMark::Treasure;
-	case Ladder:
-		return MapMark::Ladder;
-	case Key:
-		return MapMark::Key;
-	case Gate:
-		return t.attr == BOSS_LOCK ? MapMark::BossGate : MapMark::Gate;
-	case Lever:
-		return MapMark::Lever;
-	case Spike:
-		return MapMark::Spikes;
-	case Death:
-		return MapMark::DeathTrap;
-	case RockFall:
-		return MapMark::RockFall;
-	case DartPlate:
-		return MapMark::DartPlate;
-	case WallSpikes:
-		return MapMark::WallSpikes;
-	case FireVent:
-		return MapMark::FireVent;
-	case PoisonDrip:
-		return MapMark::PoisonDrip;
-	case SandGust:
-		return MapMark::SandGust;
-	case LightShaft:
-		return MapMark::LightShaft;
-	case Mirror:
-		return MapMark::Mirror;
-	case SunDisc:
-		return MapMark::SunDisc;
-	case Inscription:
-		return MapMark::Inscription;
-	case Page: // a page of the earlier expedition not taken yet (plan expedition-notes)
-		return t.value == 0 ? MapMark::Page : MapMark::None;
-	case Ankh:
-		return MapMark::Ankh;
-	default:
-		return MapMark::None;
-	}
-}
-
-// The tile a cell's symbol is drawn for: the object, else the fixture.
-Tile shownTile(const Tile& t) { return markOf(t) != MapMark::None ? t : fixtureAsTile(t.fixture); }
-
-void gate(Sketch& sk, float x, float y, Color c, bool open, uint32_t seed) {
-	float bottom = open ? 0.75f : 0.f; // an open gate hangs up in the ceiling
-	sk.pencil(x + 0.15f, y + 0.95f, x + 0.85f, y + 0.95f, c, 0.95f, seed);
-	if (!open)
-		sk.pencil(x + 0.15f, y + 0.05f, x + 0.85f, y + 0.05f, c, 0.95f, seed + 1);
-	for (int k = 0; k < 3; k++) {
-		float u = x + 0.3f + 0.2f * static_cast<float>(k);
-		sk.pencil(u, y + bottom, u, y + 0.95f, c, 0.95f, seed + 2 + static_cast<uint32_t>(k));
-	}
-}
-
-// Draws t's symbol; false if t has none (markOf).
-bool symbol(Sketch& sk, int i, int j, Tile t) {
-	auto x = static_cast<float>(i);
-	auto y = static_cast<float>(j);
-	uint32_t seed = cellSeed(i, j, 20);
-	switch (markOf(t)) {
-	case MapMark::Entrance: // the sphinx's arch, the portal in it in its plasma's colour: red in, blue out
-	case MapMark::Exit: {
-		const Color c = t.attr == GateExit ? PORTAL_BLUE : PENCIL_RED;
-		arch(sk, x, y, GRAPHITE, seed);
-		sk.loop(x + 0.5f, y + 0.42f, 0.17f, 0.3f, 8, c, 0.95f, seed + 8);
-		sk.loop(x + 0.5f, y + 0.42f, 0.07f, 0.13f, 6, c, 0.85f, seed + 16);
-		break;
-	}
-	case MapMark::SphinxGate: { // a door, a question mark in it
-		const Color c = LOCK_PENCILS[1];
-		sk.pencil(x + 0.18f, y, x + 0.18f, y + 0.92f, GRAPHITE, 0.9f, seed);
-		sk.pencil(x + 0.82f, y, x + 0.82f, y + 0.92f, GRAPHITE, 0.9f, seed + 1);
-		sk.pencil(x + 0.12f, y + 0.92f, x + 0.88f, y + 0.92f, GRAPHITE, 0.9f, seed + 2);
-		sk.pencil(x + 0.34f, y + 0.6f, x + 0.42f, y + 0.74f, c, 0.95f, seed + 8);
-		sk.pencil(x + 0.42f, y + 0.74f, x + 0.58f, y + 0.76f, c, 0.95f, seed + 9);
-		sk.pencil(x + 0.58f, y + 0.76f, x + 0.66f, y + 0.62f, c, 0.95f, seed + 10);
-		sk.pencil(x + 0.66f, y + 0.62f, x + 0.5f, y + 0.47f, c, 0.95f, seed + 11);
-		sk.pencil(x + 0.5f, y + 0.47f, x + 0.5f, y + 0.32f, c, 0.95f, seed + 12);
-		sk.loop(x + 0.5f, y + 0.16f, 0.04f, 0.04f, 5, c, 0.95f, seed + 13);
-		break;
-	}
-	case MapMark::Doorway:
-		arch(sk, x, y, GRAPHITE, seed);
-		break;
-	case MapMark::Teleporter: // the columns, the plasma between them
-		columns(sk, x, y, seed);
-		sk.loop(x + 0.5f, y + 0.45f, 0.2f, 0.32f, 8, PLASMA, 0.9f, seed + 4);
-		sk.loop(x + 0.5f, y + 0.45f, 0.08f, 0.14f, 6, PLASMA, 0.8f, seed + 12);
-		break;
-	case MapMark::RingPlatform: // the platform, three rings stacked over it
-		sk.pencil(x + 0.1f, y + 0.06f, x + 0.9f, y + 0.06f, GRAPHITE, 0.95f, seed);
-		for (int k = 0; k < 3; k++)
-			sk.loop(
-				x + 0.5f,
-				y + 0.3f + 0.22f * static_cast<float>(k),
-				0.32f,
-				0.07f,
-				8,
-				PLASMA,
-				0.9f,
-				seed + 1 + 8 * static_cast<uint32_t>(k)
-			);
-		break;
-	case MapMark::NameGate: // the columns, sealed by a cartouche: the level's name opens it
-		columns(sk, x, y, seed);
-		sk.loop(x + 0.5f, y + 0.5f, 0.13f, 0.26f, 7, ANKH_GOLD, 0.95f, seed + 4);
-		sk.pencil(x + 0.33f, y + 0.2f, x + 0.67f, y + 0.2f, ANKH_GOLD, 0.95f, seed + 11);
-		break;
-	case MapMark::Ladder:
-		sk.pencil(x + 0.3f, y, x + 0.3f, y + 1, GRAPHITE, 0.8f, seed);
-		sk.pencil(x + 0.7f, y, x + 0.7f, y + 1, GRAPHITE, 0.8f, seed + 1);
-		for (int k = 0; k < 3; k++) {
-			float v = y + 0.2f + 0.3f * static_cast<float>(k);
-			sk.pencil(x + 0.3f, v, x + 0.7f, v, GRAPHITE, 0.8f, seed + 2 + static_cast<uint32_t>(k));
-		}
-		break;
-	case MapMark::Treasure: // X marks the spot
-		sk.pencil(x + 0.25f, y + 0.2f, x + 0.75f, y + 0.7f, PENCIL_RED, 0.95f, seed);
-		sk.pencil(x + 0.25f, y + 0.7f, x + 0.75f, y + 0.2f, PENCIL_RED, 0.95f, seed + 1);
-		break;
-	case MapMark::Spikes:
-		zigzag(sk, x, y, 0.4f, GRAPHITE, seed);
-		break;
-	case MapMark::DeathTrap:
-		zigzag(sk, x, y, 0.65f, PENCIL_RED, seed);
-		break;
-	case MapMark::Key: {
-		Color c = lockPencil(t.attr);
-		sk.loop(x + 0.3f, y + 0.5f, 0.14f, 0.14f, 6, c, 0.95f, seed);
-		sk.pencil(x + 0.44f, y + 0.5f, x + 0.85f, y + 0.5f, c, 0.95f, seed + 6);
-		sk.pencil(x + 0.72f, y + 0.5f, x + 0.72f, y + 0.35f, c, 0.95f, seed + 7);
-		sk.pencil(x + 0.84f, y + 0.5f, x + 0.84f, y + 0.35f, c, 0.95f, seed + 8);
-		break;
-	}
-	case MapMark::Gate:
-		gate(sk, x, y, lockPencil(t.attr), gateState(t) == GateState::Open, seed);
-		break;
-	case MapMark::BossGate: { // the gate in obsidian, a seal on it while closed: the boss's death breaks it
-		const bool open = gateState(t) == GateState::Open;
-		gate(sk, x, y, OBSIDIAN, open, seed);
-		if (!open)
-			sk.loop(x + 0.5f, y + 0.5f, 0.17f, 0.17f, 4, PENCIL_RED, 0.95f, seed + 5);
-		break;
-	}
-	case MapMark::Lever: {
-		Color c = lockPencil(t.attr);
-		float tipX = leverPulled(Fixture{t.type, t.attr, t.value}) ? 0.25f : 0.75f;
-		sk.pencil(x + 0.25f, y + 0.08f, x + 0.75f, y + 0.08f, c, 0.95f, seed);
-		sk.pencil(x + 0.5f, y + 0.08f, x + tipX, y + 0.55f, c, 0.95f, seed + 1);
-		sk.loop(x + tipX, y + 0.6f, 0.07f, 0.07f, 5, c, 0.95f, seed + 2);
-		break;
-	}
-	case MapMark::RockFall:
-		if (rockState(t) == RockState::Fallen) { // a boulder on the floor
-			sk.loop(x + 0.5f, y + 0.25f, 0.28f, 0.2f, 7, GRAPHITE, 0.9f, seed);
-		} else { // loose ceiling: a crack
-			sk.pencil(x + 0.15f, y + 0.95f, x + 0.35f, y + 0.78f, GRAPHITE, 0.9f, seed);
-			sk.pencil(x + 0.35f, y + 0.78f, x + 0.55f, y + 0.9f, GRAPHITE, 0.9f, seed + 1);
-			sk.pencil(x + 0.55f, y + 0.9f, x + 0.8f, y + 0.72f, GRAPHITE, 0.9f, seed + 2);
-		}
-		break;
-	case MapMark::DartPlate: // a slab in the floor, the three dart holes in the wall above it
-		sk.pencil(x + 0.2f, y + 0.08f, x + 0.8f, y + 0.08f, GRAPHITE, 0.95f, seed);
-		sk.pencil(x + 0.2f, y + 0.16f, x + 0.8f, y + 0.16f, GRAPHITE, 0.95f, seed + 1);
-		for (int k = 0; k < 3; k++)
-			sk.loop(
-				x + 0.28f + 0.22f * static_cast<float>(k),
-				y + 0.4f,
-				0.06f,
-				0.06f,
-				5,
-				GRAPHITE,
-				0.9f,
-				seed + 2 + static_cast<uint32_t>(k)
-			);
-		break;
-	case MapMark::WallSpikes: // the slots in the back wall the spikes come out of, a 3 x 3 grid
-		for (int c = 0; c < 3; c++)
-			for (int r = 0; r < 3; r++)
-				sk.loop(
-					x + 0.25f + 0.25f * static_cast<float>(c),
-					y + 0.22f + 0.25f * static_cast<float>(r),
-					0.05f,
-					0.05f,
-					5,
-					GRAPHITE,
-					0.9f,
-					seed + static_cast<uint32_t>(c * 3 + r)
-				);
-		break;
-	case MapMark::FireVent: // the vent's mouth low in the back wall, a tongue of flame over it
-		sk.pencil(x + 0.3f, y + 0.12f, x + 0.7f, y + 0.12f, GRAPHITE, 0.95f, seed);
-		sk.pencil(x + 0.3f, y + 0.22f, x + 0.7f, y + 0.22f, GRAPHITE, 0.95f, seed + 1);
-		sk.pencil(x + 0.5f, y + 0.28f, x + 0.42f, y + 0.55f, GRAPHITE, 0.9f, seed + 2);
-		sk.pencil(x + 0.42f, y + 0.55f, x + 0.55f, y + 0.8f, GRAPHITE, 0.9f, seed + 3);
-		break;
-	case MapMark::PoisonDrip: // the puddle on the floor, the drop hanging from the ceiling over it, its fall
-		sk.loop(x + 0.5f, y + 0.1f, 0.32f, 0.06f, 7, GRAPHITE, 0.95f, seed);
-		sk.loop(x + 0.5f, y + 0.84f, 0.07f, 0.09f, 5, GRAPHITE, 0.9f, seed + 1);
-		sk.pencil(x + 0.5f, y + 0.66f, x + 0.5f, y + 0.5f, GRAPHITE, 0.8f, seed + 2);
-		sk.pencil(x + 0.5f, y + 0.4f, x + 0.5f, y + 0.24f, GRAPHITE, 0.8f, seed + 3);
-		break;
-	case MapMark::LightShaft: { // rays fanning out of the crack the way the beam goes
-		const BeamDir d = shaftDir(t);
-		const float dx = static_cast<float>(beamDx(d)), dy = static_cast<float>(beamDy(d));
-		const float sx = x + 0.5f - 0.4f * dx, sy = y + 0.5f - 0.4f * dy;
-		for (int k = -1; k <= 1; k++) {
-			const float spread = 0.18f * static_cast<float>(k);
-			sk.pencil(
-				sx,
-				sy,
-				sx + 0.7f * dx - spread * dy,
-				sy + 0.7f * dy + spread * dx,
-				ANKH_GOLD,
-				0.9f,
-				seed + static_cast<uint32_t>(k + 1)
-			);
-		}
-		break;
-	}
-	case MapMark::SandGust: { // three lines of wind the way it blows, an arrowhead on the middle one
-		const float d = static_cast<float>(gustDir(Fixture{t.type, t.attr, t.value}));
-		for (int k = 0; k < 3; k++) {
-			const float v = y + 0.25f + 0.25f * static_cast<float>(k);
-			const float tail = 0.18f * static_cast<float>(k % 2);
-			sk.pencil(
-				x + 0.5f - d * (0.38f - tail),
-				v,
-				x + 0.5f + d * 0.38f,
-				v,
-				SAND_PENCIL,
-				0.9f,
-				seed + static_cast<uint32_t>(k)
-			);
-		}
-		sk.pencil(x + 0.5f + d * 0.38f, y + 0.5f, x + 0.5f + d * 0.22f, y + 0.62f, SAND_PENCIL, 0.9f, seed + 4);
-		sk.pencil(x + 0.5f + d * 0.38f, y + 0.5f, x + 0.5f + d * 0.22f, y + 0.38f, SAND_PENCIL, 0.9f, seed + 5);
-		break;
-	}
-	case MapMark::Mirror: { // the disc on its post, a stroke the way it points
-		const BeamDir d = mirrorDir(t);
-		sk.pencil(x + 0.5f, y + 0.05f, x + 0.5f, y + 0.4f, GRAPHITE, 0.9f, seed);
-		sk.loop(x + 0.5f, y + 0.55f, 0.15f, 0.15f, 7, GRAPHITE, 0.9f, seed + 1);
-		sk.pencil(
-			x + 0.5f,
-			y + 0.55f,
-			x + 0.5f + 0.38f * static_cast<float>(beamDx(d)),
-			y + 0.55f + 0.38f * static_cast<float>(beamDy(d)),
-			ANKH_GOLD,
-			0.95f,
-			seed + 2
-		);
-		break;
-	}
-	case MapMark::SunDisc: { // a disc with rays, in its lock colour
-		const Color c = lockPencil(t.attr);
-		sk.loop(x + 0.5f, y + 0.55f, 0.16f, 0.16f, 7, c, 0.95f, seed);
-		for (int k = 0; k < 6; k++) {
-			const float a = 6.2832f * static_cast<float>(k) / 6.f;
-			sk.pencil(
-				x + 0.5f + 0.22f * std::cos(a),
-				y + 0.55f + 0.22f * std::sin(a),
-				x + 0.5f + 0.34f * std::cos(a),
-				y + 0.55f + 0.34f * std::sin(a),
-				c,
-				0.9f,
-				seed + 1 + static_cast<uint32_t>(k)
-			);
-		}
-		break;
-	}
-	case MapMark::Inscription: // a cartouche on the back wall: an upright oval on its bar
-		sk.loop(x + 0.5f, y + 0.55f, 0.14f, 0.24f, 7, GRAPHITE, 0.9f, seed);
-		sk.pencil(x + 0.32f, y + 0.28f, x + 0.68f, y + 0.28f, GRAPHITE, 0.95f, seed + 1);
-		break;
-	case MapMark::Page: // a page of the earlier expedition not taken yet: a sheet with lines of writing (plan
-						// expedition-notes)
-		sk.pencil(x + 0.3f, y + 0.12f, x + 0.3f, y + 0.82f, GRAPHITE, 0.9f, seed);
-		sk.pencil(x + 0.3f, y + 0.82f, x + 0.72f, y + 0.82f, GRAPHITE, 0.9f, seed + 1);
-		sk.pencil(x + 0.72f, y + 0.82f, x + 0.72f, y + 0.12f, GRAPHITE, 0.9f, seed + 2);
-		sk.pencil(x + 0.72f, y + 0.12f, x + 0.3f, y + 0.12f, GRAPHITE, 0.9f, seed + 3);
-		for (int k = 0; k < 3; k++) {
-			const float v = y + 0.32f + 0.17f * static_cast<float>(k);
-			sk.pencil(x + 0.38f, v, x + 0.64f, v, INK_FADED, 0.9f, seed + 4 + static_cast<uint32_t>(k));
-		}
-		break;
-	case MapMark::Ankh:
-		sk.loop(x + 0.5f, y + 0.74f, 0.12f, 0.16f, 7, ANKH_GOLD, 0.95f, seed);
-		sk.pencil(x + 0.28f, y + 0.55f, x + 0.72f, y + 0.55f, ANKH_GOLD, 0.95f, seed + 7);
-		sk.pencil(x + 0.5f, y + 0.58f, x + 0.5f, y + 0.08f, ANKH_GOLD, 0.95f, seed + 8);
-		break;
-	case MapMark::None:
-		return false;
-	}
-	return true;
+// What a cell shows on the map: its object, else its fixture, else a taken treasure's container, else its prop.
+ShownMark shownMark(const Dungeon& d, int i, int j) {
+	return cellMark(d.Cell(i, j), d.PropAt(i, j), d.ContainerEmptied(i, j));
 }
 
 void drawBackground(float canvasW) {
@@ -732,29 +366,25 @@ constexpr float CLIP_SIDE = 1.5f;
 constexpr float PAN_STEP = 10.f; // canvas units an arrow press
 constexpr const char* YOU = "You";
 
-struct LegendRow {
-	MapMark mark;
-	Tile sample; // the first explored tile with that mark: the row draws its symbol
-};
+using LegendRow = ShownMark; // a mark, and the first explored thing with it: the row draws its symbol
 
 // The marks on the explored cells, in MapMark order.
 std::vector<LegendRow> legendRows(const Dungeon& d) {
 	std::array<bool, MARK_COUNT> seen{};
-	std::array<Tile, MARK_COUNT> samples{};
+	std::array<ShownMark, MARK_COUNT> samples{};
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
 			if (d.Explored(i, j)) {
-				const Tile t = shownTile(d.Cell(i, j));
-				const MapMark m = markOf(t);
-				if (m != MapMark::None && !seen[static_cast<size_t>(m)]) {
-					seen[static_cast<size_t>(m)] = true;
-					samples[static_cast<size_t>(m)] = t;
+				const ShownMark shown = shownMark(d, i, j);
+				if (shown.mark != MapMark::None && !seen[static_cast<size_t>(shown.mark)]) {
+					seen[static_cast<size_t>(shown.mark)] = true;
+					samples[static_cast<size_t>(shown.mark)] = shown;
 				}
 			}
 	std::vector<LegendRow> rows;
 	for (size_t k = 0; k < seen.size(); k++)
 		if (seen[k])
-			rows.push_back({static_cast<MapMark>(k), samples[k]});
+			rows.push_back(samples[k]);
 	return rows;
 }
 
@@ -765,16 +395,14 @@ void drawLegend(const Rect& slip, const std::vector<LegendRow>& rows, float rowH
 	const float top = slip.y + slip.h - LEGEND_HEAD;
 	const auto rowBottom = [&](size_t k) { return top - rowH * static_cast<float>(k + 1); };
 	beginShapes();
+	beginMarks();
+	for (size_t k = 0; k < rows.size(); k++)
+		markQuad(slip.x + LEGEND_PAD, rowBottom(k) + (rowH - cell) / 2, cell, rows[k]);
+	endMarks();
 	glEnable(GL_LINE_SMOOTH);
-	const float px = 1.5f * resScale * std::sqrt(cell / REFERENCE_CELL);
-	for (size_t k = 0; k <= rows.size(); k++) {
-		Sketch sk(slip.x + LEGEND_PAD, rowBottom(k) + (rowH - cell) / 2, cell);
-		if (k < rows.size())
-			symbol(sk, 0, 0, rows[k].sample);
-		else
-			sk.loop(0.5f, 0.5f, 0.45f, 0.45f, 9, PENCIL_RED, 1.f, 7u);
-		sk.flush(px);
-	}
+	Sketch you(slip.x + LEGEND_PAD, rowBottom(rows.size()) + (rowH - cell) / 2, cell);
+	you.loop(0.5f, 0.5f, 0.45f, 0.45f, 9, PENCIL_RED, 1.f, 7u);
+	you.flush(1.5f * resScale * std::sqrt(cell / REFERENCE_CELL));
 	diamond(slip.x + LEGEND_PAD + cell / 2, rowBottom(rows.size()) + rowH / 2, cell * 0.17f, PENCIL_RED, 1.f);
 	glDisable(GL_LINE_SMOOTH);
 
@@ -786,7 +414,7 @@ void drawLegend(const Rect& slip, const std::vector<LegendRow>& rows, float rowH
 			font,
 			slip.x + LEGEND_PAD + cell + LEGEND_TEXT_GAP,
 			rowBottom(k) + rowH / 2,
-			k < rows.size() ? MARK_NAMES[static_cast<size_t>(rows[k].mark)] : YOU,
+			k < rows.size() ? markDef(rows[k].mark).name : YOU,
 			INK
 		);
 }
@@ -859,7 +487,7 @@ void DraftMap::Draw() {
 	Font& small = Game().assets.fonts.hudSmall;
 	float namesW = std::max(small.TextWidth("Legend"), small.TextWidth(YOU));
 	for (const LegendRow& row : rows)
-		namesW = std::max(namesW, small.TextWidth(MARK_NAMES[static_cast<size_t>(row.mark)]));
+		namesW = std::max(namesW, small.TextWidth(markDef(row.mark).name));
 	const auto rowCount = static_cast<float>(rows.size() + 1);
 	const float rowH = std::min(LEGEND_ROW_H, (PAPER_H - LEGEND_HEAD - LEGEND_PAD) / rowCount);
 	const float slipW = 2 * LEGEND_PAD + std::min(LEGEND_CELL, rowH * 0.85f) + LEGEND_TEXT_GAP + namesW;
@@ -925,11 +553,20 @@ void DraftMap::Draw() {
 			}
 	sk.flush(1.5f * pxScale);
 
+	glDisable(GL_LINE_SMOOTH);
+	beginMarks(); // one symbol a cell
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
-			if (d.Explored(i, j)) // one symbol a cell: the object, else the fixture
-				symbol(sk, i, j, shownTile(d.Cell(i, j)));
-	sk.flush(1.5f * pxScale);
+			if (d.Explored(i, j))
+				if (const ShownMark shown = shownMark(d, i, j); shown.mark != MapMark::None)
+					markQuad(
+						originX + static_cast<float>(i) * cell,
+						originY + static_cast<float>(j) * cell,
+						cell,
+						shown
+					);
+	endMarks();
+	glEnable(GL_LINE_SMOOTH);
 
 	// "You are here": a red ring round the archaeologist.
 	float px, py;

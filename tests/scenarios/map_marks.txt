@@ -1,0 +1,30 @@
+# Plan map-legend-sprites: the draft map's marks from the sprite sheet: every mark of tests/levels/map_marks, with
+# the props (the five shrines, the Stargate, the dial device, a brazier) and the ceiling traps, the legend complete.
+seed 1
+god
+resolution 1280 720
+level tests/levels/map_marks
+wait 30
+prop 23 shrine_isis
+prop 24 shrine_montu
+prop 25 shrine_ptah
+prop 26 shrine_amun
+prop 27 shrine_serket
+prop 28 stargate
+prop 29 dial_device
+prop 30 brazier
+walk to 36
+wait 10
+key m
+wait 2
+screenshot marks
+key +
+key +
+key +
+key +
+key +
+key +
+wait 2
+screenshot zoomed
+key m
+quit

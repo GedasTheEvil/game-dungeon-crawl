@@ -13,6 +13,7 @@ struct TextureRegistry {
 	Texture hudIcons; // the player HUD's quick slot icons
 	Texture statusCards; // the status cards' backgrounds, one cell per StatusKind (plan curse-blessing-cards)
 	Texture skillIcons; // the heka mark and the skills (Heka screen, HUD)
+	Texture mapMarks; // the draft map's symbols, one cell per MapMark (src/level/map_marks.h)
 	Texture ribbon; // the journal's bookmark ribbons, tinted per section
 	Texture expeditionPage; // a torn notebook page of the earlier expedition: on a skeleton, in the journal
 	Texture journalPaper, journalCloth; // the journal's grid paper and its cover cloth

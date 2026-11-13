@@ -427,6 +427,7 @@ void Assets::Load(const std::function<void(float, const char*, const char*)>& pr
 	textures.hudIcons.LoadPNG(MEDIA_DIR "textures/ui/hud_icons.png");
 	textures.statusCards.LoadPNG(MEDIA_DIR "textures/ui/status_cards.png"); // tools/textures/status_cards.py
 	textures.skillIcons.LoadPNG(MEDIA_DIR "textures/ui/skill_icons.png");
+	textures.mapMarks.LoadPNG(MEDIA_DIR "textures/ui/map_marks.png"); // tools/textures/map_marks.py
 	textures.ribbon.LoadPNG(MEDIA_DIR "textures/ui/ribbon.png");
 	textures.ribbon.ClampToEdge(); // drawn as one quad: its edges must not wrap round to the other side
 	textures.expeditionPage.LoadPNG(MEDIA_DIR "textures/ui/expedition_page.png"); // tools/textures/expedition_page.py

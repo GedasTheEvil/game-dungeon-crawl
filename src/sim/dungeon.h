@@ -823,6 +823,10 @@ class Dungeon {
 	[[nodiscard]] bool ContainerStands(int col, int row) const {
 		return IsInBounds(col, row) && (isTreasure(MapAt(col, row)) || containers[MapIndex(col, row)].emptied);
 	}
+	// The treasure of (col, row) was taken: its open container stays (the draft map's pale mark).
+	[[nodiscard]] bool ContainerEmptied(int col, int row) const {
+		return IsInBounds(col, row) && containers[MapIndex(col, row)].emptied;
+	}
 	// The look of the container in (col, row), and how much of a cursed coffin's text shows there (coffinTell).
 	[[nodiscard]] TreasureLook LookAt(int col, int row) const { return treasureLook(MapIndex(col, row)); }
 	[[nodiscard]] float CoffinTellAt(int col, int row) const { return coffinTell(MapIndex(col, row)); }

@@ -67,7 +67,7 @@ ignore them, don't stop or change the current task because of them, and don't in
 In this project, commit your changes yourself when a task is done, without asking. Parallel tasks may run in a git
 worktree on a short-lived task branch, without asking. Branches, finishing a worktree task (rebase, merge, cleanup):
 read [docs/version-control.md](docs/version-control.md) first.
-Opus models push `master` to `origin` without asking, from the main folder only: after a commit there, or after merging
+Opus and Fable models push `master` to `origin` without asking, from the main folder only: after a commit there, or after merging
 a worktree task into it. Never push from inside a worktree, never push task branches, never force-push. Other models
 still ask before pushing.
 This overrides the global "no git actions" and "no worktrees" rules for these steps only.

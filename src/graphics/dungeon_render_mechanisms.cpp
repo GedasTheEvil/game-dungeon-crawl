@@ -27,7 +27,6 @@ constexpr float LEVER_ANGLE = 35.f; // degrees either side of upright; + tips th
 constexpr float ROCK_START_Y = 0.65f; // rock bottom when it breaks loose (rock is 0.3 tall)
 constexpr float ROCK_DEPTH = 0.5f; // in the middle of the corridor, where the player walks
 constexpr float DART_PLATE_SINK = 0.025f; // a pressed plate is flush with the floor
-constexpr float STONE_SCALE = 1.6f; // a stone block to drag (plan pressure-plate): the rock fall's boulder, bigger
 // Wall spikes: pushed this far back into the wall, their tips are just inside it. Out, they shoot out in
 // SPIKES_THRUST_MS and slide back in over the last SPIKES_RETRACT_MS of their time out; in the telegraph the tips
 // twitch out of the slots, up to SPIKES_TWITCH.
@@ -253,7 +252,7 @@ void Dungeon::drawPressurePlateTile(int i, int j) {
 	glPopMatrix();
 }
 //======================================================================================
-// A loose stone block (plan pressure-plate): the rock fall's boulder, bigger, its own turn per cell.
+// A loose stone (plan pressure-plate): the rock fall's boulder, its own turn per cell.
 void Dungeon::drawStoneTile(int i, int j) {
 	const int cell = MapIndex(i, j);
 	glPushMatrix();
@@ -261,7 +260,6 @@ void Dungeon::drawStoneTile(int i, int j) {
 	enterPropSpace();
 	glTranslatef(0, 0, ROCK_DEPTH);
 	glRotatef(static_cast<float>(cell % 5) * 70.f, 0, 1, 0);
-	glScalef(STONE_SCALE, STONE_SCALE, STONE_SCALE);
 	showModel(sim.assets->mechanisms.rock.get());
 	glPopMatrix();
 }

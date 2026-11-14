@@ -39,7 +39,7 @@ solution is to drag a heavy object onto the plate. Dragging comes from [mirror-d
 * `PressurePlate` (27, wall layer, glyph `-`): attribute the lock colour, value the weight it needs. Plate gates are
   `Gate`s of colour `BOSS_LOCK` + the lock colour (6 to 9, glyphs `1` to `4`), silver (the `plate_<colour>` variants
   of the gate in `mechanism.py`); the plate has its own model (`weight_plate`: the dart plate's slab, plain, a gem of
-  its colour), so it does not read as a dart trap. `Stone` (28, glyph `;`) is the rock fall's boulder, bigger.
+  its colour), so it does not read as a dart trap. `Stone` (28, glyph `;`) is the rock fall's boulder, the same size.
 * While every plate of a colour carries its weight, its plate gates go up; under it they come down
   (`GateState::Closing`, the gate's motion backwards, reversing mid-way), not on anyone in the gate's cell. The first
   time a colour's gates go up on a visit: the status line, the field note, the cut-scene to gates off the screen.

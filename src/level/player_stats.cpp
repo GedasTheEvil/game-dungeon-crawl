@@ -120,8 +120,6 @@ void PlayerStats::RefuseStamina(WorldEvents& events) {
 	events.Note(FieldNote::Stamina);
 }
 
-float PlayerStats::StaminaRatio() const { return ratioOf(stamina, MaxStamina()); }
-
 float PlayerStats::HealthRatio() const { return ratioOf(vitals.hp, CurrentMaxHP()); }
 
 void PlayerStats::Heal(int hpPart) {

@@ -306,8 +306,6 @@ void GameState::Autosave(AutosaveMoment moment) {
 	ui.autosaved.Show(Save(AutosavePath().c_str()) ? "Autosaved" : "Autosave failed", GameClock::now());
 }
 
-bool GameState::LoadAutosave() { return LoadSaveIntoGame(AutosavePath()); }
-
 bool GameState::LoadSaveIntoGame(const std::string& path) {
 	if (!LoadSave(path.c_str()))
 		return false;

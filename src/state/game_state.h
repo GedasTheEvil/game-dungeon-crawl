@@ -119,7 +119,6 @@ class GameState {
 	// A safe moment: writes the autosave and shows "Autosaved". Skipped (the old one stays) while the player is dead or
 	// in danger (Dungeon::PlayerInDanger); a level start is always written.
 	void Autosave(AutosaveMoment moment);
-	bool LoadAutosave(); // into the game: the screen is the gameplay
 	// What loading a save file shows: the gameplay, no menu page. False if it cannot be loaded: nothing changes.
 	bool LoadSaveIntoGame(const std::string& path);
 	// The quick save (plan quick-save): SaveSlots::QUICKSAVE, a scenario's in its output directory.

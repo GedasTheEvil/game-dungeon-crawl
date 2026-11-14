@@ -1,6 +1,6 @@
 # Remove six functions nothing calls
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-14. Was: draft 2026-11-13, size S, needs nothing first.
 
 ## Problem
 

@@ -7,7 +7,6 @@
 #include <sstream>
 
 std::unique_ptr<Logger> Logger::instance = nullptr;
-bool Logger::enabled = true;
 
 Logger::Logger() {
 	logFile.open("game.log", std::ios::app);
@@ -31,10 +30,8 @@ void Logger::shutdown() {
 	instance.reset();
 }
 
-void Logger::setEnabled(bool enable) { enabled = enable; }
-
 void Logger::log(LogLevel level, const std::string& category, const std::string& message) {
-	if (!enabled || !instance)
+	if (!instance)
 		return;
 
 	const char* levelStr;

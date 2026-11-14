@@ -181,8 +181,6 @@ float MotionFx::fov(float baseDegrees) { return baseDegrees + FOV_KICK * strengt
 
 void MotionFx::setToonBlurFirst(bool first) { gToonBlurFirst = first; }
 
-bool MotionFx::toonBlurFirst() { return gToonBlurFirst; }
-
 bool MotionFx::blurInInk() {
 	if (!gToonBlurFirst || !anyLook())
 		return false;

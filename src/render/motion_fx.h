@@ -27,7 +27,6 @@ void setCentre(float centreX, float centreY);
 // Toon mode (plan sprint-toon-blur-and-extras): the blur comes before the ink lines (true, Ink::end calls blurPass,
 // the lines stay sharp) or after them (false, the lines streak with the picture). Both stay until the user picks one.
 void setToonBlurFirst(bool first);
-[[nodiscard]] bool toonBlurFirst();
 // True when this frame's blur is done inside Ink::end (toon mode, blur first, an effect is on).
 [[nodiscard]] bool blurInInk();
 // Draws the blurred, tinted texture into the bound framebuffer, the viewport the window's.

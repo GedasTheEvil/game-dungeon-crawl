@@ -91,7 +91,6 @@ class PlayerStats {
 	void SetStamina(int value);
 	bool ConsumeStamina(int value); // false (and nothing spent) if there is not enough
 	void AddStamina(int value);
-	[[nodiscard]] float StaminaRatio() const;
 	void RefuseStamina(WorldEvents& events); // a jump or sprint wanted more stamina than there is
 	[[nodiscard]] std::optional<int> StaminaRefusedMs() const { return stamina_refused_ms; }
 

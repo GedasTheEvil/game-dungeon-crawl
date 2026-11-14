@@ -81,16 +81,25 @@ bool Dungeon::StunNearest() {
 	return target != nullptr && monsters[target - monsters].StunHit(STUN_MS, target->lurking());
 }
 //======================================================================================
+// A saved fight (plan save-live-monsters) keeps its counters; its first minions are those that lived at the save,
+// up to minAlive, so a load neither brings back the slain ones nor saves the summons to come.
 void Dungeon::startBossFight(int slot) {
 	bossFight = BossFight{slot, 0, 0};
 	const Monster& boss = monsters[slot];
 	const BossRules& rules = boss.Type()->boss;
 	bossFight.nextSummonMs = GameClock::now() + rules.summonMs;
+	int first = rules.minAlive;
+	if (savedBossFight) {
+		bossFight.summoned = savedBossFight->summoned;
+		bossFight.hatched = savedBossFight->hatched;
+		first = std::min(first, savedBossFight->firstLeft + savedBossFight->minions);
+		savedBossFight.reset();
+	}
 	if (rules.summon == Summon::Hatch) {
-		bossFight.firstLeft = rules.minAlive; // on the next updates, once the egg clusters are in play
+		bossFight.firstLeft = first; // on the next updates, once the egg clusters are in play
 		return;
 	}
-	for (int k = 0; k < rules.minAlive; k++)
+	for (int k = 0; k < first; k++)
 		summonMinion(boss);
 }
 //======================================================================================

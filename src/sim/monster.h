@@ -23,6 +23,7 @@
 #include "monster_grab.h"
 #include "monster_leap.h"
 #include "monster_roll.h"
+#include <algorithm>
 #include <array>
 #include <memory>
 #include <optional>
@@ -174,6 +175,8 @@ class Monster {
 	// The player at map y py is on its row (a climber halfway up a ladder: by its height).
 	[[nodiscard]] bool sameRow(float py) const;
 	[[nodiscard]] int Health() const { return vitals.hp; }
+	// A loaded save's health for it (plan save-live-monsters), just spawned: 1 to its max.
+	void RestoreHealth(int hp) { vitals.hp = std::clamp(hp, 1, type->maxHealth); }
 	// A light shunner (MonsterKind::shunsLight) fears the light at full HP only: any damage ends it for good (plan
 	// hurt-spiders-ignore-light).
 	[[nodiscard]] bool ShunsLight() const { return type->shunsLight && vitals.hp >= type->maxHealth; }

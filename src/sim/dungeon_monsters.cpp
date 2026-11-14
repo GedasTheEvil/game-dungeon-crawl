@@ -245,6 +245,8 @@ void Dungeon::clearMonsters() {
 	sim.player->stats.vitals.blazeReadyMs = 0;
 	playerBlazed = false;
 	bossFight = BossFight{};
+	savedMonsters.clear();
+	savedBossFight.reset();
 	powerHit = PowerHitMark{};
 }
 //======================================================================================
@@ -307,6 +309,13 @@ bool Dungeon::SpawnMonster(int i, int j) {
 	if (!slot)
 		return false;
 	slot->Spawn((*sim.monsterTypes)[typeId], i, j, monsterLinks(), sim.random->effects);
+	const auto saved = std::ranges::find_if(savedMonsters, [&](const SavedMonster& m) {
+		return m.col == i && m.row == j;
+	});
+	if (saved != savedMonsters.end()) { // plan save-live-monsters
+		slot->RestoreHealth(saved->hp);
+		savedMonsters.erase(saved);
+	}
 	if (slot->Type()->sandBurrow && inSand(tile)) // plan desert-chapter: it lies under the sand
 		slot->BuryInSand();
 	if (slot->Type()->isBoss())

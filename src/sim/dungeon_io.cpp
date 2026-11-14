@@ -11,6 +11,10 @@ namespace {
 constexpr std::string_view CONTAINERS_TAG = "containers:";
 constexpr char CLOSED = '.', OPENED = 'o', EMPTIED = 'e', DROPPED = 'd', DROPPED_EMPTIED = 'x', DROPPED_JAR = 'j',
 			   DROPPED_JAR_EMPTIED = 'k';
+// The hurt monsters in a save (plan save-live-monsters): the tag, their count, then col row hp each; the boss fight's
+// counters after BOSS_TAG, if one runs. Saves from before have neither.
+constexpr std::string_view MONSTERS_TAG = "monsters:";
+constexpr std::string_view BOSS_TAG = "boss:";
 } // namespace
 
 char Dungeon::containerChar(const ContainerCell& c) {
@@ -122,6 +126,52 @@ bool Dungeon::LoadDump(std::istream& f) {
 		f.clear();
 		f.seekg(before);
 	}
+	return loadMonsters(f);
+}
+//======================================================================================
+// Only the living, unslain monsters below their max health: the others come out of their tiles as new, as before.
+// A minion has no tile: it is counted for the boss fight.
+void Dungeon::dumpMonsters(std::ostream& f) const {
+	std::vector<SavedMonster> hurt;
+	for (const Monster& mon : monsters)
+		if (mon.Active() && mon.Alive() && !mon.Minion() && mon.Health() < mon.MaxHealth())
+			hurt.push_back({mon.Col(), mon.SpawnRow(), mon.Health()});
+	f << MONSTERS_TAG << ' ' << hurt.size();
+	for (const SavedMonster& m : hurt)
+		f << ' ' << m.col << ' ' << m.row << ' ' << m.hp;
+	f << ' ';
+	if (bossFight.slot >= 0 && monsters[bossFight.slot].Alive())
+		f << BOSS_TAG << ' ' << bossFight.summoned << ' ' << bossFight.hatched << ' ' << bossFight.firstLeft << ' '
+		  << LivingMinions() << ' ';
+}
+//======================================================================================
+bool Dungeon::loadMonsters(std::istream& f) {
+	savedMonsters.clear();
+	savedBossFight.reset();
+	std::streampos before = f.tellg();
+	std::string tag;
+	if (!(f >> tag) || tag != MONSTERS_TAG) {
+		f.clear();
+		f.seekg(before);
+		return true;
+	}
+	int count = 0;
+	if (!(f >> count) || count < 0 || count > MAX_MONSTERS)
+		return false;
+	for (int k = 0; k < count; k++) {
+		SavedMonster m;
+		if (!(f >> m.col >> m.row >> m.hp))
+			return false;
+		savedMonsters.push_back(m);
+	}
+	before = f.tellg();
+	SavedBossFight boss;
+	if (f >> tag && tag == BOSS_TAG && f >> boss.summoned >> boss.hatched >> boss.firstLeft >> boss.minions)
+		savedBossFight = boss;
+	else {
+		f.clear();
+		f.seekg(before);
+	}
 	return true;
 }
 //======================================================================================
@@ -138,4 +188,5 @@ void Dungeon::Dump(std::ostream& f) {
 	for (const ContainerCell& c : containers)
 		f << containerChar(c);
 	f << " ";
+	dumpMonsters(f);
 }

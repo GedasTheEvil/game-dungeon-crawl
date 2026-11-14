@@ -1,0 +1,4 @@
+# Plan save-live-monsters: Babi at col 6 in a long hall, the player at its west end (god). Hit him to about half,
+# F5, F9: his bar still shows half; the baboons alive at the save come back, no more.
+god
+level tests/levels/babi_hall

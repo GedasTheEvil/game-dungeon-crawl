@@ -1,6 +1,6 @@
 # A save keeps the live monsters health and the boss fight
 
-Status: draft 2026-11-13, size M, needs nothing first.
+Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
 
 ## Idea
 
@@ -44,11 +44,21 @@ boss fight's counters.
   boss at a tenth: the same, and the summon counters carried.
 * An old save (no `monsters` tag) loads as today.
 
+## Done
+
+Steps 1 to 4. A save holds `monsters: N col row hp ...` (the hurt, living, non-minion ones) and, while a boss lives,
+`boss: summoned hatched firstLeft minions` (`Dungeon::dumpMonsters`, `loadMonsters`, `src/sim/dungeon_io.cpp`).
+`SpawnMonster` gives a saved monster its health back (`Monster::RestoreHealth`); `startBossFight` takes the saved
+counters, and its first minions are those alive at the save, up to `minAlive` (a hatcher's first ones still to come
+count too). Position and AI state stay unsaved: a load still sends each monster back to its spawn tile, so a chase
+ends on load. Step 5 (no quick save in danger) is not done: it is the user's call (open question below).
+Tests: `tests/unit/save_live_monsters_test.cpp` (a rat, Babi, an old save without the tags).
+
 ## Play-test
 
-* `bin/game --play tests/play/save-live-monsters.txt` (a boss level, `god`): hit the boss to about half, F5, F9: its
-  health bar shows half, not full.
-* Hit a plain monster a few times, F5, F9: its bar shows the damage.
+* `bin/game --play tests/play/save-live-monsters.txt` (Babi's hall, `god`): hit Babi to about half, F5, F9: his
+  health bar shows half, not full; the baboons alive at the save come back, no more.
+* `bin/game --level 1`: hit a plain monster a few times, F5, F9, walk back to it: its bar shows the damage.
 
 ## Open questions
 

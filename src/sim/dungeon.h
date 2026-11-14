@@ -603,7 +603,8 @@ class Dungeon {
 	// An empty slot, else the slot of a dead monster, else that of the farthest monster out of sight (sent back to
 	// its spawn tile); null if none.
 	[[nodiscard]] Monster* freeMonsterSlot();
-	// The level's boss fight (at most one boss per level). Monsters are not saved: a load starts the fight over.
+	// The level's boss fight (at most one boss per level). A save keeps the hurt monsters' health and the fight's
+	// counters, not where they stand (plan save-live-monsters): after a load each comes out of its spawn tile again.
 	struct BossFight {
 		int slot = -1; // monsters[] index of the boss, -1: none in play
 		int summoned = 0; // minions summoned this fight, after the first ones
@@ -612,7 +613,20 @@ class Dungeon {
 		int hatched =
 			0; // minions hatched, out of a wall or dropped so far: picks the kind (BossRules::smallMinion), the nest
 	} bossFight;
-	void startBossFight(int slot); // the boss appeared: its first minions with it
+	// A save's hurt monsters and boss fight (plan save-live-monsters), until their spawn tile comes into view.
+	struct SavedMonster {
+		int col = 0, row = 0; // spawn tile
+		int hp = 0;
+	};
+	std::vector<SavedMonster> savedMonsters;
+	struct SavedBossFight {
+		int summoned = 0, hatched = 0, firstLeft = 0;
+		int minions = 0; // living minions at the save: they come back as first minions, no more than minAlive
+	};
+	std::optional<SavedBossFight> savedBossFight;
+	void dumpMonsters(std::ostream& f) const;
+	bool loadMonsters(std::istream& f); // false: a broken list
+	void startBossFight(int slot); // the boss appeared: its first minions with it (a saved fight: as it was)
 	void updateBoss(); // summons while it lives; its death opens the boss gates, for good
 	bool summonMinion(const Monster& boss);
 	// Summon::Wall: the wall cell on the player's row the way they look, with a free cell in front of it the minion

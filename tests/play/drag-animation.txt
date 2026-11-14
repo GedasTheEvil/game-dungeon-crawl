@@ -1,4 +1,0 @@
-# Plan drag-animation: the pressure-plate corridor. R takes hold of the stone at your left: bent half way over it, no
-# weapon; walk right to pull it (stepping back), left to push it; R again lets go and you stand up.
-god
-level tests/levels/pressure_plate at 4 2

@@ -1,10 +1,10 @@
 # A drag pose and clip for the player pulling or pushing a thing
 
-Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
+Status: solved 2026-11-14 (play-tested by the user). Was: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
 
 ## Idea
 
-[mirror-drag](solved/mirror-drag.feature.md) played the crouch clips while dragging (`Player::UpdateCrouchPose`): the
+[mirror-drag](mirror-drag.feature.md) played the crouch clips while dragging (`Player::UpdateCrouchPose`): the
 crouch-walk legs stepped forwards while the player backed away pulling, and the hands did not hold the thing. The user
 play-tested the mechanism as OK; the animation needs adjustment.
 
@@ -24,7 +24,7 @@ play-tested the mechanism as OK; the animation needs adjustment.
   over the crouch's by `Player::BentPose`, pulling when the last step (`Dungeon::walkDir`) went away from
   `DragFacing()` (`Dungeon::DragPulling`).
 * `drawWeapon` draws no weapon while `Dungeon::Dragging()`.
-* Scenario `tests/scenarios/drag_animation.txt`: holding, pulling, pushing, held still, let go.
+* Scenario `tests/scenarios/solved/drag_animation.txt`: holding, pulling, pushing, held still, let go.
 
 ## Play-test
 

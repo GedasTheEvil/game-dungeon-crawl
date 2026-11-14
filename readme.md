@@ -44,7 +44,7 @@ Spikes, pits, rock falls, dart plates, poison drips, wall spikes and fire vents 
 you swim through flooded halls, wade through sand and get stuck in quicksand, and turn bronze mirrors to send a beam of
 sunlight onto the sun disc that opens a gate. Now and then the way forks, left or right.
 
-**A boss for every zone.** Khepri, the lord of the scarabs; the Bat of Shezmu, who heals by biting; the Mother of
+**A boss for almost every zone.** Khepri, the lord of the scarabs; the Bat of Shezmu, who heals by biting; the Mother of
 Webs, who puts out the torches; the High Priest of Anubis; the scorpion queen; the serpent Apep; Sobek the crocodile
 god; Seth, the red hippo; Rerek, the sand serpent; Babi, the baboon of the Lake of Fire; and Anubis himself, whose
 living statues step out of the walls. The ankh behind Anubis wins the game.

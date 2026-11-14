@@ -6,8 +6,10 @@
 #include "../../src/level/decor.h"
 #include "../../src/level/decor_scatter.h"
 #include "../../src/level/level.h"
+#include "../../src/level/monster_kinds.h"
 #include "../../src/level/zone_look.h"
 #include <filesystem>
+#include <cctype>
 #include <memory>
 #include <string>
 
@@ -59,6 +61,26 @@ TEST_CASE("every zone has a decor set, a light, torches and an ambience; a boss 
 	CHECK(&levelLook(NO_ZONE) == &DEFAULT_LOOK);
 	CHECK(&levelLook(ZONE_ID_COUNT) == &DEFAULT_LOOK);
 	CHECK(DEFAULT_LOOK.ambience == nullptr);
+}
+
+TEST_CASE("a zone banner's guardian line holds its boss's name (plan zone-guardian-names)") {
+	const auto lower = [](std::string s) {
+		for (char& c : s)
+			c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+		return s;
+	};
+	for (int z = 0; z < ZONE_ID_COUNT; z++) {
+		const ZoneId id = static_cast<ZoneId>(z);
+		if (zoneBoss(id) == 0)
+			continue;
+		CAPTURE(z);
+		const MonsterKind* kind = monsterKind(zoneBoss(id));
+		REQUIRE(kind != nullptr);
+		REQUIRE(zoneLook(id).guardian != nullptr);
+		CAPTURE(kind->name);
+		CAPTURE(zoneLook(id).guardian);
+		CHECK(lower(zoneLook(id).guardian).find(lower(kind->name)) != std::string::npos);
+	}
 }
 
 TEST_CASE("every surface style has its texture") {

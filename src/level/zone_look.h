@@ -70,7 +70,7 @@ constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {
 	 0.01f,
 	 8,
 	 "webs",
-	 "the spider queen of the webs"},
+	 "the Mother of Webs, who puts out the lights"},
 	// Priests' quarter: the priests' writing, lamps, braziers, ushabti and Thoth.
 	{{0, 1, 2, 0, 0, 1, 2, 3, 3, 2, 1, 1, 1, 2, 0, 0, 0, 1},
 	 {1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 2, 2, 0, 0, 0, 0},
@@ -124,7 +124,7 @@ constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {
 	 0.008f,
 	 12,
 	 "sokar",
-	 "the great worm of Sokar"},
+	 "Rerek, the serpent of the sands"},
 	// Lake of Fire: braziers, Thoth's baboons at the gate, scorched rock.
 	{{0, 0, 0, 2, 0, 2, 4, 1, 0, 0, 0, 1, 1, 3, 0, 0, 0, 1},
 	 {3, 2, 3, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0},

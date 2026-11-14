@@ -1,0 +1,10 @@
+# Plan zone-guardian-names: the zone banners of the web halls (level 10) and the Gate of Sokar (level 38) name their
+# guardians as the game names the bosses; the longer line must fit the banner's box.
+seed 1
+god
+level 10
+wait 1500ms
+screenshot webs_banner
+level 38
+wait 1500ms
+screenshot sokar_banner

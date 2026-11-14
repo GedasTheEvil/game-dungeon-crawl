@@ -1,6 +1,6 @@
 # Zone banner guardians named unlike their bosses
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
 From the lore audit of 2026-11-13. The zone banner's guardian line (`ZoneLook::guardian`, `src/level/zone_look.h`,
 shown by `src/ui/zone_banner.cpp` on a zone's first level) was written before two bosses got their names; it still

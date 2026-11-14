@@ -1,0 +1,6 @@
+# Plan royal-name-fixes: the name gate room of tests/levels/name_gate with Ptolemy's cartouche (six signs, the m before
+# the s). For Siptah (starts with the duck) change the names line to tests/names/siptah.txt. god; walk right to the
+# cartouche, E reads it, the journal page gives the name; speak it at the gate (key by key) and it opens.
+god
+level tests/levels/name_gate
+names tests/names/ptolemy.txt

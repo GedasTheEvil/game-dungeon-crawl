@@ -1,0 +1,5 @@
+# Plan royal-name-fixes: one name, so every level has it (the names command, docs/testing.md). Copy of kings.txt's.
+name: Siptah
+G: G39 Q3 X1 V28
+A: siptah
+N: A young king with a club foot. Short reign.

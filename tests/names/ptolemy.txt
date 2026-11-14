@@ -1,0 +1,5 @@
+# Plan royal-name-fixes: one name, so every level has it (the names command, docs/testing.md). Copy of kings.txt's.
+name: Ptolemy
+G: Q3 X1 G43 E23 G17 S29
+A: ptolemy
+N: Fought the Hyksos, left the rest to Ahmose.

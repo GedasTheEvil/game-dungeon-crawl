@@ -1,6 +1,6 @@
 # Royal names: two misspelled cartouches, two wrong notes
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
 From the lore audit of 2026-11-13. `content/names/kings.txt` (format: [names.md](../names.md)): the `G:` line spells
 the name in signs "as on its monuments", and a player who reads hieroglyphs can open the name gate from the signs.
@@ -50,7 +50,18 @@ cartouche before changing it.
 * A test that names the plan fails before the fix and passes after it: e.g. in the royal-names unit test, Ptolemy's
   glyphs contain G17 (or Aa15), Siptah's start with G39, Den's note has no "shortest".
 
+## Done 2026-11-14
+
+Points 1 to 4 done (`content/names/kings.txt`), test `royal names: Ptolemy and Siptah spelled in full ...` in
+`tests/unit/names_test.cpp` (failed before the fix). Point 5, Setnakhte, left out: cannot be verified offline.
+Amenemhat's note became "Built a labyrinth, says Manetho. Herodotus got lost in it.", Den's "Three letters, and the
+first king shown in the double crown." (both under 70 characters; the test checks every note).
+
 ## Play-test
 
-* In a run, read a name cartouche of Ptolemy or Siptah (or check the journal page after a `give`/`level` setup that
-  rolls one): the signs match the corrected `G:` line, and the gate still opens to the name.
+Command: `bin/game --play tests/play/royal-name-fixes.txt` (Ptolemy; for Siptah change its `names` line to
+`tests/names/siptah.txt`).
+
+* Walk to the name cartouche on the wall: Ptolemy shows six signs (the m, G17 the owl, before the final s);
+  Siptah starts with the duck G39, not the folded cloth.
+* Speak the name at the gate: it still opens.

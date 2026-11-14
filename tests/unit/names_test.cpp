@@ -335,3 +335,23 @@ TEST_CASE("a name file's frame: line picks the frame, a wrong one is told by lin
 	REQUIRE(errors.size() == 1);
 	CHECK(errors[0].find("t.txt:5:") == 0);
 }
+
+TEST_CASE("royal names: Ptolemy and Siptah spelled in full, Amenemhat's and Den's notes true (plan royal-name-fixes)") {
+	const NameList names = shippedNames();
+	auto find = [&](const std::string& name) -> const RoyalName& {
+		for (size_t i = 0; i < names.Size(); i++)
+			if (names.At(i).name == name)
+				return names.At(i);
+		FAIL("no name " << name);
+		return names.At(0);
+	};
+	using G = std::vector<std::string>;
+	CHECK(find("Ptolemy").glyphs == G{"Q3", "X1", "G43", "E23", "G17", "S29"}); // p-t-w-l-m-s, the m is a sound of it
+	CHECK(find("Siptah").glyphs == G{"G39", "Q3", "X1", "V28"}); // sA-ptH: the duck, not the folded cloth
+	CHECK(find("Den").note.find("shortest") == std::string::npos); // Qaa has three letters too
+	CHECK(find("Amenemhat").note.find("says Herodotus") == std::string::npos); // he credits the twelve kings
+	for (size_t i = 0; i < names.Size(); i++) {
+		CAPTURE(names.At(i).name);
+		CHECK(names.At(i).note.size() <= 70);
+	}
+}

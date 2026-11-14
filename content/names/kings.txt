@@ -170,7 +170,7 @@ frame: serekh
 G: D46 N35
 A: den
 A: dewen
-N: Three letters. The shortest name on the list.
+N: Three letters, and the first king shown in the double crown.
 
 name: Mentuhotep
 G: Y5 N35 X1 R4 X1
@@ -190,7 +190,7 @@ G: M17 N35 G17 F4 X1
 A: amenemhat
 A: amenemhet
 A: ammenemes
-N: Built a labyrinth, says Herodotus. Nobody found the way out since.
+N: Built a labyrinth, says Manetho. Herodotus got lost in it.
 
 name: Horemheb
 G: G5 G17 V28 W3
@@ -225,7 +225,7 @@ A: shishak
 N: A Libyan on the throne. The Bible remembers his raid on Jerusalem.
 
 name: Ptolemy
-G: Q3 X1 G43 E23 S29
+G: Q3 X1 G43 E23 G17 S29
 A: ptolemy
 A: ptolemaios
 N: A Macedonian general's line. There were fifteen of them, all Ptolemy.
@@ -322,7 +322,7 @@ A: kamose
 N: Fought the Hyksos, left the rest to Ahmose.
 
 name: Siptah
-G: S29 Q3 X1 V28
+G: G39 Q3 X1 V28
 A: siptah
 N: A young king with a club foot. Short reign.
 

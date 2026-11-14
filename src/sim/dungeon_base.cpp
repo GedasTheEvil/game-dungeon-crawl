@@ -346,6 +346,7 @@ bool Dungeon::Move(float dirX, float dirY) {
 	const float startY = mapY;
 	if (dirX != 0) {
 		const int dir = dirX > 0 ? 1 : -1;
+		walkDir = dir;
 		playerFacing = Dragging() ? DragFacing() : dir; // dragging, the player looks at the thing held
 		const float probeX = mapX + dirX + static_cast<float>(dir) * sim.player->HalfWidth();
 		if (!bodyBlocked(mapX + dirX, dir, mapY) && (!Dragging() || dragTo(mapX + dirX)))

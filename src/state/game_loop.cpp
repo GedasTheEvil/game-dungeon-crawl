@@ -124,7 +124,14 @@ void tick() {
 			Game().player->setModelState(ModelState::Idle);
 		if (!climbing && !Game().player->jump.jumping) { // plan crouch: the crouch's clips over the idle and the walk
 			const ModelState shown = Game().player->State();
-			Game().player->UpdateCrouchPose(shown == ModelState::Move || shown == ModelState::CrouchWalk);
+			const Dungeon& dungeon = Game().dungeon;
+			Game().player->UpdateCrouchPose(
+				shown == ModelState::Move || shown == ModelState::CrouchWalk || shown == ModelState::DragPull ||
+					shown == ModelState::DragPush,
+				!dungeon.Dragging()		? Player::BentPose::Crouch
+				: dungeon.DragPulling() ? Player::BentPose::DragPull
+										: Player::BentPose::DragPush
+			);
 		}
 
 		updateAttack();

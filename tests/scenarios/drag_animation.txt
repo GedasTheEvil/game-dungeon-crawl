@@ -1,0 +1,20 @@
+# Plan drag-animation (tests/levels/pressure_plate): bent over the stone at col 3, half way down, both hands on it and
+# no weapon drawn; stepping back pulling it, stepping forward pushing it; let go, standing up, the weapon back in hand.
+seed 1
+god
+resolution 1024 768
+level tests/levels/pressure_plate at 4 2
+hold left 100ms
+wait 10
+key r
+wait 30
+screenshot holding
+hold right 1s
+screenshot pulling
+hold left 600ms
+screenshot pushing
+wait 30
+screenshot held_still
+key r
+wait 30
+screenshot let_go

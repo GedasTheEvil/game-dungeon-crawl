@@ -19,6 +19,9 @@ The player's files are used differently from monsters:
   archeologist_crouch.md3, _crouch_walk.md3  crouched still and the duck walk (plan crouch; top 0.56 of the idle's),
   archeologist_crouch_down.md3  standing to crouched; the game sets the frame from the crouch's phase, backwards to
                          stand up.
+  archeologist_drag.md3, _drag_pull.md3, _drag_push.md3  bent over a thing too heavy to lift, both hands low in front
+                         on it: still, stepping back and stepping forward (plan drag-animation; the weapon is not drawn),
+  archeologist_drag_down.md3  standing to bent over, its frame from the crouch's phase like _crouch_down.
 The weapon is held in the fist nearer the camera (the engine finds the most forward corners at 50-85 % of the idle
 height, Player::findFists), so the fists stay raised in front of the chest at ~3/4 of the height
 in every clip. Every frame the root is moved so the lowest point (the hat excluded) touches the floor.
@@ -45,6 +48,9 @@ CLIPS = [("archeologist_idle", "", 32), ("archeologist_walk", "_walk", 20), ("ar
 CLIMB = ("archeologist_climb", "_climb", 24)
 # The crouch (plan crouch): still, the duck walk, standing to crouched (the game sets its frame from the crouch's phase).
 CROUCH_CLIPS = [("archeologist_crouch", "_crouch", 32), ("archeologist_crouch_walk", "_crouch_walk", 16), ("archeologist_crouch_down", "_crouch_down", 6)]
+# The drag (plan drag-animation): bent over the thing held, both hands on it; still, pulling (stepping back), pushing,
+# standing to bent over (the game sets its frame from the crouch's phase).
+DRAG_CLIPS = [("archeologist_drag", "_drag", 32), ("archeologist_drag_pull", "_drag_pull", 16), ("archeologist_drag_push", "_drag_push", 16), ("archeologist_drag_down", "_drag_down", 6)]
 TEX_SIZE = 1024
 REVIEW_VIEW = {"target": (0, 0, 0.98), "ortho": 2.4, "res": (360, 440)}
 
@@ -645,6 +651,46 @@ def crouch_down_poses():
     return [(0, idle_poses()[0][1]), (last, crouch_pose())]
 
 
+def drag_pose(t=0.0, walk=0.0, breath=0.0):
+    """Half way down to the crouch, the trunk bent far forward over the thing held, both arms reaching down to it in
+    front, the head up to look ahead. walk: the stride at phase t (0..1, a short heavy step; run backwards to pull);
+    breath: the strain of the hold."""
+    a = math.sin(2 * math.pi * t)
+    lift_R = max(0.0, a) * walk
+    lift_L = max(0.0, -a) * walk
+    tug = 1.5 * breath + 2 * math.sin(4 * math.pi * t) * walk
+    return pose(pose(), pelvis=(DRAG["pelvis"], 0, 3 * a * walk), spine=(DRAG["spine"], 0, -2 * a * walk),
+                chest=(DRAG["chest"] + tug, 0, -2 * a * walk), neck=(DRAG["neck"], 0, 0), head=(DRAG["head"], 0, 0),
+                thigh_R=(DRAG["thigh"] + 14 * a * walk + 10 * lift_R, 0, -3), shin_R=(DRAG["shin"] - 20 * lift_R, 0, 0),
+                foot_R=(DRAG["foot"] - 10 * a * walk, 0, 0),
+                thigh_L=(DRAG["thigh"] - 14 * a * walk + 10 * lift_L, 0, 3), shin_L=(DRAG["shin"] - 20 * lift_L, 0, 0),
+                foot_L=(DRAG["foot"] + 10 * a * walk, 0, 0),
+                upperarm_R=(DRAG["upperarm"] - tug, 0, DRAG["inward"]), upperarm_L=(DRAG["upperarm"] - tug, 0, -DRAG["inward"]),
+                forearm_R=(DRAG["forearm"], 0, 0), forearm_L=(DRAG["forearm"], 0, 0),
+                hand_R=(DRAG["hand"], 0, 0), hand_L=(DRAG["hand"], 0, 0))
+
+
+# Angles of the drag pose (degrees, the conventions above; set, not added on READY).
+DRAG = {"pelvis": -46, "spine": -14, "chest": -8, "neck": 24, "head": 32, "thigh": 66, "shin": -58, "foot": 14,
+        "upperarm": 92, "inward": 10, "forearm": 12, "hand": 10}
+
+
+def drag_poses():
+    frames = DRAG_CLIPS[0][2]
+    return [(f, drag_pose(breath=math.sin(4 * math.pi * f / frames))) for f in range(0, frames + 1, 2)]
+
+
+def drag_walk_poses(back):
+    frames = DRAG_CLIPS[1][2]
+    return [(f, drag_pose(t=(-f if back else f) / frames, walk=1.0)) for f in range(0, frames + 1, 2)]
+
+
+def drag_down_poses():
+    """Idle frame 0 to drag frame 0, eased; the game plays it backwards to stand up."""
+    last = DRAG_CLIPS[3][2] - 1
+    return [(0, idle_poses()[0][1]), (last, drag_pose())]
+
+
 # Climbing: hands and feet driven by IK targets (empties parented to the rig, rig space before its 180 degree turn,
 # so the ladder is at +Y). Diagonal gait: the left hand reaches up with the right foot while the other pair pulls.
 # The player climbs ~1.5 tiles (~19 rungs) a second, so the limbs cannot stay on the rungs; one cycle spans a tile.
@@ -833,7 +879,9 @@ def make_actions(rig, obj, hat_verts):
         if name == "archeologist_die":
             drop_hat(rig, obj, hat_verts)
         acts[name] = act
-    for (name, _, frames), poses in zip(CROUCH_CLIPS, (crouch_poses(), crouch_walk_poses(), crouch_down_poses())):
+    bent = list(zip(CROUCH_CLIPS, (crouch_poses(), crouch_walk_poses(), crouch_down_poses())))
+    bent += zip(DRAG_CLIPS, (drag_poses(), drag_walk_poses(True), drag_walk_poses(False), drag_down_poses()))
+    for (name, _, frames), poses in bent:
         act = bpy.data.actions.get(name)
         if act:
             bpy.data.actions.remove(act)
@@ -843,7 +891,7 @@ def make_actions(rig, obj, hat_verts):
         key_ik(rig, False)
         for f, p in poses:
             key_pose(rig, p, f)
-        looping = name != "archeologist_crouch_down"
+        looping = not name.endswith("_down")
         if looping:
             make_cyclic(rig, act)
         else:
@@ -898,7 +946,7 @@ def build(bake=True, tex_path=None):
 
 
 def export(models_dir=None):
-    common.export_files(bpy.data.objects["archeologist_new"], bpy.data.objects["archeologist_rig"], "archeologist", CLIPS + [CLIMB] + CROUCH_CLIPS, "characters", models_dir)
+    common.export_files(bpy.data.objects["archeologist_new"], bpy.data.objects["archeologist_rig"], "archeologist", CLIPS + [CLIMB] + CROUCH_CLIPS + DRAG_CLIPS, "characters", models_dir)
 
 
 if __name__ == "__main__" and "--" in sys.argv:

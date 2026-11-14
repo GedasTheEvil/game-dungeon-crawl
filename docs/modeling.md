@@ -77,7 +77,7 @@ started (port 9876).
   `src/sim/model_info.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
   clips and stands in for a missing optional clip. `ClipFilesOf` picks a monster's list by its `roll`, `sandBurrow`, `locomotion` and `ranged` in `KINDS`.
   `MONSTER_CLIPS`: `<name>.md3` Move, `_att` Attack, `_die` Die, optional `_idle` Idle, optional `_jump` Jump (plays once), optional `_climb` Climb.
-  `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`, `_crouch`, `_crouch_walk`, `_crouch_down`.
+  `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`, `_crouch`, `_crouch_walk`, `_crouch_down`, `_drag`, `_drag_pull`, `_drag_push`, `_drag_down`.
 * The player: `archeologist.md3` = idle (standing), `archeologist_walk.md3` = walk cycle (while moving),
   `archeologist_die.md3` = death, `archeologist_jump.md3` = forward jump (optional `<name>_jump.md3`, `ModelState::Jump`; restarts on every
   jump, plays once and holds the landing crouch; the game moves the body, so the pelvis stays at standing height),

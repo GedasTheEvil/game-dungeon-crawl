@@ -110,9 +110,16 @@ class Player {
 	float crouchPhase = 0.f;
 	// Once a tick: crouchPhase a tick nearer to crouched. The crouch clip (idle or walk) once down, the stand-to-crouch
 	// clip on the way (frame from the phase, the clock does not advance it).
-	void UpdateCrouchPose(bool walking);
+	// Dragging (plan drag-animation), crouched: bent over the thing held instead, stepping back (pulling) or forward.
+	enum class BentPose : unsigned char { Crouch, DragPull, DragPush };
+	void UpdateCrouchPose(bool walking, BentPose bent = BentPose::Crouch);
+	[[nodiscard]] bool dragPosed() const {
+		return state == ModelState::Drag || state == ModelState::DragPull || state == ModelState::DragPush ||
+			   state == ModelState::DragDown;
+	}
 	[[nodiscard]] bool crouchPosed() const {
-		return state == ModelState::Crouch || state == ModelState::CrouchWalk || state == ModelState::CrouchDown;
+		return state == ModelState::Crouch || state == ModelState::CrouchWalk || state == ModelState::CrouchDown ||
+			   dragPosed();
 	}
 	// Armour absorbs some of dmg unless ignoreArmor (at least 1 HP is lost), but not its fire share (playerHitDamage),
 	// which sets the player burning for burnMs, in god mode too. No damage in the scenario god mode.

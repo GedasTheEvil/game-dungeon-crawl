@@ -86,7 +86,8 @@ void Player::Animate() {
 		setModelState(ModelState::Die);
 	blood.Explode();
 	blood.Fall();
-	if (state != ModelState::Climb && state != ModelState::CrouchDown) // their frame follows the height / the phase
+	if (state != ModelState::Climb && state != ModelState::CrouchDown &&
+		state != ModelState::DragDown) // their frame follows the height / the phase
 		model.Advance(state, playback);
 	shownFrame = static_cast<int>(playback[static_cast<int>(model.Shown(state))].frame);
 }
@@ -286,16 +287,25 @@ void Player::showClimb(float phase) {
 	playback[static_cast<int>(ModelState::Climb)] = {std::min(frame, static_cast<float>(frames) - 0.001f), 0};
 }
 
-void Player::UpdateCrouchPose(bool walking) {
+void Player::UpdateCrouchPose(bool walking, BentPose bent) {
 	const float step = static_cast<float>(UPDATE_TICK_MS) / static_cast<float>(CROUCH_TRANSITION_MS);
 	crouchPhase = std::clamp(crouchPhase + (crouched ? step : -step), 0.f, 1.f);
-	const ClipInfo& down = model.Clip(ModelState::CrouchDown);
+	// Dragging (plan drag-animation), or standing up from it: the drag's clips over the crouch's.
+	const bool drag = bent != BentPose::Crouch || dragPosed();
+	const ModelState downState = drag ? ModelState::DragDown : ModelState::CrouchDown;
+	const ClipInfo& down = model.Clip(downState);
 	if (crouchPhase > 0.f && crouchPhase < 1.f && down.present) {
-		state = ModelState::CrouchDown;
+		state = downState;
 		const float last = static_cast<float>(down.frames - 1);
-		playback[static_cast<int>(ModelState::CrouchDown)] = {crouchPhase * last, 0};
-	} else if (crouched)
+		playback[static_cast<int>(downState)] = {crouchPhase * last, 0};
+	} else if (crouched && bent == BentPose::Crouch)
 		setModelState(walking ? ModelState::CrouchWalk : ModelState::Crouch);
+	else if (crouched)
+		setModelState(
+			!walking					 ? ModelState::Drag
+			: bent == BentPose::DragPull ? ModelState::DragPull
+										 : ModelState::DragPush
+		);
 	else if (crouchPosed())
 		setModelState(walking ? ModelState::Move : ModelState::Idle);
 }

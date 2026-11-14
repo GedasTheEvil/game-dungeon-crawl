@@ -66,6 +66,8 @@ void drawWeapon() { // in the fist nearer the camera
 	const Player& player = *Game().player;
 	if (isThrown(Game().ui.inventory->EquippedKind()) && player.attackStartMs >= 0 && player.attackLanded)
 		return; // in the air: the hand is empty until the swing ends
+	if (Game().dungeon.Dragging())
+		return; // both hands on the thing dragged (plan drag-animation)
 	const WeaponMotion& motion = weaponDef(Game().ui.inventory->EquippedKind()).motion;
 	// A power hit (plan skill-power-hit): drawn back further as the charge builds, and in the swing it starts.
 	const SwingPose pose = player.Charging()

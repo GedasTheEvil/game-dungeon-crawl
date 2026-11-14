@@ -620,6 +620,7 @@ class Dungeon {
 	// False: none (the row ends in no wall).
 	bool wallSummonCell(int& outWall, int& outCell, int& outRow) const;
 	int playerFacing = -1; // the way the player last walked or turned (Move): -1 left (as the game starts), +1 right
+	int walkDir = -1; // the way the player last stepped (Move), turned or not: dragging, pulling or pushing
 	void drawSummonEffects(); // sand and dust where minions came out, the burrowers' holes, after the opaque scene
 	// Where a burrower went down or came up (Monster::Dive): sand thrown up and a dark hole, for BURROW_HOLE_MS.
 	struct Hole {
@@ -900,6 +901,8 @@ class Dungeon {
 	[[nodiscard]] bool Dragging() const { return drag.cell >= 0; }
 	// Dragging: the way the player looks, at the thing (-1 / +1). Else 0.
 	[[nodiscard]] int DragFacing() const;
+	// Dragging, the last step went away from the thing held (plan drag-animation: the pulling clip, else pushing).
+	[[nodiscard]] bool DragPulling() const { return Dragging() && walkDir != DragFacing(); }
 	// Not dragging, a draggable thing within reach the way the player faces (the first hint).
 	// The weight on the pressure plate in (col, row) (plan pressure-plate): the player, monsters and bodies over it,
 	// the stone, emptied chest or mirror in its cell.

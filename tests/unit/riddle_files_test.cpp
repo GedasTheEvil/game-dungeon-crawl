@@ -60,3 +60,13 @@ TEST_CASE("riddle files: no two riddles share a question") {
 	}
 	CHECK(count > 0);
 }
+
+TEST_CASE("lore-corrections-leftovers: no stargate riddle says swallows the sun or Sobek") {
+	std::ifstream in(CONTENT_DIR "riddles/stargate.txt");
+	REQUIRE(in.good());
+	std::string line;
+	while (std::getline(in, line)) {
+		CHECK_MESSAGE(line.find("swallows the sun") == std::string::npos, line);
+		CHECK_MESSAGE(line.find("Sobek") == std::string::npos, line);
+	}
+}

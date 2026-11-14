@@ -102,3 +102,11 @@ TEST_CASE("every text the code asks for is in content/texts") {
 		MESSAGE("missing: " << key);
 	CHECK(missing.empty());
 }
+
+TEST_CASE("lore-corrections-leftovers: Babi's note says entrails, not hearts") {
+	const MonsterKind* babi = monsterKind(MonsterBabi);
+	REQUIRE(babi != nullptr);
+	const std::string note = monsterNote(*babi);
+	CHECK(note.find("heart") == std::string::npos);
+	CHECK(note.find("entrails") != std::string::npos);
+}

@@ -1,6 +1,6 @@
 # Lore corrections leftovers: Babi the heart-eater, Apep swallowing the sun
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
 From the lore audit of 2026-11-13. [lore-corrections](solved/lore-corrections.bug.md) fixed these facts in some texts
 and missed other copies. Text only; keep the voice of each text.

@@ -8,10 +8,10 @@ A: re
 H: He rode a golden pyramid ship.
 
 Q: Which System Lord is named after the serpent
-Q: that swallows the sun every night?
+Q: who tries to swallow the sun every night?
 A: apophis
 A: apep
-H: Sobek's old enemy in the Duat.
+H: Ra's old enemy in the Duat.
 
 Q: The warriors who serve the Goa'uld,
 Q: with a golden serpent mark on the brow, are the ______.

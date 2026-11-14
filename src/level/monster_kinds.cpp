@@ -1322,10 +1322,10 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .kin = MonsterCamelSpider,
 	 // Every other spider that drops is a tiny one (plan spider-climbers).
 	 .boss = {MonsterCamelSpider, 2, 2, 3000, 10, 0, Summon::Drop, 0, MonsterTinySpider}},
-	// Babi (plan babi-boss), the bull of the baboons, who eats the hearts of the dead by the lake of fire: a god, like
-	// Seth. The baboon's kiting and throw, stronger: a wider band and a quicker retreat, leaping the gaps between the
-	// ledges of his arena where the baboon would be cornered; volleys of coals, and every third throw a big one that
-	// sets the floor burning. Cornered, a two-handed blow and a heavy bite. The Lake of Fire's boss (campaign zone
+	// Babi (plan babi-boss), the bull of the baboons, who lives on the entrails of the dead by the lake of fire: a god,
+	// like Seth. The baboon's kiting and throw, stronger: a wider band and a quicker retreat, leaping the gaps between
+	// the ledges of his arena where the baboon would be cornered; volleys of coals, and every third throw a big one
+	// that sets the floor burning. Cornered, a two-handed blow and a heavy bite. The Lake of Fire's boss (campaign zone
 	// 10), no campaign slot yet.
 	{.id = MonsterBabi,
 	 .glyph = ']',

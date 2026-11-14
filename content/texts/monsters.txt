@@ -124,7 +124,8 @@ note: Found the one who makes the webs, bigger than any spider I care to remembe
 	the other. I have never loved a lamp so much.
 
 [monster.babi]
-note: Babi, the heart-eater, the loudest of the baboons. I keep my heart, thank you.
+note: Babi, the bull of the baboons, who lives on the entrails of the dead. The loudest of them. I keep my insides,
+	thank you.
 
 [monster.tiny-spider]
 note: The camel spider's young, or its smaller cousin; nobody in the camp could tell me which. Never one alone: they

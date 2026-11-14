@@ -61,7 +61,7 @@ with the next press, then a mirror (turn it); a gate (exit, teleporter) comes la
 about a monster spawn, ladder, gate, door, treasure (trapped too) or mirror in front of them; a key or a floor trap there is fine. The map
 screen shows one symbol a cell, the object's, else the fixture's.
 
-Pressure plates ([pressure-plate](plan/pressure-plate.feature.md)): a `PressurePlate` (`-`, wall layer:
+Pressure plates ([pressure-plate](plan/solved/pressure-plate.feature.md)): a `PressurePlate` (`-`, wall layer:
 a stone, a mirror or an emptied chest can stand on it) has a lock colour and the weight it needs; while every plate of
 a colour carries its weight, the silver plate gates of that colour (`Gate`, colour `BOSS_LOCK` + the lock colour,
 glyphs `1` to `4`) stand open, under it they come down (not on anyone in the gate's cell). Weights: the player 2, a

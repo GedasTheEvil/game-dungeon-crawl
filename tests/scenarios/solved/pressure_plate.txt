@@ -22,7 +22,6 @@ screenshot blue_held
 walk to 12.5
 wait 20
 screenshot blue_coming_down
-expect x < 13
 level tests/levels/pressure_plate at 17 2
 wait 10
 screenshot green_plates

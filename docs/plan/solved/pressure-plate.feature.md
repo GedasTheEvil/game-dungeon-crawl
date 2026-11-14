@@ -1,11 +1,11 @@
 # Pressure plates open gates by weight
 
-Status: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs [mirror-drag](solved/mirror-drag.feature.md) first.
+Status: solved 2026-11-14 (play-tested by the user). Was: implemented 2026-11-13, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs [mirror-drag](mirror-drag.feature.md) first.
 
 ## Idea
 
 A new puzzle: a pressure plate opens a gate while enough weight stands on it. Step off, and the gate closes. The
-solution is to drag a heavy object onto the plate. Dragging comes from [mirror-drag](solved/mirror-drag.feature.md).
+solution is to drag a heavy object onto the plate. Dragging comes from [mirror-drag](mirror-drag.feature.md).
 
 ## Plan
 
@@ -18,7 +18,7 @@ solution is to drag a heavy object onto the plate. Dragging comes from [mirror-d
   emptied: treasure chest, trapped treasure chest, mimic, cursed mimic.
 * Gate: re-skin the existing `Gate` model with a new colour for pressure-plate gates. Opening and closing reuse the
   gate's movement.
-* Dragging keeps its rules from [mirror-drag](solved/mirror-drag.feature.md): flat corridor only, no water, sand or
+* Dragging keeps its rules from [mirror-drag](mirror-drag.feature.md): flat corridor only, no water, sand or
   subcell stairs, 75% of crouch speed, no attack while dragging.
 * Monsters do not block. Living monsters damage the player when next to it, so the player chooses to defend or keep
   dragging.

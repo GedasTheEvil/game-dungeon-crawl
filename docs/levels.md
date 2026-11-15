@@ -48,18 +48,18 @@ The campaign's zones (decided 2026-10-21; `ZONES`, `ZONE_FAUNA`, `ZONE_TERRAIN`,
 | **Act I: the tomb** (limestone) |||||
 | 1 | Tomb entrance | 1-4 | rats, scarabs, bats, plants, tiny spiders | spikes, pits, the first key and riddle | Khepri |
 | 2 | Bat galleries | 5-9 | bats, giant bats, worms, giant rats | levers, rock falls, a short first wade (one crocodile) | Bat of Shezmu |
-| 3 | Web halls | 10-13 | camel spiders, tiny spiders, giant scarabs, mimics | darkness and light (spiders shun torches), trapped chests | spider boss ([camel-spider-boss](plan/solved/camel-spider-boss.md)) |
+| 3 | Web halls | 10-13 | camel spiders, tiny spiders, giant scarabs, giant rats, mimics | darkness and light (spiders shun torches), trapped chests | spider boss ([camel-spider-boss](plan/solved/camel-spider-boss.md)) |
 | **Act II: the temple** (painted plaster) |||||
-| 4 | Priests' quarter | 14-18 | mummies, living ushabti, the first Anubis guards | name gates, many inscriptions, fire jets (braziers), ring transporter | High Priest |
-| 5 | Scorpion nest | 19-22 | scorpions, giant scorpions | poison drips, antidotes | scorpion queen |
-| 6 | Serpent temple | 23-27 | cobras, giant cobras | dart plates, rhythm traps | Apep |
+| 4 | Priests' quarter | 14-18 | mummies, living ushabti, giant scarabs, the first Anubis guards | name gates, many inscriptions, fire jets (braziers), ring transporter | High Priest |
+| 5 | Scorpion nest | 19-22 | scorpions, giant scorpions, giant scarabs | poison drips, antidotes | scorpion queen |
+| 6 | Serpent temple | 23-27 | cobras, giant cobras, crocodiles, giant bats | dart plates, rhythm traps | Apep |
 | **Act III: the river and the sands** |||||
-| 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras | deep water, swimming, Hapi potions | Sobek |
+| 7 | Cisterns of Sobek (wet stone) | 28-32 | crocodiles, hippos, giant cobras, lotus, giant bats | deep water, swimming, Hapi potions | Sobek |
 | 8 | Seth's desert (sandstone) | 33-37 | camel spiders, giant scorpions, sand worms, hippos at the oasis | sand, sandstorm halls, mirrors and sun discs | Seth |
 | 9 | Land of Sokar (sandstone) | 38-41 | sand worms, camel spiders in the dark | quicksand, sand falls, deep drifts | worm boss ([worm-boss](plan/solved/worm-boss.md)) |
 | **Act IV: the Duat** (dark granite) |||||
 | 10 | Lake of Fire (black basalt, red light) | 42-45 | baboons ([baboon](plan/solved/baboon.md)), fire-spitting cobras, giant bats | fire everywhere: fire-jet runs, burning floors, braziers; water as the refuge | Babi ([babi-boss](plan/solved/babi-boss.md)) |
-| 11 | Necropolis | 46-50 | Anubis guards, mummies in coffins, cursed mimics, a few baboons | every trap mixed, the Stargate chamber, the last fork | none |
+| 11 | Necropolis | 46-50 | Anubis guards, mummies in coffins, giant scorpions, cursed mimics, a few baboons | every trap mixed, the Stargate chamber, the last fork | none |
 | 12 | Hall of Judgment | 51-54 | Anubis guards, the best of every zone | riddle-heavy finale, the weighing of the heart | Anubis |
 
 Why this order and its costs: [campaign-zones](plan/solved/campaign-zones.md).

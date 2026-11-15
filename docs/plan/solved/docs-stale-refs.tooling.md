@@ -1,6 +1,6 @@
 # Docs: stale references and omissions found by a consistency sweep
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size S, needs nothing first.
 
 From a mechanical docs / content / code cross-check on 2026-11-13. Everything else checked came back clean (readme
 monsters, bosses, weapons, key bindings, gate gems, zone names; levels.md per-level monster counts, keys, levers,
@@ -39,5 +39,5 @@ sun discs, pages, shrines, zone ranges and bosses against all 54 level files; ma
 ## Verification
 
 * `tools/plan.py links`, `make check`.
-* Re-run the checks in [docs-anchor-identifier-checks](docs-anchor-identifier-checks.tooling.draft.opus.md) once that
+* Re-run the checks in [docs-anchor-identifier-checks](../docs-anchor-identifier-checks.tooling.draft.opus.md) once that
   lands: the anchor and `waterSpeed` cases are what it guards.

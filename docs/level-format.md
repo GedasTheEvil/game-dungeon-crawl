@@ -72,9 +72,9 @@ plate's flat floor run weigh less than it needs, about a plate without plate gat
 
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
 cannot sprint or jump while standing in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both) (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
-floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (a swimmer: the
-crocodile and Sobek 2.5 times their land speed, the hippo and Seth 3, the cobras and Apep 1.25; `waterSpeed`,
-`Wading` and `KINDS` in `src/level/monster_kinds.*`). An arrow hits a monster standing in water for half its damage. Traps
+floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (a swimmer,
+`Wading::Swimmer`, is native to water: the terrain affinity's water row gives it double speed, `TERRAIN_ROWS` in
+`src/level/gameplay_config.h`; `MonsterKind::wading` in `src/level/monster_kinds.h`). An arrow hits a monster standing in water for half its damage. Traps
 work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
 deep water not under water, a ladder that goes down into water (one may start in it), a crocodile, hippo, Sobek or Seth not
 in or next to water and a lotus not in half water.
@@ -111,7 +111,7 @@ light shaft without rock behind it, a mirror in front of an inscription, a sun d
 as the level starts.
 
 Level files are text, version 7: a `DCLEVEL 7 40 47` header, the level's zone (`zone cisterns_of_sobek`, or
-`zone none`; [Zones](#zones)), an optional level title (`title The Hall of Drifts`, the rest of the line; every campaign
+`zone none`; [Zones](levels.md#zones)), an optional level title (`title The Hall of Drifts`, the rest of the line; every campaign
 level has one, plan campaign-texts), the structure as a drawing (a shaped cell with its own glyph), then the lists of fixtures, objects, props, decals,
 shapes and container looks (format: [tools/editor/readme.md](../tools/editor/readme.md#file-format)). Save games hold
 the same block for the current level, with the fixtures' live state (a pulled lever, the wall spikes' state). Old (v1

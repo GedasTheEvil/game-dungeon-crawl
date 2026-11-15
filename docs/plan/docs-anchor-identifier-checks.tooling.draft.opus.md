@@ -2,7 +2,7 @@
 
 Status: draft 2026-11-13, size M, needs nothing first.
 
-From a docs cross-check on 2026-11-13 ([docs-stale-refs](docs-stale-refs.tooling.draft.sonet.md) lists what it found
+From a docs cross-check on 2026-11-13 ([docs-stale-refs](solved/docs-stale-refs.tooling.md) lists what it found
 by hand). The project prefers a check to a one-off fix; three classes of doc drift have no guard today:
 
 * `tools/plan.py links` fixes and reports broken file targets, not `#anchor`s: `docs/level-format.md:105` links
@@ -31,6 +31,6 @@ by hand). The project prefers a check to a one-off fix; three classes of doc dri
 
 ## Verification
 
-* Each new check fails on the current tree for `#zones` and `waterSpeed` before [docs-stale-refs](docs-stale-refs.tooling.draft.sonet.md)
+* Each new check fails on the current tree for `#zones` and `waterSpeed` before [docs-stale-refs](solved/docs-stale-refs.tooling.md)
   is done, and passes after.
 * `make check`.

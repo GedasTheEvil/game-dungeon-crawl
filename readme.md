@@ -3,7 +3,7 @@
 A 2.5D side-scroller set in the dungeons of ancient Egypt. You play an archaeologist who climbs, jumps and
 fights down through the twelve hours of the Duat, the underworld of Ra's night journey: tombs, temples, flooded
 cisterns, desert sands and a lake of fire, full of rats, scarabs, bats, sand worms, camel spiders, scorpions, cobras,
-crocodiles, hippos, baboons, thorn acacias, mimics, living ushabti, mummies and Anubis guards. Find keys, pull levers,
+crocodiles, hippos, baboons, thorn acacias, tiny spiders, mimics, living ushabti, mummies, mummy priests and Anubis guards. Find keys, pull levers,
 avoid traps and collect the treasure.
 
 My bachelor's degree work from 2011.
@@ -21,7 +21,7 @@ and shrugs off others: a blade glances off a scarab's shell but a spear point go
 armour dents under a club. Every weapon is the best answer to some monster, and an upgrade helps the weakest weapon
 most.
 
-**Not everything is what it seems.** A treasure chest can be a mimic, or hold a trap of darts, gas or a curse. Bats
+**Not everything is what it seems.** A treasure chest can be a mimic, or hold a trap of darts, gas or a curse; a trap can also wait in the ceiling, and the scorpion queen's brood hatches from egg clusters. Bats
 hang asleep from the ceiling, crocodiles and hippos lie under the water, a lotus floats like a flower and a living
 ushabti stands still among the figures until you come close. Mummies wait in their coffins for three thousand years
 and climb out as you pass. Monsters fight their own way: giant scarabs roll dung balls, a hurt giant rat calls the
@@ -40,8 +40,8 @@ too. The draft map (`M`) is a pencil sketch of the rooms you have explored.
 
 **Locks, levers, traps and light.** Coloured keys and levers open gates of carnelian, turquoise, lapis and gold, and
 later levels chain them together. Sphinx statues hold the portals between levels and teleporters to sealed rooms.
-Spikes, pits, rock falls, dart plates, poison drips, wall spikes and fire vents on a rhythm guard the way; deeper down
-you swim through flooded halls, wade through sand and get stuck in quicksand, and turn bronze mirrors to send a beam of
+Spikes, pits, rock falls, dart plates, poison drips, wall spikes, ceiling spikes and fire vents on a rhythm guard the way; deeper down
+you swim through flooded halls, wade through sand and get stuck in quicksand, ride out sand gusts in the sandstorm halls, and turn bronze mirrors to send a beam of
 sunlight onto the sun disc that opens a gate. Now and then the way forks, left or right.
 
 **A boss for almost every zone.** Khepri, the lord of the scarabs; the Bat of Shezmu, who heals by biting; the Mother of

@@ -1,6 +1,6 @@
-// Skill Bleed (plan skill-bleed): with the skill, a weapon hit that does not kill makes the monster bleed (a weak bleed) at 20% of
-// the hit's cut share (a boss half), scaled once more by the monster's cut rate; a bloodless kind never bleeds; a
-// bleed kill is the player's.
+// Skill Bleed (plan skill-bleed): with the skill, a weapon hit that does not kill makes the monster bleed (a weak
+// bleed) at 20% of the hit's cut share (a boss half), scaled once more by the monster's cut rate; a bloodless kind
+// never bleeds; a bleed kill is the player's.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 

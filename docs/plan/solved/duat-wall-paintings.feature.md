@@ -1,6 +1,6 @@
 # Duat wall paintings: the night barque, Apep bound, the scales, Nut
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -15,7 +15,7 @@ weighing of the heart on every Book of the Dead papyrus), yet:
   binding (ids 17, 18), the weighing (ids 131, 134), Nut (3 hits). The props have Osiris, Thoth and the jackal as statues
   (`DECOR_NAMES`), no painted scene.
 * Ra's night form, the ram-headed sun in his shrine on the barque, is in no text and no picture (0 hits for ram-headed
-  / "flesh of Ra"; see [hour-gate-stelae](hour-gate-stelae.feature.md) for the texts).
+  / "flesh of Ra"; see [hour-gate-stelae](../hour-gate-stelae.feature.md) for the texts).
 
 ## Plan
 
@@ -36,7 +36,7 @@ colours, weathered with `weather()`), each a scene readable at a cell's size:
   `DecalDef`'s size is used before drawing at 1x1.
 * Placement: by the zone factors (generated dressing) and by hand on the campaign levels where a scene suits a text
   next to it (the weighing beside inscription 131 on lvl52, Apep bound beside id 18 on lvl27, the barque by the hour
-  stela if that draft is done). The editor paints decals ([placed-decor](solved/placed-decor.md)); levels are the
+  stela if that draft is done). The editor paints decals ([placed-decor](placed-decor.md)); levels are the
   source of truth, never regenerate them.
 * Comic look (`F1`): decals get the ink outline like the rest; check that thin strokes survive.
 * Glossary: one row per new decal name if the glossary lists decals (grep first).

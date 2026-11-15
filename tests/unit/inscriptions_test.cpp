@@ -375,3 +375,27 @@ TEST_CASE("inscription-hints-after-rebuild: no campaign text points at a spot th
 	const std::string file((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 	CHECK(!file.contains("A second fork ahead")); // page 22 is on the third fork, lvl43
 }
+
+TEST_CASE("the stelae before five bosses are read with Words of Thoth into the journal (plan boss-forewarning-texts)") {
+	SimWorld world; // the behaviour checks of tests/scenarios/solved/boss_stelae.txt
+	world.player.god = true;
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
+	REQUIRE(world.inscriptions.Load(CONTENT_DIR "inscriptions").empty());
+	struct Stela {
+		int level, col, row;
+	};
+	size_t read = 0;
+	for (const Stela s : {Stela{4, 13, 27}, Stela{13, 34, 15}, Stela{18, 35, 11}, Stela{22, 2, 12}, Stela{41, 4, 42}}) {
+		CAPTURE(s.level);
+		REQUIRE(world.Load(s.level));
+		REQUIRE(world.dungeon.PlacePlayer(s.col, s.row));
+		world.WaitTicks(30);
+		REQUIRE(world.WalkTo(static_cast<float>(s.col) + 0.5f));
+		world.WaitTicks(10);
+		world.Interact();
+		world.WaitTicks(5);
+		CHECK(world.journal.Inscriptions().size() == ++read);
+		CHECK(world.journal.Inscriptions().back().translated);
+	}
+}

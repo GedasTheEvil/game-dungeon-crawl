@@ -149,3 +149,18 @@ TEST_CASE(
 	loaded.Load(save);
 	CHECK(loaded.Diary() == both.Diary());
 }
+
+TEST_CASE("lvl54: with the last page and the back cover, taking the ankh wins (plan expedition-ending)") {
+	SimWorld world; // the behaviour check of tests/scenarios/solved/expedition_ending.txt
+	world.player.god = true;
+	REQUIRE(world.Load(54));
+	REQUIRE(world.dungeon.PlacePlayer(24, 2));
+	world.WaitTicks(10);
+	REQUIRE(world.journal.FindPage(EXPEDITION_LAST_PAGE, 54));
+	REQUIRE(world.journal.FindPage(EXPEDITION_BACK_COVER, 54));
+	REQUIRE(world.WalkTo(26.5f));
+	CHECK_FALSE(world.dungeon.Won());
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.dungeon.Won());
+}

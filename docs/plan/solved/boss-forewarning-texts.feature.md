@@ -1,6 +1,6 @@
 # Inscriptions that name the five bosses no wall mentions
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -25,7 +25,7 @@ after the kill.
 Five new inscriptions in `content/inscriptions/campaign.txt` (next free ids, see the loaded count in `game.log` or the
 highest `id:`), one on each of the five boss levels, on a back wall the player passes before the boss gate or the
 teleporter to the boss (`tools/level/lvledit.py LEVEL wall COL ROW 15 ID 0`). No boons (lvl4, 13, 18, 22, 41: check that
-the level's boon count stays at most one). Format: [inscriptions.md](../inscriptions.md); new `G:` signs need
+the level's boon count stays at most one). Format: [inscriptions.md](../../inscriptions.md); new `G:` signs need
 `python3 tools/textures/inscriptions.py`. Each text is atmosphere first and one hint at how the boss fights (the hint
 must match `src/level/monster_kinds.cpp`). Sample texts, to be checked and tuned:
 
@@ -51,7 +51,7 @@ must match `src/level/monster_kinds.cpp`). Sample texts, to be checked and tuned
   T: The eldest sits in the deep of the nest, and her eggs are many.
   T: Break the eggs, and her children are few.
   N: Isis had seven scorpions as bodyguards. One of them seems to have retired here.
-  ([lore-additions](solved/lore-additions.feature.md) named the seven; this does not rename the boss.)
+  ([lore-additions](lore-additions.feature.md) named the seven; this does not rename the boss.)
 * **Rerek** (lvl41), style stela, after Book of the Dead spell 39 (paraphrase, mark it so in the comment):
   T: Get back, Rerek, crawl away! Your coils are cut, your head is off.
   T: You swim in the sand, but the sand will not hide you.

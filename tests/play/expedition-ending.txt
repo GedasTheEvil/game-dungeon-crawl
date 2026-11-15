@@ -1,7 +1,0 @@
-# Plan expedition-ending: by the ankh of lvl54 (col 26) with D. J.'s last page (24) in the journal. Walk right to
-# the ankh, take it (E): the epilogue's second page answers him. Add `page 25` after `page 24` for the variant of a player who
-# found his back cover. The back cover itself: `level 49 at 31 9` stands on lvl49's right route, 3 cells from his
-# skeleton (col 34); walk onto it, then the journal (J, Expedition).
-god
-level 54 at 24 2
-page 24

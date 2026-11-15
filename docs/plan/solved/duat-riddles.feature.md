@@ -1,6 +1,6 @@
 # Riddles of the Duat: riddles the game's own texts answer
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -17,7 +17,7 @@ The riddle gates are sphinxes in an Egyptian underworld, and almost none of thei
 ## Plan
 
 A new riddle file `content/riddles/duat.txt`, theme "Riddle of the Duat" (or "The Sphinx of the West"), 15 to 20
-riddles. Format: [riddles.md](../riddles.md) (Q, A per accepted spelling, H). Rules:
+riddles. Format: [riddles.md](../../riddles.md) (Q, A per accepted spelling, H). Rules:
 
 * Every answer is taught by a text the game shows: an inscription (`content/inscriptions/*.txt`), a field note or
   monster note (`content/texts/journal.txt`, `monsters.txt`), the skill lore (`skills.txt`). Write the source in a `#`
@@ -25,7 +25,7 @@ riddles. Format: [riddles.md](../riddles.md) (Q, A per accepted spelling, H). Ru
 * Answers a player can also know from general Egyptian lore; the hint points to where the game said it.
 * Plain ASCII; accept the usual spellings (`serket`, `selket`, `serqet`).
 * Not the judgment's questions (heart, feather, Maat, Thoth's verdict, Ammit): those belong to
-  [weighing-of-the-heart](weighing-of-the-heart.feature.md)'s zone deck. If that plan is done first, don't
+  [weighing-of-the-heart](../weighing-of-the-heart.feature.md)'s zone deck. If that plan is done first, don't
   repeat its riddles; if this one is first, keep those answers out anyway.
 
 Sample riddles (check each against the cited text):

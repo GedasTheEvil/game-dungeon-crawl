@@ -147,7 +147,7 @@ Pages 1-24 lie in levels 1, 2, 3, 5, 6, 8, 9, 12, 13, 15, 18, 20, 22, 24, 25, 27
 each a level or so before what it hints at, on a skeleton at a wing's end off the exit path. The fork pages lie on
 the way to their fork on the floor: page 8 on lvl12 (the first fork), page 24 on lvl49 (the last fork, on the exit
 path); pages 19 and 22 tell of the forks of lvl39 and lvl43. The back cover (25,
-[expedition-ending](plan/expedition-ending.feature.md)) lies on D. J.'s skeleton at the end of lvl49's right route,
+[expedition-ending](plan/solved/expedition-ending.feature.md)) lies on D. J.'s skeleton at the end of lvl49's right route,
 off the exit path; with page 24 found, the epilogue answers him (`Journal::WriteEpilogue`).
 
 Route forks ([denser-levels](plan/solved/denser-levels.md#route-fork-left-or-right), levelgen `--fork`): lvl12,

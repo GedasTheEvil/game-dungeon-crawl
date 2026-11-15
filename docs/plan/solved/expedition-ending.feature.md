@@ -1,6 +1,6 @@
 # The earlier expedition's end: D. J.'s remains, and the epilogue answers his last page
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -11,7 +11,7 @@ The game's second story line, the earlier expedition (D. J., the linguist), is s
   (pages 23, 24 on lvl46, lvl49), zone 12: 0. D. J.'s trail stops at the last fork (lvl49), which fits: he died there.
 * Page 24 ("The last page", on the way to lvl49's fork): "take the left gate. I took the right. Behind it, the tomb of
   the one who came before me, and worse. The ankh is real. Tell them I was right."
-* His remains exist: on lvl49's right route ([denser-levels](solved/denser-levels.md#route-fork-left-or-right),
+* His remains exist: on lvl49's right route ([denser-levels](denser-levels.md#route-fork-left-or-right),
   `placeForkContent`, `src/level/level_gen_content.cpp`) a skeleton prop at (34,9) and his gear chest at (35,9)
   (decor and objects lists of `content/levels/lvl49`; y counts from the bottom). Nothing there says it is him: no text,
   no page. The plan promised "their journal's end" there; the page went before the fork instead.
@@ -71,7 +71,7 @@ new diary page changes. `bin/levelcheck content/levels/lvl49` stays warning-free
   page.", true on both routes, and the epilogue's last line pays it off.
 * Scenario command `page N` (docs/testing.md) for the play script.
 * Tests: `tests/unit/expedition_test.cpp` (the epilogue's three cases, the back cover off the exit path),
-  `tests/scenarios/expedition_ending.txt` (take the ankh with pages 24 and 25: the answer page).
+  `tests/scenarios/solved/expedition_ending.txt` (take the ankh with pages 24 and 25: the answer page).
 
 ## Play-test
 

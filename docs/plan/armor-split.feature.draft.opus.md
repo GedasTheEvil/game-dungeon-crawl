@@ -1,6 +1,6 @@
 # Armor split into stab, cut and smash, wards shown
 
-Status: draft 2026-11-15, size M, needs first [ui-tooltip](ui-tooltip.feature.draft.opus.md).
+Status: draft 2026-11-15, size M, needs first [ui-tooltip](ui-tooltip.feature.md).
 
 ## Idea
 

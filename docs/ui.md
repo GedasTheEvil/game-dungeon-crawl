@@ -245,9 +245,23 @@ free edge, `PageCurl::overhang`), bending with the curl. Sound:
 Inventory, draft map, journal and Heka share a tab strip at the top right (`ui::screenTabs`, game side
 `src/ui/screen_tabs.cpp`): four tiles 9.5 x 7 centred on the title rule, x 117–158, a flat icon (chest, map sheet,
 open book, the ka's raised arms) and the key (I, M, J, K) in `small` `GOLD`. The open screen's tile is lapis, the others stone; the hovered one
-shows the screen's name on a dark label to the left. Screens with the strip keep their title rule short
+shows the screen's name in a [tooltip](#tooltip). Screens with the strip keep their title rule short
 (`SCREEN_TABS_TITLE_REACH`, 33). The strip is always drawn in the 160 x 100 canvas, also over the draft map's
 window-wide one, so it stays in the same place. Its clicks are handled before the screen's own (`ScreenTabs::Mouse`).
+
+### Tooltip
+
+Hover text on the 160 x 100 screens ([ui-tooltip](plan/ui-tooltip.feature.md)): a short total on the screen, what it
+is made of on hover. While drawing, a screen calls `ui::tooltip(anchor, text)` for its hovered element (or its
+focused one while the keyboard has the focus); the last call of a frame wins. `Draw()` (`graphics/draw.cpp`) draws it
+last, over everything, in the 160 x 100 canvas (`ui::drawTooltip`), once the same anchor and text were asked for
+`TOOLTIP_DELAY_MS` (300). A click or a key hides it until another one, or none, is wanted (`ui::hideTooltip`, called
+by `input.cpp`). The look: a dark label like a panel's fill (`PANEL_TOP` to `PANEL_BOTTOM`, alpha 0.95), a 1.5 px
+`BRONZE` frame, the picture-frame drop shadow, `hudSmall` text in `GOLD`, one line per `'\n'`, `TOOLTIP_LINE` (3.4)
+apart. Placed under the anchor, centred; above it where that leaves the canvas, else beside it; then moved inside the
+canvas (`ui::tooltipRect`, `TooltipTimer` for the delay: `ui_layout.h`, checked by `tests/unit/ui_layout_test.cpp`).
+Screenshots: `tests/scenarios/ui_tooltip.txt`. The screen tabs' names use it; the inventory's group tabs, sort buttons
+and the journal's ribbons still have their own labels.
 
 ### Draft map
 

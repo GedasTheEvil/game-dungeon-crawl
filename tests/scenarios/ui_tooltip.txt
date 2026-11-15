@@ -1,0 +1,19 @@
+# Plan ui-tooltip: a hovered screen tab shows its name in the shared tooltip after the hover delay, under the tab and
+# inside the canvas at the right edge; a click hides it.
+seed 1
+god
+level tests/levels/classic1
+wait 10
+key i
+mouse 91.2 91.5
+wait 100ms
+screenshot heka_tab_before_delay
+wait 400ms
+screenshot heka_tab_tooltip
+mouse 79.4 91.5
+wait 400ms
+screenshot map_tab_tooltip
+press 79.4 91.5
+wait 2
+screenshot pressed_hides
+release 79.4 91.5

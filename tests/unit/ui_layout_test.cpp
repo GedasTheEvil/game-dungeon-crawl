@@ -80,6 +80,45 @@ TEST_CASE("the screen tabs sit in the canvas, apart, and a click on one opens it
 	CHECK(ui::screenTabAt(1.f, 1.f) == -1);
 }
 
+// Plan ui-tooltip: under the anchor, flipped above or beside it near an edge, always inside the canvas.
+TEST_CASE("a tooltip goes under its anchor, flips near the edges and stays inside the canvas") {
+	const Rect mid = {70, 50, 10, 6};
+	const Rect under = ui::tooltipRect(mid, 20, 5);
+	CHECK(under.y + under.h == doctest::Approx(mid.y - ui::TOOLTIP_GAP));
+	CHECK(under.cx() == doctest::Approx(mid.cx()));
+	const Rect low = {70, 2, 10, 4};
+	const Rect above = ui::tooltipRect(low, 20, 5);
+	CHECK(above.y == doctest::Approx(low.y + low.h + ui::TOOLTIP_GAP));
+	const Rect tall = {150, 2, 8, 96}; // no room under or above: beside it, on the left at the right edge
+	const Rect side = ui::tooltipRect(tall, 20, 5);
+	CHECK(side.x + side.w == doctest::Approx(tall.x - ui::TOOLTIP_GAP));
+	CHECK_FALSE(side.overlaps(tall));
+	for (int t = 0; t < ui::SCREEN_TAB_COUNT; t++) { // the tab names, at the top right
+		const Rect tab = ui::screenTabRect(t);
+		const Rect r = ui::tooltipRect(tab, ui::tooltipW(24), ui::tooltipH(1));
+		CHECK(r.within(CANVAS));
+		CHECK_FALSE(r.overlaps(tab));
+	}
+	for (const Rect& corner : {Rect{0, 0, 4, 4}, Rect{156, 96, 4, 4}, Rect{0, 96, 4, 4}, Rect{156, 0, 4, 4}})
+		CHECK(ui::tooltipRect(corner, 40, 12).within(CANVAS));
+}
+
+TEST_CASE("a tooltip shows after its hover delay and a click hides it until another one is wanted") {
+	ui::TooltipTimer timer;
+	const Rect a = {10, 10, 5, 5};
+	const Rect b = {30, 10, 5, 5};
+	CHECK_FALSE(timer.Want(a, "Inventory", 1000));
+	CHECK_FALSE(timer.Want(a, "Inventory", 1000 + ui::TOOLTIP_DELAY_MS - 1));
+	CHECK(timer.Want(a, "Inventory", 1000 + ui::TOOLTIP_DELAY_MS));
+	CHECK_FALSE(timer.Want(b, "Journal", 1400)); // another one: its own delay
+	CHECK(timer.Want(b, "Journal", 1400 + ui::TOOLTIP_DELAY_MS));
+	timer.Hide();
+	CHECK_FALSE(timer.Want(b, "Journal", 3000));
+	CHECK_FALSE(timer.Want(b, "", 3001)); // the mouse left
+	CHECK_FALSE(timer.Want(b, "Journal", 3002));
+	CHECK(timer.Want(b, "Journal", 3002 + ui::TOOLTIP_DELAY_MS));
+}
+
 TEST_CASE("the inventory's panels, tabs, sort buttons and use buttons fit the canvas, apart") {
 	using namespace InventoryLayout;
 	CHECK(ITEMS_PANEL.within(CANVAS));

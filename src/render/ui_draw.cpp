@@ -1,7 +1,9 @@
 #include "ui_draw.h"
 #include "font.h"
 #include <GL/gl.h>
+#include <algorithm>
 #include <cmath>
+#include <utility>
 #include "../core/paths.h"
 
 namespace ui {
@@ -143,6 +145,47 @@ void titleBar(Font& font, float cx, const char* caption, float reach) {
 	beginShapes();
 }
 
+// ---- tooltip ----
+
+namespace {
+struct TooltipRequest {
+	Rect anchor{};
+	std::string text;
+};
+TooltipRequest tooltipWanted;
+TooltipTimer tooltipTimer;
+} // namespace
+
+void tooltip(const Rect& anchor, const std::string& text) { tooltipWanted = {anchor, text}; }
+
+void hideTooltip() { tooltipTimer.Hide(); }
+
+void drawTooltip(Font& small, int now) {
+	const TooltipRequest wanted = std::exchange(tooltipWanted, {});
+	if (!tooltipTimer.Want(wanted.anchor, wanted.text, now))
+		return;
+	const std::vector<std::string> lines = StatusBox::SplitLines(wanted.text);
+	float textW = 0.f;
+	for (const std::string& line : lines)
+		textW = std::max(textW, small.TextWidth(line.c_str()));
+	const Rect r = tooltipRect(wanted.anchor, tooltipW(textW), tooltipH(static_cast<int>(lines.size())));
+	beginShapes();
+	fillRect({r.x + 0.5f, r.y - 0.7f, r.w, r.h}, BLACK, BLACK, 0.4f);
+	fillRect(r, PANEL_TOP, PANEL_BOTTOM, 0.95f);
+	strokeRect(r, BRONZE, 1.f, 1.5f);
+	beginText();
+	const float top = r.y + r.h - 0.6f;
+	for (size_t i = 0; i < lines.size(); i++)
+		textMiddle(
+			small,
+			r.x + TOOLTIP_PAD,
+			top - (static_cast<float>(i) + 0.5f) * TOOLTIP_LINE,
+			lines[i].c_str(),
+			GOLD
+		);
+	beginShapes();
+}
+
 // ---- screen tabs ----
 
 namespace {
@@ -193,17 +236,8 @@ void screenTabs(Font& small, ScreenTab open, int hovered, int held, bool journal
 		if (journalNew && static_cast<ScreenTab>(tab) == ScreenTab::Journal)
 			newMark(r.x + r.w - 1.f, r.y + r.h - 1.f, 1.3f);
 	}
-	if (hovered < 0)
-		return;
-	const char* name = TAB_NAMES[hovered];
-	Rect first = screenTabRect(0);
-	float w = small.TextWidth(name) + 3.f;
-	Rect label = {first.x - w - 1.5f, first.y + 1.3f, w, 4.4f};
-	fillRect(label, PANEL_TOP, PANEL_BOTTOM, 0.95f);
-	strokeRect(label, GOLD_DIM, 1.f, 1.f);
-	beginText();
-	textMiddle(small, label.x + 1.5f, label.cy(), name, GOLD);
-	beginShapes();
+	if (hovered >= 0)
+		tooltip(screenTabRect(hovered), TAB_NAMES[hovered]);
 }
 
 Rect tile(Rect r, TileStyle style, bool hovered, bool held) {

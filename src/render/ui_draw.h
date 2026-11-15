@@ -115,9 +115,20 @@ void textCenteredIn(Font& font, const Rect& r, const char* str, Color c, float a
 // Words of `text` in lines no wider than `width`; a single longer word gets a line of its own.
 std::vector<std::string> wrap(const Font& font, const std::string& text, float width);
 
+// ---- tooltip (plan ui-tooltip; layout and delay: ui_layout.h) ----
+// Asks for a tooltip for `anchor` (160 x 100 canvas units) this frame: one or more lines ('\n'). The last call of a
+// frame wins. A screen calls it while drawing, for its hovered element, or its focused one while the keyboard has the
+// focus; drawTooltip then draws it on top of everything once the same one was asked for TOOLTIP_DELAY_MS.
+void tooltip(const Rect& anchor, const std::string& text);
+// The frame's tooltip, if its delay is up, in the 160 x 100 canvas set up by the caller; then forgets the request.
+// Called once a frame after the screen is drawn (Draw, graphics/draw.cpp).
+void drawTooltip(Font& small, int now);
+// A click or a key: the tooltip hides until another one is wanted.
+void hideTooltip();
+
 // ---- screen tabs (their layout: ui_layout.h) ----
-// hovered / held: a tab index or -1. The hovered tab's name shows on a label to the left of the strip. The journal's
-// tab has a newMark while `journalNew`.
+// hovered / held: a tab index or -1. The hovered tab's name shows in a tooltip under it. The journal's tab has a
+// newMark while `journalNew`.
 void screenTabs(Font& small, ScreenTab open, int hovered, int held, bool journalNew);
 // A tab's flat icon centred on (cx, cy), `size` its half width; the HUD's journal mark uses the book.
 void tabIcon(ScreenTab tab, float cx, float cy, float size, Color c);

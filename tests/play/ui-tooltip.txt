@@ -1,0 +1,7 @@
+# Plan ui-tooltip: the inventory open; hover a screen-switch tab (top right): its name shows in a tooltip after a short
+# delay, inside the screen.
+seed 1
+god
+level tests/levels/classic1
+wait 10
+key i

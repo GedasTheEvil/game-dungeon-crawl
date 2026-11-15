@@ -11,6 +11,7 @@
 #include "../level/mouse_look.h"
 #include "../level/camera_look.h"
 #include "../ui/screen_state.h"
+#include "../render/ui_draw.h"
 
 namespace {
 MouseLook mouseLook;
@@ -431,6 +432,7 @@ bool skipCutScene() {
 void Idle() { FrameRate::idle(); }
 
 void keyPressed(unsigned char key, int x, int y) {
+	ui::hideTooltip();
 	if (skipCutScene())
 		return;
 	if (ScreenState::ShouldRouteKeyboardToRiddle(Game())) {
@@ -498,6 +500,7 @@ void keyPressed(unsigned char key, int x, int y) {
 }
 
 void specialKeyPressed(int key, int x, int y) {
+	ui::hideTooltip();
 	(void)x;
 	(void)y;
 	if (skipCutScene())
@@ -570,6 +573,8 @@ void specialKeyReleased(int key, int x, int y) {
 }
 
 void processMouse(int button, int state, int x, int y) {
+	if (state == GLUT_DOWN)
+		ui::hideTooltip();
 	static int skipButton = -1; // the click that skipped a cut-scene: its release does nothing either
 	if (state == GLUT_DOWN && skipCutScene()) {
 		skipButton = button;

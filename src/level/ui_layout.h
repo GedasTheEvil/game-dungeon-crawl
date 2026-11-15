@@ -31,6 +31,7 @@ struct Rect {
 	[[nodiscard]] bool overlaps(const Rect& o) const {
 		return x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h;
 	}
+	[[nodiscard]] bool operator==(const Rect&) const = default;
 };
 
 // The feedback line under a screen ("Saved to slot 2"): shown for MS, fading out over the last FADE_MS.
@@ -74,6 +75,35 @@ constexpr float SCREEN_TABS_TITLE_REACH = 33.f;
 Rect screenTabRect(int tab);
 // -1 off the strip.
 int screenTabAt(float x, float y);
+
+// ---- tooltip (plan ui-tooltip) ----
+// A short text on a dark label over everything, for the hovered (or focused) element of a 160 x 100 screen
+// (ui::tooltip, ui_draw.h). It shows once the same one was wanted for TOOLTIP_DELAY_MS.
+constexpr int TOOLTIP_DELAY_MS = 300;
+constexpr float TOOLTIP_GAP = 1.f; // between the anchor and the label
+constexpr float TOOLTIP_PAD = 1.5f; // text to the label's edge, across
+constexpr float TOOLTIP_LINE = 3.4f; // one line's height
+// The label's size for lines of text, the widest textW wide.
+[[nodiscard]] inline float tooltipW(float textW) { return textW + 2 * TOOLTIP_PAD; }
+[[nodiscard]] inline float tooltipH(int lines) { return static_cast<float>(lines) * TOOLTIP_LINE + 1.2f; }
+// Where a w x h label for `anchor` goes: under it, centred; above it where that leaves the canvas; else right of it,
+// else left of it; then moved inside the canvas.
+[[nodiscard]] Rect tooltipRect(const Rect& anchor, float w, float h, const Rect& canvas = {0, 0, CANVAS_W, CANVAS_H});
+
+// When the wanted tooltip shows: the same one (anchor and text) wanted every frame for TOOLTIP_DELAY_MS. Hide (a
+// click, a key) keeps it hidden until another one, or none, is wanted.
+class TooltipTimer {
+  public:
+	// Once a frame: what is wanted now (empty text: none). True when it shows.
+	bool Want(const Rect& anchor, const std::string& text, int now);
+	void Hide() { hidden_ = !text_.empty(); }
+
+  private:
+	Rect anchor_{};
+	std::string text_;
+	int since_ = 0;
+	bool hidden_ = false;
+};
 
 } // namespace ui
 

@@ -45,6 +45,36 @@ int screenTabAt(float x, float y) {
 	return -1;
 }
 
+Rect tooltipRect(const Rect& anchor, float w, float h, const Rect& canvas) {
+	Rect r = {anchor.cx() - w / 2, anchor.y - TOOLTIP_GAP - h, w, h};
+	if (r.y < canvas.y)
+		r.y = anchor.y + anchor.h + TOOLTIP_GAP;
+	if (r.y + r.h > canvas.y + canvas.h) { // no room under or above: beside it
+		r.y = anchor.cy() - h / 2;
+		r.x = anchor.x + anchor.w + TOOLTIP_GAP;
+		if (r.x + r.w > canvas.x + canvas.w)
+			r.x = anchor.x - TOOLTIP_GAP - w;
+	}
+	r.x = std::clamp(r.x, canvas.x, std::max(canvas.x, canvas.x + canvas.w - w));
+	r.y = std::clamp(r.y, canvas.y, std::max(canvas.y, canvas.y + canvas.h - h));
+	return r;
+}
+
+bool TooltipTimer::Want(const Rect& anchor, const std::string& text, int now) {
+	if (text.empty()) {
+		text_.clear();
+		hidden_ = false;
+		return false;
+	}
+	if (text != text_ || anchor != anchor_) {
+		anchor_ = anchor;
+		text_ = text;
+		since_ = now;
+		hidden_ = false;
+	}
+	return !hidden_ && now - since_ >= TOOLTIP_DELAY_MS;
+}
+
 int nearestRect(const std::vector<Rect>& rects, int from, int dx, int dy) {
 	if (from < 0 || from >= static_cast<int>(rects.size()))
 		return -1;

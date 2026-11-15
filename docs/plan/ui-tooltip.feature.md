@@ -1,6 +1,6 @@
 # UI tooltips: hover text on the shared UI screens
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Idea
 

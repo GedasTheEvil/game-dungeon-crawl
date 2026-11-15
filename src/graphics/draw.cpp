@@ -143,6 +143,22 @@ float drawStatusLine() {
 	);
 }
 
+// The tooltip a screen asked for while drawing (plan ui-tooltip), over everything, in the 160 x 100 canvas.
+void drawTooltip() {
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	const ui::Rect area = ui::visibleArea(ui::CANVAS_W, ui::CANVAS_H, Game().render.resX, Game().render.resY);
+	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glDisable(GL_DEPTH_TEST);
+	ui::drawTooltip(Game().assets.fonts.hudSmall, GameClock::now());
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glColor3f(1, 1, 1);
+}
+
 } // namespace
 
 namespace {
@@ -181,6 +197,7 @@ void Draw() {
 		Game().ui.death.Draw(Game().render.resX, Game().render.resY);
 		break;
 	}
+	drawTooltip();
 	Brightness::apply(Game().render.resX, Game().render.resY); // plan settings-extras
 	glFlush();
 	Scenario::onFrameRendered();

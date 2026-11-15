@@ -3,8 +3,9 @@ After writing the code, run `make check`: it builds, fixes links to moved plans,
 the changed files and the unit tests. Never format by hand: `make format` does it. Every warning `make tidy` prints is
 yours (the tree has none): fix it. Code style, false positives: [docs/development.md](docs/development.md#build-and-run).
 Where is X: `tools/where.py <term>...` (rows of [docs/where-is-x.md](docs/where-is-x.md); never read it whole).
-Waiting for a long command, or a shell that seems to hang: [docs/stuck-processes.md](docs/stuck-processes.md). Never
-wait with a `pgrep -f` loop.
+Waiting for a long command: `tools/job.sh start NAME -- CMD`, then `tools/job.sh wait NAME SECONDS`
+([docs/stuck-processes.md](docs/stuck-processes.md), also for a shell that seems to hang); never write an
+`until`/`while ... sleep` loop (a hook blocks it). Before you report "nothing running": `tools/job.sh reap`.
 
 ## Glossary
 Unsure of a term, or naming a new thing: grep [docs/glossary.md](docs/glossary.md) (one row per term, no need to read it all). Add new terms there.

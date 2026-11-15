@@ -1,11 +1,11 @@
 # A job tool for long commands: start, wait with a deadline, never a stuck loop
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Problem
 
 Agents wait for `make check`, `make test` and worktree builds with hand-written shell loops
-(`until grep -q X log; do sleep N; done`). [stuck-processes.md](../stuck-processes.md) already says not to. They still do,
+(`until grep -q X log; do sleep N; done`). [stuck-processes.md](../../stuck-processes.md) already says not to. They still do,
 and the loops get stuck. Today's case (skill-bleed's Sonnet agent): four `until grep -q "^done" /tmp/skill-bleed-check.log`
 shells ran for an hour after the agent was finished. The `make check` behind the log had failed, so `done` never came. The
 user found them in the background shells list. The lead agent had reported "nothing running" because its `ps` filter only
@@ -74,7 +74,7 @@ One small tool in the place of every hand-written loop: `tools/job.sh`, plain ba
   * Processes whose cwd is a removed worktree (`(deleted)`).
   * Running jobs whose cwd no longer exists.
 
-  It replaces the `ps | grep` line in [stuck-processes.md](../stuck-processes.md#finding-leftovers): agents run it before
+  It replaces the `ps | grep` line in [stuck-processes.md](../../stuck-processes.md#finding-leftovers): agents run it before
   they report "nothing running", and before `git worktree remove`.
 * Make targets keep working as is: `tools/job.sh start check -- make check` then `tools/job.sh wait check 590` with
   `run_in_background`, or a plain `make check` with `run_in_background`. The tool is for when the agent must block or
@@ -84,13 +84,13 @@ Rules and enforcement:
 
 * AGENTS.md, Process: one line. "Waiting for a long command: `tools/job.sh` ([stuck-processes.md]); never write an
   `until`/`while ... sleep` loop."
-* [stuck-processes.md](../stuck-processes.md): a "Waiting" section built on the tool, the four ways a loop never ends
+* [stuck-processes.md](../../stuck-processes.md): a "Waiting" section built on the tool, the four ways a loop never ends
   (above), and `reap`.
 * A project hook (`.claude/settings.json`, PreToolUse on Bash) blocks a command that matches `(until|while) .*; *do
   .*sleep`. Its message: "use tools/job.sh wait (docs/stuck-processes.md)". The text alone has not stopped agents (209
   Sonnet loops), so the hook does. It reads the command from stdin as JSON and exits 2 with the message. It lives in
   `tools/hooks/no_wait_loops.sh`, with a test in `tools/hooks/test_no_wait_loops.sh` that `make check` runs.
-* The sub-agent brief template ([plans.md](../plans.md#model-tag), the `sonet` delegation): name the tool and the hook,
+* The sub-agent brief template ([plans.md](../../plans.md#model-tag), the `sonet` delegation): name the tool and the hook,
   since a Sonnet agent wrote most of the loops.
 * `tools/friction_report.py`: count wait loops and loops moved to the background per session, so we see whether the
   numbers drop.
@@ -109,6 +109,16 @@ Open points (the implementer's choice):
 * Whether `wait` also stops early when the log stops growing for a long time (a hung test). Probably not: `make check`
   stages can be silent for minutes.
 * Whether the hook should also block `sleep N` alone above some N (a blind wait).
+
+## Implementation notes
+
+* Open points: `wait` does not stop on a silent log (`make check` stages are silent for minutes). The hook does not
+  block a plain `sleep N`: the harness already blocks a long foreground `sleep`.
+* The hook leaves a heredoc's body out (from the first `<<` on): the loop text in a doc written with `cat <<EOF` was
+  blocked on the first try.
+* Extra commands: `job.sh stop NAME` (kills the job's process group; it still writes its exit code). `REAP_AGE` and
+  `REAP_ONLY` let the test plant its own loop without touching other agents' shells.
+* `make check` runs both test scripts in its plan stage (about 3 s).
 
 ## Done when
 

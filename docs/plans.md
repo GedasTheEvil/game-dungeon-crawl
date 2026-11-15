@@ -59,7 +59,9 @@ The default model stays Opus 5.5; `opus` drafts you implement yourself. When ask
 don't do it yourself and don't ask: delegate it to a Sonnet 5.5 agent (Agent tool, `model: sonnet`), then report its
 result. Tell the agent to follow AGENTS.md and docs/plans.md, run the checks, go through the draft point by point
 before it renames the plan (and report any point it left out), pass `tools/plan.py done-check <slug>`, and commit with
-a Sonnet 5.5 `Co-Authored-By` line. A worktree for it starts from the local `master`, not `origin/master`
+a Sonnet 5.5 `Co-Authored-By` line. Name `tools/job.sh` in the brief: it waits for `make check` with a deadline
+(`start check -- make check`, `wait check 590`); a hook blocks hand-written `until`/`while ... sleep` loops
+([stuck-processes.md](stuck-processes.md#waiting-for-a-long-command)). A worktree for it starts from the local `master`, not `origin/master`
 ([version-control.md](version-control.md#worktrees)). Run `done-check` yourself before you merge its work.
 
 ## Writing a draft

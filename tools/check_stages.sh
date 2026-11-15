@@ -34,7 +34,7 @@ base=$(git merge-base HEAD master 2>/dev/null || echo HEAD)
 files=$({ git diff --name-only "$base"; git ls-files --others --exclude-standard; } | sort -u | grep -c .)
 
 stage build "$make --no-print-directory all"
-stage plan './tools/plan.py links; ./tools/plan.py lint; python3 -I tools/plan_test.py; python3 -I tools/docs_check.py'
+stage plan './tools/plan.py links; ./tools/plan.py lint; python3 -I tools/plan_test.py; python3 -I tools/docs_check.py; tools/job_test.sh; tools/hooks/test_no_wait_loops.sh'
 stage format "$make --no-print-directory format; $make --no-print-directory format-check-changed"
 stage tidy "$make --no-print-directory tidy"
 stage unit "$make --no-print-directory unit"

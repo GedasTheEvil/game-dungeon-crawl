@@ -45,6 +45,9 @@ TIMEOUT = re.compile(r"Terminated|timed out|exit code 124|Command timed out", re
 UNIT_RAN = re.compile(r"\[doctest\] test cases:|^=== unit shard ", re.M)
 PLAN_PART = re.compile(r"docs/plan(?!s)|plan\.py")
 PLAN_LINK = re.compile(r"\]\(|\.(?:draft\.)?(?:opus|sonet)?\.?md\b|\.(?:bug|feature|tooling)\b")
+# A hand-written wait loop (plan wait-job-tool): tools/hooks/no_wait_loops.sh blocks it, tools/job.sh replaces it.
+WAIT_LOOP = re.compile(r"(?:^|[^\w])(?:until|while)\s.*;\s*do[\s;](?:.*[^\w])?sleep\s", re.S)
+MOVED_TO_BACKGROUND = "timeout and was moved to the background"
 EDIT_TOOLS = {"Edit", "Write", "MultiEdit", "NotebookEdit"}
 
 
@@ -191,6 +194,8 @@ def main():
     unit_files = collections.Counter()
     unit_file_sessions = collections.defaultdict(set)  # test file -> sessions where it failed, not edited
     prompts = []
+    wait_loops = collections.Counter()  # started, moved to the background (a foreground timeout)
+    wait_loop_sessions = set()
     sessions = 0
     subagents = 0
 
@@ -232,6 +237,9 @@ def main():
                     elif name == "Bash":
                         touched = [rel(f) for f in bash_files(inp.get("command", ""))]
                         cmd = inp.get("command", "")
+                        if WAIT_LOOP.search(cmd.split("<<")[0]):
+                            wait_loops["loops"] += 1
+                            wait_loop_sessions.add(path.stem)
                         if re.search(r"git mv \S*docs/plan", cmd):
                             bookkeeping["plan git mv"] += 1
                         found = plan_intent(cmd)
@@ -261,6 +269,9 @@ def main():
                     name, inp, start = pending.pop(b["tool_use_id"])
                     if name != "Bash":
                         continue
+                    if WAIT_LOOP.search(inp.get("command", "").split("<<")[0]) and not inp.get("run_in_background") \
+                            and MOVED_TO_BACKGROUND in text_of(b.get("content")):
+                        wait_loops["moved to the background"] += 1
                     check = check_of(inp.get("command", ""))
                     if not check:
                         continue
@@ -324,6 +335,8 @@ def main():
         print(f"| `{name}` | {r['n']} ({len(r['sessions'])}) | {r['fail']} | {statistics.median(secs):.0f} | {p90:.0f} "
               f"| {sum(secs) / 3600:.1f} | {len(lp)}, {med:.0f} |")
     stage_report(args.since)
+    print(f"\nWait loops (until/while ... sleep): {wait_loops['loops']} in {len(wait_loop_sessions)} transcripts, "
+          f"{wait_loops['moved to the background']} moved to the background by a foreground timeout")
     print(f"\nCompile errors seen in check output: {compile_errors}")
     print("\nTidy checks (unique session:file:line), sessions:")
     for n, c in tidy_fires.most_common(25):

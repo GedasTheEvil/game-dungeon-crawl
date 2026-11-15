@@ -94,3 +94,4 @@ gets its row. A feature's numbers (speeds, ranges, timings) sit in `level/gamepl
 | Blood splashes | `sim/particles.*` (motion), `graphics/particles_draw.*` |
 | Scenario commands | `test/scenario*.cpp` |
 | Plans: new, status, next, play-test, verdict, move, solve, reject, hold, lint, links, board | `tools/plan.py`, its tests `tools/plan_test.py` ([plans.md](plans.md)) |
+| Jobs (a long command detached, waited for with a deadline), reap of stray wait loops; the hook that blocks wait loops | `tools/job.sh`, its tests `tools/job_test.sh`; `tools/hooks/no_wait_loops.sh` (`.claude/settings.json`), tests `tools/hooks/test_no_wait_loops.sh` ([stuck-processes.md](stuck-processes.md)) |

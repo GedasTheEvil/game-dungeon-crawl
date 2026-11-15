@@ -18,3 +18,6 @@ docs/plan/BOARD.md
 # The release zip (tools/release.sh)
 /release/
 /release-*.zip
+
+# Scratch files and jobs (tools/job.sh)
+/tmp/

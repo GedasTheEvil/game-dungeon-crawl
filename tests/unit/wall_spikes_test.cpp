@@ -15,13 +15,15 @@ Tile spikesCell(SpikeSpeed speed, int phase) {
 	return cell;
 }
 
-// A corridor on row 1 with the wall spikes from col 3 on, the given phases, all at speed.
+// A corridor on row 1 with the wall spikes from col 3 on, the given phases, all at speed; a small health potion at col
+// 10 (the spikes make the player bleed, plan bleeding).
 LevelGrid corridor(const std::vector<int>& phases, SpikeSpeed speed = SpikeSpeed::Normal) {
 	LevelGrid grid;
 	for (int col = 1; col < 12; col++)
 		grid.set(col, 1, Tile{});
 	grid.set(1, 1, Tile{Door, GateEntrance, 0});
 	grid.set(11, 1, Tile{Door, GateExit, 0});
+	grid.set(10, 1, Tile{Treasure, 3, 0});
 	for (size_t k = 0; k < phases.size(); k++)
 		grid.set(3 + static_cast<int>(k), 1, spikesCell(speed, phases[k]));
 	return grid;

@@ -129,6 +129,9 @@ class Monster {
 	void sound(CharacterSound s) const { links.events->PlayCharacter(type->id, s); }
 	void bite(); // the player takes its damage; a life-stealing boss heals by its share of the HP they lost
 	void curse(const CurseEntries& entries); // its hit landed: it may lay a curse (Player::Curse), the journal sees it
+	// Its melee hit landed (a bite, a grab, a sting, a charge): it may make the player bleed, by its kind's bleed and
+	// its attack's cut share (plan bleeding).
+	void cutPlayer();
 	void sting(); // the scorpion's at the hold's end: a sure hit, its poison
 	void letGo(); // the grab is over, missed or held to its end; the next bite after its attackMs
 	[[nodiscard]] float roostLift() const; // flyers: world units from the floor to the origin, hanging from the ceiling
@@ -490,6 +493,15 @@ class Monster {
 	// (Dungeon::rewardKill).
 	bool UpdatePoison();
 	[[nodiscard]] bool Poisoned() const { return vitals.poison.Any(); }
+	// A cut that may bleed (plan bleeding): basePercent times its cut rate (type->resist) and its trap share
+	// (trapPermille; byPlayer: a weapon, all of it), rolled on rng; a bloodless kind never bleeds. byPlayer: the
+	// player's doing, its kill rewards them. True: it took.
+	bool TakeBleed(BleedTier tier, int basePercent, bool byPlayer, Rng& rng);
+	// Once a tick: the running bleed's damage (neither armour nor resistance), slower in half water. True: it killed
+	// and the player made it bleed (Dungeon::rewardKill).
+	bool UpdateBleeding();
+	[[nodiscard]] bool Bleeds() const { return vitals.bleeding.Any(); }
+	[[nodiscard]] int BleedMask() const { return vitals.bleeding.Mask(); }
 	// Once a tick: half water puts the fire out, else it burns (Burning), which can kill. True: it burnt to death
 	// and the player set it alight (Dungeon::rewardKill).
 	bool UpdateBurning();

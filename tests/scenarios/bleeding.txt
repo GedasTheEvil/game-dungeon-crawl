@@ -1,0 +1,37 @@
+# Plan bleeding: the bleed card (red drops, pips by tier) and the falling drops on the player, slower in water, a health
+# potion stops it, the regeneration amulet gives nothing while it runs; a monster's bleed icon, a bloodless mummy.
+seed 1
+peace
+level tests/levels/bleeding
+give amulet 32
+wear amulet_of_regeneration
+give potion 0 2
+gear 0 0 400
+wait 30
+hurt 20
+bleed medium
+expect bleed == 2
+wait 300
+screenshot player_bleeding
+dump
+wait 3s
+dump
+walk to 6.5
+bleed weak
+expect bleed == 3
+wait 2s
+screenshot bleeding_in_water
+dump
+key h
+wait 10
+expect bleed == 0
+dump
+walk to 18
+bleedmonster strong
+expect nearest_bleed == 4
+wait 1s
+screenshot spider_bleeding
+walk to 24
+bleedmonster strong
+expect nearest_bleed == 0
+quit

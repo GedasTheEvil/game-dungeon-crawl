@@ -444,6 +444,8 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::HurtBoss:
 	case CommandType::PoisonBoss:
 	case CommandType::PoisonMonster:
+	case CommandType::Bleed:
+	case CommandType::BleedMonster:
 	case CommandType::LoadGame:
 	case CommandType::Resolution: // ignored: the settings' resolution wins
 		return true;
@@ -506,6 +508,8 @@ const std::vector<CommandDef>& commandDefs() {
 		{"daze", CommandType::Daze, numberAtLeast<1>, "<ms>"},
 		{"poison", CommandType::Poison, parsePoison, "<weak|medium|strong>"},
 		{"poisonmonster", CommandType::PoisonMonster, parsePoison, "<weak|medium|strong>"},
+		{"bleed", CommandType::Bleed, parsePoison, "<weak|medium|strong>: as a sure cut, the cut rate still counts"},
+		{"bleedmonster", CommandType::BleedMonster, parsePoison, "<weak|medium|strong>: the nearest, as a sure cut"},
 		{"grab", CommandType::Grab, noArgs, ""},
 		{"stun", CommandType::Stun, noArgs, ""},
 		{"riddles", CommandType::Riddles, oneWord, "<file|directory>"},
@@ -574,6 +578,8 @@ const std::vector<FieldDef>& fieldDefs() {
 		{"decor_tier", Field::DecorTier},
 		{"nearest", Field::Nearest},
 		{"nearest_poison", Field::NearestPoison},
+		{"nearest_bleed", Field::NearestBleed},
+		{"bleed", Field::Bleed},
 		{"nearest_burning", Field::NearestBurning},
 		{"burning", Field::Burning},
 		{"blind", Field::Blind},

@@ -148,6 +148,7 @@ TEST_CASE("damage types: blunt normal, blade turned, the point a weakness; the f
 	SimWorld world; // the giant scarab: club 10 * 0.925 = 9, sword 35 * 0.725 = 25, spear 26 * 1.775 = 46
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/hitbox_giant_scarab"));
+	world.player.stats.Pray(God::Isis, world.events); // its bites' clumsiness would cut the hits
 	world.Give(ItemKind::ShortSword);
 	world.Give(ItemKind::Spear);
 	world.Equip(ItemKind::Club);

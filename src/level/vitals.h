@@ -10,6 +10,7 @@
 #include <optional>
 
 #include "../core/timer.h"
+#include "bleeding.h"
 #include "damage.h"
 #include "poison.h"
 #include "rng.h"
@@ -46,12 +47,14 @@ class Vitals {
 	explicit Vitals(int startHp = 0) : hp(startHp) {}
 	int hp;
 	Poison poison;
+	Bleeding bleeding; // plan bleeding
 	Burning burning; // not saved, it lasts seconds
 	bool inWater = false; // standing in half water: a hit's fire share is cut (inWaterResist), a fire put out
 	TrapHurt trapHurt; // the pace and ramp of a spike or death trap it stands in
 	int blazeReadyMs = 0; // GameClock: its next hit standing in a burning floor (Dungeon::updateBlazes)
 	bool poisonByPlayer = false; // a running tier is the player's doing: its kill is theirs
 	bool burnByPlayer = false; // the fire is the player's doing: its kill is theirs, a trap's not
+	bool bleedByPlayer = false; // a running bleed is the player's doing: its kill is theirs (plan bleeding)
 
 	[[nodiscard]] bool Alive() const { return hp > 0; }
 	// HP off, armour or not (the caller worked the hit out). Returns the HP lost: never more than it had.
@@ -107,6 +110,24 @@ class Vitals {
 		}
 		return poison.Advance(ms, maxHp, fasterPercent);
 	}
+	// A cut that may bleed (plan bleeding): rolled on rng at chancePercent (bleedChancePercent: the cut rate and the
+	// trap share already in), that tier (re)starts. True: it took.
+	bool TakeBleed(BleedTier tier, int chancePercent, Rng& rng, HarmSource source) {
+		if (!Alive() || chancePercent <= 0 || (chancePercent < 100 && !rng.percent(chancePercent)))
+			return false;
+		bleedByPlayer = source == HarmSource::Weapon || (bleedByPlayer && bleeding.Any());
+		bleeding.Apply(tier);
+		return true;
+	}
+	// Time passes for the bleeding: the HP its running tiers take (neither armour nor resistance), its time slower in
+	// water (the caller's: half water, not quicksand). Dead: stopped, none.
+	int BleedTick(int ms, int maxHp, bool water) {
+		if (!Alive()) {
+			bleeding.Stop();
+			return 0;
+		}
+		return bleeding.Advance(ms, maxHp, water);
+	}
 	// Time passes for the fire: in water or dead it goes out, else the HP it burns (armour does not help).
 	int BurnTick(int ms) {
 		if (inWater || !Alive()) {
@@ -123,7 +144,8 @@ class Vitals {
 	[[nodiscard]] bool Out() const { return OutLeftMs() > 0; }
 	// A knock on the head (plans head-bump, monster-head-bump): headBumpHp off the HP, at most what it has.
 	[[nodiscard]] int HeadBumpLoss(int maxHp) const;
-	// The fire, the poison, the knock and the trap carry gone (a death, a spawn, a new life); the HP stays.
+	// The fire, the poison, the bleeding, the knock and the trap carry gone (a death, a spawn, a new life); the HP
+	// stays.
 	void Clear();
 };
 

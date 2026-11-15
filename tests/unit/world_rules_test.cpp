@@ -140,6 +140,7 @@ TEST_CASE("an arrow into a monster in half water hits for half, on dry floor in 
 	SimWorld world; // tests/levels/water_arrow: a giant scarab (weak to pierce) in a pool at cols 4-7
 	world.player.god = true;
 	REQUIRE(world.Load("tests/levels/water_arrow"));
+	world.player.stats.Pray(God::Isis, world.events); // its bites' clumsiness would cut the hits
 	world.Equip(ItemKind::SelfBow);
 	REQUIRE(world.WalkTo(2.8f));
 	world.HoldWalk(1, 2 * UPDATE_TICK_MS);
@@ -443,7 +444,7 @@ TEST_CASE("a generated level and the campaign levels load and play") {
 TEST_CASE("a chest holds its main item and bonus rolls on the gameplay stream") {
 	SimWorld world; // tests/levels/classic1: the chest at x 14 on the start row holds a sword
 	world.player.god = true;
-	REQUIRE(world.Load("tests/levels/classic1", 4));
+	REQUIRE(world.Load("tests/levels/classic1", 3));
 	REQUIRE(world.Walk(3.f));
 	REQUIRE(world.Walk(1.6f));
 	world.facing = 1;
@@ -452,7 +453,7 @@ TEST_CASE("a chest holds its main item and bonus rolls on the gameplay stream") 
 	REQUIRE(world.Walk(0.6f));
 	world.OpenChest();
 	CHECK(world.items.Count(ItemKind::ShortSword) == 1);
-	int smallStamina = 0; // seed 4 rolls a small stamina bonus (potion 5)
+	int smallStamina = 0; // seed 3 rolls a small stamina bonus (potion 5)
 	for (int k = 0; k < ITEM_KIND_COUNT; k++)
 		if (isPotion(itemAt(k)) && fileIdOf(itemAt(k)).id == 5)
 			smallStamina = world.items.Count(itemAt(k));

@@ -125,5 +125,7 @@ int Monster::CeilingSpikes(bool death, Rng& rng) {
 	TrapHitHundredths(TrapBell::walkHundredths(death, MaxHealth(), WalkPace(), HalfWidth()));
 	if (death)
 		TakePoison(PoisonTier::Strong, false, rng);
+	const BleedRoll bleed = death ? DEATH_TRAP_BLEED : SPIKES_BLEED; // plan bleeding
+	TakeBleed(bleed.tier, bleed.percent, false, rng);
 	return before - vitals.hp;
 }

@@ -133,6 +133,7 @@ void Player::die(WorldEvents& events) {
 	setModelState(ModelState::Die);
 	events.PlayCharacter(PLAYER_CHARACTER, CharacterSound::Die);
 	stats.vitals.poison.Cure();
+	stats.vitals.bleeding.Stop();
 	stats.EndResistance();
 	stats.EndWaterBlessing();
 	stats.EndBlessings();
@@ -188,6 +189,26 @@ void Player::UpdatePoison(WorldEvents& events) {
 	if (hp <= 0 || !Alive() || god)
 		return;
 	stats.LoseHP(hp); // armour does not help
+	if (!Alive())
+		die(events);
+}
+
+bool Player::Bleed(BleedTier tier, int basePercent, int sharePermille, WorldEvents& events, Rng& rng) {
+	const bool bleeding = stats.vitals.bleeding.Any();
+	const int chance = bleedChancePercent(basePercent, stats.resist, sharePermille);
+	if (!stats.vitals.TakeBleed(tier, chance, rng, HarmSource::Monster))
+		return false;
+	if (!bleeding)
+		events.Status(StatusTone::Danger, "You are bleeding!");
+	events.Note(FieldNote::Bleeding);
+	return true;
+}
+
+void Player::UpdateBleeding(bool wading, WorldEvents& events) {
+	const int hp = stats.vitals.BleedTick(UPDATE_TICK_MS, stats.CurrentMaxHP(), wading);
+	if (hp <= 0 || !Alive() || god)
+		return;
+	stats.LoseHP(hp); // neither armour nor resistance
 	if (!Alive())
 		die(events);
 }

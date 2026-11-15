@@ -153,6 +153,7 @@ void Monster::bite() {
 	}
 	const int lost = links.player->TakeHit(HitDamage(type->damage), type->attackMix, *links.events);
 	curse(type->meleeCurses);
+	cutPlayer();
 	if (type->poison && (type->poisonChancePercent >= 100 || links.random->percent(type->poisonChancePercent))) {
 		links.player->Poison(*type->poison, *links.events, *links.random);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Poison);
@@ -172,6 +173,11 @@ void Monster::bite() {
 	if (steal > 0 && lost > 0)
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Heal);
 	sound(CharacterSound::Attack);
+}
+
+void Monster::cutPlayer() {
+	if (const int base = biteBleedPercent(type->bleed.percent, type->attackMix); base > 0)
+		links.player->Bleed(type->bleed.tier, base, FULL_TRAP_SHARE, *links.events, *links.random);
 }
 
 void Monster::curse(const CurseEntries& entries) {

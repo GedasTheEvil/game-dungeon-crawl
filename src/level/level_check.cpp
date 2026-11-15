@@ -530,9 +530,13 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	}
 	bool poisoners = false;
 	bool antidote = false; // in reach
+	bool bleeders = false; // plan bleeding: a cutting bite, spikes (floor, wall, ceiling), a death trap
+	bool heal = false; // a health potion or an elixir of life in reach: any heal stops the bleeding
 	for (int cell = 0; cell < CELLS; cell++) {
 		const Tile t = grid.cells[cell];
 		poisoners = poisoners || (t.type == MonsterSpawn && isPoisoner(t.attr));
+		bleeders = bleeders || (t.type == MonsterSpawn && isBleeder(t.attr)) || t.type == Spike || t.type == Death ||
+				   t.fixture.type == WallSpikes || isCeilingTrap(t.fixture.type);
 		if (cellReached[cell] == 0)
 			continue;
 		r.reachableCells++;
@@ -540,9 +544,15 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.reachableTreasures += isTreasure(t) ? 1 : 0;
 		// A trapped chest's antidote does not count: half of them are empty (plan trapped-chests).
 		antidote = antidote || (t.type == Treasure && itemFromFile(t.attr, t.value) == ItemKind::Antidote);
+		if (t.type == Treasure) {
+			const std::optional<ItemKind> item = itemFromFile(t.attr, t.value);
+			heal = heal || item == ItemKind::SmallHealth || item == ItemKind::LargeHealth || item == ItemKind::Life;
+		}
 	}
 	if (poisoners && !antidote)
 		r.warnings.emplace_back("poisoners but no antidote in reach");
+	if (bleeders && !heal)
+		r.warnings.emplace_back("bleeding (cutting monsters or spikes) but no health potion in reach");
 	if (r.poisonDrips > 0 && !antidote) // plan poison-drip-trap
 		r.warnings.emplace_back("poison drips but no antidote in reach");
 	for (int cell = 0; cell < CELLS; cell++) {

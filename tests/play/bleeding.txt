@@ -1,0 +1,7 @@
+# Plan bleeding: a camel spider (cuts: it may make you bleed), floor spikes (col 11), half water (cols 5-8), two small
+# health potions in the chests (cols 13-14), a bloodless mummy (col 26). The regeneration amulet worn.
+seed 1
+level tests/levels/bleeding
+give amulet 32
+wear amulet_of_regeneration
+give potion 0 2

@@ -10,6 +10,7 @@
 #include "curses.h"
 #include "damage.h"
 #include "level.h"
+#include "bleeding.h"
 #include "poison.h"
 #include "rgb.h"
 #include "terrain.h"
@@ -338,6 +339,10 @@ struct MonsterKind {
 	// Chance that a poisoning does not take (plan monster-poison); 100: immune. A boss's is at least its
 	// kin's.
 	int poisonResistPercent = 0;
+	// Its bite's bleed (plan bleeding): a hit makes the player bleed at percent x its attack's cut share
+	// (biteBleedPercent; no cut share, no bleed), that tier. A boss whose kin cuts bleeds them harder (AGENTS.md).
+	BleedRoll bleed{};
+	bool bloodless = false; // it never bleeds (plan bleeding): linen, stone, clay, wood, a plant
 	// The share of its kills that leave a ring instead of a weapon (plan ring-accessories): the ones that carry
 	// things. A cursed mimic's chest holds one at this share. Bosses leave their amulet.
 	int ringDropPercent = 0;
@@ -403,6 +408,13 @@ struct MonsterKind {
 [[nodiscard]] inline bool isPoisoner(int type) {
 	const MonsterKind* kind = monsterKind(type);
 	return kind != nullptr && (kind->poison.has_value() || kind->touch.has_value());
+}
+
+// Its bite cuts (plan bleeding): it can make the player bleed. The checker wants a health potion in reach on a level
+// with one.
+[[nodiscard]] inline bool isBleeder(int type) {
+	const MonsterKind* kind = monsterKind(type);
+	return kind != nullptr && kind->damage > 0 && biteBleedPercent(kind->bleed.percent, kind->attackMix) > 0;
 }
 
 // How the journal writes a poison resistance down: "normal", "resists", "tough", "immune" (as resistanceWord).

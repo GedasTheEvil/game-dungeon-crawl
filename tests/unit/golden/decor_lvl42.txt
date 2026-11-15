@@ -198,7 +198,7 @@
 14,14 surface 12/5/7
 15,14 surface 12/5/7 prop rubble -0.024 decal 0m 0.400,0.465
 16,14 surface 12/5/7 decal 11m 0.434,0.401
-17,14 surface 12/5/7 prop osirism 0.015
+17,14 surface 12/5/7
 18,14 surface 12/5/7 ladder 1/3
 19,14 surface 12/5/7 prop thoth_ibis_standing -0.107 decal 9 0.673,0.587
 20,14 surface 12/5/7

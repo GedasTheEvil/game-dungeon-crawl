@@ -6,6 +6,8 @@ int Vitals::HeadBumpLoss(int maxHp) const { return std::min(headBumpHp(maxHp), s
 void Vitals::Clear() {
 	poison.Cure();
 	poisonByPlayer = false;
+	bleeding.Stop();
+	bleedByPlayer = false;
 	burning.Douse();
 	burnByPlayer = false;
 	trapCarry = 0;

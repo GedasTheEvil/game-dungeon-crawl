@@ -53,6 +53,8 @@ enum class CommandType : unsigned char {
 	Daze,
 	Poison,
 	PoisonMonster,
+	Bleed, // plan bleeding
+	BleedMonster,
 	Grab,
 	Stun,
 	Riddles,
@@ -109,6 +111,8 @@ enum class Field : unsigned char {
 	DecorTier,
 	Nearest,
 	NearestPoison,
+	NearestBleed, // plan bleeding: its running bleed tiers (Bleeding::Mask)
+	Bleed, // the player's
 	NearestBurning,
 	Burning,
 	Blind,

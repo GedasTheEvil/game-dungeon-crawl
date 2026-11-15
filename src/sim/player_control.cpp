@@ -100,6 +100,7 @@ bool PlayerControl::Walk(float dx, float dy) {
 void PlayerControl::AfterUpdate() {
 	player.stats.UpdateStamina(events);
 	player.UpdatePoison(events);
+	player.UpdateBleeding(dungeon.PlayerWading(), events);
 	player.stats.Regenerate(dungeon.PlayerSafe(), UPDATE_TICK_MS);
 	dungeon.AnimateMonsters();
 	player.Animate();

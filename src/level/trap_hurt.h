@@ -14,6 +14,7 @@ struct TrapHurt {
 	int lastHitMs = 0;
 	float lastX = 0.f; // the body's map x on the tick before: the way it covered in a trap (TrapBell)
 	bool venomed = false; // a death trap's poison took on this entry (once per entry, reset on leaving it)
+	bool bleedRolled = false; // a spike or death trap rolled its bleed on this entry (plan bleeding, once per entry)
 	// Called each tick it is in a trap: the damage of the hit due now, else 0.
 	int hit() {
 		if (!timer.TimePassed())

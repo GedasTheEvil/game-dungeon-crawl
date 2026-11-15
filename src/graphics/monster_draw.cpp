@@ -147,6 +147,10 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 		drawBlood();
 	if (!plain)
 		drawBlood(); // even when dead
+	if (!plain && mon.Alive() && mon.Bleeds() && !mon.Hidden()) {
+		textures.nullTex.Bind();
+		Particles::DrawBleedDrops(type.model.referenceTop, static_cast<int>(mon.CentreX() * 10.f));
+	}
 
 	model.BindTexture();
 	// Climbing it faces the ladder, its back to the camera.

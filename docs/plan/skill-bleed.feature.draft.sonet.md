@@ -1,6 +1,6 @@
 # Skill Bleed: cutting hits may make a foe bleed
 
-Status: draft 2026-11-15, size S, needs first [bleeding](bleeding.feature.draft.opus.md).
+Status: draft 2026-11-15, size S, needs first [bleeding](bleeding.feature.md).
 
 ## Idea
 

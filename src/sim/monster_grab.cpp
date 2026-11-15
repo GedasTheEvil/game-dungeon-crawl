@@ -40,6 +40,7 @@ void Monster::UpdateGrab(float px, float py, bool playerWading) {
 			*links.events
 		);
 		curse(type->meleeCurses);
+		cutPlayer();
 		links.journal->HitByCreature(type->id, links.level);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Grab);
 		links.events->Status(
@@ -72,6 +73,7 @@ void Monster::sting() {
 	Player& player = *links.player;
 	player.TakeHit(HitDamage(type->damage), type->attackMix, *links.events);
 	curse(type->meleeCurses);
+	cutPlayer();
 	if (type->poison) {
 		player.Poison(*type->poison, *links.events, *links.random);
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Poison);

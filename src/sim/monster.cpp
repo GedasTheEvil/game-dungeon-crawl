@@ -327,6 +327,22 @@ bool Monster::UpdatePoison() {
 	return vitals.poisonByPlayer;
 }
 
+bool Monster::TakeBleed(BleedTier tier, int basePercent, bool byPlayer, Rng& rng) {
+	if (!Alive() || type->bloodless)
+		return false;
+	const int share = byPlayer ? FULL_TRAP_SHARE : type->trapPermille;
+	const int chance = bleedChancePercent(basePercent, type->resist, share);
+	return vitals.TakeBleed(tier, chance, rng, byPlayer ? HarmSource::Weapon : HarmSource::Trap);
+}
+
+bool Monster::UpdateBleeding() {
+	const int hp = vitals.BleedTick(UPDATE_TICK_MS, MaxHealth(), vitals.inWater);
+	if (hp <= 0 || !takeHit(hp)) // neither armour nor resistance
+		return false;
+	vitals.bleeding.Stop();
+	return vitals.bleedByPlayer;
+}
+
 bool Monster::UpdateBurning() {
 	const int hp = vitals.BurnTick(UPDATE_TICK_MS);
 	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player

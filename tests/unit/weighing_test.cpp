@@ -109,7 +109,7 @@ TEST_CASE("weighing-of-the-heart: the scales stand on lvl54 between the boss gat
 }
 
 TEST_CASE("weighing-of-the-heart: the verdict notes and pages are saved by number, at the end") {
-	CHECK(static_cast<int>(FieldNote::HeartHeavy) + 1 == FIELD_NOTE_COUNT);
+	CHECK(static_cast<int>(FieldNote::HeartHeavy) + 1 < FIELD_NOTE_COUNT); // the later notes after them (bleeding)
 	CHECK(static_cast<int>(DiaryPage::ScalesHeavy) + 1 == DIARY_PAGE_COUNT);
 }
 

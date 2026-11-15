@@ -403,7 +403,7 @@
 20,28 surface 6/1/2 decal 0m 0.446,0.437
 21,28 surface 7/1/2 prop osiris 0.051 torch fire torch 0.000,0.680,0.098
 22,28 surface 6/1/2
-23,28 surface 6/1/2 prop canopicm -0.054
+23,28 surface 6/1/2
 24,28 surface 7/1/2 prop coffin 0.000 decal 8 0.564,0.604
 25,28 surface 6/1/2
 26,28 surface 6/1/2 decal 8m 0.582,0.555

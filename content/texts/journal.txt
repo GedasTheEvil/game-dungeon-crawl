@@ -157,6 +157,13 @@ text: Fire sets what it hits on fire: it keeps burning for a few seconds after t
 	a mimic's dry wood, a plant, a mummy, burns instead: fire arrows are my answer to it. Scorpions are used to the
 	heat.
 
+[note.bleeding]
+title: Bleeding
+text: A blade, a claw or a spike can open a wound that keeps bleeding for a while after the hit. Armour does not
+	stop the bleeding once it runs; only a cut guard amulet makes a wound less likely. Any healing closes it: a health
+	potion, an elixir, a new level. My amulet and my rings give me nothing while I bleed. In the water the blood runs
+	slower, and so it runs longer. Mummies, statues and the clay things do not bleed at all.
+
 [note.favour-of-hapi]
 title: Favour of Hapi
 text: The water parts for me now. Not much, but enough to stop wading like a heron.

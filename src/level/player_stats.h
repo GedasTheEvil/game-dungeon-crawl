@@ -131,7 +131,10 @@ class PlayerStats {
 	void AddMight(int ns = 1);
 	void AddXP(int xp, WorldEvents& events); // a level up shows its status line and writes the levels note
 	void Heal(int hpPart); // percent of max HP
-	void HealFully() { vitals.hp = CurrentMaxHP(); }
+	void HealFully() { // any heal stops the bleeding (plan bleeding)
+		vitals.hp = CurrentMaxHP();
+		vitals.bleeding.Stop();
+	}
 	void AddArmor(int na = 1);
 	// HP lost to a hit of dmg dealt as mix: the resistances, then the armour unless ignoreArmor; at least 1.
 	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor, bool inWater = false) const;

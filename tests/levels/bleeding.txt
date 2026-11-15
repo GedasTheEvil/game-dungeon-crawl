@@ -1,0 +1,9 @@
+; Plan bleeding: the player (col 2), a pool of half water (cols 5-8), floor spikes (col 11), two small health potions
+; (cols 13-14), a camel spider (col 20, it cuts: it may make the player bleed) and a mummy (col 26, bloodless).
+##############################
+#.S........^.$$.....h.....u.E#
+##############################
+structure
+##############################
+#....~~~~....................#
+##############################

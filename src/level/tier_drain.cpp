@@ -1,21 +1,19 @@
-#include "poison.h"
+#include "tier_drain.h"
 #include <algorithm>
 #include <istream>
-#include <string>
 #include <ostream>
-#include <utility>
+#include <string>
 
-void Poison::Apply(PoisonTier tier, bool halved) {
-	TierTimer& t = tiers[std::to_underlying(tier)];
+void TierDrain::Apply(size_t tier, int durationMs) {
+	TierTimer& t = tiers[tier];
 	if (t.leftMs <= 0)
 		t = {};
-	const int duration = POISON_TIERS[std::to_underlying(tier)].durationMs;
-	t.leftMs = halved ? duration / 2 : duration;
+	t.leftMs = durationMs;
 }
 
-int Poison::Advance(int ms, int maxHp, int fasterPercent) {
+int TierDrain::Advance(int ms, int maxHp, const DrainTierDefs& defs, int pacePercent) {
 	int hp = 0;
-	const int pace = 100 + std::max(0, fasterPercent);
+	const int pace = std::max(1, pacePercent);
 	for (size_t i = 0; i < tiers.size(); i++) {
 		TierTimer& t = tiers[i];
 		if (t.leftMs <= 0)
@@ -26,7 +24,7 @@ int Poison::Advance(int ms, int maxHp, int fasterPercent) {
 		t.sinceTickMs += spent;
 		while (t.sinceTickMs >= 1000) {
 			t.sinceTickMs -= 1000;
-			const PoisonTierDef& def = POISON_TIERS[i];
+			const DrainTierDef& def = defs[i];
 			const int hundredths = std::max(def.floorHpPerSecond * 100, maxHp * def.percentOfMaxHp) + t.carryHundredths;
 			t.carryHundredths = hundredths % 100;
 			hp += hundredths / 100;
@@ -37,9 +35,7 @@ int Poison::Advance(int ms, int maxHp, int fasterPercent) {
 	return hp;
 }
 
-bool Poison::Any() const { return Mask() != 0; }
-
-int Poison::Mask() const {
+int TierDrain::Mask() const {
 	int mask = 0;
 	for (size_t i = 0; i < tiers.size(); i++)
 		if (tiers[i].leftMs > 0)
@@ -47,18 +43,18 @@ int Poison::Mask() const {
 	return mask;
 }
 
-void Poison::Save(std::ostream& out) const {
-	out << "POISON";
+void TierDrain::Save(std::ostream& out, const char* tag) const {
+	out << tag;
 	for (const TierTimer& t : tiers)
 		out << " " << t.leftMs << " " << t.sinceTickMs;
 	out << "\n";
 }
 
-void Poison::Load(std::istream& in) {
-	Cure();
+void TierDrain::Load(std::istream& in, const char* tag) {
+	Stop();
 	const auto start = in.tellg();
-	std::string tag;
-	if (!(in >> tag) || tag != "POISON") {
+	std::string word;
+	if (!(in >> word) || word != tag) {
 		in.clear();
 		in.seekg(start);
 		return;

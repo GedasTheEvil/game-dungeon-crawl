@@ -329,6 +329,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonChancePercent = 30,
 	 .touch = TouchPoison{PoisonTier::Weak, 20},
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .generated = {3, 10, 2}},
 	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%). Tuned for the
 	// necropolis, not its first zone: the late zones' own monster; in the priests' quarter, rare, the zone's terror.
@@ -355,6 +356,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 3,
 	 .wading = Wading::Unaffected,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .ringDropPercent = 6,
 	 // A bolt of fire from the was-sceptre (plans anubis-ranged-attack, anubis-fire-bolt). The melee swing is its
 	 // ranged clip.
@@ -423,6 +425,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::WalkJump,
 	 .stepQuarters = 1,
 	 .wading = Wading::Unaffected,
+	 .bleed = {BleedTier::Medium},
 	 .meleeCurses =
 		 {CurseEntry{Curse::Disease, CurseGrade::Greater, 3}, CurseEntry{Curse::Disease, CurseGrade::Lesser, 15}},
 	 .walkStride = RAT_STRIDE,
@@ -477,6 +480,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 0,
 	 .native = Terrains{Terrain::Darkness},
 	 .hostile = Terrains{Terrain::Fire},
+	 .bleed = {BleedTier::Medium},
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 15}},
 	 .screech = GIANT_BAT_SCREECH,
 	 .generated = {6, 10, 2}},
@@ -501,7 +505,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = MIMIC_RESIST,
 	 .locomotion = Locomotion::Ambush,
 	 .heightQuarters = 1,
-	 .poisonResistPercent = POISON_IMMUNE},
+	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true},
 	{.id = MonsterGiantScarab,
 	 .glyph = 'k',
 	 .name = "Giant scarab",
@@ -522,6 +527,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = SCARAB_RESIST,
 	 .locomotion = Locomotion::WalkJump,
 	 .stepQuarters = 1,
+	 .bleed = {BleedTier::Medium},
 	 .meleeCurses = {CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 15}},
 	 .walkStride = GIANT_SCARAB_STRIDE,
 	 .roll = GIANT_SCARAB_ROLL,
@@ -551,6 +557,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::WalkJump,
 	 .weight = 4,
 	 .stepQuarters = 2,
+	 .bleed = {BleedTier::Medium, BOSS_BLEED_BITE_PERCENT},
 	 .meleeCurses =
 		 {CurseEntry{Curse::Clumsiness, CurseGrade::Greater, 6}, CurseEntry{Curse::Clumsiness, CurseGrade::Lesser, 30}},
 	 .walkStride = GIANT_SCARAB_STRIDE,
@@ -581,6 +588,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 0,
 	 .native = Terrains{Terrain::Darkness},
 	 .hostile = Terrains{Terrain::Fire},
+	 .bleed = {BleedTier::Medium, BOSS_BLEED_BITE_PERCENT},
 	 .meleeCurses = {CurseEntry{Curse::Fatigue, CurseGrade::Lesser, 30}},
 	 .screech = SHEZMU_SCREECH,
 	 .kin = MonsterBat,
@@ -609,6 +617,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .trapPermille = 440,
 	 .hostile = Terrains{Terrain::Fire},
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .ringDropPercent = 6, // the tomb's dead keep their rings
 	 .meleeCurses =
 		 {CurseEntry{Curse::Weakness, CurseGrade::Greater, 2}, CurseEntry{Curse::Weakness, CurseGrade::Lesser, 10}},
@@ -646,6 +655,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .wading = Wading::Unaffected,
 	 .poisonResistPercent = POISON_IMMUNE,
 	 // Its guard's bolt, farther and harder, burning longer; the same model.
+	 .bloodless = true,
 	 .ranged =
 		 RangedRules{
 			 125,
@@ -823,6 +833,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .hostile = Terrains{Terrain::Water},
 	 .poison = PoisonTier::Medium,
 	 .poisonResistPercent = POISONER_RESIST,
+	 .bleed = {BleedTier::Medium},
 	 .walkStride = SCORPION_STRIDE,
 	 .hold = GIANT_SCORPION_HOLD,
 	 .climbs = true,
@@ -879,6 +890,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .hostile = Terrains{Terrain::Water},
 	 .poison = PoisonTier::Strong,
 	 .poisonResistPercent = POISONER_BOSS_RESIST,
+	 .bleed = {BleedTier::Medium, BOSS_BLEED_BITE_PERCENT},
 	 .walkStride = SCORPION_STRIDE,
 	 .hold = SCORPION_QUEEN_HOLD,
 	 .climbs = true,
@@ -989,6 +1001,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .heightQuarters = 1,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .staminaDrainPct = 25,
 	 .riseMs = 600},
 	// The mummies' boss (plan mummy-boss): a high priest who read the curses at the funerals, a head taller than a
@@ -1021,6 +1034,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .heightQuarters = 3,
 	 .hostile = Terrains{Terrain::Fire},
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .ranged =
 		 RangedRules{
 			 80,
@@ -1076,6 +1090,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .native = Terrains{Terrain::Darkness, Terrain::Web},
 	 .hostile = Terrains{Terrain::Light, Terrain::Fire},
+	 .bleed = {BleedTier::Medium},
 	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
 	 .climbs = true, // plan spider-climbers
@@ -1138,6 +1153,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 1,
 	 .hostile = Terrains{Terrain::Water},
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .riseMs = 900,
 	 .walkStride = USHABTI_STRIDE,
 	 .generated = {6, 10, 1}},
@@ -1166,6 +1182,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .heightQuarters = 1,
 	 .stepQuarters = 1,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .ringDropPercent = 15,
 	 .meleeCurses = {CurseEntry{Curse::Insanity, CurseGrade::Lesser, 25}},
 	 .walkStride = CURSED_CHEST_STRIDE},
@@ -1227,6 +1244,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .resist = BABOON_RESIST,
 	 .native = Terrains{Terrain::Fire},
 	 .hostile = Terrains{Terrain::Water},
+	 .bleed = {BleedTier::Medium},
 	 .ranged =
 		 RangedRules{
 			 .damage = 24,
@@ -1274,6 +1292,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .weight = 5,
 	 .native = Terrains{Terrain::Sand},
 	 .hostile = Terrains{Terrain::Water},
+	 .bleed = {BleedTier::Medium, BOSS_BLEED_BITE_PERCENT},
 	 .meleeCurses = {CurseEntry{Curse::Slowness, CurseGrade::Lesser, 30}},
 	 .walkStride = WORM_STRIDE,
 	 .spray = RoarRules{REREK_SPRAY_RADIUS, 0, REREK_SPRAY_SHOVE, REREK_SPRAY_HAZE_MS},
@@ -1312,6 +1331,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .heightQuarters = 3,
 	 .native = Terrains{Terrain::Darkness, Terrain::Web},
 	 .hostile = Terrains{Terrain::Light, Terrain::Fire},
+	 .bleed = {BleedTier::Strong, BOSS_BLEED_BITE_PERCENT},
 	 .walkStride = CAMEL_SPIDER_STRIDE,
 	 .shunsLight = true,
 	 .douseCells = MOTHER_DOUSE_CELLS,
@@ -1355,6 +1375,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .stepQuarters = 2,
 	 .native = Terrains{Terrain::Fire},
 	 .hostile = Terrains{Terrain::Water},
+	 .bleed = {BleedTier::Strong, BOSS_BLEED_BITE_PERCENT},
 	 .ranged =
 		 RangedRules{
 			 .damage = 30,
@@ -1399,6 +1420,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .locomotion = Locomotion::Ambush,
 	 .heightQuarters = 1,
 	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
 	 .disguise = Container::Jar},
 	// The tiny spider (plan spider-climbers): the camel spider's small kin on its model, darker, in groups of 2 to 4.
 	// Fast, a few blows kill it, a plain bite; it climbs and keeps out of the light like its big kin, and fits through

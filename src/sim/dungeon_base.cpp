@@ -259,6 +259,17 @@ bool Dungeon::TrapVenomDue(TrapHurt& hurt, const std::optional<TrapContact>& her
 	return true;
 }
 //======================================================================================
+std::optional<BleedRoll> Dungeon::TrapBleedDue(TrapHurt& hurt, const std::optional<TrapContact>& here, int hundredths) {
+	if (!here) {
+		hurt.bleedRolled = false;
+		return std::nullopt;
+	}
+	if (hurt.bleedRolled || hundredths <= 0)
+		return std::nullopt;
+	hurt.bleedRolled = true;
+	return here->type == Death ? DEATH_TRAP_BLEED : SPIKES_BLEED;
+}
+//======================================================================================
 // Every trap hurts the player and the monsters by one rule (plan same-hazards-for-all); a kind differs only by its
 // numbers (trap share, resistances, poison ward). Only walkers on the ground stand in a spike trap: flyers pass over, a
 // leaper is in the air. The player and a reckless walker touch it with their box; the others keep out of its cell and
@@ -272,8 +283,11 @@ void Dungeon::updateTraps() {
 	const bool airborne = player.jump.jumping || player.jump.falling;
 	const int walk = TrapWalkHundredths(stats.vitals.trapHurt, mapX, here, stats.CurrentMaxHP(), {}, airborne);
 	const bool venom = TrapVenomDue(stats.vitals.trapHurt, here, walk);
+	const std::optional<BleedRoll> bleed = TrapBleedDue(stats.vitals.trapHurt, here, walk);
 	if (const int dmg = stats.TrapDamageHundredths(walk); dmg > 0)
 		player.TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events, true);
+	if (bleed) // plan bleeding: the trap ward cuts its chance as it cuts the hit
+		player.Bleed(bleed->tier, bleed->percent, stats.TrapPermille(), *sim.events, sim.random->gameplay);
 	if (venom && player.Alive()) { // the death trap's tips are venomous: once per entry
 		sim.events->Status("The spike tips are wet with venom.");
 		player.Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
@@ -310,6 +324,8 @@ void Dungeon::updateTraps() {
 		const int dealt = TrapWalkHundredths(hurt, mon.CentreX(), trap, mon.MaxHealth(), mon.WalkPace(), false);
 		if (TrapVenomDue(hurt, trap, dealt))
 			mon.TakePoison(PoisonTier::Strong, false, sim.random->gameplay);
+		if (const std::optional<BleedRoll> bleed = TrapBleedDue(hurt, trap, dealt))
+			mon.TakeBleed(bleed->tier, bleed->percent, false, sim.random->gameplay);
 		if (trap) {
 			mon.TrapHitHundredths(dealt);
 			continue;
@@ -322,6 +338,9 @@ void Dungeon::updateTraps() {
 void Dungeon::updateMonsterPoison() {
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.UpdatePoison())
+			rewardKill(mon);
+	for (Monster& mon : monsters) // plan bleeding
+		if (mon.Active() && mon.UpdateBleeding())
 			rewardKill(mon);
 }
 //======================================================================================
@@ -535,6 +554,8 @@ void Dungeon::ceilingSpikesHit(int trap) {
 		sim.events->Status("The spike tips are wet with venom.");
 		player.Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
 	}
+	const BleedRoll bleed = death ? DEATH_TRAP_BLEED : SPIKES_BLEED; // plan bleeding
+	player.Bleed(bleed.tier, bleed.percent, stats.TrapPermille(), *sim.events, sim.random->gameplay);
 }
 //======================================================================================
 void Dungeon::StartJump(int dir) {

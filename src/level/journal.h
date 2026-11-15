@@ -220,8 +220,9 @@ enum class FieldNote : unsigned char {
 	// Plan weighing-of-the-heart: the verdict of the scales on the last level (judgment.h), one of the two.
 	HeartLight,
 	HeartHeavy,
+	Bleeding, // the first time the player bleeds (plan bleeding)
 };
-constexpr int FIELD_NOTE_COUNT = 88 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 89 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

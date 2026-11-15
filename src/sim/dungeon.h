@@ -725,6 +725,10 @@ class Dungeon {
 	);
 	// The death trap's venom, once per entry (TrapHurt::venomed): true when it is due now.
 	[[nodiscard]] static bool TrapVenomDue(TrapHurt& hurt, const std::optional<TrapContact>& here, int hundredths);
+	// A spike or death trap's bleed roll, once per entry that hurt (TrapHurt::bleedRolled, plan bleeding): its source
+	// when due now.
+	[[nodiscard]] static std::optional<BleedRoll>
+	TrapBleedDue(TrapHurt& hurt, const std::optional<TrapContact>& here, int hundredths);
 	Dungeon();
 	~Dungeon();
 	void Link(const SimLinks& links) { sim = links; } // once, before the first level
@@ -968,6 +972,7 @@ class Dungeon {
 	[[nodiscard]] const Monster* Monsters() const { return monsters; }
 	[[nodiscard]] int NearestMonsterHealth() const; // of the living monster nearest the player, 0 if none
 	[[nodiscard]] int NearestMonsterPoison() const; // its running poison tiers (Poison::Mask), 0 if none
+	[[nodiscard]] int NearestMonsterBleed() const; // its running bleed tiers (Bleeding::Mask), 0 if none
 	[[nodiscard]] bool NearestMonsterBurns() const; // it is on fire (plan fire-damage)
 	[[nodiscard]] int ChestCount() const; // treasure chests not opened yet
 	[[nodiscard]] int CoffinCount() const; // coffins standing on the level (decorations)
@@ -1018,6 +1023,7 @@ class Dungeon {
 	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
 	// may shrug it off).
 	void PoisonNearestMonster(PoisonTier tier);
+	void BleedNearestMonster(BleedTier tier); // a sure cut by the player (plan bleeding): bloodless, none
 	// Scenario `stun`: the boss of the level while it lives, else the living monster nearest the player, is stunned for
 	// STUN_MS, as by a blunt hit with the Stun skill (Monster::StunHit; a boss for less). False: it cannot be (lurking,
 	// hidden, ...), or there is none.

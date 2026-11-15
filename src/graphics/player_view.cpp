@@ -68,6 +68,10 @@ void PlayerView::Draw(const Player& player, const TextureRegistry& textures) con
 	if (player.Alive())
 		drawBlood();
 	drawBlood(); // even when dead
+	if (player.Alive() && player.stats.vitals.bleeding.Any()) {
+		textures.nullTex.Bind();
+		Particles::DrawBleedDrops(1.f, 0);
+	}
 
 	model.BindTexture();
 	glRotatef(player.rotA, 0, 1, 0);

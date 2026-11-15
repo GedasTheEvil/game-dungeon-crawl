@@ -146,6 +146,13 @@ void Dungeon::stabWallSpikes(int col, int row) {
 			if (const int dmg = sim.player->stats.TrapDamage(SPIKES_STAB_DAMAGE); dmg > 0) {
 				sim.player->TakeHit(dmg, SPIKE_ATTACK_MIX, *sim.events);
 				sim.player->Poison(PoisonTier::Weak, *sim.events, sim.random->gameplay);
+				sim.player->Bleed( // plan bleeding
+					SPIKES_BLEED.tier,
+					SPIKES_BLEED.percent,
+					sim.player->stats.TrapPermille(),
+					*sim.events,
+					sim.random->gameplay
+				);
 			}
 		if (const auto x = outOfSpikes(col, row, mapX, half))
 			mapX = *x;
@@ -155,6 +162,7 @@ void Dungeon::stabWallSpikes(int col, int row) {
 			mon.Right() > left && mon.Left() < right) {
 			mon.TrapHit(SPIKES_STAB_DAMAGE);
 			mon.TakePoison(PoisonTier::Weak, false, sim.random->gameplay); // no XP for a trap's kill
+			mon.TakeBleed(SPIKES_BLEED.tier, SPIKES_BLEED.percent, false, sim.random->gameplay);
 			if (const auto x = outOfSpikes(col, row, mon.CentreX(), mon.HalfWidth()))
 				mon.ShoveTo(*x);
 		}

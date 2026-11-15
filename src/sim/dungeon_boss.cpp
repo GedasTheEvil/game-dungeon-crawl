@@ -69,6 +69,16 @@ bool Dungeon::GrabNearest() {
 	return nearest != nullptr && monsters[nearest - monsters].StartGrab();
 }
 //======================================================================================
+int Dungeon::NearestMonsterBleed() const {
+	const Monster* nearest = nearestMonster();
+	return nearest ? nearest->BleedMask() : 0;
+}
+//======================================================================================
+void Dungeon::BleedNearestMonster(BleedTier tier) {
+	if (const Monster* nearest = nearestMonster())
+		monsters[nearest - monsters].TakeBleed(tier, 100, true, sim.random->gameplay);
+}
+//======================================================================================
 void Dungeon::PoisonNearestMonster(PoisonTier tier) {
 	if (const Monster* nearest = nearestMonster())
 		monsters[nearest - monsters].TakePoison(tier, true, sim.random->gameplay);

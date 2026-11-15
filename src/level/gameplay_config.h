@@ -632,6 +632,15 @@ constexpr int FIRE_JET_HP_PER_SECOND = 450;
 constexpr float DRIP_PUDDLE_HALF_WIDTH = 0.35f;
 constexpr int DRIP_DROP_DAMAGE = 8;
 
+// Bleeding (plan bleeding, level/bleeding.h): the base chance of a bleed per source, before the victim's cut rate and
+// its trap share (bleedChancePercent). A cutting bite: BLEED_BITE_PERCENT x its cut share (a rat's 30%: 9%), a boss's
+// BOSS_BLEED_BITE_PERCENT. The spikes (floor, wall, ceiling) a weak bleed, the death traps (floor, ceiling) a medium
+// one, once per entry.
+constexpr int BLEED_BITE_PERCENT = 30;
+constexpr int BOSS_BLEED_BITE_PERCENT = 45;
+constexpr int SPIKES_BLEED_PERCENT = 40;
+constexpr int DEATH_TRAP_BLEED_PERCENT = 70;
+
 // Sunlight mirrors (plan sunlight-mirrors): a turned mirror swings to its new way in MIRROR_TURN_MS. A sun burner (the
 // mummies) in a beam burns as from a hit with SUN_BURN_FIRE fire (Burning: a fifth of it a second, BURN_MS after it
 // steps out). A sun disc just lit flares for SUN_DISC_FLARE_MS, then glows steady.

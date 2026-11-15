@@ -35,8 +35,9 @@ struct Status {
 	int leftMs = 0; // the seconds shown under the card
 };
 
-// Fixed size, no allocation per frame: all the blessings, poison tiers, burning, daze, terrain and curses at once.
-constexpr int MAX_STATUSES = 2 + GOD_COUNT + POISON_TIER_COUNT + 3 + CURSE_COUNT;
+// Fixed size, no allocation per frame: all the blessings, poison and bleed tiers, burning, daze, terrain and curses at
+// once.
+constexpr int MAX_STATUSES = 2 + GOD_COUNT + POISON_TIER_COUNT + DRAIN_TIER_COUNT + 3 + CURSE_COUNT;
 struct StatusList {
 	std::array<Status, MAX_STATUSES> items{};
 	int count = 0;
@@ -46,10 +47,10 @@ struct StatusList {
 	}
 };
 
-// The conditions of a body, the player's or a monster's (plan monster-status-icons): the poison tiers weak first,
-// burning, out of action (the player's daze, a monster's stun), then the terrain's mood (native: a blessing card,
-// hostile: a condition card; the player's own affinity, PlayerStats::TerrainHostile). One place for the next condition
-// both can have.
+// The conditions of a body, the player's or a monster's (plan monster-status-icons): the poison tiers weak first, the
+// bleed tiers weak first (plan bleeding), burning, out of action (the player's daze, a monster's stun), then the
+// terrain's mood (native: a blessing card, hostile: a condition card; the player's own affinity,
+// PlayerStats::TerrainHostile). One place for the next condition both can have.
 void addConditions(StatusList& list, const Vitals& vitals, TerrainMood mood = TerrainMood::Neutral);
 
 // The player's running effects in display order: blessings (resistance, Hapi, the gods in God order), then the

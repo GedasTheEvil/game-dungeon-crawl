@@ -527,6 +527,20 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Stun: // the nearest monster is stunned, as by a blunt hit with the Stun skill (plan skill-stun)
 		report(cmd, Game().dungeon.StunNearest(), stateLine());
 		return true;
+	case CommandType::Bleed: // as from a sure cut (plan bleeding): the cut rate, the status line and the field note
+		Game().player->Bleed(
+			static_cast<BleedTier>(cmd.ticks),
+			100,
+			FULL_TRAP_SHARE,
+			Game().events,
+			Game().random.gameplay
+		);
+		report(cmd, true, stateLine());
+		return true;
+	case CommandType::BleedMonster: // as a sure cut by the player; whether it took: expect nearest_bleed
+		Game().dungeon.BleedNearestMonster(static_cast<BleedTier>(cmd.ticks));
+		report(cmd, true, stateLine());
+		return true;
 	case CommandType::PoisonMonster: // as by the player; whether it took: expect nearest_poison
 		Game().dungeon.PoisonNearestMonster(static_cast<PoisonTier>(cmd.ticks));
 		report(cmd, true, stateLine());

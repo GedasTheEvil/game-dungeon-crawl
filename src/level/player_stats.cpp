@@ -123,6 +123,7 @@ void PlayerStats::RefuseStamina(WorldEvents& events) {
 float PlayerStats::HealthRatio() const { return ratioOf(vitals.hp, CurrentMaxHP()); }
 
 void PlayerStats::Heal(int hpPart) {
+	vitals.bleeding.Stop(); // any heal stops the bleeding (plan bleeding)
 	const int max = CurrentMaxHP();
 	if (vitals.hp == max)
 		return;
@@ -154,7 +155,8 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 
 	MaxHP += HP_PER_LEVEL;
 	vitals.hp = CurrentMaxHP();
-	vitals.poison.Cure(); // a new level heals fully, poison too
+	vitals.poison.Cure(); // a new level heals fully, poison and bleeding too
+	vitals.bleeding.Stop();
 	SetStamina(MaxStamina());
 	level_up_ms = GameClock::now();
 
@@ -167,7 +169,7 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 void PlayerStats::AddMaxHP(int hpPart) {
 	float more = static_cast<float>(1) + static_cast<float>(hpPart) / static_cast<float>(100.0);
 	MaxHP = static_cast<int>(static_cast<float>(MaxHP) * more);
-	vitals.hp = CurrentMaxHP();
+	HealFully();
 }
 
 bool PlayerStats::Learn(SkillId id, bool force, LearnCure* cure) {
@@ -308,7 +310,7 @@ void PlayerStats::EndCurses() {
 int PlayerStats::TrapDamage(int dmg) { return vitals.TrapLoss(dmg * 100, TrapPermille()); }
 
 void PlayerStats::Regenerate(bool safe, int tickMs) {
-	const bool healing = !vitals.poison.Any() && Alive() && vitals.hp < CurrentMaxHP();
+	const bool healing = !vitals.poison.Any() && !vitals.bleeding.Any() && Alive() && vitals.hp < CurrentMaxHP();
 	// The garnets, also in a fight: the flat HP an hour and the sky-iron ones' share of max HP (at least 1 HP a step).
 	const int ringHpPerHour = rings.regenHpPerHour + std::max(CurrentMaxHP(), 100) * rings.regenPercentPerHour / 100;
 	if (ringHpPerHour <= 0 || !healing)
@@ -467,6 +469,7 @@ void PlayerStats::Dump(std::ostream& f) const {
 	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << vitals.hp << " " << Might << " " << stamina
 	  << "\n";
 	vitals.poison.Save(f);
+	vitals.bleeding.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
 	f << "WATER " << water_left_ms << "\n";
 	f << "ISIS " << blessing_left_ms[std::to_underlying(God::Isis)] << "\n";
@@ -499,6 +502,7 @@ void PlayerStats::LoadDump(std::istream& f) {
 	stamina_regen_timer.Reset();
 	stamina_sprint_drain_timer.Reset();
 	vitals.poison.Load(f);
+	vitals.bleeding.Load(f); // a save from before bleeding has none
 	resist_percent = 0;
 	resist_left_ms = 0;
 	const auto start = f.tellg();

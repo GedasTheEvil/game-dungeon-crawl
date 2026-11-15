@@ -134,11 +134,18 @@ class Player {
 	// not. Poisons unless the Shelter of Serket (plan shrines-of-the-gods) or the worn amulet and a resistance potion
 	// ward it off (PlayerStats::PoisonResistPercent, rolled on rng).
 	void Poison(PoisonTier tier, WorldEvents& events, Rng& rng);
+	// A cut that may bleed (plan bleeding): basePercent (a bite's already times its cut share) times the player's cut
+	// rate (stats.resist, the Cut Guard in it) and sharePermille (a trap's: TrapPermille, the trap ward), rolled on
+	// rng; that tier (re)starts. Applied in god mode too; only the damage is not. True: it took.
+	bool Bleed(BleedTier tier, int basePercent, int sharePermille, WorldEvents& events, Rng& rng);
 	// A monster's hit landed: rolls its curse entries in order on rng, the first that takes is laid (one a hit).
 	// Laid in god mode too. True when one was laid.
 	bool Curse(const CurseEntries& entries, WorldEvents& events, Rng& rng);
 	// Once a tick: the running tiers' damage, which can kill; the resistance potion's and the curses' time.
 	void UpdatePoison(WorldEvents& events);
+	// Once a tick: the bleeding's damage (neither armour nor resistance), which can kill; in half water (wading) its
+	// time runs slower.
+	void UpdateBleeding(bool wading, WorldEvents& events);
 	// Once a tick: half water (Vitals::inWater) puts the fire out, else it burns (Burning), armour or not, and can
 	// kill. Also notes whether it stands in water: a hit's fire share is then WATER_FIRE_DAMAGE_PCT % (plan
 	// fire-in-water).

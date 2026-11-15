@@ -1,6 +1,6 @@
 # Bleeding: a cut condition in three tiers for the player and monsters
 
-Status: draft 2026-11-15, size L, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size L, needs nothing first.
 
 ## Idea
 
@@ -50,3 +50,15 @@ in three tiers (weak, medium, strong) like poison (`POISON_TIERS`, `src/level/po
 * Stand in water while bleeding: the card's seconds drop more slowly.
 * Drink a health potion: the bleeding stops. While bleeding, the regeneration amulet gives no HP.
 * Hit a mummy with a sword (with the skill-bleed draft, or a test hook): it never bleeds.
+
+## Implementation notes
+
+* Tiers (`BLEED_TIERS`): weak 1 HP/s 10 s, medium 1% (at least 2) 20 s, strong 3% (at least 3) 12 s. In half water
+  the time runs at 50%. Poison and bleeding share `TierDrain` (`level/tier_drain.*`).
+* Bites: 30% x the cut share (`BLEED_BITE_PERCENT`); giant rat, giant bat, giant scarab, giant scorpion, camel spider,
+  baboon medium. Bosses 45%, one tier above their kin: Khepri, Shezmu, the scorpion queen, Rerek medium; Mother of
+  Webs, Babi strong. Spikes (floor, wall, ceiling) weak 40%, death traps (floor, ceiling) medium 70%, once per entry.
+* Bloodless: thorn acacia, Anubis living statue, chest of Seth, mummy, Anubis, blue lotus, High Priest of Anubis,
+  living ushabti, cursed chest of Seth, jar of Seth. The egg cluster bleeds (it has a blood colour).
+* Campaign: lvl22, 33, 41, 42, 47, 48, 51 got a small health potion chest next to a potion chest (checker).
+* Run stats and the journal's creature moves do not count bleeds (not asked for).

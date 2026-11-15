@@ -15,7 +15,7 @@ weighing of the heart on every Book of the Dead papyrus), yet:
   binding (ids 17, 18), the weighing (ids 131, 134), Nut (3 hits). The props have Osiris, Thoth and the jackal as statues
   (`DECOR_NAMES`), no painted scene.
 * Ra's night form, the ram-headed sun in his shrine on the barque, is in no text and no picture (0 hits for ram-headed
-  / "flesh of Ra"; see [hour-gate-stelae](hour-gate-stelae.feature.draft.sonet.md) for the texts).
+  / "flesh of Ra"; see [hour-gate-stelae](hour-gate-stelae.feature.md) for the texts).
 
 ## Plan
 

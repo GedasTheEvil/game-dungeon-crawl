@@ -1,5 +1,5 @@
 1,2 surface 0/0/0 sand>
-2,2 surface 0/1/0 prop rubblem 0.058
+2,2 surface 0/1/0
 3,2 surface 0/2/0 sand< decal 10 0.308,0.454
 4,2 surface 0/0/0
 5,2 surface 1/0/0 decal 10m 0.707,0.498

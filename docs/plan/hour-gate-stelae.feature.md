@@ -1,6 +1,6 @@
 # Hour stelae: what the Amduat puts in each hour, one stela per zone
 
-Status: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -91,5 +91,22 @@ Sample (hour 5):
 
 ## Play-test
 
-* `bin/game --level 1`, `--level 19`: read the hour stela by the entrance (Words of Thoth needed: a play script that
-  sets the skill), the journal page under Inscriptions.
+* `bin/game --play tests/play/hour-gate-stelae.txt` (Words of Thoth learnt, god mode): the first hour's stela stands
+  by the entrance of lvl1. Read it with E, see it in the journal (J, Inscriptions). Edit the `level` line for lvl19
+  (Aker and the cavern of Sokar) and the other zone-first levels (coordinates in the script).
+* Each stela names the hour, its goddess and one or two figures of that hour; the sixth (a life boon) and the ninth
+  (a stamina boon) also give a gift.
+
+## Implementation notes
+
+* Ids 143 to 154, style stela, each one cell from the entrance of its zone's first level: lvl1 25/35, lvl5 37/45,
+  lvl10 34/43, lvl14 35/44, lvl19 3/45, lvl23 2/2, lvl28 36/45, lvl33 2/44, lvl38 8/45, lvl42 7/2, lvl46 31/3,
+  lvl51 37/3. No new `G:` sign, no sheet rebuild. lvl14 now has five texts and the cartouche; none replaced.
+* Decided differently: hours 6 (lvl23, life) and 9 (lvl38, stamina) carry a boon. `inscriptions_test.cpp` needs
+  boons >= texts / 6 and twelve more texts broke it; both levels had no boon. Decor golden files regenerated for lvl5,
+  19, 23, 38, 42, 51.
+* Left out as unverified (less is safer): Atum and Nephthys, the gods of the year (hour 2), Isis's head over the mound
+  (5), the serpent round the corpse (6), Mehen (7, id 91 has him), the archers (10), the Duat's baboons at hour 12,
+  the serpent that carries the disc (11). The hour goddess epithets are those of the Piankoff / Amenhotep II list
+  (abrock.net, Deities_Amduat) and match the draft's. Hours 7: Isis only, as the hour-7 note says "Isis and Seth".
+* Hour 9 says "Sokar's land lay hours back", as the draft suggested; the hour notes (journal.txt) stay as they are.

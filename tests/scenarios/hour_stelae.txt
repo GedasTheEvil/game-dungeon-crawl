@@ -1,0 +1,102 @@
+# Plan hour-gate-stelae: the hour stela on each zone's first level is read with Words of Thoth and written in the
+# journal. Screenshots of the wall in tests/out/hour_stelae/.
+seed 1
+god
+level 1 at 25 35
+heka 1
+learn words_of_thoth
+wait 30
+walk to 25.5
+wait 10
+screenshot hour01
+interact
+wait 5
+expect journal_inscriptions == 1
+level 5 at 37 45
+wait 30
+walk to 37.5
+wait 10
+screenshot hour02
+interact
+wait 5
+expect journal_inscriptions == 2
+level 10 at 34 43
+wait 30
+walk to 34.5
+wait 10
+screenshot hour03
+interact
+wait 5
+expect journal_inscriptions == 3
+level 14 at 35 44
+wait 30
+walk to 35.5
+wait 10
+screenshot hour04
+interact
+wait 5
+expect journal_inscriptions == 4
+level 19 at 3 45
+wait 30
+walk to 3.5
+wait 10
+screenshot hour05
+interact
+wait 5
+expect journal_inscriptions == 5
+level 23 at 2 2
+wait 30
+walk to 2.5
+wait 10
+screenshot hour06
+interact
+wait 5
+expect journal_inscriptions == 6
+level 28 at 36 45
+wait 30
+walk to 36.5
+wait 10
+screenshot hour07
+interact
+wait 5
+expect journal_inscriptions == 7
+level 33 at 2 44
+wait 30
+walk to 2.5
+wait 10
+screenshot hour08
+interact
+wait 5
+expect journal_inscriptions == 8
+level 38 at 8 45
+wait 30
+walk to 8.5
+wait 10
+screenshot hour09
+interact
+wait 5
+expect journal_inscriptions == 9
+level 42 at 7 2
+wait 30
+walk to 7.5
+wait 10
+screenshot hour10
+interact
+wait 5
+expect journal_inscriptions == 10
+level 46 at 31 3
+wait 30
+walk to 31.5
+wait 10
+screenshot hour11
+interact
+wait 5
+expect journal_inscriptions == 11
+level 51 at 37 3
+wait 30
+walk to 37.5
+wait 10
+screenshot hour12
+interact
+wait 5
+expect journal_inscriptions == 12

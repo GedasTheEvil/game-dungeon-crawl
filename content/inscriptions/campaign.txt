@@ -659,3 +659,134 @@ T: Get back, Rerek, crawl away! Your coils are cut, your head is off.
 T: You swim in the sand, but the sand will not hide you.
 T: Where there is stone, he cannot dive. Stand on the stone.
 N: A spell against the sand serpent. Shorter than I hoped. The stone part I like.
+
+# ---- hour stelae (plan hour-gate-stelae): one per zone, on the zone's first level, near the entrance.
+# What the Amduat puts in the hour; the hour goddess's name after the tomb of Amenhotep II / Piankoff's list.
+# The hour notes (journal.txt) are the archaeologist's reaction; the stela is the fact.
+
+# lvl1, hour 1
+id: 143
+title: The first hour
+style: stela
+G: N5 D4 R8 A40 Z1 N14 X1 O1
+T: The boat of Ra enters the west, and the doors of the earth open.
+T: Ra stands in his shrine with the head of a ram, the flesh of the god.
+T: The baboons sing to him and open the gates of the hour.
+T: She who smashes the foreheads of his enemies goes before him.
+N: A ram-headed sun, singing baboons. The first page of a very long book.
+
+# lvl5, hour 2
+id: 144
+title: The second hour
+style: stela
+G: N14 N5 N35A M17 Z1 D4 X1 R8
+T: In the second hour the boat comes to Wernes, where the grain grows by the water.
+T: The wise one who protects her lord stands at its gate.
+T: The gods who tend the fields rise to greet Ra.
+N: Grain, in a cave full of bats. Someone tell the bats.
+
+# lvl10, hour 3
+id: 145
+title: The third hour
+style: stela
+G: N14 N5 N35A N35A Z1 D4 X1 R8
+T: In the third hour the boat passes over the waters of Osiris.
+T: She who cuts the bas keeps the gate, and the dark is thick.
+T: Those in the water lift their arms to Ra, and he calls to them.
+N: The waters of Osiris, and no water in sight. I have my doubts about the schedule.
+
+# lvl14, hour 4
+id: 146
+title: The fourth hour
+style: stela
+G: N14 N5 N31 N31 D4 Z1 X1 R8
+T: In the fourth hour the way is of sand, the road of Rosetau.
+T: The boat becomes a serpent, and the gods tow it over the sand.
+T: She who is great in her power opens the gate.
+N: A boat that turns into a snake to cross a desert. I will not ask how.
+
+# lvl19, hour 5
+id: 147
+title: Aker at the cavern of Sokar
+style: stela
+G: N14 N5 E13 E34 D4 Z1 X1 R8
+T: Aker, the two lions back to back, keeps the cavern of the fifth hour.
+T: Here is the hidden cavern of Sokar, of sand and silence.
+T: She who guides in the midst of her boat leads Ra through it.
+T: The sphinx at every gate is Aker's: answer, and it opens.
+N: So that is why the gates are sphinxes. They are on night shift.
+
+# lvl23, hour 6 (a life boon: the campaign's boon ratio test needs 1 in 6)
+id: 148
+title: The sixth hour
+style: stela
+G: N14 N5 M17 N35A Z1 D4 X1 R8
+T: In the sixth hour, in the deep water, it is midnight.
+T: The ba of Ra comes to his body, and the two are one.
+T: The right guide, she who arrives, takes the boat on.
+T: Take the breath of life, you who read: the soul has found its body.
+N: Midnight. The sun and its soul meet. I could do with a nap myself.
+boon: life 10
+
+# lvl28, hour 7
+id: 149
+title: The seventh hour
+style: stela
+G: N14 N5 I14 N35A Z1 D4 X1 R8
+T: In the seventh hour Apep lies on a sandbank, and knives are in his coils.
+T: Isis speaks her spells over him, and the boat goes by.
+T: She who repels the serpent stands at the gate.
+N: A river with a crocodile in it, and a snake on the shore. The book was not exaggerating.
+
+# lvl33, hour 8
+id: 150
+title: The eighth hour
+style: stela
+G: N14 N5 O1 D4 Z1 X1 R8 N29
+T: In the eighth hour the dead lie in their sarcophagi, clothed and still.
+T: The caves open at the voice of Ra, and close behind him.
+T: The lady of the deep night keeps the gate.
+N: They open at his voice. Mine only opens the neighbours' complaints.
+
+# lvl38, hour 9 (a stamina boon, same reason)
+id: 151
+title: The ninth hour
+style: stela
+G: N14 N5 D4 Z1 X1 R8 W22 N35A
+T: In the ninth hour twelve oarsmen row the boat of Ra.
+T: The dead are fed with grain, and given their share.
+T: Sokar's land lay hours back, and this one is no firmer.
+T: She who adores and protects her lord stands at the gate.
+T: Take the tireless legs of the rowers, you who read.
+N: Sokar is the fourth and fifth hour. This is the ninth. The land does not care.
+boon: stamina 10
+
+# lvl42, hour 10
+id: 152
+title: The tenth hour
+style: stela
+G: N14 N5 N35A N36 Z1 D4 X1 R8
+T: In the tenth hour the banks are steep and the water deep.
+T: Horus lifts out the drowned, that they may see Ra.
+T: The raging one slaughters the rebels at the gate.
+N: Drowned men pulled out by a falcon. A lake of fire is a poor place for it.
+
+# lvl46, hour 11
+id: 153
+title: The eleventh hour
+style: stela
+G: N14 N5 Q7 Z1 D4 X1 R8 N29
+T: In the eleventh hour the pits of fire open for the enemies of Ra.
+T: They burn there, and are not counted among the living.
+T: The starry one, lady of the boat, keeps the gate.
+N: Every trap I have met, and a book that says they were meant. Comforting.
+
+# lvl51, hour 12
+id: 154
+title: The twelfth hour
+style: stela
+G: N14 N5 L1 Z1 D4 X1 R8 N29
+T: In the twelfth hour Ra passes through the serpent Life of the Gods.
+T: He goes in old, and comes out as Khepri; Shu and Nut receive him.
+T: She who sees the beauty of Ra keeps the last gate.
+N: Born again at the end of the night. I would settle for daylight.

@@ -23,7 +23,7 @@
 34,3 surface 15/6/8 decal 11 0.549,0.584
 35,3 surface 14/6/8 decal 9 0.341,0.359
 36,3 surface 14/6/8 sand> torch fire torch 0.000,0.680,0.098
-37,3 surface 15/1/8 prop osiris -0.053
+37,3 surface 15/1/8
 38,3 surface 14/6/8 sand<
 21,4 surface 6/1/2 ladder 1/1
 6,5 surface 6/1/2 torch fire torch 0.000,0.680,0.098

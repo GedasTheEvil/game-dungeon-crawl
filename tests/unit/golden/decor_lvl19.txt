@@ -602,7 +602,7 @@
 33,44 surface 3/0/1
 1,45 surface 1/0/0 sand>
 2,45 surface 0/1/0 prop thoth_baboon_seatedm 0.000
-3,45 surface 1/0/0 sand<> prop sarcophagus 0.012
+3,45 surface 1/0/0 sand<>
 4,45 surface 0/1/0 decal 1 0.292,0.405
 5,45 surface 0/0/0 sand<
 6,45 surface 0/0/0

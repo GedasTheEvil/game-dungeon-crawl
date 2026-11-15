@@ -1,6 +1,6 @@
 # Tidy a changed header once, not in every source that includes it
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Problem
 
@@ -33,3 +33,16 @@ it (`HeaderFilterRegex`), so one source per header finds them.
 
 A caller's new warning is found later (at the full run) instead of in the same `make check`. The changed callers
 are tidied anyway; only untouched callers wait.
+
+## Result (2026-11-15)
+
+* `tools/tidy.sh changed`: per changed header no changed source includes, one stand-in (its own `.cpp`, else the
+  source with the fewest includes); it prints which. `TIDY_FANOUT=all` keeps the old fan-out; `TIDY_BASE` sets the
+  base (default `master`).
+* The full fan-out runs before a push: `make tidy-push` (the changes since `origin/master`, `TIDY_FANOUT=all`), in
+  AGENTS.md (Git), version-control.md and development.md. Cached, so it re-tidies only sources whose input changed.
+* Measured on a header-only edit to `level/monster_kinds.h` (a new comment each time, so the cache missed), with three
+  agent builds on the machine: before (`TIDY_FANOUT=all make tidy`) 100 sources, 619 s; after (`make tidy`) 1 source
+  (`monster_kinds.cpp`), 29 s.
+* Fixed on the way: the `.d` files list each header twice; the dependency list is deduplicated now.
+

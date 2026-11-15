@@ -7,7 +7,8 @@ Git in this repo. What an agent may do without asking (commits, worktrees) and w
 
 Trunk-based: `master` is the only long-lived branch and the only one that gets pushed. Run `make check` before each
 commit. Opus and Fable models push `master` without asking, from the main folder only: after a commit there, or after step 2
-below. Never from inside a worktree, never a task branch. Other models ask first.
+below. Before a push, `make tidy-push` tidies every caller of a changed header (cached, so a source already tidied
+with the same input is skipped); fix what it finds first. Never from inside a worktree, never a task branch. Other models ask first.
 
 ## Worktrees
 
@@ -19,7 +20,7 @@ plan it needs can look unsolved there. When the task is done:
 2. Merge it into `master` in this main folder, not in the worktree: the user play-tests here. If the merge would
    touch files with uncommitted changes in the main folder, stop and ask.
 3. Rebuild here (`make`), then remove the worktree and delete the task branch.
-4. Opus and Fable models: push `master` from here.
+4. Opus and Fable models: `make tidy-push`, then push `master` from here.
 
 ## Blame
 

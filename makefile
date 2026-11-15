@@ -103,7 +103,7 @@ export GATE_STATS:=$(BUILD)/.gate-build
 $(shell rm -f $(GATE_STATS))
 GATE_REPORT=@./tools/load_gate.sh report build
 
-.PHONY: all release check clean format format-check format-check-changed layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
+.PHONY: all release check clean format format-check format-check-changed layers tidy tidy-push tidy-all complexity tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE)
@@ -191,14 +191,28 @@ tidy-fix:
 	$(GATE) $(CLANG_TIDY) $(TIDY_SOURCES) --fix -- $(TIDY_CPPFLAGS); \
 		code=$$?; ./tools/load_gate.sh report tidy-fix; exit $$code
 
-# `make tidy`: clang-tidy on the sources changed since the merge base with master (and the ones including a changed
-# header); `make tidy-all`: on every source. One clang-tidy per file, through the gate. Both fail on any warning: the
+# `make tidy`: clang-tidy on the sources changed since the merge base with master, and per changed header one source
+# that includes it (plan tidy-header-fanout); `make tidy-push`: the changes since origin/master with every source that
+# includes a changed header, run before a push from master; `make tidy-all`: on every source. One clang-tidy per file, through the gate. Both fail on any warning: the
 # tree is kept clean, so each warning is the run's own (tools/tidy.sh). tidy-fix stays one process, so a fix in a
 # shared header is applied once.
 tidy: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy: layers
 	@mkdir -p $(BUILD) && rm -f $(GATE_STATS)
 	@./tools/tidy.sh changed $(TIDY_SOURCES) -- $(TIDY_CPPFLAGS); code=$$?; ./tools/load_gate.sh report tidy; exit $$code
+
+tidy-push: export GATE_STATS=$(BUILD)/.gate-tidy
+tidy-push: export TIDY_FANOUT=all
+tidy-push: export TIDY_BASE=origin/master
+tidy-push: layers
+	@mkdir -p $(BUILD) && rm -f $(GATE_STATS)
+	@./tools/tidy.sh changed $(TIDY_SOURCES) -- $(TIDY_CPPFLAGS); code=$$?; ./tools/load_gate.sh report tidy; exit $$code
+
+# `make complexity [THRESHOLD=N]`: the functions above a cognitive complexity (clang-tidy's
+# readability-function-cognitive-complexity, default 25), most complex first, as refactor candidates. A report, not a
+# check (plan complexity-hotspots); tools/code_map.py complexity.
+complexity:
+	@python3 -I tools/code_map.py complexity --threshold $(or $(THRESHOLD),25) $(TIDY_SOURCES) -- $(TIDY_CPPFLAGS)
 
 tidy-all: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy-all: layers

@@ -202,8 +202,13 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
 * `make format-check` fails on a file `make format` would change, and on code clang-format does not leave stable (a
   file that flips between two layouts on every `make format`, often a long trailing comment that wraps onto a second
   line: move the comment above the line). Every file, in parallel (the load gate's job cap).
+* `make complexity [THRESHOLD=N]`: the functions above a cognitive complexity (default 25), most complex first, as
+  refactor candidates (`tools/code_map.py complexity`; a report, not a check; plan complexity-hotspots).
 * `make tidy` (clang-tidy, `.clang-tidy`, and the layer checks): the sources changed since the merge base with
-  master, and the ones that include a changed header. `make tidy-all` checks every source (about 2.5 minutes). Both
+  master, and per changed header one source that includes it, its own `.cpp` if any (a header's warnings show in any
+  of them; plan tidy-header-fanout). `make tidy-push`, before a push from master: the changes since `origin/master`
+  with every source that includes a changed header (`TIDY_FANOUT=all`), so a warning a header change causes in a
+  caller is caught too. `make tidy-all` checks every source (about 2.5 minutes). All
   run one clang-tidy per file through the load gate (`tools/load_gate.sh`, as the scenario games and the build:
   `JOBS`, `RESERVE_CORES`, `MIN_FREE_MB`, `MIN_SWAP_FREE_MB`, see [testing.md](testing.md)), check the project's
   headers too, not `external/`, and fail on any warning (`tools/tidy.sh`). `make tidy-fix` applies clang-tidy's fixes

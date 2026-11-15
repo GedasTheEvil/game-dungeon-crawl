@@ -5,6 +5,8 @@
     python3 -I tools/code_map.py edge FROM TO       the includes behind one count (graph's directory names)
     python3 -I tools/code_map.py headers            headers nothing includes, or only other directories do
     python3 -I tools/code_map.py unused             functions a header declares that nothing else names
+    make complexity [THRESHOLD=N]                   functions above a cognitive complexity, most complex first
+                                                    (code_map.py complexity [--threshold N] SOURCES -- FLAGS)
 
 Reads the quoted includes and the words of every .cpp and .h under src/, tools/ and tests/unit (not external/).
 A report to read, not a check: it always exits 0. "unused" is a word count, not a parser: check a hit with grep
@@ -13,8 +15,11 @@ before you delete it (a name that another class also has hides; so does one only
 
 import argparse
 import collections
+import os
 import re
+import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -154,6 +159,54 @@ def cmd_unused(_args):
     print(f"\n{len(hits)} candidates. Check each: grep -rnw NAME src tools tests")
 
 
+# clang-tidy's line for one function (plan complexity-hotspots).
+COMPLEXITY = re.compile(r"^(\S+?):(\d+):\d+: warning: function '([^']+)' has cognitive complexity of (\d+)", re.M)
+
+
+def function_lines(path, line):
+    """The lines from the function's first line to its closing brace (comments and strings left out)."""
+    text = COMMENT.sub(lambda m: "\n" * m.group(0).count("\n"), code(path))
+    text = STRING.sub('""', text)
+    lines = text.split("\n")[line - 1:]
+    depth, opened = 0, False
+    for n, row in enumerate(lines, 1):
+        for ch in row:
+            if ch == "{":
+                depth, opened = depth + 1, True
+            elif ch == "}":
+                depth -= 1
+                if opened and depth == 0:
+                    return n
+    return 0
+
+
+def cmd_complexity(args):
+    """clang-tidy's readability-function-cognitive-complexity over every source, through the load gate."""
+    tidy = os.environ.get("CLANG_TIDY", "clang-tidy")
+
+    def run(src):
+        cmd = ["./tools/load_gate.sh", "run", tidy, "--quiet", "--checks=-*,readability-function-cognitive-complexity",
+               src, "--", *args.flags]
+        return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True).stdout
+
+    jobs = int(subprocess.run(["./tools/load_gate.sh", "jobs"], cwd=ROOT, capture_output=True, text=True).stdout or 4)
+    with ThreadPoolExecutor(jobs + 1) as pool:
+        outs = list(pool.map(run, args.sources))
+    found = {}  # (file, line) -> (score, name): a header's function shows once per including source
+    for out in outs:
+        for f, line, name, score in COMPLEXITY.findall(out):
+            path = Path(f).resolve()
+            found[(path, int(line))] = (int(score), name)
+    hits = sorted(((score, path, line, name) for (path, line), (score, name) in found.items() if score > args.threshold),
+                  key=lambda h: (-h[0], str(h[1]), h[2]))
+    print("| Score | Lines | Function | Where |")
+    print("|---|---|---|---|")
+    for score, path, line, name in hits:
+        where = path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+        print(f"| {score} | {function_lines(path, line)} | `{name}` | {where}:{line} |")
+    print(f"\n{len(hits)} functions above {args.threshold} ({len(found)} above clang-tidy's 25), {len(args.sources)} sources")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -164,7 +217,18 @@ def main():
     edge.set_defaults(run=cmd_edge)
     commands.add_parser("headers").set_defaults(run=cmd_headers)
     commands.add_parser("unused").set_defaults(run=cmd_unused)
-    args = parser.parse_args()
+    complexity = commands.add_parser("complexity")
+    complexity.add_argument("--threshold", type=int, default=25)
+    complexity.add_argument("sources", nargs="+")
+    complexity.add_argument("flags", nargs=argparse.REMAINDER)
+    complexity.set_defaults(run=cmd_complexity)
+    argv = sys.argv[1:]
+    if "--" in argv:  # complexity SOURCES -- FLAGS: the flags go to clang-tidy as they are
+        cut = argv.index("--")
+        args = parser.parse_args(argv[:cut])
+        args.flags = argv[cut + 1:]
+    else:
+        args = parser.parse_args()
     args.run(args)
     return 0
 

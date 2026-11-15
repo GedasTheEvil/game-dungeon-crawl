@@ -1,6 +1,6 @@
 # Split the scenario runner's runInstant by command group
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: solved 2026-11-16. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Problem
 
@@ -18,3 +18,12 @@ scenario command adds a case here, and an agent reads the whole switch to add on
 * No behaviour change: `make check` and `make test` (every scenario) pass unchanged.
 * Rerun `make complexity`: `runInstant` and each new function under 25; note the numbers here.
 * docs/testing.md: where a new scenario command goes (its group function); Where is X row. 
+
+## Result
+
+`runInstant` (was 80, 374 lines) is now one `switch` that hands each command type to a group function in
+`src/test/scenario.cpp`: `runSetupCommand`, `runInputCommand`, `runItemCommand`, `runProgressCommand`,
+`runMonsterCommand`, `runPlayerCommand`, `runWorldCommand`, `runDataCommand`. `make complexity` (threshold 25): none
+of them is listed any more, so each is under 25 (it lists only functions above 25; `runItemCommand` was 28 before
+heka/page/learn moved to `runProgressCommand`). 106 functions above 25 before, 105 after. `make check`, `make test`
+pass. docs/testing.md (where a new command goes) and the Where is X row updated.

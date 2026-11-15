@@ -103,7 +103,7 @@ export GATE_STATS:=$(BUILD)/.gate-build
 $(shell rm -f $(GATE_STATS))
 GATE_REPORT=@./tools/load_gate.sh report build
 
-.PHONY: all release check clean format format-check layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
+.PHONY: all release check clean format format-check format-check-changed layers tidy tidy-all tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
 all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE)
@@ -178,6 +178,9 @@ format:
 format-check:
 	@./tools/check_format.sh $(FORMAT_FILES)
 
+format-check-changed:
+	@./tools/check_format.sh --changed $(FORMAT_FILES)
+
 layers:
 	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) $(BASE_LIB_HEADERS) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES) $(RENDER_LIB_HEADERS)
 	@./tools/check_sim.sh $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS)
@@ -206,15 +209,9 @@ tidy-all: layers
 # it is stable, then tidy on the changed sources, then the unit tests. Scenarios stay `make test`. Links to plans that
 # moved are rewritten first (tools/plan.py), a link it cannot fix fails; then the plans' names and Status lines
 # (plan.py lint) and the plan tool's own tests, then the docs' anchors and backticked names (tools/docs_check.py).
-check: all
-	@./tools/plan.py links
-	@./tools/plan.py lint
-	@python3 -I tools/plan_test.py
-	@python3 -I tools/docs_check.py
-	@$(MAKE) --no-print-directory format
-	@./tools/check_format.sh --changed $(FORMAT_FILES)
-	@$(MAKE) --no-print-directory tidy
-	@$(MAKE) --no-print-directory unit
+# tools/check_stages.sh runs the stages (build, plan, format, tidy, unit) and logs the time of each.
+check:
+	+@./tools/check_stages.sh
 
 editor: $(EDITOR)
 

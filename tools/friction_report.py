@@ -129,6 +129,42 @@ def unit_failure(out):
     return "other", files
 
 
+STAGE_LOG = Path(os.environ.get("CHECK_LOG", REPO + ".git/check-stages.log"))
+STAGES = ["build", "plan", "format", "tidy", "unit"]
+
+
+def stage_report(since):
+    """Prints the per-stage time of `make check` from the log tools/check_stages.sh writes (plan check-speed-stage-breakdown)."""
+    rows = []
+    if STAGE_LOG.exists():
+        for line in STAGE_LOG.read_text().splitlines():
+            parts = line.split()
+            if len(parts) < 3 or parts[0][:10] < since:
+                continue
+            rows.append((parts[1], {k: float(v) for k, v in (p.split("=") for p in parts[2:] if "=" in p)}))
+    print(f"\nmake check per stage ({STAGE_LOG}, {len(rows)} runs since {since})")
+    if not rows:
+        print("  no runs logged yet")
+        return
+    print(f"  failed: {sum(1 for r, _ in rows if r != 'ok')}")
+    print("| Stage | Median s | p90 s | Mean s | Share of mean total |")
+    print("|---|---|---|---|---|")
+    mean_total = statistics.mean(v["total"] for _, v in rows)
+    for key in STAGES + ["wait", "total"]:
+        vals = sorted(v.get(key, 0) for _, v in rows)
+        label = {"wait": "gate wait (job-s, inside the stages)", "total": "total"}.get(key, key)
+        mean = statistics.mean(vals)
+        print(f"| {label} | {statistics.median(vals):.0f} | {vals[int(len(vals) * 0.9)]:.0f} | {mean:.0f} "
+              f"| {100 * mean / mean_total:.0f}% |")
+    by_files = collections.defaultdict(list)
+    for _, v in rows:
+        by_files["0-2 files" if v["files"] <= 2 else "3-9 files" if v["files"] < 10 else "10+ files"].append(v)
+    for name, vs in sorted(by_files.items()):
+        print(f"  {name}: {len(vs)} runs, median total {statistics.median(v['total'] for v in vs):.0f} s, "
+              f"tidy {statistics.median(v['tidy'] for v in vs):.0f} s ({statistics.median(v['tidied'] for v in vs):.0f} "
+              f"sources), build {statistics.median(v['build'] for v in vs):.0f} s")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--since", default="2026-10-12")
@@ -287,6 +323,7 @@ def main():
         med = statistics.median(lp) if lp else 0
         print(f"| `{name}` | {r['n']} ({len(r['sessions'])}) | {r['fail']} | {statistics.median(secs):.0f} | {p90:.0f} "
               f"| {sum(secs) / 3600:.1f} | {len(lp)}, {med:.0f} |")
+    stage_report(args.since)
     print(f"\nCompile errors seen in check output: {compile_errors}")
     print("\nTidy checks (unique session:file:line), sessions:")
     for n, c in tidy_fires.most_common(25):

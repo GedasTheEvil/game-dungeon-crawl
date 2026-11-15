@@ -288,7 +288,9 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
   run one clang-tidy per file through the load gate (`tools/load_gate.sh`, as the scenario games and the build:
   `JOBS`, `RESERVE_CORES`, `MIN_FREE_MB`, `MIN_SWAP_FREE_MB`, see [testing.md](testing.md)), check the project's
   headers too, not `external/`, and fail on any warning (`tools/tidy.sh`). `make tidy-fix` applies clang-tidy's fixes
-  to every source.
+  to every source. A clean source is cached by a hash of its text and headers (`TIDY_CACHE=0` turns it off), so a re-run
+  tidies only what changed. `make check` logs the time of each stage (`tools/check_stages.sh`, read by
+  `tools/friction_report.py`).
 
 The tree is kept free of warnings: every warning `make tidy` prints is the change's own. Fix it; a false positive
 gets a `NOLINTNEXTLINE(check): reason`. Naming rules (only these are checked; method and function

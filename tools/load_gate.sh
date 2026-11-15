@@ -12,6 +12,7 @@
 # Jobs run on the last GATE_CPUS cores (default: the job cap, one core per job): however much a job grows after its
 # start, the first cores stay free for the desktop.
 # The jobs of all runs count together: slot files under GATE_DIR, held by flock while the job runs.
+# GATE_WAIT_FILE (a file): each job appends the seconds it waited for the gate (tools/check_stages.sh sums them).
 # GATE_STATS (a file): each run appends its samples there, `report` sums them up.
 
 cores=$(nproc)
@@ -84,7 +85,8 @@ scan_slots() {
 }
 
 run() {
-	local lock k
+	local lock k waited
+	waited=$SECONDS
 	mkdir -p "$dir"
 	for ((k = 0; k < jobs; k++)); do
 		[ -e "$dir/slot.$k" ] || : >>"$dir/slot.$k"
@@ -106,6 +108,7 @@ run() {
 	done
 	touch "$dir/slot.$slot_k"
 	stat_line "p $((busy + 1)) $jobs"
+	[ -n "${GATE_WAIT_FILE:-}" ] && echo $((SECONDS - waited)) >>"$GATE_WAIT_FILE"
 	exec {lock}>&-
 	taskset -c $((cores - cpus))-$((cores - 1)) "$@" {slot}>&-
 }

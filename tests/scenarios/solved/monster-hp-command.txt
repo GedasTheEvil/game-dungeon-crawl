@@ -1,0 +1,25 @@
+# Plan monster-hp-command: monsterhp sets the nearest monster's HP without a hit (no XP, no new note); five club swings (12 each) then take 60 off it.
+seed 1
+god
+level tests/levels/bleeding
+wait 30
+walk to 19.8
+equip club
+monsterhp 1000
+expect nearest == 1000
+expect xp == 0
+expect journal_notes == 4
+dump
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+attack
+wait 60
+dump
+expect nearest == 940
+quit

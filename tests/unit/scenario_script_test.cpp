@@ -74,6 +74,8 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"killboss", "killboss"},
 	{"killmonster", "killmonster all"},
 	{"hurtboss", "hurtboss 100"},
+	{"monsterhp", "monsterhp 1000"},
+	{"bosshp", "bosshp 1000"},
 	{"poisonboss", "poisonboss strong"},
 	{"heka", "heka 2"},
 	{"page", "page 24"},

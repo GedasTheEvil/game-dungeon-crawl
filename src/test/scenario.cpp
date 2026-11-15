@@ -402,6 +402,12 @@ bool runInstant(const Command& cmd) {
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
 		Game().dungeon.HurtBoss(static_cast<int>(cmd.a));
 		return true;
+	case CommandType::MonsterHp: // no hit: no reaction, no XP, no note, no aggro (plan monster-hp-command)
+		report(cmd, Game().dungeon.SetNearestMonsterHealth(static_cast<int>(cmd.a)), "");
+		return true;
+	case CommandType::BossHp:
+		report(cmd, Game().dungeon.SetBossHealth(static_cast<int>(cmd.a)), "");
+		return true;
 	case CommandType::PoisonBoss:
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
 		Game().dungeon.PoisonBoss(static_cast<PoisonTier>(cmd.ticks));

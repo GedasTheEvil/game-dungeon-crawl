@@ -1021,7 +1021,10 @@ class Dungeon {
 	}
 	// Scenario `mirror`: the mirror in (col, row) points dir (BeamDir), at once. False: no mirror there.
 	bool SetMirror(int col, int row, int dir);
-	bool KillNearestMonster(); // scenario tests (plan kill-monster-command): as if the player killed it (XP, note, drop); false if none lives
+	bool KillNearestMonster(); // scenario tests (plan kill-monster-command): as if the player killed it (XP, note,
+							   // drop); false if none lives
+	bool SetNearestMonsterHealth(int hp); // scenario tests (plan monster-hp-command): no hit, no reward; false if none
+	bool SetBossHealth(int hp); // ... the boss in play's; false if none
 	void HurtBoss(int dmg); // scenario tests: the boss in play takes a hit, as from the player
 	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
 	// may shrug it off).

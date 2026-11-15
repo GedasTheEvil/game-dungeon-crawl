@@ -1,11 +1,11 @@
 # Scenario command monsterhp: set the nearest monster's HP
 
-Status: draft 2026-11-15, size S, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Problem
 
 Multi-hit scenarios with a real weapon kill the monster too soon, and a test of a low-HP state (a flee, a boss phase,
-the health bar's colours) has to hit its way down first. The test weapons ([test-weapons](test-weapons.tooling.draft.sonet.md))
+the health bar's colours) has to hit its way down first. The test weapons ([test-weapons](../test-weapons.tooling.draft.sonet.md))
 fix the first with a fake weapon; this fixes both with the real weapon and its real damage numbers.
 
 ## Plan

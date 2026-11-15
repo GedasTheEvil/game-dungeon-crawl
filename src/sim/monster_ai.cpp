@@ -168,7 +168,7 @@ void Monster::bite() {
 		type->boss.lifeStealPct,
 		type->screech && links.player->Dazed() ? type->screech->dazedHealPercent : 0
 	);
-	vitals.hp = std::min(type->maxHealth, vitals.hp + lost * steal / 100);
+	vitals.hp = std::min(MaxHealth(), vitals.hp + lost * steal / 100);
 	links.journal->HitByCreature(type->id, links.level);
 	if (steal > 0 && lost > 0)
 		links.journal->SeeMove(type->id, links.level, CreatureMove::Heal);

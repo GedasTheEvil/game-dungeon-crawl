@@ -80,9 +80,9 @@ void drawHealthBar(const Monster& mon, const TextureRegistry& textures) {
 	glEnd();
 
 	glEnable(GL_BLEND);
-	float ratio = type.maxHealth <= 0
+	float ratio = mon.MaxHealth() <= 0
 					  ? 0.f
-					  : std::clamp(static_cast<float>(mon.Health()) / static_cast<float>(type.maxHealth), 0.f, 1.f);
+					  : std::clamp(static_cast<float>(mon.Health()) / static_cast<float>(mon.MaxHealth()), 0.f, 1.f);
 	float right = -w + 2 * w * ratio;
 	if (mon.Poisoned()) {
 		const float t = 0.5f + 0.5f * std::sin(

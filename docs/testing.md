@@ -108,7 +108,7 @@ number; after a map file or a generated level, whatever the dungeon's level numb
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
 `seed`, `god`, `peace`, `level`, `give`, `equip`, `wear`, `xp`, `gear`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `tire`, `firehit`, `blind`, `daze`, `prop`,
-`torch`, `mirror`, `container`, `riddles`, `inscriptions`, `names`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `hints`, `gifts`, `killboss`, `killmonster`, `hurtboss`, `poisonboss`, `poisonmonster`, `bleed`, `bleedmonster`, `loadgame`. At the first
+`torch`, `mirror`, `container`, `riddles`, `inscriptions`, `names`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `hints`, `gifts`, `killboss`, `killmonster`, `hurtboss`, `monsterhp`, `bosshp`, `poisonboss`, `poisonmonster`, `bleed`, `bleedmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
 `--no-sound` mutes music and sound effects (SDL's dummy audio driver), e.g. for runs in the background.
@@ -185,6 +185,8 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `killboss` | The boss in play dies, as if the player killed it (XP, boss gates). Fails if no boss is in play. |
 | `killmonster [all]` | The living monster nearest the player dies, as if the player killed it: through the killing hit (XP, field note, drop, death clip and sound, every kill hook). On the boss it does what `killboss` does. `all`: every living monster on the level, nearest first. Fails if no monster lives. |
 | `hurtboss N` | The boss in play takes an N HP hit, as from the player. Fails if no boss is in play. |
+| `monsterhp N` | The living monster nearest the player gets N HP (N >= 1; above its max HP the max grows with it, so the health bar stays right). No hit: no hit reaction, no XP, no journal note, no aggro. Fails if no monster lives. `expect nearest` reads it back. |
+| `bosshp N` | The same for the boss in play (boss phases that hang on HP follow). Fails if no boss is in play. `expect boss` reads it back. |
 | `heka N` | The player earns N heka, as if the bosses of levels 5, 10, ... were slain (only heka, no kill, no field note); a boss of those levels slain later gives none. For `learn` and the Heka screen. |
 | `page N` | The earlier expedition's page N goes into the journal, as if picked up on this level (`Journal::FindPage`). Fails if there is no such page or it is in already. |
 | `learn SKILL` | Spend a heka on the skill, like the Heka screen's Learn button, also on a sealed one (its rules not in the game yet). SKILL: its name in lower case, `_` for spaces, no apostrophes (`stun`, `words_of_thoth`, `sharp_eye`, `serkets_favour`). Fails when it is learnt already or no heka is free ([skills](plan/solved/skills.md)). |

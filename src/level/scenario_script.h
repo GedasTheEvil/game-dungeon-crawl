@@ -73,6 +73,8 @@ enum class CommandType : unsigned char {
 	KillBoss,
 	KillMonster,
 	HurtBoss,
+	MonsterHp,
+	BossHp,
 	PoisonBoss,
 	Heka,
 	Page,

@@ -34,6 +34,21 @@ bool Dungeon::KillNearestMonster() {
 	return true;
 }
 //======================================================================================
+bool Dungeon::SetNearestMonsterHealth(int hp) {
+	const Monster* nearest = nearestMonster();
+	if (nearest == nullptr)
+		return false;
+	monsters[nearest - monsters].SetHealth(hp);
+	return true;
+}
+//======================================================================================
+bool Dungeon::SetBossHealth(int hp) {
+	if (bossFight.slot < 0 || !monsters[bossFight.slot].Alive())
+		return false;
+	monsters[bossFight.slot].SetHealth(hp);
+	return true;
+}
+//======================================================================================
 void Dungeon::PoisonBoss(PoisonTier tier) {
 	if (bossFight.slot >= 0)
 		monsters[bossFight.slot].TakePoison(tier, true, sim.random->gameplay);

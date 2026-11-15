@@ -19,6 +19,7 @@ void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const M
 	this->spawnRow = spawnRow;
 	row = spawnRow;
 	vitals.hp = kind.maxHealth;
+	maxHpOverride = 0;
 	x = 0.f;
 	alerted = false;
 	provoked = false;
@@ -230,7 +231,7 @@ bool Monster::takeHit(int dmg) {
 		vitals.Lose(dmg);
 		if (dmg > 0) // an immune type's hit draws no blood (plan resistance-tiers)
 			blood->Splash(scale);
-		if (type->call && !called && Alive() && vitals.hp * 100 < type->maxHealth * type->call->belowPct)
+		if (type->call && !called && Alive() && vitals.hp * 100 < MaxHealth() * type->call->belowPct)
 			called = callDue = true; // squeals; Dungeon::UpdateMonsters gathers the pack
 	}
 

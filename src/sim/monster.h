@@ -65,6 +65,7 @@ class Monster {
 	float x = 0.f;
 	// HP, poison, fire, water, the trap ramp and carry, the stun (plan shared-vitals).
 	Vitals vitals;
+	int maxHpOverride = 0; // `monsterhp` above the type's max; 0: the type's
 	ModelState state = ModelState::Move;
 	int facing = 0; // -1 left, 0 the camera, +1 right
 	float walked = 0.f; // tiles its last step went (Seek, Flee, BackOff); 0: it stood
@@ -170,7 +171,13 @@ class Monster {
 	[[nodiscard]] int SummonedMs() const { return summonMs; } // < 0: not summoned
 	[[nodiscard]] Summon SummonedBy() const { return summonedBy; }
 	[[nodiscard]] const MonsterType* Type() const { return type; }
-	[[nodiscard]] int MaxHealth() const { return type->maxHealth; }
+	// The type's max HP, or what `monsterhp` set (scenario tests: above the type's max, the health bar follows).
+	[[nodiscard]] int MaxHealth() const { return maxHpOverride > 0 ? maxHpOverride : type->maxHealth; }
+	// Scenario tests: the HP is hp (>= 1); above the max the max grows with it. No hit, no reward.
+	void SetHealth(int hp) {
+		vitals.hp = std::max(1, hp);
+		maxHpOverride = std::max(vitals.hp, type->maxHealth);
+	}
 	[[nodiscard]] bool Active() const { return type != nullptr; }
 	[[nodiscard]] int Col() const { return col; }
 	[[nodiscard]] int Row() const { return row; }
@@ -179,10 +186,10 @@ class Monster {
 	[[nodiscard]] bool sameRow(float py) const;
 	[[nodiscard]] int Health() const { return vitals.hp; }
 	// A loaded save's health for it (plan save-live-monsters), just spawned: 1 to its max.
-	void RestoreHealth(int hp) { vitals.hp = std::clamp(hp, 1, type->maxHealth); }
+	void RestoreHealth(int hp) { vitals.hp = std::clamp(hp, 1, MaxHealth()); }
 	// A light shunner (MonsterKind::shunsLight) fears the light at full HP only: any damage ends it for good (plan
 	// hurt-spiders-ignore-light).
-	[[nodiscard]] bool ShunsLight() const { return type->shunsLight && vitals.hp >= type->maxHealth; }
+	[[nodiscard]] bool ShunsLight() const { return type->shunsLight && vitals.hp >= MaxHealth(); }
 	[[nodiscard]] float CentreX() const { return static_cast<float>(col) + x + 0.5f; } // map x
 	// Its body dragged by the player (plan pressure-plate): the centre to map x. The spawn tile (Col) stays.
 	void DragBodyTo(float centreX) { x = centreX - static_cast<float>(col) - 0.5f; }

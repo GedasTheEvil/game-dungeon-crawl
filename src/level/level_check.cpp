@@ -457,22 +457,10 @@ spawnTerrains(const LevelGrid& grid, const std::vector<char>& sunlit, int col, i
 	return here;
 }
 
-LevelReport checkLevel(const LevelGrid& grid) {
-	LevelReport r;
-	countContent(grid, r);
-	checkLocks(grid, r);
-	checkObjectsInRock(grid, r);
-	checkWater(grid, r);
-	checkSand(grid, r);
-	checkDeadGates(grid, r);
-	checkTeleporters(grid, r);
-	checkWallSpikes(grid, r);
-	checkSandGusts(grid, r);
-	checkDressing(grid, r);
-	checkShapes(grid, r);
-	checkSpawnTerrains(grid, r);
-	const int litAtStart = checkSunBeams(grid, r);
+namespace {
 
+// The entrance and exit counts. False: no entrance, the search cannot start.
+bool checkEnds(LevelReport& r) {
 	if (r.entrances == 0)
 		r.errors.emplace_back("no entrance (Door with attribute 1)");
 	if (r.entrances > 1)
@@ -482,63 +470,68 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		);
 	if (r.exits == 0)
 		r.errors.emplace_back("no exit (Door with attribute 2) and no ankh");
-	if (r.entrances == 0) {
-		r.valid = false;
-		return r;
-	}
+	return r.entrances > 0;
+}
 
-	Walker walker(grid);
-	const int startState = walker.settleCell(r.start.col, r.start.row, litAtStart);
-	if (startState == NONE) {
-		r.errors.emplace_back("the entrance has no floor below it");
-		return r;
-	}
+// The Dijkstra over (cell, opened colours), with the edges kept for the backward pass.
+struct Search {
+	std::vector<int> dist;
+	std::vector<int> prev;
+	std::vector<Move> prevMove;
+	std::vector<std::vector<int>> incoming;
+	std::vector<char> expanded;
+	int goal = NONE; // the cheapest goal state
+};
 
-	// Dijkstra over (cell, opened colours), keeping the edges for the backward pass.
-	checkBossRoom(grid, startState, r);
-	checkNameGates(grid, startState, r);
-	checkCrawlEnds(grid, walker, r);
-
+Search searchLevel(const LevelGrid& grid, const Walker& walker, int startState) {
 	const int stateCount = walker.states();
-	std::vector<int> dist(stateCount, NONE);
-	std::vector<int> prev(stateCount, NONE);
-	std::vector<Move> prevMove(stateCount, Move::Start);
-	std::vector<std::vector<int>> incoming(stateCount);
+	Search s{
+		std::vector<int>(stateCount, NONE),
+		std::vector<int>(stateCount, NONE),
+		std::vector<Move>(stateCount, Move::Start),
+		std::vector<std::vector<int>>(stateCount),
+		std::vector<char>(stateCount, 0),
+	};
 	using Item = std::pair<int, int>; // cost, state
 	std::priority_queue<Item, std::vector<Item>, std::greater<>> open;
-	dist[startState] = 0;
+	s.dist[startState] = 0;
 	open.push({0, startState});
 	std::vector<Edge> edges;
-	std::vector<char> expanded(stateCount, 0);
 	while (!open.empty()) {
 		auto [cost, state] = open.top();
 		open.pop();
-		if (expanded[state] != 0)
+		if (s.expanded[state] != 0)
 			continue;
-		expanded[state] = 1;
+		s.expanded[state] = 1;
 		walker.successors(state, edges);
 		for (const Edge& e : edges) {
-			incoming[e.to].push_back(state);
-			int nd = cost + e.cost;
-			if (dist[e.to] == NONE || nd < dist[e.to]) {
-				dist[e.to] = nd;
-				prev[e.to] = state;
-				prevMove[e.to] = e.move;
+			s.incoming[e.to].push_back(state);
+			const int nd = cost + e.cost;
+			if (s.dist[e.to] == NONE || nd < s.dist[e.to]) {
+				s.dist[e.to] = nd;
+				s.prev[e.to] = state;
+				s.prevMove[e.to] = e.move;
 				open.push({nd, e.to});
 			}
 		}
 	}
+	for (int st = 0; st < stateCount; st++)
+		if (s.expanded[st] != 0 && isGoal(grid.cells[walker.cellOf(st)]) &&
+			(s.goal == NONE || s.dist[st] < s.dist[s.goal]))
+			s.goal = st;
+	return s;
+}
 
-	// Reachable cells and the cheapest goal state.
+std::vector<char> reachedCells(const Walker& walker, const std::vector<char>& expanded) {
 	std::vector<char> cellReached(CELLS, 0);
-	int goal = NONE;
-	for (int s = 0; s < stateCount; s++) {
-		if (expanded[s] == 0)
-			continue;
-		cellReached[walker.cellOf(s)] = 1;
-		if (isGoal(grid.cells[walker.cellOf(s)]) && (goal == NONE || dist[s] < dist[goal]))
-			goal = s;
-	}
+	for (int s = 0; s < static_cast<int>(expanded.size()); s++)
+		if (expanded[s] != 0)
+			cellReached[walker.cellOf(s)] = 1;
+	return cellReached;
+}
+
+// The counts of what is in reach and the warnings about it. Returns whether an antidote is in reach.
+bool reportReached(const LevelGrid& grid, const std::vector<char>& cellReached, LevelReport& r) {
 	bool poisoners = false;
 	bool antidote = false; // in reach
 	bool bleeders = false; // plan bleeding: a cutting bite, spikes (floor, wall, ceiling), a death trap
@@ -553,12 +546,12 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.reachableCells++;
 		r.reachablePages += t.type == Page ? 1 : 0;
 		r.reachableTreasures += isTreasure(t) ? 1 : 0;
+		if (t.type != Treasure)
+			continue;
 		// A trapped chest's antidote does not count: half of them are empty (plan trapped-chests).
-		antidote = antidote || (t.type == Treasure && itemFromFile(t.attr, t.value) == ItemKind::Antidote);
-		if (t.type == Treasure) {
-			const std::optional<ItemKind> item = itemFromFile(t.attr, t.value);
-			heal = heal || item == ItemKind::SmallHealth || item == ItemKind::LargeHealth || item == ItemKind::Life;
-		}
+		const std::optional<ItemKind> item = itemFromFile(t.attr, t.value);
+		antidote = antidote || item == ItemKind::Antidote;
+		heal = heal || item == ItemKind::SmallHealth || item == ItemKind::LargeHealth || item == ItemKind::Life;
 	}
 	if (poisoners && !antidote)
 		r.warnings.emplace_back("poisoners but no antidote in reach");
@@ -566,6 +559,11 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.warnings.emplace_back("bleeding (cutting monsters or spikes) but no health potion in reach");
 	if (r.poisonDrips > 0 && !antidote) // plan poison-drip-trap
 		r.warnings.emplace_back("poison drips but no antidote in reach");
+	return antidote;
+}
+
+// Keys, pages, levers and inscriptions the player cannot reach.
+void reportMissed(const LevelGrid& grid, const std::vector<char>& cellReached, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		if (cellReached[cell] != 0)
 			continue;
@@ -579,29 +577,22 @@ LevelReport checkLevel(const LevelGrid& grid) {
 				std::string(t.fixture.type == Lever ? "lever" : "inscription") + " out of reach at " + at(cell)
 			);
 	}
-	checkStepTops(walker, expanded, r);
-	if (r.treasures > r.reachableTreasures)
-		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");
+}
 
-	if (goal == NONE) {
-		if (r.exits > 0)
-			r.errors.emplace_back("the exit cannot be reached from the entrance");
-		r.valid = false;
-		return r;
-	}
-
-	// Backwards from every goal state: reachable states that cannot get there are softlocks.
+// Backwards from every goal state: reachable states that cannot get there are softlocks.
+void checkSoftlocks(const LevelGrid& grid, const Walker& walker, const Search& search, LevelReport& r) {
+	const int stateCount = walker.states();
 	std::vector<char> canFinish(stateCount, 0);
 	std::vector<int> stack;
 	for (int s = 0; s < stateCount; s++)
-		if (expanded[s] != 0 && isGoal(grid.cells[walker.cellOf(s)])) {
+		if (search.expanded[s] != 0 && isGoal(grid.cells[walker.cellOf(s)])) {
 			canFinish[s] = 1;
 			stack.push_back(s);
 		}
 	while (!stack.empty()) {
-		int s = stack.back();
+		const int s = stack.back();
 		stack.pop_back();
-		for (int from : incoming[s])
+		for (int from : search.incoming[s])
 			if (canFinish[from] == 0) {
 				canFinish[from] = 1;
 				stack.push_back(from);
@@ -610,7 +601,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	std::vector<char> softCell(CELLS, 0);
 	int example = NONE;
 	for (int s = 0; s < stateCount; s++)
-		if (expanded[s] != 0 && canFinish[s] == 0 && grid.cells[walker.cellOf(s)].type != Death &&
+		if (search.expanded[s] != 0 && canFinish[s] == 0 && grid.cells[walker.cellOf(s)].type != Death &&
 			softCell[walker.cellOf(s)] == 0) {
 			softCell[walker.cellOf(s)] = 1;
 			r.softlockCells++;
@@ -622,17 +613,54 @@ LevelReport checkLevel(const LevelGrid& grid) {
 			std::to_string(r.softlockCells) + " cell(s) the player can reach but not leave for the exit, e.g. " +
 			at(example)
 		);
+}
 
-	// The path, entrance first.
+// The move into a new path cell: its kind counts and, for a turn, the lever ways.
+void countPathMove(const Walker& walker, int from, int to, Move m, LevelReport& r) {
+	r.pathLength++;
+	r.pathJumps += m == Move::Jump ? 1 : 0;
+	r.pathDrops += m == Move::Drop ? 1 : 0;
+	r.pathClimb += m == Move::Climb ? 1 : 0;
+	r.pathTeleports += m == Move::Teleport ? 1 : 0;
+	if (m != Move::Turn)
+		return;
+	r.pathTurns++;
+	const int gained = maskOf(to) & ~maskOf(from);
+	for (const Walker::Turn& turn : walker.turns(from))
+		if (bitOf(turn.colour) == gained)
+			r.pathTurnWays.push_back(turn.way);
+}
+
+// The hazards of a path cell. Returns the colour bit of a closed gate on it, else 0.
+int countPathCell(const Tile& t, LevelReport& r) {
+	r.pathSpikes += t.type == Spike ? 1 : 0;
+	r.pathDeathTraps += t.type == Death ? 1 : 0;
+	r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed && !isSandFall(t) ? 1 : 0;
+	r.pathSandFalls += isSandFall(t) && rockState(t) == RockState::Armed ? 1 : 0;
+	r.pathSand += inSand(t) && !inQuicksand(t) ? 1 : 0;
+	r.pathQuicksand += inQuicksand(t) ? 1 : 0;
+	r.pathDartPlates += t.type == DartPlate ? 1 : 0;
+	r.pathWallSpikes += t.fixture.type == WallSpikes ? 1 : 0;
+	r.pathFireVents += t.fixture.type == FireVent ? 1 : 0;
+	r.pathPoisonDrips += t.fixture.type == PoisonDrip ? 1 : 0;
+	r.pathSandGusts += t.fixture.type == SandGust ? 1 : 0;
+	if (t.type != Gate || gateState(t) != GateState::Closed)
+		return 0;
+	r.pathGates++;
+	return bitOf(t.attr);
+}
+
+// The path from the entrance to the cheapest goal: its cells, moves and counts.
+void tracePath(const LevelGrid& grid, const Walker& walker, const Search& search, LevelReport& r) {
 	std::vector<int> states;
-	for (int s = goal; s != NONE; s = prev[s])
+	for (int s = search.goal; s != NONE; s = search.prev[s])
 		states.push_back(s);
 	std::reverse(states.begin(), states.end());
 	int gateColours = 0;
 	for (size_t i = 0; i < states.size(); i++) {
 		const int cell = walker.cellOf(states[i]);
 		// The sub-cells walked inside a shaped cell are one path cell; a crawl in it makes the way in one.
-		const Move inCell = prevMove[states[i]];
+		const Move inCell = search.prevMove[states[i]];
 		const bool step = inCell == Move::Step || inCell == Move::SpikedStep;
 		r.pathSteps += i > 0 && step ? 1 : 0;
 		r.pathCeilingSpikes += i > 0 && inCell == Move::SpikedStep ? 1 : 0;
@@ -649,51 +677,25 @@ LevelReport checkLevel(const LevelGrid& grid) {
 			continue;
 		}
 		r.path.push_back({cell % LEVEL_WIDTH, cell / LEVEL_WIDTH});
-		r.pathMoves.push_back(prevMove[states[i]]);
+		r.pathMoves.push_back(inCell);
 		r.pathTakeOffs.emplace_back();
 		if (takeOff)
 			r.pathTakeOffs.back().push_back(*takeOff);
 		r.pathRise.push_back(
 			i > 0 ? walker.places().y(nodeOf(states[i])) - walker.places().y(nodeOf(states[i - 1])) : 0
 		);
-		Tile t = grid.cells[cell];
-		if (i > 0) {
-			r.pathLength++;
-			Move m = prevMove[states[i]];
-			r.pathJumps += m == Move::Jump ? 1 : 0;
-			r.pathDrops += m == Move::Drop ? 1 : 0;
-			r.pathClimb += m == Move::Climb ? 1 : 0;
-			r.pathTeleports += m == Move::Teleport ? 1 : 0;
-			if (m == Move::Turn) {
-				r.pathTurns++;
-				const int gained = maskOf(states[i]) & ~maskOf(states[i - 1]);
-				for (const Walker::Turn& turn : walker.turns(states[i - 1]))
-					if (bitOf(turn.colour) == gained)
-						r.pathTurnWays.push_back(turn.way);
-			}
-		}
-		r.pathSpikes += t.type == Spike ? 1 : 0;
-		r.pathDeathTraps += t.type == Death ? 1 : 0;
-		r.pathRockFalls += t.type == RockFall && rockState(t) == RockState::Armed && !isSandFall(t) ? 1 : 0;
-		r.pathSandFalls += isSandFall(t) && rockState(t) == RockState::Armed ? 1 : 0;
-		r.pathSand += inSand(t) && !inQuicksand(t) ? 1 : 0;
-		r.pathQuicksand += inQuicksand(t) ? 1 : 0;
-		r.pathDartPlates += t.type == DartPlate ? 1 : 0;
-		r.pathWallSpikes += t.fixture.type == WallSpikes ? 1 : 0;
-		r.pathFireVents += t.fixture.type == FireVent ? 1 : 0;
-		r.pathPoisonDrips += t.fixture.type == PoisonDrip ? 1 : 0;
-		r.pathSandGusts += t.fixture.type == SandGust ? 1 : 0;
-		if (t.type == Gate && gateState(t) == GateState::Closed) {
-			r.pathGates++;
-			gateColours |= bitOf(t.attr);
-		}
+		if (i > 0)
+			countPathMove(walker, states[i - 1], states[i], inCell, r);
+		gateColours |= countPathCell(grid.cells[cell], r);
 	}
 	for (int c = 0; c < LOCK_COLOUR_COUNT; c++)
 		r.keysNeeded += (gateColours >> c) & 1;
 	r.pathBoss = (gateColours & bitOf(BOSS_LOCK)) != 0;
-
 	r.pathMonsters = static_cast<int>(monstersNear(grid, r.path).size());
+}
 
+// The warnings about the only way to the exit.
+void reportPath(bool antidote, LevelReport& r) {
 	if (r.pathDeathTraps > 0)
 		r.warnings.emplace_back("the only way to the exit walks over a death trap");
 	if (r.pathSpikes > 0) // a crossing costs SPIKES_CROSS_HP: deadly early on
@@ -702,7 +704,55 @@ LevelReport checkLevel(const LevelGrid& grid) {
 		r.warnings.emplace_back("the only way to the exit jumps into ceiling spikes");
 	if (r.pathDartPlates > 0 && !antidote)
 		r.warnings.emplace_back("a dart trap on the path but no antidote in reach");
+}
+} // namespace
 
+LevelReport checkLevel(const LevelGrid& grid) {
+	LevelReport r;
+	countContent(grid, r);
+	checkLocks(grid, r);
+	checkObjectsInRock(grid, r);
+	checkWater(grid, r);
+	checkSand(grid, r);
+	checkDeadGates(grid, r);
+	checkTeleporters(grid, r);
+	checkWallSpikes(grid, r);
+	checkSandGusts(grid, r);
+	checkDressing(grid, r);
+	checkShapes(grid, r);
+	checkSpawnTerrains(grid, r);
+	const int litAtStart = checkSunBeams(grid, r);
+	if (!checkEnds(r)) {
+		r.valid = false;
+		return r;
+	}
+
+	Walker walker(grid);
+	const int startState = walker.settleCell(r.start.col, r.start.row, litAtStart);
+	if (startState == NONE) {
+		r.errors.emplace_back("the entrance has no floor below it");
+		return r;
+	}
+	checkBossRoom(grid, startState, r);
+	checkNameGates(grid, startState, r);
+	checkCrawlEnds(grid, walker, r);
+
+	const Search search = searchLevel(grid, walker, startState);
+	const std::vector<char> cellReached = reachedCells(walker, search.expanded);
+	const bool antidote = reportReached(grid, cellReached, r);
+	reportMissed(grid, cellReached, r);
+	checkStepTops(walker, search.expanded, r);
+	if (r.treasures > r.reachableTreasures)
+		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");
+	if (search.goal == NONE) {
+		if (r.exits > 0)
+			r.errors.emplace_back("the exit cannot be reached from the entrance");
+		r.valid = false;
+		return r;
+	}
+	checkSoftlocks(grid, walker, search, r);
+	tracePath(grid, walker, search, r);
+	reportPath(antidote, r);
 	r.difficulty = difficultyScore(r, grid);
 	r.valid = r.errors.empty();
 	return r;

@@ -1,6 +1,6 @@
 # Split the level checker's checkLevel into its passes
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: solved 2026-11-16. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Problem
 
@@ -18,3 +18,12 @@ checker plans are the riskiest: a wrong rule passes a level the game blocks).
 * No behaviour change: `bin/levelcheck content/levels/lvl*` prints the same report before and after (diff it), and
   the unit tests pass.
 * Rerun `make complexity`: each pass under 40; note the numbers here. 
+
+## Result
+
+* `checkLevel` keeps the order of the checks and calls the passes: `checkEnds`, `searchLevel` (returns `Search`:
+  dist, prev, prevMove, incoming, expanded, goal), `reachedCells`, `reportReached` (returns the antidote in reach),
+  `reportMissed`, `checkSoftlocks`, `tracePath` (with `countPathMove`, `countPathCell`), `reportPath`.
+* `bin/levelcheck` (plain and `--map`) over every campaign level and every test level (`tests/levels/`): the same
+  output before and after (`cmp`).
+* `make complexity`: `checkLevel` 169 → under 25, `tracePath` 34, every other pass under 25.

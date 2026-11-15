@@ -127,6 +127,11 @@ class Inventory {
 	void DrawSlotModel(int slot);
 	void DrawSlotLabels(int slot);
 	void DrawDetails();
+	[[nodiscard]] std::string DetailKind() const;
+	void DrawPotionDetails(const ItemText& info);
+	void DrawRingDetails(const ItemText& info);
+	void DrawAmuletDetails(const ItemText& info);
+	void DrawWeaponDetails();
 	void DrawDetailRules();
 	void DrawDetailModel();
 	void DrawButtons();

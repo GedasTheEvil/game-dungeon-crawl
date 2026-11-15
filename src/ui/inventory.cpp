@@ -948,6 +948,143 @@ void Inventory::DrawSlotLabels(int slot) {
 	}
 }
 
+constexpr float STAT_Y = 37.4f; // the baseline of the details' stat block
+// One function per item class draws its stats (plan refactor-inventory-details).
+
+// The red line under the name: what class the item is, and what it does now.
+std::string Inventory::DetailKind() const {
+	const ItemKind kind = kindOf(selectedSlot);
+	if (isAmulet(selectedSlot))
+		return bag.Worn() == kind ? "Amulet, worn" : "Amulet";
+	if (isRing(selectedSlot)) {
+		const bool left = bag.RingOn(Hand::Left) == kind;
+		const bool right = bag.RingOn(Hand::Right) == kind;
+		if (left && right)
+			return "Ring, on both hands";
+		return left ? "Ring, left hand" : right ? "Ring, right hand" : "Ring";
+	}
+	if (isWeapon(selectedSlot))
+		return std::string(!isRanged(kind) ? "Close combat" : "Ranged") + ", level " + std::to_string(bag.Level(kind));
+	return "Potion";
+}
+
+void Inventory::DrawPotionDetails(const ItemText& info) {
+	textCentered(body, DETAIL_PANEL.cx(), STAT_Y, info.effect, INK);
+}
+
+void Inventory::DrawRingDetails(const ItemText& info) {
+	const float cx = DETAIL_PANEL.cx();
+	textCentered(body, cx, STAT_Y + 5.f, info.effect, INK);
+	// Two at a time, one per hand: what each hand wears, and what the selected ring's gem gives in all.
+	char hands[64];
+	const std::optional<ItemKind> left = bag.RingOn(Hand::Left);
+	const std::optional<ItemKind> right = bag.RingOn(Hand::Right);
+	if (left || right)
+		snprintf(
+			hands,
+			sizeof(hands),
+			"Left: %s   Right: %s",
+			left ? itemText(*left).shortName : "-",
+			right ? itemText(*right).shortName : "-"
+		);
+	else
+		snprintf(hands, sizeof(hands), "Two rings, one on each hand");
+	textCentered(small, cx, STAT_Y + 0.5f, hands, INK_FADED);
+	const std::string sum = ringSumText(Game().player->stats.Rings(), ringOf(kindOf(selectedSlot)).gem);
+	if (!sum.empty())
+		textCentered(small, cx, STAT_Y - 3.2f, ("Worn: " + sum).c_str(), INK_GREEN);
+}
+
+void Inventory::DrawAmuletDetails(const ItemText& info) {
+	const float cx = DETAIL_PANEL.cx();
+	textCentered(body, cx, STAT_Y + 5.f, info.effect, INK);
+	// One amulet at a time: what putting this one on would take off.
+	const std::optional<ItemKind> worn = bag.Worn();
+	if (worn && *worn != kindOf(selectedSlot))
+		textCentered(small, cx, STAT_Y + 0.5f, (std::string("Worn now: ") + itemText(*worn).name).c_str(), INK_FADED);
+	else if (!worn)
+		textCentered(small, cx, STAT_Y + 0.5f, "One amulet at a time", INK_FADED);
+	// Upgrade progress: the spares' points of the cost (plan amulet-upgrades).
+	char points[40] = "Top tier";
+	const bool top = !nextTier(kindOf(selectedSlot));
+	const int cost = amuletWorth(amuletOf(kindOf(selectedSlot)).tier);
+	const int have = bag.UpgradePoints(kindOf(selectedSlot));
+	if (!top)
+		snprintf(
+			points,
+			sizeof(points),
+			"Upgrade: %d / %d %s",
+			std::min(have, cost),
+			cost,
+			cost == 1 ? "point" : "points"
+		);
+	if (bag.Count(kindOf(selectedSlot)) > 0)
+		textCentered(small, cx, STAT_Y - 3.2f, points, !top && have >= cost ? INK_GREEN : INK_FADED);
+}
+
+void Inventory::DrawWeaponDetails() {
+	const WeaponDef& shown = weaponDef(kindOf(selectedSlot));
+	const WeaponDef& current = weaponDef(bag.Equipped());
+	int shownDamage = weaponDamage(kindOf(selectedSlot), shown.damage, bag.Level(kindOf(selectedSlot)));
+	char buf[48];
+	float labelX = DETAIL_PANEL.x + 9;
+	float valueX = DETAIL_PANEL.x + 30;
+	// unit: the values are tenths, shown with one decimal and the unit after them
+	auto statRow = [&](float y, const char* label, int value, int currentValue, const char* unit = nullptr) {
+		text(body, labelX, y, label, INK_FADED);
+		if (unit)
+			snprintf(buf, sizeof(buf), "%.1f%s", static_cast<double>(value) / 10, unit);
+		else
+			snprintf(buf, sizeof(buf), "%d", value);
+		text(body, valueX, y, buf, INK);
+		if (kindOf(selectedSlot) == bag.Equipped() || value == currentValue)
+			return;
+		const float diffX = valueX + body.TextWidth(unit ? "0.0/s" : "000") + 1;
+		if (unit)
+			snprintf(buf, sizeof(buf), "%+.1f", static_cast<double>(value - currentValue) / 10);
+		else
+			snprintf(buf, sizeof(buf), "%+d", value - currentValue);
+		text(body, diffX, y, buf, value > currentValue ? INK_GREEN : INK_RED);
+	};
+	// Attacks per second in tenths (plan weapon-compare-speed); a bow's AttackMs holds its draw.
+	auto attacksPerSecond = [](const WeaponDef& w) {
+		return static_cast<int>(std::lround(10000.0 / w.motion.AttackMs()));
+	};
+	constexpr float ROW = 2.8f;
+	const float typeY = STAT_Y + 2.5f * ROW;
+	// The damage mix, the main type first: what the monsters' resistances work on.
+	const DamageMix& mix = shown.mix;
+	const auto main = std::to_underlying(mainType(mix));
+	text(body, labelX, typeY, "Type", INK_FADED);
+	snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[main], mix[main]);
+	text(body, valueX, typeY, buf, INK);
+	float minorX = valueX + body.TextWidth(buf) + 1.5f;
+	for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++) {
+		if (t == main || mix[t] <= 0)
+			continue;
+		snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[t], mix[t]);
+		text(small, minorX, typeY + 0.2f, buf, INK_FADED);
+		minorX += small.TextWidth(buf) + 1.5f;
+	}
+	statRow(typeY - ROW, "Damage", shownDamage, EquippedDamage());
+	statRow(typeY - 2 * ROW, "Speed", attacksPerSecond(shown), attacksPerSecond(current), "/s");
+	statRow(typeY - 3 * ROW, "Range", shown.range, current.range);
+
+	// Progress towards the next level: copies collected / copies needed.
+	int level = bag.Level(kindOf(selectedSlot));
+	const float copiesY = typeY - 4 * ROW;
+	text(body, labelX, copiesY, "Copies", INK_FADED);
+	if (level >= MAX_WEAPON_LEVEL) {
+		text(body, valueX, copiesY, "Max level", INK);
+	} else {
+		int cost = upgradeCost(level);
+		snprintf(buf, sizeof(buf), "%d / %d", bag.Count(kindOf(selectedSlot)), cost);
+		text(body, valueX, copiesY, buf, bag.Count(kindOf(selectedSlot)) >= cost ? INK_GREEN : INK);
+		snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(kindOf(selectedSlot), shown.damage, level + 1));
+		text(small, valueX + body.TextWidth("00 / 00") + 1.5f, copiesY + 0.2f, buf, INK_FADED);
+	}
+}
+
 void Inventory::DrawDetails() {
 	const ItemText& info = itemText(kindOf(selectedSlot));
 	const bool found = bag.Found(kindOf(selectedSlot)); // a potion used up still shows what it does
@@ -967,143 +1104,16 @@ void Inventory::DrawDetails() {
 		return;
 	}
 	textCentered(heading, cx, 77.5f, info.name, INK);
-	char kind[48] = "Potion";
-	if (isAmulet(selectedSlot))
-		snprintf(kind, sizeof(kind), "%s", bag.Worn() == kindOf(selectedSlot) ? "Amulet, worn" : "Amulet");
-	if (isRing(selectedSlot)) {
-		const bool left = bag.RingOn(Hand::Left) == kindOf(selectedSlot);
-		const bool right = bag.RingOn(Hand::Right) == kindOf(selectedSlot);
-		snprintf(
-			kind,
-			sizeof(kind),
-			"%s",
-			left && right ? "Ring, on both hands"
-			: left		  ? "Ring, left hand"
-			: right		  ? "Ring, right hand"
-						  : "Ring"
-		);
-	}
-	if (isWeapon(selectedSlot)) {
-		const char* weaponKind = !isRanged(kindOf(selectedSlot)) ? "Close combat" : "Ranged";
-		snprintf(kind, sizeof(kind), "%s, level %d", weaponKind, bag.Level(kindOf(selectedSlot)));
-	}
-	textCentered(small, cx, 73.8f, kind, INK_RED);
+	textCentered(small, cx, 73.8f, DetailKind().c_str(), INK_RED);
 
-	constexpr float STAT_Y = 37.4f;
-	if (isPotion(selectedSlot)) {
-		textCentered(body, cx, STAT_Y, info.effect, INK);
-	} else if (isRing(selectedSlot)) {
-		textCentered(body, cx, STAT_Y + 5.f, info.effect, INK);
-		// Two at a time, one per hand: what each hand wears, and what the selected ring's gem gives in all.
-		char hands[64];
-		const std::optional<ItemKind> left = bag.RingOn(Hand::Left);
-		const std::optional<ItemKind> right = bag.RingOn(Hand::Right);
-		if (left || right)
-			snprintf(
-				hands,
-				sizeof(hands),
-				"Left: %s   Right: %s",
-				left ? itemText(*left).shortName : "-",
-				right ? itemText(*right).shortName : "-"
-			);
-		else
-			snprintf(hands, sizeof(hands), "Two rings, one on each hand");
-		textCentered(small, cx, STAT_Y + 0.5f, hands, INK_FADED);
-		const std::string sum = ringSumText(Game().player->stats.Rings(), ringOf(kindOf(selectedSlot)).gem);
-		if (!sum.empty())
-			textCentered(small, cx, STAT_Y - 3.2f, ("Worn: " + sum).c_str(), INK_GREEN);
-	} else if (isAmulet(selectedSlot)) {
-		textCentered(body, cx, STAT_Y + 5.f, info.effect, INK);
-		// One amulet at a time: what putting this one on would take off.
-		const std::optional<ItemKind> worn = bag.Worn();
-		if (worn && *worn != kindOf(selectedSlot))
-			textCentered(
-				small,
-				cx,
-				STAT_Y + 0.5f,
-				(std::string("Worn now: ") + itemText(*worn).name).c_str(),
-				INK_FADED
-			);
-		else if (!worn)
-			textCentered(small, cx, STAT_Y + 0.5f, "One amulet at a time", INK_FADED);
-		// Upgrade progress: the spares' points of the cost (plan amulet-upgrades).
-		char points[40] = "Top tier";
-		const bool top = !nextTier(kindOf(selectedSlot));
-		const int cost = amuletWorth(amuletOf(kindOf(selectedSlot)).tier);
-		const int have = bag.UpgradePoints(kindOf(selectedSlot));
-		if (!top)
-			snprintf(
-				points,
-				sizeof(points),
-				"Upgrade: %d / %d %s",
-				std::min(have, cost),
-				cost,
-				cost == 1 ? "point" : "points"
-			);
-		if (bag.Count(kindOf(selectedSlot)) > 0)
-			textCentered(small, cx, STAT_Y - 3.2f, points, !top && have >= cost ? INK_GREEN : INK_FADED);
-	} else {
-		const WeaponDef& shown = weaponDef(kindOf(selectedSlot));
-		const WeaponDef& current = weaponDef(bag.Equipped());
-		int shownDamage = weaponDamage(kindOf(selectedSlot), shown.damage, bag.Level(kindOf(selectedSlot)));
-		char buf[48];
-		float labelX = DETAIL_PANEL.x + 9;
-		float valueX = DETAIL_PANEL.x + 30;
-		// unit: the values are tenths, shown with one decimal and the unit after them
-		auto statRow = [&](float y, const char* label, int value, int currentValue, const char* unit = nullptr) {
-			text(body, labelX, y, label, INK_FADED);
-			if (unit)
-				snprintf(buf, sizeof(buf), "%.1f%s", static_cast<double>(value) / 10, unit);
-			else
-				snprintf(buf, sizeof(buf), "%d", value);
-			text(body, valueX, y, buf, INK);
-			if (kindOf(selectedSlot) == bag.Equipped() || value == currentValue)
-				return;
-			const float diffX = valueX + body.TextWidth(unit ? "0.0/s" : "000") + 1;
-			if (unit)
-				snprintf(buf, sizeof(buf), "%+.1f", static_cast<double>(value - currentValue) / 10);
-			else
-				snprintf(buf, sizeof(buf), "%+d", value - currentValue);
-			text(body, diffX, y, buf, value > currentValue ? INK_GREEN : INK_RED);
-		};
-		// Attacks per second in tenths (plan weapon-compare-speed); a bow's AttackMs holds its draw.
-		auto attacksPerSecond = [](const WeaponDef& w) {
-			return static_cast<int>(std::lround(10000.0 / w.motion.AttackMs()));
-		};
-		constexpr float ROW = 2.8f;
-		const float typeY = STAT_Y + 2.5f * ROW;
-		// The damage mix, the main type first: what the monsters' resistances work on.
-		const DamageMix& mix = shown.mix;
-		const auto main = std::to_underlying(mainType(mix));
-		text(body, labelX, typeY, "Type", INK_FADED);
-		snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[main], mix[main]);
-		text(body, valueX, typeY, buf, INK);
-		float minorX = valueX + body.TextWidth(buf) + 1.5f;
-		for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++) {
-			if (t == main || mix[t] <= 0)
-				continue;
-			snprintf(buf, sizeof(buf), "%s %d%%", DAMAGE_TYPE_NAMES[t], mix[t]);
-			text(small, minorX, typeY + 0.2f, buf, INK_FADED);
-			minorX += small.TextWidth(buf) + 1.5f;
-		}
-		statRow(typeY - ROW, "Damage", shownDamage, EquippedDamage());
-		statRow(typeY - 2 * ROW, "Speed", attacksPerSecond(shown), attacksPerSecond(current), "/s");
-		statRow(typeY - 3 * ROW, "Range", shown.range, current.range);
-
-		// Progress towards the next level: copies collected / copies needed.
-		int level = bag.Level(kindOf(selectedSlot));
-		const float copiesY = typeY - 4 * ROW;
-		text(body, labelX, copiesY, "Copies", INK_FADED);
-		if (level >= MAX_WEAPON_LEVEL) {
-			text(body, valueX, copiesY, "Max level", INK);
-		} else {
-			int cost = upgradeCost(level);
-			snprintf(buf, sizeof(buf), "%d / %d", bag.Count(kindOf(selectedSlot)), cost);
-			text(body, valueX, copiesY, buf, bag.Count(kindOf(selectedSlot)) >= cost ? INK_GREEN : INK);
-			snprintf(buf, sizeof(buf), "next %d dmg", weaponDamage(kindOf(selectedSlot), shown.damage, level + 1));
-			text(small, valueX + body.TextWidth("00 / 00") + 1.5f, copiesY + 0.2f, buf, INK_FADED);
-		}
-	}
+	if (isPotion(selectedSlot))
+		DrawPotionDetails(info);
+	else if (isRing(selectedSlot))
+		DrawRingDetails(info);
+	else if (isAmulet(selectedSlot))
+		DrawAmuletDetails(info);
+	else
+		DrawWeaponDetails();
 	if (ShrineButtons() == ShrineRow::None) { // at a shrine its buttons take the lore's place
 		textCentered(small, cx, LORE_Y, info.lore1, INK_FADED);
 		textCentered(small, cx, LORE_Y - 3.4f, info.lore2, INK_FADED);

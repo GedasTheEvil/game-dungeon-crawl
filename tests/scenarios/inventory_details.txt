@@ -1,0 +1,28 @@
+# Plan refactor-inventory-details: the detail panel of a ring, an amulet, a weapon, a potion and an unknown item
+# (screenshots compared before and after the split).
+seed 1
+god
+level tests/levels/classic1
+give ring 0
+give amulet 0
+give amulet 2
+give melee 1
+give potion 0
+wear lesser_amulet_of_strength
+key i
+select copper_ring_of_regeneration
+wait 300ms
+screenshot ring
+select lesser_amulet_of_strength
+wait 300ms
+screenshot amulet
+select short_sword
+wait 300ms
+screenshot weapon
+select small_health
+wait 300ms
+screenshot potion
+select large_stamina
+wait 300ms
+screenshot unknown
+quit

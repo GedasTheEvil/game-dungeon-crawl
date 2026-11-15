@@ -260,7 +260,7 @@ std::string Inventory::Gift(God god) {
 	if (gift.item) {
 		AddItem(*gift.item);
 		const std::string name = itemText(*gift.item).name;
-		const bool vowel = std::string("AEIOU").find(name.front()) != std::string::npos;
+		const bool vowel = std::string("AEIOU").contains(name.front());
 		return giver + (vowel ? "an " : "a ") + name;
 	}
 	return "";

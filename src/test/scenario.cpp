@@ -233,7 +233,7 @@ bool loadLevel(const Command& cmd) {
 	bool loaded = false;
 	if (cmd.a > 0.f)
 		loaded = Game().dungeon.LoadCampaignLevel(static_cast<int>(cmd.a));
-	else if (cmd.arg.rfind("gen:", 0) == 0)
+	else if (cmd.arg.starts_with("gen:"))
 		loaded = loadGeneratedLevel(cmd.arg);
 	else
 		loaded = Game().dungeon.Load(cmd.arg.c_str());
@@ -601,14 +601,10 @@ bool runInstant(const Command& cmd) {
 		return true;
 	}
 	case CommandType::SaveGame: // relative paths land in the output directory
-		report(
-			cmd,
-			Game().Save((cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str()),
-			""
-		);
+		report(cmd, Game().Save((!cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str()), "");
 		return true;
 	case CommandType::LoadGame: {
-		std::string path = cmd.arg.find('/') == std::string::npos ? gRunner.outDir + "/" + cmd.arg : cmd.arg;
+		std::string path = !cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg;
 		if (!std::filesystem::exists(path)) {
 			report(cmd, false, "no such file");
 			return true;

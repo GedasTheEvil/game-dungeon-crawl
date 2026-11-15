@@ -75,9 +75,9 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 	int number = 0;
 	if (!parseInt(value, number))
 		return false;
-	if (key.rfind(SLAIN_KEY, 0) == 0)
+	if (key.starts_with(SLAIN_KEY))
 		r.slain.emplace_back(key.substr(std::string(SLAIN_KEY).size()), number);
-	else if (key.rfind(POTION_KEY, 0) == 0)
+	else if (key.starts_with(POTION_KEY))
 		r.potions.emplace_back(key.substr(std::string(POTION_KEY).size()), number);
 	const std::array<std::pair<const char*, int*>, 17> ints = {{
 		{"time_ms", &r.playMs},

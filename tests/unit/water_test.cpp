@@ -34,7 +34,7 @@ LevelGrid drawn(const std::vector<std::string>& objects, const std::vector<std::
 
 bool warns(const LevelReport& r, const std::string& part) {
 	for (const std::string& w : r.warnings)
-		if (w.find(part) != std::string::npos)
+		if (w.contains(part))
 			return true;
 	return false;
 }

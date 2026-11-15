@@ -69,7 +69,7 @@ TEST_CASE("the expedition pages are numbered in order of depth without gaps: Day
 	for (int n = 1; n < EXPEDITION_PAGE_COUNT; n++) {
 		CAPTURE(n);
 		const std::string heading = expeditionPageText(n).heading;
-		REQUIRE(heading.rfind("Day ", 0) == 0);
+		REQUIRE(heading.starts_with("Day "));
 		const int number = std::stoi(heading.substr(4));
 		CHECK(number > day);
 		day = number;

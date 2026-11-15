@@ -158,10 +158,9 @@ TEST_CASE("the checker: a plate gate opens once its plate is reached; a plate no
 	CHECK(r.valid);
 	bool blueWarned = false, otherWarned = false;
 	for (const std::string& w : r.warnings) {
-		if (w.find("pressure plate") == std::string::npos && w.find("plate gate") == std::string::npos)
+		if (!w.contains("pressure plate") && !w.contains("plate gate"))
 			continue;
-		(w.find("blue pressure plate at (col 11, row 2) needs 2") != std::string::npos ? blueWarned
-																					   : otherWarned) = true;
+		(w.contains("blue pressure plate at (col 11, row 2) needs 2") ? blueWarned : otherWarned) = true;
 	}
 	CHECK(blueWarned); // only the player stands there
 	CHECK_FALSE(otherWarned); // the stone, the treasure, the rat's body

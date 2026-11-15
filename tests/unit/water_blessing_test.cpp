@@ -64,7 +64,7 @@ TEST_CASE("Blessing of Hapi: lasts 2 minutes, drinking again restarts them, the 
 	CHECK_FALSE(player.stats.WaterBlessed());
 	const std::vector<WorldEvent> said = events.Take();
 	REQUIRE(said.size() == 1);
-	CHECK(said[0].text.find("deep again") != std::string::npos);
+	CHECK(said[0].text.contains("deep again"));
 	player.stats.AdvanceWaterBlessing(1000, events); // nothing more to say
 	CHECK(events.Take().empty());
 }
@@ -115,7 +115,7 @@ TEST_CASE("Blessing of Hapi: saved with the time left, a save from before it loa
 		std::ifstream in(path);
 		std::string line;
 		while (std::getline(in, line))
-			if (line.rfind("WATER", 0) != 0)
+			if (!line.starts_with("WATER"))
 				text += line + "\n";
 	}
 	{

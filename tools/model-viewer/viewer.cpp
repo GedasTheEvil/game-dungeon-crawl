@@ -215,7 +215,7 @@ std::vector<std::string> TextureCandidates(const std::string& modelPath) {
 	for (const auto& entry : std::filesystem::directory_iterator(dir, ec)) {
 		const std::string name = entry.path().filename().string();
 		std::string path = (dir / name).string();
-		if (entry.is_regular_file() && entry.path().extension() == ".png" && name.rfind(prefix, 0) == 0 &&
+		if (entry.is_regular_file() && entry.path().extension() == ".png" && name.starts_with(prefix) &&
 			std::find(result.begin(), result.end(), path) == result.end())
 			variants.push_back(path);
 	}

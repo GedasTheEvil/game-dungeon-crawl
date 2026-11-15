@@ -434,7 +434,7 @@ TEST_CASE("skill-god-resist: the resisted line names its source") {
 		skilled.stats.vitals.poison.Cure();
 		skilled.Poison(PoisonTier::Weak, events, rng);
 		const std::string text = lastStatus();
-		if (text.find("spares") != std::string::npos)
+		if (text.contains("spares"))
 			line = text;
 	}
 	CHECK(line == "Serket's favour spares you the venom");

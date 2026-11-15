@@ -127,7 +127,7 @@ LevelGrid corridor(const std::vector<std::string>& rows) {
 
 bool warnsNoAntidote(const LevelGrid& grid) {
 	for (const std::string& w : checkLevel(grid).warnings)
-		if (w.find("no antidote") != std::string::npos)
+		if (w.contains("no antidote"))
 			return true;
 	return false;
 }

@@ -43,9 +43,7 @@ const std::vector<std::string> HALL = {"#########", "#S.....E#", "#########"};
 const std::vector<std::string> TALL_HALL = {"#########", "#.......#", "#S.....E#", "#########"};
 
 bool warned(const LevelReport& r, const std::string& part) {
-	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) {
-		return w.find(part) != std::string::npos;
-	});
+	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) { return w.contains(part); });
 }
 } // namespace
 

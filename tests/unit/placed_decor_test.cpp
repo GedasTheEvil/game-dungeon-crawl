@@ -26,7 +26,7 @@ std::string asV3(const LevelGrid& grid) {
 	writeLevel(v4, grid.cells);
 	std::string text = v4.str();
 	const std::string head = std::string(LEVEL_MAGIC) + " " + std::to_string(LEVEL_VERSION) + " ";
-	REQUIRE(text.rfind(head, 0) == 0);
+	REQUIRE(text.starts_with(head));
 	text.replace(0, head.size(), std::string(LEVEL_MAGIC) + " 3 ");
 	const size_t zone = text.find("zone "); // v5 on
 	text.erase(zone, text.find('\n', zone) + 1 - zone);
@@ -49,7 +49,7 @@ bool sameLayout(const DecorLayout& a, const DecorLayout& b) {
 
 bool warns(const LevelReport& r, const std::string& part) {
 	for (const std::string& w : r.warnings)
-		if (w.find(part) != std::string::npos)
+		if (w.contains(part))
 			return true;
 	return false;
 }
@@ -74,10 +74,7 @@ TEST_CASE("v4 keeps every cell's prop, decal and torch with their mirrors; unset
 	dressing(grid, 7, 1).decal = PLACED_BARE;
 	std::stringstream file;
 	writeLevel(file, grid.cells);
-	CHECK(
-		file.str().find("decor 2\n3 1 24 1\n4 1 -1 0\ndecals 3\n5 1 7 1 1\n6 1 -2 0 2\n7 1 -1 0 0\n") !=
-		std::string::npos
-	);
+	CHECK(file.str().contains("decor 2\n3 1 24 1\n4 1 -1 0\ndecals 3\n5 1 7 1 1\n6 1 -2 0 2\n7 1 -1 0 0\n"));
 	LevelGrid loaded;
 	int version = 0;
 	REQUIRE(readLevel(file, loaded.cells, &version).empty());
@@ -105,14 +102,11 @@ TEST_CASE("v4 refuses a prop, decal or torch it does not know") {
 		LevelGrid loaded;
 		return readLevel(in, loaded.cells);
 	};
-	CHECK(
-		readWith("decor 0\n", "decor 1\n2 1 " + std::to_string(DECOR_COUNT) + " 0\n").find("unknown prop") !=
-		std::string::npos
-	);
-	CHECK(readWith("decals 0\n", "decals 1\n2 1 -3 0 0\n").find("unknown decal") != std::string::npos);
-	CHECK(readWith("decals 0\n", "decals 1\n2 1 0 0 3\n").find("unknown torch") != std::string::npos);
-	CHECK(readWith("decor 0\n", "decor 1\n2 99 0 0\n").find("outside the level") != std::string::npos);
-	CHECK(readWith("decor 0\ndecals 0\n", "").find("no decor layer") != std::string::npos);
+	CHECK(readWith("decor 0\n", "decor 1\n2 1 " + std::to_string(DECOR_COUNT) + " 0\n").contains("unknown prop"));
+	CHECK(readWith("decals 0\n", "decals 1\n2 1 -3 0 0\n").contains("unknown decal"));
+	CHECK(readWith("decals 0\n", "decals 1\n2 1 0 0 3\n").contains("unknown torch"));
+	CHECK(readWith("decor 0\n", "decor 1\n2 99 0 0\n").contains("outside the level"));
+	CHECK(readWith("decor 0\ndecals 0\n", "").contains("no decor layer"));
 }
 
 TEST_CASE("a v3 level loads with every cell unset and scatters as before") {
@@ -281,9 +275,9 @@ TEST_CASE("levelcheck --map draws the placed props and decals") {
 	dressing(grid, 6, 1).torch = TorchPlacing::Torch;
 	dressing(grid, 7, 1).torch = TorchPlacing::None;
 	const std::string map = renderLevel(grid, nullptr);
-	CHECK(map.find("decor\n 1 #..y-.") != std::string::npos);
-	CHECK(map.find("decals\n 1 #....Ct-.") != std::string::npos);
-	CHECK(renderLevel(corridor(), nullptr).find("decor") == std::string::npos);
+	CHECK(map.contains("decor\n 1 #..y-."));
+	CHECK(map.contains("decals\n 1 #....Ct-."));
+	CHECK(!renderLevel(corridor(), nullptr).contains("decor"));
 }
 
 TEST_CASE("the editor's decal brushes: a torch and a free decal clear each other, Unset and Bare set both") {

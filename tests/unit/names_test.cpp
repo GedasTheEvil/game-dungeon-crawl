@@ -30,9 +30,7 @@ LevelGrid nameGateLevel() {
 }
 
 bool warns(const LevelReport& r, const std::string& text) {
-	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) {
-		return w.find(text) != std::string::npos;
-	});
+	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) { return w.contains(text); });
 }
 
 NameList shippedNames() {
@@ -348,8 +346,8 @@ TEST_CASE("royal names: Ptolemy and Siptah spelled in full, Amenemhat's and Den'
 	using G = std::vector<std::string>;
 	CHECK(find("Ptolemy").glyphs == G{"Q3", "X1", "G43", "E23", "G17", "S29"}); // p-t-w-l-m-s, the m is a sound of it
 	CHECK(find("Siptah").glyphs == G{"G39", "Q3", "X1", "V28"}); // sA-ptH: the duck, not the folded cloth
-	CHECK(find("Den").note.find("shortest") == std::string::npos); // Qaa has three letters too
-	CHECK(find("Amenemhat").note.find("says Herodotus") == std::string::npos); // he credits the twelve kings
+	CHECK(!find("Den").note.contains("shortest")); // Qaa has three letters too
+	CHECK(!find("Amenemhat").note.contains("says Herodotus")); // he credits the twelve kings
 	for (size_t i = 0; i < names.Size(); i++) {
 		CAPTURE(names.At(i).name);
 		CHECK(names.At(i).note.size() <= 70);

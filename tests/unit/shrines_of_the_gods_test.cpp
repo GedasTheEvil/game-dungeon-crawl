@@ -15,9 +15,7 @@ constexpr int SHRINE_COL = 4; // a cell with nothing to interact with
 constexpr God NEW_GODS[] = {God::Montu, God::Ptah, God::Amun, God::Serket};
 
 bool said(const std::vector<WorldEvent>& events, const std::string& text) {
-	return std::any_of(events.begin(), events.end(), [&](const WorldEvent& e) {
-		return e.text.find(text) != std::string::npos;
-	});
+	return std::any_of(events.begin(), events.end(), [&](const WorldEvent& e) { return e.text.contains(text); });
 }
 } // namespace
 

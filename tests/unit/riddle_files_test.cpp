@@ -30,7 +30,7 @@ std::vector<FileRiddle> readRiddles(const std::filesystem::path& file) {
 	std::string line;
 	bool inQuestion = false;
 	while (std::getline(in, line)) {
-		if (line.rfind("Q:", 0) == 0) {
+		if (line.starts_with("Q:")) {
 			if (!inQuestion) {
 				riddles.emplace_back();
 			}
@@ -66,7 +66,7 @@ TEST_CASE("lore-corrections-leftovers: no stargate riddle says swallows the sun 
 	REQUIRE(in.good());
 	std::string line;
 	while (std::getline(in, line)) {
-		CHECK_MESSAGE(line.find("swallows the sun") == std::string::npos, line);
-		CHECK_MESSAGE(line.find("Sobek") == std::string::npos, line);
+		CHECK_MESSAGE(!line.contains("swallows the sun"), line);
+		CHECK_MESSAGE(!line.contains("Sobek"), line);
 	}
 }

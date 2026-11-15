@@ -61,7 +61,7 @@ TEST_CASE("Protection of Isis: no curse lands, of any kind or grade, from a mons
 	CHECK_FALSE(player.stats.curses.Any());
 	const std::vector<WorldEvent> said = events.Take();
 	REQUIRE_FALSE(said.empty());
-	CHECK(said.back().text.find("Isis turns the curse away") != std::string::npos);
+	CHECK(said.back().text.contains("Isis turns the curse away"));
 }
 
 TEST_CASE("Protection of Isis: lasts 2 minutes, then curses land again; a second prayer clears and restarts") {
@@ -78,7 +78,7 @@ TEST_CASE("Protection of Isis: lasts 2 minutes, then curses land again; a second
 	CHECK_FALSE(player.stats.IsisWarded());
 	const std::vector<WorldEvent> said = events.Take();
 	CHECK(std::any_of(said.begin(), said.end(), [](const WorldEvent& e) {
-		return e.text.find("Protection of Isis fades") != std::string::npos;
+		return e.text.contains("Protection of Isis fades");
 	}));
 	curse(player, events);
 	player.stats.Pray(God::Isis, events);

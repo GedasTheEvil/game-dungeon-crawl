@@ -39,7 +39,7 @@ std::string readError(const std::string& text, LevelGrid& loaded, int* version =
 
 bool warns(const LevelReport& r, const std::string& part) {
 	for (const std::string& w : r.warnings)
-		if (w.find(part) != std::string::npos)
+		if (w.contains(part))
 			return true;
 	return false;
 }
@@ -67,7 +67,7 @@ TEST_CASE("v7 keeps every cell's container look; unset cells are not listed") {
 	dressing(grid, 5, ROW).container = COFFIN;
 	dressing(grid, 5, ROW).lid = CoffinLid::Plain;
 	const std::string file = written(grid);
-	CHECK(file.find("\ncontainers 3\n3 1 4 0\n4 1 6 2\n5 1 6 1\n") != std::string::npos);
+	CHECK(file.contains("\ncontainers 3\n3 1 4 0\n4 1 6 2\n5 1 6 1\n"));
 	LevelGrid loaded;
 	int version = 0;
 	REQUIRE(readError(file, loaded, &version).empty());
@@ -82,7 +82,7 @@ TEST_CASE("a v6 level loads with every look unset") {
 	LevelGrid grid = treasureRow();
 	std::string v6 = written(grid);
 	const std::string head = std::string(LEVEL_MAGIC) + " " + std::to_string(LEVEL_VERSION) + " ";
-	REQUIRE(v6.rfind(head, 0) == 0);
+	REQUIRE(v6.starts_with(head));
 	v6.replace(0, head.size(), std::string(LEVEL_MAGIC) + " 6 ");
 	v6.erase(v6.find("containers "));
 	LevelGrid loaded;
@@ -101,12 +101,12 @@ TEST_CASE("v7 refuses a look it does not know, and a lid on anything but a coffi
 		LevelGrid loaded;
 		return readError(bad, loaded);
 	};
-	CHECK(readWith("containers 1\n2 1 7 0\n").find("unknown container 7") != std::string::npos);
-	CHECK(readWith("containers 1\n2 1 -2 0\n").find("unknown container") != std::string::npos);
-	CHECK(readWith("containers 1\n2 1 6 3\n").find("unknown lid") != std::string::npos);
-	CHECK(readWith("containers 1\n2 1 0 2\n").find("a lid on a chest") != std::string::npos);
-	CHECK(readWith("containers 1\n2 99 0 0\n").find("outside the level") != std::string::npos);
-	CHECK(readWith("").find("no looks layer") != std::string::npos);
+	CHECK(readWith("containers 1\n2 1 7 0\n").contains("unknown container 7"));
+	CHECK(readWith("containers 1\n2 1 -2 0\n").contains("unknown container"));
+	CHECK(readWith("containers 1\n2 1 6 3\n").contains("unknown lid"));
+	CHECK(readWith("containers 1\n2 1 0 2\n").contains("a lid on a chest"));
+	CHECK(readWith("containers 1\n2 99 0 0\n").contains("outside the level"));
+	CHECK(readWith("").contains("no looks layer"));
 	CHECK(readWith("containers 1\n2 1 6 2\n").empty());
 }
 
@@ -194,7 +194,7 @@ TEST_CASE("the checker warns for a look off a treasure and for a plain lid on a 
 
 TEST_CASE("levelcheck --map draws the placed looks") {
 	LevelGrid grid = treasureRow();
-	CHECK(renderLevel(grid, nullptr).find("containers") == std::string::npos);
+	CHECK(!renderLevel(grid, nullptr).contains("containers"));
 	paintLook(dressing(grid, 2, ROW), static_cast<int>(Container::Chest));
 	paintLook(dressing(grid, 3, ROW), COFFIN);
 	paintLook(dressing(grid, 4, ROW), PLAIN_COFFIN_BRUSH);

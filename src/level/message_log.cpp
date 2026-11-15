@@ -16,8 +16,7 @@ struct XpGain {
 
 std::optional<XpGain> xpGain(const std::string& text) {
 	const std::string suffix = " XP";
-	if (text.find('\n') != std::string::npos || text.size() <= suffix.size() ||
-		text.compare(text.size() - suffix.size(), suffix.size(), suffix) != 0)
+	if (text.contains('\n') || text.size() <= suffix.size() || !text.ends_with(suffix))
 		return std::nullopt;
 	const size_t end = text.size() - suffix.size();
 	size_t start = end;

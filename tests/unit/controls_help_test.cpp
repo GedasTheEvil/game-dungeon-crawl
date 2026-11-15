@@ -11,7 +11,7 @@ namespace {
 bool listed(const std::vector<HelpGroup>& groups, const std::string& keys) {
 	for (const HelpGroup& g : groups)
 		for (const HelpRow& r : g.rows)
-			if (r.keys.find(keys) != std::string::npos)
+			if (r.keys.contains(keys))
 				return true;
 	return false;
 }

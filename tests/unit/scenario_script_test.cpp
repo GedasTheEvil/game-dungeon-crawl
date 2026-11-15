@@ -105,7 +105,7 @@ TEST_CASE("every command parses its example and refuses bad arguments") {
 		const auto example = EXAMPLES.find(def.name);
 		REQUIRE_MESSAGE(example != EXAMPLES.end(), "no example for ", def.name);
 		CHECK(parsed(example->second).type == def.type);
-		CHECK(errorOf(std::string(def.name) + " x x x x").find(def.name) != std::string::npos);
+		CHECK(errorOf(std::string(def.name) + " x x x x").contains(def.name));
 	}
 	CHECK(EXAMPLES.size() == commandDefs().size());
 }

@@ -86,7 +86,7 @@ TEST_CASE("a jump from a ladder's foot") {
 TEST_CASE("a dart plate on the path wants an antidote in reach") {
 	auto has = [](const LevelReport& r, const std::string& text) {
 		for (const std::string& w : r.warnings)
-			if (w.find(text) != std::string::npos)
+			if (w.contains(text))
 				return true;
 		return false;
 	};

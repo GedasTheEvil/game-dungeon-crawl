@@ -24,7 +24,7 @@ LevelGrid mirrorsLevel() {
 
 bool warns(const LevelReport& r, const std::string& text) {
 	for (const std::string& w : r.warnings)
-		if (w.find(text) != std::string::npos)
+		if (w.contains(text))
 			return true;
 	return false;
 }

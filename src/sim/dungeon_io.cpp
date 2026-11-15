@@ -119,7 +119,7 @@ bool Dungeon::LoadDump(std::istream& f) {
 	const std::streampos before = f.tellg();
 	std::string opened;
 	if (f >> opened && opened.size() == static_cast<size_t>(MAP_CELL_COUNT) + CONTAINERS_TAG.size() &&
-		opened.compare(0, CONTAINERS_TAG.size(), CONTAINERS_TAG) == 0) {
+		opened.starts_with(CONTAINERS_TAG)) {
 		for (int l = 0; l < MAP_CELL_COUNT; l++)
 			containers[l] = containerFromChar(opened[CONTAINERS_TAG.size() + static_cast<size_t>(l)]);
 	} else {

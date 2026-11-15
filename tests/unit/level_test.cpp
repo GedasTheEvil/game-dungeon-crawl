@@ -50,14 +50,14 @@ TEST_CASE("a level names its zone: kept by a save and a load, none by default (p
 	grid.meta.zone = static_cast<int>(ZoneId::LakeOfFire);
 	std::stringstream file;
 	writeLevel(file, grid.cells, grid.meta);
-	CHECK(file.str().find("\nzone lake_of_fire\n") != std::string::npos);
+	CHECK(file.str().contains("\nzone lake_of_fire\n"));
 	LevelGrid loaded;
 	REQUIRE(readLevel(file, loaded.cells, nullptr, &loaded.meta).empty());
 	CHECK(loaded.meta.zone == static_cast<int>(ZoneId::LakeOfFire));
 
 	std::stringstream none;
 	writeLevel(none, grid.cells);
-	CHECK(none.str().find("\nzone none\n") != std::string::npos);
+	CHECK(none.str().contains("\nzone none\n"));
 	REQUIRE(readLevel(none, loaded.cells, nullptr, &loaded.meta).empty());
 	CHECK(loaded.meta.zone == NO_ZONE);
 
@@ -75,7 +75,7 @@ TEST_CASE("a level names its zone: kept by a save and a load, none by default (p
 	std::string unknown = file.str();
 	unknown.replace(unknown.find("lake_of_fire"), 12, "lake_of_milk");
 	std::istringstream bad(unknown);
-	CHECK(readLevel(bad, loaded.cells).find("unknown zone lake_of_milk") != std::string::npos);
+	CHECK(readLevel(bad, loaded.cells).contains("unknown zone lake_of_milk"));
 	for (int z = 0; z < ZONE_ID_COUNT; z++)
 		CHECK(zoneBySlug(ZONE_INFO[z].slug) == z);
 }

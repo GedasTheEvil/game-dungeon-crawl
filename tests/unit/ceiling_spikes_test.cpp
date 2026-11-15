@@ -57,9 +57,7 @@ LevelGrid hall(std::uint16_t shape, int fixture) {
 }
 
 bool warned(const LevelReport& r, const std::string& part) {
-	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) {
-		return w.find(part) != std::string::npos;
-	});
+	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) { return w.contains(part); });
 }
 } // namespace
 
@@ -192,7 +190,7 @@ TEST_CASE("the loader and the checker reject a ceiling trap with no underside a 
 		std::stringstream file;
 		writeLevel(file, bad.cells);
 		LevelGrid back;
-		CHECK(readLevel(file, back.cells).find("ceiling death trap at 4 1") != std::string::npos);
+		CHECK(readLevel(file, back.cells).contains("ceiling death trap at 4 1"));
 	}
 }
 

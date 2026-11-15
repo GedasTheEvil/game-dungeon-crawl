@@ -31,9 +31,7 @@ bool noted(const SimWorld& world, FieldNote note) {
 }
 
 bool warns(const LevelReport& r, const char* part) {
-	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) {
-		return w.find(part) != std::string::npos;
-	});
+	return std::any_of(r.warnings.begin(), r.warnings.end(), [&](const std::string& w) { return w.contains(part); });
 }
 
 // A corridor on row 1 with a ring platform pair at cols 3 and 8, rock above both.

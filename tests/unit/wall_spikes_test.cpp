@@ -29,7 +29,7 @@ LevelGrid corridor(const std::vector<int>& phases, SpikeSpeed speed = SpikeSpeed
 
 bool warnsUncrossable(const LevelReport& r) {
 	for (const std::string& w : r.warnings)
-		if (w.find("cannot be walked through") != std::string::npos)
+		if (w.contains("cannot be walked through"))
 			return true;
 	return false;
 }
@@ -101,7 +101,7 @@ TEST_CASE("the checker: wall spikes need a floor under them and a wall above the
 	const LevelReport r = checkLevel(grid);
 	bool above = false;
 	for (const std::string& w : r.warnings)
-		above = above || w.find("without a wall above") != std::string::npos;
+		above = above || w.contains("without a wall above");
 	CHECK(above);
 }
 

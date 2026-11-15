@@ -34,7 +34,7 @@ LevelGrid corridor(const std::vector<int>& phases, bool antidote = true) {
 
 bool warns(const LevelReport& r, const char* part) {
 	for (const std::string& w : r.warnings)
-		if (w.find(part) != std::string::npos)
+		if (w.contains(part))
 			return true;
 	return false;
 }

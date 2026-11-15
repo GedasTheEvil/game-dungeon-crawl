@@ -58,9 +58,7 @@ LevelGrid corridor(const std::vector<int>& attrs, Structure floor = Structure::E
 }
 
 bool warns(const LevelReport& r, const char* part) {
-	return std::any_of(r.warnings.begin(), r.warnings.end(), [part](const std::string& w) {
-		return w.find(part) != std::string::npos;
-	});
+	return std::any_of(r.warnings.begin(), r.warnings.end(), [part](const std::string& w) { return w.contains(part); });
 }
 } // namespace
 

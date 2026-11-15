@@ -30,7 +30,7 @@ std::string lower(std::string s) {
 	return s;
 }
 
-bool has(const std::string& text, const std::string& part) { return text.find(lower(part)) != std::string::npos; }
+bool has(const std::string& text, const std::string& part) { return text.contains(lower(part)); }
 } // namespace
 
 TEST_CASE("the editor readme lists every structure, tile type, monster, lock colour and item") {
@@ -80,9 +80,9 @@ TEST_CASE("docs/testing.md lists every scenario command and expect field, and no
 	std::set<std::string> fields; // the expect row's `F` list
 	bool inCommands = false;
 	for (std::string line; std::getline(f, line);) {
-		if (line.rfind("## ", 0) == 0)
+		if (line.starts_with("## "))
 			inCommands = line == "## Commands";
-		if (!inCommands || line.rfind("| `", 0) != 0)
+		if (!inCommands || !line.starts_with("| `"))
 			continue;
 		const std::string cell = line.substr(2, line.find(" | ", 2) - 2);
 		for (size_t open = cell.find('`'); open != std::string::npos;
@@ -91,7 +91,7 @@ TEST_CASE("docs/testing.md lists every scenario command and expect field, and no
 			const std::string code = cell.substr(open + 1, close - open - 1);
 			documented.insert(code.substr(0, code.find(' ')));
 		}
-		if (cell.rfind("`expect", 0) == 0) {
+		if (cell.starts_with("`expect")) {
 			const size_t from = line.find("F: `") + 4;
 			std::istringstream names(line.substr(from, line.find('`', from) - from));
 			for (std::string name; names >> name;)
@@ -140,7 +140,7 @@ TEST_CASE("every code name in docs/glossary.md still exists in src/") {
 	int names = 0;
 	for (std::string line; std::getline(f, line);) {
 		// A term's row: | Term | In game | Meaning | Code |, not the header or the rule under it.
-		if (line.rfind("| ", 0) != 0 || line.rfind("| Term |", 0) == 0)
+		if (!line.starts_with("| ") || line.starts_with("| Term |"))
 			continue;
 		const size_t end = line.rfind(" |");
 		const size_t start = line.rfind(" | ", end - 1);
@@ -151,7 +151,7 @@ TEST_CASE("every code name in docs/glossary.md still exists in src/") {
 			const size_t close = code.find('`', open + 1);
 			const std::string name = code.substr(open + 1, close - open - 1);
 			names++;
-			if (name.find('/') != std::string::npos) {
+			if (name.contains('/')) {
 				CHECK_MESSAGE(std::filesystem::exists(name), "no such path: ", name);
 				continue;
 			}

@@ -98,7 +98,7 @@ static bool parseArgs(int argc, char* argv[]) {
 	else if (args.size() == 2 && flag == "--play")
 		ok = Scenario::loadPlay(Paths::fromLaunchDir(args[1]).c_str());
 	else if (!args.empty() &&
-			 std::none_of(args.begin(), args.end(), [](const std::string& arg) { return arg.rfind("--", 0) == 0; })) {
+			 std::none_of(args.begin(), args.end(), [](const std::string& arg) { return arg.starts_with("--"); })) {
 		std::vector<std::string> paths(args.size());
 		std::transform(args.begin(), args.end(), paths.begin(), Paths::fromLaunchDir);
 		ok = paths.size() == 1 ? Scenario::load(paths[0].c_str()) : Scenario::loadBatch(paths);

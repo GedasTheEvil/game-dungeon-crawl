@@ -34,7 +34,7 @@ LevelGrid drawn(const std::vector<std::string>& rows, const std::vector<std::arr
 }
 
 int msOf(const std::string& word) {
-	if (word.size() > 2 && word.substr(word.size() - 2) == "ms")
+	if (word.size() > 2 && word.ends_with("ms"))
 		return std::stoi(word.substr(0, word.size() - 2));
 	return std::stoi(word) * UPDATE_TICK_MS; // ticks
 }

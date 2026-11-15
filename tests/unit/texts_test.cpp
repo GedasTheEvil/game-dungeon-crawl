@@ -53,12 +53,12 @@ TEST_CASE("a text file's mistakes are errors with file:line, the line skipped") 
 		errors
 	);
 	REQUIRE(errors.size() == 6);
-	CHECK(errors[0].rfind("t.txt:1: ", 0) == 0);
-	CHECK(errors[1].rfind("t.txt:2: ", 0) == 0);
-	CHECK(errors[2].rfind("t.txt:3: ", 0) == 0);
-	CHECK(errors[3].rfind("t.txt:5: ", 0) == 0);
-	CHECK(errors[4].rfind("t.txt:6: ", 0) == 0);
-	CHECK(errors[5].find("non-ASCII") != std::string::npos);
+	CHECK(errors[0].starts_with("t.txt:1: "));
+	CHECK(errors[1].starts_with("t.txt:2: "));
+	CHECK(errors[2].starts_with("t.txt:3: "));
+	CHECK(errors[3].starts_with("t.txt:5: "));
+	CHECK(errors[4].starts_with("t.txt:6: "));
+	CHECK(errors[5].contains("non-ASCII"));
 	REQUIRE(texts.size() == 1);
 	CHECK(texts[0].first == "ok.text");
 	CHECK(texts[0].second == "caf??");
@@ -107,6 +107,6 @@ TEST_CASE("lore-corrections-leftovers: Babi's note says entrails, not hearts") {
 	const MonsterKind* babi = monsterKind(MonsterBabi);
 	REQUIRE(babi != nullptr);
 	const std::string note = monsterNote(*babi);
-	CHECK(note.find("heart") == std::string::npos);
-	CHECK(note.find("entrails") != std::string::npos);
+	CHECK(!note.contains("heart"));
+	CHECK(note.contains("entrails"));
 }

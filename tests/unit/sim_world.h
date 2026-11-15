@@ -258,7 +258,7 @@ class SimWorld {
 	// A status line said since the level loaded, containing text.
 	[[nodiscard]] bool Told(const std::string& text) const {
 		return std::any_of(said.begin(), said.end(), [&](const WorldEvent& e) {
-			return e.kind == WorldEvent::Kind::Status && e.text.find(text) != std::string::npos;
+			return e.kind == WorldEvent::Kind::Status && e.text.contains(text);
 		});
 	}
 

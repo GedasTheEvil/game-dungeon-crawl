@@ -23,7 +23,7 @@ std::string NormalizeAnswer(const std::string& text) {
 	lower = trim(lower);
 	for (const char* article : {"a ", "an ", "the "}) {
 		std::string prefix(article);
-		if (lower.size() > prefix.size() && lower.compare(0, prefix.size(), prefix) == 0) {
+		if (lower.size() > prefix.size() && lower.starts_with(prefix)) {
 			lower = lower.substr(prefix.size());
 			break;
 		}

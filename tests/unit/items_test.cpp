@@ -232,7 +232,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, BagUser{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().rfind("INV8 " + std::to_string(ITEM_KIND_COUNT) + " ", 0) == 0);
+	CHECK(file.str().starts_with("INV8 " + std::to_string(ITEM_KIND_COUNT) + " "));
 
 	ItemBag loaded;
 	loaded.Load(file);

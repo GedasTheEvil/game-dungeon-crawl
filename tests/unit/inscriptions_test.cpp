@@ -355,7 +355,7 @@ TEST_CASE("inscription-hints-after-rebuild: no campaign text points at a spot th
 			s += " " + line;
 		return s;
 	};
-	const auto has = [&](int id, const char* word) { return all(id).find(word) != std::string::npos; };
+	const auto has = [&](int id, const char* word) { return all(id).contains(word); };
 	CHECK_FALSE(has(8, "carnelian")); // lvl38 has a blue, a green and a gold door, no red
 	CHECK_FALSE(has(8, "Red,"));
 	CHECK_FALSE(has(16, "within the pillar")); // the green key is not in a pillar on lvl41
@@ -373,5 +373,5 @@ TEST_CASE("inscription-hints-after-rebuild: no campaign text points at a spot th
 	std::ifstream in(CONTENT_DIR "texts/expedition.txt");
 	REQUIRE(in);
 	const std::string file((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-	CHECK(file.find("A second fork ahead") == std::string::npos); // page 22 is on the third fork, lvl43
+	CHECK(!file.contains("A second fork ahead")); // page 22 is on the third fork, lvl43
 }

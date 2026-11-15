@@ -97,8 +97,8 @@ TEST_CASE("what is written reads back the same") {
 	s.controls.Bind(BindAction::Map, 1, InputKey::Special(SPECIAL_SHIFT_RIGHT));
 
 	std::string text = writeSettings(s);
-	CHECK(text.find("jump = comma\n") != std::string::npos);
-	CHECK(text.find("journal = none\n") != std::string::npos);
+	CHECK(text.contains("jump = comma\n"));
+	CHECK(text.contains("journal = none\n"));
 	Settings back = parse(text);
 	CHECK(writeSettings(back) == text);
 	CHECK(back.controls == s.controls);
@@ -247,7 +247,7 @@ TEST_CASE("docs/settings.md lists every action with its default") {
 		auto action = static_cast<BindAction>(i);
 		std::string row = std::string("| `") + bindActionName(action) + "` | `" + formatBinding(defaults.Of(action)) +
 						  "` |";
-		CHECK_MESSAGE(text.str().find(row) != std::string::npos, "missing: ", row);
+		CHECK_MESSAGE(text.str().contains(row), "missing: ", row);
 	}
 }
 

@@ -25,15 +25,15 @@ std::string asV2(const Tile* cells) {
 	head.replace(head.find(version), version.size(), " 2 ");
 	bool dressing = false; // the decor and decal layers (v4 on): none in v2
 	while (std::getline(in, line)) {
-		const bool list = line.rfind("wall ", 0) == 0 || line.rfind("objects ", 0) == 0 ||
-						  line.rfind("decor ", 0) == 0 || line.rfind("decals ", 0) == 0;
+		const bool list = line.starts_with("wall ") || line.starts_with("objects ") || line.starts_with("decor ") ||
+						  line.starts_with("decals ");
 		if (list) {
-			dressing = line.rfind("decor ", 0) == 0 || line.rfind("decals ", 0) == 0;
+			dressing = line.starts_with("decor ") || line.starts_with("decals ");
 			continue;
 		}
 		if (dressing)
 			continue;
-		const bool thing = line.find(' ') != std::string::npos;
+		const bool thing = line.contains(' ');
 		(thing ? things : structure) += line + '\n';
 		count += thing ? 1 : 0;
 	}
@@ -60,7 +60,7 @@ LevelGrid spikesOver(const Tile& object) {
 
 bool warnsInFront(const LevelReport& r) {
 	for (const std::string& w : r.warnings)
-		if (w.find("in front of wall spikes") != std::string::npos)
+		if (w.contains("in front of wall spikes"))
 			return true;
 	return false;
 }
@@ -120,7 +120,7 @@ TEST_CASE("a v3 wall list holds only wall types") {
 	text.replace(text.find("wall 0\n"), 7, "wall 1\n2 1 8 3 0\n"); // a chest
 	std::istringstream in(text);
 	LevelGrid loaded;
-	CHECK(readLevel(in, loaded.cells).find("in the wall layer") != std::string::npos);
+	CHECK(readLevel(in, loaded.cells).contains("in the wall layer"));
 }
 
 TEST_CASE("a save game keeps the wall spikes' phase and state") {

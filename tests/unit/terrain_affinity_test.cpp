@@ -189,7 +189,7 @@ TEST_CASE("the checker: a native in its terrain scores higher, a monster spawned
 	REQUIRE(loadLevelFile("tests/levels/terrain_idle", grid).empty());
 	const LevelReport idle = checkLevel(grid);
 	CHECK(std::any_of(idle.warnings.begin(), idle.warnings.end(), [](const std::string& w) {
-		return w.find("scorpion") != std::string::npos && w.find("hostile terrain: water") != std::string::npos;
+		return w.contains("scorpion") && w.contains("hostile terrain: water");
 	}));
 
 	REQUIRE(loadLevelFile("tests/levels/terrain", grid).empty());
@@ -200,7 +200,7 @@ TEST_CASE("the checker: a native in its terrain scores higher, a monster spawned
 	REQUIRE(scorpion >= 0);
 	const LevelReport sand = checkLevel(grid);
 	CHECK(std::none_of(sand.warnings.begin(), sand.warnings.end(), [](const std::string& w) {
-		return w.find("hostile terrain") != std::string::npos;
+		return w.contains("hostile terrain");
 	}));
 	grid.cells[scorpion].structure = Structure::Empty;
 	const float onFloor = checkLevel(grid).difficulty;

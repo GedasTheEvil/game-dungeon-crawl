@@ -176,7 +176,7 @@ TEST_CASE("a trapped coffin's trap is its curse, one roll: no second curse on to
 		CHECK(world.player.stats.curses.Any());
 		CHECK(noted(world, FieldNote::TrappedChests));
 		CHECK(std::count_if(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
-				  return e.kind == WorldEvent::Kind::Status && e.text.find("execration") != std::string::npos;
+				  return e.kind == WorldEvent::Kind::Status && e.text.contains("execration");
 			  }) == 1);
 	}
 }

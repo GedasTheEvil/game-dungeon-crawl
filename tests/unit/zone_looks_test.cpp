@@ -79,7 +79,7 @@ TEST_CASE("a zone banner's guardian line holds its boss's name (plan zone-guardi
 		REQUIRE(zoneLook(id).guardian != nullptr);
 		CAPTURE(kind->name);
 		CAPTURE(zoneLook(id).guardian);
-		CHECK(lower(zoneLook(id).guardian).find(lower(kind->name)) != std::string::npos);
+		CHECK(lower(zoneLook(id).guardian).contains(lower(kind->name)));
 	}
 }
 

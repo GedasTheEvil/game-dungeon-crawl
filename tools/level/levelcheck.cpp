@@ -137,8 +137,7 @@ void printReport(const Entry& e, bool map) {
 // The campaign level number of a file named lvlN, 0 for any other level.
 int campaignNumber(const std::string& path) {
 	std::string name = std::filesystem::path(path).filename().string();
-	if (name.size() < 4 || name.compare(0, 3, "lvl") != 0 ||
-		name.find_first_not_of("0123456789", 3) != std::string::npos)
+	if (name.size() < 4 || !name.starts_with("lvl") || name.find_first_not_of("0123456789", 3) != std::string::npos)
 		return 0;
 	return std::stoi(name.substr(3));
 }

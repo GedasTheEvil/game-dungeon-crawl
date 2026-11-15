@@ -147,7 +147,7 @@ TEST_CASE("each campaign level has a title of its own (plan campaign-texts)") {
 		CHECK(seen.insert(grid.meta.title).second);
 		CHECK(campaignLevelTitle(n) == grid.meta.title);
 		const LevelBanner banner = levelBanner(n, grid.meta.title); // a zone's first level shows it under the zone
-		CHECK((banner.title + banner.subtitle).find(grid.meta.title) != std::string::npos);
+		CHECK((banner.title + banner.subtitle).contains(grid.meta.title));
 	}
 	CHECK(campaignLevelTitle(CAMPAIGN_LEVELS + 1).empty());
 }

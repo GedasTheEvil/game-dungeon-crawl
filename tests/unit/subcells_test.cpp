@@ -78,8 +78,8 @@ TEST_CASE("a v6 level keeps its shapes, with their glyphs in the structure drawi
 	grid.set(5, 1, shaped(Structure::Quicksand, 0xffff));
 	grid.set(6, 1, Tile{});
 	const std::string file = written(grid);
-	CHECK(file.find("\nshapes 4\n2 1 000f\n3 1 ff00\n4 1 08ce\n5 1 ffff\n") != std::string::npos);
-	CHECK(file.find("\n##_-;&.") != std::string::npos);
+	CHECK(file.contains("\nshapes 4\n2 1 000f\n3 1 ff00\n4 1 08ce\n5 1 ffff\n"));
+	CHECK(file.contains("\n##_-;&."));
 
 	LevelGrid loaded;
 	std::istringstream in(file);
@@ -112,7 +112,7 @@ TEST_CASE("a v5 level loads with no shapes") {
 	grid.set(2, 1, shaped(Structure::Empty, 0x000f));
 	std::string shapedV5 = written(grid);
 	replace(shapedV5, "DCLEVEL " + std::to_string(LEVEL_VERSION), "DCLEVEL 5");
-	CHECK(readError(shapedV5).find("unknown structure '_'") != std::string::npos);
+	CHECK(readError(shapedV5).contains("unknown structure '_'"));
 }
 
 TEST_CASE("the shape layer and the structure drawing must agree") {
@@ -124,23 +124,23 @@ TEST_CASE("the shape layer and the structure drawing must agree") {
 
 	std::string noShape = good;
 	replace(noShape, "shapes 1\n2 1 000f\n", "shapes 0\n");
-	CHECK(readError(noShape).find("shaped cell at 2 1 with no shape") != std::string::npos);
+	CHECK(readError(noShape).contains("shaped cell at 2 1 with no shape"));
 
 	std::string plain = good;
 	replace(plain, "shapes 1\n2 1 000f\n", "shapes 2\n2 1 000f\n3 1 0003\n");
-	CHECK(readError(plain).find("shape at 3 1 on a cell") != std::string::npos);
+	CHECK(readError(plain).contains("shape at 3 1 on a cell"));
 
 	std::string empty = good;
 	replace(empty, "2 1 000f", "2 1 0000");
-	CHECK(readError(empty).find("empty shape at 2 1") != std::string::npos);
+	CHECK(readError(empty).contains("empty shape at 2 1"));
 
 	std::string notHex = good;
 	replace(notHex, "2 1 000f", "2 1 00g1");
-	CHECK(readError(notHex).find("not 4 hex digits") != std::string::npos);
+	CHECK(readError(notHex).contains("not 4 hex digits"));
 
 	std::string missing = good;
 	replace(missing, "shapes 1\n2 1 000f\n", "");
-	CHECK(readError(missing).find("no shape layer") != std::string::npos);
+	CHECK(readError(missing).contains("no shape layer"));
 }
 
 TEST_CASE("the editor's shape brushes: a whole shape, single sub-cells, rock carved open") {
@@ -198,7 +198,7 @@ TEST_CASE("the test level tests/levels/subcells: its shapes load, the checker pa
 	const LevelReport report = checkLevel(grid);
 	CHECK(report.valid);
 	CHECK(report.warnings.empty());
-	CHECK(renderLevel(grid, nullptr).find("#..____.____.____.~-~,;..__.#") != std::string::npos);
+	CHECK(renderLevel(grid, nullptr).contains("#..____.____.____.~-~,;..__.#"));
 
 	SimWorld world; // the game carries the shapes, through a save too
 	REQUIRE(world.Load("tests/levels/subcells"));

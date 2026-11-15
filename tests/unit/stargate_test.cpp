@@ -131,6 +131,6 @@ TEST_CASE("the checker warns about a torch over the Stargate") {
 	grid.set(35, 4, cell);
 	const LevelReport r = checkLevel(grid);
 	CHECK(std::any_of(r.warnings.begin(), r.warnings.end(), [](const std::string& w) {
-		return w.find("is over a stargate") != std::string::npos;
+		return w.contains("is over a stargate");
 	}));
 }

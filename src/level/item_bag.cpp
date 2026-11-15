@@ -547,7 +547,7 @@ void ItemBag::Load(std::istream& in) {
 		// Old saves have mapX (a float like "3.32501") at this position.
 		// Peek at the next token: if it contains '.', it's mapX — rewind and skip.
 		auto pos = in.tellg();
-		if ((in >> tok) && tok.find('.') == std::string::npos) {
+		if ((in >> tok) && !tok.contains('.')) {
 			if (!parseInt(tok, type))
 				in.setstate(std::ios::failbit);
 			if (!in)

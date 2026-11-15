@@ -1,6 +1,6 @@
 # Use string contains instead of find and npos
 
-Status: draft 2026-11-13, size S, needs [cpp23-standard](solved/cpp23-standard.tooling.md) first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size S, needs [cpp23-standard](cpp23-standard.tooling.md) first.
 
 Rank 3 of 5 in the C++23 set: small and fully mechanical, mostly test code.
 

@@ -1,4 +1,4 @@
-# Test weapons: 1-damage pure blunt, stab and cut weapons for scenarios
+# Test weapons: 1-damage pure blunt, stab, cut and fire weapons and a bow for scenarios
 
 Status: draft 2026-11-15, size M, needs nothing first.
 
@@ -10,7 +10,7 @@ motion, sounds, hit reaction) but takes exactly 1 HP per hit lets a script swing
 
 ## Plan
 
-* Three melee weapons, test-only, appended after the last melee id (`give melee 8|9|10`; don't shift the ids of the
+* Four melee weapons, test-only, appended after the last melee id (`give melee 8|9|10|11`; don't shift the ids of the
   others, saves and scenarios use them):
 
   | label (`equip`) | name | mix (blunt, slash, pierce, fire) | model, motion, range, sounds |
@@ -18,6 +18,14 @@ motion, sounds, hit reaction) but takes exactly 1 HP per hit lets a script swing
   | `smash_test` | Smash Test | 100, 0, 0, 0 | the club's |
   | `stab_test` | Stab Test | 0, 0, 100, 0 | the knife's (`dagger`) |
   | `cut_test` | Cut Test | 0, 100, 0, 0 | the sword's |
+
+  | `fire_test` | Fire Test | 0, 0, 0, 100 | the club's (a fire hit, so it sets the monster burning as usual) |
+
+  And one ranged test weapon, appended after the last ranged id (`give ranged 5`):
+
+  | label | name | mix | model, motion, flight |
+  |---|---|---|---|
+  | `bow_test` | Bow Test | 0, 0, 100, 0 | the self-bow's; unlimited shots (`expect shots` stays at its max), no `minRange` |
 
   A tint or a name prefix is enough to tell them from the real ones in a screenshot; no new Blender model.
 * Exactly 1 HP per hit, always: no item level growth, might, strength amulet, damage-type amulets (Crushing,

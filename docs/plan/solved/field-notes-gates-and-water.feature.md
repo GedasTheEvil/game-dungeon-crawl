@@ -1,6 +1,6 @@
 # Field notes for the sphinx and name gates, swimming and the dark
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -24,7 +24,7 @@ fire jets, poison drips, dart plates all have one; zones 1 and 2 are in journal-
 
 * New `FieldNote` values at the end of the enum (notes are saved by number), their slugs in `AFTER_RING_SLUGS`
   (`src/level/journal_text.cpp`), `FIELD_NOTE_COUNT` up, texts in `journal.txt` in the notebook voice
-  ([texts.md](../texts.md)). If journal-trap-notes is done first, append after its notes.
+  ([texts.md](../../texts.md)). If journal-trap-notes is done first, append after its notes.
 * Triggers, each the first time: the first riddle gate's scroll opened; the first sealed name gate touched; the first
   swim in deep water; the first camel spider (or tiny spider) turned away by light, in view.
 * Each note says the rule as the game has it (keep in step with the code) and one line of lore. Samples, to check

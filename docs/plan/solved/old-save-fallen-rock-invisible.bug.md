@@ -1,10 +1,10 @@
 # Fallen rocks from an old save are invisible
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Repro
 
-1. Load a save made before plan [fallen-rock-draggable](fallen-rock-draggable.bug.md) (commit d58cbd63) on a level
+1. Load a save made before plan [fallen-rock-draggable](../fallen-rock-draggable.bug.md) (commit d58cbd63) on a level
    whose rock falls (`RockFall`, glyph `v`, attribute 0) had already fallen.
 2. Look at those cells.
 

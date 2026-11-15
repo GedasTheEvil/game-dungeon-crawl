@@ -1,6 +1,6 @@
 # Hour stelae: what the Amduat puts in each hour, one stela per zone
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -37,7 +37,7 @@ Twelve stela inscriptions, one per hour, placed on each zone's first level (lvl1
 the hour's goddess (the guide of the boat in that hour) and one or two figures of that hour, and ends in a short
 line that suits the zone's play. Ids: the next free ones in `content/inscriptions/campaign.txt`; style `stela`; no
 boons (the zone-first levels already hold their level's boon where they have one, check). Format and the sheet rebuild
-for new signs: [inscriptions.md](../inscriptions.md). Level placement: `tools/level/lvledit.py LEVEL wall COL ROW 15 ID 0`
+for new signs: [inscriptions.md](../../inscriptions.md). Level placement: `tools/level/lvledit.py LEVEL wall COL ROW 15 ID 0`
 on a back wall the player can stand before; `bin/levelcheck content/levels/lvl*` stays warning-free; update the
 level table rows in `docs/levels.md`.
 

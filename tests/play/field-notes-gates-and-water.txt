@@ -1,4 +1,0 @@
-# Plan field-notes-gates-and-water: the riddle gate (lvl 1). Open the gate's scroll (E), Esc, then J, Notes.
-# More: `bin/game --level 5` (name gate), `--level 28` (water), `--level 10` (a spider stops at a torch).
-god
-level 1

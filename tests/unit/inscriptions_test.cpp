@@ -6,6 +6,7 @@
 #include "../../src/level/progression.h"
 #include "sim_world.h"
 #include <fstream>
+#include <initializer_list>
 #include <iterator>
 #include <set>
 #include <sstream>
@@ -376,17 +377,20 @@ TEST_CASE("inscription-hints-after-rebuild: no campaign text points at a spot th
 	CHECK(!file.contains("A second fork ahead")); // page 22 is on the third fork, lvl43
 }
 
-TEST_CASE("the stelae before five bosses are read with Words of Thoth into the journal (plan boss-forewarning-texts)") {
-	SimWorld world; // the behaviour checks of tests/scenarios/solved/boss_stelae.txt
+namespace {
+struct Stela {
+	int level, col, row;
+};
+
+// From a stela's cell, walk onto it and read it with Words of Thoth: each one a new, translated journal inscription.
+void readStelae(std::initializer_list<Stela> stelae) {
+	SimWorld world;
 	world.player.god = true;
 	world.player.stats.heka.Earn(5);
 	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
 	REQUIRE(world.inscriptions.Load(CONTENT_DIR "inscriptions").empty());
-	struct Stela {
-		int level, col, row;
-	};
 	size_t read = 0;
-	for (const Stela s : {Stela{4, 13, 27}, Stela{13, 34, 15}, Stela{18, 35, 11}, Stela{22, 2, 12}, Stela{41, 4, 42}}) {
+	for (const Stela s : stelae) {
 		CAPTURE(s.level);
 		REQUIRE(world.Load(s.level));
 		REQUIRE(world.dungeon.PlacePlayer(s.col, s.row));
@@ -398,4 +402,30 @@ TEST_CASE("the stelae before five bosses are read with Words of Thoth into the j
 		CHECK(world.journal.Inscriptions().size() == ++read);
 		CHECK(world.journal.Inscriptions().back().translated);
 	}
+}
+} // namespace
+
+TEST_CASE("the stelae before five bosses are read with Words of Thoth into the journal (plan boss-forewarning-texts)") {
+	// The behaviour checks of tests/scenarios/solved/boss_stelae.txt.
+	readStelae({{4, 13, 27}, {13, 34, 15}, {18, 35, 11}, {22, 2, 12}, {41, 4, 42}});
+}
+
+TEST_CASE(
+	"the hour stela on each zone's first level is read with Words of Thoth into the journal (plan hour-gate-stelae)"
+) {
+	// The behaviour checks of tests/scenarios/solved/hour_stelae.txt.
+	readStelae(
+		{{1, 25, 35},
+		 {5, 37, 45},
+		 {10, 34, 43},
+		 {14, 35, 44},
+		 {19, 3, 45},
+		 {23, 2, 2},
+		 {28, 36, 45},
+		 {33, 2, 44},
+		 {38, 8, 45},
+		 {42, 7, 2},
+		 {46, 31, 3},
+		 {51, 37, 3}}
+	);
 }

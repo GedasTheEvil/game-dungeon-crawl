@@ -1,4 +1,0 @@
-# Plan journal-trap-notes: one hall (god): floor spikes, a death trap, a rock fall, a sand fall, ceiling spikes (jump
-# at the last one). Walk east, then open J, Notes: three new notes.
-god
-level tests/levels/trap_notes

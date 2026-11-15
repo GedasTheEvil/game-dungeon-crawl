@@ -444,6 +444,7 @@ class Dungeon {
 	void finishOpenedGates(); // the gates whose motion has run are open
 	void bumpGate(int col, int row); // the player walked into a closed gate
 	void startRockFall(int cell, bool byPlayer = false); // an armed rock fall cell was stepped into: the rumble starts
+	static void landRock(Tile& t); // a falling rock fall's end: a rock becomes a Stone, a sand fall is Fallen
 	void updateRocks();
 	void drawKeyTile(int i, int j);
 	void drawPageTile(int i, int j);

@@ -41,7 +41,7 @@ void Dungeon::resetMechanisms() {
 		else if (t.type == Gate && gateState(t) == GateState::Closing) // a plate gate: the plates open it again
 			setGateState(t, GateState::Closed);
 		else if (t.type == RockFall && rockState(t) == RockState::Falling)
-			setRockState(t, RockState::Fallen);
+			landRock(t);
 		else if (platePressed(t))
 			setPlatePressed(t, false);
 	traceSunBeams();
@@ -140,9 +140,18 @@ void Dungeon::updateRocks() {
 			if (mon.Active() && mon.Alive() && !mon.flies() && mon.Row() == row && monDx < ROCK_GRAZE_HALF_WIDTH)
 				mon.TrapHit(monDx < ROCK_CRUSH_HALF_WIDTH ? ROCK_CRUSH_DAMAGE : ROCK_GRAZE_DAMAGE);
 		}
-		setRockState(map[it->cell], RockState::Fallen);
+		landRock(map[it->cell]);
 		it = fallingRocks.erase(it);
 	}
+}
+//======================================================================================
+// A landed rock is a loose stone (plan fallen-rock-draggable): dragged, saved and drawn as one; the spent crack goes.
+// A sand fall stays a fallen RockFall over its drift.
+void Dungeon::landRock(Tile& t) {
+	if (isSandFall(t))
+		setRockState(t, RockState::Fallen);
+	else
+		setObject(t, Tile{Stone, 0, 0});
 }
 //======================================================================================
 void Dungeon::startOpeningGate(int cell, int startMs) {

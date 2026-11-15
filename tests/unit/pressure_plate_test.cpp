@@ -181,3 +181,31 @@ TEST_CASE("plate gates: glyphs, colours, map marks") {
 	CHECK(markSprite({MapMark::Gate, Tile{Gate, plateGateColour(2), 0}}).lock == 2);
 	CHECK(thingMark(fixtureAsTile(Fixture{PressurePlate, 1, 3})) == MapMark::PressurePlate);
 }
+
+TEST_CASE(
+	"a fallen rock is a stone: dragged onto the red plate it holds it, a save keeps it (plan fallen-rock-draggable)"
+) {
+	SimWorld world; // tests/levels/fallen_rock_drag: the rock fall at col 4, the red plate at col 7, its gate at col 10
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/fallen_rock_drag"));
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(5.5f)); // over the loose ceiling and on: the rock lands behind the player
+	world.Wait(ROCK_WARN_MS + ROCK_FALL_MS + 200);
+	REQUIRE(world.dungeon.Cell(4, ROW).type == Stone);
+
+	REQUIRE(world.dungeon.ToggleDrag(-1));
+	world.Tick();
+	CHECK(world.Told("You take hold of the stone"));
+	REQUIRE(world.WalkTo(7.75f)); // pulled along: it lies at col 7, on the plate
+	CHECK(world.dungeon.Cell(7, ROW).type == Stone);
+	CHECK_FALSE(hasObject(world.dungeon.Cell(4, ROW)));
+	world.dungeon.LetGo();
+	REQUIRE(world.WalkTo(9.5f));
+	settle(world);
+	CHECK(world.dungeon.WeightOn(7, ROW) == STONE_WEIGHT);
+	CHECK(gateAt(world, 10) == GateState::Open);
+
+	world.SaveAndLoad();
+	world.Tick();
+	CHECK(world.dungeon.Cell(7, ROW).type == Stone);
+}

@@ -1,6 +1,6 @@
 # Fallen rock from a rock fall is not draggable
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Repro
 
@@ -45,7 +45,18 @@ Check also:
 * A test that names the plan fails before the fix and passes after it: a scenario or unit test where a rock falls,
   the player drags it one cell.
 
+## Done
+
+* On landing (and on a load taken mid-fall) a rock's cell turns into a `Stone` (`Dungeon::landRock`,
+  `src/sim/dungeon_mechanisms.cpp`): the stone's drag, plate weight, save and render paths (the same rock model). The
+  spent ceiling crack goes with it. Sand falls stay fallen `RockFall` cells over their drift.
+* `drawRockFallTile` no longer draws a landed rock. The map mark of a landed rock is the stone's.
+* The level checker counts an armed rock fall (not a sand fall) as a stone's weight on a plate's floor run
+  (`dragWeight`). No campaign level has a new warning.
+* Test: `tests/unit/pressure_plate_test.cpp` ("a fallen rock is a stone", level `tests/levels/fallen_rock_drag`).
+
 ## Play-test
 
-* `bin/game --level N` on a level with a loose ceiling (pick one with `grep -l v content/levels/lvl*` and its play
-  command): trigger the rock, drag it along the floor, onto a pressure plate if one is near.
+* `bin/game --play tests/play/fallen-rock-draggable.txt`: walk over the loose ceiling and on; the rock lands. Face
+  it, drag it (the drag key) onto the plate, let go: the silver gate rises.
+* Change the script's level line to `level 4 at 24 27`: lvl4's rock fall in the campaign, its rock drags the same.

@@ -212,12 +212,10 @@ void Dungeon::drawRockFallTile(int i, int j) {
 		glPopMatrix();
 	}
 
+	// A sand fall has no stone: the sand pours (drawSandEffects) and the cell turns to a drift. A landed rock is a
+	// Stone (plan fallen-rock-draggable), drawn by drawStoneTile.
 	float rockY = -1.f; // below the floor = not drawn
-	if (isSandFall(tile)) // no stone: the sand pours (drawSandEffects) and the cell turns to a drift
-		rockY = -1.f;
-	else if (rockState(tile) == RockState::Fallen)
-		rockY = 0.f;
-	else if (rockState(tile) == RockState::Falling)
+	if (!isSandFall(tile) && rockState(tile) == RockState::Falling)
 		for (const Motion& m : fallingRocks)
 			if (m.cell == cell && GameClock::now() - m.startMs >= ROCK_WARN_MS) {
 				float p = motionProgress(m.startMs + ROCK_WARN_MS, ROCK_FALL_MS);

@@ -1,0 +1,5 @@
+; A rock fall dragged as a stone (tests/unit/pressure_plate_test.cpp, plan fallen-rock-draggable): the rock fall at
+; col 4, the red plate (needs 3) at col 7, its gate at col 10.
+########################################
+#S..v..-..1..E##########################
+########################################

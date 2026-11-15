@@ -28,6 +28,8 @@ int dragWeight(const Tile& t) {
 	switch (t.type) {
 	case Stone:
 		return STONE_WEIGHT;
+	case RockFall: // its rock lands as a stone (plan fallen-rock-draggable); a sand fall leaves a drift
+		return isSandFall(t) ? 0 : STONE_WEIGHT;
 	case Mirror:
 		return MIRROR_WEIGHT;
 	case Treasure:

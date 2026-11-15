@@ -1,0 +1,5 @@
+# Plan fallen-rock-draggable: tests/levels/fallen_rock_drag, a rock fall at col 4, the red plate at col 7, its gate
+# at col 10. Walk over the loose ceiling and on; the rock lands; face it, press the drag key, pull it onto the plate,
+# let go: the gate rises. In the campaign: `level 4 at 24 27` stands near lvl4's rock fall (col 26).
+god
+level tests/levels/fallen_rock_drag

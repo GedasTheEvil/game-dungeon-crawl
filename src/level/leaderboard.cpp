@@ -10,15 +10,15 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <memory>
 #include <numeric>
+#include <ranges>
 #include <sstream>
 
 namespace {
 int sumCounts(const std::vector<std::pair<std::string, int>>& counts) {
-	return std::accumulate(counts.begin(), counts.end(), 0, [](int sum, const std::pair<std::string, int>& c) {
-		return sum + c.second;
-	});
+	return std::ranges::fold_left(counts | std::views::values, 0, std::plus{});
 }
 
 constexpr const char* RECORD_START = "[run]";

@@ -153,8 +153,8 @@ TEST_CASE("the new settings: defaults, ranges and what they do") {
 	SUBCASE("window sizes up to the desktop, the desktop's own last") {
 		const std::vector<WindowSize> sizes = windowSizes(2560, 1600);
 		CHECK(sizes.front() == WindowSize{800, 500});
-		CHECK(std::ranges::find(sizes, WindowSize{2560, 1440}) != sizes.end());
-		CHECK(std::ranges::find(sizes, WindowSize{3200, 1800}) == sizes.end());
+		CHECK(std::ranges::contains(sizes, WindowSize{2560, 1440}));
+		CHECK(!std::ranges::contains(sizes, WindowSize{3200, 1800}));
 		CHECK(sizes.back() == WindowSize{2560, 1600});
 		CHECK(windowSizes(1920, 1080).back() == WindowSize{1920, 1080});
 		CHECK(windowSizes(0, 0).size() == 11);

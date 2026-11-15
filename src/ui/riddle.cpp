@@ -232,7 +232,7 @@ void Riddle::AskName(const RoyalName& name) {
 
 bool Riddle::CheckAnswer() const {
 	const std::vector<std::string>& accepted = shown.answers;
-	return std::find(accepted.begin(), accepted.end(), NormalizeAnswer(answer)) != accepted.end();
+	return std::ranges::contains(accepted, NormalizeAnswer(answer));
 }
 
 void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {

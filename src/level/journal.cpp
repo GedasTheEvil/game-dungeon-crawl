@@ -174,7 +174,7 @@ FieldNote damageNote(DamageType type) {
 FieldNote potionNote(ItemKind potion) { return potionDef(potion).note; }
 
 void Journal::LearnNote(FieldNote note) {
-	if (std::find(notes.begin(), notes.end(), note) != notes.end())
+	if (std::ranges::contains(notes, note))
 		return;
 	notes.push_back(note);
 	markNew(JournalPart::FieldNotes, static_cast<int>(note));
@@ -217,7 +217,7 @@ std::vector<Boon> Journal::TranslateInscriptions() {
 }
 
 void Journal::WriteDiary(DiaryPage page) {
-	if (std::find(diary.begin(), diary.end(), page) != diary.end())
+	if (std::ranges::contains(diary, page))
 		return;
 	diary.push_back(page);
 	markNew(JournalPart::Diary, static_cast<int>(page));

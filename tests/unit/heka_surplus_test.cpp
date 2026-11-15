@@ -162,7 +162,7 @@ TEST_CASE("the sealed rooms: a pocket reached only by its teleporter, not the le
 	REQUIRE(rooms.size() == 1);
 	CHECK(rooms[0].size() == 5);
 	for (int col = 10; col <= 14; col++)
-		CHECK(std::ranges::find(rooms[0], 4 * LEVEL_WIDTH + col) != rooms[0].end());
+		CHECK(std::ranges::contains(rooms[0], 4 * LEVEL_WIDTH + col));
 }
 
 TEST_CASE("Wisdom of Seshat: a sealed room goes on the draft map once the player is near, not without the skill") {

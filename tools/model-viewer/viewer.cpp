@@ -206,7 +206,7 @@ std::vector<std::string> TextureCandidates(const std::string& modelPath) {
 	std::error_code ec;
 	for (const std::string& name : {stem, baseStem}) {
 		std::string path = (dir / (name + ".png")).string();
-		if (std::filesystem::is_regular_file(path, ec) && std::find(result.begin(), result.end(), path) == result.end())
+		if (std::filesystem::is_regular_file(path, ec) && !std::ranges::contains(result, path))
 			result.push_back(path);
 	}
 
@@ -216,7 +216,7 @@ std::vector<std::string> TextureCandidates(const std::string& modelPath) {
 		const std::string name = entry.path().filename().string();
 		std::string path = (dir / name).string();
 		if (entry.is_regular_file() && entry.path().extension() == ".png" && name.starts_with(prefix) &&
-			std::find(result.begin(), result.end(), path) == result.end())
+			!std::ranges::contains(result, path))
 			variants.push_back(path);
 	}
 	std::sort(variants.begin(), variants.end());

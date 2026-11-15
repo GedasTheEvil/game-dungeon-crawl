@@ -36,7 +36,7 @@ std::string NormalizeAnswer(const std::string& text) {
 }
 
 bool RoyalName::Accepts(const std::string& typed) const {
-	return std::find(answers.begin(), answers.end(), NormalizeAnswer(typed)) != answers.end();
+	return std::ranges::contains(answers, NormalizeAnswer(typed));
 }
 
 void ParseNames(

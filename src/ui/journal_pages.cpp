@@ -203,7 +203,7 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 			NEW_RED
 		);
 		beginShapes();
-		if (live && std::find(shownNew.begin(), shownNew.end(), std::pair{at.section, page}) == shownNew.end())
+		if (live && !std::ranges::contains(shownNew, std::pair{at.section, page}))
 			shownNew.emplace_back(at.section, page);
 	}
 

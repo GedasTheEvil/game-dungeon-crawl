@@ -5,7 +5,7 @@
 namespace {
 bool hasNote(const SimWorld& world, FieldNote note) {
 	const std::vector<FieldNote>& notes = world.journal.Notes();
-	return std::find(notes.begin(), notes.end(), note) != notes.end();
+	return std::ranges::contains(notes, note);
 }
 } // namespace
 

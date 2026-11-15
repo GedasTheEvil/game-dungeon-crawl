@@ -37,7 +37,7 @@ void Dungeon::startDial() {
 void Dungeon::pressDialDevice() {
 	sim.events->Play(WorldSound::DialPress);
 	const auto& notes = sim.journal->Notes();
-	if (std::find(notes.begin(), notes.end(), FieldNote::DialDevice) == notes.end()) {
+	if (!std::ranges::contains(notes, FieldNote::DialDevice)) {
 		const int xp = stargateXP(sim.player->stats); // the first press
 		sim.events->Status("The red dome sinks with a dull clunk. Nothing happens. +%d XP", xp);
 		sim.player->stats.AddXP(xp, *sim.events);
@@ -58,7 +58,7 @@ void Dungeon::updateDial() {
 			sim.events->Play(WorldSound::ChevronFail);
 		else if (step == STEP_FAIL) {
 			const auto& notes = sim.journal->Notes();
-			if (std::find(notes.begin(), notes.end(), FieldNote::Stargate) == notes.end()) {
+			if (!std::ranges::contains(notes, FieldNote::Stargate)) {
 				const int xp = stargateXP(sim.player->stats); // the first dial
 				sim.events->Status("Chevron seven... will not lock. +%d XP", xp);
 				sim.player->stats.AddXP(xp, *sim.events);

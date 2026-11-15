@@ -33,7 +33,7 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 const char* skillLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".lore").c_str(); }
 
 bool Heka::Earn(int level) {
-	if (level == CAMPAIGN_LEVELS || std::ranges::find(levels, level) != levels.end())
+	if (level == CAMPAIGN_LEVELS || std::ranges::contains(levels, level))
 		return false;
 	levels.push_back(level);
 	return true;

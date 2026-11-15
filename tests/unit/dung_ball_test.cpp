@@ -98,9 +98,9 @@ TEST_CASE("the giant scarab turns its back, shapes a ball and kicks it at the pl
 	CHECK(world.Hp() < hp);
 	CHECK(std::fabs(world.dungeon.Balls().front().x - world.X()) < 0.3f); // on the player
 	CHECK(world.Creature(MonsterGiantScarab)->hitBy);
-	CHECK(world.said.end() != std::find_if(world.said.begin(), world.said.end(), [](const WorldEvent& e) {
-			  return e.kind == WorldEvent::Kind::Sound && e.sound == WorldSound::DungThud;
-		  }));
+	CHECK(std::ranges::any_of(world.said, [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Sound && e.sound == WorldSound::DungThud;
+	}));
 }
 
 TEST_CASE(

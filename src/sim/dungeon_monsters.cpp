@@ -396,7 +396,7 @@ void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 	if (chance <= 0 || !sim.random->gameplay.percent(chance) || !mon.StunHit(STUN_MS, wasLurking))
 		return;
 	const auto& notes = sim.journal->Notes();
-	if (std::find(notes.begin(), notes.end(), FieldNote::Stun) == notes.end())
+	if (!std::ranges::contains(notes, FieldNote::Stun))
 		sim.events->Status("%s is stunned", mon.Type()->name);
 	sim.events->Note(FieldNote::Stun);
 }

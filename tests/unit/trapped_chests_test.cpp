@@ -123,7 +123,7 @@ TEST_CASE("each trap kind goes off once on opening and does what it says") {
 		} else {
 			CHECK(scarabs(world) == CHEST_SWARM_SIZE);
 		}
-		if (std::find(seen.begin(), seen.end(), trap) == seen.end())
+		if (!std::ranges::contains(seen, trap))
 			seen.push_back(trap);
 		const size_t lines = statuses(world).size();
 		world.Wait(containerOpenMsMax());
@@ -307,8 +307,8 @@ TEST_CASE("the checker counts trapped treasures but not a trapped chest's antido
 	CHECK(r.treasures == 5);
 	CHECK(r.trappedTreasures == 4);
 	CHECK(r.reachableTreasures == 5);
-	CHECK(std::find(r.warnings.begin(), r.warnings.end(), "poisoners but no antidote in reach") != r.warnings.end());
+	CHECK(std::ranges::contains(r.warnings, "poisoners but no antidote in reach"));
 	setObject(at(PLAIN_COL), Tile{Treasure, antidote.type, antidote.id});
 	r = checkLevel(grid);
-	CHECK(std::find(r.warnings.begin(), r.warnings.end(), "poisoners but no antidote in reach") == r.warnings.end());
+	CHECK(!std::ranges::contains(r.warnings, "poisoners but no antidote in reach"));
 }

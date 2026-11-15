@@ -140,8 +140,7 @@ std::vector<WindowSize> windowSizes(int desktopW, int desktopH) {
 		if (!known || (size.w <= desktopW && size.h <= desktopH))
 			sizes.push_back(size);
 	const WindowSize desktop = {std::min(desktopW, MAX_WINDOW_W), std::min(desktopH, MAX_WINDOW_H)};
-	if (known && desktop.w >= MIN_WINDOW_W && desktop.h >= MIN_WINDOW_H &&
-		std::ranges::find(sizes, desktop) == sizes.end())
+	if (known && desktop.w >= MIN_WINDOW_W && desktop.h >= MIN_WINDOW_H && !std::ranges::contains(sizes, desktop))
 		sizes.push_back(desktop);
 	if (sizes.empty())
 		sizes.push_back(COMMON.front());

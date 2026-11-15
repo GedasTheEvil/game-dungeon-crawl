@@ -1,6 +1,6 @@
 #include "run_stats.h"
 #include <algorithm>
-#include <numeric>
+#include <functional>
 #include <string>
 #include <utility>
 
@@ -24,11 +24,11 @@ void RunStats::AddPlayMs(int ms, int level) {
 	levelMs[static_cast<size_t>(level - 1)] += ms;
 }
 
-int RunStats::SlainTotal() const { return std::accumulate(slain.begin(), slain.end(), 0); }
+int RunStats::SlainTotal() const { return std::ranges::fold_left(slain, 0, std::plus{}); }
 
-int RunStats::DrunkTotal() const { return std::accumulate(drunk.begin(), drunk.end(), 0); }
+int RunStats::DrunkTotal() const { return std::ranges::fold_left(drunk, 0, std::plus{}); }
 
-int RunStats::PlayMs() const { return std::accumulate(levelMs.begin(), levelMs.end(), 0); }
+int RunStats::PlayMs() const { return std::ranges::fold_left(levelMs, 0, std::plus{}); }
 
 namespace {
 // " n index count ..." of the non-zero counts.

@@ -299,31 +299,93 @@ bool stepWalk(const Command& cmd) {
 	return false;
 }
 
-// Runs a non-blocking command immediately. Returns false for commands that span ticks.
-bool runInstant(const Command& cmd) {
+// Scenario commands: script setup, display switches and the run itself.
+void runSetupCommand(const Command& cmd) {
 	switch (cmd.type) {
 	case CommandType::Resolution:
 	case CommandType::Seed:
 		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::God:
 		gRunner.god = true;
 		if (Game().player)
 			Game().player->god = true;
 		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::Peace:
 		gRunner.peace = true;
 		Game().dungeon.SetPeace(true);
 		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::Level:
 		if (!loadLevel(cmd)) {
 			report(cmd, false, "cannot load level");
 			finish(EXIT_BAD_SCRIPT);
 		}
 		report(cmd, true, stateLine());
-		return true;
+		return;
+	case CommandType::Camera:
+		Game().camera.rotM = cmd.a;
+		Game().camera.rotN = cmd.b;
+		report(cmd, true, "");
+		return;
+	case CommandType::Motion: // Options > Display > Motion effects
+		Game().settings.graphics.motionEffects = cmd.a > 0.5f;
+		Game().dungeon.SetMotionEffects(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return;
+	case CommandType::Toon:
+		Game().settings.graphics.toon = cmd.a > 0.5f;
+		Ink::setToon(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return;
+	case CommandType::ToonBlurFirst: // plan sprint-toon-blur-and-extras: the sprint blur before the ink lines
+		MotionFx::setToonBlurFirst(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return;
+	case CommandType::CutScenes: // Options > Display > Cut-scenes (off in scenarios)
+		Game().settings.graphics.cutScenes = cmd.a > 0.5f;
+		Game().dungeon.SetCutScenes(cmd.a > 0.5f);
+		report(cmd, true, "");
+		return;
+	case CommandType::Hitboxes:
+		Game().render.Hitboxes = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return;
+	case CommandType::Hints: // plan controls-help: the first hints also outside a campaign run
+		Game().hintsAnyRun = cmd.a > 0.5f;
+		Game().settings.gameplay.hints = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return;
+	case CommandType::Gifts: // plan offering-gift: every offering brings a gift, the god's weights pick which
+		Game().alwaysGift = cmd.a > 0.5f;
+		report(cmd, true, "");
+		return;
+	case CommandType::Screenshot:
+		gRunner.pendingShot = cmd.arg;
+		report(cmd, true, "");
+		return;
+	case CommandType::Dump:
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Expect: {
+		float actual = fieldValue(cmd);
+		char detail[48];
+		snprintf(detail, sizeof(detail), "actual %.3f", actual);
+		report(cmd, compare(actual, cmd.op, cmd.a), detail);
+		return;
+	}
+	case CommandType::Quit:
+		report(cmd, true, "");
+		finish(EXIT_OK);
+	default:
+		break;
+	}
+}
+
+// Scenario commands: keys, mouse and the player's own actions.
+void runInputCommand(const Command& cmd) {
+	switch (cmd.type) {
 	case CommandType::Jump:
 	case CommandType::Attack:
 	case CommandType::Interact:
@@ -336,321 +398,82 @@ bool runInstant(const Command& cmd) {
 												  : GameplayAction::Interact
 			);
 		report(cmd, true, "");
-		return true;
-	case CommandType::Camera:
-		Game().camera.rotM = cmd.a;
-		Game().camera.rotN = cmd.b;
-		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::Sprint: // shift down / up
 		Game().player->stats.SetSprintRequested(cmd.a > 0.5f);
 		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::Crouch: // the crouch key down / up (plan crouch)
 		Game().player->crouchHeld = cmd.a > 0.5f;
 		report(cmd, true, "");
-		return true;
-	case CommandType::Motion: // Options > Display > Motion effects
-		Game().settings.graphics.motionEffects = cmd.a > 0.5f;
-		Game().dungeon.SetMotionEffects(cmd.a > 0.5f);
-		report(cmd, true, "");
-		return true;
-	case CommandType::Toon:
-		Game().settings.graphics.toon = cmd.a > 0.5f;
-		Ink::setToon(cmd.a > 0.5f);
-		report(cmd, true, "");
-		return true;
-	case CommandType::ToonBlurFirst: // plan sprint-toon-blur-and-extras: the sprint blur before the ink lines
-		MotionFx::setToonBlurFirst(cmd.a > 0.5f);
-		report(cmd, true, "");
-		return true;
-	case CommandType::CutScenes: // Options > Display > Cut-scenes (off in scenarios)
-		Game().settings.graphics.cutScenes = cmd.a > 0.5f;
-		Game().dungeon.SetCutScenes(cmd.a > 0.5f);
-		report(cmd, true, "");
-		return true;
-	case CommandType::Hitboxes:
-		Game().render.Hitboxes = cmd.a > 0.5f;
-		report(cmd, true, "");
-		return true;
-	case CommandType::Hints: // plan controls-help: the first hints also outside a campaign run
-		Game().hintsAnyRun = cmd.a > 0.5f;
-		Game().settings.gameplay.hints = cmd.a > 0.5f;
-		report(cmd, true, "");
-		return true;
-	case CommandType::Gifts: // plan offering-gift: every offering brings a gift, the god's weights pick which
-		Game().alwaysGift = cmd.a > 0.5f;
-		report(cmd, true, "");
-		return true;
-	case CommandType::Screenshot:
-		gRunner.pendingShot = cmd.arg;
-		report(cmd, true, "");
-		return true;
-	case CommandType::Dump:
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::KillBoss:
-		report(cmd, Game().dungeon.BossHealth() > 0, "");
-		Game().dungeon.HurtBoss(Game().dungeon.BossHealth());
-		return true;
-	case CommandType::KillMonster: { // the nearest, or `all`, nearest first: through the player's killing hit
-		bool killed = Game().dungeon.KillNearestMonster();
-		report(cmd, killed, killed ? "" : "no monster lives");
-		while (cmd.a > 0.5f && killed)
-			killed = Game().dungeon.KillNearestMonster();
-		return true;
-	}
-	case CommandType::HurtBoss:
-		report(cmd, Game().dungeon.BossHealth() > 0, "");
-		Game().dungeon.HurtBoss(static_cast<int>(cmd.a));
-		return true;
-	case CommandType::MonsterHp: // no hit: no reaction, no XP, no note, no aggro (plan monster-hp-command)
-		report(cmd, Game().dungeon.SetNearestMonsterHealth(static_cast<int>(cmd.a)), "");
-		return true;
-	case CommandType::BossHp:
-		report(cmd, Game().dungeon.SetBossHealth(static_cast<int>(cmd.a)), "");
-		return true;
-	case CommandType::PoisonBoss:
-		report(cmd, Game().dungeon.BossHealth() > 0, "");
-		Game().dungeon.PoisonBoss(static_cast<PoisonTier>(cmd.ticks));
-		return true;
-	case CommandType::Expect: {
-		float actual = fieldValue(cmd);
-		char detail[48];
-		snprintf(detail, sizeof(detail), "actual %.3f", actual);
-		report(cmd, compare(actual, cmd.op, cmd.a), detail);
-		return true;
-	}
+		return;
 	case CommandType::Key:
 		if (cmd.b > 0.f)
 			specialKeyPressed(static_cast<int>(cmd.a), 0, 0);
 		else
 			keyPressed(static_cast<unsigned char>(cmd.a), 0, 0);
 		report(cmd, true, std::string("screen=") + screenName());
-		return true;
+		return;
+	case CommandType::Mouse:
+	case CommandType::Press:
+	case CommandType::Release:
+	case CommandType::Click: {
+		int x = 0;
+		int y = 0;
+		toPixels(cmd, x, y);
+		processMousePassiveMotion(x, y);
+		if (cmd.type == CommandType::Press || cmd.type == CommandType::Click)
+			processMouse(MOUSE_LEFT_BUTTON, GLUT_DOWN, x, y);
+		if (cmd.type == CommandType::Release || cmd.type == CommandType::Click)
+			processMouse(MOUSE_LEFT_BUTTON, GLUT_UP, x, y);
+		report(cmd, true, "");
+		return;
+	}
+	default:
+		break;
+	}
+}
+
+// Scenario commands: inventory and items.
+void runItemCommand(const Command& cmd) {
+	switch (cmd.type) {
 	case CommandType::Give:
 		for (int i = 0; i < cmd.ticks; i++)
 			Game().ui.inventory->AddItem(cmd.item);
 		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::Select: // like a click on its slot, also when it is on another tab
 		if (ScreenState::GetDrawScreen(Game()) != Screen::Inventory) {
 			report(cmd, false, std::string("the inventory is not open, screen ") + screenName());
-			return true;
+			return;
 		}
 		Game().ui.inventory->SelectItem(cmd.item);
 		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::Sort: // like a click on its button, for the open tab
 		if (ScreenState::GetDrawScreen(Game()) != Screen::Inventory) {
 			report(cmd, false, std::string("the inventory is not open, screen ") + screenName());
-			return true;
+			return;
 		}
 		Game().ui.inventory->SetSort(static_cast<SortOrder>(cmd.ticks));
 		report(cmd, true, "");
-		return true;
-	case CommandType::Heka: // as if the bosses of levels 5, 10, ... were slain: one heka each, the HUD tile waits
-		for (int boss = 1; boss <= static_cast<int>(cmd.a); boss++)
-			Game().player->stats.heka.Earn(boss * 5);
-		report(cmd, true, "");
-		return true;
-	case CommandType::Page: // the expedition page goes into the journal, as if picked up on this level
-		if (Game().journal.FindPage(static_cast<int>(cmd.a), Game().dungeon.LevelNumber()))
-			report(cmd, true, "");
-		else
-			report(cmd, false, "no such page, or found already");
-		return true;
-	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
-		if (!learnSkill(Game().player->stats, Game().journal, Game().events, static_cast<SkillId>(cmd.ticks), true)) {
-			report(cmd, false, "learnt already, or no heka to spend");
-			return true;
-		}
-		report(cmd, true, "");
-		return true;
+		return;
 	case CommandType::Wear: // like a click on its slot in the inventory, or a ring card's hand button
 		if (isRing(cmd.item)
 				? !Game().ui.inventory->WearRing(cmd.item, static_cast<Hand>(cmd.ticks))
 				: !Game().ui.inventory->Wear(isAmulet(cmd.item) ? std::optional(cmd.item) : std::nullopt)) {
 			report(cmd, false, "not held");
-			return true;
+			return;
 		}
 		report(cmd, true, stateLine());
-		return true;
+		return;
 	case CommandType::Equip: // like a click on its slot in the inventory
 		if (!Game().ui.inventory->Equip(cmd.item)) {
 			report(cmd, false, "not held");
-			return true;
+			return;
 		}
 		report(cmd, true, "");
-		return true;
-	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
-		Game().player->stats.AddXP(static_cast<int>(cmd.a), Game().events);
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Gear: { // as if drunk: the armour and might potions' points, the life potions' max HP percent
-		PlayerStats& stats = Game().player->stats;
-		stats.AddArmor(static_cast<int>(cmd.a));
-		stats.AddMight(static_cast<int>(cmd.b));
-		if (cmd.ticks > 0)
-			stats.AddMaxHP(cmd.ticks);
-		report(cmd, true, stateLine());
-		return true;
-	}
-	case CommandType::Hurt: // straight off the HP: no armour, no god, no death check
-		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Tire: // straight off the stamina, to test the stamina potions and the HUD
-		Game().player->stats.SetStamina(std::max(0, Game().player->stats.Stamina() - static_cast<int>(cmd.a)));
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Stamina: // plan stamina-lock-command: inf keeps it full, off ends that, N sets it (clamped)
-		if (cmd.ticks == 0) {
-			Game().player->stats.SetStamina(static_cast<int>(cmd.a));
-		} else {
-			gRunner.infiniteStamina = cmd.ticks == 1;
-			if (Game().player)
-				Game().player->infiniteStamina = gRunner.infiniteStamina;
-		}
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::FireHit: // a fire attack's hit (plan fire-damage): through the armour, it sets the player burning
-		Game().player->TakeHit(static_cast<int>(cmd.a), FIRE_HIT, Game().events);
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Blind: // a blinding spit's hit (plan giant-cobra-blinding-spit), without the spit
-		Game().player->Blind(static_cast<int>(cmd.a), Game().events);
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Daze: // a screech's daze (plan giant-bat-screech), without the bat
-		Game().player->Daze(static_cast<int>(cmd.a), Game().events);
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Campaign: // as if the run began with New Game: its win offers the leaderboard entry
-		Game().player->stats.run.campaign = true;
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Curse: // as from a cursing hit: the status line and the field note
-	{ // always lands (no resist roll), so scripts stay deterministic (plan skill-god-resist)
-		PlayerStats& stats = Game().player->stats;
-		const Curse curse = static_cast<Curse>(cmd.ticks);
-		const CurseGrade grade = cmd.a > 0.f ? CurseGrade::Greater : CurseGrade::Lesser;
-		if (stats.IsisWarded())
-			stats.LayCurse(curse, grade, Game().events, Game().random.gameplay);
-		else
-			stats.TakeCurse(curse, grade, Game().events);
-		report(cmd, true, stateLine());
-		return true;
-	}
-	case CommandType::Poison: // as from a poisoned bite: the status line, the field note and the amulet's ward too
-		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events, Game().random.gameplay);
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Grab: // the nearest monster starts a grab's tell; whether it holds: expect held
-		report(cmd, Game().dungeon.GrabNearest(), stateLine());
-		return true;
-	case CommandType::Stun: // the nearest monster is stunned, as by a blunt hit with the Stun skill (plan skill-stun)
-		report(cmd, Game().dungeon.StunNearest(), stateLine());
-		return true;
-	case CommandType::Bleed: // as from a sure cut (plan bleeding): the cut rate, the status line and the field note
-		Game().player->Bleed(
-			static_cast<BleedTier>(cmd.ticks),
-			100,
-			FULL_TRAP_SHARE,
-			Game().events,
-			Game().random.gameplay
-		);
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::BleedMonster: // as a sure cut by the player; whether it took: expect nearest_bleed
-		Game().dungeon.BleedNearestMonster(static_cast<BleedTier>(cmd.ticks));
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::PoisonMonster: // as by the player; whether it took: expect nearest_poison
-		Game().dungeon.PoisonNearestMonster(static_cast<PoisonTier>(cmd.ticks));
-		report(cmd, true, stateLine());
-		return true;
-	case CommandType::Prop: { // on the player's row
-		float x = 0.f;
-		float y = 0.f;
-		Game().dungeon.getC(x, y);
-		const bool placed = Game().dungeon.PlaceDecor(
-			static_cast<int>(cmd.a),
-			static_cast<int>(std::floor(y)),
-			cmd.ticks
-		);
-		report(cmd, placed, placed ? "" : "outside the level");
-		return true;
-	}
-	case CommandType::Torch: { // on the player's row
-		float x = 0.f;
-		float y = 0.f;
-		Game().dungeon.getC(x, y);
-		const bool placed = Game().dungeon.PlaceTorch(
-			static_cast<int>(cmd.a),
-			static_cast<int>(std::floor(y)),
-			cmd.ticks != 0
-		);
-		report(cmd, placed, placed ? "" : "outside the level");
-		return true;
-	}
-	case CommandType::Mirror: {
-		const bool set = Game().dungeon.SetMirror(static_cast<int>(cmd.a), static_cast<int>(cmd.b), cmd.ticks);
-		report(cmd, set, set ? "" : "no mirror there");
-		return true;
-	}
-	case CommandType::Container: { // on the player's row
-		float x = 0.f;
-		float y = 0.f;
-		Game().dungeon.getC(x, y);
-		const bool placed = Game().dungeon.PlaceContainer(
-			static_cast<int>(cmd.a),
-			static_cast<int>(std::floor(y)),
-			cmd.ticks,
-			static_cast<int>(cmd.b),
-			cmd.arg == "inscribed"
-		);
-		report(cmd, placed, placed ? "" : "outside the level");
-		return true;
-	}
-	case CommandType::Riddles:
-		report(cmd, true, std::to_string(Game().ui.riddle->Load(cmd.arg)) + " riddles");
-		return true;
-	case CommandType::SpeakName: { // plan secret-name-gates: the level's name typed into the open scroll, key by key
-		const RoyalName* name = Game().dungeon.LevelName();
-		if (name == nullptr || ScreenState::GetDrawScreen(Game()) != Screen::Riddle) {
-			report(cmd, false, std::string("no name, or the scroll is not open: screen ") + screenName());
-			return true;
-		}
-		for (char c : name->name)
-			keyPressed(static_cast<unsigned char>(c), 0, 0);
-		report(cmd, true, name->name);
-		return true;
-	}
-	case CommandType::Inscriptions: {
-		Game().inscriptions = InscriptionBook{};
-		const std::vector<std::string> problems = Game().inscriptions.Load(cmd.arg);
-		report(cmd, problems.empty(), std::to_string(Game().inscriptions.Size()) + " inscriptions");
-		return true;
-	}
-	case CommandType::Names: { // plan royal-name-signs: one name file makes every level's name that file's
-		const std::vector<std::string> problems = Game().names.Load(cmd.arg);
-		report(cmd, problems.empty(), std::to_string(Game().names.Size()) + " names");
-		return true;
-	}
-	case CommandType::SaveGame: // relative paths land in the output directory
-		report(cmd, Game().Save((!cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str()), "");
-		return true;
-	case CommandType::LoadGame: {
-		std::string path = !cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg;
-		if (!std::filesystem::exists(path)) {
-			report(cmd, false, "no such file");
-			return true;
-		}
-		const bool loaded = Game().LoadSave(path.c_str());
-		report(cmd, loaded, loaded ? stateLine() : "cannot load");
-		return true;
-	}
+		return;
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
@@ -665,30 +488,358 @@ bool runInstant(const Command& cmd) {
 				Game().ui.inventory->AddItem(entry);
 		}
 		report(cmd, true, std::to_string(bonus) + " bonus items");
-		return true;
+		return;
 	}
-	case CommandType::Mouse:
-	case CommandType::Press:
-	case CommandType::Release:
-	case CommandType::Click: {
-		int x = 0;
-		int y = 0;
-		toPixels(cmd, x, y);
-		processMousePassiveMotion(x, y);
-		if (cmd.type == CommandType::Press || cmd.type == CommandType::Click)
-			processMouse(MOUSE_LEFT_BUTTON, GLUT_DOWN, x, y);
-		if (cmd.type == CommandType::Release || cmd.type == CommandType::Click)
-			processMouse(MOUSE_LEFT_BUTTON, GLUT_UP, x, y);
+	default:
+		break;
+	}
+}
+
+// Scenario commands: monsters and the boss.
+void runMonsterCommand(const Command& cmd) {
+	switch (cmd.type) {
+	case CommandType::KillBoss:
+		report(cmd, Game().dungeon.BossHealth() > 0, "");
+		Game().dungeon.HurtBoss(Game().dungeon.BossHealth());
+		return;
+	case CommandType::KillMonster: { // the nearest, or `all`, nearest first: through the player's killing hit
+		bool killed = Game().dungeon.KillNearestMonster();
+		report(cmd, killed, killed ? "" : "no monster lives");
+		while (cmd.a > 0.5f && killed)
+			killed = Game().dungeon.KillNearestMonster();
+		return;
+	}
+	case CommandType::HurtBoss:
+		report(cmd, Game().dungeon.BossHealth() > 0, "");
+		Game().dungeon.HurtBoss(static_cast<int>(cmd.a));
+		return;
+	case CommandType::MonsterHp: // no hit: no reaction, no XP, no note, no aggro (plan monster-hp-command)
+		report(cmd, Game().dungeon.SetNearestMonsterHealth(static_cast<int>(cmd.a)), "");
+		return;
+	case CommandType::BossHp:
+		report(cmd, Game().dungeon.SetBossHealth(static_cast<int>(cmd.a)), "");
+		return;
+	case CommandType::PoisonBoss:
+		report(cmd, Game().dungeon.BossHealth() > 0, "");
+		Game().dungeon.PoisonBoss(static_cast<PoisonTier>(cmd.ticks));
+		return;
+	case CommandType::Grab: // the nearest monster starts a grab's tell; whether it holds: expect held
+		report(cmd, Game().dungeon.GrabNearest(), stateLine());
+		return;
+	case CommandType::Stun: // the nearest monster is stunned, as by a blunt hit with the Stun skill (plan skill-stun)
+		report(cmd, Game().dungeon.StunNearest(), stateLine());
+		return;
+	case CommandType::BleedMonster: // as a sure cut by the player; whether it took: expect nearest_bleed
+		Game().dungeon.BleedNearestMonster(static_cast<BleedTier>(cmd.ticks));
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::PoisonMonster: // as by the player; whether it took: expect nearest_poison
+		Game().dungeon.PoisonNearestMonster(static_cast<PoisonTier>(cmd.ticks));
+		report(cmd, true, stateLine());
+		return;
+	default:
+		break;
+	}
+}
+
+// Scenario commands: the player's stats and status effects.
+void runPlayerCommand(const Command& cmd) {
+	switch (cmd.type) {
+	case CommandType::Xp: // levels up like killing monsters: more max HP, fully healed
+		Game().player->stats.AddXP(static_cast<int>(cmd.a), Game().events);
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Gear: { // as if drunk: the armour and might potions' points, the life potions' max HP percent
+		PlayerStats& stats = Game().player->stats;
+		stats.AddArmor(static_cast<int>(cmd.a));
+		stats.AddMight(static_cast<int>(cmd.b));
+		if (cmd.ticks > 0)
+			stats.AddMaxHP(cmd.ticks);
+		report(cmd, true, stateLine());
+		return;
+	}
+	case CommandType::Hurt: // straight off the HP: no armour, no god, no death check
+		Game().player->stats.LoseHP(static_cast<int>(cmd.a));
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Tire: // straight off the stamina, to test the stamina potions and the HUD
+		Game().player->stats.SetStamina(std::max(0, Game().player->stats.Stamina() - static_cast<int>(cmd.a)));
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Stamina: // plan stamina-lock-command: inf keeps it full, off ends that, N sets it (clamped)
+		if (cmd.ticks == 0) {
+			Game().player->stats.SetStamina(static_cast<int>(cmd.a));
+		} else {
+			gRunner.infiniteStamina = cmd.ticks == 1;
+			if (Game().player)
+				Game().player->infiniteStamina = gRunner.infiniteStamina;
+		}
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::FireHit: // a fire attack's hit (plan fire-damage): through the armour, it sets the player burning
+		Game().player->TakeHit(static_cast<int>(cmd.a), FIRE_HIT, Game().events);
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Blind: // a blinding spit's hit (plan giant-cobra-blinding-spit), without the spit
+		Game().player->Blind(static_cast<int>(cmd.a), Game().events);
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Daze: // a screech's daze (plan giant-bat-screech), without the bat
+		Game().player->Daze(static_cast<int>(cmd.a), Game().events);
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Campaign: // as if the run began with New Game: its win offers the leaderboard entry
+		Game().player->stats.run.campaign = true;
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Curse: // as from a cursing hit: the status line and the field note
+	{ // always lands (no resist roll), so scripts stay deterministic (plan skill-god-resist)
+		PlayerStats& stats = Game().player->stats;
+		const Curse curse = static_cast<Curse>(cmd.ticks);
+		const CurseGrade grade = cmd.a > 0.f ? CurseGrade::Greater : CurseGrade::Lesser;
+		if (stats.IsisWarded())
+			stats.LayCurse(curse, grade, Game().events, Game().random.gameplay);
+		else
+			stats.TakeCurse(curse, grade, Game().events);
+		report(cmd, true, stateLine());
+		return;
+	}
+	case CommandType::Poison: // as from a poisoned bite: the status line, the field note and the amulet's ward too
+		Game().player->Poison(static_cast<PoisonTier>(cmd.ticks), Game().events, Game().random.gameplay);
+		report(cmd, true, stateLine());
+		return;
+	case CommandType::Bleed: // as from a sure cut (plan bleeding): the cut rate, the status line and the field note
+		Game().player->Bleed(
+			static_cast<BleedTier>(cmd.ticks),
+			100,
+			FULL_TRAP_SHARE,
+			Game().events,
+			Game().random.gameplay
+		);
+		report(cmd, true, stateLine());
+		return;
+	default:
+		break;
+	}
+}
+
+// Scenario commands: heka, journal pages and skills.
+void runProgressCommand(const Command& cmd) {
+	switch (cmd.type) {
+	case CommandType::Heka: // as if the bosses of levels 5, 10, ... were slain: one heka each, the HUD tile waits
+		for (int boss = 1; boss <= static_cast<int>(cmd.a); boss++)
+			Game().player->stats.heka.Earn(boss * 5);
 		report(cmd, true, "");
-		return true;
+		return;
+	case CommandType::Page: // the expedition page goes into the journal, as if picked up on this level
+		if (Game().journal.FindPage(static_cast<int>(cmd.a), Game().dungeon.LevelNumber()))
+			report(cmd, true, "");
+		else
+			report(cmd, false, "no such page, or found already");
+		return;
+	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
+		if (!learnSkill(Game().player->stats, Game().journal, Game().events, static_cast<SkillId>(cmd.ticks), true)) {
+			report(cmd, false, "learnt already, or no heka to spend");
+			return;
+		}
+		report(cmd, true, "");
+		return;
+	default:
+		break;
+	}
+}
+
+// Scenario commands: props, torches, mirrors, containers and the secret name.
+void runWorldCommand(const Command& cmd) {
+	switch (cmd.type) {
+	case CommandType::Prop: { // on the player's row
+		float x = 0.f;
+		float y = 0.f;
+		Game().dungeon.getC(x, y);
+		const bool placed = Game().dungeon.PlaceDecor(
+			static_cast<int>(cmd.a),
+			static_cast<int>(std::floor(y)),
+			cmd.ticks
+		);
+		report(cmd, placed, placed ? "" : "outside the level");
+		return;
+	}
+	case CommandType::Torch: { // on the player's row
+		float x = 0.f;
+		float y = 0.f;
+		Game().dungeon.getC(x, y);
+		const bool placed = Game().dungeon.PlaceTorch(
+			static_cast<int>(cmd.a),
+			static_cast<int>(std::floor(y)),
+			cmd.ticks != 0
+		);
+		report(cmd, placed, placed ? "" : "outside the level");
+		return;
+	}
+	case CommandType::Mirror: {
+		const bool set = Game().dungeon.SetMirror(static_cast<int>(cmd.a), static_cast<int>(cmd.b), cmd.ticks);
+		report(cmd, set, set ? "" : "no mirror there");
+		return;
+	}
+	case CommandType::Container: { // on the player's row
+		float x = 0.f;
+		float y = 0.f;
+		Game().dungeon.getC(x, y);
+		const bool placed = Game().dungeon.PlaceContainer(
+			static_cast<int>(cmd.a),
+			static_cast<int>(std::floor(y)),
+			cmd.ticks,
+			static_cast<int>(cmd.b),
+			cmd.arg == "inscribed"
+		);
+		report(cmd, placed, placed ? "" : "outside the level");
+		return;
+	}
+	case CommandType::SpeakName: { // plan secret-name-gates: the level's name typed into the open scroll, key by key
+		const RoyalName* name = Game().dungeon.LevelName();
+		if (name == nullptr || ScreenState::GetDrawScreen(Game()) != Screen::Riddle) {
+			report(cmd, false, std::string("no name, or the scroll is not open: screen ") + screenName());
+			return;
+		}
+		for (char c : name->name)
+			keyPressed(static_cast<unsigned char>(c), 0, 0);
+		report(cmd, true, name->name);
+		return;
+	}
+	default:
+		break;
+	}
+}
+
+// Scenario commands: riddle, inscription and name files, saves.
+void runDataCommand(const Command& cmd) {
+	switch (cmd.type) {
+	case CommandType::Riddles:
+		report(cmd, true, std::to_string(Game().ui.riddle->Load(cmd.arg)) + " riddles");
+		return;
+	case CommandType::Inscriptions: {
+		Game().inscriptions = InscriptionBook{};
+		const std::vector<std::string> problems = Game().inscriptions.Load(cmd.arg);
+		report(cmd, problems.empty(), std::to_string(Game().inscriptions.Size()) + " inscriptions");
+		return;
+	}
+	case CommandType::Names: { // plan royal-name-signs: one name file makes every level's name that file's
+		const std::vector<std::string> problems = Game().names.Load(cmd.arg);
+		report(cmd, problems.empty(), std::to_string(Game().names.Size()) + " names");
+		return;
+	}
+	case CommandType::SaveGame: // relative paths land in the output directory
+		report(cmd, Game().Save((!cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str()), "");
+		return;
+	case CommandType::LoadGame: {
+		std::string path = !cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg;
+		if (!std::filesystem::exists(path)) {
+			report(cmd, false, "no such file");
+			return;
+		}
+		const bool loaded = Game().LoadSave(path.c_str());
+		report(cmd, loaded, loaded ? stateLine() : "cannot load");
+		return;
 	}
 	case CommandType::Autosave: // as at a level start (plan autosave), into the output directory
 		Game().Autosave(AutosaveMoment::LevelStart);
 		report(cmd, Game().HasAutosave(), "");
-		return true;
+		return;
+	default:
+		break;
+	}
+}
+
+// Runs a non-blocking command immediately. Returns false for commands that span ticks. Each group above has its
+// own function (plan refactor-scenario-run-instant): add a new command to the group it belongs to; -Wswitch asks for it
+// here too.
+bool runInstant(const Command& cmd) {
+	switch (cmd.type) {
+	case CommandType::Resolution:
+	case CommandType::Seed:
+	case CommandType::God:
+	case CommandType::Peace:
+	case CommandType::Level:
+	case CommandType::Camera:
+	case CommandType::Motion:
+	case CommandType::Toon:
+	case CommandType::ToonBlurFirst:
+	case CommandType::CutScenes:
+	case CommandType::Hitboxes:
+	case CommandType::Hints:
+	case CommandType::Gifts:
+	case CommandType::Screenshot:
+	case CommandType::Dump:
+	case CommandType::Expect:
 	case CommandType::Quit:
-		report(cmd, true, "");
-		finish(EXIT_OK);
+		runSetupCommand(cmd);
+		return true;
+	case CommandType::Jump:
+	case CommandType::Attack:
+	case CommandType::Interact:
+	case CommandType::Sprint:
+	case CommandType::Crouch:
+	case CommandType::Key:
+	case CommandType::Mouse:
+	case CommandType::Press:
+	case CommandType::Release:
+	case CommandType::Click:
+		runInputCommand(cmd);
+		return true;
+	case CommandType::Give:
+	case CommandType::Select:
+	case CommandType::Sort:
+	case CommandType::Wear:
+	case CommandType::Equip:
+	case CommandType::Chest:
+		runItemCommand(cmd);
+		return true;
+	case CommandType::Heka:
+	case CommandType::Page:
+	case CommandType::Learn:
+		runProgressCommand(cmd);
+		return true;
+	case CommandType::KillBoss:
+	case CommandType::KillMonster:
+	case CommandType::HurtBoss:
+	case CommandType::MonsterHp:
+	case CommandType::BossHp:
+	case CommandType::PoisonBoss:
+	case CommandType::Grab:
+	case CommandType::Stun:
+	case CommandType::BleedMonster:
+	case CommandType::PoisonMonster:
+		runMonsterCommand(cmd);
+		return true;
+	case CommandType::Xp:
+	case CommandType::Gear:
+	case CommandType::Hurt:
+	case CommandType::Tire:
+	case CommandType::Stamina:
+	case CommandType::FireHit:
+	case CommandType::Blind:
+	case CommandType::Daze:
+	case CommandType::Campaign:
+	case CommandType::Curse:
+	case CommandType::Poison:
+	case CommandType::Bleed:
+		runPlayerCommand(cmd);
+		return true;
+	case CommandType::Prop:
+	case CommandType::Torch:
+	case CommandType::Mirror:
+	case CommandType::Container:
+	case CommandType::SpeakName:
+		runWorldCommand(cmd);
+		return true;
+	case CommandType::Riddles:
+	case CommandType::Inscriptions:
+	case CommandType::Names:
+	case CommandType::SaveGame:
+	case CommandType::LoadGame:
+	case CommandType::Autosave:
+		runDataCommand(cmd);
+		return true;
 	case CommandType::Wait:
 	case CommandType::WaitTraps:
 	case CommandType::Walk:

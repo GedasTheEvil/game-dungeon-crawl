@@ -1,6 +1,6 @@
 # Fallen rocks from an old save are invisible
 
-Status: draft 2026-11-15, size S, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Repro
 
@@ -37,4 +37,7 @@ Check also: after the fix the map shows the stone's mark there (like a rock land
 
 ## Play-test
 
-*
+* `bin/game --play tests/play/old-save-fallen-rock-invisible.txt`: walk over the loose ceiling, the rock lands (a Stone).
+  Save, quit, load that save (the dump holds a Stone since this build; the fix covers saves with a fallen `RockFall`).
+* The stone is drawn, drags onto the red plate, the map shows the stone's mark (no "fallen rock" mark).
+* An old save of a level whose rock had fallen (made before commit d58cbd63), if one is kept: load it, same checks.

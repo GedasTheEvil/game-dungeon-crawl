@@ -1,0 +1,5 @@
+# Plan old-save-fallen-rock-invisible: tests/levels/fallen_rock_drag, a rock fall at col 4, the red plate at col 7.
+# Walk over the loose ceiling, the rock lands; save and load: the rock is still drawn and drags. An old save with a
+# fallen RockFall loads as that Stone too.
+god
+level tests/levels/fallen_rock_drag

@@ -6,6 +6,7 @@
 #include "../../src/level/level_check.h"
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 
 namespace {
 bool noted(const SimWorld& world, FieldNote note) {
@@ -244,4 +245,29 @@ TEST_CASE("sprint dust: none with motion effects off") {
 	world.player.stats.SetSprintRequested(true);
 	walked(world, 20);
 	CHECK(world.dungeon.DustPuffs() == 0);
+}
+
+TEST_CASE(
+	"plan old-save-fallen-rock-invisible: a fallen rock fall in a saved dungeon loads as a Stone, a sand fall stays"
+) {
+	SimWorld world;
+	LevelGrid grid;
+	for (int col = 1; col <= 8; col++)
+		grid.set(col, 1, Tile{});
+	grid.set(1, 1, Tile{Door, GateEntrance, 0});
+	grid.set(8, 1, Tile{Door, GateExit, 0});
+	grid.set(3, 1, Tile{RockFall, 0, static_cast<int>(RockState::Fallen)}); // from a save before fallen-rock-draggable
+	grid.set(5, 1, Tile{RockFall, SAND_FALL, static_cast<int>(RockState::Fallen)});
+	grid.set(6, 1, Tile{RockFall, 0, static_cast<int>(RockState::Armed)}); // not yet fallen: stays armed
+	world.dungeon.LoadGrid(grid, "old-save");
+	std::stringstream save;
+	world.dungeon.Dump(save);
+	world.dungeon.LoadGrid(LevelGrid{}, "empty");
+	REQUIRE(world.dungeon.LoadDump(save));
+	CHECK(world.dungeon.Cell(3, 1).type == Stone);
+	CHECK(isDraggable(world.dungeon.Cell(3, 1)));
+	CHECK(world.dungeon.Cell(5, 1).type == RockFall);
+	CHECK(rockState(world.dungeon.Cell(5, 1)) == RockState::Fallen);
+	CHECK(world.dungeon.Cell(6, 1).type == RockFall);
+	CHECK(rockState(world.dungeon.Cell(6, 1)) == RockState::Armed);
 }

@@ -343,6 +343,8 @@ class Dungeon {
 	// The Stun skill's roll after a weapon hit that did not kill (plan skill-stun, Monster::StunHit); the first stun
 	// says so and writes its field note.
 	void stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking);
+	// The Bleed skill's roll after a weapon hit that did not kill (plan skill-bleed), the same way.
+	void bleedRoll(Monster& mon, const DamageMix& mix);
 	void rewardKill(Monster& mon); // the player killed it: journal, XP, maybe a weapon chest
 	// A killed monster's spawn tile turns into its slain marker (slainObject): it does not come back, not after a load
 	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest; the

@@ -284,6 +284,12 @@ constexpr int STUN_CHANCE_PERCENT = 25;
 constexpr int STUN_MS = 1500;
 constexpr int BOSS_STUN_PERCENT = 50;
 constexpr int BOSS_STUN_COOLDOWN_MS = 5000;
+
+// Bleed (plan skill-bleed): with the skill, a weapon hit makes the monster it does not kill bleed (a weak bleed) at
+// BLEED_CHANCE_PERCENT of the weapon's cut share (a sword 17%, a mace never), then the monster's cut rate scales it
+// (Monster::TakeBleed). A boss at half the chance.
+constexpr int BLEED_CHANCE_PERCENT = 20;
+constexpr int BOSS_BLEED_PERCENT = 50;
 constexpr int WADE_SPLASH_MS = 450; // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
 

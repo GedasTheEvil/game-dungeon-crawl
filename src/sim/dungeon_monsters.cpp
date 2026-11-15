@@ -384,6 +384,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 	else if (mix) {
 		venomHit(mon);
 		stunRoll(mon, *mix, wasLurking);
+		bleedRoll(mon, *mix);
 	}
 	mon.Struggle(); // a scorpion that holds the player lets go sooner
 }
@@ -399,6 +400,18 @@ void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 	if (!std::ranges::contains(notes, FieldNote::Stun))
 		sim.events->Status("%s is stunned", mon.Type()->name);
 	sim.events->Note(FieldNote::Stun);
+}
+//======================================================================================
+// Bleed (plan skill-bleed): with the skill, the hit's cut share decides the chance (a boss half of it), rolled through
+// Monster::TakeBleed, whose cut rate scales it once more and which never bleeds a bloodless kind.
+void Dungeon::bleedRoll(Monster& mon, const DamageMix& mix) {
+	if (!sim.player->stats.heka.Has(SkillId::Bleed))
+		return;
+	int chance = BLEED_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Slash)] / 100;
+	if (mon.Type()->isBoss())
+		chance = chance * BOSS_BLEED_PERCENT / 100;
+	if (chance > 0)
+		mon.TakeBleed(BleedTier::Weak, chance, true, sim.random->gameplay);
 }
 //======================================================================================
 const Monster* Dungeon::PlayerHeldBy() const {

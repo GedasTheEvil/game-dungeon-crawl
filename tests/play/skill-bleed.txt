@@ -1,0 +1,10 @@
+# Plan skill-bleed: the Bleed skill learnt, a short sword (cuts, bleeds now and then) and a mace (never) in the bag.
+# tests/levels/bleeding: a camel spider (col 20), a bloodless mummy (col 26: never bleeds). Equip the weapons with the keys.
+seed 1
+level tests/levels/bleeding
+god
+heka 1
+learn bleed
+give melee 1
+give melee 7
+equip short_sword

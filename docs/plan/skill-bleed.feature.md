@@ -1,6 +1,6 @@
 # Skill Bleed: cutting hits may make a foe bleed
 
-Status: draft 2026-11-15, size S, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Idea
 

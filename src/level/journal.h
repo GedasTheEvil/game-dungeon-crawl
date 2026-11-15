@@ -221,8 +221,9 @@ enum class FieldNote : unsigned char {
 	HeartLight,
 	HeartHeavy,
 	Bleeding, // the first time the player bleeds (plan bleeding)
+	Bleed, // the Bleed skill learnt (plan skill-bleed)
 };
-constexpr int FIELD_NOTE_COUNT = 89 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 90 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

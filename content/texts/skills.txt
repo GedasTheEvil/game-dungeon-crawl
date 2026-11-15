@@ -51,3 +51,6 @@ lore: Containers' traps fail 4 times in 5, trapped ones and mimics glow red up c
 
 [skill.quiver-of-neith]
 lore: Neith, the huntress of the crossed arrows, refills your quiver before you reach for it.
+
+[skill.bleed]
+lore: A clean cut keeps opening after the blade is gone. Blood and bone, not linen or stone.

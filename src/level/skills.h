@@ -31,8 +31,9 @@ enum class SkillId : std::uint8_t {
 	WisdomOfSeshat, // riddle hints, the royal name, hidden rooms on the map
 	DisarmTrap, // a trapped container's trap may fail, trapped ones and mimics red-rimmed, never empty
 	QuiverOfNeith, // ranged weapons hold QUIVER_SHOTS_PERCENT more shots, they come back QUIVER_RECOVERY_PERCENT faster
+	Bleed, // plan skill-bleed: a cutting hit may make a foe bleed (Dungeon::bleedRoll)
 };
-constexpr int SKILL_COUNT = 17;
+constexpr int SKILL_COUNT = 18;
 
 // The stat skills' gains (plan heka-surplus), applied where the stat is computed (PlayerStats).
 constexpr int SKILL_HEALTH_PERCENT = 25;

@@ -498,6 +498,13 @@ title: Quiver of Neith
 text: Neith counts my arrows. She counts better than I do: two in five more in every bow, sling and javelin
 	bundle, and the spent ones come back a quarter sooner. Satet's quiver and Bastet's cat still add their own.
 
+[note.bleed]
+title: Bleed
+text: A good cut does not stop at the cut. Now and then the beast I strike with a blade keeps bleeding, a point of
+	health a second for ten seconds. A khopesh or a sword does it best, an axe too; a mace or a
+	club never. Thick hides let less of it through, the gods' great beasts only half as often, and mummies, statues
+	and clay have no blood to lose. It stacks with the rest of my tricks, each rolled on its own.
+
 [note.shrine-of-montu]
 title: The Shrine of Montu
 text: Another little naos, this one painted red. Montu stands in it with a falcon's head and the sun on it, his

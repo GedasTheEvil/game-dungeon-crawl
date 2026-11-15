@@ -292,10 +292,23 @@ def quiver_of_neith():
     return img
 
 
+def bleed_skill():
+    """A curved blade with three drops of blood falling from its edge."""
+    img, d = canvas()
+    d.polygon([(110, 60), (330, 150), (400, 300), (330, 290), (250, 180), (110, 110)], fill=METAL, outline=INK, width=LINE)
+    d.rectangle([330, 280, 440, 330], fill=GOLD, outline=INK, width=LINE)
+    d.rounded_rectangle([385, 320, 425, 470], radius=14, fill=WOOD, outline=INK, width=LINE)
+    for x, y, r in ((170, 260, 34), (250, 360, 26), (130, 400, 20)):
+        d.polygon([(x, y - r * 1.8), (x - r, y), (x + r, y)], fill=CARNELIAN, outline=INK, width=LINE)
+        d.ellipse([x - r, y - r, x + r, y + r], fill=CARNELIAN, outline=INK, width=LINE)
+        d.polygon([(x - r + 3, y - 2), (x + r - 3, y - 2), (x, y - r * 1.7)], fill=CARNELIAN)
+    return img
+
+
 # Order = atlas cell: the heka mark, then SkillId order.
 ICONS = [heka, stun, thoth, dodge, power_hit, sharp_eye, hapi, serket, isis, flaming_arrows, ka_of_osiris,
          strength_of_montu, djed_of_ptah, breath_of_shu, speed_of_mafdet, wisdom_of_seshat, disarm_trap,
-         quiver_of_neith]
+         quiver_of_neith, bleed_skill]
 ROWS = (len(ICONS) + GRID - 1) // GRID
 
 

@@ -275,7 +275,7 @@
 27,18 surface 7/1/2
 35,18 surface 10/4/6 ladder 0/1m
 5,19 surface 11/4/6 prop sarcophagus 0.011 decal 6m 0.559,0.575
-6,19 surface 10/4/6
+6,19 surface 10/4/6 prop heap_reeds 0.000
 7,19 surface 10/4/6
 8,19 surface 10/4/6 decal 6 0.456,0.575
 9,19 surface 10/4/6 prop rubblem 0.049 decal 6 0.474,0.575 torch fire torch 0.000,0.680,0.098

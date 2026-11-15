@@ -12,6 +12,9 @@ std::string at(int cell);
 
 // level_check_dressing.cpp
 void checkDressing(const LevelGrid& grid, LevelReport& r);
+// A landing heap fits the cell (plan soft-landing): dry, flat floor, not a trap (a heap would make it look safe), not
+// over what stands on the floor, not where the scatter puts its own prop. Sand and half water are soft already.
+[[nodiscard]] bool takesLandingHeap(const LevelGrid& grid, int cell);
 
 // level_check_mechanisms.cpp
 void checkLocks(const LevelGrid& grid, LevelReport& r);

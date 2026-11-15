@@ -92,7 +92,7 @@
 28,9 surface 6/2/2 sand>
 29,9 surface 7/1/2
 30,9 surface 6/1/2
-31,9 surface 6/2/2 sand<> torch fire torch 0.000,0.680,0.098
+31,9 surface 6/2/2 sand<> prop heap_reeds -0.000 torch fire torch 0.000,0.680,0.098
 32,9 surface 6/1/2
 33,9 surface 7/1/2 decal 0 0.617,0.446
 34,9 surface 6/1/2 decal 9m 0.634,0.360
@@ -169,7 +169,7 @@
 8,14 surface 4/2/1
 9,14 surface 3/0/1 decal 9m 0.387,0.594
 10,14 surface 4/2/1 prop thoth_ibis_seatedm -0.001
-11,14 surface 3/0/1 prop ushabti -0.025
+11,14 surface 3/0/1 prop heap_reeds -0.000
 12,14 surface 3/0/1 prop ushabti -0.013 decal 7 0.618,0.547
 13,14 surface 3/0/1 prop ushabti 0.000
 14,14 surface 4/2/1 prop ushabtim -0.030 decal 11m 0.397,0.422
@@ -364,7 +364,7 @@
 24,24 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 25,24 surface 1/0/0 sand> decal 7 0.609,0.397
 26,24 surface 0/1/0 decal 10 0.696,0.435
-27,24 surface 0/0/0 sand< prop ushabti -0.010 decal 9 0.439,0.489
+27,24 surface 0/0/0 sand< prop heap_reeds -0.000 decal 9 0.439,0.489
 28,24 surface 0/2/0 prop ushabti 0.052
 29,24 surface 0/2/0 sand> prop ushabti 0.000
 30,24 surface 0/1/0 prop ushabtim -0.053 torch fire torch 0.000,0.680,0.098
@@ -491,7 +491,7 @@
 12,33 surface 0/0/0 prop coffin_mummym -0.000 decal 8m 0.599,0.477
 13,33 surface 0/0/0 prop coffin_mummym -0.000
 14,33 surface 0/2/0 decal 10m 0.384,0.492
-15,33 surface 0/0/0 prop sarcophagusm 0.031
+15,33 surface 0/0/0 prop heap_reeds 0.000
 16,33 surface 1/0/0 torch fire torch 0.000,0.680,0.098
 17,33 surface 2/0/0 sand> prop ushabti -0.042 decal 11 0.445,0.404
 18,33 surface 4/1/1 prop ushabti 0.008

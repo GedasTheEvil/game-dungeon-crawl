@@ -157,7 +157,7 @@
 2,15 surface 1/0/0 decal 7 0.606,0.392
 3,15 surface 0/0/0
 4,15 surface 1/0/0
-5,15 surface 0/0/0 sand>
+5,15 surface 0/0/0 sand> prop heap_sand -0.000
 6,15 surface 0/1/0 torch fire torch 0.000,0.680,0.098
 7,15 surface 1/0/0 sand< prop skeleton -0.138
 8,15 surface 0/0/0
@@ -258,7 +258,7 @@
 29,19 surface 3/0/1 prop sandm -0.000
 30,19 surface 3/0/1 decal 11m 0.600,0.433
 31,19 surface 3/2/1 sand> prop pottery -0.016
-32,19 surface 4/1/1
+32,19 surface 4/1/1 prop heap_sand -0.000
 33,19 surface 3/0/1 sand<
 34,19 surface 4/0/1 sand>
 35,19 surface 3/1/1 decal 1 0.462,0.467

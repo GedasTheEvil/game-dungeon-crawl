@@ -475,7 +475,7 @@
 26,28 surface 10/4/6
 27,28 surface 10/4/6
 28,28 surface 10/4/6 prop ushabti 0.003 decal 6 0.524,0.575
-29,28 surface 10/4/6 torch fire torch 0.000,0.680,0.098
+29,28 surface 10/4/6 prop heap_reeds 0.000 torch fire torch 0.000,0.680,0.098
 30,28 surface 10/4/6
 31,28 surface 10/4/6 decal 5m 0.493,0.625
 29,29 surface 10/4/6
@@ -594,7 +594,7 @@
 31,36 surface 10/4/6
 32,36 surface 10/4/6
 33,36 surface 10/4/6
-34,36 surface 11/4/6
+34,36 surface 11/4/6 prop heap_reeds -0.000
 35,36 surface 10/4/6 prop potterym -0.087 decal 15m 0.415,0.375
 36,36 surface 11/4/6 ladder 0/3m
 37,36 surface 10/4/6
@@ -681,7 +681,7 @@
 14,41 surface 10/4/6 decal 12m 0.457,0.350 torch fire torch 0.000,0.680,0.098
 15,41 surface 10/4/6
 16,41 surface 11/4/6 decal 9m 0.484,0.585
-17,41 surface 10/4/6 decal 0m 0.436,0.569
+17,41 surface 10/4/6 prop heap_reeds 0.000 decal 0m 0.436,0.569
 18,41 surface 10/4/6
 19,41 surface 11/4/6
 20,41 surface 10/4/6 torch fire torch 0.000,0.680,0.098

@@ -275,7 +275,7 @@
 27,19 surface 15/1/8 prop osirism -0.094
 28,19 surface 14/1/8 torch fire torch 0.000,0.680,0.098
 29,19 surface 14/6/8 sand< decal 7m 0.510,0.448
-30,19 surface 14/6/8 prop osirism 0.013
+30,19 surface 14/6/8 prop heap_feathers 0.000
 31,19 surface 14/6/8 prop scrollsm -0.065
 32,19 surface 14/6/8
 33,19 surface 15/6/8 torch fire torch 0.000,0.680,0.098
@@ -404,7 +404,7 @@
 13,28 surface 14/6/8 prop brazier 0.113 fire brazier 0.113,0.220,0.160
 14,28 surface 15/6/8 decal 8 0.551,0.595
 15,28 surface 14/6/8 prop ushabtim -0.040
-16,28 surface 14/6/8 decal 11 0.552,0.475
+16,28 surface 14/6/8 prop heap_feathers 0.000 decal 11 0.552,0.475
 17,28 surface 15/6/8 sand> prop scrolls 0.055 torch fire torch 0.000,0.680,0.098
 18,28 surface 14/1/8 prop thoth_ibis_seated -0.199
 19,28 surface 15/6/8 decal 9m 0.695,0.538

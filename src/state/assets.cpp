@@ -396,6 +396,8 @@ void loadSounds(SoundBank& sounds) {
 	sounds.shotDry.Load(MEDIA_DIR "sounds/items/shot_dry.wav");
 	sounds.shotTooClose.Load(MEDIA_DIR "sounds/items/shot_too_close.wav");
 	sounds.dungThud.Load(MEDIA_DIR "sounds/monsters/scarab_ball_thud.wav");
+	sounds.landSoft.Load(MEDIA_DIR "sounds/characters/archeologist_land_soft.wav");
+	sounds.landHard.Load(MEDIA_DIR "sounds/characters/archeologist_land_hard.wav");
 	sounds.arrowHit.Load(MEDIA_DIR "sounds/items/arrow_hit.wav");
 	sounds.arrowWall.Load(MEDIA_DIR "sounds/items/arrow_wall.wav");
 	sounds.stoneHit.Load(MEDIA_DIR "sounds/items/stone_hit.wav");

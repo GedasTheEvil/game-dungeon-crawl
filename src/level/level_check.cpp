@@ -480,8 +480,12 @@ struct Search {
 	std::vector<Move> prevMove;
 	std::vector<std::vector<int>> incoming;
 	std::vector<char> expanded;
+	std::vector<int> fallRows; // per cell: the longest fall that lands in it, in rows (plan soft-landing)
 	int goal = NONE; // the cheapest goal state
 };
+
+// A move that can fall: a drop off a ledge, a jump or a step whose landing is lower than the take-off.
+bool falls(Move m) { return m == Move::Drop || m == Move::Jump || m == Move::Step || m == Move::SpikedStep; }
 
 Search searchLevel(const LevelGrid& grid, const Walker& walker, int startState) {
 	const int stateCount = walker.states();
@@ -491,6 +495,7 @@ Search searchLevel(const LevelGrid& grid, const Walker& walker, int startState) 
 		std::vector<Move>(stateCount, Move::Start),
 		std::vector<std::vector<int>>(stateCount),
 		std::vector<char>(stateCount, 0),
+		std::vector<int>(CELLS, 0),
 	};
 	using Item = std::pair<int, int>; // cost, state
 	std::priority_queue<Item, std::vector<Item>, std::greater<>> open;
@@ -504,8 +509,12 @@ Search searchLevel(const LevelGrid& grid, const Walker& walker, int startState) 
 			continue;
 		s.expanded[state] = 1;
 		walker.successors(state, edges);
+		const int fromRow = walker.cellOf(state) / LEVEL_WIDTH;
 		for (const Edge& e : edges) {
 			s.incoming[e.to].push_back(state);
+			const int landing = walker.cellOf(e.to);
+			if (falls(e.move))
+				s.fallRows[landing] = std::max(s.fallRows[landing], fromRow - landing / LEVEL_WIDTH);
 			const int nd = cost + e.cost;
 			if (s.dist[e.to] == NONE || nd < s.dist[e.to]) {
 				s.dist[e.to] = nd;
@@ -576,6 +585,21 @@ void reportMissed(const LevelGrid& grid, const std::vector<char>& cellReached, L
 			r.warnings.push_back(
 				std::string(t.fixture.type == Lever ? "lever" : "inscription") + " out of reach at " + at(cell)
 			);
+	}
+}
+
+// A fall of LANDING_HEAP_ROWS or more onto a bare floor (plan soft-landing): it wants a landing heap where one fits
+// (takesLandingHeap). The cells go to the report too: the level generator puts the heaps there.
+void checkLandings(const LevelGrid& grid, const std::vector<int>& fallRows, LevelReport& r) {
+	for (int cell = 0; cell < CELLS; cell++) {
+		if (fallRows[cell] < LANDING_HEAP_ROWS || isLandingHeap(grid.cells[cell].dressing.prop) ||
+			!takesLandingHeap(grid, cell))
+			continue;
+		r.bareLandings.push_back(cell);
+		r.warnings.push_back(
+			"a fall of " + std::to_string(fallRows[cell]) + " rows onto a bare floor at " + at(cell) +
+			": put a landing heap there (heap_*, plan soft-landing)"
+		);
 	}
 }
 
@@ -741,6 +765,7 @@ LevelReport checkLevel(const LevelGrid& grid) {
 	const std::vector<char> cellReached = reachedCells(walker, search.expanded);
 	const bool antidote = reportReached(grid, cellReached, r);
 	reportMissed(grid, cellReached, r);
+	checkLandings(grid, search.fallRows, r);
 	checkStepTops(walker, search.expanded, r);
 	if (r.treasures > r.reachableTreasures)
 		r.warnings.push_back(std::to_string(r.treasures - r.reachableTreasures) + " treasure(s) out of reach");

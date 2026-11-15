@@ -36,7 +36,8 @@ COLL = "decor_new"
 PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris",
          "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin",
          "coffin_large", "water_reeds", "water_weed", "water_pads", "water_lotus", "stargate", "stargate_track", "stargate_chevron",
-         "dial_device", "shrine_isis", "shrine_montu", "shrine_ptah", "shrine_amun", "shrine_serket", "scales"]
+         "dial_device", "shrine_isis", "shrine_montu", "shrine_ptah", "shrine_amun", "shrine_serket", "scales",
+         "heap_sand", "heap_guano", "heap_web", "heap_reeds", "heap_ash", "heap_linen", "heap_feathers"]
 WATER_PROPS = {"water_reeds", "water_weed", "water_pads", "water_lotus"}  # stand in a basin (BASIN_Z), see build_env
 TEX_SIZE = 512
 TEX_SIZES = {"stargate": 1024}  # the props larger than the rest
@@ -128,6 +129,12 @@ COL = {
     "ptah_green": (0.18, 0.48, 0.26),
     "lapis": (0.06, 0.14, 0.52),
     "amun_blue": (0.12, 0.26, 0.66),
+    "guano": (0.20, 0.16, 0.12),
+    "guano_light": (0.42, 0.38, 0.30),
+    "ash_light": (0.55, 0.53, 0.50),
+    "feather": (0.90, 0.88, 0.82),
+    "feather_shade": (0.68, 0.66, 0.60),
+    "linen_fresh": (0.78, 0.72, 0.58),
 }
 
 
@@ -220,6 +227,15 @@ def materials():
         "lapis": ("solid", "lapis"),
         "amun_blue": ("solid", "amun_blue"),
         "shroud": stripes("v", 0.01, [(3, "limestone_fresh"), (1, "eye_white")], "LINEAR"),
+        "guano": ("solid", "guano"),
+        "guano_lump": ("solid", "guano_light"),
+        "ash_heap": ("solid", "ash"),
+        "ash_light": ("solid", "ash_light"),
+        "ember": stripes("u", 1 / 5, [(3, "char"), (1, "ember")], "LINEAR"),
+        "feather": stripes("v", 0.02, [(3, "feather"), (1, "feather_shade")], "LINEAR"),
+        "down": ("solid", "feather"),
+        "quill": ("solid", "limestone"),
+        "linen_heap": ("solid", "linen_fresh"),
         "plume_amun": stripes("v", 0.008, [(1, "paint_red"), (1, "gold"), (1, "lapis")]),
     }
     return {name: common.make_material("decor_" + name, spec, COL) for name, spec in specs.items()}
@@ -1863,6 +1879,181 @@ def build_scales(b, M):
     add_parts(b, M, moon_crown(), turn, at + turn @ (crown * 1.15), scale=1.15)
 
 
+# ---------------------------------------------------------------- landing heaps (plan soft-landing)
+# A soft heap at the foot of a drop shaft, one per zone look: placed only (the decor layer), never scattered. Unlike the
+# other props it spans the whole cell, under the player (who stands at y = -0.5): highest at the back wall (HEAP_BACK),
+# low where the feet land (they sink in a little), gone at the front edge. Exact tile units, not enlarged.
+HEAP_HALF, HEAP_DEPTH, HEAP_BACK, HEAP_FRONT = 0.48, 0.86, 0.2, 0.02
+
+
+def heap_height(x, v, seed, back=HEAP_BACK):
+    """Height of the mound at x, v (0 at the front edge, 1 at the wall): a drift sloping down to the camera, tapering at
+    the sides, with a lumpy top."""
+    taper = 1 - smoothstep(HEAP_HALF * 0.55, HEAP_HALF, abs(x))
+    rise = smoothstep(0.0, 0.35, v)
+    slope = HEAP_FRONT + (back - HEAP_FRONT) * v ** 2.2
+    lumps = 1 + 0.18 * math.sin(7.3 * x + seed) * math.sin(5.1 * v + 0.7 * seed) + 0.08 * math.sin(17 * x + 2.3 * seed)
+    return max(slope * rise * taper * lumps, 0.0)
+
+
+def heap_surface(seed, back=HEAP_BACK, nu=28, nv=14):
+    def fn(u, v):
+        x = -HEAP_HALF + 2 * HEAP_HALF * u
+        reach = HEAP_DEPTH * (0.9 + 0.1 * math.sin(4.7 * x + seed))
+        return (x, -reach * (1 - v), heap_height(x, v, seed, back))
+
+    return surface(fn, nu, nv)
+
+
+def heap_point(x, y, seed, back=HEAP_BACK):
+    """A point on the mound's top at (x, y): v from y over the depth."""
+    v = 1 + y / HEAP_DEPTH
+    return V((x, y, heap_height(x, max(min(v, 1.0), 0.0), seed, back)))
+
+
+def heap_spots(n, seed, y_min=-0.75):
+    rnd = random.Random(seed)
+    return [(rnd.uniform(-HEAP_HALF * 0.8, HEAP_HALF * 0.8), rnd.uniform(y_min, -0.04), rnd) for _ in range(n)]
+
+
+def build_heap_sand(b, M):
+    """Drifted sand down the shaft foot, a few stones and grit of the fallen rubble in it."""
+    b.add(heap_surface(41), M["sand"], "root")
+    for x, y, rnd in heap_spots(7, 42):
+        p = heap_point(x, y, 41)
+        s = rnd.uniform(0.012, 0.03)
+        b.add(rock((p.x, p.y, p.z - s * 0.4), (s, s * 0.8, s * 0.7), rnd.randrange(1000)), M["stone" if rnd.random() < 0.6 else "stone_dark"], "root")
+
+
+def build_heap_guano(b, M):
+    """A heap of bat guano, dark and crumbly, paler crusted lumps on top."""
+    b.add(heap_surface(43, back=0.22), M["guano"], "root")
+    for x, y, rnd in heap_spots(22, 44):
+        p = heap_point(x, y, 43, 0.22)
+        s = rnd.uniform(0.01, 0.024)
+        b.add(rock((p.x, p.y, p.z - s * 0.5), (s, s * 0.9, s * 0.6), rnd.randrange(1000), amp=0.35, n=7, rings=4), M["guano_lump" if rnd.random() < 0.5 else "guano"], "root")
+
+
+def build_heap_ash(b, M):
+    """A grey heap of ash, charred lumps and a dull ember or two half buried in it."""
+    b.add(heap_surface(45, back=0.18), M["ash_heap"], "root")
+    for x, y, rnd in heap_spots(9, 46):
+        p = heap_point(x, y, 45, 0.18)
+        s = rnd.uniform(0.012, 0.028)
+        b.add(rock((p.x, p.y, p.z - s * 0.5), (s * 1.3, s, s * 0.6), rnd.randrange(1000), amp=0.3, n=7, rings=4), M["ember" if rnd.random() < 0.35 else "char"], "root")
+    for x, y, rnd in heap_spots(10, 146):  # paler drifts of fresh ash
+        p = heap_point(x, y, 45, 0.18)
+        s = rnd.uniform(0.03, 0.06)
+        b.add(rock((p.x, p.y, p.z - s * 0.35), (s * 1.4, s, s * 0.3), rnd.randrange(1000), amp=0.2, n=8, rings=4), M["ash_light"], "root")
+
+
+def build_heap_web(b, M):
+    """A web net slung across the shaft foot: anchored low on the side walls, sagging in the middle where the player sinks
+    into it; a few loose strands down to the floor."""
+    r = 0.0035
+    nx, ny = 12, 6
+
+    def net(i, j):
+        x = -0.5 + i / nx
+        y = -0.06 - 0.74 * j / ny
+        sag = 1 - (2 * x) ** 2  # 0 at the walls, 1 in the middle
+        depth = 1 - abs(2 * j / ny - 1) * 0.35
+        return V((x, y, 0.26 - 0.2 * sag * depth))
+
+    for j in range(ny + 1):
+        for i in range(nx):
+            b.add(rod(net(i, j), net(i + 1, j), r, n=3), M["silk"], "root")
+    for i in range(1, nx):
+        for j in range(ny):
+            if (i + j) % 3 == 0:
+                continue
+            b.add(rod(net(i, j), net(i, j + 1), r * 0.85, n=3), M["silk"], "root")
+    # Diagonal threads from the wall anchors, and strands hanging down.
+    for j in (0, 2, 4, 6):
+        b.add(rod(net(0, j), net(3, min(j + 1, ny)), r * 0.8, n=3), M["silk"], "root")
+        b.add(rod(net(nx, j), net(nx - 3, max(j - 1, 0)), r * 0.8, n=3), M["silk"], "root")
+    for i, j, drop in ((4, 2, 0.06), (7, 4, 0.05), (9, 1, 0.08)):
+        p = net(i, j)
+        b.add(curve([p, p + V((0.008, 0, -drop * 0.5)), p + V((0.004, 0, -drop))], r * 0.8, n=3, ref=V((0, 1, 0))), M["silk"], "root")
+    # The anchors: a tuft of silk where the net meets each wall.
+    for side in (-1, 1):
+        for j in (0, 3, 6):
+            c = net(0 if side < 0 else nx, j) + V((-side * 0.01, 0, 0))
+            b.add(ellipsoid(c, (0.012, 0.03, 0.02), n=6, rings=3), M["silk"], "root")
+
+
+def mat_slab(b, M, c, w, d, yaw, tilt, seed):
+    """A woven reed mat lying on the heap: a thin slab, a little bent."""
+    def fn(u, v):
+        x = (u - 0.5) * w
+        y = (v - 0.5) * d
+        z = 0.006 * math.sin(3.1 * u + seed) + 0.004 * math.sin(4 * v + 2 * seed)
+        return (x, y, z)
+
+    geo = surface(fn, 6, 4)
+    b.add(place(geo, rot(x=tilt, z=yaw), c), M["reed"], "root")
+
+
+def build_heap_reeds(b, M):
+    """Reed mats piled on a low heap of chaff, rolled mats and linen bundles on them."""
+    b.add(heap_surface(47, back=0.12), M["reed"], "root")
+    rnd = random.Random(48)
+    for k in range(6):
+        x, y = rnd.uniform(-0.3, 0.3), rnd.uniform(-0.6, -0.12)
+        p = heap_point(x, y, 47, 0.12)
+        mat_slab(b, M, p + V((0, 0, 0.006 + 0.004 * k)), rnd.uniform(0.26, 0.38), rnd.uniform(0.16, 0.24), rnd.uniform(-35, 35), rnd.uniform(-8, 8), k)
+    for x, y, yaw in ((-0.26, -0.1, 10), (0.22, -0.2, -15)):  # rolled mats
+        p = heap_point(x, y, 47, 0.12)
+        d = V((math.cos(math.radians(yaw)), math.sin(math.radians(yaw)), 0)) * 0.13
+        b.add(rod(p - d + V((0, 0, 0.03)), p + d + V((0, 0, 0.03)), 0.03, n=10), M["reed"], "root")
+    for x, y in ((0.05, -0.08), (-0.1, -0.3), (0.3, -0.42)):  # linen bundles
+        p = heap_point(x, y, 47, 0.12)
+        b.add(ellipsoid(p + V((0, 0, 0.03)), (0.06, 0.045, 0.035), n=10, rings=5), M["wrap"], "root")
+
+
+def build_heap_linen(b, M):
+    """A pile of linen wrappings: a soft mound of cloth with loose bands draped over it."""
+    b.add(heap_surface(49, back=0.17), M["linen_heap"], "root")
+    rnd = random.Random(50)
+    for k in range(14):
+        x0, y0 = rnd.uniform(-0.38, 0.38), rnd.uniform(-0.7, -0.05)
+        a = rnd.uniform(0, math.pi)
+        dx, dy = math.cos(a) * 0.1, math.sin(a) * 0.07
+        pts = []
+        for t in (-1.0, -0.33, 0.33, 1.0):
+            x = max(min(x0 + dx * t, 0.46), -0.46)
+            y = max(min(y0 + dy * t, -0.02), -0.82)
+            p = heap_point(x, y, 49, 0.17)
+            pts.append(p + V((0, 0, 0.006 + 0.004 * math.sin(3 * t + k))))
+        b.add(tube([(p, 0.026, 0.006) for p in pts], sub=2, n=6, ref=V((0, 0, 1))), M["wrap_plain" if k % 3 else "wrap"], "root")
+
+
+def feather(b, M, base, yaw, pitch, length, seed):
+    """An ostrich plume: a quill and a broad soft vane drooping to its tip."""
+    w = length * 0.4
+
+    def fn(u, v):
+        s = u  # along the quill
+        x = (v - 0.5) * w * math.sin(math.pi * min(s * 1.15, 1.0)) * (1 + 0.15 * math.sin(9 * v + seed))
+        z = -0.06 * length * s * s + 0.012 * abs(v - 0.5)
+        return (s * length, x, z)
+
+    r = rot(y=-pitch, z=yaw)
+    b.add(place(surface(fn, 6, 3), r, base), M["feather"], "root")
+    b.add(place(surface(lambda u, v: fn(u, 1 - v), 6, 3), r, base + V((0, 0, -0.002))), M["feather"], "root")
+    b.add(place(rod((0, 0, 0.003), (length * 0.9, 0, -0.05 * length * 0.8 + 0.003), 0.0025, 0.001, n=3), r, base), M["quill"], "root")
+
+
+def build_heap_feathers(b, M):
+    """A heap of white ostrich feathers, Maat's, on a low mound of down."""
+    b.add(heap_surface(51, back=0.14), M["down"], "root")
+    rnd = random.Random(52)
+    for k in range(22):
+        x, y = rnd.uniform(-0.34, 0.26), rnd.uniform(-0.7, -0.06)
+        p = heap_point(x, y, 51, 0.14)
+        feather(b, M, p + V((0, 0, 0.012)), rnd.uniform(-60, 60) + (180 if k % 2 else 0), rnd.uniform(-6, 10), rnd.uniform(0.18, 0.26), k)
+
+
 def revolve_geo_at(loc, profile, n=14):
     return place(revolve_geo(profile, n), loc=loc)
 
@@ -1903,6 +2094,13 @@ BUILDERS = {
     "shrine_amun": build_shrine_amun,
     "shrine_serket": build_shrine_serket,
     "scales": build_scales,
+    "heap_sand": build_heap_sand,
+    "heap_guano": build_heap_guano,
+    "heap_web": build_heap_web,
+    "heap_reeds": build_heap_reeds,
+    "heap_ash": build_heap_ash,
+    "heap_linen": build_heap_linen,
+    "heap_feathers": build_heap_feathers,
 }
 
 

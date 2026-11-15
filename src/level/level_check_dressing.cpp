@@ -38,6 +38,10 @@ bool hidesBehindProp(const Tile& t) {
 	return hasFixture(t);
 }
 
+// A landing heap is low (plan soft-landing): a monster stands on it, a fixture on the back wall shows over it; only
+// what stands on the floor would be buried.
+bool buriedByHeap(const Tile& t) { return t.type != MonsterSpawn && hidesBehindProp(t) && hasObject(t); }
+
 // The scatter's own prop for the cell, which beats a placed one: a coffin, the skeleton under a page, an ushabti.
 bool scatterOwnsProp(const LevelGrid& grid, int col, int row) {
 	const Tile t = grid.at(col, row);
@@ -54,6 +58,12 @@ int flatFloor(const Tile& t) {
 		if (nextSubcellRow(t, s, 0, false) != floor || nextSubcellRow(t, s, floor, true) != SUBCELLS)
 			return -1;
 	return floor;
+}
+
+bool takesLandingHeap(const LevelGrid& grid, int cell) {
+	const Tile t = grid.cells[cell];
+	return t.structure == Structure::Empty && t.type != Spike && t.type != Death && !buriedByHeap(t) &&
+		   !scatterOwnsProp(grid, cell % LEVEL_WIDTH, cell / LEVEL_WIDTH) && flatFloor(t) >= 0;
 }
 
 // The sub-cells of the back wall a decal or a torch is drawn on, by its anchor; a solid sub-cell there hides it.
@@ -89,7 +99,7 @@ void checkPlacedProp(const LevelGrid& grid, int cell, LevelReport& r) {
 		r.warnings.push_back(what + " has no floor under it");
 	if (prop == DECOR_WEB && !isWall(grid.at(col, row + 1)))
 		r.warnings.push_back(what + " has no ceiling");
-	if (prop != DECOR_WEB && hidesBehindProp(t))
+	if (prop != DECOR_WEB && (isLandingHeap(prop) ? buriedByHeap(t) : hidesBehindProp(t)))
 		r.warnings.push_back(
 			what + " stands in front of the " + (hasObject(t) ? tileDef(t.type).name : tileDef(t.fixture.type).name)
 		);

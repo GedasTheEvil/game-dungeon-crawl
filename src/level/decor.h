@@ -7,7 +7,7 @@
 // Static props and wall decals scattered on empty floor cells when a level loads (see scatterDecor, decor_scatter.h).
 // Models and textures: media/models/decorations/decor_<name>.md3, media/textures/decorations/decor_<name>.png, built by
 // tools/blender/models/decor.py in tile units (origin = floor centre of the tile on the back wall).
-constexpr int DECOR_COUNT = 33;
+constexpr int DECOR_COUNT = 40;
 constexpr int DECOR_SCATTERED =
 	18; // the first ones, on dry floor; the coffin is placed on purpose, the water props after it
 constexpr int DECOR_WEB = 0; // modelled in the upper left corner, needs a ceiling
@@ -65,6 +65,24 @@ constexpr int DECOR_WATER_COUNT = 4;
 constexpr bool isWaterProp(int decor) {
 	return decor >= DECOR_WATER_FIRST && decor < DECOR_WATER_FIRST + DECOR_WATER_COUNT;
 }
+// Landing heaps (plan soft-landing): something soft at the foot of a drop shaft, one matter per zone (heapOfZone,
+// zone_look.h), so the harmless fall looks believable and the player sees the drop is safe. Visual only, no rule:
+// the player walks over it as over the floor. Placed only (the decor layer, the level generator); the checker warns
+// on a fall of LANDING_HEAP_ROWS or more onto a bare floor.
+constexpr int DECOR_HEAP_SAND = 33; // drifted sand and rubble dust
+constexpr int DECOR_HEAP_GUANO = 34;
+constexpr int DECOR_HEAP_WEB = 35; // a sagging web net across the shaft foot
+constexpr int DECOR_HEAP_REEDS = 36; // reed mats and linen bundles
+constexpr int DECOR_HEAP_ASH = 37;
+constexpr int DECOR_HEAP_LINEN = 38; // a pile of linen wrappings
+constexpr int DECOR_HEAP_FEATHERS = 39; // ostrich feathers, Maat's
+constexpr int DECOR_HEAP_FIRST = DECOR_HEAP_SAND;
+constexpr int DECOR_HEAP_COUNT = 7;
+constexpr bool isLandingHeap(int decor) {
+	return decor >= DECOR_HEAP_FIRST && decor < DECOR_HEAP_FIRST + DECOR_HEAP_COUNT;
+}
+constexpr int LANDING_HEAP_ROWS = 3; // a fall this many rows or more wants a heap (the checker, the generator)
+constexpr int LANDING_FEEDBACK_ROWS = 2; // a fall this many rows or more lands with a thud (and a puff on a heap)
 constexpr const char* DECOR_NAMES[DECOR_COUNT] = {
 	"web",
 	"pottery",
@@ -98,13 +116,20 @@ constexpr const char* DECOR_NAMES[DECOR_COUNT] = {
 	"shrine_ptah",
 	"shrine_amun",
 	"shrine_serket",
-	"scales"
+	"scales",
+	"heap_sand",
+	"heap_guano",
+	"heap_web",
+	"heap_reeds",
+	"heap_ash",
+	"heap_linen",
+	"heap_feathers"
 };
 // A prop's glyph in the level checker's decor drawing (levelcheck --map): 'a' on in DECOR_NAMES order, past '|' (the
-// Shrine of Isis) the god shrines' initials and W for the weighing's scales, upper case (the decor drawing has no
-// upper case of its own).
+// Shrine of Isis) the god shrines' initials, W for the weighing's scales and the landing heaps (D sand drift, G guano,
+// N web net, R reeds, X ash, L linen, F feathers), upper case (the decor drawing has no upper case of its own).
 [[nodiscard]] constexpr char decorGlyph(int decor) {
-	return decor < DECOR_SHRINE_MONTU ? static_cast<char>('a' + decor) : "MPASW"[decor - DECOR_SHRINE_MONTU];
+	return decor < DECOR_SHRINE_MONTU ? static_cast<char>('a' + decor) : "MPASWDGNRXLF"[decor - DECOR_SHRINE_MONTU];
 }
 
 // Decorations by depth (plan decor-by-depth): the tiers add up, a level draws from every tier unlocked at its depth,
@@ -130,7 +155,8 @@ constexpr int8_t DECOR_TIERS[DECOR_COUNT] = {0,	 0,	 1,	 0,	 0,	 0, // web, pott
 											 -1, 0,	 0,	 1,	 1, // coffin, reeds, weed, pads, lotus
 											 -1, -1, -1, -1, // the large coffin, the decoy, the Stargate, its dial
 											 -1, -1, -1, -1, -1, // the shrines: Isis, Montu, Ptah, Amun, Serket
-											 -1}; // the scales
+											 -1, // the scales
+											 -1, -1, -1, -1, -1, -1, -1}; // the landing heaps
 // Rows of rough rock (the rest dressed stone), and of the dressed stretches the painted ones, per tier, in percent:
 // all cave at first, less and less deeper down.
 constexpr uint32_t ROUGH_PERCENT[DECOR_TIER_COUNT] = {100, 55, 30, 15};

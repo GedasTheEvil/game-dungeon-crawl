@@ -75,6 +75,9 @@ constexpr int BURST_MS = 1100;
 void burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_t seed);
 // A step in sand (plan desert-chapter): a small puff of dust at the feet, (x, y, z) the floor point; ageMs < lifeMs.
 void puff(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);
+// A fall onto a landing heap (plan soft-landing): a wider puff of the heap's matter (heap: DECOR_HEAP_*) thrown up
+// round the feet, (x, y, z) the floor point; ageMs < lifeMs.
+void landing(float x, float y, float z, int ageMs, int lifeMs, int heap, uint32_t seed);
 // A sand fall pouring down from the ceiling point (x, y, z) to the floor a tile below, ageMs since it began, for
 // lifeMs: a thick stream of grains, thinning at the end, and dust where it lands.
 void pour(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed);

@@ -1,0 +1,4 @@
+# Plan soft-landing: a 4-row shaft onto a sand heap (a soft thud and a puff), then a 2-row drop onto bare floor (a
+# plain thud).
+god
+level tests/levels/soft_landing

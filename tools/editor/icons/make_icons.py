@@ -869,6 +869,68 @@ def looks():
         look(name, draw)
 
 
+def heap_mound(d, fill, dark):
+    """Plan soft-landing: the landing heap's low mound over the whole cell floor."""
+    floor(d)
+    d.chord(p(2, 34, 62, 78), 180, 360, fill=fill, outline=dark, width=SS)
+
+
+def prop_heap(name, fill, dark, details):
+    img, d = canvas(GOLD, 25)
+    heap_mound(d, fill, dark)
+    details(d)
+    save(img, f"prop_heap_{name}.png")
+
+
+def heap_dots(colour, spots):
+    def draw(d):
+        for x, y, r in spots:
+            d.ellipse(p(x - r, y - r, x + r, y + r), fill=colour)
+    return draw
+
+
+def heap_web_icon():
+    img, d = canvas(GOLD, 20)
+    floor(d)
+    for k, sag in enumerate((22, 18, 14)):  # the net's strands, slung from wall to wall
+        y = 26 + 6 * k
+        d.line(p(4, y, 18, y + sag * 0.6, 32, y + sag, 46, y + sag * 0.6, 60, y), fill=BONE, width=SS, joint="curve")
+    for x in (12, 22, 32, 42, 52):
+        d.line(p(x, 30, x, 54), fill=BONE_DARK, width=SS)
+    for x in (4, 60):
+        d.rectangle(p(x - 2, 22, x + 2, 42), fill=STONE_DARK)  # the anchors on the shaft walls
+    save(img, "prop_heap_web.png")
+
+
+def heap_reeds(d):
+    for x0, y0, x1, y1 in ((12, 44, 34, 40), (28, 42, 52, 46)):  # mats
+        d.line(p(x0, y0, x1, y1), fill=(150, 112, 50), width=3 * SS)
+    d.ellipse(p(14, 32, 26, 42), fill=LINEN, outline=LINEN_DARK, width=SS)  # linen bundles
+    d.ellipse(p(36, 34, 48, 44), fill=LINEN, outline=LINEN_DARK, width=SS)
+
+
+def heap_linen(d):
+    for x0, y0, x1, y1 in ((10, 46, 30, 40), (24, 38, 46, 44), (36, 48, 56, 42), (16, 52, 40, 50)):
+        d.line(p(x0, y0, x1, y1), fill=LINEN_DARK, width=2 * SS)
+
+
+def heap_feathers(d):
+    for x, y, a in ((16, 44, -20), (30, 38, 10), (44, 44, -10), (24, 50, 15), (40, 52, -25)):
+        dx, dy = 9 * math.cos(math.radians(a)), 9 * math.sin(math.radians(a))
+        d.ellipse(p(x - 9, y - 3, x + 9, y + 3), fill=(250, 248, 240), outline=BONE_DARK, width=SS)
+        d.line(p(x - dx, y - dy, x + dx, y + dy), fill=BONE_DARK, width=SS)
+
+
+def heaps():
+    prop_heap("sand", (214, 170, 100), (150, 112, 60), heap_dots(STONE_DARK, ((20, 44, 2), (40, 48, 2.5), (30, 38, 1.5))))
+    prop_heap("guano", (70, 56, 42), (40, 32, 24), heap_dots((140, 128, 104), ((18, 46, 2), (28, 40, 2), (38, 46, 2.5), (46, 50, 2), (24, 52, 2))))
+    heap_web_icon()
+    prop_heap("reeds", (150, 112, 50), (96, 70, 30), heap_reeds)
+    prop_heap("ash", (110, 106, 100), (70, 66, 62), heap_dots(RED_LIGHT, ((22, 46, 2), (40, 42, 2), (34, 52, 1.5))))
+    prop_heap("linen", LINEN, LINEN_DARK, heap_linen)
+    prop_heap("feathers", (236, 232, 222), BONE_DARK, heap_feathers)
+
+
 def props():
     for f in (prop_web, prop_pottery, prop_canopic, prop_rubble, prop_sand, prop_skeleton, prop_brazier, prop_lamp,
               prop_scrolls, prop_ushabti, prop_cat, prop_jackal, prop_osiris, prop_sarcophagus, prop_water_reeds,
@@ -886,6 +948,7 @@ def props():
     prop_coffin("coffin")
     prop_coffin("coffin_large", large=True)
     prop_coffin("coffin_mummy", sleeper=True)
+    heaps()
     torch_icon()
     no_torch_icon()
     bare_icon()

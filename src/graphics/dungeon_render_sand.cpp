@@ -131,6 +131,26 @@ void DungeonView::drawSandEffects() {
 			static_cast<uint32_t>(p.startMs)
 		);
 
+	// A fall's puff of the landing heap's matter (plan soft-landing).
+	d.landings.erase(
+		std::remove_if(
+			d.landings.begin(),
+			d.landings.end(),
+			[now](const Dungeon::Landing& l) { return now - l.startMs >= LANDING_PUFF_MS; }
+		),
+		d.landings.end()
+	);
+	for (const Dungeon::Landing& l : d.landings)
+		Grit::landing(
+			(l.x - col0) * T,
+			(static_cast<float>(l.row) - row0) * T,
+			RenderConfig::MONSTER_DEPTH,
+			now - l.startMs,
+			LANDING_PUFF_MS,
+			l.heap,
+			static_cast<uint32_t>(l.startMs)
+		);
+
 	for (const Monster& mon : d.monsters) {
 		const std::optional<float> x = mon.Active() && mon.Type()->sandBurrow ? mon.BurrowRipple() : std::nullopt;
 		if (!x)

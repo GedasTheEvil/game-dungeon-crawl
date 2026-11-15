@@ -7,7 +7,9 @@ OPs (COL ROW as `levelcheck --map` prints them, row 0 at the bottom):
     wall COL ROW TYPE ATTR VALUE   put a back-wall fixture (replaces the cell's fixture)
     noobj COL ROW                  remove the cell's object
     nowall COL ROW                 remove the cell's fixture
-    show COL ROW                   print the cell's object and fixture
+    prop COL ROW PROP MIRROR       place a prop in the decor layer (DECOR_NAMES index, src/level/decor.h; replaces)
+    noprop COL ROW                 remove the cell's placed prop
+    show COL ROW                   print the cell's object, fixture and placed prop
 
 Type numbers: `DungeonTileType` in src/level/level.h (or `levelcheck --legend`). An OP on a wall cell refuses: carve
 the structure in the editor first. Run `bin/levelcheck LEVEL` after.
@@ -52,24 +54,24 @@ def main(path, ops):
     i = 0
     while i < len(ops):
         op = ops[i]
-        n = {"obj": 5, "wall": 5, "noobj": 2, "nowall": 2, "show": 2}.get(op)
+        n = {"obj": 5, "wall": 5, "prop": 4, "noobj": 2, "nowall": 2, "noprop": 2, "show": 2}.get(op)
         if n is None:
             sys.exit(f"unknown op {op}")
         args = [int(v) for v in ops[i + 1 : i + 1 + n]]
         i += 1 + n
         col, row = args[0], args[1]
-        layer = "wall" if op in ("wall", "nowall") else "objects"
+        layer = {"wall": "wall", "nowall": "wall", "prop": "decor", "noprop": "decor"}.get(op, "objects")
         if op == "show":
-            for name in ("wall", "objects"):
+            for name in ("wall", "objects", "decor"):
                 for line in sections[name]:
                     if cell_key(line) == (row, col):
                         print(f"{name}: {line}")
             print("structure:", structure[height - 1 - row][col])
             continue
-        if op in ("obj", "wall") and structure[height - 1 - row][col] in "#=":
+        if op in ("obj", "wall", "prop") and structure[height - 1 - row][col] in "#=":
             sys.exit(f"{col} {row} is rock or deep water")
         entries = [line for line in sections[layer] if cell_key(line) != (row, col)]
-        if op in ("obj", "wall"):
+        if op in ("obj", "wall", "prop"):
             entries.append(" ".join(str(v) for v in args))
         entries.sort(key=cell_key)
         sections[layer] = entries

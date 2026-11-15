@@ -566,6 +566,17 @@ class Dungeon {
 	// Dust kicked up by a step in sand (plan desert-chapter), for SAND_PUFF_MS: drawn with the holes.
 	std::vector<Hole> puffs;
 	std::vector<Hole> pours; // sand falls pouring down, from the end of the warning (startMs)
+	// A fall onto a landing heap or sand (plan soft-landing): a puff of its matter (heap: DECOR_HEAP_*), for
+	// LANDING_PUFF_MS.
+	struct Landing {
+		float x; // map x
+		int row;
+		int startMs;
+		int heap;
+	};
+	std::vector<Landing> landings;
+	// The player's fall of `rows` ended in their cell: the thud, and a puff on a heap or sand (plan soft-landing).
+	void playerLanded(float rows);
 	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of
 	// them. False: neither is floor it can stand on.
 	[[nodiscard]] bool burrowTarget(const Monster& mon, float& outX) const;
@@ -964,6 +975,9 @@ class Dungeon {
 	// 0..1: the share of the other sounds' volume the wind of a gust near the player takes now.
 	[[nodiscard]] float SoundMuffle() const { return muffle; }
 	[[nodiscard]] int DustPuffs() const { return static_cast<int>(puffs.size()); } // steps' dust still in the air
+	// The landing puffs still in the air (plan soft-landing), the newest one's heap (-1 for none).
+	[[nodiscard]] int LandingPuffs() const { return static_cast<int>(landings.size()); }
+	[[nodiscard]] int LastLandingHeap() const { return landings.empty() ? -1 : landings.back().heap; }
 	void SetMotionEffects(bool on) { motionEffectsOn = on; }
 	void SetCutScenes(bool on) { cutScenesOn = on; } // off: remote gates open unseen
 	[[nodiscard]] bool CutScenePlaying() const { return !cutScene.stops.empty(); }

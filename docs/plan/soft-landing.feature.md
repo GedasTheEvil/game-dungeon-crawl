@@ -1,6 +1,6 @@
 # Soft landing at the bottom of drop shafts
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Idea
 
@@ -42,3 +42,31 @@ climb down) gets a heap too or not (proposed: yes, any shaft the player can fall
 * `bin/game --level 10` (web halls, several shafts): drop down a shaft; the foot has the zone's heap, a thud and a puff.
 * One level each of the desert, lake of fire and necropolis: the heap fits the zone.
 * A death pit has no heap.
+
+## Result
+
+* Seven placed-only props `heap_sand`, `heap_guano`, `heap_web`, `heap_reeds`, `heap_ash`, `heap_linen`,
+  `heap_feathers` (`DECOR_HEAP_*`, `level/decor.h`; models in `tools/blender/models/decor.py`, editor icons), the
+  zone's one by `heapOfZone` (`level/zone_look.h`): sand for the tomb entrance, the nest, the desert and Sokar; reeds
+  for the priests' quarter, the serpent temple and the cisterns; the rest as proposed. Visual only, no rule.
+* Checker (`checkLandings`): a fall of 3+ rows (a drop, a jump or a step whose landing is that much lower, from the
+  search) onto a cell where a heap fits (`takesLandingHeap`: dry flat floor, no trap, nothing on the floor it would
+  bury; a monster spawn and back-wall fixtures are fine) warns. Sand and half water count as soft. Ladders: the climb
+  is not a fall, no heap (open point: no).
+* Generator: `generateLevel` puts the zone's heap on every such cell (`LevelReport::bareLandings`) before it judges a
+  candidate.
+* Campaign: 85 heaps placed in 34 levels with the new `tools/level/lvledit.py prop` op; every level passes the checker
+  with no warning; the reports are otherwise the same.
+* Feedback: a fall of 2+ rows ends with a soft thud and a puff of the heap's matter on a heap (within half a tile:
+  the walk key drifts the fall) or sand, a plain thud elsewhere, a splash in half water as before
+  (`Dungeon::playerLanded`, `Grit::landing`, sounds `tools/audio/landing_sounds.py`).
+* Left out: monsters get no thud or puff (their falls have no landing step; no rule change for them either way); the
+  web net does not sag under the player (a still model).
+
+## Play-test
+
+* `bin/game --play tests/play/soft-landing.txt`: walk right off the ledge; a sand heap at the shaft's foot, a soft
+  thud and a puff of sand. Walk on right and drop the 2 rows: a plain, harder thud, no puff.
+* `bin/game --level 10` (web halls): the shafts end on a web net; `--level 43` (lake of fire) an ash heap; `--level
+  49` (necropolis) linen: each fits its zone.
+* A death pit (any spikes or death trap at a shaft's foot) has no heap.

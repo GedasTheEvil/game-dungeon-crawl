@@ -197,6 +197,7 @@ constexpr float WADE_SPEED_FACTOR = 0.5f;
 constexpr float SAND_SPEED_FACTOR = 0.75f;
 constexpr int SAND_STEP_MS = 380; // between the sounds and dust puffs of the steps in sand
 constexpr int SAND_PUFF_MS = 700;
+constexpr int LANDING_PUFF_MS = 900; // a fall's puff of a landing heap's matter (plan soft-landing)
 constexpr int SPRINT_PUFF_MS =
 	220; // between the dust puffs of a sprint on a dry floor (plan sprint-toon-blur-and-extras)
 // Quicksand (Dungeon::updateQuicksand): standing in it the player sinks. The walk starts at QUICKSAND_SPEED_FACTOR and

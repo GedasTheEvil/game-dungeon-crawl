@@ -57,7 +57,7 @@
 26,7 surface 3/0/1 prop ushabtim 0.033
 27,7 surface 2/0/0m
 28,7 surface 1/0/0
-29,7 surface 0/0/0 sand>
+29,7 surface 0/0/0 sand> prop heap_reeds 0.000
 30,7 surface 2/1/0 prop canopicm -0.006 torch fire torch 0.000,0.680,0.098
 31,7 surface 3/0/1 sand<> prop scrolls -0.019
 32,7 surface 3/1/1
@@ -171,7 +171,7 @@
 6,16 surface 1/0/0 sand< prop coffin_mummy 0.000 torch fire torch 0.000,0.680,0.098
 7,16 surface 0/2/0 prop coffin 0.000
 8,16 surface 0/0/0 sand> prop coffin_mummym 0.000
-9,16 surface 2/1/0 prop coffin_mummym 0.000 decal 9m 0.548,0.369
+9,16 surface 2/1/0 prop heap_reeds 0.000 decal 9m 0.548,0.369
 10,16 surface 3/1/1 prop jackal 0.188
 11,16 surface 3/0/1 sand< prop ushabti -0.033
 12,16 surface 3/0/1 prop ushabti -0.021 torch fire torch 0.000,0.680,0.098

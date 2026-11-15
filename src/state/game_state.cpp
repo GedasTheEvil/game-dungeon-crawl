@@ -210,6 +210,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 		return sounds.amulet_s;
 	case WorldSound::Drink:
 		return sounds.drink_s;
+	case WorldSound::LandSoft:
+		return sounds.landSoft;
+	case WorldSound::LandHard:
+		return sounds.landHard;
 	}
 	std::unreachable();
 }

@@ -31,7 +31,7 @@
 31,3 surface 14/6/8
 32,3 surface 14/6/8
 33,3 surface 15/6/8 sand>
-34,3 surface 14/1/8 prop sarcophagus 0.033
+34,3 surface 14/1/8 prop heap_linen 0.000
 35,3 surface 15/6/8 sand< decal 7 0.431,0.540
 34,4 surface 15/6/8 decal 9m 0.342,0.486
 34,5 surface 14/6/8 torch fire torch 0.000,0.680,0.098
@@ -43,7 +43,7 @@
 8,6 surface 6/1/2
 9,6 surface 7/1/2
 10,6 surface 6/1/2 decal 6m 0.539,0.575 torch fire torch 0.000,0.680,0.098
-11,6 surface 6/1/2
+11,6 surface 6/1/2 prop heap_linen 0.000
 12,6 surface 7/1/2
 13,6 surface 6/1/2
 14,6 surface 6/1/2 decal 7 0.375,0.577
@@ -97,10 +97,10 @@
 21,9 surface 14/1/8 decal 7m 0.466,0.596
 22,9 surface 14/6/8 sand< prop canopicm 0.054
 23,9 surface 14/6/8 prop rubble 0.078 torch fire torch 0.000,0.680,0.098
-24,9 surface 14/6/8
+24,9 surface 14/6/8 prop heap_linen -0.000
 25,9 surface 15/6/8 decal 9m 0.678,0.457
 27,9 surface 15/6/8 sand> prop osiris -0.089
-28,9 surface 14/1/8 prop ushabtim -0.011 torch fire torch 0.000,0.680,0.098
+28,9 surface 14/1/8 prop heap_linen -0.000 torch fire torch 0.000,0.680,0.098
 29,9 surface 14/6/8 sand<
 30,9 surface 15/6/8 decal 10m 0.273,0.575
 31,9 surface 14/1/8
@@ -211,7 +211,7 @@
 28,15 surface 6/1/2 decal 9m 0.472,0.462
 29,15 surface 7/1/2 prop coffin 0.000 decal 9m 0.674,0.409
 30,15 surface 6/1/2 decal 9 0.637,0.586
-31,15 surface 6/1/2 decal 0m 0.352,0.413
+31,15 surface 6/1/2 prop heap_linen 0.000 decal 11m 0.408,0.432
 32,15 surface 7/1/2 prop potterym -0.032
 33,15 surface 6/1/2 decal 9m 0.581,0.619
 34,15 surface 6/1/2
@@ -290,7 +290,7 @@
 13,20 surface 14/6/8 decal 11 0.586,0.425
 14,20 surface 15/6/8 prop coffin 0.000 decal 10m 0.437,0.478
 15,20 surface 14/6/8 sand>
-16,20 surface 14/1/8
+16,20 surface 14/1/8 prop heap_linen 0.000
 17,20 surface 14/6/8 sand<> prop sarcophagus 0.019 decal 8 0.539,0.498
 18,20 surface 14/1/8
 19,20 surface 14/6/8 sand<

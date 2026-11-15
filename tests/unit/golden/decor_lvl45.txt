@@ -41,7 +41,7 @@
 33,5 surface 13/5/7 decal 0m 0.502,0.460
 6,6 surface 12/5/7
 7,6 surface 12/5/7 prop skeleton -0.038
-8,6 surface 12/5/7 decal 1m 0.520,0.578
+8,6 surface 12/5/7 prop heap_ash 0.000 decal 1m 0.520,0.578
 9,6 surface 12/5/7
 10,6 surface 13/5/7 prop brazierm 0.184 fire brazier 0.184,0.220,0.160
 11,6 surface 12/5/7 decal 1m 0.533,0.595
@@ -98,7 +98,7 @@
 26,9 surface 12/5/7
 27,9 surface 12/5/7
 28,9 surface 13/5/7 decal 2m 0.366,0.350
-29,9 surface 12/5/7 decal 10m 0.271,0.507
+29,9 surface 12/5/7 prop heap_ash 0.000 decal 9m 0.317,0.507
 30,9 surface 12/5/7
 31,9 surface 12/5/7 sand> decal 1 0.664,0.467
 32,9 surface 13/1/7 prop brazier -0.049 decal 0 0.326,0.618 fire brazier -0.049,0.220,0.160

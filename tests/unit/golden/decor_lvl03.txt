@@ -41,7 +41,7 @@
 17,28 surface 6/1/2 decal 13 0.437,0.225 torch fire torch 0.000,0.680,0.098
 18,28 surface 7/1/2
 19,28 surface 6/1/2
-20,28 surface 7/1/2
+20,28 surface 7/1/2 prop heap_sand 0.000
 21,28 surface 6/1/2 prop sand -0.000 decal 15m 0.503,0.556
 22,28 surface 6/1/2 decal 3 0.524,0.600
 23,28 surface 7/1/2
@@ -70,7 +70,7 @@
 25,31 surface 6/1/2
 26,31 surface 6/1/2
 27,31 surface 7/1/2 prop rubble -0.053 decal 6m 0.476,0.575
-28,31 surface 6/1/2 prop sandm -0.000 decal 15 0.609,0.521
+28,31 surface 6/1/2 prop heap_sand -0.000 decal 15 0.609,0.521
 29,31 surface 7/1/2
 30,31 surface 6/1/2
 31,31 surface 6/1/2

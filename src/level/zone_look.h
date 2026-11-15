@@ -162,4 +162,24 @@ constexpr ZoneLook ZONE_LOOKS[ZONE_ID_COUNT] = {
 	return isZone(zone) ? zoneLook(static_cast<ZoneId>(zone)) : DEFAULT_LOOK;
 }
 
+// The landing heap (plan soft-landing) of a level in this zone (LevelMeta::zone), sand in none. The cisterns' heap is
+// wet reeds where a shaft does not end in half water already.
+[[nodiscard]] constexpr int heapOfZone(int zone) {
+	constexpr int HEAPS[ZONE_ID_COUNT] = {
+		DECOR_HEAP_SAND, // tomb entrance: drifted sand and rubble dust
+		DECOR_HEAP_GUANO, // bat galleries
+		DECOR_HEAP_WEB, // web halls
+		DECOR_HEAP_REEDS, // priests' quarter
+		DECOR_HEAP_SAND, // scorpion nest
+		DECOR_HEAP_REEDS, // serpent temple
+		DECOR_HEAP_REEDS, // cisterns of Sobek
+		DECOR_HEAP_SAND, // Seth's desert
+		DECOR_HEAP_SAND, // land of Sokar
+		DECOR_HEAP_ASH, // lake of fire
+		DECOR_HEAP_LINEN, // necropolis
+		DECOR_HEAP_FEATHERS, // hall of judgment
+	};
+	return isZone(zone) ? HEAPS[zone] : DECOR_HEAP_SAND;
+}
+
 #endif

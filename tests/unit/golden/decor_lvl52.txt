@@ -223,7 +223,7 @@
 7,17 surface 14/1/8 prop brazier 0.011 decal 10m 0.679,0.479 fire brazier 0.011,0.220,0.160
 8,17 surface 14/6/8 sand< torch fire torch 0.000,0.680,0.098
 9,17 surface 15/6/8 prop catm 0.117
-10,17 surface 14/6/8 sand> decal 9m 0.460,0.556
+10,17 surface 14/6/8 sand> prop heap_feathers -0.000 decal 9m 0.460,0.556
 11,17 surface 15/1/8 prop jackalm 0.093 decal 11m 0.379,0.578
 12,17 surface 14/6/8 sand< prop catm -0.129
 13,17 surface 14/6/8 torch fire torch 0.000,0.680,0.098
@@ -358,7 +358,7 @@
 22,26 surface 14/1/8
 23,26 surface 14/6/8
 24,26 surface 14/6/8 decal 9m 0.602,0.590
-25,26 surface 14/6/8 torch fire torch 0.000,0.680,0.098
+25,26 surface 14/6/8 prop heap_feathers -0.000 torch fire torch 0.000,0.680,0.098
 26,26 surface 15/6/8 prop jackalm -0.108 decal 7m 0.520,0.587
 27,26 surface 14/6/8 decal 9m 0.561,0.615
 28,26 surface 14/6/8 sand> prop ushabti -0.049 decal 8m 0.459,0.447

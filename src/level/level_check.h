@@ -99,6 +99,7 @@ struct LevelReport {
 	int reachableTreasures = 0; // the trapped ones too
 	int trappedTreasures = 0; // among the treasures (plan trapped-chests)
 	int softlockCells = 0; // reachable cells from which the goal cannot be reached (spike pits not counted)
+	std::vector<int> bareLandings; // cells a fall of LANDING_HEAP_ROWS+ lands in with no landing heap (soft-landing)
 
 	// Cheapest path from the entrance to the goal (hazards cost extra, see level_check.cpp)
 	std::vector<CellPos> path;

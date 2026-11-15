@@ -105,7 +105,7 @@
 6,9 surface 0/1/0 torch fire torch 0.000,0.680,0.098
 7,9 surface 1/0/0 sand<>
 8,9 surface 0/1/0 prop osiris -0.036
-9,9 surface 1/0/0 sand< decal 13m 0.421,0.225
+9,9 surface 1/0/0 sand< prop heap_sand -0.000 decal 8m 0.471,0.558
 10,9 surface 2/0/0 decal 9 0.318,0.612
 11,9 surface 4/0/1 decal 8 0.589,0.526
 12,9 surface 3/0/1
@@ -228,7 +228,7 @@
 21,14 surface 0/0/0 sand>
 22,14 surface 0/1/0 prop thoth_baboon_standing 0.171
 23,14 surface 0/0/0 sand<
-24,14 surface 0/0/0
+24,14 surface 0/0/0 prop heap_sand -0.000
 25,14 surface 0/2/0 sand> prop thoth_ibis_standingm 0.103
 26,14 surface 1/1/0
 27,14 surface 0/0/0 sand<> decal 2m 0.425,0.350
@@ -296,7 +296,7 @@
 30,20 surface 7/1/2 decal 13 0.766,0.225
 31,20 surface 6/1/2
 32,20 surface 6/2/2 sand<> prop jackalm 0.016
-33,20 surface 6/1/2
+33,20 surface 6/1/2 prop heap_sand 0.000
 34,20 surface 7/1/2 decal 0m 0.552,0.376
 35,20 surface 6/1/2
 36,20 surface 7/2/2 sand<>
@@ -390,7 +390,7 @@
 9,29 surface 0/1/0
 10,29 surface 0/0/0 sand< torch fire torch 0.000,0.680,0.098
 11,29 surface 0/0/0 prop sand -0.000
-12,29 surface 1/0/0
+12,29 surface 1/0/0 prop heap_sand 0.000
 13,29 surface 0/2/0
 14,29 surface 1/2/0 sand> prop ushabtim -0.009 decal 1 0.325,0.519
 15,29 surface 0/1/0

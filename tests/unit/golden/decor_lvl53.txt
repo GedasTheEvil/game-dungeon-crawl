@@ -372,7 +372,7 @@
 24,28 surface 14/6/8 sand>
 25,28 surface 14/1/8
 26,28 surface 14/6/8 sand< prop osirism -0.027
-27,28 surface 14/6/8
+27,28 surface 14/6/8 prop heap_feathers 0.000
 28,28 surface 14/6/8 sand> prop jackalm -0.121 torch fire torch 0.000,0.680,0.098
 29,28 surface 14/1/8
 30,28 surface 14/6/8 sand<
@@ -448,7 +448,7 @@
 8,32 surface 14/6/8 sand<>
 9,32 surface 14/1/8 torch fire torch 0.000,0.680,0.098
 10,32 surface 15/6/8 sand<
-11,32 surface 14/6/8 sand> prop lampm -0.008 fire lamp 0.248,0.050,0.307
+11,32 surface 14/6/8 sand> prop heap_feathers -0.000
 12,32 surface 14/1/8 prop scrolls 0.043
 13,32 surface 14/6/8 sand<>
 14,32 surface 15/1/8 prop cat 0.123 torch fire torch 0.000,0.680,0.098
@@ -535,7 +535,7 @@
 20,38 surface 15/6/8 decal 7 0.383,0.587
 23,38 surface 6/1/2 ladder 1/0
 5,39 surface 15/6/8 sand>
-6,39 surface 14/1/8 prop thoth_baboon_seatedm -0.050
+6,39 surface 14/1/8 prop heap_feathers -0.000
 7,39 surface 14/6/8 sand<
 8,39 surface 14/6/8
 9,39 surface 14/6/8

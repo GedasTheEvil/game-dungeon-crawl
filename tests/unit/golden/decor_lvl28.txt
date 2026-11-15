@@ -223,7 +223,7 @@
 29,15 surface 10/4/6
 30,15 surface 10/4/6 decal 5 0.517,0.625
 31,15 surface 10/4/6 prop ushabtim 0.030
-32,15 surface 11/4/6 prop sarcophagus 0.098
+32,15 surface 11/4/6 prop heap_reeds 0.000
 33,15 surface 10/4/6 decal 14m 0.608,0.375
 34,15 surface 11/4/6
 32,16 surface 11/4/6

@@ -6,6 +6,7 @@
 #include "../render/lighting.h"
 #include "../core/timer.h"
 #include "../sim/render_config.h"
+#include "../level/decor.h"
 
 namespace {
 constexpr int MAX_PARTICLES = 128;
@@ -377,6 +378,52 @@ void Grit::puff(float x, float y, float z, int ageMs, int lifeMs, uint32_t seed)
 			SAND_B,
 			0.8f * fade
 		);
+	}
+	Sprites::end();
+}
+
+void Grit::landing(float x, float y, float z, int ageMs, int lifeMs, int heap, uint32_t seed) {
+	struct Matter {
+		float r, g, b;
+		float cloud; // the share of soft cloud against bits thrown up: dust against feathers
+	};
+	// By DECOR_HEAP_*: sand, guano, web, reeds, ash, linen, feathers.
+	constexpr Matter MATTERS[DECOR_HEAP_COUNT] = {
+		{SAND_R, SAND_G, SAND_B, 1.f},
+		{0.36f, 0.31f, 0.26f, 1.f},
+		{0.85f, 0.85f, 0.82f, 0.3f},
+		{0.70f, 0.62f, 0.42f, 0.5f},
+		{0.48f, 0.47f, 0.46f, 1.f},
+		{0.86f, 0.82f, 0.70f, 0.4f},
+		{0.95f, 0.94f, 0.90f, 0.f},
+	};
+	constexpr int CLOUDS = 9;
+	constexpr int BITS = 18;
+	const float t = static_cast<float>(ageMs) / static_cast<float>(lifeMs);
+	if (t < 0.f || t >= 1.f || !isLandingHeap(heap))
+		return;
+	const Matter& m = MATTERS[heap - DECOR_HEAP_FIRST];
+	Sprites s;
+	s.begin();
+	const float fade = 1.f - t;
+	const float grow = 1.f - fade * fade;
+	for (int i = 0; i < CLOUDS; i++) {
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x2545f491U));
+		const float cx = x + (unit01(h) - 0.5f) * (10.f + 26.f * grow);
+		const float cy = y + 1.f + 6.f * unit01(h >> 16) * grow;
+		const float cz = z + (unit01(mix(h)) - 0.5f) * 12.f;
+		s.add(cx, cy, cz, 5.f + 9.f * grow, m.r, m.g, m.b, 0.32f * m.cloud * fade);
+	}
+	// Bits thrown up: grains fall fast, feathers and linen shreds drift down slowly.
+	const float sec = t * static_cast<float>(lifeMs) / 1000.f;
+	const float gravity = 130.f * (0.25f + 0.75f * m.cloud);
+	for (int i = 0; i < BITS; i++) {
+		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x7f4a7c15U));
+		const float vx = (unit01(h) - 0.5f) * 60.f;
+		const float vy = 25.f + 35.f * unit01(h >> 16);
+		const float cy = std::fmax(y, y + vy * sec - gravity * sec * sec);
+		const float size = m.cloud < 0.5f ? 1.5f + 1.5f * unit01(mix(h) >> 16) : 1.f + unit01(mix(h) >> 16);
+		s.add(x + vx * sec, cy, z + (unit01(mix(h)) - 0.5f) * 10.f, size, m.r, m.g, m.b, 0.85f * fade);
 	}
 	Sprites::end();
 }

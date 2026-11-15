@@ -29,6 +29,7 @@ struct JumpState {
 	float velocity = 0.f;
 	float fall_velocity = FALL_STEP;
 	float start_y = 0.f;
+	float air_top = 0.f; // the highest map y since the feet left the floor (plan soft-landing: the fall's length)
 	int counter = 0;
 	Timer jump_timer{JUMP_TIMER_MS};
 	Timer jump_up_timer{JUMP_UP_TIMER_MS};

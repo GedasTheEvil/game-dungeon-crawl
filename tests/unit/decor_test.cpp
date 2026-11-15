@@ -115,6 +115,10 @@ TEST_CASE("campaign props stand on the floor of empty cells, from the tiers the 
 					CHECK(slainMonster(t) == 0);
 					CHECK_FALSE(hasFixture(t));
 					CHECK(DECOR_TIERS[prop.type] <= tier);
+				} else if (isLandingHeap(prop.type)) { // placed only, a monster may stand on it (plan soft-landing)
+					CHECK(hasPlacedProp(t.dressing));
+					CHECK(t.structure == Structure::Empty);
+					CHECK((j > 0 && isWall(cellAt(s.grid, i, j - 1))));
 				} else if (prop.type >= 0) {
 					CHECK(isEmptyCell(t));
 					if (prop.type == DECOR_WEB) // under the ceiling (the web halls' dark halls, level_gen.h)

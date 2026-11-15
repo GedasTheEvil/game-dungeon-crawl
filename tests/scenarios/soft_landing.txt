@@ -1,0 +1,22 @@
+# Plan soft-landing: the landing heaps at a shaft's foot and the puff of a fall onto one. The fall onto the sand heap
+# (landing_puff), then every heap in a row (heaps_a, heaps_b).
+seed 1
+god
+level tests/levels/soft_landing
+wait 20
+walk to 3.6
+wait 38
+expect y < 3.1
+screenshot landing_puff
+wait 60
+walk to 4.5
+prop 3 heap_guano
+prop 4 heap_web
+prop 5 heap_reeds
+wait 10
+screenshot heaps_a
+prop 3 heap_ash
+prop 4 heap_linen
+prop 5 heap_feathers
+wait 10
+screenshot heaps_b

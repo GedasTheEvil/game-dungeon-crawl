@@ -295,7 +295,7 @@
 30,24 surface 4/0/1
 31,24 surface 3/0/1 decal 2m 0.455,0.350
 32,24 surface 3/0/1 prop cat -0.126
-33,24 surface 3/0/1 prop sarcophagusm 0.047
+33,24 surface 3/0/1 prop heap_sand 0.000
 34,24 surface 2/0/0m prop sarcophagusm 0.041
 35,24 surface 1/0/0 decal 1m 0.444,0.429
 33,25 surface 6/1/2 torch fire torch 0.000,0.680,0.098
@@ -306,7 +306,7 @@
 3,27 surface 0/0/0 sand> prop ushabtim 0.031 decal 11 0.405,0.533
 4,27 surface 1/1/0
 5,27 surface 0/1/0 prop thoth_ibis_seatedm 0.164
-6,27 surface 2/0/0 sand<>
+6,27 surface 2/0/0 sand<> prop heap_sand 0.000
 7,27 surface 5/1/1 prop jackalm -0.051 decal 1m 0.593,0.566
 8,27 surface 3/1/1
 9,27 surface 4/0/1 sand<

@@ -41,6 +41,7 @@ struct SoundBank {
 	Sound headBump; // the player's head on a low ceiling in a jump (plan subcell-physics)
 	Sound shrinePray[GOD_COUNT]; // a prayer at a god's shrine, by God (plans shrine-of-isis, shrines-of-the-gods)
 	Sound dungThud; // a dung ball breaks (plan scarab-dung-ball)
+	Sound landSoft, landHard; // a fall's end on a landing heap or sand, on a bare floor (plan soft-landing)
 	Sound shotDry,
 		shotTooClose; // a ranged shot refused: none left, a monster too close (plan ranged-weaker-than-melee)
 	Sound ringsDown, ringsUp; // a ring platform's rings drop and flash, rise at the partner (plan ring-transporter)

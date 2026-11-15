@@ -100,6 +100,8 @@ void Dungeon::UpdateMovementState() {
 		lostGrip = true;
 		sim.events->Status("%s", "Your hands let go of the rungs");
 	}
+	JumpState& air = sim.player->jump;
+	air.air_top = air.jumping || air.falling ? std::max(air.air_top, mapY) : mapY;
 	if ((Map(mapX, mapY).type != Ladder || lostGrip) && !sim.player->jump.jumping) {
 		// Climbing steps leave float drift (38.9999 for 39): without the snap a jump off the ladder lands a hair
 		// below the floor top, falls and ends up inside the floor tile.
@@ -115,6 +117,8 @@ void Dungeon::UpdateMovementState() {
 					mapY = *floorY; // landed: don't sink into the floor tile
 					if (inHalfWater(Map(mapX, mapY)) && !playerOnStep())
 						sim.events->Play(WorldSound::Splash);
+					else
+						playerLanded(jump.air_top - mapY);
 				}
 				jump.fall_velocity = std::min(jump.fall_velocity + FALL_GRAVITY_STEP, FALL_MAX_STEP);
 			}
@@ -416,6 +420,32 @@ bool Dungeon::Move(float dirX, float dirY) {
 		sim.events->Play(WorldSound::Wade);
 	}
 	return moved;
+}
+//======================================================================================
+void Dungeon::playerLanded(float rows) {
+	if (rows < static_cast<float>(LANDING_FEEDBACK_ROWS) - SUBCELL_SIZE) // float drift: 1.99 rows is two
+		return;
+	const int row = static_cast<int>(mapY);
+	// A fall with the walk key held drifts past the shaft's foot: within half a tile of the heap's cell is on it.
+	int heap = PlayerInSand() ? DECOR_HEAP_SAND : -1;
+	for (const float dx : {0.f, -0.5f, 0.5f})
+		if (const int prop = PropAt(static_cast<int>(mapX + dx), row); isLandingHeap(prop)) {
+			heap = prop;
+			break;
+		}
+	sim.events->Play(heap >= 0 ? WorldSound::LandSoft : WorldSound::LandHard);
+	if (heap < 0)
+		return;
+	const int now = GameClock::now();
+	landings.erase(
+		std::remove_if(
+			landings.begin(),
+			landings.end(),
+			[now](const Landing& l) { return now - l.startMs >= LANDING_PUFF_MS; }
+		),
+		landings.end()
+	); // the draw prunes too, but a headless run never draws
+	landings.push_back({mapX, row, now, heap});
 }
 //======================================================================================
 bool Dungeon::catchRungs() {

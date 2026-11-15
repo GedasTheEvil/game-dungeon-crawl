@@ -425,7 +425,7 @@
 30,30 surface 0/2/0 torch fire torch 0.000,0.680,0.098
 31,30 surface 1/2/0 decal 8 0.491,0.510
 32,30 surface 0/0/0 decal 11m 0.445,0.575
-33,30 surface 0/2/0
+33,30 surface 0/2/0 prop heap_reeds 0.000
 34,30 surface 0/0/0
 35,30 surface 2/0/0 prop ushabti -0.048
 36,30 surface 3/0/1 decal 11 0.581,0.391
@@ -437,7 +437,7 @@
 13,33 surface 0/0/0
 14,33 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 15,33 surface 1/0/0 decal 0m 0.362,0.430
-16,33 surface 0/2/0 decal 9 0.311,0.545
+16,33 surface 0/2/0 prop heap_reeds -0.000 decal 9 0.311,0.545
 17,33 surface 1/2/0 decal 7 0.456,0.455
 18,33 surface 0/0/0 decal 8 0.531,0.459
 19,33 surface 1/0/0
@@ -515,7 +515,7 @@
 9,38 surface 0/2/0
 10,38 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 11,38 surface 0/0/0 prop coffin 0.000 decal 8 0.412,0.550
-12,38 surface 1/0/0
+12,38 surface 1/0/0 prop heap_reeds 0.000
 13,38 surface 0/0/0
 14,38 surface 0/0/0 decal 11m 0.591,0.570
 15,38 surface 0/0/0 prop cat -0.091 torch fire torch 0.000,0.680,0.098

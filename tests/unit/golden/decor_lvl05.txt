@@ -36,7 +36,7 @@
 26,22 surface 7/2/2 ladder 0/1
 26,23 surface 3/1/1 ladder 0/2m
 11,24 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-12,24 surface 6/1/2
+12,24 surface 6/1/2 prop heap_guano 0.000
 13,24 surface 6/1/2
 14,24 surface 6/1/2 decal 2 0.531,0.350
 15,24 surface 7/1/2 decal 0m 0.517,0.589
@@ -210,7 +210,7 @@
 14,37 surface 6/1/2 ladder 0/4m
 15,37 surface 6/2/2 sand<
 16,37 surface 6/2/2
-17,37 surface 6/2/2
+17,37 surface 6/2/2 prop heap_guano -0.000
 18,37 surface 6/2/2
 19,37 surface 6/2/2 sand>
 20,37 surface 7/1/2 decal 12 0.485,0.350 torch fire torch 0.000,0.680,0.098

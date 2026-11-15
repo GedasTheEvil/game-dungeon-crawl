@@ -334,7 +334,7 @@
 23,20 surface 0/1/0
 24,20 surface 0/1/0
 25,20 surface 0/2/0 sand<> prop cat 0.099 torch fire torch 0.000,0.680,0.098
-26,20 surface 0/1/0 decal 10 0.530,0.568
+26,20 surface 0/1/0 prop heap_reeds 0.000 decal 10 0.530,0.568
 27,20 surface 0/0/0 sand<
 28,20 surface 1/0/0
 29,20 surface 0/0/0 prop skeletonm 0.115 decal 11m 0.456,0.568

@@ -2,6 +2,7 @@
 #include "level_builder.h"
 #include "inscriptions.h"
 #include "level_check.h"
+#include "zone_look.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -88,6 +89,11 @@ GenResult generateLevel(const GenOptions& options) {
 		if (!builder.build(grid))
 			continue;
 		LevelReport report = checkLevel(grid);
+		if (!report.bareLandings.empty()) { // a heap under every long fall (plan soft-landing); paths stay the same
+			for (int cell : report.bareLandings)
+				grid.cells[cell].dressing.prop = heapOfZone(options.zone);
+			report = checkLevel(grid);
+		}
 		if (!report.valid || !report.warnings.empty())
 			continue;
 		float error = std::fabs(report.difficulty - best.target) / best.target;

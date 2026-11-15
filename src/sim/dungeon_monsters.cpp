@@ -236,6 +236,7 @@ void Dungeon::clearMonsters() {
 	holes.clear();
 	sprays.clear();
 	puffs.clear();
+	landings.clear();
 	pours.clear();
 	webs.clear();
 	snuffs.clear();

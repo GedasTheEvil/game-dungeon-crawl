@@ -127,7 +127,9 @@ objects 75
 20 44 4 7 0
 22 44 6 0 0
 31 44 2 1 0
-decor 0
+decor 2
+20 28 33 0
+28 31 33 0
 decals 0
 shapes 5
 25 31 fff0

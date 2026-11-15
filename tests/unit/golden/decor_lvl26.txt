@@ -221,7 +221,7 @@
 9,16 surface 3/1/1 torch fire torch 0.000,0.680,0.098
 10,16 surface 4/0/1 sand< prop sarcophagus -0.056 decal 7 0.514,0.445
 11,16 surface 2/0/0m prop jackal 0.026
-12,16 surface 1/0/0 decal 11 0.599,0.522
+12,16 surface 1/0/0 prop heap_reeds 0.000 decal 15 0.697,0.512
 13,16 surface 0/0/0 decal 8m 0.487,0.501
 14,16 surface 0/0/0
 15,16 surface 0/2/0 decal 10m 0.649,0.593
@@ -299,7 +299,7 @@
 15,22 surface 0/1/0 prop sandm 0.000 decal 10 0.431,0.413
 16,22 surface 0/2/0 sand< torch fire torch 0.000,0.680,0.098
 17,22 surface 0/0/0 decal 11m 0.615,0.449
-18,22 surface 0/0/0
+18,22 surface 0/0/0 prop heap_reeds 0.000
 19,22 surface 1/0/0
 20,22 surface 0/0/0 sand>
 21,22 surface 1/1/0 decal 13m 0.459,0.225

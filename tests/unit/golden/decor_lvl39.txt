@@ -88,7 +88,7 @@
 7,7 surface 8/3/3
 8,7 surface 9/3/5
 9,7 surface 8/3/5 sand> prop jackal 0.198
-10,7 surface 8/1/3
+10,7 surface 8/1/3 prop heap_sand 0.000
 11,7 surface 8/3/3 sand< decal 0 0.606,0.464
 12,7 surface 8/3/4 sand>
 13,7 surface 9/1/5
@@ -327,7 +327,7 @@
 31,24 surface 6/1/2 prop sandm -0.000
 32,24 surface 6/1/2 prop osirism -0.081
 33,24 surface 7/1/2
-34,24 surface 6/1/2 prop sandm 0.000
+34,24 surface 6/1/2 prop heap_sand 0.000
 35,24 surface 6/1/2 prop sandm 0.000 torch fire torch 0.000,0.680,0.098
 36,24 surface 6/1/2 decal 7m 0.481,0.421
 37,24 surface 6/1/2 decal 2 0.620,0.350
@@ -415,7 +415,7 @@
 33,30 surface 8/1/5 decal 8 0.483,0.555
 34,30 surface 9/1/5 prop sarcophagus 0.038
 35,30 surface 8/1/5 prop jackal -0.166
-36,30 surface 9/3/3 sand<
+36,30 surface 9/3/3 sand< prop heap_sand 0.000
 37,30 surface 8/3/3
 38,30 surface 9/3/5
 36,31 surface 9/3/5
@@ -448,7 +448,7 @@
 30,33 surface 8/3/3
 31,33 surface 9/3/3
 32,33 surface 8/3/5 sand>
-33,33 surface 9/1/3
+33,33 surface 9/1/3 prop heap_sand -0.000
 34,33 surface 8/3/3 sand<>
 35,33 surface 8/1/5 prop rubblem -0.074
 36,33 surface 8/1/3
@@ -513,10 +513,10 @@
 24,36 surface 8/1/5
 25,36 surface 9/1/3
 26,36 surface 8/3/3 sand<>
-27,36 surface 8/1/3
+27,36 surface 8/1/3 prop heap_sand -0.000
 28,36 surface 8/1/3 torch fire torch 0.000,0.680,0.098
 30,36 surface 8/3/5 prop brazier -0.138 fire brazier -0.138,0.220,0.160
-31,36 surface 8/3/3
+31,36 surface 8/3/3 prop heap_sand -0.000
 32,36 surface 9/3/3
 33,36 surface 8/1/3
 34,36 surface 8/1/5

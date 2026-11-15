@@ -295,7 +295,7 @@
 23,23 surface 6/1/2 ladder 0/1
 23,24 surface 4/2/1 ladder 0/2m
 6,25 surface 0/2/1 prop web -0.000
-7,25 surface 0/2/1
+7,25 surface 0/2/1 prop heap_web 0.000
 8,25 surface 0/2/1 decal 10 0.660,0.550
 9,25 surface 0/0/1
 10,25 surface 1/0/1 decal 6m 0.494,0.575
@@ -341,10 +341,10 @@
 14,28 surface 3/2/1
 15,28 surface 5/0/1 sand> decal 7 0.621,0.378
 16,28 surface 3/1/1 prop webm -0.000 decal 7m 0.455,0.386
-17,28 surface 4/2/1 sand<
+17,28 surface 4/2/1 sand< prop heap_web -0.000
 18,28 surface 3/0/1 decal 1m 0.670,0.494
 20,28 surface 7/1/2
-21,28 surface 6/1/2 prop cat 0.026 decal 7 0.523,0.435
+21,28 surface 6/1/2 prop heap_web 0.000 decal 7 0.523,0.435
 22,28 surface 6/1/2
 23,28 surface 6/2/2 decal 7 0.470,0.507
 24,28 surface 7/1/2 prop ushabti -0.011
@@ -492,7 +492,7 @@
 27,38 surface 6/1/2 prop webm -0.000
 28,38 surface 6/1/2 decal 8 0.512,0.512
 29,38 surface 7/1/2
-30,38 surface 6/1/2 prop skeletonm 0.094
+30,38 surface 6/1/2 prop heap_web 0.000
 31,38 surface 6/1/2
 32,38 surface 7/1/2
 33,38 surface 6/1/2 decal 5m 0.483,0.625

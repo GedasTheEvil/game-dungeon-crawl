@@ -33,7 +33,7 @@
 26,5 surface 0/2/1
 27,5 surface 0/2/1 decal 7 0.483,0.439
 28,5 surface 0/2/1
-29,5 surface 0/2/1 sand> prop thoth_ibis_standingm 0.122
+29,5 surface 0/2/1 sand> prop heap_web 0.000
 30,5 surface 0/1/1 prop webm -0.000
 29,6 surface 3/0/1 decal 9m 0.312,0.602
 21,7 surface 0/1/1
@@ -44,7 +44,7 @@
 12,8 surface 6/1/2
 13,8 surface 6/1/2
 14,8 surface 7/2/2 sand<>
-15,8 surface 6/1/2
+15,8 surface 6/1/2 prop heap_web -0.000
 16,8 surface 6/2/2 sand<> prop potterym -0.044
 17,8 surface 6/1/2
 18,8 surface 7/1/2

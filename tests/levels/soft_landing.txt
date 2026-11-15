@@ -1,0 +1,11 @@
+; Soft landing (plan soft-landing): from the entrance (col 1, row 7) a 4-row shaft at col 3 down to row 3 (a landing
+; heap there: tools/level/lvledit.py prop 3 3 33 0), then a 2-row drop at col 6 onto the bare floor of row 1, the exit
+; at col 12 (tests/unit/soft_landing_test.cpp).
+###############
+#S..###########
+###.###########
+###.###########
+###.###########
+###....########
+######.########
+######......E##

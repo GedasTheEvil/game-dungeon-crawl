@@ -72,7 +72,7 @@
 34,6 surface 2/0/0m prop skeleton -0.065 decal 0m 0.457,0.596
 35,6 surface 1/2/0 sand>
 36,6 surface 0/1/0 prop potterym 0.102
-37,6 surface 1/2/0 sand<
+37,6 surface 1/2/0 sand< prop heap_sand -0.000
 38,6 surface 0/0/0
 37,7 surface 3/2/1
 9,8 surface 0/0/0
@@ -81,7 +81,7 @@
 1,9 surface 6/2/2 sand> decal 2 0.422,0.350 torch fire torch 0.000,0.680,0.098
 2,9 surface 6/1/2
 3,9 surface 6/1/2 prop skeleton -0.140 decal 0m 0.341,0.505
-4,9 surface 6/1/2
+4,9 surface 6/1/2 prop heap_sand -0.000
 5,9 surface 6/1/2
 6,9 surface 7/1/2 decal 13 0.593,0.225
 7,9 surface 6/1/2 torch fire torch 0.000,0.680,0.098
@@ -188,7 +188,7 @@
 31,12 surface 4/0/1 prop sarcophagusm -0.017
 32,12 surface 3/0/1 sand> decal 0 0.628,0.428
 33,12 surface 3/1/1 decal 13m 0.348,0.225
-34,12 surface 3/0/1 sand<
+34,12 surface 3/0/1 sand< prop heap_sand -0.000
 35,12 surface 4/2/1 prop potterym 0.070
 36,12 surface 3/0/1 prop sandm -0.000
 37,12 surface 4/0/1
@@ -421,7 +421,7 @@
 21,29 surface 0/1/0
 22,29 surface 2/0/0 sand<
 23,29 surface 5/2/1 sand> decal 13 0.440,0.225 torch fire torch 0.000,0.680,0.098
-24,29 surface 3/1/1
+24,29 surface 3/1/1 prop heap_sand -0.000
 25,29 surface 3/1/1
 26,29 surface 3/1/1 decal 2 0.375,0.350
 27,29 surface 4/2/1 sand< prop skeletonm -0.122

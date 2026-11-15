@@ -326,6 +326,13 @@ constexpr PropInfo PROPS[DECOR_COUNT] = {
 	{"Scales",
 	 "The scales of the judgment (plan weighing-of-the-heart): the heart and the feather, Thoth, Osiris enthroned. "
 	 "Interact weighs the run once; the verdict is a field note and a page of the epilogue. Lvl54, before the ankh."},
+	{"Heap: sand", "A landing heap (plan soft-landing): drifted sand at a shaft's foot. Tomb entrance, nest, desert."},
+	{"Heap: guano", "A landing heap (plan soft-landing): bat guano at a shaft's foot. Bat galleries."},
+	{"Heap: web", "A landing heap (plan soft-landing): a web net sagging across a shaft's foot. Web halls."},
+	{"Heap: reeds", "A landing heap (plan soft-landing): reed mats and linen bundles. Temples, cisterns."},
+	{"Heap: ash", "A landing heap (plan soft-landing): an ash heap at a shaft's foot. Lake of fire."},
+	{"Heap: linen", "A landing heap (plan soft-landing): a pile of linen wrappings. Necropolis."},
+	{"Heap: feathers", "A landing heap (plan soft-landing): ostrich feathers, Maat's. Hall of judgment."},
 };
 
 const char* anchorText(DecalAnchor anchor) {

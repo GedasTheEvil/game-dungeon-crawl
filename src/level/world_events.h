@@ -66,6 +66,10 @@ enum class WorldSound : unsigned char {
 	ShrinePraySerket,
 	ItemOn, // an amulet or a ring put on or off, an item upgraded, a skill learnt (plan item-actions-out-of-screens)
 	Drink, // a potion drunk
+	// A fall of LANDING_FEEDBACK_ROWS or more ends (plan soft-landing): a soft, muffled thud on a landing heap or in
+	// sand, a plain one on a bare floor.
+	LandSoft,
+	LandHard,
 };
 
 // A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged,roar}.wav).

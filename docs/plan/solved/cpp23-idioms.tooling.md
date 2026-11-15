@@ -1,9 +1,9 @@
 # C++23 ranges, optional and unreachable where they read better
 
-Status: draft 2026-11-13, size M, needs [cpp23-standard](solved/cpp23-standard.tooling.md) first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size M, needs [cpp23-standard](cpp23-standard.tooling.md) first.
 
 Rank 4 of 5 in the C++23 set: fewer sites and each one is a judgement call, so the gain per hour is lower than
-[cpp23-enum-index](solved/cpp23-enum-index.tooling.md).
+[cpp23-enum-index](cpp23-enum-index.tooling.md).
 
 ## Problem
 
@@ -43,3 +43,20 @@ clearly easier to read. Counts are from 2026-11-13 and are upper bounds.
 * Compile time: `<ranges>` views in headers cost build time. Use them in `.cpp` files; measure `time make` after
   `make clean` before and after, and say so in the commit.
 * How many loops fit is unknown until read; if fewer than about 20 do, drop the loop part and say so.
+
+## Result (2026-11-15)
+
+* `ranges::contains`: 19 sites (13 in `src`/tools, 6 in tests), plus one `find_if != end` in a test to `ranges::any_of`.
+* `fold_left`: the 4 `accumulate` sums (`run_stats.cpp`, `leaderboard.cpp`). Compile time of those two files, best of 3
+  on a busy machine: leaderboard.cpp 5.8 s to 6.1 s, run_stats.cpp 2.2 s to 2.5 s (`<ranges>`, `<functional>`). No
+  full clean-build timing: four other worktrees were building at the same time, the number would be noise.
+* `std::unreachable()`: 7 switches (game_state.cpp soundOf, characterSound; monster_burrow.cpp; dungeon_chest_traps.cpp;
+  interaction.h; scenario_script.cpp compare; scenario.cpp screenName). Skipped, because the value can come unchecked
+  from a save or a scenario script: `sortsBefore` (SortOrder), `skillNote` (SkillId), `signCap` and `frameWord`
+  (InscriptionStyle from the journal save), `RecordOrder`. The `default:` switches are real catch-alls over part of an
+  enum: kept.
+* Loops: about 11 of the 29 index loops that read both `i` and `v[i]` fit the rules (no new cast, no `i + 1 < size()`,
+  no `size_t` store); fewer than 20, so the loop part is dropped as the plan says.
+* `optional` chains: no `if (opt) return f(*opt); return {};` site found. `expected`: no `bool f(..., std::string&
+  error)` site exists today. Both dropped.
+* `docs/development.md`, C++23 list: the forms kept and when not to use `enumerate`.

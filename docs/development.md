@@ -51,8 +51,17 @@ read their file arguments from the current directory.
 The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`). In new code:
 
 * An enum as an index: `std::to_underlying(e)`, never `static_cast<size_t>(e)`.
-* `string::contains` (and `std::ranges::contains`) for a membership test.
-* `std::unreachable()` after an exhaustive switch.
+* `string::contains` (and `std::ranges::contains`, `std::ranges::any_of`) for a membership test, never `find(...) !=
+  end()`.
+* `std::ranges::fold_left(v, 0, std::plus{})` for a sum, not `std::accumulate` (in `.cpp` files: `<ranges>` views cost
+  build time in a header).
+* `std::unreachable()` after a switch in which every enumerator returns, only when the value cannot come unchecked
+  from a file, a save or a scenario script (those keep a real fallback: reaching `std::unreachable()` is undefined
+  behaviour).
+* `std::views::enumerate` only when the loop reads the element and its index and the signed index needs no new cast
+  (not when `i` is written, steps by more than 1, is compared with a `size()` or stored as a `size_t`); not in the
+  per-frame paths (`src/graphics/`, `src/render/`, the simulation step). Plan cpp23-idioms found too few loops that fit
+  to convert the old ones.
 
 ## Project layout
 

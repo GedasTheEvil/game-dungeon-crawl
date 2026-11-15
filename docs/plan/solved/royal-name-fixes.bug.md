@@ -1,8 +1,8 @@
 # Royal names: two misspelled cartouches, two wrong notes
 
-Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
-From the lore audit of 2026-11-13. `content/names/kings.txt` (format: [names.md](../names.md)): the `G:` line spells
+From the lore audit of 2026-11-13. `content/names/kings.txt` (format: [names.md](../../names.md)): the `G:` line spells
 the name in signs "as on its monuments", and a player who reads hieroglyphs can open the name gate from the signs.
 Two spellings miss a sound; two `N:` notes state a wrong fact. The other 56 entries were checked and are fine.
 Every sign proposed below is on the hieroglyph sheet already (`media/textures/decorations/hieroglyphs.txt`: G17,
@@ -29,7 +29,7 @@ The signs spell the name; the notes are true.
    labyrinth by Lake Moeris but credits it to the twelve kings of the Dodecarchy, not to Amenemhat. Manetho credits
    it to Lamares/Lachares, i.e. Amenemhat III (Hawara). Sure.
 4. **Den** (`kings.txt:173`): "Three letters. The shortest name on the list." Qaa (`kings.txt:247`), added later by
-   [denser-levels](solved/denser-levels.md), has three letters too. Internal.
+   [denser-levels](denser-levels.md), has three letters too. Internal.
 
 Optional, lower confidence: **Setnakhte** (`kings.txt:337`) `G: S29 X1 N35 Aa1 X1` reads st-nxt; the god's name is
 stX, and his cartouches write it with the Seth animal. `C7 N35 Aa1 X1` (Seth + nxt) is closer. Verify against a
@@ -39,7 +39,7 @@ cartouche before changing it.
 
 1. Ptolemy: `G: Q3 X1 G43 E23 G17 S29` (6 signs, the cartouche's cap; the y dropped, as `Cleopatra` drops signs).
 2. Siptah: `G: G39 Q3 X1 V28`.
-3. Amenemhat note (70 characters at most, [names.md](../names.md)): e.g. "Built a labyrinth, says Manetho.
+3. Amenemhat note (70 characters at most, [names.md](../../names.md)): e.g. "Built a labyrinth, says Manetho.
    Herodotus got lost in it." (check the length), or "His labyrinth amazed Herodotus. Nobody found the way out
    since."
 4. Den note: e.g. "Three letters, and the first king shown in the double crown." (his ivory labels; sure).

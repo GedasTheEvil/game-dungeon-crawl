@@ -1,6 +1,6 @@
 # A save keeps the live monsters health and the boss fight
 
-Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first.
 
 ## Idea
 

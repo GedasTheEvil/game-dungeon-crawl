@@ -1,6 +1,6 @@
 # Zone banner guardians named unlike their bosses
 
-Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
 From the lore audit of 2026-11-13. The zone banner's guardian line (`ZoneLook::guardian`, `src/level/zone_look.h`,
 shown by `src/ui/zone_banner.cpp` on a zone's first level) was written before two bosses got their names; it still
@@ -21,11 +21,11 @@ The banner names each zone's guardian as the game names the boss, with an epithe
 ## Actual
 
 * `src/level/zone_look.h:73`: `"the spider queen of the webs"`. The boss: `.name = "Mother of Webs"`
-  (`src/level/monster_kinds.cpp:1292`), named by the user in [camel-spider-boss](solved/camel-spider-boss.md)
+  (`src/level/monster_kinds.cpp:1292`), named by the user in [camel-spider-boss](camel-spider-boss.md)
   ("Name: 'the Mother of Webs' ... not a god's name"); readme line 47 "the Mother of Webs, who puts out the torches";
   lvl13 "The Lair of the Mother of Webs".
 * `src/level/zone_look.h:127`: `"the great worm of Sokar"`. The boss: `.name = "Rerek"` (`monster_kinds.cpp:1253`),
-  named by the user in [worm-boss](solved/worm-boss.md); readme line 47 "Rerek, the sand serpent"; journal note
+  named by the user in [worm-boss](worm-boss.md); readme line 47 "Rerek, the sand serpent"; journal note
   "Rerek, the serpent of the underworld" (`content/texts/monsters.txt:119`).
 * Also `readme.md:47`: the paragraph is headed "**A boss for every zone.**", but the necropolis has none (readme
   line 105 "all but the necropolis ending with a boss"; `ZoneLook::guardian` nullptr there).

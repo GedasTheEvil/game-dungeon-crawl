@@ -1,8 +1,8 @@
 # Lore corrections leftovers: Babi the heart-eater, Apep swallowing the sun
 
-Status: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-14, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
-From the lore audit of 2026-11-13. [lore-corrections](solved/lore-corrections.bug.md) fixed these facts in some texts
+From the lore audit of 2026-11-13. [lore-corrections](lore-corrections.bug.md) fixed these facts in some texts
 and missed other copies. Text only; keep the voice of each text.
 
 ## Repro
@@ -12,7 +12,7 @@ and missed other copies. Text only; keep the voice of each text.
 
 ## Expected
 
-The same facts as [lore-corrections](solved/lore-corrections.bug.md) decided, everywhere:
+The same facts as [lore-corrections](lore-corrections.bug.md) decided, everywhere:
 
 * Babi eats entrails, not hearts. Book of the Dead spell 125: Babi "who lives on the entrails of the elders";
   the eater of hearts at the weighing is Ammit (Am-mut, the Devourer). The zone banner already says "Babi, the

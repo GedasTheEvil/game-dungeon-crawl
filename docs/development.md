@@ -113,7 +113,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
 * **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/level/monster_kinds.cpp`): names, glyph,
   threat, stats, model, resistances, wading, poison, ranged attack, boss summons, levelgen weights. Only the fields that differ
   from the defaults in `MonsterKind`.
-* **Weapon or potion:** a value in `ItemKind` at the end of its group (save slots go by that order) and a row in
+* **Weapon or potion:** a value in `ItemKind` at the end of its group, a free file id (saves go by it, not by position) and a row in
   `ITEMS` (`src/level/items.cpp`): file id, texts, and the weapon part (model, damage, reach, mix, growth, motion,
   sounds, missile, levelgen depth) or the potion part (gain, vessel model, texture, icon colour, journal note,
   levelgen weight, mimic loot). A potion's texture is a row in `POTIONS` (`tools/blender/models/items.py`), baked on

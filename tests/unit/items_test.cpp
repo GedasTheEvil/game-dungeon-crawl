@@ -232,7 +232,7 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(bag.Use(ItemKind::SelfBow, BagUser{true, 1, 1, 1, 1}));
 	std::stringstream file;
 	bag.Save(file);
-	CHECK(file.str().starts_with("INV8 " + std::to_string(ITEM_KIND_COUNT) + " "));
+	CHECK(file.str().starts_with("INV9 "));
 
 	ItemBag loaded;
 	loaded.Load(file);
@@ -248,25 +248,14 @@ TEST_CASE("the bag survives a save and a load") {
 }
 
 TEST_CASE("a save from before the stamps: nothing recent, found first among them") {
-	ItemBag bag;
-	bag.Add(ItemKind::Antidote);
-	bag.Add(ItemKind::SmallHealth);
-	std::stringstream file;
-	bag.Save(file);
-	std::string text = file.str();
-	// INV5: the same without the stamps
-	std::istringstream words(text.substr(5));
+	constexpr int SLOTS = ITEM_KIND_COUNT; // INV5: counts, levels and found per slot, in ItemKind order, no stamps
 	std::ostringstream old;
-	old << "INV5";
-	int slots = 0;
-	words >> slots;
-	old << " " << slots;
-	for (int i = 0; i < 4 * slots + 4; i++) {
-		std::string word;
-		words >> word;
-		if (i < 3 * slots || i >= 4 * slots)
-			old << " " << word;
-	}
+	old << "INV5 " << SLOTS;
+	for (int i = 0; i < SLOTS; i++) // counts: 1 antidote, 1 small health
+		old << " " << (i == itemIndex(ItemKind::Antidote) || i == itemIndex(ItemKind::SmallHealth) ? 1 : 0);
+	for (int i = 0; i < 2 * SLOTS; i++) // levels, found
+		old << " " << (i < SLOTS ? 1 : 0);
+	old << " 1 0 0 0\n"; // the club in hand, no amulet
 	std::stringstream oldFile(old.str());
 	ItemBag loaded;
 	loaded.Load(oldFile);

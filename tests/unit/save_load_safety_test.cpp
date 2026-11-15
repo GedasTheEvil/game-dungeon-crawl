@@ -96,10 +96,10 @@ TEST_CASE("a save cut after the stats, or with an unknown bag tag, does not thro
 	CHECK_FALSE(loadSaveGame(cutStats, parts));
 	CHECK(saved(world) == good);
 
-	const size_t tag = good.find("INV8");
+	const size_t tag = good.find("INV9");
 	REQUIRE(tag != std::string::npos);
 	std::string newer = good;
-	newer[tag + 3] = '9';
+	newer[tag + 3] = 'X'; // INVX: a tag of a newer build
 	CHECK_FALSE(loadSaveGame(newer, parts));
 	CHECK(saved(world) == good);
 }

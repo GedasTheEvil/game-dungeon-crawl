@@ -151,12 +151,14 @@ class ItemBag {
 	// The potion the quick-drink key would take (quickPotion), counting from `current` of `max`.
 	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind, int current, int max) const;
 
-	// "INV8 <slots> <counts...> <levels...> <found...> <stamps...> <equipped type> <equipped id> <worn type> <worn id>
-	// <left ring type> <left ring id> <right ring type> <right ring id> <older hand>" (type 0: none). Load also reads
-	// INV7 (no rings), INV6 (no water blessing: the amulets right after the greater resistance
-	// potion), INV5 (no stamps), INV4 (no resistance potions: the amulets right after the
+	// "INV9 <records> <type id count level found stamp>... <equipped type> <equipped id> <worn type> <worn id>
+	// <left ring type> <left ring id> <right ring type> <right ring id> <older hand>" (type 0: none): one record per
+	// item with anything to keep, by file id (fileIdOf; plan save-items-by-file-id), so a new ItemKind moves nothing.
+	// Load skips a record of an unknown item. It also reads the positional tags: INV8 (<slots> counts, levels, found
+	// and stamps in ItemKind order, then the same tail), INV7 (no rings), INV6 (no water blessing: the amulets right
+	// after the greater resistance potion), INV5 (no stamps), INV4 (no resistance potions: the amulets right after the
 	// antidote), INV3 (no worn amulet), INV2 (no found flags: found is what is held) and the older saves, which start
-	// straight with the 9 counts of the original slots.
+	// straight with the 9 counts of the original slots. INV8 is only right for a save from before the sky iron rings.
 	void Save(std::ostream& out) const;
 	void Load(std::istream& in);
 };

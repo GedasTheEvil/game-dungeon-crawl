@@ -445,17 +445,22 @@ std::optional<ItemKind> ItemBag::QuickChoice(QuickKind kind, int current, int ma
 }
 
 void ItemBag::Save(std::ostream& out) const {
-	out << "INV8 " << ITEM_KIND_COUNT << " ";
-	for (int count : counts)
-		out << count << " ";
-	for (int level : levels)
-		out << level << " ";
-	for (bool f : found)
-		out << (f ? 1 : 0) << " ";
-	for (int stamp : stamps)
-		out << stamp << " ";
+	// One record per kind that has anything to keep, by file id: a new ItemKind moves no saved item (plan
+	// save-items-by-file-id).
+	const auto kept = [this](int i) { return counts[i] > 0 || found[i] || levels[i] > 1 || stamps[i] > 0; };
+	int records = 0;
+	for (int i = 0; i < ITEM_KIND_COUNT; i++)
+		records += kept(i) ? 1 : 0;
+	out << "INV9 " << records;
+	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
+		if (!kept(i))
+			continue;
+		const ItemFileId kind = fileIdOf(itemAt(i));
+		out << " " << kind.type << " " << kind.id << " " << counts[i] << " " << levels[i] << " " << (found[i] ? 1 : 0)
+			<< " " << stamps[i];
+	}
 	ItemFileId id = fileIdOf(equipped);
-	out << id.type << " " << id.id << " ";
+	out << " " << id.type << " " << id.id << " ";
 	const ItemFileId on = worn ? fileIdOf(*worn) : ItemFileId{ItemType::EMPTY, 0};
 	out << on.type << " " << on.id;
 	for (const std::optional<ItemKind>& ring : rings) {
@@ -488,7 +493,8 @@ void ItemBag::Load(std::istream& in) {
 	in >> tok;
 	int type = ItemType::MELEE_WEAPON;
 	int id = 0;
-	const bool hasRings = tok == "INV8";
+	const bool byFile = tok == "INV9";
+	const bool hasRings = tok == "INV8" || byFile;
 	const bool hasStamps = tok == "INV6" || tok == "INV7" || hasRings;
 	bool hasFound = tok == "INV3" || tok == "INV4" || tok == "INV5" || hasStamps;
 	const bool resistance = tok == "INV5" || hasStamps;
@@ -497,7 +503,30 @@ void ItemBag::Load(std::istream& in) {
 	int wornId = 0;
 	std::array<ItemFileId, HAND_COUNT> ringIds = {{{ItemType::EMPTY, 0}, {ItemType::EMPTY, 0}}};
 	int older = 0;
-	if (tok == "INV2" || tok == "INV3" || hasFound) {
+	if (byFile) {
+		int records = 0;
+		in >> records;
+		for (int r = 0; r < records && r < MAX_SAVED_SLOTS && in; r++) {
+			int recordType = 0;
+			int recordId = 0;
+			int count = 0;
+			int level = 1;
+			int isFound = 0;
+			int stamp = 0;
+			in >> recordType >> recordId >> count >> level >> isFound >> stamp;
+			if (const std::optional<ItemKind> kind = itemFromFile(recordType, recordId)) { // else: a newer build's item
+				const int i = itemIndex(*kind);
+				counts[i] = std::max(0, count);
+				levels[i] = std::clamp(level, 1, MAX_WEAPON_LEVEL);
+				found[i] = isFound != 0;
+				stamps[i] = std::max(0, stamp);
+			}
+		}
+		in >> type >> id >> wornType >> wornId;
+		for (ItemFileId& ring : ringIds)
+			in >> ring.type >> ring.id;
+		in >> older;
+	} else if (tok == "INV2" || tok == "INV3" || hasFound) {
 		int slots = 0;
 		in >> slots;
 		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= MAX_SAVED_SLOTS ? slots : 0));

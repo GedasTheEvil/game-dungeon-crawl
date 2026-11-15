@@ -195,15 +195,16 @@ TEST_CASE("two worn rings survive a save and a load; a save from before the ring
 	CHECK(loaded.Use(ItemKind::GarnetCopper, ALIVE)); // the older one (the amethyst) gives way
 	CHECK(loaded.RingOn(Hand::Right) == ItemKind::GarnetCopper);
 
-	// The same bag as INV7: no rings after the worn amulet.
-	std::string line = file.str();
-	std::stringstream again;
-	bag.Save(again);
-	line = again.str();
-	line.replace(0, 4, "INV7");
-	for (int field = 0; field < 5; field++) // drop the rings' five numbers
-		line.erase(line.find_last_of(' '));
-	std::stringstream old(line + "\n");
+	// A bag as INV7: positional counts, levels, found and stamps, no rings after the worn amulet.
+	std::ostringstream line;
+	line << "INV7 " << ITEM_KIND_COUNT;
+	for (int i = 0; i < 4 * ITEM_KIND_COUNT; i++)
+		line << " "
+			 << (i < ITEM_KIND_COUNT	   ? (i == itemIndex(ItemKind::AmethystGold) ? 1 : 0)
+				 : i < 2 * ITEM_KIND_COUNT ? 1
+										   : 0);
+	line << " 1 0 0 0";
+	std::stringstream old(line.str() + "\n");
 	ItemBag before;
 	before.Load(old);
 	CHECK(before.Count(ItemKind::AmethystGold) == 1);

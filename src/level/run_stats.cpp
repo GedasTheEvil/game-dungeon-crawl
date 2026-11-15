@@ -39,6 +39,32 @@ template <size_t N> void dumpCounts(std::ostream& out, const std::array<int, N>&
 			out << ' ' << i << ' ' << counts[i];
 }
 
+// " n type id count ..." of the potions drunk, by file id (RUN2).
+void dumpDrunk(std::ostream& out, const std::array<int, ITEM_KIND_COUNT>& drunk) {
+	out << ' ' << std::count_if(drunk.begin(), drunk.end(), [](int n) { return n != 0; });
+	for (int i = 0; i < ITEM_KIND_COUNT; i++)
+		if (drunk[static_cast<size_t>(i)] != 0) {
+			const ItemFileId file = fileIdOf(itemAt(i));
+			out << ' ' << file.type << ' ' << file.id << ' ' << drunk[static_cast<size_t>(i)];
+		}
+}
+
+bool loadDrunk(std::istream& in, std::array<int, ITEM_KIND_COUNT>& drunk) {
+	int n = 0;
+	if (!(in >> n))
+		return false;
+	for (int k = 0; k < n; k++) {
+		int type = 0;
+		int id = 0;
+		int count = 0;
+		if (!(in >> type >> id >> count))
+			return false;
+		if (const std::optional<ItemKind> kind = itemFromFile(type, id)) // else: an item of a newer build
+			drunk[static_cast<size_t>(itemIndex(*kind))] = count;
+	}
+	return true;
+}
+
 template <size_t N> bool loadCounts(std::istream& in, std::array<int, N>& counts) {
 	int n = 0;
 	if (!(in >> n))
@@ -55,12 +81,14 @@ template <size_t N> bool loadCounts(std::istream& in, std::array<int, N>& counts
 }
 } // namespace
 
-// "RUN campaign inscriptions treasures riddles dealt taken biggest poisoned cursed  slain...  drunk...  n levelMs..."
+// "RUN2 campaign inscriptions treasures riddles dealt taken biggest poisoned cursed  slain...  drunk...  n levelMs..."
+// (slain: n index count..., drunk: n type id count... by file id; the old "RUN" has drunk as n index count... by
+// ItemKind position, still read)
 void RunStats::Dump(std::ostream& out) const {
-	out << "RUN " << (campaign ? 1 : 0) << ' ' << inscriptions << ' ' << treasures << ' ' << riddles << ' '
+	out << "RUN2 " << (campaign ? 1 : 0) << ' ' << inscriptions << ' ' << treasures << ' ' << riddles << ' '
 		<< damageDealt << ' ' << damageTaken << ' ' << biggestHit << ' ' << poisoned << ' ' << cursed;
 	dumpCounts(out, slain);
-	dumpCounts(out, drunk);
+	dumpDrunk(out, drunk);
 	out << ' ' << levelMs.size();
 	for (int ms : levelMs)
 		out << ' ' << ms;
@@ -75,7 +103,7 @@ void RunStats::LoadDump(std::istream& in) {
 	*this = RunStats{};
 	const auto start = in.tellg();
 	std::string tag;
-	if (!(in >> tag) || tag != "RUN") {
+	if (!(in >> tag) || (tag != "RUN" && tag != "RUN2")) {
 		in.clear();
 		in.seekg(start);
 		return;
@@ -87,7 +115,9 @@ void RunStats::LoadDump(std::istream& in) {
 				  in >> isCampaign >> loaded.inscriptions >> loaded.treasures >> loaded.riddles >> loaded.damageDealt >>
 				  loaded.damageTaken >> loaded.biggestHit >> loaded.poisoned >> loaded.cursed
 			  ) &&
-			  loadCounts(in, loaded.slain) && loadCounts(in, loaded.drunk) && static_cast<bool>(in >> levels);
+			  loadCounts(in, loaded.slain) &&
+			  (tag == "RUN2" ? loadDrunk(in, loaded.drunk) : loadCounts(in, loaded.drunk)) &&
+			  static_cast<bool>(in >> levels);
 	for (size_t i = 0; ok && i < levels; i++) {
 		int ms = 0;
 		ok = static_cast<bool>(in >> ms);

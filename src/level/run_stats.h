@@ -46,9 +46,9 @@ class RunStats {
 	[[nodiscard]] int PlayMs() const;
 	[[nodiscard]] const std::vector<int>& LevelMs() const { return levelMs; } // [level - 1]: time in play there
 
-	// "RUN ...", "NAMES seed", "DEATHS n", "SECRETS n" and "HINTS bits" and "OFFERINGS n" lines after the player stats;
-	// a save without them (or broken) leaves a fresh, non-campaign run (seed 0, no deaths, no secrets, no hints shown,
-	// no offerings).
+	// "RUN2 ..." (drunk by file id; the old "RUN" has it by ItemKind position), "NAMES seed", "DEATHS n", "SECRETS n"
+	// and "HINTS bits" and "OFFERINGS n" lines after the player stats; a save without them (or broken) leaves a fresh,
+	// non-campaign run (seed 0, no deaths, no secrets, no hints shown, no offerings).
 	void Dump(std::ostream& out) const;
 	void LoadDump(std::istream& in);
 	// A save game's text with its "DEATHS" line set to `count` (plan autosave: a death rewrites the autosave's count,

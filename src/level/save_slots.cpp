@@ -60,7 +60,7 @@ SaveSlots::Info SaveSlots::DescribeFile(const std::string& path) {
 	constexpr int HEAD_LINES = 40;
 	std::string line;
 	for (int i = 0; i < HEAD_LINES && std::getline(f, line); i++)
-		if (line.starts_with("RUN ")) {
+		if (line.starts_with("RUN ") || line.starts_with("RUN2 ")) {
 			std::istringstream in(line);
 			RunStats run;
 			run.LoadDump(in);

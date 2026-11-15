@@ -1,6 +1,6 @@
 # Save the bag and the potions drunk by stable item file id, not ItemKind position
 
-Status: draft 2026-11-13, size M, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size M, needs nothing first.
 
 ## Problem
 
@@ -13,7 +13,7 @@ files and the equipped weapon, the worn amulet and the worn rings in a save use 
   (`dumpCounts`, `src/level/run_stats.cpp:41`).
 
 So any `ItemKind` added anywhere but at the very end of the enum moves every later item in an existing save. The rule
-in [development.md](../development.md#adding-a-tile-type-a-monster-or-an-item) ("a value in `ItemKind` at the end of its
+in [development.md](../../development.md#adding-a-tile-type-a-monster-or-an-item) ("a value in `ItemKind` at the end of its
 group (save slots go by that order)") does not prevent it: the end of the weapons is before the potions, the amulets
 and the rings.
 

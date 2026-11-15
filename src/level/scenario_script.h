@@ -137,6 +137,7 @@ enum class Field : unsigned char {
 	DeathScreen,
 	Quicksave,
 	LatestSave,
+	SkillCardLines, // the most lines a skill effect takes on its Heka card (plan heka-card-effect-two-lines)
 	Hints, // the first hints shown this run, a bit per FirstHint (plan controls-help)
 };
 enum class Op : unsigned char { Eq, Ne, Lt, Le, Gt, Ge };

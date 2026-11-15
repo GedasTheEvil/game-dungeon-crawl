@@ -600,6 +600,7 @@ const std::vector<FieldDef>& fieldDefs() {
 		{"death_screen", Field::DeathScreen},
 		{"quicksave", Field::Quicksave},
 		{"latest_save", Field::LatestSave},
+		{"skill_card_lines", Field::SkillCardLines},
 		{"hints", Field::Hints}
 	};
 	return DEFS;

@@ -1,0 +1,4 @@
+# Plan heka-card-effect-two-lines: start on level 1 with 2 heka, press K: the Heka screen.
+god
+level content/levels/lvl1
+heka 2

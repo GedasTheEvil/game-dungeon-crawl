@@ -5,6 +5,8 @@
 #include "../level/bindings.h"
 #include "../level/pointer.h"
 #include "../render/ui_draw.h"
+#include <string>
+#include <vector>
 
 // The Heka screen ([K], plan skills): a card per skill (a list that scrolls, plan heka-surplus) and the heka left to
 // spend; the papyrus on the right tells the selected skill and learns it, after a second press to confirm (no
@@ -16,6 +18,8 @@ class SkillsScreen {
 	void MouseMotion(int x, int y);
 	void KeyPressed(unsigned char key);
 	void SpecialKeyPressed(int key);
+	// The most lines any skill's effect takes on its card (at most 2 fit; scenario field skill_card_lines).
+	[[nodiscard]] int MostEffectLines();
 
   private:
 	enum class Target : unsigned char { None, Card, LearnButton };
@@ -33,6 +37,8 @@ class SkillsScreen {
 	Font title, heading, body, small;
 	bool fontsLoaded = false;
 
+	void LoadFonts();
+	std::vector<std::string> EffectLines(int card);
 	void Select(int card);
 	void MoveSelection(int dx, int dy);
 	void Navigate(NavKey key); // the arrows and the bound move keys pick a card, Enter / Space / Interact learn

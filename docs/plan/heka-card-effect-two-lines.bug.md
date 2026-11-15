@@ -1,6 +1,6 @@
 # Heka screen: long skill effects wrap to 2 lines on the card
 
-Status: draft 2026-11-15, size S, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Repro
 
@@ -36,5 +36,5 @@ its width: a long one runs past the card's right edge (or under the next card).
 
 ## Play-test
 
-* Open the Heka screen: Quiver of Neith, Serket's favour and Blessing of Isis show their effect on 2 lines inside the
+* `bin/game --play tests/play/heka-card-effect-two-lines.txt`, press K: Quiver of Neith, Serket's favour and Blessing of Isis show their effect on 2 lines inside the
   card; the short ones (Might +5, Armor +5) on one, names lined up.

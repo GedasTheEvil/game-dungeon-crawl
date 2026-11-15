@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <vector>
 
 using namespace ui;
 using namespace SkillsLayout;
@@ -18,8 +19,10 @@ namespace {
 constexpr Rect POINTS_ICON = {7.f, 76.6f, 5.6f, 5.6f};
 constexpr float POINTS_TEXT_X = 14.f;
 constexpr float CARD_WELL_INSET = 1.f;
-constexpr float CARD_NAME_Y = 7.4f; // baselines above the card's bottom
-constexpr float CARD_EFFECT_Y = 2.8f;
+constexpr float CARD_NAME_Y = 7.3f; // baselines above the card's bottom
+constexpr float CARD_EFFECT_Y = 4.2f; // the first effect line; a second one sits CARD_EFFECT_STEP lower
+constexpr float CARD_EFFECT_STEP = 2.9f;
+constexpr float CARD_TEXT_PAD = 1.8f; // the text's gap to the icon well and to the card's right edge
 constexpr float CARD_MARK = 1.2f; // the learnt / sealed mark in the top right corner
 constexpr Rect DETAIL_ICON = {DETAIL_PANEL.x + DETAIL_PANEL.w / 2 - 10.f, 60.f, 20.f, 20.f};
 constexpr float DETAIL_NAME_Y = 54.f;
@@ -168,11 +171,35 @@ void SkillsScreen::Navigate(NavKey key) {
 
 // ---- drawing ---------------------------------------------------------------
 
-void SkillsScreen::Draw() {
+void SkillsScreen::LoadFonts() {
 	if (!fontsLoaded) {
 		loadScreenFonts(title, heading, body, small, 7.f);
 		fontsLoaded = true;
 	}
+}
+
+// The effect under a card's name (plan heka-card-effect-two-lines): wrapped to the card's text width, from the icon
+// well to the right edge.
+std::vector<std::string> SkillsScreen::EffectLines(int card) {
+	LoadFonts();
+	const Rect r = cardRect(card, scroll);
+	const Rect well = iconWell(r, CARD_WELL_INSET);
+	return wrap(
+		small,
+		skillDef(static_cast<SkillId>(card)).effect,
+		r.x + r.w - CARD_TEXT_PAD - (well.x + well.w + CARD_TEXT_PAD)
+	);
+}
+
+int SkillsScreen::MostEffectLines() {
+	size_t most = 0;
+	for (int card = 0; card < SKILL_COUNT; card++)
+		most = std::max(most, EffectLines(card).size());
+	return static_cast<int>(most);
+}
+
+void SkillsScreen::Draw() {
+	LoadFonts();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -250,11 +277,15 @@ void SkillsScreen::DrawCard(int card) {
 	else if (sealed) // red wax
 		ellipse(markX, markY, CARD_MARK, CARD_MARK, WAX, 0.8f);
 
-	const float textX = well.x + well.w + 1.8f;
+	const float textX = well.x + well.w + CARD_TEXT_PAD;
 	const Color nameColor = sealed ? DIM_TEXT : (hovered ? TEXT_HOVER : (learnt ? GOLD : LABEL));
 	beginText();
 	text(body, textX, r.y + CARD_NAME_Y, def.name, nameColor);
-	text(small, textX, r.y + CARD_EFFECT_Y, def.effect, sealed ? DIM_TEXT : (learnt ? GOLD_DIM : LABEL_DIM));
+	float y = r.y + CARD_EFFECT_Y;
+	for (const std::string& l : EffectLines(card)) {
+		text(small, textX, y, l.c_str(), sealed ? DIM_TEXT : (learnt ? GOLD_DIM : LABEL_DIM));
+		y -= CARD_EFFECT_STEP;
+	}
 	beginShapes();
 }
 

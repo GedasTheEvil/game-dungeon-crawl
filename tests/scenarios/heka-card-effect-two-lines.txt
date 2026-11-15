@@ -1,0 +1,27 @@
+# Plan heka-card-effect-two-lines: every skill effect wraps to at most 2 lines inside its Heka card (needs the font
+# metrics, so not a unit test). Screenshots show the cards: long effects on 2 lines, short ones on 1.
+god
+level tests/levels/fire
+heka 2
+learn power_hit
+key k
+wait 2
+screenshot heka_top
+expect skill_card_lines <= 2
+expect skill_card_lines >= 2
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+wait 2
+screenshot heka_bottom
+key k
+dump

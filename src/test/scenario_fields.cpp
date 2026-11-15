@@ -123,6 +123,8 @@ float Scenario::fieldValue(const Command& cmd) {
 	}
 	case Field::Hints: // plan controls-help
 		return static_cast<float>(Game().player->stats.run.hints);
+	case Field::SkillCardLines: // plan heka-card-effect-two-lines
+		return static_cast<float>(Game().ui.skills.MostEffectLines());
 	case Field::Heka:
 		return static_cast<float>(Game().player->stats.heka.Free());
 	case Field::Skills:

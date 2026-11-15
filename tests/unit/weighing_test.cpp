@@ -112,3 +112,24 @@ TEST_CASE("weighing-of-the-heart: the verdict notes and pages are saved by numbe
 	CHECK(static_cast<int>(FieldNote::HeartHeavy) + 1 == FIELD_NOTE_COUNT);
 	CHECK(static_cast<int>(DiaryPage::ScalesHeavy) + 1 == DIARY_PAGE_COUNT);
 }
+
+TEST_CASE("weighing-of-the-heart: on lvl54 the scales weigh once on the way, then the ankh wins") {
+	SimWorld world; // the behaviour checks of tests/scenarios/solved/weighing_of_the_heart.txt
+	world.player.god = true;
+	REQUIRE(world.Load(54));
+	REQUIRE(world.dungeon.PlacePlayer(24, 2));
+	world.WaitTicks(30);
+	REQUIRE(world.WalkTo(25.5f));
+	world.WaitTicks(10);
+	REQUIRE(world.dungeon.InteractVerb() == Interaction::Weigh);
+	world.Interact();
+	world.WaitTicks(5);
+	const bool light = noted(world, FieldNote::HeartLight);
+	CHECK(light != noted(world, FieldNote::HeartHeavy)); // one verdict
+	world.journal.LearnNote(light ? FieldNote::HeartLight : FieldNote::HeartHeavy); // as the game does with the event
+	CHECK(world.dungeon.InteractVerb() == Interaction::None);
+	REQUIRE(world.WalkTo(26.5f));
+	world.Interact();
+	world.WaitTicks(1);
+	CHECK(world.dungeon.Won());
+}

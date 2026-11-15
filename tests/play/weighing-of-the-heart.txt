@@ -1,6 +1,0 @@
-# Plan weighing-of-the-heart: on lvl54 past the Anubis boss's gate, the scales one cell to the right (col 25), the ankh
-# after them (col 26). Walk right onto the scales, E ("Be weighed"): the verdict on the status line and in the journal
-# (J, Field notes). Then take the ankh: the epilogue's page "The scales" after Dawn. A fresh run here weighs light
-# (nothing on either pan). The riddles: `bin/game --level 51`, the gates ask the assessors' questions.
-god
-level 54 at 24 2

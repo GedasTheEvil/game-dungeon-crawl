@@ -10,7 +10,7 @@ gate was met. The save game keeps a copy of each riddle, so editing a riddle fil
 
 The game loads every `content/riddles/*.txt` file at start-up. Add a file or edit one; no rebuild is needed.
 Riddles are dealt from a shuffled deck, so none repeats until all of them were asked. A file with a `zone:` line
-is a zone's own deck ([weighing-of-the-heart](plan/weighing-of-the-heart.feature.md)): its riddles are
+is a zone's own deck ([weighing-of-the-heart](plan/solved/weighing-of-the-heart.feature.md)): its riddles are
 dealt only on that zone's levels, and those levels deal them first, each one not yet in the journal, then the
 common deck. `judgment.txt` is the Hall of Judgment's (lvl51-54): the assessors' questions, every answer taught by a
 text of the game.

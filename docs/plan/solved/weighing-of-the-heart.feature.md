@@ -1,12 +1,12 @@
 # The weighing of the heart: the Hall of Judgment keeps its promise
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
 The last zone promises a judgment and never holds one.
 
-* `docs/levels.md` (zone table) and [campaign-zones](solved/campaign-zones.md) give zone 12 the mechanic "riddle-heavy
+* `docs/levels.md` (zone table) and [campaign-zones](campaign-zones.md) give zone 12 the mechanic "riddle-heavy
   finale, the weighing of the heart". The zone banner calls Anubis "who weighs the heart" (`src/level/zone_look.h`),
   the level titles are "The Hall of the Two Truths", "The Feather of Maat", "The Weighing of the Heart" (lvl52-54).
 * Inscriptions 131 (The weighing of the heart, lvl52), 134 (Maat, the feather, lvl53), 130 (The negative confession,
@@ -20,7 +20,7 @@ The last zone promises a judgment and never holds one.
   question can take two).
 * Who is missing from the judgment: Osiris, who presides over it, appears in no zone-12 text but as "Osiris-justified"
   (id 133); Ammit is never named (one "eaten by the devourer", id 131); the 42 assessors only in a pencilled comment
-  (id 130's "Forty-two sins denied"). [hippo-boss](solved/hippo-boss.md) and [hippo](solved/hippo.md) left an Ammit
+  (id 130's "Forty-two sins denied"). [hippo-boss](hippo-boss.md) and [hippo](hippo.md) left an Ammit
   "for later".
 * The epilogue (`content/texts/journal.txt`, `[diary.dawn]`) does not mention the judgment or Anubis at all.
 
@@ -33,12 +33,12 @@ Three steps, each worth having alone; do them in order, stop after any.
    texts teach (inscriptions, field notes, monster notes): "What is set on the scale against the feather?" (heart),
    "Who writes the verdict?" (thoth), "Whose feather?" (maat), "Who steadies the scale?" (anubis), "Who eats the heart
    that sinks?" (ammit, devourer), "Say the confession: I have not ______" (stolen, killed, lied), "In whose name is the
-   living one called justified?" (osiris). Format: [riddles.md](../riddles.md). Then a file-level line, e.g.
+   living one called justified?" (osiris). Format: [riddles.md](../../riddles.md). Then a file-level line, e.g.
    `zone: hall_of_judgment`, in the riddle loader (`src/ui/riddle.cpp`): a riddle with a zone is dealt only on that
    zone's levels, and those levels deal only such riddles while any are left (fallback: the normal deck). Unit test
    in `tests/unit/riddle_files_test.cpp`. 12 riddle gates in the zone today (lvl51-54, 3 each).
 2. **The scales.** A placed prop on lvl54 between the Anubis boss's gate and the ankh: a balance with the feather on one
-   pan (a new model, `tools/blender/models/decor.py`, [modeling.md](../modeling.md)), Osiris enthroned behind it (the
+   pan (a new model, `tools/blender/models/decor.py`, [modeling.md](../../modeling.md)), Osiris enthroned behind it (the
    `osiris` prop exists, `DECOR_NAMES`), the `thoth_ibis_*` prop beside it. Interact (E, verb "Be weighed"): the verdict
    comes from the run (`RunStats`, `src/level/run_stats.h`) and is written into the journal as a field note
    (`FieldNote` at the end, `journal.h`; text in `journal.txt`). Never a game over: the tone of the game is light, the
@@ -61,7 +61,7 @@ hippo's or crocodile's abilities, AGENTS.md "Boss abilities" applies in reverse:
 
 Also, for the texts: an inscription on lvl53 or lvl54 that puts Osiris on his throne in the hall ("Osiris,
 foremost of the Westerners, sits on the throne; the forty-two sit before him"), so the scene has its judge. Follow
-[inscriptions.md](../inscriptions.md) (new id, `G:` line, the sheet rebuilt if a new sign: `tools/textures/inscriptions.py`).
+[inscriptions.md](../../inscriptions.md) (new id, `G:` line, the sheet rebuilt if a new sign: `tools/textures/inscriptions.py`).
 `bin/levelcheck content/levels/lvl5*` stays warning-free.
 
 ## Open questions

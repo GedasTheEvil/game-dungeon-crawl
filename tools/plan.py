@@ -457,7 +457,7 @@ def done_check(plan, quiet=False):
         print("todo  every point of the draft done, or reported as left out\n"
               "todo  a new thing the player meets: its journal or field note; a new term: its glossary row\n"
               "todo  a base monster with a new ability: its boss gets it too (AGENTS.md, Boss abilities)\n"
-              "todo  a new feature: its row in docs/development.md, Where is X")
+              "todo  a new feature: its row in docs/where-is-x.md")
     return fails, warns
 
 

@@ -2,7 +2,7 @@
 After writing the code, run `make check`: it builds, fixes links to moved plans, lints the plans and tests plan.py, formats, checks the format, runs tidy on
 the changed files and the unit tests. Never format by hand: `make format` does it. Every warning `make tidy` prints is
 yours (the tree has none): fix it. Code style, false positives: [docs/development.md](docs/development.md#build-and-run).
-Where is X: [docs/development.md](docs/development.md#where-is-x).
+Where is X: `tools/where.py <term>...` (rows of [docs/where-is-x.md](docs/where-is-x.md); never read it whole).
 Waiting for a long command, or a shell that seems to hang: [docs/stuck-processes.md](docs/stuck-processes.md). Never
 wait with a `pgrep -f` loop.
 

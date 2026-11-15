@@ -1,10 +1,10 @@
 # Pressure plate and drag puzzles in the campaign levels
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-14, size L, needs nothing first.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-14, size L, needs nothing first.
 
 ## Idea
 
-[pressure-plate](solved/pressure-plate.feature.md) and [mirror-drag](solved/mirror-drag.feature.md) added the mechanism:
+[pressure-plate](pressure-plate.feature.md) and [mirror-drag](mirror-drag.feature.md) added the mechanism:
 pressure plates (fixture 27, glyph `-`), silver plate gates (`Gate` with colours 6-9, glyphs `1`-`4`), stones to drag
 (28, glyph `;`), and dragging of mirrors, emptied chests and bodies. Both plans left the campaign levels untouched and
 promised a follow-up: this one. No campaign level has a plate, a plate gate, a stone or a mirror puzzle that needs
@@ -42,9 +42,9 @@ dragging yet.
   reaches it, a plate without a gate, a gate without a plate). Known limit: a plate shares its colour's checker bit
   with keys and levers; don't reuse a colour of a key or lever of the same level for a plate.
 * Edit the level files by hand (`content/levels/` are the source of truth, never regenerate). Glyph and file format:
-  [level-format.md](../level-format.md).
+  [level-format.md](../../level-format.md).
 * Inscriptions or a notebook page may hint at the introduction ("The silver gates answer to weight, not to keys").
-  Check the hint texts against [inscription-hints-after-rebuild](solved/inscription-hints-after-rebuild.bug.md)'s
+  Check the hint texts against [inscription-hints-after-rebuild](inscription-hints-after-rebuild.bug.md)'s
   lesson: a hint must name a thing that is really there. The field note `note.pressure-plates`
   (`content/texts/journal.txt`) already explains plates: check that its words fit the introduction level.
 * A scenario test (`tests/scenarios/`) for the introduction level: drag the stone onto the plate, the gate goes up.

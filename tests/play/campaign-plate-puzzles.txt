@@ -1,8 +1,0 @@
-# Plan campaign-plate-puzzles: lvl8's introduction, coming off the ladder at col 20 (row 26): the stone at col 24, the
-# red plate at col 27 (needs 3: the player alone does nothing), the silver gate at col 30. The other variants: change
-# the level line to `level 12 at 26 4` (a plate the player holds, the stone at col 31 behind it), `level 15 at 27 41`
-# (lure the mummy at col 25 onto the blue plate at col 24; the gate at col 21), `level 18 at 31 2` (kill the High
-# Priest, drag the body onto the plate at col 25; the alcove at col 18), `level 24 at 28 6` (the rock fall at col 29,
-# the plates at cols 31 and 34, the chest at col 36) or `level 39 at 25 18` (the mirror at col 24, the shaft at col 26).
-god
-level 8 at 21 26

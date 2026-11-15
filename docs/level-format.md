@@ -70,7 +70,7 @@ mirrors, emptied chests and bodies along the bare flat floor (no water, sand or 
 `levelcheck` opens the plate gates once the player reaches a plate of their colour, and warns when the things on the
 plate's flat floor run weigh less than it needs (a treasure placed as another container than a chest weighs nothing),
 about a plate without plate gates and plate gates without a plate. Campaign puzzles
-([campaign-plate-puzzles](plan/campaign-plate-puzzles.feature.md)): lvl8 the introduction (a stone, a plate
+([campaign-plate-puzzles](plan/solved/campaign-plate-puzzles.feature.md)): lvl8 the introduction (a stone, a plate
 the player alone is too light for), lvl12 a plate the player holds, lvl15 a mummy lured onto it, lvl18 the boss's body,
 lvl24 two plates (a fallen rock, an emptied chest), lvl39 a mirror dragged under a light shaft.
 

@@ -4,6 +4,7 @@
 #include "tile_defs.h"
 #include "gameplay_config.h"
 #include <cmath>
+#include <cstdlib>
 #include <cstdio>
 #include <map>
 #include <set>
@@ -111,6 +112,7 @@ class PathScript {
 			case PathMove::Start:
 				break;
 			}
+			weighPlate(cur);
 			// The checker counts reaching the boss as killing it; in god mode the script kills it there.
 			Tile t = grid.at(cur.col, cur.row);
 			if (t.type == MonsterSpawn && isBossMonster(t.attr) && !bossKilled) {
@@ -140,6 +142,45 @@ class PathScript {
 	size_t turns = 0; // Turn moves so far
 	int leverColours = 0; // bit per colour a pulled lever opened: its gates are up
 	std::set<int> gatesOpened; // cells of the key gates the script walked up to
+	std::set<int> platesWeighed; // cells of the pressure plates a stone was dragged onto
+	std::set<int> stonesUsed; // cells the stones stood in before the script dragged them
+
+	// A pressure plate on the path (plan campaign-plate-puzzles): the checker opens its gates once the path reaches it,
+	// the script drags the nearest stone of its floor run onto it. Pushed from the cell behind it (bare floor), else
+	// pulled (the
+	// player passes the plate by DRAG_HOLD). No stone: nothing (the walk on fails at the gate).
+	void weighPlate(const CellPos& plate) {
+		const int cell = plate.row * LEVEL_WIDTH + plate.col;
+		if (grid.at(plate.col, plate.row).fixture.type != PressurePlate || platesWeighed.count(cell) != 0)
+			return;
+		platesWeighed.insert(cell);
+		int stone = -1;
+		for (int dir : {-1, 1})
+			for (int c = plate.col + dir; dragFloor(grid, c, plate.row); c += dir) {
+				const Tile& t = grid.at(c, plate.row);
+				if (t.type == Stone && stonesUsed.count(plate.row * LEVEL_WIDTH + c) == 0) {
+					if (stone < 0 || std::abs(c - plate.col) < std::abs(stone - plate.col))
+						stone = c;
+					break;
+				}
+				if (t.type != NoObject || (t.fixture.type != NoObject && t.fixture.type != PressurePlate))
+					break; // the drag stops there
+			}
+		if (stone < 0)
+			return;
+		stonesUsed.insert(plate.row * LEVEL_WIDTH + stone);
+		const float dir = plate.col > stone ? 1.f : -1.f; // the way the stone goes
+		const float centre = static_cast<float>(stone) + 0.5f;
+		const int behind = stone - static_cast<int>(dir);
+		const bool push = dragFloor(grid, behind, plate.row) && grid.at(behind, plate.row).type == NoObject;
+		walkTo(centre + (push ? -dir : dir));
+		line(std::string("hold ") + ((push ? dir : -dir) > 0 ? "right" : "left") + " 1");
+		line("key r");
+		x = centre + (push ? -dir : dir) * DRAG_HOLD;
+		walkTo(static_cast<float>(plate.col) + 0.5f + (push ? -dir : dir) * DRAG_HOLD);
+		line("key r");
+		line("wait " + std::to_string(GATE_WAIT_MS) + "ms");
+	}
 
 	// The jumps into a path cell and inside it (plan subcell-checker-mismatches), then the walk to target with the walk
 	// key held from the last take-off. Each jump: the gates on its arc opened first (a key gate only opens as the

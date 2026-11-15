@@ -236,7 +236,9 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
 - `--script` (`src/level/path_script.cpp`) plays the path with the scenario commands: it crouches through a crawl,
   climbs a ladder to a step's height before stepping off it, and per jump (a stair in one cell: one per step) opens
   the key gates on the arc first, runs up to the checker's take-off sub-cell (or against the step's face) and turns
-  the jump's way. `tests/unit/subcell_mismatches_test.cpp` plays it in the sim on small levels.
+  the jump's way. At a pressure plate on the path it drags the nearest stone of the plate's floor run onto it, pushed
+  (pulled with no bare floor behind the stone; plan campaign-plate-puzzles). `tests/unit/subcell_mismatches_test.cpp`
+  plays it in the sim on small levels.
 
 It reports:
 

@@ -1,0 +1,23 @@
+# Plan campaign-plate-puzzles: lvl8's introduction (row 26): the stone at col 24 pushed onto the red plate at col 27
+# (it needs 3, the player alone weighs 2), the silver gate at col 30 rises, the player walks through it.
+seed 1
+god
+resolution 1024 768
+level 8 at 26 26
+wait 10
+screenshot stone_plate_gate
+walk to 27.5
+wait 60
+expect x < 29.6
+screenshot player_alone_too_light
+walk to 23.5
+hold right 100ms
+key r
+walk to 27.05
+key r
+wait 30
+screenshot stone_on_plate
+wait 120
+walk to 30.6
+expect x >= 30.5
+screenshot through_the_gate

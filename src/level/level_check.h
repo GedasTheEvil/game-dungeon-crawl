@@ -145,6 +145,10 @@ struct MonsterKind;
 // time? A run that blows both ways: against the first one's wind.
 [[nodiscard]] bool gustsCrossable(const LevelGrid& grid, int col, int row, int count);
 
+// The flat floor the player can drag things along (Dungeon::dragGround, plan pressure-plate): open and dry, no shape,
+// not solid (a closed gate is), on rock.
+[[nodiscard]] bool dragFloor(const LevelGrid& grid, int col, int row);
+
 // Threat of one monster of this MonsterTypeId in the difficulty score.
 [[nodiscard]] float monsterThreat(int type);
 

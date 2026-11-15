@@ -44,14 +44,6 @@ int dragWeight(const Tile& t) {
 	}
 }
 
-// The flat floor the player can drag things along (Dungeon::dragGround): open and dry, no shape, not solid, on rock.
-bool dragFloor(const LevelGrid& grid, int col, int row) {
-	if (col < 0 || col >= LEVEL_WIDTH || row < 1 || row >= LEVEL_HEIGHT)
-		return false;
-	const Tile& t = grid.at(col, row);
-	return t.structure == Structure::Empty && !hasShape(t) && !isSolidTile(t) && isWall(grid.at(col, row - 1));
-}
-
 // Pressure plates (plan pressure-plate): a lock colour and a weight; a plate's colour needs plate gates and the gates
 // a plate; the things on the plate's floor run (the flat floor round it, up to rock, a closed gate or a step) weigh
 // enough to hold it down without the player.
@@ -379,6 +371,13 @@ void checkSandGusts(const LevelGrid& grid, LevelReport& r) {
 }
 
 } // namespace levelcheck
+
+bool dragFloor(const LevelGrid& grid, int col, int row) {
+	if (col < 0 || col >= LEVEL_WIDTH || row < 1 || row >= LEVEL_HEIGHT)
+		return false;
+	const Tile& t = grid.at(col, row);
+	return t.structure == Structure::Empty && !hasShape(t) && !isSolidTile(t) && isWall(grid.at(col, row - 1));
+}
 
 bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir) {
 	int cycle = 1; // the run's pattern repeats after this long

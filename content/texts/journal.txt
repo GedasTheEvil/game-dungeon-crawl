@@ -529,10 +529,10 @@ text: Two gold rings went onto the table, one came back, and it is not gold. Dar
 
 [note.pressure-plates]
 title: Pressure plates
-text: A slab in the floor with a gem set in it, and it gives a little under my boots. Somewhere a silver gate went
-	up; the moment I stepped off, it came down again. The priests counted on weight, not on keys: a stone block, an
-	empty chest, even what is left of a guardian will hold a plate down as well as I can, and better. Drag something
-	heavy onto it, then walk through. Some gates want two plates held at once.
+text: A slab in the floor with a gem set in it. It gives a little under my boots, and some want more than me: I
+	stood on one and nothing moved. A stone block dragged onto it, and the silver gate went up. The priests counted on
+	weight, not on keys: a stone block, an empty chest, even what is left of a guardian will hold a plate down as well
+	as I can, and better. Take the weight off, and the gate comes down again. Some gates want two plates held at once.
 
 [note.floor-spikes]
 title: Floor spikes

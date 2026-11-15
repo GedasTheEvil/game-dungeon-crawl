@@ -70,6 +70,8 @@ std::string playScript(const LevelGrid& grid, const LevelReport& r) {
 			world.Jump();
 		else if (cmd == "crouch")
 			world.player.crouchHeld = a == "on";
+		else if (cmd == "key" && a == "r") // the drag key: take hold of the thing faced, or let go
+			ok = world.dungeon.ToggleDrag(world.facing) || !world.dungeon.Dragging();
 		else
 			return "unknown command: " + text;
 		if (!ok)
@@ -194,4 +196,21 @@ TEST_CASE("a stair in one cell: a jump per step, not one for the cell") {
 	CHECK(jumps[2].face == 1);
 	const std::string played = playScript(grid, r);
 	CHECK_MESSAGE(played.empty(), played);
+}
+
+TEST_CASE(
+	"a pressure plate on the path: the script drags the stone onto it, pushed or pulled (plan campaign-plate-puzzles)"
+) {
+	// The red plate (needs 3) at col 6 and its silver gate at col 3 or 8: the stone pushed from col 3 (bare floor
+	// behind it), or pulled from col 8 (the entrance behind it).
+	for (const char* row : {"#S.;..-.1.E#", "#E.1..-.;S##"}) {
+		const LevelGrid grid = drawn({"############", row, "############"});
+		const LevelReport r = checkLevel(grid);
+		REQUIRE(r.valid);
+		CHECK(r.warnings.empty());
+		const std::string script = pathScript(grid, r, "test", static_cast<float>(r.start.col));
+		CHECK(script.find("key r") != std::string::npos);
+		const std::string played = playScript(grid, r);
+		CHECK_MESSAGE(played.empty(), played);
+	}
 }

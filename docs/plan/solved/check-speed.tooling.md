@@ -79,3 +79,18 @@ Notes:
 * Step 4: splitting `gameplay_config.h` is not needed after the parallel build; the gate holds the build at about 8
   compiles at once (`RESERVE_CORES`).
 * Step 5 (friction report a week later) is the draft [check-speed-recheck](../check-speed-recheck.tooling.draft.sonet.md).
+
+### Recheck (2026-11-15)
+
+`python3 -I tools/friction_report.py --since 2026-11-07` (agent transcripts, all worktrees):
+
+| Row | Runs | Median s | p90 s | Total h |
+|---|---|---|---|---|
+| `make check`, before (`--since 2026-10-30`, 1 week) | 225 | 120 | 600 | 12.3 |
+| `make check`, after (since 2026-11-07) | 150 | 124 | 439 | 6.7 |
+| `make unit`, before (`--since 2026-10-30`, 2 weeks, mixes old and new) | 125 | 21 | 180 | 2.1 |
+| `make unit`, after (since 2026-11-07) | 23 | 39 | 180 | 0.5 |
+
+The median did not drop (120 s to 124 s); the p90 did (600 s to 439 s). The wall time of a run includes waiting
+on the gate and on other tasks' builds, and failed runs (20 of 150), so the median says little about the stages.
+Follow-up: [check-speed-stage-breakdown](../check-speed-stage-breakdown.tooling.draft.sonet.md).

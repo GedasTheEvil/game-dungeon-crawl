@@ -1,10 +1,10 @@
 # make check speed: recheck a week later
 
-Status: draft 2026-11-06, size S, needs nothing first. On hold: waits for a week of runs, until 2026-11-13.
+Status: solved 2026-11-15. Was: draft 2026-11-06, size S, needs nothing first.
 
 ## Problem
 
-[check-speed](solved/check-speed.tooling.md) made `make check` faster on 2026-11-06 (format-check on changed files,
+[check-speed](check-speed.tooling.md) made `make check` faster on 2026-11-06 (format-check on changed files,
 unit test shards, a parallel build). Before: 225 runs a week, median 120 s, p90 600 s, 12.3 h in total
 (`python3 -I tools/friction_report.py --since 2026-10-30`). Whether agents' runs got faster is not measured yet.
 

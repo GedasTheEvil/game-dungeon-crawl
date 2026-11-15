@@ -106,7 +106,7 @@
 31,9 surface 14/1/8
 32,9 surface 14/6/8 sand<
 33,9 surface 14/6/8 sand> prop canopicm -0.017 torch fire torch 0.000,0.680,0.098
-34,9 surface 15/1/8 prop skeleton 0.093
+34,9 surface 15/1/8 prop skeleton 0.000
 35,9 surface 14/6/8 sand<
 24,10 surface 6/1/2 torch fire torch 0.000,0.680,0.098
 28,10 surface 14/6/8 decal 7 0.389,0.510

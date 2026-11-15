@@ -813,7 +813,7 @@ T: Beyond this gate the field of reeds, the fields of the blessed.
 T: Beyond it also the ankh, and the way up.
 T: Your road was long. The road of the one before you was longer.
 T: He is not here. Maybe he took the right gate. Maybe he was right.
-N: I will find out. Then I will say it for the page.
+N: If I get out of here, I will say it for the page.
 
 id: 137
 title: The scribe's farewell

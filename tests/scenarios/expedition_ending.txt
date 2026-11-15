@@ -1,0 +1,10 @@
+# Plan expedition-ending: with D. J.'s last page and back cover in the journal, the ankh's epilogue answers him.
+god
+level 54 at 24 2
+page 24
+page 25
+walk to 26.5
+interact
+wait 8s
+screenshot epilogue
+expect won == 1

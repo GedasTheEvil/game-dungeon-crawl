@@ -532,6 +532,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"hurtboss", CommandType::HurtBoss, numberAtLeast<1>, "<hp>"},
 		{"poisonboss", CommandType::PoisonBoss, parsePoison, "<weak|medium|strong>"},
 		{"heka", CommandType::Heka, numberAtLeast<1>, "<count>"},
+		{"page", CommandType::Page, numberAtLeast<1>, "<expedition page number>"},
 		{"learn",
 		 CommandType::Learn,
 		 parseSkill,

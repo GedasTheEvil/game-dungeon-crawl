@@ -223,6 +223,16 @@ void Journal::WriteDiary(DiaryPage page) {
 	markNew(JournalPart::Diary, static_cast<int>(page));
 }
 
+void Journal::WriteEpilogue() {
+	WriteDiary(DiaryPage::Dawn);
+	if (HasPage(EXPEDITION_LAST_PAGE))
+		WriteDiary(HasPage(EXPEDITION_BACK_COVER) ? DiaryPage::AnswerBackCover : DiaryPage::Answer);
+}
+
+bool Journal::HasPage(int number) const {
+	return std::ranges::any_of(pages, [number](const ExpeditionPage& p) { return p.number == number; });
+}
+
 bool Journal::FindPage(int number, int level) {
 	if (!isExpeditionPage(number))
 		return false;

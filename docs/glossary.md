@@ -277,7 +277,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | epilogue | | the Diary's last entry, written at the win: up into the dawn with the ankh, the twelfth hour; closing it goes to the Hall of Records ([win-ending-flow](plan/solved/win-ending-flow.md)) | `DiaryPage::Dawn`, `WinEntry` |
 | prologue | | the Diary's first entry, how the archaeologist came here: the jackal-headed statue, the ankh | `DiaryPage::Arrival`, `DiaryPage::Descent` |
 | level | Lv | (weapon) a weapon's level, raised by copies found. Not the map level or the player's level | `ItemBag::Level`, `upgradeCost` |
-| expedition page | Expedition | a torn page of the earlier expedition's notebook (D. J.), on a skeleton, picked up on touch; 24 over the campaign, in the journal's Expedition section ([expedition-notes](plan/solved/expedition-notes.md)) | `Page`, `ExpeditionPage`, `Journal::FindPage`, `expeditionPageText` |
+| expedition page | Expedition | a torn page of the earlier expedition's notebook (D. J.), on a skeleton, picked up on touch; 24 pages and the back cover over the campaign, in the journal's Expedition section ([expedition-notes](plan/solved/expedition-notes.md)) | `Page`, `ExpeditionPage`, `Journal::FindPage`, `expeditionPageText` |
 | note | Field notes | a journal entry on a game rule, written the first time it matters | `FieldNote` |
 | new entry | new | a journal entry written or filled in since its page was last shown; a red dot on the page, its ribbon, the J tab and the HUD ([journal-new-mark](plan/solved/journal-new-mark.md)) | `Journal::IsNew`, `JournalPart`, `ui::newMark`, `JournalScreen::SeeShown` |
 | potion | | drunk from the inventory or a quick key | `PotionDef` |

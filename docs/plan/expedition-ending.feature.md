@@ -1,6 +1,6 @@
 # The earlier expedition's end: D. J.'s remains, and the epilogue answers his last page
 
-Status: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -56,8 +56,27 @@ new diary page changes. `bin/levelcheck content/levels/lvl49` stays warning-free
   place; it breaks "the last page" being the last (rename its heading?).
 * Should D. J. get a full name? The texts keep the nod light ("D. J.", "Who is Jack?", "Daniel would know").
 
+## Done
+
+* Open questions decided: page 25, a Page object (`EXPEDITION_PAGE_COUNT` 25, `EXPEDITION_LAST_PAGE` 24,
+  `EXPEDITION_BACK_COVER` 25 in `src/level/level.h`), heading "Inside the back cover", on D. J.'s skeleton at (34,9)
+  on lvl49's right route (the Page tile draws the skeleton; the duplicate skeleton prop is gone). No full name for D. J.
+* Order: the back cover is written last (Day 41); page 24 was torn out before it, and "the jackal took it up to the
+  fork in his teeth". Page 24 is unchanged. The back cover also gives the one answer to who built it (step 4): nobody
+  built it to keep the ankh; it is the sun's road through the night, walked to carry the ankh out.
+* The epilogue: `Journal::WriteEpilogue` (called by `WinEntry::openEpilogue`) writes Dawn, then `DiaryPage::Answer`
+  ("For D. J.") if page 24 is in the journal, or `AnswerBackCover` if the back cover is too
+  (`content/texts/journal.txt`).
+* Inscription 136 (lvl54): the stela's lines stay; the comment now reads "If I get out of here, I will say it for the
+  page.", true on both routes, and the epilogue's last line pays it off.
+* Scenario command `page N` (docs/testing.md) for the play script.
+* Tests: `tests/unit/expedition_test.cpp` (the epilogue's three cases, the back cover off the exit path),
+  `tests/scenarios/expedition_ending.txt` (take the ankh with pages 24 and 25: the answer page).
+
 ## Play-test
 
-* `bin/game --level 49`: take the right gate, reach the skeleton at the route's end, read the back cover in the journal
-  (J, Expedition).
-* A play script by the ankh with page 24 in the journal: take the ankh, the epilogue answers D. J.
+* `bin/game --play tests/play/expedition-ending.txt`: walk right to the ankh, take it (E). The epilogue's right page,
+  "For D. J.", answers him.
+* Change the script's `page 24` to `page 24` plus a line `page 25`: the answer tells of finding him on the right route.
+* Change the level line to `level 49 at 31 9`: walk right onto the skeleton (col 34), open the journal (J), Expedition
+  ribbon: "Inside the back cover".

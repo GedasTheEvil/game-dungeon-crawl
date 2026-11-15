@@ -438,6 +438,12 @@ bool runInstant(const Command& cmd) {
 			Game().player->stats.heka.Earn(boss * 5);
 		report(cmd, true, "");
 		return true;
+	case CommandType::Page: // the expedition page goes into the journal, as if picked up on this level
+		if (Game().journal.FindPage(static_cast<int>(cmd.a), Game().dungeon.LevelNumber()))
+			report(cmd, true, "");
+		else
+			report(cmd, false, "no such page, or found already");
+		return true;
 	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
 		if (!Game().player->stats.Learn(static_cast<SkillId>(cmd.ticks), true)) {
 			report(cmd, false, "learnt already, or no heka to spend");

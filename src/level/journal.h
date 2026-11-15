@@ -249,8 +249,12 @@ enum class DiaryPage : unsigned char {
 	Arrival, // the prologue: the statue, the ankh, the torch on the wall
 	Descent, // the prologue's second page: the club, the way down, the ankh at the bottom
 	Dawn, // the epilogue (plan win-ending-flow): up into the dawn with the ankh, written at the win
+	// The epilogue answers D. J. (plan expedition-ending), written at the win after Dawn: the last page was found
+	// (Answer), the back cover too (AnswerBackCover).
+	Answer,
+	AnswerBackCover,
 };
-constexpr int DIARY_PAGE_COUNT = 3;
+constexpr int DIARY_PAGE_COUNT = 5;
 
 // The earlier expedition's notebook (plan expedition-notes): torn pages found over the campaign, numbered in order of
 // depth (Page tiles, level.h). Its own section of the journal, someone else's hand.
@@ -304,6 +308,8 @@ class Journal {
 
 	// Written once; the pages keep the order they were written in.
 	void WriteDiary(DiaryPage page);
+	void WriteEpilogue(); // at the win: Dawn, then the answer to D. J. if his last page was found
+	[[nodiscard]] bool HasPage(int number) const;
 	[[nodiscard]] const std::vector<DiaryPage>& Diary() const { return diary; }
 
 	// A torn page picked up; the pages keep their numbers' order. True the first time.

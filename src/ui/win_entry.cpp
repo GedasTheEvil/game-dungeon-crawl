@@ -51,7 +51,7 @@ void WinEntry::Follow() {
 void WinEntry::openEpilogue(int row) {
 	marked = row;
 	state = State::Epilogue;
-	Game().journal.WriteDiary(DiaryPage::Dawn);
+	Game().journal.WriteEpilogue();
 	Game().ui.journal.OpenDiary(
 		Game().player->stats.run.campaign ? "goes to the Hall of Records" : "goes to the main menu"
 	);

@@ -140,12 +140,15 @@ from the land of Sokar on (fewer where the level had too few plain potion chests
 (health, stamina, might, armour); never what the level needs (a key item, a new weapon, the antidote, a Hapi potion):
 half of them are empty, and the checker does not count a trapped chest's antidote as in reach.
 
-The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 24 torn pages (`=`,
-attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in `content/texts/expedition.txt`).
+The earlier expedition's notebook ([expedition-notes](plan/solved/expedition-notes.md)): 24 torn pages and the back
+cover (`=`, attribute: the page number, in order of depth; `EXPEDITION_PAGE_COUNT`, texts in
+`content/texts/expedition.txt`).
 Pages 1-24 lie in levels 1, 2, 3, 5, 6, 8, 9, 12, 13, 15, 18, 20, 22, 24, 25, 27, 32, 34, 37, 38, 40, 42, 46 and 49,
 each a level or so before what it hints at, on a skeleton at a wing's end off the exit path. The fork pages lie on
 the way to their fork on the floor: page 8 on lvl12 (the first fork), page 24 on lvl49 (the last fork, on the exit
-path); pages 19 and 22 tell of the forks of lvl39 and lvl43.
+path); pages 19 and 22 tell of the forks of lvl39 and lvl43. The back cover (25,
+[expedition-ending](plan/expedition-ending.feature.md)) lies on D. J.'s skeleton at the end of lvl49's right route,
+off the exit path; with page 24 found, the epilogue answers him (`Journal::WriteEpilogue`).
 
 Route forks ([denser-levels](plan/solved/denser-levels.md#route-fork-left-or-right), levelgen `--fork`): lvl12,
 lvl39, lvl43 and the last one on lvl49, the warning (`FORK_TEXT`) between its drops. The Stargate chamber

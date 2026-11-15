@@ -83,8 +83,12 @@ enum DungeonTileType : unsigned char {
 	PressurePlate = 27,
 	Stone = 28, // a loose stone block (plan pressure-plate): dragged onto a pressure plate, its weight holds it down
 };
-// The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth.
-constexpr int EXPEDITION_PAGE_COUNT = 24;
+// The earlier expedition's notebook pages over the campaign (plan expedition-notes), numbered in order of depth. The
+// last torn page lies before lvl49's fork; the back cover lies at D. J.'s remains on its right route (plan
+// expedition-ending).
+constexpr int EXPEDITION_PAGE_COUNT = 25;
+constexpr int EXPEDITION_LAST_PAGE = 24; // "The last page": take the left gate, tell them I was right
+constexpr int EXPEDITION_BACK_COVER = 25; // "Inside the back cover", only on the right route
 [[nodiscard]] constexpr bool isExpeditionPage(int number) { return number >= 1 && number <= EXPEDITION_PAGE_COUNT; }
 // The types that hang on or come out of the back wall: they go in the wall layer (plan wall-layer), not the object's.
 [[nodiscard]] constexpr bool isWallType(int type) {

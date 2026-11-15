@@ -617,6 +617,24 @@ p2: I went in after him. Stone, then sand, then air that moves. I came up out of
 p3: Life without end, the signs said. I do not know yet what that means. Someone should know what happened down
 	there. Now someone does.
 
+# The epilogue answers the earlier expedition (plan expedition-ending): written after Dawn when D. J.'s last page
+# (page 24) is in the journal; answer-back-cover when his back cover (page 25, lvl49's right route) is too.
+[diary.answer]
+title: For D. J.
+p1: In my pocket, a torn page in another man's hand. Take the left gate, it says; tell them I was right. D. J., a
+	linguist, not a soldier, by the look of his notes.
+p2: I took the left gate, as he told me. I never found him. But the ankh was real, and the way up was where the walls
+	said it would be.
+p3: So, for the page, as I promised a wall I would: you were right.
+
+[diary.answer-back-cover]
+title: For D. J.
+p1: In my pocket, two pieces of another man's notebook: his last page and his back cover. D. J., a linguist, not a
+	soldier. I found him at the end of the right gate, beside the one who came before him.
+p2: The jackal does not want the ankh kept, he wrote; he wants it carried. Nobody built that road to hold it. It is
+	the sun's road through the night, and it was built to be walked. I walked it, and I carried it out.
+p3: So, for the page, as I promised a wall I would: you were right.
+
 # The ring notes (plan ring-accessories): one per RingGem in order, [note.ring-<gem>], the numbers of the copper,
 # silver, gold and sky-iron rings.
 [note.ring-garnet]

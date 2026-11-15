@@ -122,3 +122,11 @@ text: The necropolis. Loose ceilings everywhere: when the stone rumbles, keep wa
 heading: The last page
 text: If you read this, take the left gate. I took the right. Behind it, the tomb of the one who came before me, and
 	worse. The ankh is real. Tell them I was right. D. J.
+
+# Plan expedition-ending: on D. J.'s skeleton at the end of lvl49's right route. Written after page 24 was torn out:
+# the jackal carried that page back up to the fork.
+[page.25]
+heading: Inside the back cover
+text: Day 41. At the end, a skeleton older than the tomb, a jackal on every page of his notebook. So I was not the
+	first. Nobody built this to keep the ankh in: it is the sun's road through the night, and the jackal lets the
+	living walk it to carry the ankh out. He took my last page up to the fork in his teeth. I cannot walk. Tell them.

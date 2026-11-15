@@ -204,7 +204,7 @@ TEST_CASE("the win writes the epilogue after the prologue, once (plan win-ending
 	j.Begin();
 	j.WriteDiary(DiaryPage::Dawn);
 	j.WriteDiary(DiaryPage::Dawn);
-	REQUIRE(j.Diary().size() == DIARY_PAGE_COUNT);
+	REQUIRE(j.Diary().size() == 3); // arrival, descent, dawn
 	CHECK(j.Diary().back() == DiaryPage::Dawn);
 	CHECK(std::string(diaryText(DiaryPage::Dawn).title) == "The twelfth hour");
 	CHECK(diaryText(DiaryPage::Dawn).paragraphs[2] != nullptr);

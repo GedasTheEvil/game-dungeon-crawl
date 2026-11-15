@@ -10,6 +10,8 @@
 #include <cstring>
 #include <map>
 #include <sstream>
+#include <string>
+#include <vector>
 
 TEST_CASE("expedition page: picked up on touch into the journal, the skeleton stays, kept over a save") {
 	SimWorld world;
@@ -66,7 +68,7 @@ TEST_CASE("every expedition page has a heading and a text") {
 
 TEST_CASE("the expedition pages are numbered in order of depth without gaps: Day N rising, the last page last") {
 	int day = 0;
-	for (int n = 1; n < EXPEDITION_PAGE_COUNT; n++) {
+	for (int n = 1; n < EXPEDITION_LAST_PAGE; n++) {
 		CAPTURE(n);
 		const std::string heading = expeditionPageText(n).heading;
 		REQUIRE(heading.starts_with("Day "));
@@ -74,11 +76,17 @@ TEST_CASE("the expedition pages are numbered in order of depth without gaps: Day
 		CHECK(number > day);
 		day = number;
 	}
-	CHECK(std::string(expeditionPageText(EXPEDITION_PAGE_COUNT).heading) == "The last page");
+	CHECK(std::string(expeditionPageText(EXPEDITION_LAST_PAGE).heading) == "The last page");
+	// Plan expedition-ending: the back cover, written after the last page was torn out.
+	CHECK(EXPEDITION_BACK_COVER == EXPEDITION_PAGE_COUNT);
+	CHECK(std::string(expeditionPageText(EXPEDITION_BACK_COVER).heading) == "Inside the back cover");
 	CHECK(EXPEDITION_PAGE_COUNT >= 18); // one page every two or three levels of the 40 to 60
 }
 
-TEST_CASE("campaign: each expedition page once, in order of depth, all in reach; the last one on the exit path") {
+TEST_CASE(
+	"campaign: each expedition page once, in order of depth, all in reach; the last one on the exit path, the "
+	"back cover off it"
+) {
 	std::map<int, int> levelOf; // page number -> campaign level
 	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
 		CAPTURE(n);
@@ -94,12 +102,14 @@ TEST_CASE("campaign: each expedition page once, in order of depth, all in reach;
 			CHECK(isExpeditionPage(t.attr));
 			CHECK(levelOf.count(t.attr) == 0);
 			levelOf[t.attr] = n;
-			if (t.attr != EXPEDITION_PAGE_COUNT)
+			if (t.attr != EXPEDITION_LAST_PAGE && t.attr != EXPEDITION_BACK_COVER)
 				continue;
 			const bool onPath = std::any_of(report.path.begin(), report.path.end(), [&](const CellPos& p) {
 				return p.col == cell % LEVEL_WIDTH && p.row == cell / LEVEL_WIDTH;
 			});
-			CHECK(onPath);
+			CHECK(
+				onPath == (t.attr == EXPEDITION_LAST_PAGE)
+			); // the back cover: lvl49's right route (plan expedition-ending)
 		}
 	}
 	// Pages the rebuild has not placed yet (plan campaign-texts) are fine: at most one tile of each number.
@@ -110,4 +120,32 @@ TEST_CASE("campaign: each expedition page once, in order of depth, all in reach;
 		CHECK(level >= last);
 		last = level;
 	}
+}
+
+TEST_CASE(
+	"the epilogue answers D. J. only when his last page was found; the back cover changes the answer (plan "
+	"expedition-ending)"
+) {
+	Journal none;
+	none.WriteEpilogue();
+	CHECK(none.Diary() == std::vector<DiaryPage>{DiaryPage::Dawn});
+
+	Journal last;
+	REQUIRE(last.FindPage(EXPEDITION_LAST_PAGE, 49));
+	last.WriteEpilogue();
+	CHECK(last.Diary() == std::vector<DiaryPage>{DiaryPage::Dawn, DiaryPage::Answer});
+
+	Journal both;
+	REQUIRE(both.FindPage(EXPEDITION_LAST_PAGE, 49));
+	REQUIRE(both.FindPage(EXPEDITION_BACK_COVER, 49));
+	both.WriteEpilogue();
+	CHECK(both.Diary() == std::vector<DiaryPage>{DiaryPage::Dawn, DiaryPage::AnswerBackCover});
+	CHECK(std::string(diaryText(DiaryPage::AnswerBackCover).title) == "For D. J.");
+	CHECK(diaryText(DiaryPage::Answer).paragraphs[2] != nullptr);
+
+	std::stringstream save; // the answer page survives a save
+	both.Dump(save);
+	Journal loaded;
+	loaded.Load(save);
+	CHECK(loaded.Diary() == both.Diary());
 }

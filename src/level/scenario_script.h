@@ -72,6 +72,7 @@ enum class CommandType : unsigned char {
 	HurtBoss,
 	PoisonBoss,
 	Heka,
+	Page,
 	Learn,
 	Curse,
 	Campaign,

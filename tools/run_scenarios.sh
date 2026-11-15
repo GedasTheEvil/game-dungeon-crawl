@@ -84,6 +84,10 @@ run_one() {
 run_batch() {
 	local display=$1 out code queued started='' wait line cur='' text='' extra='' i paths=()
 	shift
+	if [ $# -eq 1 ]; then # the game batches two scripts or more: one alone prints no batch lines
+		run_one "${scenarios[$1]}" "$1"
+		return
+	fi
 	for i in "$@"; do
 		paths+=("${scenarios[$i]}")
 	done

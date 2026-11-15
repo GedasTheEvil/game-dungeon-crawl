@@ -1,6 +1,6 @@
 # Pressure plate and drag puzzles in the campaign levels
 
-Status: draft 2026-11-14, size L, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-14, size L, needs nothing first.
 
 ## Idea
 
@@ -50,8 +50,38 @@ dragging yet.
 * A scenario test (`tests/scenarios/`) for the introduction level: drag the stone onto the plate, the gate goes up.
   It catches a later level edit that breaks the puzzle.
 
+## Implementation
+
+| Level | Where | Variant | Scenario |
+|---|---|---|---|
+| lvl8 | row 26, cols 24-30, the critical path | introduction: a stone, the red plate (needs 3), its gate in sight | `plate_intro` |
+| lvl12 | row 4, cols 26-34, the treasure branch | the blue plate needs 2: the player opens it but cannot pass; the stone past it pulled back | `plate_hold` |
+| lvl15 | row 41, cols 7-25, the upper branch | lure: a mummy (col 25) onto the blue plate (col 24); or its body. A new drop (col 12) leads back to row 38: no soft-lock behind a gate that came down | `plate_lure` |
+| lvl18 | row 2, the boss arena | the High Priest's body (weight 4) on the blue plate (col 25); a new alcove (cols 18-19) by the boss gate | `plate_boss_body` |
+| lvl24 | row 6, cols 27-38, an empty dead end | two green plates (needs 3 and 2): the rock fall's stone and an emptied chest (placed as a chest); the dart plate moved to col 27 | `plate_two_plates` |
+| lvl39 | row 18, cols 23-28 | a mirror 2 cells off a new light shaft's beam: dragged under it, turned, it lights the red disc; a minor amulet of fire guard behind the gate | `plate_mirror_drag` |
+
+* Colours: none shares a colour with a key or lever of its level. Walkers that would stray onto a plate moved off
+  (lvl12's giant scarab, lvl15's giant scarab, lvl39's giant scorpion off the mirror's run).
+* The field note `note.pressure-plates` now fits the introduction (the player alone too light; the stone holds it).
+* Checker: a treasure placed as another container than a chest weighs nothing on a plate; the mirror the player
+  stands at may be dragged along its drag run before it is turned (`sunlitCellsDragging`, `dragRun`), for the sun
+  discs and the path. Path scripts (`levelcheck --script`, `make paths`) drag a stone onto a plate on the path and the
+  checker's dragged mirror under its beam (unit tests in `subcell_mismatches_test.cpp`).
+* `tools/run_scenarios.sh`: a batch of one script ran as a batch and counted as failed (the game prints batch lines
+  for two or more); it runs alone now.
+* Not done: no new inscription hint (the field note explains plates; inscriptions need the hieroglyph sheet); a
+  late-game (lvl46-54) puzzle, as six levels cover every variant.
+
 ## Play-test
 
-* `bin/game --level N` for the introduction level: the stone, the plate and its gate read at a glance; dragging the
-  stone on opens it.
-* One later level per variant (listed here when implemented).
+`bin/game --play tests/play/campaign-plate-puzzles.txt` (lvl8's introduction; the comment lists the others):
+
+* lvl8: off the ladder, the stone, the plate and the silver gate read at a glance; standing on the plate does
+  nothing; pushing the stone onto it opens the gate.
+* lvl12 (`level 12 at 26 4`): on the plate the gate rises, off it it comes down before you reach it; pull the stone
+  back onto the plate.
+* lvl15 (`level 15 at 27 41`): wait past the plate for the mummy; while it stands on the plate, slip through; the drop
+  at col 12 leads back down.
+* lvl18 (`level 18 at 31 2`), lvl24 (`level 24 at 28 6`), lvl39 (`level 39 at 25 18`): the boss's body, the two
+  plates (the fallen rock and the emptied chest), the mirror dragged under the shaft and turned.

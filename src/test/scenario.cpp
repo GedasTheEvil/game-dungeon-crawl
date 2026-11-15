@@ -65,6 +65,7 @@ struct Runner {
 	Script script;
 	size_t next = 0;
 	bool god = false;
+	bool infiniteStamina = false; // `stamina inf`, kept over `level` as god is
 	bool peace = false;
 	bool deathReported = false;
 
@@ -247,6 +248,7 @@ bool loadLevel(const Command& cmd) {
 	Game().dungeon.ClearWin();
 	Game().player->Reanimate();
 	Game().player->god = gRunner.god;
+	Game().player->infiniteStamina = gRunner.infiniteStamina;
 	Game().dungeon.SetPeace(gRunner.peace);
 	if (cmd.b > 0.f) // a start cell other than the entrance
 		return Game().dungeon.PlacePlayer(static_cast<int>(cmd.b) - 1, cmd.ticks);
@@ -500,6 +502,16 @@ bool runInstant(const Command& cmd) {
 		return true;
 	case CommandType::Tire: // straight off the stamina, to test the stamina potions and the HUD
 		Game().player->stats.SetStamina(std::max(0, Game().player->stats.Stamina() - static_cast<int>(cmd.a)));
+		report(cmd, true, stateLine());
+		return true;
+	case CommandType::Stamina: // plan stamina-lock-command: inf keeps it full, off ends that, N sets it (clamped)
+		if (cmd.ticks == 0) {
+			Game().player->stats.SetStamina(static_cast<int>(cmd.a));
+		} else {
+			gRunner.infiniteStamina = cmd.ticks == 1;
+			if (Game().player)
+				Game().player->infiniteStamina = gRunner.infiniteStamina;
+		}
 		report(cmd, true, stateLine());
 		return true;
 	case CommandType::FireHit: // a fire attack's hit (plan fire-damage): through the armour, it sets the player burning

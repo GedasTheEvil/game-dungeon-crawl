@@ -107,7 +107,7 @@ bin/game --no-sound --level 7            # the same, silent (any flag combines w
 number; after a map file or a generated level, whatever the dungeon's level number gives).
 
 `--play` runs the script's setup commands at once in the first frame: `resolution` (ignored, the settings' size wins),
-`seed`, `god`, `peace`, `level`, `give`, `equip`, `wear`, `xp`, `gear`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `tire`, `firehit`, `blind`, `daze`, `prop`,
+`seed`, `god`, `peace`, `level`, `give`, `equip`, `wear`, `xp`, `gear`, `heka`, `learn`, `curse`, `campaign`, `poison`, `hurt`, `tire`, `stamina`, `firehit`, `blind`, `daze`, `prop`,
 `torch`, `mirror`, `container`, `riddles`, `inscriptions`, `names`, `chest`, `camera`, `motion`, `toon`, `toonblurfirst`, `cutscenes`, `hitboxes`, `hints`, `gifts`, `killboss`, `killmonster`, `hurtboss`, `monsterhp`, `bosshp`, `poisonboss`, `poisonmonster`, `bleed`, `bleedmonster`, `loadgame`. At the first
 other command (`wait`, `walk`, `jump`, `key`, `screenshot`, `expect`, `quit`, ...) the script stops and you take over.
 The setup needs a `level` or `loadgame`, else the game prints why and exits with 2. A bad flag prints the usage, exit 2.
@@ -153,6 +153,8 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory), or a special key by its name in [settings.md](settings.md) (`key left`, `key f12`, `key f1`). |
 | `hurt N` | The player loses N HP straight away (no armour, ignores `god`), to test healing and the HUD. |
+| `stamina inf\|off` | `inf` keeps the player's stamina full (every spend is refilled at once, as `god` cancels damage); `off` ends it. Off by default; a level load keeps it, as `god` does. The HUD and the stamina potions behave as usual (the bar just stays full). `tire N` while `inf` is on drains for one tick only (it refills the next). |
+| `stamina N` | Set the stamina to N straight away (clamped to the max), for tests of the low-stamina rules. |
 | `tire N` | The player loses N stamina straight away (down to 0), to test the stamina potions and the HUD. It regenerates as usual. |
 | `firehit N` | The player takes an N HP fire hit, as from a fire attack: armour does not stop it, the fire guard cuts it, and it sets them burning for a few seconds ([fire damage](plan/solved/fire-damage.md)). No damage in `god` mode, but the burning shows. |
 | `blind MS` | The player is blinded for MS milliseconds, as by a blinding spit ([plan](plan/solved/giant-cobra-blinding-spit.md)): the dark green edges, the blur; wading clears it twice as fast. Works in `god` mode too. |

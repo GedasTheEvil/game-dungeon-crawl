@@ -1,0 +1,34 @@
+# Plan stamina-lock-command: stamina inf keeps the stamina full through nine sprint seconds and five club swings; off ends it; N sets it.
+seed 1
+god
+level tests/levels/bleeding
+wait 30
+expect stamina == 100
+stamina 20
+expect stamina == 20
+stamina inf
+sprint on
+hold right 3s
+expect stamina == 100
+hold left 3s
+expect stamina == 100
+hold right 3s
+expect stamina == 100
+sprint off
+equip club
+attack
+wait 20
+attack
+wait 20
+attack
+wait 20
+attack
+wait 20
+attack
+wait 20
+expect stamina == 100
+stamina off
+tire 40
+wait 5
+expect stamina < 100
+quit

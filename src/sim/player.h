@@ -59,6 +59,7 @@ class Player {
 	// (WeaponMotion::hitMs) has passed.
 	int attackStartMs = -1;
 	bool attackLanded = false;
+	bool infiniteStamina = false; // the scenario `stamina inf` (plan stamina-lock-command): refilled every tick
 	bool god = false; // the scenario god mode: no damage (TakeHit) and no poison damage
 	// The stamina-skill toggle (plan skill-flaming-arrows): on, every learned stamina skill that fits the attack
 	// applies and costs stamina. Saved (plan save-remembers-ui-state). The refusal (too little stamina for a skill)

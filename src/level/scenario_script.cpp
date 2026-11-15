@@ -315,6 +315,16 @@ bool parseKillMonster(const Args& args, Command& cmd) {
 	return args.size() == 1 && args[0] == "all";
 }
 
+// stamina: `inf` (ticks 1), `off` (ticks 2) or a number of at least 0 (a, ticks 0).
+bool parseStamina(const Args& args, Command& cmd) {
+	cmd.ticks = 0;
+	if (args.size() == 1 && (args[0] == "inf" || args[0] == "off")) {
+		cmd.ticks = args[0] == "inf" ? 1 : 2;
+		return true;
+	}
+	return numberAtLeast<0>(args, cmd);
+}
+
 // A column (a) and a prop of DECOR_NAMES (ticks).
 bool parseProp(const Args& args, Command& cmd) {
 	for (int d = 0; args.size() == 2 && parseFloat(args[0], cmd.a) && d < DECOR_COUNT; d++)
@@ -430,6 +440,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Poison:
 	case CommandType::Hurt:
 	case CommandType::Tire:
+	case CommandType::Stamina:
 	case CommandType::FireHit:
 	case CommandType::Blind:
 	case CommandType::Daze:
@@ -515,6 +526,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"gear", CommandType::Gear, parseGear, "<armour> <might> <max HP %>: the potions' and amulets' gains"},
 		{"hurt", CommandType::Hurt, numberAtLeast<0>, "<hp>"},
 		{"tire", CommandType::Tire, numberAtLeast<0>, "<stamina>"},
+		{"stamina", CommandType::Stamina, parseStamina, "<inf|off|stamina>"},
 		{"firehit", CommandType::FireHit, numberAtLeast<1>, "<hp>"},
 		{"blind", CommandType::Blind, numberAtLeast<1>, "<ms>"},
 		{"daze", CommandType::Daze, numberAtLeast<1>, "<ms>"},

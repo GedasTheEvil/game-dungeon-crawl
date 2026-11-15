@@ -48,6 +48,7 @@ enum class CommandType : unsigned char {
 	Gear,
 	Hurt,
 	Tire,
+	Stamina,
 	FireHit,
 	Blind,
 	Daze,

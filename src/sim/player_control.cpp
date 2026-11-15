@@ -99,6 +99,8 @@ bool PlayerControl::Walk(float dx, float dy) {
 
 void PlayerControl::AfterUpdate() {
 	player.stats.UpdateStamina(events);
+	if (player.infiniteStamina)
+		player.stats.SetStamina(player.stats.MaxStamina());
 	player.UpdatePoison(events);
 	player.UpdateBleeding(dungeon.PlayerWading(), events);
 	player.stats.Regenerate(dungeon.PlayerSafe(), UPDATE_TICK_MS);

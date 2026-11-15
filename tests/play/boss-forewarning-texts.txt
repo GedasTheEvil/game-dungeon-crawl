@@ -1,0 +1,7 @@
+# Plan boss-forewarning-texts: the stela beside Khepri's teleporter (lvl4, col 13 row 27); read it with E (Words of
+# Thoth is learnt), then the journal (J, Inscriptions). The same on the other boss levels: change the level line to
+# `level 13 at 34 15`, `level 18 at 35 11`, `level 22 at 2 12`, `level 41 at 4 42` (each stands by the boss teleporter).
+god
+level 4 at 13 27
+heka 1
+learn words_of_thoth

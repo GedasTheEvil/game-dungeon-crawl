@@ -1,6 +1,6 @@
 # Inscriptions that name the five bosses no wall mentions
 
-Status: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size M, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -68,5 +68,20 @@ Then `docs/levels.md` (the level table rows of lvl4, 13, 18, 22, 41 list their i
 
 ## Play-test
 
-* `bin/game --level 4` (and 13, 18, 22, 41): read the new inscription before the boss (Words of Thoth needed: a play
-  script with `give` or the skill set), see it in the journal (J, Inscriptions).
+* `bin/game --play tests/play/boss-forewarning-texts.txt` (Words of Thoth learnt, god mode): lvl4, Khepri's stela
+  stands right beside the boss teleporter. Read it with E, see it in the journal (J, Inscriptions). Edit the `level`
+  line for lvl13, 18, 22, 41 (the coordinates are in the script).
+* Each text names its boss and one rule: Khepri's scarabs and burning dung balls, the Mother of Webs putting out
+  torches (braziers stay lit), the High Priest's coffins and curses, the queen's eggs and poison, Rerek diving only in
+  sand. The Khepri stela gives a max health boon (the campaign's boon ratio test needs it).
+
+## Implementation notes
+
+* Ids 138 to 142; stelae and columns by the boss teleporters (lvl4 col 13 row 27, lvl13 34/15, lvl18 35/11 (37/11
+  has a shrine in front), lvl22 2/12, lvl41 4/42). No new `G:` sign, no sheet rebuild.
+* Decided differently: Khepri's stela has a boon (life 10): `inscriptions_test.cpp` needs boons >= texts / 6, and the
+  five new texts alone broke it. `docs/levels.md` rows updated; decor golden files of lvl4, 18, 22, 41 regenerated
+  (a placed fixture moves one decal or torch).
+* Wording tuned to the code: Khepri also rolls burning dung balls; the Mother puts out torches and lamps but not
+  braziers (so "a brazier she cannot put out"); Rerek only dives in sand, so "where there is stone, he cannot dive";
+  the queen's sting is strong poison.

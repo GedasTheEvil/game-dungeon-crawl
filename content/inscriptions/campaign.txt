@@ -603,3 +603,59 @@ T: My lord is the storm over the sand,
 T: the roar in the empty places.
 T: Hear his name, and keep away from his water.
 N: A fan letter, sealed in the rock. The red land is the desert. I noticed.
+
+# ---- boss forewarnings (plan boss-forewarning-texts): one on each boss level that had none, before the boss.
+# Each text is atmosphere and one hint that matches the boss's rules (src/level/monster_kinds.cpp).
+
+# lvl4, Khepri: scarabs dig out of the floor, burning dung balls. A boon (life): the campaign's boon ratio test needs 1 in 6
+id: 138
+title: Khepri in the morning
+style: stela
+G: L1 N5 N28 G1 Z1 D4 N14 X1
+T: I am Khepri in the morning, Ra at noon, Atum in the evening.
+T: I came into being of myself, and the beetle is my sign.
+T: When he calls, the scarabs come up out of the sand to him.
+T: The ball he rolls is the sun, and it burns.
+T: Take the breath of life from him who made himself.
+N: The scarab god. He calls his children and throws fire. Kill the children faster than he calls.
+boon: life 10
+
+# lvl13, Mother of Webs: puts out torches and lamps she passes, not braziers; webs slow
+id: 139
+title: The weaver of the third hour
+style: column
+G: N14 N5 O1 Q7 Aa1 Z1
+T: In the dark of the third hour sits the weaver who hates the lamp.
+T: Where she walks, the torches go out one by one.
+T: A brazier she cannot put out, and she will not sit in its light.
+N: Something that puts torches out. I will bring spare torches, and no spare courage.
+
+# lvl18, High Priest of Anubis: coffins, mummies, curses, purple bolt
+id: 140
+title: The chief lector of Anubis
+style: stela
+G: A53 R8 D21 D36 S34 Z1 I14 F31
+T: Here rests the chief lector of Anubis, who read the spells over the dead.
+T: His mouth was opened, that he might speak them still.
+T: When he speaks, the sleepers in the coffins rise.
+N: A priest who reads curses for a living. Or for a dying. Mind the purple.
+
+# lvl22, Scorpion queen: egg clusters hatch giant scorpions, strong poison
+id: 141
+title: The eldest of the seven
+style: column
+G: L7 H8 R4 N35A Z1 I10
+T: Seven scorpions walked with Isis; Tefen and Befen went before her.
+T: The eldest sits in the deep of the nest, and her eggs are many.
+T: Break the eggs, and her children are few. Her sting is strong.
+N: Isis had seven scorpions as bodyguards. One of them seems to have retired here.
+
+# lvl41, Rerek: lies under the sand, comes up and swallows; on stone he walks. After Book of the Dead spell 39 (paraphrase, not a translation).
+id: 142
+title: A spell against Rerek
+style: stela
+G: I14 I9 N29 N16 D4 Z1 N35A D21
+T: Get back, Rerek, crawl away! Your coils are cut, your head is off.
+T: You swim in the sand, but the sand will not hide you.
+T: Where there is stone, he cannot dive. Stand on the stone.
+N: A spell against the sand serpent. Shorter than I hoped. The stone part I like.

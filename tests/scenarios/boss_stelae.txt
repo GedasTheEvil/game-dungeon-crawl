@@ -1,0 +1,46 @@
+# Plan boss-forewarning-texts: the new inscription before each of five bosses (lvl4, 13, 18, 22, 41) is read with
+# Words of Thoth and written in the journal. Screenshots of the wall in tests/out/boss_stelae/.
+seed 1
+god
+level 4 at 13 27
+heka 1
+learn words_of_thoth
+wait 30
+walk to 13.5
+wait 10
+screenshot khepri
+interact
+wait 5
+expect journal_inscriptions == 1
+level 13 at 34 15
+wait 30
+walk to 34.5
+wait 10
+screenshot webs
+interact
+wait 5
+expect journal_inscriptions == 2
+level 18 at 35 11
+wait 30
+walk to 35.5
+wait 10
+screenshot priest
+interact
+wait 5
+expect journal_inscriptions == 3
+level 22 at 2 12
+wait 30
+walk to 2.5
+wait 10
+screenshot queen
+interact
+wait 5
+expect journal_inscriptions == 4
+level 41 at 4 42
+wait 30
+walk to 4.5
+wait 10
+screenshot rerek
+interact
+wait 5
+expect journal_inscriptions == 5

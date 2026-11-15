@@ -90,7 +90,7 @@
 32,11 surface 0/0/0 sand<
 33,11 surface 1/0/0
 34,11 surface 0/0/0 sand>
-35,11 surface 0/1/0 decal 0 0.619,0.570
+35,11 surface 0/1/0
 36,11 surface 0/0/0 sand< ladder 0/4
 37,11 surface 1/0/0 prop shrine_isis -0.000 torch fire torch 0.000,0.680,0.098
 38,11 surface 0/2/0

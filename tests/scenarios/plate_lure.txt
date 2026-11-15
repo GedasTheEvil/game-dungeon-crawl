@@ -1,0 +1,19 @@
+# Plan campaign-plate-puzzles: lvl15's upper branch (row 41): the mummy at col 25 wakes as the player passes the blue
+# plate at col 24 and follows them; on the plate it holds the silver gate at col 21 up (the player alone: only while
+# they stand there), the player slips through. Behind it the drop at col 12 leads back down to row 38.
+seed 1
+god
+resolution 1024 768
+level 15 at 27 41
+wait 10
+walk to 22.4
+hold right 1
+screenshot waiting_for_the_mummy
+wait 6s
+screenshot mummy_on_plate
+walk to 20.4
+expect x < 21
+screenshot through
+walk to 12.5
+wait 2s
+expect y < 39

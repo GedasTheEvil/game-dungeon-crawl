@@ -1,0 +1,22 @@
+# Plan campaign-plate-puzzles: lvl39's dead end (row 18): the mirror at col 24 stands off the light shaft's beam
+# (col 26); dragged under it and turned left, it lights the red sun disc at col 23, the red gate at col 27 opens to the
+# chest at col 28.
+seed 1
+god
+peace
+resolution 1024 768
+level 39 at 25 18
+wait 10
+hold left 1
+screenshot mirror_off_the_beam
+walk to 23.5
+hold right 1
+key r
+walk to 26.25
+key r
+wait 30
+interact
+wait 90
+screenshot disc_lit
+walk to 28.4
+expect x > 27.5

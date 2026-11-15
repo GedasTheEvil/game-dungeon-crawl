@@ -149,6 +149,11 @@ struct MonsterKind;
 // not solid (a closed gate is), on rock.
 [[nodiscard]] bool dragFloor(const LevelGrid& grid, int col, int row);
 
+// The cells a thing in cell (an index) can be dragged to along its row (Dungeon::dragGround, plan
+// campaign-plate-puzzles): the drag floor on either side up to the first cell with an object or a fixture other than
+// a pressure plate.
+[[nodiscard]] std::vector<int> dragRun(const LevelGrid& grid, int cell);
+
 // Threat of one monster of this MonsterTypeId in the difficulty score.
 [[nodiscard]] float monsterThreat(int type);
 

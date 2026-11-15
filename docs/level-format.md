@@ -68,7 +68,11 @@ glyphs `1` to `4`) stand open, under it they come down (not on anyone in the gat
 `Stone` (`;`) 4, an emptied chest or a mirror 2, a monster or its body `MonsterKind::weight`. The player drags stones,
 mirrors, emptied chests and bodies along the bare flat floor (no water, sand or shape, on a wall cell).
 `levelcheck` opens the plate gates once the player reaches a plate of their colour, and warns when the things on the
-plate's flat floor run weigh less than it needs, about a plate without plate gates and plate gates without a plate.
+plate's flat floor run weigh less than it needs (a treasure placed as another container than a chest weighs nothing),
+about a plate without plate gates and plate gates without a plate. Campaign puzzles
+([campaign-plate-puzzles](plan/campaign-plate-puzzles.feature.draft.opus.md)): lvl8 the introduction (a stone, a plate
+the player alone is too light for), lvl12 a plate the player holds, lvl15 a mummy lured onto it, lvl18 the boss's body,
+lvl24 two plates (a fallen rock, an emptied chest), lvl39 a mirror dragged under a light shaft.
 
 Water rules (the game, `levelcheck` as far as it models them): the player wades through half water at half speed and
 cannot sprint or jump while standing in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both) (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
@@ -106,7 +110,8 @@ the way the beam goes it stands edge-on and lets it by, pointing back it catches
 turn clockwise (down, left, up, right). A sun disc (`a`, a fixture, attribute: lock colour) a beam falls on is lit for
 good and opens every gate of its colour, as a lever. A beam burns mummies standing in it (fire, `SUN_BURN_FIRE`) and
 counts as light for the camel spiders. `levelcheck` models the beam: turning a mirror lights every sun disc a beam can
-reach with the mirrors the player reaches from there (with the colours open by then) set as needed; it warns about a
+reach with the mirrors the player reaches from there (with the colours open by then) set as needed, the turned mirror
+also dragged along its drag run first (plan campaign-plate-puzzles); it warns about a
 light shaft without rock behind it, a mirror in front of an inscription, a sun disc no beam can ever reach and one lit
 as the level starts.
 

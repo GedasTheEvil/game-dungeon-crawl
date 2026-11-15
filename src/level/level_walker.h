@@ -174,8 +174,9 @@ class Walker {
 
 	// Turning the mirror in the player's cell (plan sunlight-mirrors): a sun disc of a colour not open yet that a beam
 	// can light, the player setting the mirrors they reach from here with the colours they have (sunlitCells), and one
-	// way of setting them for it. The checker does not follow which way each mirror points: any mirror the player
-	// reaches points where the disc needs it.
+	// way of setting them for it; the mirror in the player's cell may be dragged along its floor run first (plan
+	// campaign-plate-puzzles). The checker does not follow which way each mirror points: any mirror the player reaches
+	// points where the disc needs it.
 	struct Turn {
 		int colour;
 		std::vector<MirrorSetting> way;

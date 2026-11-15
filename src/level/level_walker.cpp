@@ -107,10 +107,12 @@ const std::vector<Walker::Turn>& Walker::turns(int state) const {
 			}
 	}
 	std::vector<std::vector<MirrorSetting>> ways;
-	const std::vector<char> lit = sunlitCells(
+	const std::vector<char> lit = sunlitCellsDragging(
 		grid.cells,
 		[&](int cell, BeamDir way) { return blocksBeam(cell, mask, way); },
 		[&](int cell) { return reach[cell] != 0; },
+		[&](int cell) { return dragRun(grid, cell); },
+		nodes.cell(nodeOf(state)), // the mirror the player stands at: dragged, then turned
 		&ways
 	);
 	std::vector<Turn>& out = turnCache[state];

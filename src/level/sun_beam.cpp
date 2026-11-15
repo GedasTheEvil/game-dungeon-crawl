@@ -1,5 +1,6 @@
 #include "sun_beam.h"
 #include <algorithm>
+#include <utility>
 
 namespace {
 constexpr int CELLS = LEVEL_WIDTH * LEVEL_HEIGHT;
@@ -100,6 +101,50 @@ std::vector<char> sunlitCells(
 			const int next = stepFrom(cell, out);
 			if (next >= 0 && !blocked(next, out))
 				push(state(next, out), s);
+		}
+	}
+	return lit;
+}
+
+std::vector<char> sunlitCellsDragging(
+	const Tile* cells,
+	const BeamBlock& blocked,
+	const std::function<bool(int cell)>& free,
+	const std::function<std::vector<int>(int cell)>& run,
+	int only,
+	std::vector<std::vector<MirrorSetting>>* ways
+) {
+	std::vector<char> lit = sunlitCells(cells, blocked, free, ways);
+	std::vector<Tile> moved(cells, cells + CELLS);
+	std::vector<std::vector<MirrorSetting>> movedWays;
+	for (int from = 0; from < CELLS; from++) {
+		if (cells[from].type != Mirror || !free(from) || (only >= 0 && from != only))
+			continue;
+		for (const int to : run(from)) {
+			auto swapObjects = [&] { // the mirror there, no object here
+				std::swap(moved[from].type, moved[to].type);
+				std::swap(moved[from].attr, moved[to].attr);
+				std::swap(moved[from].value, moved[to].value);
+			};
+			swapObjects();
+			const std::vector<char> more = sunlitCells(
+				moved.data(),
+				blocked,
+				[&](int cell) { return cell == to || (cell != from && free(cell)); },
+				ways != nullptr ? &movedWays : nullptr
+			);
+			swapObjects();
+			for (int cell = 0; cell < CELLS; cell++) {
+				if (more[cell] == 0 || lit[cell] != 0)
+					continue;
+				lit[cell] = 1;
+				if (ways == nullptr)
+					continue;
+				(*ways)[cell] = movedWays[cell];
+				for (MirrorSetting& m : (*ways)[cell])
+					if (m.cell == to)
+						m.from = from;
+			}
 		}
 	}
 	return lit;

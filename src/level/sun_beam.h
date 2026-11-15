@@ -68,10 +68,12 @@ using BeamBlock = std::function<bool(int cell, BeamDir way)>;
 // cell on, then the next shaft's. A beam that comes back into a cell the way it went before is a loop: it ends there.
 [[nodiscard]] std::vector<BeamStep> traceBeams(const Tile* cells, const BeamBlock& blocked);
 
-// A mirror the checker sets: cell (an index), the way it points.
+// A mirror the checker sets: cell (an index), the way it points; from: the cell it is dragged from first (plan
+// campaign-plate-puzzles), -1 if it stays.
 struct MirrorSetting {
 	int cell;
 	BeamDir dir;
+	int from = -1;
 };
 
 // The cells a beam can light when the player turns the mirrors free(cell) says they can reach (the others stand as
@@ -81,6 +83,18 @@ struct MirrorSetting {
 	const Tile* cells,
 	const BeamBlock& blocked,
 	const std::function<bool(int cell)>& free,
+	std::vector<std::vector<MirrorSetting>>* ways = nullptr
+);
+
+// sunlitCells, and also with one of the mirrors free(cell) says the player reaches (only that in cell only, if not
+// -1) dragged first to a cell of run(cell), its flat floor run (plan campaign-plate-puzzles). The ways of the cells
+// only a dragged mirror lights hold its setting with from set.
+[[nodiscard]] std::vector<char> sunlitCellsDragging(
+	const Tile* cells,
+	const BeamBlock& blocked,
+	const std::function<bool(int cell)>& free,
+	const std::function<std::vector<int>(int cell)>& run,
+	int only,
 	std::vector<std::vector<MirrorSetting>>* ways = nullptr
 );
 

@@ -90,6 +90,10 @@ class PathScript {
 								 // found
 				flushWalk();
 				for (const MirrorSetting& m : r.pathTurnWays[turns]) {
+					if (m.from >= 0) { // the mirror here dragged first (plan campaign-plate-puzzles), then set
+						dragAlong(m.from % LEVEL_WIDTH, m.cell % LEVEL_WIDTH, m.from / LEVEL_WIDTH);
+						mirrors.erase(m.from);
+					}
 					if (m.cell == cur.row * LEVEL_WIDTH + cur.col)
 						for (; mirrors[m.cell] != m.dir; mirrors[m.cell] = clockwise(mirrors[m.cell]))
 							line("interact");
@@ -169,17 +173,24 @@ class PathScript {
 		if (stone < 0)
 			return;
 		stonesUsed.insert(plate.row * LEVEL_WIDTH + stone);
-		const float dir = plate.col > stone ? 1.f : -1.f; // the way the stone goes
-		const float centre = static_cast<float>(stone) + 0.5f;
-		const int behind = stone - static_cast<int>(dir);
-		const bool push = dragFloor(grid, behind, plate.row) && grid.at(behind, plate.row).type == NoObject;
-		walkTo(centre + (push ? -dir : dir));
-		line(std::string("hold ") + ((push ? dir : -dir) > 0 ? "right" : "left") + " 1");
-		line("key r");
-		x = centre + (push ? -dir : dir) * DRAG_HOLD;
-		walkTo(static_cast<float>(plate.col) + 0.5f + (push ? -dir : dir) * DRAG_HOLD);
-		line("key r");
+		dragAlong(stone, plate.col, plate.row);
 		line("wait " + std::to_string(GATE_WAIT_MS) + "ms");
+	}
+
+	// Drags the thing in col along row to col to: pushed from the cell behind it (bare floor), else pulled (the player
+	// ends DRAG_HOLD past to).
+	void dragAlong(int col, int to, int row) {
+		const float dir = to > col ? 1.f : -1.f; // the way the thing goes
+		const float centre = static_cast<float>(col) + 0.5f;
+		const int behind = col - static_cast<int>(dir);
+		const bool push = dragFloor(grid, behind, row) && grid.at(behind, row).type == NoObject;
+		const float side = push ? -dir : dir; // where the player stands from it
+		walkTo(centre + side);
+		line(std::string("hold ") + (side < 0 ? "right" : "left") + " 1");
+		line("key r");
+		x = centre + side * DRAG_HOLD;
+		walkTo(static_cast<float>(to) + 0.5f + side * DRAG_HOLD);
+		line("key r");
 	}
 
 	// The jumps into a path cell and inside it (plan subcell-checker-mismatches), then the walk to target with the walk

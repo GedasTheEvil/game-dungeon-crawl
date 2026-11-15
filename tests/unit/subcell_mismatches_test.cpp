@@ -70,7 +70,11 @@ std::string playScript(const LevelGrid& grid, const LevelReport& r) {
 			world.Jump();
 		else if (cmd == "crouch")
 			world.player.crouchHeld = a == "on";
-		else if (cmd == "key" && a == "r") // the drag key: take hold of the thing faced, or let go
+		else if (cmd == "mirror") { // the mirror at col a, row b points the way of the next number
+			std::string way;
+			words >> way;
+			ok = world.dungeon.SetMirror(std::stoi(a), std::stoi(b), std::stoi(way));
+		} else if (cmd == "key" && a == "r") // the drag key: take hold of the thing faced, or let go
 			ok = world.dungeon.ToggleDrag(world.facing) || !world.dungeon.Dragging();
 		else
 			return "unknown command: " + text;
@@ -213,4 +217,28 @@ TEST_CASE(
 		const std::string played = playScript(grid, r);
 		CHECK_MESSAGE(played.empty(), played);
 	}
+}
+
+TEST_CASE(
+	"a sun disc only a dragged mirror lights: the checker drags it, the script too (plan campaign-plate-puzzles)"
+) {
+	// The light shaft at col 6 shines down into row 1; the mirror at col 3 stands off its beam. Dragged under it and
+	// turned left, it lights the red sun disc at col 2: the red gate at col 8 opens the way to the exit.
+	const std::vector<std::string> rows = {"#############", "######l######", "#Sa(....R.E.#", "#############"};
+	const LevelGrid grid = drawn(rows);
+	const LevelReport r = checkLevel(grid);
+	REQUIRE(r.valid);
+	CHECK(r.warnings.empty());
+	const std::string script = pathScript(grid, r, "test", static_cast<float>(r.start.col));
+	CHECK(script.find("key r") != std::string::npos);
+	const std::string played = playScript(grid, r);
+	CHECK_MESSAGE(played.empty(), played);
+
+	// A stone at col 5 keeps the mirror off the beam: no way to light the disc.
+	std::vector<std::string> blocked = rows;
+	blocked[2][5] = ';';
+	bool warned = false;
+	for (const std::string& w : checkLevel(drawn(blocked)).warnings)
+		warned = warned || w.contains("no beam reaches the sun disc");
+	CHECK(warned);
 }

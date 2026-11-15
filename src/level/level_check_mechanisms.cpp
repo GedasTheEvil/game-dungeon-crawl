@@ -220,8 +220,8 @@ void checkNameGates(const LevelGrid& grid, int startState, LevelReport& r) {
 
 // Plan sunlight-mirrors: a light shaft has rock behind it (the crack the sun comes through), a mirror is not in front
 // of an inscription (reading it would take the key), a sun disc stands where a beam can fall on it, with every mirror
-// and gate as the player may want them. Returns the colours of the discs lit as the level starts (warned about: their
-// gates open at once).
+// and gate as the player may want them (a mirror also dragged along its floor run, plan campaign-plate-puzzles).
+// Returns the colours of the discs lit as the level starts (warned about: their gates open at once).
 int checkSunBeams(const LevelGrid& grid, LevelReport& r) {
 	for (int cell = 0; cell < CELLS; cell++) {
 		const Tile& t = grid.cells[cell];
@@ -236,12 +236,14 @@ int checkSunBeams(const LevelGrid& grid, LevelReport& r) {
 	}
 	if (r.sunDiscs == 0)
 		return 0;
-	const std::vector<char> anyWay = sunlitCells(
+	const std::vector<char> anyWay = sunlitCellsDragging(
 		grid.cells,
 		[&](int cell, BeamDir way) {
 			return isSolidStructure(grid.cells[cell].structure) || shapeStopsBeam(grid.cells[cell], way);
 		},
-		[](int) { return true; }
+		[](int) { return true; },
+		[&](int cell) { return dragRun(grid, cell); },
+		-1
 	);
 	const std::vector<char> atStart = sunlitCells(
 		grid.cells,
@@ -381,6 +383,19 @@ bool dragFloor(const LevelGrid& grid, int col, int row) {
 		return false;
 	const Tile& t = grid.at(col, row);
 	return t.structure == Structure::Empty && !hasShape(t) && !isSolidTile(t) && isWall(grid.at(col, row - 1));
+}
+
+std::vector<int> dragRun(const LevelGrid& grid, int cell) {
+	std::vector<int> run;
+	const int col = cell % LEVEL_WIDTH, row = cell / LEVEL_WIDTH;
+	for (int dir : {-1, 1})
+		for (int c = col + dir; dragFloor(grid, c, row); c += dir) {
+			const Tile& t = grid.at(c, row);
+			if (t.type != NoObject || (t.fixture.type != NoObject && t.fixture.type != PressurePlate))
+				break;
+			run.push_back(row * LEVEL_WIDTH + c);
+		}
+	return run;
 }
 
 bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir) {

@@ -19,11 +19,13 @@
 #include <queue>
 #include <set>
 #include "level_check.h"
+#include "containers.h"
 
 namespace levelcheck {
 namespace {
 // What a dragged thing or a body standing in the cell would weigh on a pressure plate (plan pressure-plate). A
-// treasure counts as a chest: its look is rolled, a jar or a coffin does not drag (an over-estimate).
+// treasure counts as a chest unless its placed look is another container (plan campaign-plate-puzzles): a rolled look
+// may be a jar or a coffin, which do not drag (an over-estimate).
 int dragWeight(const Tile& t) {
 	switch (t.type) {
 	case Stone:
@@ -34,7 +36,9 @@ int dragWeight(const Tile& t) {
 		return MIRROR_WEIGHT;
 	case Treasure:
 	case TrappedTreasure:
-		return CHEST_WEIGHT;
+		return hasPlacedContainer(t.dressing) && t.dressing.container != static_cast<int>(Container::Chest)
+				   ? 0
+				   : CHEST_WEIGHT;
 	case MonsterSpawn:
 		if (const MonsterKind* kind = monsterKind(t.attr))
 			return std::max(1, kind->weight); // its body, once slain

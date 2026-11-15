@@ -3,6 +3,7 @@
 // emptied chest, a body, dragged there (plan mirror-drag's drag). A save keeps the stone on its plate. The checker
 // warns when nothing on a plate's floor run is heavy enough.
 #include "../../external/doctest/doctest.h"
+#include "../../src/level/containers.h"
 #include "../../src/level/level_check.h"
 #include "../../src/level/map_marks.h"
 #include "../../src/level/tile_defs.h"
@@ -170,6 +171,13 @@ TEST_CASE("the checker: a plate gate opens once its plate is reached; a plate no
 	for (const std::string& w : checkLevel(grid).warnings)
 		goldWarned = goldWarned || w == "a gold pressure plate, but no plate gate of it";
 	CHECK(goldWarned);
+
+	// The treasure at col 16 placed as a jar (plan campaign-plate-puzzles): a jar does not drag, the green plates warn.
+	grid.cells[static_cast<size_t>(ROW * LEVEL_WIDTH + 16)].dressing.container = static_cast<int>(Container::Jar);
+	bool greenWarned = false;
+	for (const std::string& w : checkLevel(grid).warnings)
+		greenWarned = greenWarned || w.contains("green pressure plate at (col 18, row 2) needs 2");
+	CHECK(greenWarned);
 }
 
 TEST_CASE("plate gates: glyphs, colours, map marks") {

@@ -69,11 +69,11 @@
 31,6 surface 1/0/0 sand> decal 11m 0.383,0.470
 32,6 surface 0/1/0 prop ushabtim -0.001
 33,6 surface 0/2/0 sand<
-34,6 surface 0/0/0 prop sarcophagus -0.002
+34,6 surface 0/0/0
 35,6 surface 0/2/0
 36,6 surface 0/0/0 sand>
 37,6 surface 0/1/0 decal 10 0.518,0.547
-38,6 surface 0/0/0 sand< prop sarcophagusm -0.019
+38,6 surface 0/0/0 sand<
 8,7 surface 0/0/0 ladder 1/0
 22,7 surface 0/1/0 ladder 0/0
 8,8 surface 3/2/1 ladder 1/1

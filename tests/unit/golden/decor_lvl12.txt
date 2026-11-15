@@ -28,7 +28,7 @@
 14,3 surface 3/1/1 ladder 1/1
 8,4 surface 0/1/1
 9,4 surface 0/0/1 sand< prop scrollsm -0.092
-10,4 surface 2/0/1 sand> prop web 0.000 decal 5 0.613,0.625
+10,4 surface 2/0/1 sand> decal 0 0.682,0.525
 11,4 surface 3/1/1 prop webm -0.000 decal 1 0.530,0.386
 12,4 surface 5/2/1 sand<
 13,4 surface 3/0/1 prop web -0.000
@@ -51,7 +51,7 @@
 30,4 surface 0/0/1
 31,4 surface 0/0/1 sand> torch fire torch 0.000,0.680,0.098
 32,4 surface 0/1/1 prop thoth_ibis_seated 0.151
-33,4 surface 2/0/1 sand< prop ushabtim -0.037
+33,4 surface 2/0/1 sand<
 34,4 surface 4/2/1 decal 9 0.696,0.398
 25,5 surface 5/0/1 ladder 0/1m
 25,6 surface 1/2/1 ladder 0/2

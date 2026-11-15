@@ -1,0 +1,20 @@
+# Plan campaign-plate-puzzles: lvl18's boss arena (row 2): the High Priest's body (weight 4) dragged onto the blue
+# plate at col 25 (the player alone weighs 2) opens the silver gate of the alcove at col 19, by the boss gate.
+seed 1
+god
+resolution 1024 768
+level 18 at 31 2
+wait 30
+killboss
+wait 1s
+screenshot body
+walk to 29.3
+hold left 1
+key r
+walk to 25.75
+key r
+wait 1500ms
+screenshot body_on_plate
+walk to 18.6
+expect x < 19.5
+screenshot alcove

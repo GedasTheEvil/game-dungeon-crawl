@@ -1,0 +1,23 @@
+# Plan campaign-plate-puzzles: lvl12's treasure branch (row 4): the blue plate at col 27 needs 2, the player's weight:
+# on it the silver gate at col 33 rises, off it the gate comes down before they reach it; the stone at col 31 pulled
+# back onto the plate holds it, the player walks through to the chest at col 34.
+seed 1
+god
+resolution 1024 768
+level 12 at 26 4
+wait 10
+walk to 27.5
+wait 90
+screenshot player_on_plate
+hold right 6s
+expect x < 33
+screenshot gate_down_again
+walk to 30.7
+hold right 1
+key r
+walk to 27.25
+key r
+wait 90
+screenshot stone_on_plate
+walk to 34.3
+expect x > 33.5

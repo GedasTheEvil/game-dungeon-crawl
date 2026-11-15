@@ -1,0 +1,35 @@
+# Plan campaign-plate-puzzles: lvl24's dead end (row 6): two green plates, col 31 needs 3, col 34 needs 2; the rock
+# fall at col 29 drops the stone, pushed onto col 31; the chest at col 36 opened, emptied and pulled onto col 34; the
+# silver gate at col 37 rises only with both held, the reward chest at col 38 behind it.
+seed 1
+god
+resolution 1024 768
+level 24 at 28 6
+wait 10
+walk to 30.2
+wait 2s
+screenshot rock_fallen
+walk to 28.6
+hold right 1
+key r
+walk to 31.25
+key r
+wait 90
+walk to 34.5
+wait 90
+screenshot player_on_one_plate
+expect chests >= 2
+walk to 36.5
+interact
+wait 1s
+screenshot chest_opened
+interact
+wait 1s
+screenshot chest_emptied
+key r
+walk to 34.25
+key r
+wait 90
+screenshot both_plates_held
+walk to 38.3
+expect x > 37.5

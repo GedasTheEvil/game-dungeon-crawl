@@ -1,21 +1,23 @@
-20,2 surface 0/0/0 torch fire torch 0.000,0.680,0.098
-21,2 surface 0/0/0 sand>
-22,2 surface 0/1/0
-23,2 surface 0/0/0 sand< decal 10 0.747,0.511
-24,2 surface 1/0/0 prop jackalm 0.093
-25,2 surface 0/2/0 prop coffin 0.000 decal 11 0.607,0.610
-26,2 surface 0/0/0 sand> prop coffin 0.000 torch fire torch 0.000,0.680,0.098
-27,2 surface 0/1/0 prop coffin 0.000
-28,2 surface 0/2/0 sand< prop coffin_large 0.000
-29,2 surface 0/2/0 prop coffin 0.000
-30,2 surface 1/0/0 sand> prop coffin 0.000 decal 9 0.592,0.392
-31,2 surface 0/1/0 prop coffin 0.000 decal 11m 0.424,0.436
-32,2 surface 1/1/0 prop cat -0.004 decal 8m 0.502,0.513
+18,2 surface 1/0/0
+19,2 surface 0/0/0 sand>
+20,2 surface 2/1/0 torch fire torch 0.000,0.680,0.098
+21,2 surface 3/0/1 sand<
+22,2 surface 3/0/1 sand>
+23,2 surface 5/1/1 decal 10 0.747,0.511
+24,2 surface 3/0/1 sand< prop jackalm 0.093
+25,2 surface 4/0/1 decal 11 0.607,0.610
+26,2 surface 3/0/1 prop coffin 0.000 torch fire torch 0.000,0.680,0.098
+27,2 surface 2/2/0m prop coffin 0.000
+28,2 surface 0/0/0 prop coffin_large 0.000
+29,2 surface 0/0/0 prop coffin 0.000
+30,2 surface 0/0/0 prop coffin 0.000 decal 9 0.592,0.392
+31,2 surface 1/0/0 sand> prop coffin 0.000 decal 11m 0.424,0.436
+32,2 surface 0/1/0 prop cat -0.004 decal 8m 0.502,0.513
 33,2 surface 0/0/0 sand<
-34,2 surface 0/0/0 torch fire torch 0.000,0.680,0.098
-35,2 surface 0/0/0
-36,2 surface 0/0/0 sand>
-37,2 surface 1/1/0
+34,2 surface 2/2/0 sand> torch fire torch 0.000,0.680,0.098
+35,2 surface 3/1/1
+36,2 surface 5/1/1
+37,2 surface 4/0/1 sand<
 14,5 surface 0/0/0 torch fire torch 0.000,0.680,0.098
 2,6 surface 7/1/2
 3,6 surface 6/1/2 decal 8m 0.531,0.519

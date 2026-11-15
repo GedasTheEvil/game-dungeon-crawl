@@ -44,8 +44,13 @@ a previous turn).
 
 One small tool in the place of every hand-written loop: `tools/job.sh`, plain bash, no dependencies.
 
+* **Where the jobs live (decided, user 2026-11-15):** the project's own `tmp/` directory, `tmp/jobs/NAME/`. Add `/tmp/`
+  to `.gitignore`. The main folder's `tmp/` holds every job, worktrees included: the tool finds it with `git rev-parse
+  --git-common-dir`, whose parent is the main folder. So a job outlives `git worktree remove` (`reap` needs that), and
+  `status` sees the jobs of all worktrees. Agents' other scratch files (logs, crops, test output) may go to `tmp/` too, in
+  place of `/tmp/<name>`. `make clean` leaves it alone; `tools/job.sh clean` drops finished jobs older than a day.
 * `tools/job.sh start NAME -- CMD...` runs CMD detached (`setsid`) in the current directory. It writes these files to
-  `/tmp/jobs/<user>/NAME/`:
+  `tmp/jobs/NAME/`:
   * `log`: stdout and stderr.
   * `pid`
   * `cwd`
@@ -101,15 +106,14 @@ Tests (`tools/job_test.sh`, run by `make check`, a few seconds):
 
 Open points (the implementer's choice):
 
-* `/tmp/jobs/<user>/` or a directory under the repo's `build/` (gone with `make clean`). `/tmp` survives a worktree
-  removal, which `reap` needs.
 * Whether `wait` also stops early when the log stops growing for a long time (a hung test). Probably not: `make check`
   stages can be silent for minutes.
 * Whether the hook should also block `sleep N` alone above some N (a blind wait).
 
 ## Done when
 
-* `tools/job.sh` with `start`, `wait`, `status`, `log`, `reap`, and its tests in `make check`.
+* `tools/job.sh` with `start`, `wait`, `status`, `log`, `reap`, `clean`, and its tests in `make check`; `/tmp/` in
+  `.gitignore`.
 * The hook in `.claude/settings.json`, tested.
 * AGENTS.md, stuck-processes.md, the delegation brief in plans.md and the glossary (row: "job", "wait loop") updated.
 * `tools/friction_report.py` counts wait loops.

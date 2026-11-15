@@ -6,6 +6,7 @@
 #include "../../src/sim/model_info.h"
 #include "../../src/sim/monster.h"
 #include "../../src/sim/player.h"
+#include "../../src/sim/player_control.h"
 #include "../../src/sim/render_config.h"
 #include "../../src/level/campaign.h"
 #include "../../src/sim/dungeon.h"
@@ -48,6 +49,7 @@ class SimWorld {
 	std::vector<WorldEvent> said; // every event since the level loaded, oldest first
 	Dungeon dungeon;
 	int facing = -1; // the camera's: -1 left (as the game starts), +1 right; walking turns it
+	bool refusalTold = false; // this press of the attack key was refused and told (PlayerControl)
 
 	SimWorld() {
 		GameClock::enableVirtual();
@@ -71,19 +73,19 @@ class SimWorld {
 		return started();
 	}
 
+	// The game's player controls on this world (plan player-control-in-sim): input.cpp and game_loop.cpp call the same.
+	PlayerControl Control() { return {dungeon, player, items, events, refusalTold}; }
+
 	// One tick: the held keys' step, the world's update, a power hit's charge, the attack's hit, then the player's
-	// poison and healing, then every pose (the game loop's order).
+	// poison and healing, then every pose (the game loop's order). A shot leaves at about the fists' height (the game
+	// asks its drawn fist).
 	void Tick() {
 		GameClock::advance(UPDATE_TICK_MS);
 		dungeon.Update();
 		player.UpdateCharge();
 		if (player.Alive())
-			updateAttack();
-		player.stats.UpdateStamina(events);
-		player.UpdatePoison(events);
-		player.stats.Regenerate(dungeon.PlayerSafe(), UPDATE_TICK_MS);
-		dungeon.AnimateMonsters();
-		player.Animate();
+			Control().UpdateAttack(facing, 0.65f * player.Height());
+		Control().AfterUpdate();
 		for (WorldEvent& e : events.Take())
 			said.push_back(std::move(e));
 	}
@@ -103,7 +105,7 @@ class SimWorld {
 	// One step of the walk key that way (dir -1 / +1), as stepHeldWalk does before the update. True: moved.
 	bool Step(int dir) {
 		facing = dir;
-		return walk(static_cast<float>(dir) * PLAYER_MOVE_STEP * moveMultiplier(), 0.f);
+		return Control().Walk(static_cast<float>(dir) * PLAYER_MOVE_STEP * Control().MoveMultiplier(), 0.f);
 	}
 
 	// As `walk to x`: holds the walk key until the player's map x reaches x. False: blocked for 30 ticks.
@@ -139,7 +141,8 @@ class SimWorld {
 		int stuck = 0;
 		while ((Y() - to) * static_cast<float>(dir) < 0.f) {
 			const float from = Y();
-			walk(0.f, dir > 0 ? PLAYER_FORWARD_MOVE_STEP * moveMultiplier() : -PLAYER_MOVE_STEP * moveMultiplier());
+			const float step = dir > 0 ? PLAYER_FORWARD_MOVE_STEP : -PLAYER_MOVE_STEP;
+			Control().Walk(0.f, step * Control().MoveMultiplier());
 			Tick();
 			stuck = Y() == from ? stuck + 1 : 0;
 			if (stuck >= 30)
@@ -163,14 +166,14 @@ class SimWorld {
 	void Equip(ItemKind weapon) {
 		if (items.Count(weapon) == 0)
 			Give(weapon);
-		items.Use(weapon, bagUser());
+		items.Use(weapon, bagUser(player));
 	}
 	// As `wear` (given first if not held): the amulet on, its bonus applied.
 	void Wear(ItemKind amulet) {
 		if (items.Count(amulet) == 0)
 			Give(amulet);
 		if (items.Worn() != amulet)
-			items.Use(amulet, bagUser());
+			items.Use(amulet, bagUser(player));
 		player.stats.Wear(amuletBonus(items.Worn()), true);
 	}
 	// As `wear <ring> left|right` (given first if not held): the ring on that hand, the rings' bonus applied.
@@ -182,38 +185,24 @@ class SimWorld {
 		player.stats.WearRings(ringBonus(items.Rings()));
 	}
 
-	// The attack key with the equipped weapon (input.cpp tryAttack): false while a swing or its recovery runs, or on a
-	// ladder. It hits (or shoots) at the weapon's hit time, in a later Tick.
+	// A press of the attack key with the equipped weapon (PlayerControl::Attack): false while a swing or its recovery
+	// runs, on a ladder, with Palsy and a ranged weapon, or with no shot left. It hits (or shoots) at the weapon's hit
+	// time, in a later Tick.
 	bool Attack() {
-		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed() || !dungeon.AttackAllowed(true))
-			return false;
-		// No shot left, or a monster too close (plan ranged-weaker-than-melee): no draw.
-		if (const Dungeon::ShotRefusal why = dungeon.ShotRefused(items.Equipped(), facing);
-			why != Dungeon::ShotRefusal::None) {
-			dungeon.RefuseShot(why);
-			return false;
-		}
-		player.swingPower = 0;
-		swing(false);
-		return true;
+		refusalTold = false;
+		return Control().Attack(facing) != PlayerControl::Began::None;
 	}
 
-	// As the attack key held down for ms, then let go (input.cpp, plan skill-power-hit): with the skill, the toggle on
-	// and a melee weapon, a power hit's charge, released into the swing; otherwise a plain Attack at the press. True: a
-	// swing began.
+	// As the attack key held down for ms, then let go (PlayerControl::Press, plan skill-power-hit): with the skill, the
+	// toggle on and a melee weapon, a power hit's charge, released into the swing; otherwise a plain Attack at the
+	// press. True: a swing began.
 	bool HoldAttack(int ms) {
-		if (!player.CanCharge(isRanged(items.Equipped())) || player.attackStartMs >= 0 ||
-			!player.attackTimer.TimePassed(true) || !player.StartCharge()) {
-			const bool began = Attack();
-			Wait(ms);
-			return began;
-		}
+		refusalTold = false;
+		const PlayerControl::Began began = Control().Press(facing);
 		Wait(ms);
-		const bool charged = player.ReleaseCharge() > 0;
-		if (!dungeon.AttackAllowed(true))
-			return false;
-		swing(charged);
-		return true;
+		if (began != PlayerControl::Began::Charge)
+			return began != PlayerControl::Began::None;
+		return Control().ReleaseCharge() != PlayerControl::Began::None;
 	}
 
 	// As `savegame` then `loadgame` (GameState::Save, LoadSave): the level number, the stats, the bag, the dungeon and
@@ -293,67 +282,6 @@ class SimWorld {
 		player.Reanimate();
 		said.clear();
 		return true;
-	}
-
-	// input.cpp: no sprint while wading, except with the Favour of Hapi skill or the Blessing of Hapi potion.
-	[[nodiscard]] float moveMultiplier() const {
-		return dungeon.PlayerSprintMultiplier(player.stats.SprintMoveMultiplier());
-	}
-
-	bool walk(float dx, float dy) {
-		const bool sprints = dungeon.PlayerCanSprint();
-		const float factor = dungeon.PlayerStepFactor();
-		const bool moved = dungeon.Move(dx * factor, dy * factor);
-		if (moved && sprints)
-			player.stats.NoteWalked(dungeon.PlayerHalvedWadeDrain());
-		return moved;
-	}
-
-	[[nodiscard]] BagUser bagUser() const {
-		return {player.Alive(),
-				player.stats.CurrentHP(),
-				player.stats.CurrentMaxHP(),
-				player.stats.Stamina(),
-				player.stats.MaxStamina(),
-				player.stats.vitals.poison.Any(),
-				player.stats.PotionResistPercent()};
-	}
-
-	// input.cpp: the swing begins; a charged one at its windup.
-	void swing(bool charged) {
-		const WeaponMotion& motion = weaponDef(items.Equipped()).motion;
-		player.attackTimer.Reset();
-		player.attackTimer.SetInterval(motion.AttackMs());
-		player.attackStartMs = GameClock::now() - (charged ? windupMs(motion) : 0);
-		player.attackLanded = false;
-	}
-
-	// game_loop.cpp updateAttack: the hit at the weapon's hit time; the hand height of a shot is about the fists'.
-	void updateAttack() {
-		if (player.attackStartMs < 0)
-			return;
-		const ItemKind kind = items.Equipped();
-		const WeaponDef& def = weaponDef(kind);
-		const int t = GameClock::now() - player.attackStartMs;
-		if (!player.attackLanded && t >= def.motion.hitMs) {
-			player.attackLanded = true;
-			const int damage = player.stats.Damage(weaponDamage(kind, def.damage, items.Level(kind)));
-			if (isRanged(kind)) {
-				if (!dungeon.ShootWeapon(kind, damage, facing, 0.65f * player.Height(), player.stats.WeaponReach(kind))) {
-					player.attackStartMs = -1;
-					return;
-				}
-			} else
-				dungeon.AttackNearest(
-					player.PowerDamage(damage),
-					def.mix,
-					player.stats.WeaponReach(kind),
-					facing,
-					player.SwingShare()
-				);
-		}
-		if (t >= def.motion.swingMs)
-			player.attackStartMs = -1;
 	}
 };
 

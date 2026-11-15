@@ -184,3 +184,36 @@ TEST_CASE("each ranged weapon hits softer than its melee twin, per hit and per s
 		rangedKinds += isRanged(itemAt(i)) ? 1 : 0;
 	CHECK(checked == rangedKinds); // every ranged weapon has its twin here
 }
+
+TEST_CASE("with palsy the bow draws nothing and spends no shot; the sword still swings (plan player-control-in-sim)") {
+	SimWorld world; // tests/levels/archery: the plant at col 13, the player at col 1
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/archery"));
+	world.Equip(ItemKind::SelfBow);
+	world.Wait(2000);
+	REQUIRE(world.player.attackTimer.TimePassed(true));
+	REQUIRE(world.player.stats.LayCurse(Curse::Palsy, CurseGrade::Lesser, world.events, testRng()));
+	const int shots = weaponDef(ItemKind::SelfBow).shots;
+	CHECK_FALSE(world.Attack());
+	CHECK(world.player.attackStartMs < 0);
+	world.Tick();
+	CHECK(world.items.ShotsLeft(ItemKind::SelfBow, shots) == shots);
+	CHECK(world.Told("Your hands shake too much to aim"));
+	world.Equip(ItemKind::ShortSword);
+	CHECK(world.Attack());
+}
+
+TEST_CASE("a refused shot costs no attack interval (plan player-control-in-sim)") {
+	SimWorld world; // tests/levels/archery
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/archery"));
+	world.Equip(ItemKind::Javelin);
+	world.WaitTicks(30);
+	REQUIRE(world.Walk(3.f));
+	REQUIRE(world.Walk(-0.2f)); // facing away from the plant
+	for (int i = 0; i < weaponDef(ItemKind::Javelin).shots; i++)
+		shootAndRecover(world);
+	REQUIRE(world.player.attackTimer.TimePassed(true));
+	CHECK_FALSE(world.Attack()); // no shot left
+	CHECK(world.player.attackTimer.TimePassed(true)); // the refusal did not restart the attack timer
+}

@@ -67,5 +67,5 @@ the inventory, shrines, riddles and skills (`make test`) must pass unchanged.
 
 * sim library or level library: the level library is enough if the shrine's `God` and the level number come in as
   values. Implementer's choice.
-* `Wear` / `WearRing` / `bagUser` overlap [player-control-in-sim](player-control-in-sim.tooling.draft.opus.md):
+* `Wear` / `WearRing` / `bagUser` overlap [player-control-in-sim](solved/player-control-in-sim.tooling.md):
   whichever lands first takes them.

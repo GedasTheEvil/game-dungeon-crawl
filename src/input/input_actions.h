@@ -3,6 +3,7 @@
 
 #include "../level/input.h"
 #include "../level/bindings.h"
+#include "../sim/player_control.h"
 #include <string>
 
 enum class GameplayAction : unsigned char {
@@ -41,6 +42,9 @@ void followCursor();
 void updatePowerCharge();
 // The attack key let go (also the scenario `attack up`).
 void releaseAttack();
+
+// The game's player controls (plan player-control-in-sim): the attack's hit time, the per-tick update.
+PlayerControl playerControl();
 
 // The gameplay action a binding runs; None for the ones handled outside it (sprint, look, the screens).
 GameplayAction gameplayActionOf(BindAction action);

@@ -20,43 +20,14 @@ constexpr float PLAYER_CLIMB_ROT = 180.f; // back to the camera
 // (tools/blender/models/ladder.py), the fists ~1.7 in front of the model's centre (CLIMB_GRIP_Y in archeologist.py).
 constexpr float PLAYER_CLIMB_DEPTH = -16.f;
 
-// The attack's hit time: a melee hit lands (its sound only if it hit something), or the shot leaves.
+// The attack's hit time: a melee hit lands (its sound only if it hit something), or the shot leaves from the fist.
 void updateAttack() {
 	Player& player = *Game().player;
 	if (player.attackStartMs < 0)
 		return;
-	Item* weapon = Game().ui.inventory->Equipped();
-	const ItemKind kind = Game().ui.inventory->EquippedKind();
-	const WeaponDef& def = weaponDef(kind);
-	const int t = GameClock::now() - player.attackStartMs;
-	if (!player.attackLanded && t >= def.motion.hitMs) {
-		player.attackLanded = true;
-		const int damage = player.stats.Damage(Game().ui.inventory->EquippedDamage());
-		const float aimRange = player.stats.WeaponReach(kind);
-		if (isRanged(kind)) {
-			// A monster come too close during the draw stops the shot (plan ranged-weaker-than-melee): the swing ends.
-			if (!Game().dungeon.ShootWeapon(
-					kind,
-					damage,
-					Game().camera.Facing(),
-					Game().playerView.Fist(player, Game().camera.Facing())[1] / RenderConfig::TILE_SIZE,
-					aimRange
-				)) {
-				player.attackStartMs = -1;
-				return;
-			}
-			weapon->strikeSound.Play();
-		} else if (Game().dungeon.AttackNearest( // with a power hit's bonus (plan skill-power-hit)
-					   player.PowerDamage(damage),
-					   def.mix,
-					   player.stats.WeaponReach(kind),
-					   Game().camera.Facing(),
-					   player.SwingShare()
-				   ))
-			weapon->strikeSound.Play();
-	}
-	if (t >= def.motion.swingMs)
-		player.attackStartMs = -1;
+	const int facing = Game().camera.Facing();
+	if (playerControl().UpdateAttack(facing, Game().playerView.Fist(player, facing)[1] / RenderConfig::TILE_SIZE))
+		Game().ui.inventory->Equipped()->strikeSound.Play();
 }
 
 // The menu's track on the start menu, the death and the win screen (the in-game menu keeps the zone's), else the
@@ -143,12 +114,8 @@ void tick() {
 	);
 	if (Game().player->Alive() && !Game().dungeon.Won()) // play time: paused, menus and the UI screens do not count
 		Game().player->stats.run.AddPlayMs(UPDATE_TICK_MS, Game().dungeon.LevelNumber());
-	Game().player->stats.UpdateStamina(Game().events);
-	Game().player->UpdatePoison(Game().events);
+	playerControl().AfterUpdate();
 	Game().ui.inventory->FollowInsanity(Game().player->stats.curses.Has(Curse::Insanity));
-	Game().player->stats.Regenerate(Game().dungeon.PlayerSafe(), UPDATE_TICK_MS);
-	Game().dungeon.AnimateMonsters();
-	Game().player->Animate();
 	updateFirstHints();
 	PlayerHud::tick(Game().player->stats.CurrentHP(), Game().player->stats.CurrentMaxHP());
 	glutPostRedisplay();

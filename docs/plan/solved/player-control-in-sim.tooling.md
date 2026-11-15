@@ -1,6 +1,6 @@
 # The attack, the walk step and the tick order in one place for the game and SimWorld
 
-Status: draft 2026-11-13, size M, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size M, needs nothing first.
 
 ## Problem
 
@@ -64,5 +64,5 @@ and after; `bin/balance table` output before and after should differ only where 
 
 ## Open questions
 
-* `Wear` / `WearRing` / `bagUser` overlap [item-actions-out-of-screens](item-actions-out-of-screens.tooling.draft.opus.md):
+* `Wear` / `WearRing` / `bagUser` overlap [item-actions-out-of-screens](../item-actions-out-of-screens.tooling.draft.opus.md):
   whichever lands first takes them; the other drops them.

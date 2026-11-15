@@ -236,6 +236,7 @@ code. A feature's numbers (speeds, ranges, timings) sit in `level/gameplay_confi
 | Status cards (the player's HUD row, a monster's over its health bar, the boss's over its HUD bar) and the shared vitals they read (HP, poison, fire, water, daze / stun) | `Vitals`, `Harm`, `Guard` (`level/vitals.h`, plan shared-vitals); `addConditions`, `statusList`, `monsterStatuses` (`level/status_list.*`); `PlayerHud::drawStatusCard` (`ui/player_hud.cpp`), `drawStatusRow` (`graphics/monster_draw.cpp`), `BossBar::draw`; icons `tools/textures/hud_icons.py` |
 | A status effect on the HUD (blessing, condition or curse card): a cell in `tools/textures/hud_icons.py` (the icon; run it), an `Icon` entry (`level/hud_icon.h`), one `Add` in `statusList` (`level/status_list.cpp`: kind, icon, tint, pips, time left); no draw code. Cards: `tools/textures/status_cards.py` | `level/status_list.*`, `drawStatuses` (`ui/player_hud.cpp`) |
 | Keys and mouse | `input/input.cpp`, `level/bindings.*`, `input/input_actions.h`; the camera peek and the look keys `level/camera_look.h`, the hidden cursor `followCursor` |
+| The player's attack, power hit, walk step and per-tick update (the game and SimWorld alike) | `PlayerControl` (`sim/player_control.{h,cpp}`); the keys and sounds in `input/input.cpp`, the fist's height in `updateAttack` (`state/game_loop.cpp`) |
 | Game loop, frame drawing | `state/game_loop.cpp`, `graphics/draw.cpp` |
 | Blood splashes | `sim/particles.*` (motion), `graphics/particles_draw.*` |
 | Scenario commands | `test/scenario*.cpp` |

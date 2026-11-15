@@ -40,7 +40,7 @@ class PlayerActionController {
 			return;
 		// No sprint while wading, except with the Favour of Hapi skill or the Blessing of Hapi potion, nor in sand
 		// (Dungeon::PlayerSprintMultiplier).
-		const float moveMultiplier = Game().dungeon.PlayerSprintMultiplier(Game().player->stats.SprintMoveMultiplier());
+		const float moveMultiplier = playerControl().MoveMultiplier();
 		switch (action) {
 		case GameplayAction::MoveLeft:
 			walk(-PLAYER_MOVE_STEP * moveMultiplier, 0);
@@ -66,8 +66,8 @@ class PlayerActionController {
 		case GameplayAction::Attack:
 			if (Game().player->Charging())
 				chargeReleased = false; // the key repeat: still held
-			else if (!tryCharge())
-				tryAttack();
+			else
+				played(playerControl().Press(Game().camera.Facing()));
 			break;
 		case GameplayAction::Interact:
 			Game().dungeon.Interact();
@@ -161,15 +161,7 @@ class PlayerActionController {
 		}
 	}
 
-	// Only a step that really moved the player counts for the sprint drain, and none in the water (no sprint there),
-	// unless the Favour of Hapi skill or the Blessing of Hapi potion lets the player sprint in it (plan
-	// water-blessing-potion), nor in sand (plan desert-chapter). Wading and sand slow the step (PlayerWalkFactor).
-	static void walk(float dirX, float dirY) {
-		const bool sprints = Game().dungeon.PlayerCanSprint();
-		const float factor = Game().dungeon.PlayerStepFactor();
-		if (Game().dungeon.Move(dirX * factor, dirY * factor) && sprints)
-			Game().player->stats.NoteWalked(Game().dungeon.PlayerHalvedWadeDrain());
-	}
+	static void walk(float dirX, float dirY) { playerControl().Walk(dirX, dirY); }
 
 	// No switch while a swing, a bow draw or a power hit's charge is under way: it would hit with the other weapon.
 	static void equipNext(bool ranged) {
@@ -177,89 +169,40 @@ class PlayerActionController {
 			Game().ui.inventory->EquipNext(ranged);
 	}
 
-	// The swing (or the bow draw) begins; it hits when its hit time comes (updateAttack in draw.cpp).
-	static void tryAttack() {
-		if (!attackReady())
-			return;
-		Player& player = *Game().player;
-		if (player.stats.curses.Has(Curse::Palsy) && isRanged(Game().ui.inventory->EquippedKind())) {
-			if (!attackRefusalTold)
-				Game().events.Status("Your hands shake too much to aim");
-			attackRefusalTold = true; // no shot, no ammo, no cooldown
-			return;
-		}
-		// No shot left, or a monster too close (plan ranged-weaker-than-melee): no draw, nothing spent.
-		const Dungeon::ShotRefusal refused = Game().dungeon.ShotRefused(
-			Game().ui.inventory->EquippedKind(),
-			Game().camera.Facing()
-		);
-		if (refused != Dungeon::ShotRefusal::None) {
-			Game().dungeon.RefuseShot(refused);
-			return;
-		}
-		player.swingPower = 0;
-		swing(false);
-	}
-
   public:
-	// Power hit (plan skill-power-hit): with the skill, the toggle on and a melee weapon in hand, the attack key down
-	// starts the charge instead of the swing. False: no charge (too little stamina for one: the HUD sign blinks), the
-	// attack runs as before.
-	static bool tryCharge() {
-		Player& player = *Game().player;
-		if (!player.CanCharge(isRanged(Game().ui.inventory->EquippedKind())) || player.attackStartMs >= 0 ||
-			!player.attackTimer.TimePassed(true))
-			return false;
-		if (!attackReady())
-			return true; // refused (a ladder, a hold), told: nothing more
-		if (!player.StartCharge())
-			return false;
-		chargeReleased = false;
-		chargeChannel = Game().assets.sounds.powerCharge.Play();
-		return true;
-	}
-
-	// The key came up: the charged swing (a tap's a plain one), from the windup the charge held it at.
+	// The key came up while a power hit charged: the charged swing (a tap's a plain one).
 	static void releaseCharge() {
-		Player& player = *Game().player;
-		const bool charged = player.ReleaseCharge() > 0;
 		Sound::Stop(std::exchange(chargeChannel, -1));
-		if (!player.Alive() || !attackReady())
-			return;
-		swing(charged);
+		played(playerControl().ReleaseCharge());
 	}
 
   private:
 	inline static int chargeChannel = -1; // the charge's rising sound, stopped at the release
 
-	// No swing under way, its recovery over, and allowed here (not on a ladder, not held: told once a press).
-	static bool attackReady() {
-		Player& player = *Game().player;
-		if (player.attackStartMs >= 0 || !player.attackTimer.TimePassed(true))
-			return false;
-		if (!Game().dungeon.AttackAllowed(!attackRefusalTold)) {
-			attackRefusalTold = true;
-			return false;
-		}
-		return true;
-	}
-
-	// charged: a power hit, already wound up (it starts at the windup), its heavy whoosh.
-	static void swing(bool charged) {
-		Player& player = *Game().player;
-		const Item* weapon = Game().ui.inventory->Equipped();
-		const WeaponMotion& motion = weaponDef(Game().ui.inventory->EquippedKind()).motion;
-		player.attackTimer.Reset();
-		player.attackTimer.SetInterval(motion.AttackMs());
-		player.attackStartMs = GameClock::now() - (charged ? windupMs(motion) : 0);
-		player.attackLanded = false;
-		if (charged)
+	// The sound of what the attack key began: the charge's rising sound, the power hit's heavy whoosh or the weapon's.
+	static void played(PlayerControl::Began began) {
+		switch (began) {
+		case PlayerControl::Began::None:
+			return;
+		case PlayerControl::Began::Charge:
+			chargeReleased = false;
+			chargeChannel = Game().assets.sounds.powerCharge.Play();
+			return;
+		case PlayerControl::Began::ChargedSwing:
 			Game().assets.sounds.powerSwing.Play();
-		else
-			weapon->swingSound.Play();
+			return;
+		case PlayerControl::Began::Swing:
+			Game().ui.inventory->Equipped()->swingSound.Play();
+			return;
+		}
 	}
 };
 } // namespace
+
+// The player's controls in the world (plan player-control-in-sim), shared with the unit tests' SimWorld.
+PlayerControl playerControl() {
+	return {Game().dungeon, *Game().player, Game().ui.inventory->Bag(), Game().events, attackRefusalTold};
+}
 
 void executeGameplayAction(GameplayAction action) { PlayerActionController::execute(action); }
 

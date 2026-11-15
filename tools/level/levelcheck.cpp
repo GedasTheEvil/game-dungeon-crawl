@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -173,79 +174,91 @@ void checkInscriptions(std::vector<Entry>& entries) {
 		}
 	}
 }
-} // namespace
 
-int main(int argc, char** argv) {
+struct Options {
 	bool map = false;
 	bool quiet = false;
+	bool legend = false;
 	std::string scriptDir;
-	std::vector<Entry> entries;
-	int code = 0;
+	std::vector<std::string> files;
+};
+
+constexpr const char* USAGE = "usage: levelcheck [--map] [--quiet] [--script DIR] FILE...";
+
+// For tools/level/ascii2level.py: "size WIDTH HEIGHT", "format MAGIC VERSION", "structure GLYPHS" (by
+// Structure number), "wall TYPE..." (the wall types, isWallType), "shaped STRUCTURE GLYPH..." (a shaped cell's
+// glyph, SHAPED_GLYPHS, after its Structure number, no space), then "CHAR TYPE ATTR VALUE STRUCTURE meaning"
+// per glyph of the drawings; a wall type's meaning starts with "wall:".
+void printLegend() {
+	std::print(
+		"size {} {}\nformat {} {}\nstructure {}\nwall",
+		LEVEL_WIDTH,
+		LEVEL_HEIGHT,
+		LEVEL_MAGIC,
+		LEVEL_VERSION,
+		STRUCTURE_GLYPHS
+	);
+	for (int type = 0; type < TILE_TYPE_COUNT; type++)
+		if (isWallType(type))
+			std::print(" {}", type);
+	std::print("\nshaped");
+	for (int s = 0; s < STRUCTURE_COUNT; s++)
+		if (takesShape(static_cast<Structure>(s)))
+			std::print(" {}{}", s, SHAPED_GLYPHS[s]);
+	std::println();
+	for (const GlyphDef& g : glyphLegend())
+		std::println(
+			"{} {} {} {} {} {}{}",
+			g.glyph,
+			g.tile.type,
+			g.tile.attr,
+			g.tile.value,
+			static_cast<int>(g.tile.structure),
+			isWallType(g.tile.type) ? "wall: " : "",
+			g.meaning
+		);
+	for (int d = 0; d < DECOR_COUNT; d++) // the --map decor and decal drawings (plan placed-decor)
+		std::println("prop {} {} {}", decorGlyph(d), d, DECOR_NAMES[d]);
+	for (int d = 0; d < DECAL_COUNT; d++)
+		std::println("decal {} {} {}", decalLetter(d), d, DECAL_DEFS[d].name);
+	for (int c = 0; c < CONTAINER_COUNT; c++) // the --map containers drawing (plan placed-container-looks)
+		std::println("container {} {} {}", CONTAINER_GLYPHS[c], c, CONTAINER_NAMES[c]);
+	std::println("container {} coffin, plain lid", PLAIN_COFFIN_GLYPH);
+	std::println("container {} coffin, inscribed lid", INSCRIBED_COFFIN_GLYPH);
+}
+
+// nullopt: a usage error, already printed. --legend stops the parsing: the legend needs nothing else.
+std::optional<Options> parseOptions(int argc, char** argv) {
+	Options o;
 	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "--map") == 0) {
-			map = true;
-			continue;
-		}
-		if (strcmp(argv[i], "--quiet") == 0) {
-			quiet = true;
-			continue;
-		}
-		// For tools/level/ascii2level.py: "size WIDTH HEIGHT", "format MAGIC VERSION", "structure GLYPHS" (by
-		// Structure number), "wall TYPE..." (the wall types, isWallType), "shaped STRUCTURE GLYPH..." (a shaped cell's
-		// glyph, SHAPED_GLYPHS, after its Structure number, no space), then "CHAR TYPE ATTR VALUE STRUCTURE meaning"
-		// per glyph of the drawings; a wall type's meaning starts with "wall:".
-		if (strcmp(argv[i], "--legend") == 0) {
-			std::print(
-				"size {} {}\nformat {} {}\nstructure {}\nwall",
-				LEVEL_WIDTH,
-				LEVEL_HEIGHT,
-				LEVEL_MAGIC,
-				LEVEL_VERSION,
-				STRUCTURE_GLYPHS
-			);
-			for (int type = 0; type < TILE_TYPE_COUNT; type++)
-				if (isWallType(type))
-					std::print(" {}", type);
-			std::print("\nshaped");
-			for (int s = 0; s < STRUCTURE_COUNT; s++)
-				if (takesShape(static_cast<Structure>(s)))
-					std::print(" {}{}", s, SHAPED_GLYPHS[s]);
-			std::println();
-			for (const GlyphDef& g : glyphLegend())
-				std::println(
-					"{} {} {} {} {} {}{}",
-					g.glyph,
-					g.tile.type,
-					g.tile.attr,
-					g.tile.value,
-					static_cast<int>(g.tile.structure),
-					isWallType(g.tile.type) ? "wall: " : "",
-					g.meaning
-				);
-			for (int d = 0; d < DECOR_COUNT; d++) // the --map decor and decal drawings (plan placed-decor)
-				std::println("prop {} {} {}", decorGlyph(d), d, DECOR_NAMES[d]);
-			for (int d = 0; d < DECAL_COUNT; d++)
-				std::println("decal {} {} {}", decalLetter(d), d, DECAL_DEFS[d].name);
-			for (int c = 0; c < CONTAINER_COUNT; c++) // the --map containers drawing (plan placed-container-looks)
-				std::println("container {} {} {}", CONTAINER_GLYPHS[c], c, CONTAINER_NAMES[c]);
-			std::println("container {} coffin, plain lid", PLAIN_COFFIN_GLYPH);
-			std::println("container {} coffin, inscribed lid", INSCRIBED_COFFIN_GLYPH);
-			return 0;
-		}
-		if (strcmp(argv[i], "--script") == 0 && i + 1 < argc) {
-			scriptDir = argv[++i];
-			continue;
-		}
-		if (argv[i][0] == '-') {
-			std::println(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE... | levelcheck --legend");
-			return 2;
-		}
+		if (strcmp(argv[i], "--map") == 0)
+			o.map = true;
+		else if (strcmp(argv[i], "--quiet") == 0)
+			o.quiet = true;
+		else if (strcmp(argv[i], "--legend") == 0) {
+			o.legend = true;
+			return o;
+		} else if (strcmp(argv[i], "--script") == 0 && i + 1 < argc)
+			o.scriptDir = argv[++i];
+		else if (argv[i][0] == '-') {
+			std::println(stderr, "{} | levelcheck --legend", USAGE);
+			return std::nullopt;
+		} else
+			o.files.push_back(argv[i]);
+	}
+	return o;
+}
+
+// Loads and checks every file; an unreadable one is reported and sets code to 2.
+std::vector<Entry> loadEntries(const std::vector<std::string>& files, int& code) {
+	std::vector<Entry> entries;
+	for (const std::string& file : files) {
 		Entry e;
-		e.path = argv[i];
+		e.path = file;
 		int version = 0;
-		std::string error = loadLevelFile(argv[i], e.grid, &version);
+		std::string error = loadLevelFile(file.c_str(), e.grid, &version);
 		if (!error.empty()) {
-			std::println(stderr, "{}: {}", argv[i], error);
+			std::println(stderr, "{}: {}", file, error);
 			code = 2;
 			continue;
 		}
@@ -258,29 +271,21 @@ int main(int argc, char** argv) {
 			);
 		entries.push_back(std::move(e));
 	}
-	if (entries.empty() && code == 0) {
-		std::println(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE...");
-		return 2;
-	}
+	return entries;
+}
 
-	checkInscriptions(entries);
-	for (const Entry& e : entries) {
-		if (!quiet)
-			printReport(e, map);
-		if (!e.report.valid && code == 0)
-			code = 1;
-		if (!scriptDir.empty() && e.report.valid) {
-			std::string name = std::filesystem::path(e.path).filename().string();
-			std::string file = (std::filesystem::path(scriptDir) / (name + ".txt")).string();
-			std::ofstream script(file);
-			// The game starts on the entrance cell's left edge (Dungeon::Load).
-			script << pathScript(e.grid, e.report, e.path, static_cast<float>(e.report.start.col));
-			if (!quiet)
-				std::println("   script: {}", file);
-		}
-	}
+void writeScript(const Entry& e, const std::string& scriptDir, bool quiet) {
+	std::string name = std::filesystem::path(e.path).filename().string();
+	std::string file = (std::filesystem::path(scriptDir) / (name + ".txt")).string();
+	std::ofstream script(file);
+	// The game starts on the entrance cell's left edge (Dungeon::Load).
+	script << pathScript(e.grid, e.report, e.path, static_cast<float>(e.report.start.col));
+	if (!quiet)
+		std::println("   script: {}", file);
+}
 
-	// Ranking, easiest first. The finale stays last whatever its score.
+// Ranking, easiest first. The finale stays last whatever its score.
+void printRanking(const std::vector<Entry>& entries) {
 	std::vector<const Entry*> order;
 	order.reserve(entries.size());
 	for (const Entry& e : entries)
@@ -325,5 +330,33 @@ int main(int argc, char** argv) {
 			notes
 		);
 	}
+}
+} // namespace
+
+int main(int argc, char** argv) {
+	std::optional<Options> opts = parseOptions(argc, argv);
+	if (!opts)
+		return 2;
+	if (opts->legend) {
+		printLegend();
+		return 0;
+	}
+	int code = 0;
+	std::vector<Entry> entries = loadEntries(opts->files, code);
+	if (entries.empty() && code == 0) {
+		std::println(stderr, "{}", USAGE);
+		return 2;
+	}
+
+	checkInscriptions(entries);
+	for (const Entry& e : entries) {
+		if (!opts->quiet)
+			printReport(e, opts->map);
+		if (!e.report.valid && code == 0)
+			code = 1;
+		if (!opts->scriptDir.empty() && e.report.valid)
+			writeScript(e, opts->scriptDir, opts->quiet);
+	}
+	printRanking(entries);
 	return code;
 }

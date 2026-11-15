@@ -12,150 +12,167 @@
 #include "../level/loot.h"
 #include "render_config.h"
 
+// The phases run in this order (plan refactor-update-monsters); a phase that returns true ends the monster's tick.
 void Dungeon::UpdateMonsters() {
 	updateBoss();
 	for (Monster& mon : monsters) {
 		if (!mon.Active() || mon.Emerging())
 			continue;
-
-		if (mon.TakeCall())
-			callPack(mon);
-		if (!mon.Alive())
-			markSlain(mon); // also a trap's or the poison's kill
-		if (std::optional<ItemKind> drop = mon.TakeDrop())
-			dropChest(mon, *drop);
-		// On a step (plan subcell-monsters): up out of the water basin, as the player.
-		const float stepFloor = mon.flies() ? 0.f : monsterFloor(mon);
-		mon.SetStepFloor(stepFloor);
-		auto waterAt = [&](float x) {
-			return !mon.flies() && stepFloor <= 0.f && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
-		};
-		const bool onSand = mon.Type()->sandBurrow &&
-							inSand(MapAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row()));
-		const bool splashed = mon.SetInWater(
-			waterAt(mon.CentreX()),
-			waterAt(mon.HeadX()),
-			mon.flies()		  ? 0.f
-			: onSand		  ? -RenderConfig::SAND_BURROWER_LIFT
-			: stepFloor > 0.f ? 0.f
-							  : WaterSink(mon.CentreX(), mon.Row())
-		);
-		{ // its terrain affinity (plan terrain-affinity): a fire vent only while its jet burns; the water as it wades
-			Terrains here = TerrainsAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row(), !mon.flies(), false);
-			here.remove(Terrain::Water); // on a step over the basin it is out of the water
-			if (mon.InWater())
-				here.add(Terrain::Water);
-			mon.SetTerrain(here);
-		}
-		if (splashed && !mon.flies()) // plan monster-water-splash: a big body splashes, a small one only wades
-			sim.events->Play(mon.HalfWidth() >= MONSTER_SPLASH_HALF_WIDTH ? WorldSound::Splash : WorldSound::Wade);
-		const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
-		mon.SetOnRungs(
-			mon.Climbing() || (!mon.flies() && MapAt(monCol, mon.Row()).type == Ladder &&
-							   IsInBounds(monCol, mon.Row()) && !isFloor(MapAt(monCol, mon.Row() - 1)))
-		);
-
-		if (!mon.Alive() && mon.OnRungs()) { // killed on the rungs: down the shaft to the floor
-			if (!mon.Falling()) {
-				int floor = mon.Row();
-				while (floor > 0 && !isFloor(MapAt(monCol, floor - 1)))
-					floor--;
-				mon.DropTo(floor);
-			}
-			mon.UpdateClimb();
+		noteMonsterEvents(mon);
+		updateMonsterTerrain(mon);
+		if (updateMonsterAirborne(mon) || updateMimicChest(mon) || updateMonsterAttack(mon))
 			continue;
-		}
-
-		if (mon.flies()) {
-			updateFlyer(mon);
-			continue;
-		}
-
-		if (mon.jumping()) { // lands even if killed in the air
-			if (const LeapBump bump = mon.UpdateJump(mapX, leapRoom(mon)); bump != LeapBump::None && mon.Alive()) {
-				if (const int trap = leapCeilingTrap(mon); trap != NoObject) { // any touch (plan ceiling-spikes)
-					sim.events->Play(WorldSound::SpikeThunk);
-					mon.CeilingSpikes(trap == CeilingDeath, sim.random->gameplay);
-				} else {
-					sim.events->Play(WorldSound::HeadBump); // plan monster-head-bump
-					if (bump == LeapBump::Hard)
-						mon.HeadBump(sim.random->gameplay);
-				}
-			}
-			continue;
-		}
-
-		if (mon.LeavesChest()) { // a treasure tile never spawns a monster again
-			// Its die clip ends with the lid falling open over the gold: the chest stays open. The cursed mimic's where
-			// it died (its spawn tile is slain), on the floor under it.
-			const OwnedWeapons& owned = sim.items->Owned();
-			if (mon.Type()->locomotion == Locomotion::AmbushHop)
-				dropChest(
-					mon,
-					RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay, mon.Type()->ringDropPercent)
-				);
-			else if (mon.Type()->disguise == Container::Jar) // its die clip ends in the container's smashed jar
-				placeDroppedChest(
-					MapIndex(mon.Col(), mon.SpawnRow()),
-					fileIdOf(RollMimicJarLoot(sim.random->gameplay)),
-					Container::Jar
-				);
-			else
-				placeDroppedChest(
-					MapIndex(mon.Col(), mon.SpawnRow()),
-					fileIdOf(RollMimicLoot(owned, sim.random->gameplay))
-				);
-			mon.Clear();
-			continue;
-		}
-
-		if (mon.Alive() && !monstersStandDown() && (mon.Lurk(mapX, mapY) || mon.Rising()))
-			continue;
-		if (mon.Reeling()) // stunned (plan skill-stun): it stands, no step, no bite, no shot
-			continue;
-		if (mon.Alive() && mon.Alerted() &&
-			!monstersStandDown()) // the Mother of Webs: the torches go out, the webs (plan camel-spider-boss)
-			updateSpinner(mon);
-		if (mon.Type()->kite)
-			mon.WatchPlayer(mapX);
-
-		if (mon.Biting()) { // the wind-up, then the bite or the miss (plan monster-attack-reach)
-			if (monstersStandDown())
-				continue;
-			if (mon.StepDue())
-				mon.FollowBite(
-					walkerStops(mon, static_cast<int>(std::floor(mon.seekProbeX(mon.Facing())))) ||
-						stepAhead(mon, mon.Facing()) != StepAhead::Walk,
-					mapX,
-					mapY
-				);
-			mon.UpdateBite(mapX, mapY);
-			continue;
-		}
-		if (mon.Grabbing()) { // the tell, the hold (plans crocodile-hold-bite, giant-scorpion-grab)
-			mon.UpdateGrab(mapX, mapY, PlayerWading());
-			continue;
-		}
-		if (updateBurrower(mon) || updateCharger(mon) || updateRoller(mon))
-			continue;
-
-		if (float sx = 0.f, sy = 0.f; mon.TakeShot(mapX, sx, sy))
-			shootAtPlayer(mon, sx, sy);
-		// A kiter breaks off the rest of its clip once the shot has left, to back off from the player coming at it.
-		if (mon.AttackingRanged() &&
-			(!mon.ShotReleased() || kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 || mon.OnRungs()))
-			continue;
-		// A kiter the player comes at backs off (or leaps away) first (plan monster-kiting).
-		if (!monstersStandDown() && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) &&
-			clearRow(mon.HeadX(), mapX, mon.Row()) && kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 &&
-			!leapAwayTarget(mon, mon.attackDirection(mapX, mapY)) &&
-			lineUpMove(mon, mon.attackDirection(mapX, mapY)) != LineUp::Back) { // under a step: back first
-			mon.AttackRanged();
-			continue;
-		}
-
 		updateWalker(mon);
 	}
+}
+//======================================================================================
+void Dungeon::noteMonsterEvents(Monster& mon) {
+	if (mon.TakeCall())
+		callPack(mon);
+	if (!mon.Alive())
+		markSlain(mon); // also a trap's or the poison's kill
+	if (std::optional<ItemKind> drop = mon.TakeDrop())
+		dropChest(mon, *drop);
+}
+//======================================================================================
+void Dungeon::updateMonsterTerrain(Monster& mon) {
+	// On a step (plan subcell-monsters): up out of the water basin, as the player.
+	const float stepFloor = mon.flies() ? 0.f : monsterFloor(mon);
+	mon.SetStepFloor(stepFloor);
+	auto waterAt = [&](float x) {
+		return !mon.flies() && stepFloor <= 0.f && inHalfWater(MapAt(static_cast<int>(std::floor(x)), mon.Row()));
+	};
+	const bool onSand = mon.Type()->sandBurrow && inSand(MapAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row()));
+	const bool splashed = mon.SetInWater(
+		waterAt(mon.CentreX()),
+		waterAt(mon.HeadX()),
+		mon.flies()		  ? 0.f
+		: onSand		  ? -RenderConfig::SAND_BURROWER_LIFT
+		: stepFloor > 0.f ? 0.f
+						  : WaterSink(mon.CentreX(), mon.Row())
+	);
+	{ // its terrain affinity (plan terrain-affinity): a fire vent only while its jet burns; the water as it wades
+		Terrains here = TerrainsAt(static_cast<int>(std::floor(mon.CentreX())), mon.Row(), !mon.flies(), false);
+		here.remove(Terrain::Water); // on a step over the basin it is out of the water
+		if (mon.InWater())
+			here.add(Terrain::Water);
+		mon.SetTerrain(here);
+	}
+	if (splashed && !mon.flies()) // plan monster-water-splash: a big body splashes, a small one only wades
+		sim.events->Play(mon.HalfWidth() >= MONSTER_SPLASH_HALF_WIDTH ? WorldSound::Splash : WorldSound::Wade);
+	const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
+	mon.SetOnRungs(
+		mon.Climbing() || (!mon.flies() && MapAt(monCol, mon.Row()).type == Ladder && IsInBounds(monCol, mon.Row()) &&
+						   !isFloor(MapAt(monCol, mon.Row() - 1)))
+	);
+}
+//======================================================================================
+bool Dungeon::updateMonsterAirborne(Monster& mon) {
+	if (!mon.Alive() && mon.OnRungs()) { // killed on the rungs: down the shaft to the floor
+		if (!mon.Falling()) {
+			const auto monCol = static_cast<int>(std::floor(mon.CentreX()));
+			int floor = mon.Row();
+			while (floor > 0 && !isFloor(MapAt(monCol, floor - 1)))
+				floor--;
+			mon.DropTo(floor);
+		}
+		mon.UpdateClimb();
+		return true;
+	}
+	if (mon.flies()) {
+		updateFlyer(mon);
+		return true;
+	}
+	if (!mon.jumping())
+		return false;
+	// A leap lands even if it was killed in the air.
+	if (const LeapBump bump = mon.UpdateJump(mapX, leapRoom(mon)); bump != LeapBump::None && mon.Alive()) {
+		if (const int trap = leapCeilingTrap(mon); trap != NoObject) { // any touch (plan ceiling-spikes)
+			sim.events->Play(WorldSound::SpikeThunk);
+			mon.CeilingSpikes(trap == CeilingDeath, sim.random->gameplay);
+		} else {
+			sim.events->Play(WorldSound::HeadBump); // plan monster-head-bump
+			if (bump == LeapBump::Hard)
+				mon.HeadBump(sim.random->gameplay);
+		}
+	}
+	return true;
+}
+//======================================================================================
+bool Dungeon::updateMimicChest(Monster& mon) {
+	if (!mon.LeavesChest()) // a treasure tile never spawns a monster again
+		return false;
+	// Its die clip ends with the lid falling open over the gold: the chest stays open. The cursed mimic's where it
+	// died (its spawn tile is slain), on the floor under it.
+	const OwnedWeapons& owned = sim.items->Owned();
+	if (mon.Type()->locomotion == Locomotion::AmbushHop)
+		dropChest(mon, RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay, mon.Type()->ringDropPercent));
+	else if (mon.Type()->disguise == Container::Jar) // its die clip ends in the container's smashed jar
+		placeDroppedChest(
+			MapIndex(mon.Col(), mon.SpawnRow()),
+			fileIdOf(RollMimicJarLoot(sim.random->gameplay)),
+			Container::Jar
+		);
+	else
+		placeDroppedChest(MapIndex(mon.Col(), mon.SpawnRow()), fileIdOf(RollMimicLoot(owned, sim.random->gameplay)));
+	mon.Clear();
+	return true;
+}
+//======================================================================================
+bool Dungeon::updateMonsterAttack(Monster& mon) {
+	if (mon.Alive() && !monstersStandDown() && (mon.Lurk(mapX, mapY) || mon.Rising()))
+		return true;
+	if (mon.Reeling()) // stunned (plan skill-stun): it stands, no step, no bite, no shot
+		return true;
+	if (mon.Alive() && mon.Alerted() &&
+		!monstersStandDown()) // the Mother of Webs: the torches go out, the webs (plan camel-spider-boss)
+		updateSpinner(mon);
+	if (mon.Type()->kite)
+		mon.WatchPlayer(mapX);
+	if (updateMonsterBite(mon))
+		return true;
+	if (updateBurrower(mon) || updateCharger(mon) || updateRoller(mon))
+		return true;
+	return updateMonsterRanged(mon);
+}
+//======================================================================================
+bool Dungeon::updateMonsterBite(Monster& mon) {
+	if (mon.Biting()) { // the wind-up, then the bite or the miss (plan monster-attack-reach)
+		if (monstersStandDown())
+			return true;
+		if (mon.StepDue())
+			mon.FollowBite(
+				walkerStops(mon, static_cast<int>(std::floor(mon.seekProbeX(mon.Facing())))) ||
+					stepAhead(mon, mon.Facing()) != StepAhead::Walk,
+				mapX,
+				mapY
+			);
+		mon.UpdateBite(mapX, mapY);
+		return true;
+	}
+	if (mon.Grabbing()) { // the tell, the hold (plans crocodile-hold-bite, giant-scorpion-grab)
+		mon.UpdateGrab(mapX, mapY, PlayerWading());
+		return true;
+	}
+	return false;
+}
+//======================================================================================
+bool Dungeon::updateMonsterRanged(Monster& mon) {
+	if (float sx = 0.f, sy = 0.f; mon.TakeShot(mapX, sx, sy))
+		shootAtPlayer(mon, sx, sy);
+	// A kiter breaks off the rest of its clip once the shot has left, to back off from the player coming at it.
+	if (mon.AttackingRanged() &&
+		(!mon.ShotReleased() || kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 || mon.OnRungs()))
+		return true;
+	// A kiter the player comes at backs off (or leaps away) first (plan monster-kiting).
+	if (!monstersStandDown() && !mon.OnRungs() && mon.canAttackRanged(mapX, mapY) &&
+		clearRow(mon.HeadX(), mapX, mon.Row()) && kiteAway(mon, mon.attackDirection(mapX, mapY)) == 0 &&
+		!leapAwayTarget(mon, mon.attackDirection(mapX, mapY)) &&
+		lineUpMove(mon, mon.attackDirection(mapX, mapY)) != LineUp::Back) { // under a step: back first
+		mon.AttackRanged();
+		return true;
+	}
+	return false;
 }
 //======================================================================================
 void Dungeon::callPack(const Monster& caller) {

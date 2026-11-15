@@ -169,6 +169,15 @@ class Dungeon {
 	// The slot of the mimic lying in ambush in the player's cell, looking like a chest (plan interact-prompt); -1 if
 	// none.
 	[[nodiscard]] int ambushHere() const;
+	// UpdateMonsters' phases per monster, in this order (plan refactor-update-monsters). A bool phase returns true when
+	// the monster is done for this tick: the later phases and updateWalker skip it.
+	void noteMonsterEvents(Monster& mon); // its pack call, its death, its weapon chest
+	void updateMonsterTerrain(Monster& mon); // the step out of the water, the terrain, the splash, the rungs
+	bool updateMonsterAirborne(Monster& mon); // killed on the rungs (it falls), a flyer, a leap
+	bool updateMimicChest(Monster& mon); // a dead mimic leaves its chest (or jar) and is cleared
+	bool updateMonsterAttack(Monster& mon); // lurk, stun, the bite, the hold, the locomotions, the shot, the kite
+	bool updateMonsterBite(Monster& mon); // the bite's wind-up and the hold; true while either runs
+	bool updateMonsterRanged(Monster& mon); // the shot and the kite; true when it shoots or backs off
 	// UpdateMonsters' part per locomotion, each in its file (dungeon_walkers.cpp, dungeon_flight.cpp,
 	// dungeon_burrow.cpp, dungeon_charge.cpp). updateBurrower, updateCharger: true while it burrows or charges (nothing
 	// else moves it).

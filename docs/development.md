@@ -251,7 +251,8 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
 ## Code quality tools
 
 * `make check`: builds, rewrites markdown links to plans that moved (`tools/plan.py links`), checks the plans' names
-  and Status lines (`plan.py lint`) and runs the plan tool's tests, then `format`, the stability check of
+  and Status lines (`plan.py lint`) and runs the plan tool's tests, checks the docs' `#anchor` links and backticked
+  code names (`tools/docs_check.py`: a name that is only an example goes in its `ALLOWED` list), then `format`, the stability check of
   `format-check` on the changed files only (`tools/check_format.sh --changed`), `tidy` and `unit`, in order. Run it
   before each commit.
 * `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about

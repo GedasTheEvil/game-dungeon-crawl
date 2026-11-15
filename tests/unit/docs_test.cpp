@@ -4,6 +4,7 @@
 #include "../../src/level/items.h"
 #include "../../src/level/monster_kinds.h"
 #include "../../src/level/tile_defs.h"
+#include "../../src/level/campaign.h"
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
@@ -12,6 +13,8 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace {
 // The unit tests run from the repo root (make unit).
@@ -167,4 +170,75 @@ TEST_CASE("every code name in docs/glossary.md still exists in src/") {
 		}
 	}
 	CHECK(names > 50);
+}
+
+namespace {
+// The label stands in the text as a word, plural or not, and not as the tail of a giant's ("bat" in "giant bats").
+bool namesMonster(const std::string& text, std::string label) {
+	if (label.ends_with('y') && !text.contains(label)) // mummy: mummies
+		label = label.substr(0, label.size() - 1) + "ie";
+	for (size_t at = text.find(label); at != std::string::npos; at = text.find(label, at + 1)) {
+		const size_t end = at + label.size();
+		const bool startsWord = at == 0 || !std::isalpha(static_cast<unsigned char>(text[at - 1]));
+		const bool endsWord = end == text.size() || !std::isalpha(static_cast<unsigned char>(text[end])) ||
+							  (text[end] == 's' &&
+							   (end + 1 == text.size() || !std::isalpha(static_cast<unsigned char>(text[end + 1]))));
+		const bool giants = !label.starts_with("giant ") && at >= 6 &&
+							std::string_view(text).substr(at - 6).starts_with("giant ");
+		if (startsWord && endsWord && !giants)
+			return true;
+	}
+	return false;
+}
+
+std::string trimmed(const std::string& s) {
+	const size_t from = s.find_first_not_of(' ');
+	return from == std::string::npos ? "" : s.substr(from, s.find_last_not_of(' ') - from + 1);
+}
+} // namespace
+
+TEST_CASE("the docs/levels.md zone table matches ZONES and ZONE_FAUNA (plan docs-anchor-identifier-checks)") {
+	std::ifstream f("docs/levels.md");
+	REQUIRE(f);
+	int rows = 0;
+	for (std::string line; std::getline(f, line);) {
+		// | N | Zone | first-last | Monsters | New mechanic | Boss |
+		if (line.size() < 4 || line[0] != '|' || !std::isdigit(static_cast<unsigned char>(line[2])))
+			continue;
+		std::vector<std::string> cells;
+		std::stringstream row(line.substr(1));
+		for (std::string cell; std::getline(row, cell, '|');)
+			cells.push_back(trimmed(cell));
+		if (cells.size() < 6)
+			continue; // the Levels table below
+		const int n = std::stoi(cells[0]);
+		REQUIRE_MESSAGE((n >= 1 && n <= ZONE_COUNT), line);
+		const Zone& zone = ZONES[n - 1];
+		CHECK_MESSAGE(lower(cells[1]).starts_with(lower(zoneInfo(zone.id).name)), line);
+		CHECK_MESSAGE(cells[2] == std::to_string(zone.first) + "-" + std::to_string(zone.last), line);
+		const std::string monsters = lower(cells[3]);
+		for (const ZoneMonster& m : zoneFauna(zone.id).monsters)
+			if (m.type != 0)
+				CHECK_MESSAGE(
+					namesMonster(monsters, monsterKind(m.type)->label),
+					line,
+					": no ",
+					std::string(monsterKind(m.type)->label)
+				);
+		const std::string boss = lower(trimmed(cells[5].substr(0, cells[5].find(" ("))));
+		if (zone.boss == 0)
+			CHECK_MESSAGE(boss == "none", line);
+		else {
+			const MonsterKind* kind = monsterKind(zone.boss);
+			const std::string name = lower(kind->name);
+			CHECK_MESSAGE(
+				(boss == name || boss == kind->label || name.starts_with(boss + " ")),
+				line,
+				": not ",
+				std::string(kind->name)
+			);
+		}
+		rows++;
+	}
+	CHECK(rows == ZONE_COUNT);
 }

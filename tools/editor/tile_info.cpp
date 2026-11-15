@@ -59,7 +59,7 @@ Choices itemIds(int type) {
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
 		ItemKind kind = itemAt(i);
 		ItemFileId file = fileIdOf(kind);
-		if (file.type != type)
+		if (file.type != type || isTestWeapon(kind)) // the test weapons are not for levels (plan test-weapons)
 			continue;
 		const ItemText& text = itemText(kind);
 		std::string meaning = text.name;

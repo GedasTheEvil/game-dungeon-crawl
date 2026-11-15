@@ -77,7 +77,14 @@ bool PlayerControl::UpdateAttack(int facing, float handHeight) {
 			}
 			struck = true;
 		} else // with a power hit's bonus (plan skill-power-hit)
-			struck = dungeon.AttackNearest(player.PowerDamage(damage), def.mix, reach, facing, player.SwingShare());
+			struck = dungeon.AttackNearest(
+				player.PowerDamage(damage),
+				def.mix,
+				reach,
+				facing,
+				player.SwingShare(),
+				def.testOnly
+			);
 	}
 	if (t >= def.motion.swingMs)
 		player.attackStartMs = -1;

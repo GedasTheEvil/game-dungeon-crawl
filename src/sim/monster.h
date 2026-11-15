@@ -492,6 +492,8 @@ class Monster {
 	// amethyst rings (amethystResist; amethystMovesImmune: a sky-iron one); a fire share sets it burning. True: this
 	// hit killed it.
 	bool TakeWeaponHit(int dmg, const DamageMix& mix, int amethystPercent = 0, bool amethystMovesImmune = false);
+	// A test weapon's hit (plan test-weapons): exactly 1 HP, no resistance or stun in it; its fire still ignites.
+	bool TakeExactHit(const DamageMix& mix);
 	// A poisoned hit (plan monster-poison): that tier (re)starts, as on the player, unless it shrugs it off
 	// (poisonResistPercent, rolled on rng). byPlayer: the player's doing, its kill rewards them; else (a trap) it does
 	// not, as a trap's kill. True: the poison took.

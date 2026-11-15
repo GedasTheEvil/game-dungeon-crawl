@@ -25,7 +25,7 @@ constexpr Walker WALKERS[] = {
 std::vector<ItemKind> meleeWeapons() {
 	std::vector<ItemKind> kinds;
 	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
-		if (!isRanged(static_cast<ItemKind>(i)))
+		if (!isRanged(static_cast<ItemKind>(i)) && !isTestWeapon(static_cast<ItemKind>(i))) // as the real ones
 			kinds.push_back(static_cast<ItemKind>(i));
 	return kinds;
 }

@@ -47,7 +47,7 @@ TEST_CASE("file ids as the level files use them") {
 	CHECK_FALSE(itemFromFile(ItemType::POTION, 11).has_value());
 	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 1) == ItemKind::CompositeBow);
 	CHECK(*itemFromFile(ItemType::RANGED_WEAPON, 4) == ItemKind::Javelin);
-	CHECK_FALSE(itemFromFile(ItemType::RANGED_WEAPON, 5).has_value());
+	CHECK_FALSE(itemFromFile(ItemType::RANGED_WEAPON, 6).has_value());
 }
 
 TEST_CASE("weapons before potions") {
@@ -248,11 +248,12 @@ TEST_CASE("the bag survives a save and a load") {
 }
 
 TEST_CASE("a save from before the stamps: nothing recent, found first among them") {
-	constexpr int SLOTS = ITEM_KIND_COUNT; // INV5: counts, levels and found per slot, in ItemKind order, no stamps
+	constexpr int SLOTS = ITEM_KIND_COUNT -
+						  TEST_WEAPON_COUNT; // INV5: counts, levels and found per slot, in ItemKind order, no stamps
 	std::ostringstream old;
 	old << "INV5 " << SLOTS;
 	for (int i = 0; i < SLOTS; i++) // counts: 1 antidote, 1 small health
-		old << " " << (i == itemIndex(ItemKind::Antidote) || i == itemIndex(ItemKind::SmallHealth) ? 1 : 0);
+		old << " " << (i == legacyIndex(ItemKind::Antidote) || i == legacyIndex(ItemKind::SmallHealth) ? 1 : 0);
 	for (int i = 0; i < 2 * SLOTS; i++) // levels, found
 		old << " " << (i < SLOTS ? 1 : 0);
 	old << " 1 0 0 0\n"; // the club in hand, no amulet
@@ -267,11 +268,11 @@ TEST_CASE("a save from before the stamps: nothing recent, found first among them
 }
 
 TEST_CASE("a save from before the resistance potions: the amulets right after the antidote") {
-	constexpr int SLOTS = itemIndex(ItemKind::VenomGrand) + 1 - 3; // it ended with grand venom, without the 3 potions
+	constexpr int SLOTS = legacyIndex(ItemKind::VenomGrand) + 1 - 3; // it ended with grand venom, without the 3 potions
 	std::stringstream old;
 	old << "INV4 " << SLOTS << " ";
 	for (int i = 0; i < SLOTS; i++) // counts: 1 antidote, 2 lesser strength amulets, 3 grand venom
-		old << (i == itemIndex(ItemKind::Antidote) ? 1 : i == ORDERED_SAVE_SLOTS ? 2 : i == SLOTS - 1 ? 3 : 0) << " ";
+		old << (i == legacyIndex(ItemKind::Antidote) ? 1 : i == ORDERED_SAVE_SLOTS ? 2 : i == SLOTS - 1 ? 3 : 0) << " ";
 	for (int i = 0; i < 2 * SLOTS; i++) // levels, found
 		old << (i < SLOTS ? 1 : 0) << " ";
 	old << "1 0 " << ItemType::AMULET << " 0\n"; // the club, the lesser strength amulet on
@@ -287,14 +288,14 @@ TEST_CASE("a save from before the resistance potions: the amulets right after th
 }
 
 TEST_CASE("a save from before the Blessing of Hapi (INV6): the amulets right after the greater resistance potion") {
-	constexpr int SLOTS = itemIndex(ItemKind::FireWardGrand); // it ended with grand fire guard, without the potion
+	constexpr int SLOTS = legacyIndex(ItemKind::FireWardGrand); // it ended with grand fire guard, without the potion
 	std::stringstream old;
 	old << "INV6 " << SLOTS << " ";
 	for (int i = 0; i < SLOTS; i++) // counts: 1 greater resistance, 2 lesser strength amulets, 3 grand fire guard
-		old << (i == itemIndex(ItemKind::GreaterResistance) ? 1
-				: i == SLOTS - 1							? 3
-				: i == itemIndex(ItemKind::WaterBlessing)	? 2
-															: 0)
+		old << (i == legacyIndex(ItemKind::GreaterResistance) ? 1
+				: i == SLOTS - 1							  ? 3
+				: i == legacyIndex(ItemKind::WaterBlessing)	  ? 2
+															  : 0)
 			<< " ";
 	for (int i = 0; i < 3 * SLOTS; i++) // levels, found, stamps
 		old << (i < SLOTS ? 1 : 0) << " ";

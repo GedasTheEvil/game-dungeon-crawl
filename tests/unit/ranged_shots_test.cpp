@@ -181,7 +181,7 @@ TEST_CASE("each ranged weapon hits softer than its melee twin, per hit and per s
 	}
 	int rangedKinds = 0;
 	for (int i = 0; i < WEAPON_KIND_COUNT; i++)
-		rangedKinds += isRanged(itemAt(i)) ? 1 : 0;
+		rangedKinds += isRanged(itemAt(i)) && !isTestWeapon(itemAt(i)) ? 1 : 0; // a test weapon has no twin
 	CHECK(checked == rangedKinds); // every ranged weapon has its twin here
 }
 

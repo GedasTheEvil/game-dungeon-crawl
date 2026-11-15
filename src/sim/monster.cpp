@@ -262,6 +262,14 @@ bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix, int amethystPercent, 
 	return killed;
 }
 
+bool Monster::TakeExactHit(const DamageMix& mix) {
+	const Harm harm{.damage = 1, .mix = mix, .source = HarmSource::Weapon};
+	const bool killed = takeHit(1);
+	if (Alive() && !vitals.inWater && mix[FIRE] > 0)
+		vitals.Ignite(vitals.FireOf(harm, type->resist), harm.burnMs, harm.source);
+	return killed;
+}
+
 bool Monster::StunHit(int ms, bool wasLurking) {
 	const int now = GameClock::now();
 	if (!Alive() || wasLurking || lurking() || Rising() || Emerging() || Hidden() || Burrowing() || jumping() ||

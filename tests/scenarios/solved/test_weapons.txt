@@ -1,0 +1,43 @@
+# Plan test-weapons: the bow test hits a plant for exactly 1 HP and never spends a shot; the smash test, the stab test
+# and the cut test hit it for 1 HP a swing, five swings of the smash test take 5 HP.
+seed 1
+god
+level tests/levels/archery
+give melee 8
+give melee 9
+give melee 10
+give ranged 5
+equip bow_test
+expect equip_id == 5
+expect shots == 5
+walk to 10.5
+wait 1s
+expect nearest == 30
+attack
+wait 2s
+expect nearest == 29
+expect shots == 5
+equip smash_test
+expect equip_id == 8
+walk to 13.3
+wait 1s
+attack
+wait 1500ms
+attack
+wait 1500ms
+attack
+wait 1500ms
+attack
+wait 1500ms
+attack
+wait 1500ms
+expect nearest == 24
+equip stab_test
+attack
+wait 1500ms
+expect nearest == 23
+equip cut_test
+attack
+wait 1500ms
+expect nearest == 22
+quit

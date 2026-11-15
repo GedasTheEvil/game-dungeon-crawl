@@ -1,6 +1,6 @@
 # Test weapons: 1-damage pure blunt, stab, cut and fire weapons and a bow for scenarios
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Problem
 

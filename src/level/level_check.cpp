@@ -32,6 +32,15 @@ using namespace levelcheck;
 namespace {
 
 void countContent(const LevelGrid& grid, LevelReport& r) {
+	// A test weapon in a chest (plan test-weapons) is an error: only `give` and `equip` reach them.
+	auto noteTestWeapon = [&r](const Tile& t, int col, int row) {
+		const std::optional<ItemKind> item = itemFromFile(t.attr, t.value);
+		if (item && isTestWeapon(*item))
+			r.errors.push_back(
+				"a test weapon (" + std::string(itemText(*item).name) + ") in a chest at col " + std::to_string(col) +
+				", row " + std::to_string(row)
+			);
+	};
 	int minCol = LEVEL_WIDTH, maxCol = -1, minRow = LEVEL_HEIGHT, maxRow = -1;
 	for (int row = 0; row < LEVEL_HEIGHT; row++)
 		for (int col = 0; col < LEVEL_WIDTH; col++) {
@@ -81,10 +90,12 @@ void countContent(const LevelGrid& grid, LevelReport& r) {
 				break;
 			case Treasure:
 				r.treasures++;
+				noteTestWeapon(t, col, row);
 				break;
 			case TrappedTreasure:
 				r.treasures++;
 				r.trappedTreasures++;
+				noteTestWeapon(t, col, row);
 				break;
 			case Key:
 				r.keys++;

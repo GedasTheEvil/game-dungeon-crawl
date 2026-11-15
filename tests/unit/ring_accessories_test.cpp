@@ -197,12 +197,10 @@ TEST_CASE("two worn rings survive a save and a load; a save from before the ring
 
 	// A bag as INV7: positional counts, levels, found and stamps, no rings after the worn amulet.
 	std::ostringstream line;
-	line << "INV7 " << ITEM_KIND_COUNT;
-	for (int i = 0; i < 4 * ITEM_KIND_COUNT; i++)
-		line << " "
-			 << (i < ITEM_KIND_COUNT	   ? (i == itemIndex(ItemKind::AmethystGold) ? 1 : 0)
-				 : i < 2 * ITEM_KIND_COUNT ? 1
-										   : 0);
+	constexpr int SLOTS = ITEM_KIND_COUNT - TEST_WEAPON_COUNT; // the positional order (legacyIndex)
+	line << "INV7 " << SLOTS;
+	for (int i = 0; i < 4 * SLOTS; i++)
+		line << " " << (i < SLOTS ? (i == legacyIndex(ItemKind::AmethystGold) ? 1 : 0) : i < 2 * SLOTS ? 1 : 0);
 	line << " 1 0 0 0";
 	std::stringstream old(line.str() + "\n");
 	ItemBag before;

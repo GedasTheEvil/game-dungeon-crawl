@@ -275,7 +275,7 @@ void Dungeon::AnimateMonsters() {
 			mon.Animate(mapX, mapY);
 }
 //======================================================================================
-bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir, float power) {
+bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir, float power, bool exact) {
 	Monster* nearest = nullptr;
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && !mon.Hidden() && mon.Nearby(mapX, mapY, reach, dir) &&
@@ -290,7 +290,7 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 		powerHit = {nearest->NearEdge(dir), (nearest->BottomY() + nearest->TopY()) / 2.f, GameClock::now(), power};
 		sim.events->Play(WorldSound::PowerHit);
 	}
-	playerHit(*nearest, damage, &mix);
+	playerHit(*nearest, damage, &mix, exact);
 	touchPoison(*nearest);
 	return true;
 }
@@ -352,7 +352,8 @@ Monster* Dungeon::freeMonsterSlot() {
 	return farthest;
 }
 //======================================================================================
-void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
+void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit) {
+	const bool exact = exactHit && mix != nullptr; // a typed hit only
 	const MonsterType& type = *mon.Type();
 	if (mix && sim.journal->TryDamage(type.id, levelNumber, mainType(*mix))) {
 		const DamageType main = mainType(*mix);
@@ -365,15 +366,16 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix) {
 											 : "immune to";
 		sim.events->Status("Journal: %s, %s %s", type.name, how, DAMAGE_TYPE_NAMES[std::to_underlying(main)]);
 	}
-	if (mix) // the crushing, cleaving and piercing amulets (plan amulet-extras)
+	if (mix && !exact) // the crushing, cleaving and piercing amulets (plan amulet-extras)
 		dmg += dmg * sim.player->stats.TypeMightPercent(*mix) / 100;
 	const int healthBefore = mon.Health();
 	const bool wasBurning = mon.Burns();
 	const bool wasLurking = mon.lurking();
 	mon.Provoke();
 	const RingBonus& rings = sim.player->stats.Rings();
-	const bool killed = mix ? mon.TakeWeaponHit(dmg, *mix, rings.amethystPercent, rings.amethystMovesImmune)
-							: mon.takeHit(dmg);
+	const bool killed = exact ? mon.TakeExactHit(*mix)
+						: mix ? mon.TakeWeaponHit(dmg, *mix, rings.amethystPercent, rings.amethystMovesImmune)
+							  : mon.takeHit(dmg);
 	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()));
 	if (mix && (*mix)[FIRE] > 0)
 		sim.events->Note(FieldNote::Fire);

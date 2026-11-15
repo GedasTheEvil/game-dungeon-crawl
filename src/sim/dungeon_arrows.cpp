@@ -96,12 +96,22 @@ bool Dungeon::ShootWeapon(ItemKind weapon, int damage, int dir, float height, fl
 		RefuseShot(why);
 		return false;
 	}
-	sim.items->SpendShot(weapon);
-	Shoot(missileOf(weapon), damage, weaponMix(weapon), dir, height, aimRange);
+	const bool exact = weaponDef(weapon).testOnly; // plan test-weapons: 1 HP a hit, no shot spent
+	if (!exact)
+		sim.items->SpendShot(weapon);
+	Shoot(missileOf(weapon), damage, weaponMix(weapon), dir, height, aimRange, exact);
 	return true;
 }
 //======================================================================================
-void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange) {
+void Dungeon::Shoot(
+	MissileKind kind,
+	int damage,
+	const DamageMix& mix,
+	int dir,
+	float height,
+	float aimRange,
+	bool exact
+) {
 	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
 	const float y0 = mapY + height - PlayerSink() / RenderConfig::TILE_SIZE; // wading, the bow is down in the water
 	float targetX = x0 + static_cast<float>(dir) * std::min(ARROW_FREE_RANGE, aimRange);
@@ -174,7 +184,7 @@ void Dungeon::Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir,
 		}
 	}
 	missiles.push_back(
-		{kind, x0, y0, static_cast<float>(dir) * vx, vy, shotDamage, dealt, GameClock::now(), fire || flaming}
+		{kind, x0, y0, static_cast<float>(dir) * vx, vy, shotDamage, dealt, GameClock::now(), fire || flaming, exact}
 	);
 }
 //======================================================================================
@@ -218,7 +228,7 @@ void Dungeon::updateMissiles() {
 				if (mon.Active() && mon.Alive() && !mon.Hidden() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
 					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
 					// The water takes the arrow's force: a monster in it is hit for a share.
-					playerHit(mon, mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage, &a.mix);
+					playerHit(mon, mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage, &a.mix, a.exact);
 					sim.events->Play(rules.hit);
 					if (rules.returns)
 						a.stuckMs = now;

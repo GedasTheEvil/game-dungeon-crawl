@@ -20,7 +20,10 @@ const std::array<ItemKind, WEAPON_KIND_COUNT> WEAPON_GRADES = [] {
 		const WeaponDef& def = weaponDef(kind);
 		return def.gradeDamage > 0 ? def.gradeDamage : def.damage;
 	};
-	std::stable_sort(grades.begin(), grades.end(), [&](ItemKind a, ItemKind b) { return grade(a) < grade(b); });
+	// The test weapons last (plan test-weapons): the real weapons keep their grades.
+	std::stable_sort(grades.begin(), grades.end(), [&](ItemKind a, ItemKind b) {
+		return isTestWeapon(a) != isTestWeapon(b) ? isTestWeapon(b) : grade(a) < grade(b);
+	});
 	return grades;
 }();
 
@@ -33,15 +36,17 @@ int weaponGrade(ItemKind kind) {
 
 // One of the weapons `owned` whose grade is below `grades`, at random; nullopt if none.
 std::optional<ItemKind> pickOwned(const OwnedWeapons& owned, int grades, Rng& rng) {
+	// A test weapon in the bag is never loot (plan test-weapons).
+	auto held = [&owned](ItemKind kind) { return owned[static_cast<size_t>(itemIndex(kind))] && !isTestWeapon(kind); };
 	int count = 0;
 	for (int grade = 0; grade < grades; grade++)
-		count += owned[static_cast<size_t>(itemIndex(WEAPON_GRADES[static_cast<size_t>(grade)]))] ? 1 : 0;
+		count += held(WEAPON_GRADES[static_cast<size_t>(grade)]) ? 1 : 0;
 	if (count == 0)
 		return std::nullopt;
 	int pick = rng.below(count);
 	for (int grade = 0; grade < grades; grade++) {
 		const ItemKind kind = WEAPON_GRADES[static_cast<size_t>(grade)];
-		if (owned[static_cast<size_t>(itemIndex(kind))] && pick-- == 0)
+		if (held(kind) && pick-- == 0)
 			return kind;
 	}
 	return std::nullopt;
@@ -189,7 +194,7 @@ std::vector<ItemKind> RollTrappedChestLoot(ItemKind placed, const OwnedWeapons& 
 ItemKind RollTreasureWeapon(bool melee, int difficulty, Rng& rng) {
 	auto allowed = [melee, difficulty](int i) {
 		const ItemKind kind = itemAt(i);
-		return isRanged(kind) != melee && weaponDef(kind).generatedFrom <= difficulty;
+		return isRanged(kind) != melee && !isTestWeapon(kind) && weaponDef(kind).generatedFrom <= difficulty;
 	};
 	int kinds = 0;
 	for (int i = 0; i < WEAPON_KIND_COUNT; i++)

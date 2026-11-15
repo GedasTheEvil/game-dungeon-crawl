@@ -44,7 +44,7 @@ constexpr SlotShift SHIFT_BEFORE_INV5 = {
 	static_cast<size_t>(ORDERED_SAVE_SLOTS),
 	itemIndex(ItemKind::WaterBlessing) - itemIndex(ItemKind::Antidote)
 };
-constexpr SlotShift SHIFT_BEFORE_INV7 = {static_cast<size_t>(itemIndex(ItemKind::WaterBlessing)), 1};
+constexpr SlotShift SHIFT_BEFORE_INV7 = {static_cast<size_t>(legacyIndex(ItemKind::WaterBlessing)), 1};
 constexpr SlotShift NO_SHIFT = {0, 0};
 
 // The item a saved slot holds: a save with ORDERED_SAVE_SLOTS or more slots is in ItemKind order, but for the potions
@@ -52,7 +52,8 @@ constexpr SlotShift NO_SHIFT = {0, 0};
 std::optional<ItemKind> savedSlot(size_t slot, size_t slots, SlotShift shift) {
 	if (slots >= ORDERED_SAVE_SLOTS) {
 		const size_t index = slot >= shift.from ? slot + shift.shift : slot;
-		return index < ITEM_KIND_COUNT ? std::optional(itemAt(static_cast<int>(index))) : std::nullopt;
+		return index < ITEM_KIND_COUNT - TEST_WEAPON_COUNT ? std::optional(legacyItemAt(static_cast<int>(index)))
+														   : std::nullopt;
 	}
 	if (slot < OLD_SLOT_COUNT)
 		return OLD_SLOTS[slot];
@@ -207,6 +208,8 @@ bool ItemBag::AnyFound(ItemGroup group) const {
 namespace {
 // Higher: stronger, sorted first by SortOrder::Strength.
 int strength(const ItemBag& bag, ItemKind kind) {
+	if (isTestWeapon(kind)) // plan test-weapons: never ranked
+		return -1;
 	if (isWeapon(kind))
 		return weaponDamage(kind, weaponDef(kind).damage, bag.Level(kind));
 	if (isAmulet(kind))

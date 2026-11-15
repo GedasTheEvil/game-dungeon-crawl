@@ -61,6 +61,8 @@ TEST_CASE("the editor readme lists every structure, tile type, monster, lock col
 		CHECK_MESSAGE(has(readme, lockColour(colour).gem), lockColour(colour).gem);
 	}
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
+		if (isTestWeapon(itemAt(i))) // not for levels (plan test-weapons), so not in the editor's readme
+			continue;
 		ItemFileId id = fileIdOf(itemAt(i));
 		CHECK_MESSAGE(has(readme, std::to_string(id.id) + " " + itemText(itemAt(i)).label), itemText(itemAt(i)).label);
 	}

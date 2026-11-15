@@ -49,6 +49,6 @@ TEST_CASE("every weapon teaches the note of the type it deals most of") {
 	CHECK(damageNote(mainType(weaponMix(ItemKind::ThrowingStick))) == FieldNote::Blunt);
 	for (int i = 0; i < WEAPON_KIND_COUNT; i++) {
 		const DamageMix& mix = weaponMix(itemAt(i));
-		CHECK(mix[0] + mix[1] + mix[2] == 100);
+		CHECK(mix[0] + mix[1] + mix[2] + mix[3] == 100);
 	}
 }

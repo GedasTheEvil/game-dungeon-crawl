@@ -307,7 +307,7 @@ ItemKind bestMelee(const MonsterKind& kind, int difficulty, int might) {
 	double bestHit = 0;
 	for (int i = 0; i < ITEM_KIND_COUNT; i++) {
 		const ItemKind item = itemAt(i);
-		if (!isWeapon(item) || isRanged(item) || weaponDef(item).generatedFrom > difficulty)
+		if (!isWeapon(item) || isRanged(item) || isTestWeapon(item) || weaponDef(item).generatedFrom > difficulty)
 			continue;
 		const WeaponDef& def = weaponDef(item);
 		const double hit = resistedDamage(def.damage + might, def.mix, kind.resist) +

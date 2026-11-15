@@ -191,3 +191,24 @@ lore2: No hide is thick enough.
 [item.ring-sky-iron]
 lore1: Iron of heaven,
 lore2: fallen from Nut's body.
+
+# The test weapons (plan test-weapons): never found in the game.
+[item.smash-test]
+lore1: One hit, one hit point.
+lore2: For scenarios only.
+
+[item.stab-test]
+lore1: One hit, one hit point.
+lore2: For scenarios only.
+
+[item.cut-test]
+lore1: One hit, one hit point.
+lore2: For scenarios only.
+
+[item.fire-test]
+lore1: One hit, one hit point.
+lore2: For scenarios only.
+
+[item.bow-test]
+lore1: One shot, one hit point.
+lore2: For scenarios only.

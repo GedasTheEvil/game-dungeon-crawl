@@ -336,8 +336,10 @@ class Dungeon {
 		return {sim.player, sim.journal, sim.events, levelNumber, &sim.random->gameplay};
 	}
 	// The player's weapon, arrow or a scenario's hit on mon: the journal learns how the weapon's main type works on it
-	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill).
-	void playerHit(Monster& mon, int dmg, const DamageMix* mix);
+	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill). exactHit (a test weapon, plan test-weapons; a typed
+	// hit): the hit takes exactly 1 HP, not what the amulets, resistances, a stun or the weapon's damage make of dmg;
+	// the fire still sets it burning and the type's side effects still roll.
+	void playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit = false);
 	void touchPoison(const Monster& mon); // the plant's sap, after a melee hit
 	void venomHit(Monster& mon); // the venom amulet's roll after a weapon hit
 	// The Stun skill's roll after a weapon hit that did not kill (plan skill-stun, Monster::StunHit); the first stun
@@ -580,6 +582,7 @@ class Dungeon {
 		DamageMix mix;
 		int startMs; // GameClock time of the shot
 		bool fire = false; // a fire arrow (lightArrows): it flies burning
+		bool exact = false; // a test weapon's shot (plan test-weapons): 1 HP, whatever the rest says
 		float t = 0.f; // seconds flown so far
 		int stuckMs = -1; // GameClock time it hit a wall or the floor (or a monster: the stick turns back); < 0: flying
 		float endX = 0.f, endY = 0.f; // where it stopped: the throwing stick flies back from there
@@ -891,12 +894,20 @@ class Dungeon {
 	// The player's melee attack: hits the nearest monster in range ahead (dir -1 / +1). False: nothing in reach.
 	// reach in tiles (Item::Reach). power: a power hit's charge 0..1 (plan skill-power-hit), its thump, spark and
 	// shake.
-	bool AttackNearest(int damage, const DamageMix& mix, float reach, int dir, float power = 0.f);
+	bool AttackNearest(int damage, const DamageMix& mix, float reach, int dir, float power = 0.f, bool exact = false);
 	// 0..1: how hard the view shakes after a power hit, fading over POWER_SHAKE_MS; 0 with none.
 	[[nodiscard]] float PowerHitShake() const;
 	// A ranged weapon shoots: the missile leaves the hand, height above the player's feet in tiles, facing dir
 	// (-1 / +1), aimed at a monster up to aimRange tiles ahead.
-	void Shoot(MissileKind kind, int damage, const DamageMix& mix, int dir, float height, float aimRange);
+	void Shoot(
+		MissileKind kind,
+		int damage,
+		const DamageMix& mix,
+		int dir,
+		float height,
+		float aimRange,
+		bool exact = false
+	);
 	// Why the ranged weapon's shot facing dir would not leave (plan ranged-weaker-than-melee): Empty, none of its shots
 	// left (ItemBag::ShotsLeft); TooClose, a monster the bow would aim at is nearer than its minimum range (between
 	// the hitboxes, weaponMinRange; a wall, a lever or a target never blocks). None for a melee weapon.

@@ -38,7 +38,11 @@ FormatStyle: file
 # enum-size (a byte saved per enum value is nothing here; it fired in 12 sessions and was never worth a fix).
 # Warnings do not fail clang-tidy itself: tools/tidy.sh fails `make tidy` on any warning (plan dev-friction-review).
 # int -> float narrowing is not checked: map cells, pixel sizes and counts are far below float's 2^24.
+# std::println can throw std::format_error in theory (a runtime-broken format; clang-tidy 21 wants the unqualified
+# name); a tool's main lets it terminate, which is fine (plan cpp23-print).
 CheckOptions:
+  - key: bugprone-exception-escape.IgnoredExceptions
+    value: 'format_error'
   - key: bugprone-narrowing-conversions.WarnOnIntegerToFloatingPointNarrowingConversion
     value: 'false'
   - key: modernize-use-nullptr.NullMacros

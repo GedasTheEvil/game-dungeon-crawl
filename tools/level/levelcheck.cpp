@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include "../../src/core/paths.h"
+#include <print>
 
 namespace {
 struct Entry {
@@ -38,19 +39,19 @@ struct Entry {
 
 void printReport(const Entry& e, bool map) {
 	const LevelReport& r = e.report;
-	printf("== %s: %s\n", e.path.c_str(), r.valid ? "OK" : "INVALID");
+	std::println("== {}: {}", e.path, r.valid ? "OK" : "INVALID");
 	for (const std::string& m : r.errors)
-		printf("   error: %s\n", m.c_str());
+		std::println("   error: {}", m);
 	for (const std::string& m : r.warnings)
-		printf("   warning: %s\n", m.c_str());
-	printf(
-		"   start (col %d, row %d), %s\n",
+		std::println("   warning: {}", m);
+	std::println(
+		"   start (col {}, row {}), {}",
 		r.start.col,
 		r.start.row,
 		r.finale ? "goal: ankh (finale)" : "goal: exit"
 	);
-	printf(
-		"   size: %d open cells, %d reachable, bounds %dx%d\n",
+	std::println(
+		"   size: {} open cells, {} reachable, bounds {}x{}",
 		r.openCells,
 		r.reachableCells,
 		r.boundsWidth,
@@ -60,16 +61,16 @@ void printReport(const Entry& e, bool map) {
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type))
 			perType += std::string(perType.empty() ? "" : ", ") + kind->label + " " + std::to_string(r.monsters[type]);
-	printf(
-		"   content: %d monsters (%s), %d spikes, %d death traps, %d rock falls (%d sand), %d dart plates, %d wall "
-		"spikes, %d fire vents, %d poison drips, %d treasures (%d reachable, %d trapped), %d keys, %d gates, %d "
-		"levers, %d riddles, "
-		"%d teleporters "
-		"(%d name "
-		"gates), %d inscriptions, %d sand cells (%d quicksand), %d sand gusts, %d light shafts, %d mirrors, %d sun "
-		"discs\n",
+	std::println(
+		"   content: {} monsters ({}), {} spikes, {} death traps, {} rock falls ({} sand), {} dart plates, {} wall "
+		"spikes, {} fire vents, {} poison drips, {} treasures ({} reachable, {} trapped), {} keys, {} gates, {} "
+		"levers, {} riddles, "
+		"{} teleporters "
+		"({} name "
+		"gates), {} inscriptions, {} sand cells ({} quicksand), {} sand gusts, {} light shafts, {} mirrors, {} sun "
+		"discs",
 		r.monsterCount,
-		perType.c_str(),
+		perType,
 		r.spikes,
 		r.deathTraps,
 		r.rockFalls,
@@ -96,12 +97,12 @@ void printReport(const Entry& e, bool map) {
 		r.sunDiscs
 	);
 	if (r.valid || !r.path.empty())
-		printf(
-			"   path: %d moves, %d jumps, %d drops, %d ladder steps, %d spikes, %d death traps, %d rock falls, %d sand "
-			"falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gates (%d colours), %d "
-			"teleports, %d monsters "
-			"near, %d sand, %d "
-			"quicksand, %d sand gusts, %d mirror turns\n",
+		std::println(
+			"   path: {} moves, {} jumps, {} drops, {} ladder steps, {} spikes, {} death traps, {} rock falls, {} sand "
+			"falls, {} dart plates, {} wall spikes, {} fire vents, {} poison drips, {} gates ({} colours), {} "
+			"teleports, {} monsters "
+			"near, {} sand, {} "
+			"quicksand, {} sand gusts, {} mirror turns",
 			r.pathLength,
 			r.pathJumps,
 			r.pathDrops,
@@ -124,15 +125,15 @@ void printReport(const Entry& e, bool map) {
 			r.pathTurns
 		);
 	if (r.pathSteps + r.pathCrawls > 0) // plan subcell-checker
-		printf(
-			"   sub-cells: %d quarter steps (%d into ceiling spikes), %d crawled\n",
+		std::println(
+			"   sub-cells: {} quarter steps ({} into ceiling spikes), {} crawled",
 			r.pathSteps,
 			r.pathCeilingSpikes,
 			r.pathCrawls
 		);
-	printf("   difficulty: %.1f\n", r.difficulty);
+	std::println("   difficulty: {:.1f}", r.difficulty);
 	if (map)
-		printf("%s", renderLevel(e.grid, &r).c_str());
+		std::print("{}", renderLevel(e.grid, &r));
 }
 // The campaign level number of a file named lvlN, 0 for any other level.
 int campaignNumber(const std::string& path) {
@@ -151,7 +152,7 @@ void checkInscriptions(std::vector<Entry>& entries) {
 	bool texts = std::filesystem::is_directory(dir);
 	if (texts)
 		for (const std::string& m : book.Load(dir))
-			fprintf(stderr, "%s\n", m.c_str());
+			std::println(stderr, "{}", m);
 	std::vector<std::string> usedIn(INSCRIPTION_MAX + 1);
 	for (Entry& e : entries) {
 		for (int cell = 0; cell < LEVEL_WIDTH * LEVEL_HEIGHT; cell++) {
@@ -194,8 +195,8 @@ int main(int argc, char** argv) {
 		// glyph, SHAPED_GLYPHS, after its Structure number, no space), then "CHAR TYPE ATTR VALUE STRUCTURE meaning"
 		// per glyph of the drawings; a wall type's meaning starts with "wall:".
 		if (strcmp(argv[i], "--legend") == 0) {
-			printf(
-				"size %d %d\nformat %s %d\nstructure %s\nwall",
+			std::print(
+				"size {} {}\nformat {} {}\nstructure {}\nwall",
 				LEVEL_WIDTH,
 				LEVEL_HEIGHT,
 				LEVEL_MAGIC,
@@ -204,15 +205,15 @@ int main(int argc, char** argv) {
 			);
 			for (int type = 0; type < TILE_TYPE_COUNT; type++)
 				if (isWallType(type))
-					printf(" %d", type);
-			printf("\nshaped");
+					std::print(" {}", type);
+			std::print("\nshaped");
 			for (int s = 0; s < STRUCTURE_COUNT; s++)
 				if (takesShape(static_cast<Structure>(s)))
-					printf(" %d%c", s, SHAPED_GLYPHS[s]);
-			printf("\n");
+					std::print(" {}{}", s, SHAPED_GLYPHS[s]);
+			std::println();
 			for (const GlyphDef& g : glyphLegend())
-				printf(
-					"%c %d %d %d %d %s%s\n",
+				std::println(
+					"{} {} {} {} {} {}{}",
 					g.glyph,
 					g.tile.type,
 					g.tile.attr,
@@ -222,13 +223,13 @@ int main(int argc, char** argv) {
 					g.meaning
 				);
 			for (int d = 0; d < DECOR_COUNT; d++) // the --map decor and decal drawings (plan placed-decor)
-				printf("prop %c %d %s\n", decorGlyph(d), d, DECOR_NAMES[d]);
+				std::println("prop {} {} {}", decorGlyph(d), d, DECOR_NAMES[d]);
 			for (int d = 0; d < DECAL_COUNT; d++)
-				printf("decal %c %d %s\n", 'a' + d, d, DECAL_DEFS[d].name);
+				std::println("decal {} {} {}", static_cast<char>('a' + d), d, DECAL_DEFS[d].name);
 			for (int c = 0; c < CONTAINER_COUNT; c++) // the --map containers drawing (plan placed-container-looks)
-				printf("container %c %d %s\n", CONTAINER_GLYPHS[c], c, CONTAINER_NAMES[c]);
-			printf("container %c coffin, plain lid\n", PLAIN_COFFIN_GLYPH);
-			printf("container %c coffin, inscribed lid\n", INSCRIBED_COFFIN_GLYPH);
+				std::println("container {} {} {}", CONTAINER_GLYPHS[c], c, CONTAINER_NAMES[c]);
+			std::println("container {} coffin, plain lid", PLAIN_COFFIN_GLYPH);
+			std::println("container {} coffin, inscribed lid", INSCRIBED_COFFIN_GLYPH);
 			return 0;
 		}
 		if (strcmp(argv[i], "--script") == 0 && i + 1 < argc) {
@@ -236,7 +237,7 @@ int main(int argc, char** argv) {
 			continue;
 		}
 		if (argv[i][0] == '-') {
-			fprintf(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE... | levelcheck --legend\n");
+			std::println(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE... | levelcheck --legend");
 			return 2;
 		}
 		Entry e;
@@ -244,7 +245,7 @@ int main(int argc, char** argv) {
 		int version = 0;
 		std::string error = loadLevelFile(argv[i], e.grid, &version);
 		if (!error.empty()) {
-			fprintf(stderr, "%s: %s\n", argv[i], error.c_str());
+			std::println(stderr, "{}: {}", argv[i], error);
 			code = 2;
 			continue;
 		}
@@ -258,7 +259,7 @@ int main(int argc, char** argv) {
 		entries.push_back(std::move(e));
 	}
 	if (entries.empty() && code == 0) {
-		fprintf(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE...\n");
+		std::println(stderr, "usage: levelcheck [--map] [--quiet] [--script DIR] FILE...");
 		return 2;
 	}
 
@@ -275,7 +276,7 @@ int main(int argc, char** argv) {
 			// The game starts on the entrance cell's left edge (Dungeon::Load).
 			script << pathScript(e.grid, e.report, e.path, static_cast<float>(e.report.start.col));
 			if (!quiet)
-				printf("   script: %s\n", file.c_str());
+				std::println("   script: {}", file);
 		}
 	}
 
@@ -289,8 +290,8 @@ int main(int argc, char** argv) {
 			return b->report.finale;
 		return a->report.difficulty < b->report.difficulty;
 	});
-	printf(
-		"\n%-4s %-28s %-7s %6s %5s %5s %8s %6s  %s\n",
+	std::println(
+		"\n{:<4} {:<28} {:<7} {:>6} {:>5} {:>5} {:>8} {:>6}  {}",
 		"rank",
 		"level",
 		"valid",
@@ -311,17 +312,17 @@ int main(int argc, char** argv) {
 			notes += std::to_string(r.warnings.size()) + " warning(s) ";
 		if (!r.errors.empty())
 			notes += r.errors.front();
-		printf(
-			"%-4d %-28s %-7s %6.1f %5d %5d %8d %6d  %s\n",
+		std::println(
+			"{:<4} {:<28} {:<7} {:6.1f} {:5} {:5} {:8} {:6}  {}",
 			rank++,
-			e->path.c_str(),
+			e->path,
 			r.valid ? "yes" : "NO",
 			r.difficulty,
 			r.pathLength,
 			r.reachableCells,
 			r.monsterCount,
 			r.spikes + r.deathTraps + r.rockFalls + r.dartPlates + r.wallSpikes + r.fireVents + r.poisonDrips,
-			notes.c_str()
+			notes
 		);
 	}
 	return code;

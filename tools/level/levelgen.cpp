@@ -18,13 +18,14 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <print>
 
 namespace {
 int usage() {
-	fprintf(
+	std::println(
 		stderr,
 		"usage: levelgen [--seed N] [--difficulty 1-10] [--zone SLUG [--cells C] [--boss] [--title T] [--page N] "
-		"[--texts IDS] [--lore IDS] [--stargate] [--fork 1|2] [--finale]] [--count K] [--map] OUT\n"
+		"[--texts IDS] [--lore IDS] [--stargate] [--fork 1|2] [--finale]] [--count K] [--map] OUT"
 	);
 	return 2;
 }
@@ -86,7 +87,7 @@ int main(int argc, char** argv) {
 	if (isZone(options.zone)) {
 		const std::string root = Paths::rootDir();
 		for (const std::string& m : texts.Load((root.empty() ? "" : root + "/") + CONTENT_DIR "inscriptions"))
-			fprintf(stderr, "%s\n", m.c_str());
+			std::println(stderr, "{}", m);
 		options.texts = &texts;
 	}
 	int code = 0;
@@ -96,25 +97,19 @@ int main(int argc, char** argv) {
 		GenResult result = generateLevel(o);
 		std::string path = count > 1 ? std::string(out) + std::to_string(k + 1) : std::string(out);
 		if (!result.ok) {
-			fprintf(
-				stderr,
-				"%s: no valid level for seed %u after %d attempts\n",
-				path.c_str(),
-				o.seed,
-				result.attempts
-			);
+			std::println(stderr, "{}: no valid level for seed {} after {} attempts", path, o.seed, result.attempts);
 			code = 1;
 			continue;
 		}
 		if (!saveLevelFile(path.c_str(), result.grid)) {
-			fprintf(stderr, "%s: cannot write\n", path.c_str());
+			std::println(stderr, "{}: cannot write", path);
 			return 2;
 		}
 		const LevelReport& r = result.report;
-		printf(
-			"%s: seed %u, difficulty %d -> score %.1f (target %.1f, %d attempts), path %d, %d monsters, "
-			"%d gates, %d open cells\n",
-			path.c_str(),
+		std::println(
+			"{}: seed {}, difficulty {} -> score {:.1f} (target {:.1f}, {} attempts), path {}, {} monsters, "
+			"{} gates, {} open cells",
+			path,
 			o.seed,
 			o.difficulty,
 			r.difficulty,
@@ -127,14 +122,14 @@ int main(int argc, char** argv) {
 		);
 		if (isZone(o.zone)) {
 			const GenShape& s = result.shape;
-			printf(
-				"   %s: %d halls (%d tall), %d loops, %d hubs, %d ledges, %d shafts; %d wades, %d pools, %d sand "
-				"(%d quicksand), %d dark halls, %d braziers, %d light shafts, %d sun discs; %d spikes, %d death pits, "
-				"%d rock falls, %d dart plates, %d wall spikes, %d fire vents, %d poison drips, %d gauntlets; %d "
+			std::println(
+				"   {}: {} halls ({} tall), {} loops, {} hubs, {} ledges, {} shafts; {} wades, {} pools, {} sand "
+				"({} quicksand), {} dark halls, {} braziers, {} light shafts, {} sun discs; {} spikes, {} death pits, "
+				"{} rock falls, {} dart plates, {} wall spikes, {} fire vents, {} poison drips, {} gauntlets; {} "
 				"chained "
-				"openers, %d riddle gates, %d name gates, %d hidden rooms, %d treasure tombs%s; %d trapped chests, %d "
+				"openers, {} riddle gates, {} name gates, {} hidden rooms, {} treasure tombs{}; {} trapped chests, {} "
 				"Hapi "
-				"potions, %d resistance potions; %d inscriptions, %d pages, %d forks%s\n",
+				"potions, {} resistance potions; {} inscriptions, {} pages, {} forks{}",
 				zoneInfo(static_cast<ZoneId>(o.zone)).slug,
 				s.halls,
 				s.tallHalls,
@@ -170,11 +165,11 @@ int main(int argc, char** argv) {
 				s.inscriptions,
 				s.pages,
 				s.forks,
-				o.title.empty() ? "" : (", \"" + o.title + "\"").c_str()
+				o.title.empty() ? "" : (", \"" + o.title + "\"")
 			);
 		}
 		if (map)
-			printf("%s", renderLevel(result.grid, &r).c_str());
+			std::print("{}", renderLevel(result.grid, &r));
 	}
 	return code;
 }

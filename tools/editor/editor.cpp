@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "../../src/core/paths.h"
+#include <print>
 
 using namespace ui;
 
@@ -352,7 +353,7 @@ Editor::Editor() {
 		std::string path = std::string("tools/editor/icons/") + icon;
 		hasIcon[type] = icons[type].LoadPNG(path.c_str(), TexFilter::Flat) != 0;
 		if (!hasIcon[type])
-			fprintf(stderr, "Cannot load %s\n", path.c_str());
+			std::println(stderr, "Cannot load {}", path);
 	}
 	tiny.Load(SMALL_FONT, 1.9f, 0.05f, true, TexFilter::Mipmapped);
 	tinier.Load(SMALL_FONT, 1.6f, 0.03f, true, TexFilter::Mipmapped);
@@ -360,7 +361,7 @@ Editor::Editor() {
 		std::string path = std::string("tools/editor/icons/prop_") + DECOR_NAMES[d] + ".png";
 		hasPropIcon[d] = propIcons[d].LoadPNG(path.c_str(), TexFilter::Flat) != 0;
 		if (!hasPropIcon[d])
-			fprintf(stderr, "Cannot load %s\n", path.c_str());
+			std::println(stderr, "Cannot load {}", path);
 	}
 	torchIcon.LoadPNG("tools/editor/icons/torch.png", TexFilter::Flat);
 	noTorchIcon.LoadPNG("tools/editor/icons/no_torch.png", TexFilter::Flat);
@@ -372,7 +373,7 @@ Editor::Editor() {
 															   : CONTAINER_NAMES[b];
 		const std::string path = "tools/editor/icons/look_" + name + ".png";
 		if (lookIcons[b].LoadPNG(path.c_str(), TexFilter::Flat) == 0)
-			fprintf(stderr, "Cannot load %s\n", path.c_str());
+			std::println(stderr, "Cannot load {}", path);
 	}
 }
 
@@ -1580,7 +1581,7 @@ std::unique_ptr<Editor> editor;
 int main(int argc, char* argv[]) {
 	glutInit(&argc, argv); // strips GLUT's own options from argv
 	if (argc > 2) {
-		fprintf(stderr, "Usage: %s [level file]\n", argv[0]);
+		std::println(stderr, "Usage: {} [level file]", argv[0]);
 		return 1;
 	}
 	std::string levelFile;
@@ -1589,7 +1590,7 @@ int main(int argc, char* argv[]) {
 		auto probe = std::make_unique<LevelGrid>();
 		const std::string error = loadLevelFile(levelFile.c_str(), *probe);
 		if (!error.empty()) {
-			fprintf(stderr, "%s: %s\n", argv[1], error.c_str());
+			std::println(stderr, "{}: {}", argv[1], error);
 			return 1;
 		}
 	}

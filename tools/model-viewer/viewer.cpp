@@ -47,6 +47,7 @@
 #include "../../src/core/timer.h"
 #include "../../external/stb/stb_image_write.h"
 #include "../../src/core/paths.h"
+#include <print>
 
 namespace {
 
@@ -452,9 +453,9 @@ void WriteShots() {
 		char file[512];
 		std::snprintf(file, sizeof file, "%s/%s_%02d.png", gShotDir.c_str(), FileStem(gStatModelName).c_str(), f);
 		if (stbi_write_png(file, gWinWidth, gWinHeight, 3, pixels.data(), gWinWidth * 3)) {
-			std::printf("saved %s\n", file);
+			std::println("saved {}", file);
 		} else {
-			std::fprintf(stderr, "cannot write %s\n", file);
+			std::println(stderr, "cannot write {}", file);
 			failures++;
 		}
 	}
@@ -616,7 +617,7 @@ int main(int argc, char* argv[]) {
 	Logger::initialize();
 
 	if (argc < 2) {
-		std::fprintf(stderr, "Usage: viewer <model-file> [animation-time-seconds] [options], see viewer.cpp\n");
+		std::println(stderr, "Usage: viewer <model-file> [animation-time-seconds] [options], see viewer.cpp");
 		return 1;
 	}
 
@@ -627,7 +628,7 @@ int main(int argc, char* argv[]) {
 		char* end = nullptr;
 		seconds = std::strtod(argv[arg], &end);
 		if (end == argv[arg] || *end != '\0' || seconds <= 0.0) {
-			std::fprintf(stderr, "Invalid animation-time-seconds value: %s (must be a positive number)\n", argv[arg]);
+			std::println(stderr, "Invalid animation-time-seconds value: {} (must be a positive number)", argv[arg]);
 			return 1;
 		}
 		arg++;
@@ -636,7 +637,7 @@ int main(int argc, char* argv[]) {
 	for (; arg < argc; arg++) {
 		const std::string option = argv[arg];
 		if (arg + 1 >= argc) {
-			std::fprintf(stderr, "Missing value for %s\n", option.c_str());
+			std::println(stderr, "Missing value for {}", option);
 			return 1;
 		}
 		const char* value = argv[++arg];
@@ -645,7 +646,7 @@ int main(int argc, char* argv[]) {
 				return std::strcmp(n, value) == 0;
 			});
 			if (name == std::end(LIGHT_MODE_NAMES)) {
-				std::fprintf(stderr, "Unknown light: %s (flat, game or toon)\n", value);
+				std::println(stderr, "Unknown light: {} (flat, game or toon)", value);
 				return 1;
 			}
 			gLightMode = static_cast<LightMode>(name - std::begin(LIGHT_MODE_NAMES));
@@ -663,18 +664,18 @@ int main(int argc, char* argv[]) {
 					char* end = nullptr;
 					gShotFrames.push_back(static_cast<int>(std::strtol(p, &end, 10)));
 					if (end == p) {
-						std::fprintf(stderr, "Invalid --frames: %s\n", value);
+						std::println(stderr, "Invalid --frames: {}", value);
 						return 1;
 					}
 					p = *end == ',' ? end + 1 : end;
 				}
 		} else if (option == "--size") {
 			if (std::sscanf(value, "%dx%d", &gWinWidth, &gWinHeight) != 2 || gWinWidth <= 0 || gWinHeight <= 0) {
-				std::fprintf(stderr, "Invalid --size: %s (e.g. 800x600)\n", value);
+				std::println(stderr, "Invalid --size: {} (e.g. 800x600)", value);
 				return 1;
 			}
 		} else {
-			std::fprintf(stderr, "Unknown option: %s\n", option.c_str());
+			std::println(stderr, "Unknown option: {}", option);
 			return 1;
 		}
 	}
@@ -682,7 +683,7 @@ int main(int argc, char* argv[]) {
 
 	gModel = std::make_unique<LoopedAnimatedModel>();
 	if (!gModel->Load(modelPath.c_str())) {
-		std::fprintf(stderr, "Failed to load model: %s\n", modelPath.c_str());
+		std::println(stderr, "Failed to load model: {}", modelPath);
 		return 1;
 	}
 
@@ -723,7 +724,7 @@ int main(int argc, char* argv[]) {
 			return FileStem(path) == texture;
 		});
 		if (picked == gTexturePaths.end()) {
-			std::fprintf(stderr, "No texture %s for this model\n", texture.c_str());
+			std::println(stderr, "No texture {} for this model", texture);
 			return 1;
 		}
 		gTextureIndex = static_cast<std::size_t>(picked - gTexturePaths.begin());

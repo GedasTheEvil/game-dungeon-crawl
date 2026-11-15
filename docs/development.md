@@ -62,6 +62,10 @@ The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`
   (not when `i` is written, steps by more than 1, is compared with a `size()` or stored as a `size_t`); not in the
   per-frame paths (`src/graphics/`, `src/render/`, the simulation step). Plan cpp23-idioms found too few loops that fit
   to convert the old ones.
+* Tools (`tools/`) print with `std::println` / `std::print` (`stderr` first for errors), not `printf`: `{}` needs no
+  length modifier and no `.c_str()`; `%5d` is `{:5}`, `%-12s` is `{:<12}`, `%5s` is `{:>5}` (a string aligns left by
+  default, a number right). `snprintf` into a buffer stays. The game (`src/`) stays on `printf`: `<print>` made the
+  one measured file (`tools/balance/balance.cpp`) 1.7x slower to compile (plan cpp23-print).
 
 ## Project layout
 

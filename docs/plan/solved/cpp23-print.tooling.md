@@ -1,6 +1,6 @@
 # Tools print with std::println
 
-Status: draft 2026-11-13, size M, needs [cpp23-standard](solved/cpp23-standard.tooling.md) first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size M, needs [cpp23-standard](cpp23-standard.tooling.md) first.
 
 Rank 5 of 5 in the C++23 set, the lowest gain: `-Wall` already checks `printf` format strings (`-Wformat`), so type
 safety is mostly there, and `<print>` costs compile time. Do it last, or drop it.
@@ -28,3 +28,12 @@ modifiers (`%zu`, `%lld`), prints `std::string` and `std::string_view` without `
   `src/` (the game) unless the measurement shows no cost: then the 32 calls there too.
 * `docs/development.md`: "tools print with `std::println`" in the code style list.
 * `make check`. No behaviour change, no play-test.
+
+## Result
+
+Measured on `tools/balance/balance.cpp` (g++ `-O3`, the makefile flags): compile 6.04 s before, 10.4 s after (1.7x,
+under the 2x limit); `bin/balance` 1933592 -> 2039920 bytes (+104 KB), `bin/levelcheck` +104 KB, `bin/levelgen`
++118 KB, `bin/levelconvert` +139 KB (under the 1 MB limit). Converted: `tools/balance`, `tools/level` (3 files),
+`tools/model-viewer`, `tools/editor` (every `printf` / `fprintf`; `snprintf` stays). `src/` not converted: 1.7x
+compile time for the one file is a cost. Output of balance (today, curve, table, fight, home, errors, usage),
+levelcheck (all levels, `--quiet`, `--map`, `--legend`, usage), levelgen and levelconvert is byte-identical to before.

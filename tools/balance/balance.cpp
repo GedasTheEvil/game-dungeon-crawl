@@ -23,6 +23,7 @@
 #include <cstring>
 #include <map>
 #include <optional>
+#include <print>
 #include <vector>
 #include <utility>
 
@@ -125,8 +126,8 @@ std::vector<Player> buildCurve(bool print, double xpScale) {
 	std::vector<Player> players(TARGET_LEVELS + 2);
 	Player p;
 	if (print)
-		std::printf(
-			"lvl zone              d cells  monsters    XP  riddles  boss  | start: plvl  might armor life amulet\n"
+		std::println(
+			"lvl zone              d cells  monsters    XP  riddles  boss  | start: plvl  might armor life amulet"
 		);
 	for (int level = 1; level <= TARGET_LEVELS; level++) {
 		const TargetZone& zone = targetZoneOf(level);
@@ -151,8 +152,8 @@ std::vector<Player> buildCurve(bool print, double xpScale) {
 		for (int r = 0; r < riddles; r++)
 			xp += riddleXP(levelOf(p.xp + xp));
 		if (print)
-			std::printf(
-				"%3d %-17s %2d %5d  %8d %5.0f  %7d  %-4s  | %4d %6d %5d %4d %6d\n",
+			std::println(
+				"{:3} {:<17} {:2} {:5}  {:8} {:5.0f}  {:7}  {:<4}  | {:4} {:6} {:5} {:4} {:6}",
 				level,
 				zoneSlug(zone.id),
 				p.difficulty,
@@ -172,7 +173,7 @@ std::vector<Player> buildCurve(bool print, double xpScale) {
 	p.level = levelOf(p.xp);
 	players[TARGET_LEVELS + 1] = p;
 	if (print)
-		std::printf("end: player level %d, XP %.0f (monster XP x %.2f)\n", p.level, p.xp, xpScale);
+		std::println("end: player level {}, XP {:.0f} (monster XP x {:.2f})", p.level, p.xp, xpScale);
 	return players;
 }
 
@@ -183,7 +184,7 @@ std::vector<int> todayCurve(bool print) {
 	std::vector<int> levels(CAMPAIGN_LEVELS + 2, 1);
 	Player p;
 	if (print)
-		std::printf("lvl  monsters    XP  riddles  boss  | start: plvl  might armor life amulet\n");
+		std::println("lvl  monsters    XP  riddles  boss  | start: plvl  might armor life amulet");
 	for (int level = 1; level <= CAMPAIGN_LEVELS; level++) {
 		LevelGrid grid;
 		if (!loadLevelFile(campaignLevelFile(level).c_str(), grid).empty())
@@ -195,8 +196,8 @@ std::vector<int> todayCurve(bool print) {
 		for (int r = 0; r < tally.riddles; r++)
 			tally.xp += riddleXP(levelOf(p.xp + tally.xp));
 		if (print)
-			std::printf(
-				"%3d  %8d %6.0f  %7d  %-4s  | %4d %6d %5d %4d %6d\n",
+			std::println(
+				"{:3}  {:8} {:6.0f}  {:7}  {:<4}  | {:4} {:6} {:5} {:4} {:6}",
 				level,
 				tally.monsters,
 				tally.xp,
@@ -212,7 +213,7 @@ std::vector<int> todayCurve(bool print) {
 	}
 	levels[CAMPAIGN_LEVELS + 1] = levelOf(p.xp);
 	if (print)
-		std::printf("end: player level %d\n", levels[CAMPAIGN_LEVELS + 1]);
+		std::println("end: player level {}", levels[CAMPAIGN_LEVELS + 1]);
 	return levels;
 }
 
@@ -447,9 +448,9 @@ Outcome fight(const MonsterKind& kind, const Stats& s, Tactic tactic, uint64_t s
 		}
 		const int before = world.Hp();
 		if (std::getenv("BALANCE_TRACE") != nullptr && t % 1000 == 0)
-			std::fprintf(
+			std::println(
 				stderr,
-				"t%d %s px %.2f mx %.2f gap %.2f hp %d mhp %d jump %d\n",
+				"t{} {} px {:.2f} mx {:.2f} gap {:.2f} hp {} mhp {} jump {}",
 				t,
 				TACTIC_NAMES[static_cast<int>(tactic)],
 				world.X(),
@@ -520,8 +521,8 @@ std::string cell(const Summary& s, Tactic tactic) {
 }
 
 void printHeader() {
-	std::printf(
-		"%-13s %-20s %4s %4s %4s %4s  %-9s %-16s %-16s %-10s\n",
+	std::println(
+		"{:<13} {:<20} {:>4} {:>4} {:>4} {:>4}  {:<9} {:<16} {:<16} {:<10}",
 		"zone",
 		"monster",
 		"plvl",
@@ -541,8 +542,8 @@ void printRow(const char* zone, const MonsterKind& kind, const Stats& s) {
 	const Summary tank = run(kind, s, Tactic::Tank);
 	const Summary kite = run(kind, s, Tactic::Kite);
 	const Summary past = run(kind, s, Tactic::RunPast);
-	std::printf(
-		"%-13s %-20s %4d %4d %4d %4d  %-9s %-16s %-16s %-10s\n",
+	std::println(
+		"{:<13} {:<20} {:4} {:4} {:4} {:4}  {:<9} {:<16} {:<16} {:<10}",
 		zone,
 		kind.label,
 		s.level,
@@ -550,9 +551,9 @@ void printRow(const char* zone, const MonsterKind& kind, const Stats& s) {
 		probe.player.stats.CurrentArmor(),
 		probe.player.stats.CurrentMight(),
 		itemText(tank.weapon).shortName,
-		cell(tank, Tactic::Tank).c_str(),
-		cell(kite, Tactic::Kite).c_str(),
-		cell(past, Tactic::RunPast).c_str()
+		cell(tank, Tactic::Tank),
+		cell(kite, Tactic::Kite),
+		cell(past, Tactic::RunPast)
 	);
 	std::fflush(stdout);
 }
@@ -639,8 +640,8 @@ Stats homeStats(const MonsterKind& kind, bool play) {
 }
 
 int tune(bool play) {
-	std::printf(
-		"%-20s %-17s %4s  %-12s %5s %5s  %-16s -> %5s %5s  %-16s %-16s\n",
+	std::println(
+		"{:<20} {:<17} {:>4}  {:<12} {:>5} {:>5}  {:<16} -> {:>5} {:>5}  {:<16} {:<16}",
 		"monster",
 		"home zone",
 		"plvl",
@@ -678,19 +679,19 @@ int tune(bool play) {
 		const Summary kite = run(kind, s, Tactic::Kite);
 		char goal[32];
 		std::snprintf(goal, sizeof(goal), "%d%% %ds", target.lostPercent, target.seconds);
-		std::printf(
-			"%-20s %-17s %4d  %-12s %5d %5d  %-16s -> %5d %5d  %-16s %-16s\n",
+		std::println(
+			"{:<20} {:<17} {:4}  {:<12} {:5} {:5}  {:<16} -> {:5} {:5}  {:<16} {:<16}",
 			kind.label,
 			zoneSlug(static_cast<ZoneId>(z)),
 			s.level,
 			goal,
 			kind.maxHealth,
 			kind.damage,
-			cell(before, Tactic::Tank).c_str(),
+			cell(before, Tactic::Tank),
 			std::max(1, static_cast<int>(std::lround(kind.maxHealth * hp))),
 			std::max(1, static_cast<int>(std::lround(kind.damage * damage))),
-			cell(now, Tactic::Tank).c_str(),
-			cell(kite, Tactic::Kite).c_str()
+			cell(now, Tactic::Tank),
+			cell(kite, Tactic::Kite)
 		);
 		std::fflush(stdout);
 		scaleKind(id, 1.0, 1.0);
@@ -732,11 +733,11 @@ int table(bool play) {
 }
 
 int usage() {
-	std::fprintf(
+	std::println(
 		stderr,
 		"usage: balance curve | today | tune | table [--gear gen|play] | fight MONSTER LEVEL | home MONSTER [--armor "
 		"A] [--might M] "
-		"[--hp P] [--difficulty D] [--monster-hp HP] [--monster-damage D] [--minions N]; any: [--amulet ID]\n"
+		"[--hp P] [--difficulty D] [--monster-hp HP] [--monster-damage D] [--minions N]; any: [--amulet ID]"
 	);
 	return 2;
 }
@@ -777,7 +778,7 @@ int main(int argc, char** argv) {
 	if ((mode == "fight" && argc >= 4) || home) {
 		const MonsterKind* kind = kindByLabel(argv[2]);
 		if (kind == nullptr) {
-			std::fprintf(stderr, "no monster labelled \"%s\"\n", argv[2]);
+			std::println(stderr, "no monster labelled \"{}\"", argv[2]);
 			return 2;
 		}
 		Stats s;

@@ -4,10 +4,11 @@
 
 #include "../../src/level/level.h"
 #include <cstdio>
+#include <print>
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
-		fprintf(stderr, "usage: levelconvert FILE...\n");
+		std::println(stderr, "usage: levelconvert FILE...");
 		return 2;
 	}
 	int code = 0;
@@ -16,20 +17,20 @@ int main(int argc, char** argv) {
 		int version = 0;
 		std::string error = loadLevelFile(argv[i], grid, &version);
 		if (!error.empty()) {
-			fprintf(stderr, "%s: %s\n", argv[i], error.c_str());
+			std::println(stderr, "{}: {}", argv[i], error);
 			code = 2;
 			continue;
 		}
 		if (version == LEVEL_VERSION) {
-			printf("%s: already v%d\n", argv[i], LEVEL_VERSION);
+			std::println("{}: already v{}", argv[i], LEVEL_VERSION);
 			continue;
 		}
 		if (!saveLevelFile(argv[i], grid)) {
-			fprintf(stderr, "%s: cannot write\n", argv[i]);
+			std::println(stderr, "{}: cannot write", argv[i]);
 			code = 2;
 			continue;
 		}
-		printf("%s: v%d -> v%d\n", argv[i], version, LEVEL_VERSION);
+		std::println("{}: v{} -> v{}", argv[i], version, LEVEL_VERSION);
 	}
 	return code;
 }

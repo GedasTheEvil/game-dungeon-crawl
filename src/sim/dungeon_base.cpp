@@ -286,6 +286,8 @@ void Dungeon::updateTraps() {
 		sim.events->Status("The spike tips are wet with venom.");
 		player.Poison(PoisonTier::Strong, *sim.events, sim.random->gameplay);
 	}
+	if (here) // the first touch of a floor trap: its field note (plan journal-trap-notes)
+		sim.events->Note(FieldNote::FloorSpikes);
 	updateDrips();
 	const bool jet = !here && player.Alive() && inFireJet(mapX - half, mapX + half, static_cast<int>(mapY));
 	if (!jet)
@@ -530,6 +532,7 @@ void Dungeon::ceilingSpikesHit(int trap) {
 	PlayerStats& stats = player.stats;
 	sim.events->PlayCharacter(PLAYER_CHARACTER, CharacterSound::Attack); // the grunt, as a head bump's
 	sim.events->Status("Spikes in the ceiling!");
+	sim.events->Note(FieldNote::CeilingTraps); // plan journal-trap-notes
 	const float walk = WALK_SPEED; // a whole walk through the floor kind, as a monster's (plan same-hazards-for-all)
 	const int hundredths = TrapBell::walkHundredths(death, stats.CurrentMaxHP(), walk, player.HalfWidth());
 	if (const int dmg = stats.TrapDamageHundredths(hundredths); dmg > 0)

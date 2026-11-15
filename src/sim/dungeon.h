@@ -443,7 +443,7 @@ class Dungeon {
 	void openGates(int colour);
 	void finishOpenedGates(); // the gates whose motion has run are open
 	void bumpGate(int col, int row); // the player walked into a closed gate
-	void startRockFall(int cell); // an armed rock fall cell was stepped into: the rumble starts
+	void startRockFall(int cell, bool byPlayer = false); // an armed rock fall cell was stepped into: the rumble starts
 	void updateRocks();
 	void drawKeyTile(int i, int j);
 	void drawPageTile(int i, int j);

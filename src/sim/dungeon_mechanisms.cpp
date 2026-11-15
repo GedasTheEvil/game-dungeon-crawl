@@ -71,7 +71,7 @@ void Dungeon::updateMechanisms() {
 	}
 
 	if (here.type == RockFall && sim.player->Alive())
-		startRockFall(MapIndex(col, row));
+		startRockFall(MapIndex(col, row), true);
 	// A reckless walker sets one off too (cowards keep out, flyers pass over, a leaper is in the air).
 	for (const Monster& mon : monsters)
 		if (mon.Active() && mon.Alive() && !mon.flies() && !mon.jumping()) {
@@ -99,9 +99,11 @@ void Dungeon::updateMechanisms() {
 	updateRhythmTraps();
 }
 //======================================================================================
-void Dungeon::startRockFall(int cell) {
+void Dungeon::startRockFall(int cell, bool byPlayer) {
 	if (map[cell].type != RockFall || rockState(map[cell]) != RockState::Armed)
 		return;
+	if (byPlayer)
+		sim.events->Note(FieldNote::RockFalls); // plan journal-trap-notes
 	setRockState(map[cell], RockState::Falling);
 	fallingRocks.push_back({cell, GameClock::now()});
 	sim.events->Play(isSandFall(map[cell]) ? WorldSound::SandHiss : WorldSound::RockRumble);

@@ -534,6 +534,30 @@ text: A slab in the floor with a gem set in it, and it gives a little under my b
 	empty chest, even what is left of a guardian will hold a plate down as well as I can, and better. Drag something
 	heavy onto it, then walk through. Some gates want two plates held at once.
 
+[note.floor-spikes]
+title: Floor spikes
+text: Spikes set in the floor, and a larger kind, the death trap, whose tips reach into the cells beside it and are
+	wet with venom. Both hurt for as long as I stand in them, and the longer I stay the harder they bite; the middle
+	of the cell is worse than its edge, and a sprint costs more than a walk. Armour does not help. A jump over them
+	only grazes me. A death trap poisons me strongly each time I step in, and some pits have one at the bottom.
+	A trap ward amulet takes the edge off. Cross at the edge, or jump clear.
+
+[note.rock-falls]
+title: Loose ceilings
+text: A loose stretch of ceiling, and little to show it but a crack. Stepping under it starts a rumble, and about a
+	second later the rock drops. Walking on, sprinting, jumping on or stepping back gets me clear. Standing still
+	does not, and a jump in place does not save me: the stone still catches me in the air. The middle of it kills
+	outright, armour or none, the edge only breaks a leg. Where sand pours instead, a hiss and a trickle of grit
+	come first; it buries me, slows me for a moment and leaves a drift behind. Creatures that charge in set them off
+	too.
+
+[note.ceiling-traps]
+title: Ceiling spikes
+text: Spikes on the underside of a low ceiling, the venomous kind too, as on the floor. A walk under them is safe,
+	and so is a crouch. A jump up into them is not: any touch of the tips costs me a whole crossing of the floor kind
+	through my armour, and the death trap's tips poison strongly. Under a low ceiling that bristles, I keep my feet
+	on the ground.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

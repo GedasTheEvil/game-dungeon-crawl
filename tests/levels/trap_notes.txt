@@ -1,0 +1,6 @@
+; The traps' field notes (plan journal-trap-notes; tests/unit/trap_notes_test.cpp), one hall: floor spikes (col 5), a
+; death trap (col 10), a rock fall (col 13), a sand fall (col 17), ceiling spikes (col 21), the exit at col 23.
+#########################
+#S...^....X..v...&...".E#
+#########################
+shape 21 2 f000

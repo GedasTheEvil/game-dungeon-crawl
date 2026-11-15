@@ -1,6 +1,6 @@
 # Journal: field notes for floor spikes, death traps, rock falls and ceiling traps
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first.
 
 From a journal coverage sweep on 2026-11-13. Every monster kind (36 `[monster.*]` in `content/texts/monsters.txt`), item
 kind (47 `[item.*]`), skill (17), curse (8 `curse-*` notes), amulet type, ring gem and zone hour has its text, and
@@ -25,5 +25,16 @@ field note (`FIELD_NOTE_SLUGS`, `src/level/journal_text.cpp`; the trap tiles are
 
 ## Play-test
 
-* `texts_test.cpp` asks for every key and fails on a missing one; add a play script (`tests/play/journal-trap-notes.txt`)
-  with a level that has each trap (`tests/levels/ceiling_spikes`) and a `## Play-test` section: walk into each, open J.
+* `bin/game --play tests/play/journal-trap-notes.txt`: a god-mode hall with floor spikes, a death trap, a rock fall, a
+  sand fall and ceiling spikes (the last one a jump away from the exit).
+* Walk east over the spikes and the death trap, under the rock and sand falls; at the ceiling spikes walk under them
+  (nothing), then jump into them. Open J, Notes: "Floor spikes", "Loose ceilings", "Ceiling spikes".
+* The texts match the rules (see the notes' wording); the notes do not appear before the trap is met.
+
+## Implemented
+
+* Notes `FloorSpikes` (a spike or death trap touched, `updateTraps`), `RockFalls` (the player sets off a rock or sand
+  fall, `startRockFall`), `CeilingTraps` (a jump hits ceiling spikes, `ceilingSpikesHit`); enum end, `AFTER_RING_SLUGS`,
+  `FIELD_NOTE_COUNT` 82; texts in `journal.txt`; unit tests `tests/unit/trap_notes_test.cpp`, level `tests/levels/trap_notes`.
+* Decided: all three notes written (floor spikes too, with the death trap and the pit); unlocked on being hurt or
+  touched, not on merely seeing the trap (a trap in view is not a rule learnt yet).

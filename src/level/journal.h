@@ -209,8 +209,11 @@ enum class FieldNote : unsigned char {
 	ShrineOfSerket,
 	SkyIron, // the first sky-iron ring (plan sky-iron-rings)
 	PressurePlates, // the first plate gate a pressure plate opened (plan pressure-plate)
+	FloorSpikes, // the first time in a spike or death trap (plan journal-trap-notes)
+	RockFalls, // the first rock or sand fall set off by the player (plan journal-trap-notes)
+	CeilingTraps, // the first jump into ceiling spikes (plan journal-trap-notes)
 };
-constexpr int FIELD_NOTE_COUNT = 79 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 82 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

@@ -7,7 +7,7 @@ Status: draft 2026-11-13, size S, needs nothing first. From the lore coverage au
 The journal writes a field note the first time the player meets most rules of the tomb (`FieldNote`,
 `src/level/journal.h`; texts `[note.<slug>]` in `content/texts/journal.txt`; triggers `events.Note(FieldNote::...)` in
 `src/sim/`). The traps without a note (floor spikes, death trap, rock and sand falls, ceiling traps) are
-[journal-trap-notes](journal-trap-notes.feature.draft.sonet.md). Still without one after it (`grep -n "^\[note\."
+[journal-trap-notes](journal-trap-notes.feature.md). Still without one after it (`grep -n "^\[note\."
 content/texts/journal.txt`, 76 note sections):
 
 | Thing | First met | Note today |

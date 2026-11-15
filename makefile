@@ -223,7 +223,8 @@ tidy-all: layers
 # it is stable, then tidy on the changed sources, then the unit tests. Scenarios stay `make test`. Links to plans that
 # moved are rewritten first (tools/plan.py), a link it cannot fix fails; then the plans' names and Status lines
 # (plan.py lint) and the plan tool's own tests, then the docs' anchors and backticked names (tools/docs_check.py).
-# tools/check_stages.sh runs the stages (build, plan, format, tidy, unit) and logs the time of each.
+# tools/check_stages.sh runs the stages (build, plan, format, tidy, unit) and logs the time of each; tidy and unit run
+# at the same time, their output printed after both end (tidy first).
 check:
 	+@./tools/check_stages.sh
 

@@ -189,8 +189,8 @@ See [testing.md](testing.md). `make paths` plays levelcheck's path through every
   and Status lines (`plan.py lint`) and runs the plan tool's tests, checks the docs' `#anchor` links and backticked
   code names (`tools/docs_check.py`: a name that is only an example goes in its `ALLOWED` list), tests `tools/job.sh`
   and the wait-loop hook (`tools/job_test.sh`, `tools/hooks/test_no_wait_loops.sh`), then `format`, the stability check of
-  `format-check` on the changed files only (`tools/check_format.sh --changed`), `tidy` and `unit`, in order. Run it
-  before each commit.
+  `format-check` on the changed files only (`tools/check_format.sh --changed`), then `tidy` and `unit` at the same time
+  (output printed after both end, tidy first; a failure of either fails the run). Run it before each commit.
 * `make format` formats the code. Formatting is the tool's job only: never align or wrap by hand, never think about
   it. `.clang-format` aligns nothing across lines (trailing comments, line continuations), so a diff shows only the
   lines that changed. A call too long for one line gets one argument per line and the `)` on its own line (the same

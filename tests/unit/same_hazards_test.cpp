@@ -159,7 +159,6 @@ TEST_CASE("the player and a monster of the same max HP and share take the same w
 	TrapHurt player, monster;
 	const Dungeon::TrapContact spikes{Spike, 0.5f, 4.5f, 0.5f};
 	player.lastX = monster.lastX = 4.f;
-	GameClock::enableVirtual();
 	GameClock::advance(TRAP_HURT_INTERVAL_MS);
 	const int byPlayer = Dungeon::TrapWalkHundredths(player, 4.02f, spikes, 1000, WALK_SPEED, false);
 	const int byMonster = Dungeon::TrapWalkHundredths(monster, 4.02f, spikes, 1000, WALK_SPEED, false);

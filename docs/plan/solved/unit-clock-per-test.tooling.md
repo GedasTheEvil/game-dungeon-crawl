@@ -1,6 +1,6 @@
 # Each unit test case starts on its own virtual clock at 0
 
-Status: draft 2026-11-13, size S, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size S, needs nothing first.
 
 ## Problem
 

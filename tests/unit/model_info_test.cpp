@@ -49,7 +49,6 @@ TEST_CASE("the player model has its clips and stands on its base") {
 }
 
 TEST_CASE("a one-shot clip plays from its start once and holds its last frame") {
-	GameClock::enableVirtual();
 	ModelInfo info;
 	info.reference = ModelState::Move;
 	info.clips[static_cast<int>(ModelState::Move)] = {true, 10, true};
@@ -84,7 +83,6 @@ TEST_CASE("a one-shot clip plays from its start once and holds its last frame") 
 }
 
 TEST_CASE("a looping clip starts over") {
-	GameClock::enableVirtual();
 	AnimPlayback p;
 	p.stepStart = GameClock::now();
 	float last = 0.f;
@@ -151,7 +149,6 @@ TEST_CASE("a model draws the step under way blended between two key frames") {
 		CHECK(keys.t == 0.f);
 	}
 	SUBCASE("t stays in [0, 1) as a clip plays") {
-		GameClock::enableVirtual();
 		AnimPlayback q;
 		q.stepStart = GameClock::now();
 		for (int ms = 0; ms < 3000; ms += 7) {
@@ -177,7 +174,6 @@ TEST_CASE("monsters spawned together start their walk at different frames") {
 }
 
 TEST_CASE("the walk clip plays as many rounds a second as asked; its attack clip at the usual pace") {
-	GameClock::enableVirtual();
 	ModelInfo info;
 	info.clips[static_cast<int>(ModelState::Move)] = {true, 26, true};
 	info.clips[static_cast<int>(ModelState::Attack)] = {true, 26, true};
@@ -198,7 +194,6 @@ TEST_CASE("the walk clip plays as many rounds a second as asked; its attack clip
 }
 
 TEST_CASE("a fast walk clip plays on smoothly on the game's ticks, no hold before each step") {
-	GameClock::enableVirtual();
 	ModelInfo info;
 	info.clips[static_cast<int>(ModelState::Move)] = {true, 26, true};
 	ClipPlayback playback{};

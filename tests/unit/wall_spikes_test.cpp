@@ -37,7 +37,7 @@ bool warnsUncrossable(const LevelReport& r) {
 SpikeState stateAt(SimWorld& world, int col, int row) { return spikeState(world.dungeon.Cell(col, row).fixture); }
 
 // Ticks until the wall spikes at (col, row) come into state s (at most a minute of game time): at its start, whatever
-// the clock's phase (the virtual clock runs on from the tests before).
+// the clock's phase.
 void waitFor(SimWorld& world, int col, int row, SpikeState s) {
 	int t = 0;
 	for (; t < 60000 && stateAt(world, col, row) == s; t += UPDATE_TICK_MS)

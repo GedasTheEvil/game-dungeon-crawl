@@ -55,8 +55,6 @@ TEST_CASE("Favour of Hapi: sprint in half water at half the land sprint speed, o
 	int sprintStamina = 0;
 	int hapiStamina = 0;
 	int hapiSprintStamina = 0;
-	// The virtual clock is global and the spike traps' phase follows it (wall_spikes_test): give it back whole cycles.
-	const int clockFrom = GameClock::now();
 	const float plain = wadeSpeed(false, false, plainStamina);
 	const float plainSprint = wadeSpeed(false, true, sprintStamina);
 	const float hapiWade = wadeSpeed(true, false, hapiStamina);
@@ -65,8 +63,6 @@ TEST_CASE("Favour of Hapi: sprint in half water at half the land sprint speed, o
 	CHECK(plainSprint == doctest::Approx(plain));
 	CHECK(sprintStamina == plainStamina); // no sprint, no drain
 	CHECK(hapiWade == doctest::Approx(WALK_SPEED * WADE_SPEED_FACTOR_HAPI).epsilon(0.1));
-	constexpr int ALL_SPIKE_PERIODS_MS = 48000; // a multiple of every SPIKES_PERIOD_MS
-	GameClock::advance(ALL_SPIKE_PERIODS_MS - (GameClock::now() - clockFrom) % ALL_SPIKE_PERIODS_MS);
 	const float landSprint = WALK_SPEED * SPRINT_MULTIPLIER;
 	CHECK(hapiSprint == doctest::Approx(landSprint * WADE_SPRINT_FACTOR_HAPI).epsilon(0.1));
 	CHECK(hapiSprintStamina < hapiStamina); // the drain, as on land

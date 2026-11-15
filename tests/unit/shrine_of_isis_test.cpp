@@ -65,7 +65,6 @@ TEST_CASE("Protection of Isis: no curse lands, of any kind or grade, from a mons
 }
 
 TEST_CASE("Protection of Isis: lasts 2 minutes, then curses land again; a second prayer clears and restarts") {
-	GameClock::enableVirtual();
 	Player player;
 	WorldEvents events;
 	player.stats.Pray(God::Isis, events);

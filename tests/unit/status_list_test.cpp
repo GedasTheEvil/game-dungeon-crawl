@@ -10,7 +10,6 @@
 using PlayerHud::Icon;
 
 TEST_CASE("the status list orders a mixed set by kind: blessings, conditions, curses") {
-	GameClock::enableVirtual();
 	PlayerStats stats;
 	WorldEvents events;
 	// Laid in the opposite order to the display.
@@ -49,7 +48,6 @@ TEST_CASE("the status list orders a mixed set by kind: blessings, conditions, cu
 }
 
 TEST_CASE("the status list: Hapi and Isis are blessings, daze a condition, nothing running is empty") {
-	GameClock::enableVirtual();
 	PlayerStats stats;
 	WorldEvents events;
 	CHECK(statusList(stats).count == 0);
@@ -70,7 +68,6 @@ TEST_CASE("the status list: Hapi and Isis are blessings, daze a condition, nothi
 }
 
 TEST_CASE("every effect at once fits the list") {
-	GameClock::enableVirtual();
 	PlayerStats stats;
 	WorldEvents events;
 	for (int c = 0; c < CURSE_COUNT; c++)
@@ -83,7 +80,6 @@ TEST_CASE("every effect at once fits the list") {
 }
 
 TEST_CASE("monster-status-icons: a monster's row is its conditions in the player's order, its terrain mood last") {
-	GameClock::enableVirtual();
 	Vitals vitals{10};
 	CHECK(monsterStatuses(vitals, TerrainMood::Neutral).count == 0);
 	vitals.poison.Apply(PoisonTier::Strong);

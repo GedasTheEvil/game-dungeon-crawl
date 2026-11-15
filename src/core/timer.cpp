@@ -15,6 +15,11 @@ int realMs() {
 
 void GameClock::enableVirtual() { gVirtualClock = true; }
 
+void GameClock::resetVirtual(int ms) {
+	gVirtualClock = true;
+	gVirtualMs = ms;
+}
+
 void GameClock::advance(int ms) { gVirtualMs += ms; }
 
 int GameClock::now() { return gVirtualClock ? gVirtualMs : realMs(); }

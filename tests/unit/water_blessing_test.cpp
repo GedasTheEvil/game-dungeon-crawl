@@ -46,7 +46,6 @@ Wade wade(bool potion, bool skill, bool sprint) {
 } // namespace
 
 TEST_CASE("Blessing of Hapi: lasts 2 minutes, drinking again restarts them, the end is told") {
-	GameClock::enableVirtual();
 	Player player;
 	WorldEvents events;
 	CHECK_FALSE(player.stats.WaterBlessed());
@@ -70,7 +69,6 @@ TEST_CASE("Blessing of Hapi: lasts 2 minutes, drinking again restarts them, the 
 }
 
 TEST_CASE("Blessing of Hapi: with the Favour of Hapi skill the potion lasts 4 minutes") {
-	GameClock::enableVirtual();
 	Player player;
 	learnHapi(player);
 	player.stats.Drink(potionGain(ItemKind::WaterBlessing));
@@ -79,7 +77,6 @@ TEST_CASE("Blessing of Hapi: with the Favour of Hapi skill the potion lasts 4 mi
 }
 
 TEST_CASE("Blessing of Hapi: the drink says the minutes, death and a new game end it") {
-	GameClock::enableVirtual();
 	Player player;
 	WorldEvents events;
 	CHECK(player.stats.Drink(potionGain(ItemKind::WaterBlessing)) == "The water parts for 2 min");
@@ -93,7 +90,6 @@ TEST_CASE("Blessing of Hapi: the drink says the minutes, death and a new game en
 }
 
 TEST_CASE("Blessing of Hapi: saved with the time left, a save from before it loads without") {
-	GameClock::enableVirtual();
 	WorldEvents events;
 	PlayerStats stats;
 	stats.Drink(potionGain(ItemKind::WaterBlessing));
@@ -134,7 +130,6 @@ TEST_CASE("Blessing of Hapi: saved with the time left, a save from before it loa
 }
 
 TEST_CASE("Blessing of Hapi: the sprint in half water drains the stamina at half with the potion and the skill") {
-	GameClock::enableVirtual();
 	PlayerStats plain;
 	PlayerStats halved;
 	WorldEvents events;
@@ -154,8 +149,6 @@ TEST_CASE("Blessing of Hapi: the sprint in half water drains the stamina at half
 }
 
 TEST_CASE("Blessing of Hapi: wade, sprint and jump in half water, the potion alone and with the skill") {
-	// The virtual clock is global and the spike traps' phase follows it (wall_spikes_test): give it back whole cycles.
-	const int clockFrom = GameClock::now();
 	const float landSprint = WALK_SPEED * SPRINT_MULTIPLIER;
 	const Wade plain = wade(false, false, false);
 	const Wade potion = wade(true, false, false);
@@ -163,8 +156,6 @@ TEST_CASE("Blessing of Hapi: wade, sprint and jump in half water, the potion alo
 	const Wade both = wade(true, true, false);
 	const Wade bothSprint = wade(true, true, true);
 	const Wade skillSprint = wade(false, true, true);
-	constexpr int ALL_SPIKE_PERIODS_MS = 48000; // a multiple of every SPIKES_PERIOD_MS
-	GameClock::advance(ALL_SPIKE_PERIODS_MS - (GameClock::now() - clockFrom) % ALL_SPIKE_PERIODS_MS);
 
 	CHECK(plain.speed == doctest::Approx(WALK_SPEED * WADE_SPEED_FACTOR).epsilon(0.1));
 	CHECK(potion.speed == doctest::Approx(WALK_SPEED).epsilon(0.1)); // 100% of the walk

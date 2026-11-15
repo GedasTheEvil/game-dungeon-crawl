@@ -6,6 +6,7 @@ constexpr int DEFAULT_TIMER_MS = 100;
 // to a virtual clock that only moves when advanced, so runs are deterministic.
 namespace GameClock {
 void enableVirtual();
+void resetVirtual(int ms); // virtual mode on, the time set to ms (the unit tests: every case starts the same)
 void advance(int ms);
 int now();
 } // namespace GameClock

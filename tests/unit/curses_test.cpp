@@ -8,10 +8,7 @@
 #include <string>
 
 namespace {
-PlayerStats freshStats() {
-	GameClock::enableVirtual();
-	return PlayerStats{};
-}
+PlayerStats freshStats() { return PlayerStats{}; }
 } // namespace
 
 TEST_CASE("a curse runs 2 minutes; laid again it restarts, no stacking; a greater grade raises a lesser one") {
@@ -162,7 +159,6 @@ TEST_CASE("a curse tells the player on start, again and at the end, and writes i
 }
 
 TEST_CASE("a hit rolls the entries in order, one curse a hit; death and a new game end them all") {
-	GameClock::enableVirtual();
 	Player player;
 	WorldEvents events;
 	Rng rng(1);

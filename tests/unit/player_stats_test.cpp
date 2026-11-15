@@ -7,11 +7,8 @@
 #include <vector>
 
 namespace {
-// The stamina timers read the game clock: a virtual one, moved by hand. Enable it before a PlayerStats is made.
-PlayerStats freshStats() {
-	GameClock::enableVirtual();
-	return PlayerStats{};
-}
+// The stamina timers read the game clock: a virtual one, moved by hand (main.cpp starts it per case).
+PlayerStats freshStats() { return PlayerStats{}; }
 
 // One update tick after `ms` of game time, the player walking (or not).
 void tick(PlayerStats& stats, WorldEvents& events, int ms, bool walked) {

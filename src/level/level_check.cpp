@@ -334,12 +334,13 @@ bool monsterReaches(const LevelGrid& grid, int spawnCol, int row, int col) {
 // A monster spawned in a hostile cell is a placement mistake (plan terrain-affinity): it walks out at once, or fights
 // weak where it stands.
 void checkSpawnTerrains(const LevelGrid& grid, LevelReport& r) {
+	const std::vector<char> sunlit = startSunlight(grid);
 	for (int cell = 0; cell < CELLS; cell++) {
 		const Tile& t = grid.cells[cell];
 		const MonsterKind* kind = t.type == MonsterSpawn ? monsterKind(t.attr) : nullptr;
 		if (kind == nullptr)
 			continue;
-		const Terrains here = spawnTerrains(grid, cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, *kind);
+		const Terrains here = spawnTerrains(grid, sunlit, cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, *kind);
 		if (terrainMood(here, kind->native, kind->hostile) != TerrainMood::Hostile)
 			continue;
 		std::string what;
@@ -377,18 +378,20 @@ float difficultyScore(const LevelReport& r, const LevelGrid& grid) {
 
 	// Monsters near the path count fully, the rest of the level a little (the player may go looking for loot).
 	const std::set<int> near = monstersNear(grid, r.path);
+	const std::vector<char> sunlit = startSunlight(grid);
 	for (int cell = 0; cell < CELLS; cell++) {
 		Tile t = grid.cells[cell];
 		if (t.type != MonsterSpawn)
 			continue;
 		const MonsterKind* kind = monsterKind(t.attr);
 		// In its native terrain it is faster and hits harder (plan terrain-affinity).
-		const float native = kind == nullptr ? 1.f
-											 : terrainThreatFactor(terrainFactors(
-												   spawnTerrains(grid, cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, *kind),
-												   kind->native,
-												   kind->hostile
-											   ));
+		const float native = kind == nullptr
+								 ? 1.f
+								 : terrainThreatFactor(terrainFactors(
+									   spawnTerrains(grid, sunlit, cell % LEVEL_WIDTH, cell / LEVEL_WIDTH, *kind),
+									   kind->native,
+									   kind->hostile
+								   ));
 		score += monsterThreat(t.attr) * native * (near.count(cell) != 0 ? 1.f : 0.25f);
 	}
 
@@ -413,7 +416,17 @@ float monsterThreat(int type) {
 	return kind->threat * (kind->climbs ? CLIMBER_THREAT_FACTOR : 1.f) * (kind->kite ? KITER_THREAT_FACTOR : 1.f);
 }
 
-Terrains spawnTerrains(const LevelGrid& grid, int col, int row, const MonsterKind& kind) {
+std::vector<char> startSunlight(const LevelGrid& grid) {
+	// Only the mirrors as placed: the player turning them later is play, not where a monster spawns.
+	return sunlitCells(
+		grid.cells,
+		[&](int cell, BeamDir way) { return blocksBeam(grid.cells[cell], way); },
+		[](int) { return false; }
+	);
+}
+
+Terrains
+spawnTerrains(const LevelGrid& grid, const std::vector<char>& sunlit, int col, int row, const MonsterKind& kind) {
 	Terrains here;
 	const Tile t = grid.at(col, row);
 	const bool ground = kind.locomotion != Locomotion::Fly;
@@ -425,8 +438,10 @@ Terrains spawnTerrains(const LevelGrid& grid, int col, int row, const MonsterKin
 	if (flame(t) || t.fixture.type == FireVent)
 		here.add(Terrain::Fire);
 	bool lit = false;
-	for (int c = col - LIGHT_SHUN_CELLS; c <= col + LIGHT_SHUN_CELLS; c++)
-		lit = lit || flame(grid.at(c, row)) || grid.at(c, row).dressing.torch == TorchPlacing::Torch;
+	for (int c = col - LIGHT_SHUN_CELLS; c <= col + LIGHT_SHUN_CELLS; c++) {
+		const bool sun = LevelGrid::inBounds(c, row) && sunlit[row * LEVEL_WIDTH + c] != 0;
+		lit = lit || sun || flame(grid.at(c, row)) || grid.at(c, row).dressing.torch == TorchPlacing::Torch;
+	}
 	here.add(lit ? Terrain::Light : Terrain::Darkness);
 	return here;
 }

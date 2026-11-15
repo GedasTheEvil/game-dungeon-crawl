@@ -1,5 +1,6 @@
 #include "level_builder.h"
 #include "inscriptions.h"
+#include "level_check.h"
 #include <algorithm>
 #include <vector>
 
@@ -151,10 +152,15 @@ void LevelBuilder::addLight() {
 		for (int n = rng.range(2, 4), tries = 0; n > 0 && tries < 40; tries++) {
 			const Segment& hall = route[static_cast<size_t>(rng.range(0, static_cast<int>(route.size()) - 1))];
 			const int x = rng.range(hall.x0, hall.x1);
-			if (crack(hall, x)) {
-				put(x, hall.row + hall.height - 1, Tile{LightShaft, static_cast<int>(BeamDir::Down), 0});
+			if (!crack(hall, x))
+				continue;
+			const int top = hall.row + hall.height - 1;
+			const Tile was = g.at(x, top);
+			put(x, top, Tile{LightShaft, static_cast<int>(BeamDir::Down), 0});
+			if (sunLightsFoe())
+				g.set(x, top, was);
+			else
 				n--;
-			}
 		}
 }
 
@@ -188,6 +194,14 @@ bool LevelBuilder::lightsFoe(int col, int row) const {
 		if (kind != nullptr && kind->hostile.has(Terrain::Light))
 			return true;
 	}
+	return false;
+}
+
+bool LevelBuilder::sunLightsFoe() const {
+	const std::vector<char> lit = startSunlight(g);
+	for (int cell = 0; cell < CELLS; cell++)
+		if (lit[cell] != 0 && lightsFoe(cell % LEVEL_WIDTH, cell / LEVEL_WIDTH))
+			return true;
 	return false;
 }
 

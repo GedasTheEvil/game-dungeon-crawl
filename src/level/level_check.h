@@ -127,13 +127,20 @@ struct LevelReport {
 
 [[nodiscard]] LevelReport checkLevel(const LevelGrid& grid);
 
+// The cells a sunbeam lights at level start, the mirrors as placed: lit[cell] != 0 (plan
+// checker-sunbeam-light-terrain). The game's Dungeon::Sunlit before the player turns a mirror. Trace it once per
+// level and pass it to spawnTerrains.
+[[nodiscard]] std::vector<char> startSunlight(const LevelGrid& grid);
+
 // The terrains of a monster's spawn cell as far as the checker knows them (plan terrain-affinity): water, sand, a
-// fire vent's cell (always), the placed braziers and oil lamps (fire and light), the placed torches (light, within
-// LIGHT_SHUN_CELLS along the row); every other cell is dark (the scattered flames are the game's: the estimate stays
-// on the safe side for a native of the dark). A flyer is never in water or sand; no webs lie in a level file. The
-// checker scores a native there higher and warns of a monster spawned in a hostile cell; levelgen keeps them apart.
+// fire vent's cell (always), the placed braziers and oil lamps (fire and light), the placed torches and the sunbeams
+// at level start (sunlit, startSunlight; light, within LIGHT_SHUN_CELLS along the row, as Dungeon::Lit); every other
+// cell is dark (the scattered flames are the game's: the estimate stays on the safe side for a native of the dark).
+// A flyer is never in water or sand; no webs lie in a level file. The checker scores a native there higher and warns
+// of a monster spawned in a hostile cell; levelgen keeps them apart.
 struct MonsterKind;
-[[nodiscard]] Terrains spawnTerrains(const LevelGrid& grid, int col, int row, const MonsterKind& kind);
+[[nodiscard]] Terrains
+spawnTerrains(const LevelGrid& grid, const std::vector<char>& sunlit, int col, int row, const MonsterKind& kind);
 
 // Rhythm traps (plans rhythm-traps, fire-jet-trap, poison-drip-trap): can the player walk through the run of them from
 // col to col + count - 1 on row, without stopping, in the direction dir (+1 / -1), at some start time? Out, wall spikes

@@ -334,7 +334,7 @@ bool LevelBuilder::placeMonster(int col, int row, bool dark) {
 // The cell is hostile to the type (plan terrain-affinity, spawnTerrains): no spawn there.
 bool LevelBuilder::hostileCell(int col, int row, int type) const {
 	const MonsterKind& kind = *monsterKind(type);
-	return terrainMood(spawnTerrains(g, col, row, kind), kind.native, kind.hostile) == TerrainMood::Hostile;
+	return terrainMood(spawnTerrains(g, sunlit, col, row, kind), kind.native, kind.hostile) == TerrainMood::Hostile;
 }
 
 // One of a group may stand there: a free floor cell no other feature uses.

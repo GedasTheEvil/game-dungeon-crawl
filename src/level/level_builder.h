@@ -189,6 +189,9 @@ class LevelBuilder {
 	LevelGrid g;
 	std::vector<char> used; // carved (anything but wall)
 	std::vector<char> busy; // corridor cells taken by a connector or a feature
+	// The sunbeams at level start (startSunlight) once the sun discs' shafts and the gates stand (placeLocks), for
+	// hostileCell (plan checker-sunbeam-light-terrain); addLight keeps its own shafts' beams off the shunners.
+	std::vector<char> sunlit = std::vector<char>(CELLS, 0);
 	std::vector<Segment> route;
 	std::vector<Wing> wings;
 	GenShape shape;
@@ -360,6 +363,8 @@ class LevelBuilder {
 	[[nodiscard]] bool hostileCell(int col, int row, int type) const;
 	// A wall torch or a brazier at col would light a monster spawn hostile to the light (plan terrain-affinity).
 	[[nodiscard]] bool lightsFoe(int col, int row) const;
+	// A sunbeam at level start lights a monster spawn hostile to the light (plan checker-sunbeam-light-terrain).
+	[[nodiscard]] bool sunLightsFoe() const;
 	void chooseDark();
 	void darken(const Segment& hall);
 	[[nodiscard]] bool crack(const Segment& hall, int x) const;

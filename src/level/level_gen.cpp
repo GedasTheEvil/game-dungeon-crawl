@@ -1,6 +1,7 @@
 #include "level_gen.h"
 #include "level_builder.h"
 #include "inscriptions.h"
+#include "level_check.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -23,6 +24,7 @@ bool LevelBuilder::build(LevelGrid& out) {
 		chooseDark();
 	}
 	placeLocks();
+	sunlit = startSunlight(g);
 	if (boss != 0 && !placeBoss())
 		return false;
 	addGauntlets();

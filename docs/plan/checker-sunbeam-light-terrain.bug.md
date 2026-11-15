@@ -1,6 +1,6 @@
 # Level checker: sunbeams and light shafts are not light terrain
 
-Status: draft 2026-11-15, size M, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Repro
 
@@ -44,7 +44,18 @@ warning, and the generator may place one there.
   (`LIGHT_SHUN_CELLS` away) also lit; one past it dark.
 * `bin/levelcheck content/levels/lvl*` passes with no warnings.
 
+## Done
+
+* `startSunlight` (`src/level/level_check.cpp`): the start beams, traced once per level and passed to
+  `spawnTerrains` (its two checker callers; levelgen keeps it in `LevelBuilder::sunlit` after `placeLocks`).
+* Levelgen also keeps its dressing shafts' beams off the light shunners (`LevelBuilder::sunLightsFoe`).
+* Test: `tests/unit/sunbeam_light_terrain_test.cpp`.
+* Levels: lvl35 camel spider (13, 25) to (12, 25), beside the sun-disc mirror; lvl36 camel spider (17, 40) to
+  (18, 40), beside a light shaft.
+
 ## Play-test
 
-* None in game (checker only), unless a level was changed: walk the changed spawns, the monsters stand where the
-  checker says and fight as expected (a shunner not in a beam).
+`bin/game --level 35`, then `bin/game --level 36`:
+* lvl35 row 25 (the sun-disc hall): the camel spider stands one cell west of the lit mirror, in the dark, and
+  does not run off at the start.
+* lvl36 top hall: the camel spider between the two light shafts stands in the dark and does not run off.

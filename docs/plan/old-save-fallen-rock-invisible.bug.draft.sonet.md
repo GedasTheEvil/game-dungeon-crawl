@@ -18,7 +18,8 @@ Neither the ceiling crack nor the rock is drawn. The save keeps the cell as a `R
 Since plan fallen-rock-draggable, `drawRockFallTile` (`src/graphics/dungeon_render_mechanisms.cpp`) draws the crack
 only for a not yet fallen cell and the rock only while it falls: a landed rock is meant to be a `Stone` already
 (`Dungeon::landRock`, `src/sim/dungeon_mechanisms.cpp`). Nothing turns an old fallen `RockFall` into a `Stone` on
-load, so the cell draws nothing. It is likely also not draggable and not a plate weight.
+load, so the cell draws nothing. The map still shows the "fallen rock" mark there (`markSecondLook`,
+`src/level/map_marks.h`, reads the `Fallen` state), so map and 3D view disagree. It is likely also not draggable and not a plate weight.
 
 ## Fix
 
@@ -26,7 +27,8 @@ Implementer's choice. Idea: after a dungeon is loaded (`Dungeon::LoadDump`, `src
 `resetMechanisms`), turn every `RockFall` that is `Fallen` and not a sand fall into a `Stone` (`landRock` does it).
 Sand falls (attribute 1) stay fallen `RockFall` cells over their drift.
 
-Check also: the map mark (`src/level/map_marks.h`) and `climb_path.cpp` of such a cell after the fix.
+Check also: after the fix the map shows the stone's mark there (like a rock landed in the current build), and
+`climb_path.cpp` handles the cell.
 
 ## Fixed when
 

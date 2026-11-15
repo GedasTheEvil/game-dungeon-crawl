@@ -271,3 +271,20 @@ TEST_CASE(
 	CHECK(world.dungeon.Cell(6, 1).type == RockFall);
 	CHECK(rockState(world.dungeon.Cell(6, 1)) == RockState::Armed);
 }
+
+// Plan worm-speed: the sand worm walks 1.5x faster, on the floor and in sand; Rerek stays faster.
+TEST_CASE("worm-speed: the worm's walk step is 1.5x on floor, and the sand factor times that in sand") {
+	// tests/levels/worm_speed: sand_worm with a second worm on the dry floor at col 28.
+	SimWorld world;
+	REQUIRE(world.Load("tests/levels/worm_speed"));
+	world.player.stats.AddXP(1000000, world.events);
+	REQUIRE(world.WalkTo(24.5f)); // both worms in the view window
+	const Monster* floorWorm = wormNear(world, 28.5f);
+	const Monster* sandWorm = wormNear(world, 21.5f);
+	REQUIRE(floorWorm != nullptr);
+	REQUIRE(sandWorm != nullptr);
+	const float sand = TERRAIN_ROWS[static_cast<int>(Terrain::Sand)].native.speed;
+	CHECK(floorWorm->WalkStep() == doctest::Approx(MONSTER_SEEK_STEP * 1.5f));
+	CHECK(sandWorm->WalkStep() == doctest::Approx(MONSTER_SEEK_STEP * 1.5f * sand));
+	CHECK(monsterKind(MonsterRerek)->speed > monsterKind(MonsterWorm)->speed);
+}

@@ -1,0 +1,15 @@
+# The sand worm's faster crawl (plan worm-speed), tests/levels/worm_speed: the worm on the dry floor (col 28) walks
+# at the player; the crawl clip must not slide.
+seed 1
+god
+level tests/levels/worm_speed
+torch 25 on
+torch 29 on
+walk to 25.5
+camera 30 10
+wait 300ms
+screenshot crawl_a
+wait 250ms
+screenshot crawl_b
+wait 250ms
+screenshot crawl_c

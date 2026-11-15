@@ -286,12 +286,12 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .label = "worm",
 	 .description = "Sand worm; in sand it lies under the surface and comes up under the player; quick in the sand, "
 					"hates the water",
-	 .threat = 2.f,
+	 .threat = 2.3f, // plan worm-speed: a faster walk
 	 .model = "monsters/worm",
 	 .texture = "monsters/worm",
 	 .scale = 18,
 	 .rotA = 0,
-	 .speed = 1,
+	 .speed = 1.5f, // plan worm-speed: was 1
 	 .maxHealth = 200,
 	 .damage = 14,
 	 .attackMs = 1000,

@@ -1,6 +1,6 @@
 # Sand worm walks 1.5x faster
 
-Status: draft 2026-11-15, size S, needs nothing first.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Idea
 
@@ -24,6 +24,9 @@ The sand worm moves far too slowly (user, 2026-11-15). It should walk 1.5x faste
   (`MONSTER_SEEK_STEP * 1.5`), and in sand it is the sand factor times that.
 
 ## Play-test
+
+Run: `bin/game --no-sound --play tests/play/worm-speed.txt` (a floor worm at col 28, sand worms at cols 7 and 21).
+
 
 * A level with worms on plain floor and in sand (e.g. a desert level). Out of sand the worm keeps up better and is
   still beatable. In sand it closes in noticeably faster. Its crawl clip matches its walk, with no sliding.

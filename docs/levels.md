@@ -261,7 +261,7 @@ Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1
 3 per rock fall, 2 per dart plate, 1.5 per wall spikes, fire vent or poison drip cell and 1.2 per jump on the path, 0.8 per gate and per mirror
 turn, 0.2 per quarter step and 0.1 per crawled sub-cell, 1 per sand fall, 1.5 per quicksand cell, 0.02 per sand cell,
 0.3 per sand gust, and 1 more for a jump over a death pit.
-Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2, giant rat 3,
+Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2.3, giant rat 3,
 giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, mimic jar 1.5, Seth 16, baboon 5.5, Rerek 16.5, Mother of Webs 12, Babi 16, tiny spider 0.6; a kiter's threat x1.15, a swimmer in half water x1.1):
 the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
 rats, scorpions, mummies, Anubis, baboons, camel and tiny spiders and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.

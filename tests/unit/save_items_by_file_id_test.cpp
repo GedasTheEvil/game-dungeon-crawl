@@ -58,22 +58,3 @@ TEST_CASE("a save with the potions drunk by position (RUN) still loads") {
 	run.LoadDump(file);
 	CHECK(run.Drunk(ItemKind::SmallHealth) == 4);
 }
-
-TEST_CASE("a positional INV8 save still loads") {
-	std::ostringstream text;
-	constexpr int SLOTS = ITEM_KIND_COUNT - TEST_WEAPON_COUNT; // the positional order (legacyIndex)
-	text << "INV8 " << SLOTS;
-	for (int i = 0; i < 4 * SLOTS; i++) // counts, levels, found, stamps: 2 small health, a level 3 spear
-		text << " "
-			 << (i == legacyIndex(ItemKind::SmallHealth)	 ? 2
-				 : i == SLOTS + legacyIndex(ItemKind::Spear) ? 3
-				 : (i >= SLOTS && i < 2 * SLOTS)			 ? 1
-															 : 0);
-	text << " 1 2 0 0 0 0 0 0 0\n"; // the spear in hand, no amulet, no rings
-	std::istringstream file(text.str());
-	ItemBag bag;
-	bag.Load(file);
-	CHECK(bag.Count(ItemKind::SmallHealth) == 2);
-	CHECK(bag.Level(ItemKind::Spear) == 3);
-	CHECK(bag.Equipped() == ItemKind::Spear);
-}

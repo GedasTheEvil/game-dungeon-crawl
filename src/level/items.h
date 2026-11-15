@@ -147,30 +147,6 @@ using OwnedWeapons = std::array<bool, WEAPON_KIND_COUNT>;
 
 constexpr int itemIndex(ItemKind kind) { return static_cast<int>(kind); }
 constexpr ItemKind itemAt(int index) { return static_cast<ItemKind>(index); } // 0 .. ITEM_KIND_COUNT - 1
-// The test weapons (plan test-weapons) came in after the positional saves (INV8 and older): those number the items as
-// before them. A new save names an item by its file id (INV9).
-constexpr int TEST_MELEE_COUNT = 4;
-constexpr int TEST_WEAPON_COUNT = 5;
-// The place of an item in the positional saves; -1 for a test weapon.
-constexpr int legacyIndex(ItemKind kind) {
-	const int i = itemIndex(kind);
-	if (i >= WEAPON_KIND_COUNT)
-		return i - TEST_WEAPON_COUNT;
-	if (i >= itemIndex(ItemKind::SelfBow))
-		return i == itemIndex(ItemKind::BowTest) ? -1 : i - TEST_MELEE_COUNT;
-	return i >= itemIndex(ItemKind::SmashTest) ? -1 : i;
-}
-// The item at a place of the positional saves.
-constexpr ItemKind legacyItemAt(int index) {
-	if (index < itemIndex(ItemKind::SmashTest))
-		return itemAt(index);
-	if (index < itemIndex(ItemKind::BowTest) - TEST_MELEE_COUNT)
-		return itemAt(index + TEST_MELEE_COUNT);
-	return itemAt(index + TEST_WEAPON_COUNT);
-}
-// Saves from the Egyptian weapons on have their slots in the positional order: this many (the weapons and the potions
-// up to the antidote), or more since the amulets.
-constexpr int ORDERED_SAVE_SLOTS = legacyIndex(ItemKind::Antidote) + 1;
 constexpr bool isWeapon(ItemKind kind) { return itemIndex(kind) < WEAPON_KIND_COUNT; }
 constexpr bool isPotion(ItemKind kind) {
 	return itemIndex(kind) >= WEAPON_KIND_COUNT && itemIndex(kind) < FIRST_AMULET;

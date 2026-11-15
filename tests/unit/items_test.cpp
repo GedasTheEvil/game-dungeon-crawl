@@ -198,18 +198,6 @@ TEST_CASE("the item groups follow the ItemKind order") {
 	CHECK(RING_KIND_COUNT == RING_GEM_COUNT * RING_METAL_COUNT);
 }
 
-TEST_CASE("a save from before the antidote loads with none") {
-	std::stringstream old("INV2 11 1 0 0 0 2 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0\n");
-	ItemBag bag;
-	bag.Load(old);
-	CHECK(bag.Count(ItemKind::SmallHealth) == 2);
-	CHECK(bag.Count(ItemKind::LargeStamina) == 1);
-	CHECK(bag.Count(ItemKind::Antidote) == 0);
-	CHECK(bag.Found(ItemKind::SmallHealth));
-	CHECK_FALSE(bag.Found(ItemKind::Antidote));
-	CHECK(bag.Equipped() == ItemKind::Club);
-}
-
 TEST_CASE("the quick potion takes the large one at 60% health, 20% stamina (plan quick-potion-thresholds)") {
 	CHECK(*quickPotion(QuickKind::Health, 61, 100, 1, 1) == ItemKind::SmallHealth);
 	CHECK(*quickPotion(QuickKind::Health, 60, 100, 1, 1) == ItemKind::LargeHealth);
@@ -247,101 +235,20 @@ TEST_CASE("the bag survives a save and a load") {
 	CHECK(loaded.Stamp(ItemKind::Club) > loaded.Stamp(ItemKind::LargeStamina));
 }
 
-TEST_CASE("a save from before the stamps: nothing recent, found first among them") {
-	constexpr int SLOTS = ITEM_KIND_COUNT -
-						  TEST_WEAPON_COUNT; // INV5: counts, levels and found per slot, in ItemKind order, no stamps
-	std::ostringstream old;
-	old << "INV5 " << SLOTS;
-	for (int i = 0; i < SLOTS; i++) // counts: 1 antidote, 1 small health
-		old << " " << (i == legacyIndex(ItemKind::Antidote) || i == legacyIndex(ItemKind::SmallHealth) ? 1 : 0);
-	for (int i = 0; i < 2 * SLOTS; i++) // levels, found
-		old << " " << (i < SLOTS ? 1 : 0);
-	old << " 1 0 0 0\n"; // the club in hand, no amulet
-	std::stringstream oldFile(old.str());
-	ItemBag loaded;
-	loaded.Load(oldFile);
-	CHECK(loaded.Count(ItemKind::Antidote) == 1);
-	CHECK(loaded.Stamp(ItemKind::Antidote) == 0);
-	CHECK(tabOrder(loaded, ItemGroup::Potions, SortOrder::Recent).front() == ItemKind::SmallHealth);
-	loaded.Add(ItemKind::Antidote);
-	CHECK(tabOrder(loaded, ItemGroup::Potions, SortOrder::Recent).front() == ItemKind::Antidote);
-}
-
-TEST_CASE("a save from before the resistance potions: the amulets right after the antidote") {
-	constexpr int SLOTS = legacyIndex(ItemKind::VenomGrand) + 1 - 3; // it ended with grand venom, without the 3 potions
-	std::stringstream old;
-	old << "INV4 " << SLOTS << " ";
-	for (int i = 0; i < SLOTS; i++) // counts: 1 antidote, 2 lesser strength amulets, 3 grand venom
-		old << (i == legacyIndex(ItemKind::Antidote) ? 1 : i == ORDERED_SAVE_SLOTS ? 2 : i == SLOTS - 1 ? 3 : 0) << " ";
-	for (int i = 0; i < 2 * SLOTS; i++) // levels, found
-		old << (i < SLOTS ? 1 : 0) << " ";
-	old << "1 0 " << ItemType::AMULET << " 0\n"; // the club, the lesser strength amulet on
-	ItemBag bag;
-	bag.Load(old);
-	CHECK(bag.Count(ItemKind::Antidote) == 1);
-	CHECK(bag.Count(ItemKind::LesserResistance) == 0);
-	CHECK(bag.Count(ItemKind::GreaterResistance) == 0);
-	CHECK(bag.Count(ItemKind::WaterBlessing) == 0);
-	CHECK(bag.Count(ItemKind::StrengthLesser) == 2);
-	CHECK(bag.Count(ItemKind::VenomGrand) == 3);
-	CHECK(bag.Worn() == ItemKind::StrengthLesser);
-}
-
-TEST_CASE("a save from before the Blessing of Hapi (INV6): the amulets right after the greater resistance potion") {
-	constexpr int SLOTS = legacyIndex(ItemKind::FireWardGrand); // it ended with grand fire guard, without the potion
-	std::stringstream old;
-	old << "INV6 " << SLOTS << " ";
-	for (int i = 0; i < SLOTS; i++) // counts: 1 greater resistance, 2 lesser strength amulets, 3 grand fire guard
-		old << (i == legacyIndex(ItemKind::GreaterResistance) ? 1
-				: i == SLOTS - 1							  ? 3
-				: i == legacyIndex(ItemKind::WaterBlessing)	  ? 2
-															  : 0)
-			<< " ";
-	for (int i = 0; i < 3 * SLOTS; i++) // levels, found, stamps
-		old << (i < SLOTS ? 1 : 0) << " ";
-	old << "1 0 " << ItemType::AMULET << " 0\n";
-	ItemBag bag;
-	bag.Load(old);
-	CHECK(bag.Count(ItemKind::GreaterResistance) == 1);
-	CHECK(bag.Count(ItemKind::WaterBlessing) == 0);
-	CHECK(bag.Count(ItemKind::StrengthLesser) == 2); // the slot where the potion is now
-	CHECK(bag.Count(ItemKind::FireWardGrand) == 3);
-	CHECK(bag.Worn() == ItemKind::StrengthLesser);
-}
-
-TEST_CASE("a save from before the Egyptian weapons: 12 slots in the old order") {
-	// club, sword, spear, bow, the 8 potions; levels; found; the bow in hand
-	std::stringstream file("INV3 12 1 0 1 1 2 0 0 0 0 0 0 1  1 1 2 1 1 1 1 1 1 1 1 1  1 0 1 1 1 0 0 0 0 0 0 1  2 0\n");
-	ItemBag bag;
-	bag.Load(file);
-	CHECK(bag.Count(ItemKind::Spear) == 1);
-	CHECK(bag.Level(ItemKind::Spear) == 2);
-	CHECK(bag.Count(ItemKind::SelfBow) == 1);
-	CHECK(bag.Count(ItemKind::SmallHealth) == 2);
-	CHECK(bag.Count(ItemKind::Antidote) == 1);
-	CHECK(bag.Count(ItemKind::Sling) == 0);
-	CHECK(bag.Equipped() == ItemKind::SelfBow);
-}
-
-TEST_CASE("an old save: 9 counts, then the equipped weapon") {
-	std::stringstream file("1 1 0 0 3 0 0 0 0 1 1\n");
-	ItemBag bag;
-	bag.Load(file);
-	CHECK(bag.Count(ItemKind::Club) == 1);
-	CHECK(bag.Count(ItemKind::ShortSword) == 1);
-	CHECK(bag.Count(ItemKind::SmallHealth) == 3);
-	CHECK(bag.Count(ItemKind::SmallStamina) == 0);
-	CHECK(bag.Equipped() == ItemKind::ShortSword);
-}
-
-TEST_CASE("an older save: 9 counts, then the map position") {
-	std::stringstream file("1 0 0 0 0 0 0 0 0 3.32501 4\n");
-	ItemBag bag;
-	bag.Load(file);
-	CHECK(bag.Equipped() == ItemKind::Club);
-	float mapX = 0.f;
-	file >> mapX; // left for the dungeon to read
-	CHECK(mapX == doctest::Approx(3.32501f));
+TEST_CASE("a save from before the file ids (INV2 to INV8, or none) is refused cleanly") {
+	for (const char* old :
+		 {"INV2 11 1 0 0 0 2 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 0\n",
+		  "INV8 1 1 1 1 1 0 0 0 0 0 0 0 0\n",
+		  "1 1 0 0 3 0 0 0 0 1 1\n",
+		  "INVX 0 1 0 0 0 0 0 0 0 0 0\n"}) {
+		std::stringstream file(old);
+		ItemBag bag;
+		bag.Add(ItemKind::Spear);
+		bag.Load(file);
+		CHECK_FALSE(file);
+		CHECK(bag.Count(ItemKind::Spear) == 0); // emptied, not half read
+		CHECK(bag.Equipped() == ItemKind::Club);
+	}
 }
 
 TEST_CASE("amulets: four tiers a type, regeneration only normal and grand") {
@@ -435,22 +342,6 @@ TEST_CASE("the worn amulet survives a save and a load") {
 	loaded.Load(file);
 	CHECK(loaded.Count(ItemKind::HealthGrand) == 2);
 	CHECK(loaded.Worn() == ItemKind::HealthGrand);
-}
-
-TEST_CASE("a save from before the amulets: 21 slots in ItemKind order, nothing worn") {
-	std::stringstream file;
-	file << "INV3 21 ";
-	for (int pass = 0; pass < 3; pass++) // counts, levels, found: one of each
-		for (int i = 0; i < 21; i++)
-			file << 1 << " ";
-	file << "2 1\n"; // the composite bow in hand
-	ItemBag bag;
-	bag.Load(file);
-	CHECK(bag.Count(ItemKind::Antidote) == 1);
-	CHECK(bag.Count(ItemKind::Javelin) == 1);
-	CHECK(bag.Count(ItemKind::StrengthLesser) == 0);
-	CHECK(bag.Equipped() == ItemKind::CompositeBow);
-	CHECK_FALSE(bag.Worn().has_value());
 }
 
 TEST_CASE("a tab shows the found items first, each part in ItemKind order") {

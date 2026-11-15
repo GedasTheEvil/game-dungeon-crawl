@@ -2,7 +2,6 @@
 #include "journal.h"
 #include <algorithm>
 #include <array>
-#include <charconv>
 #include <cmath>
 #include <cstring>
 #include <istream>
@@ -12,53 +11,8 @@
 #include <utility>
 
 namespace {
-constexpr int LEGACY_SLOT_COUNT = 9; // saves from before the stamina potions and item levels
-
-// The slots of the saves from before the Egyptian weapons, in their order; the older saves have the first 9 of them.
-constexpr ItemKind OLD_SLOTS[] = {
-	ItemKind::Club,
-	ItemKind::ShortSword,
-	ItemKind::Spear,
-	ItemKind::SelfBow,
-	ItemKind::SmallHealth,
-	ItemKind::LargeHealth,
-	ItemKind::Might,
-	ItemKind::Armor,
-	ItemKind::Life,
-	ItemKind::SmallStamina,
-	ItemKind::LargeStamina,
-	ItemKind::Antidote
-};
-constexpr int OLD_SLOT_COUNT = 12;
 constexpr int MAX_SAVED_SLOTS = 256; // a sanity bound on a save's slot count, well above ITEM_KIND_COUNT
 static_assert(ITEM_KIND_COUNT <= MAX_SAVED_SLOTS, "a save holds every item kind");
-
-// Potions came in after the amulets: the resistance potions before INV5, the Blessing of Hapi before INV7. The amulets
-// of a save from before follow the potions it knew (plan water-blessing-potion): from slot `from` on, the slots move up
-// by `shift` (the potions it lacked).
-struct SlotShift {
-	size_t from;
-	size_t shift;
-};
-constexpr SlotShift SHIFT_BEFORE_INV5 = {
-	static_cast<size_t>(ORDERED_SAVE_SLOTS),
-	itemIndex(ItemKind::WaterBlessing) - itemIndex(ItemKind::Antidote)
-};
-constexpr SlotShift SHIFT_BEFORE_INV7 = {static_cast<size_t>(legacyIndex(ItemKind::WaterBlessing)), 1};
-constexpr SlotShift NO_SHIFT = {0, 0};
-
-// The item a saved slot holds: a save with ORDERED_SAVE_SLOTS or more slots is in ItemKind order, but for the potions
-// it was written before, an older one in OLD_SLOTS order.
-std::optional<ItemKind> savedSlot(size_t slot, size_t slots, SlotShift shift) {
-	if (slots >= ORDERED_SAVE_SLOTS) {
-		const size_t index = slot >= shift.from ? slot + shift.shift : slot;
-		return index < ITEM_KIND_COUNT - TEST_WEAPON_COUNT ? std::optional(legacyItemAt(static_cast<int>(index)))
-														   : std::nullopt;
-	}
-	if (slot < OLD_SLOT_COUNT)
-		return OLD_SLOTS[slot];
-	return std::nullopt;
-}
 
 bool heals(ItemKind kind) { return kind == ItemKind::SmallHealth || kind == ItemKind::LargeHealth; }
 bool restoresStamina(ItemKind kind) { return kind == ItemKind::SmallStamina || kind == ItemKind::LargeStamina; }
@@ -473,13 +427,50 @@ void ItemBag::Save(std::ostream& out) const {
 	out << " " << static_cast<int>(olderHand) << "\n";
 }
 
-namespace {
-bool parseInt(const std::string& text, int& value) {
-	const char* end = text.data() + text.size();
-	const auto [stop, error] = std::from_chars(text.data(), end, value);
-	return error == std::errc() && stop == end;
+void ItemBag::ReadRecords(std::istream& in) {
+	int records = 0;
+	in >> records;
+	for (int r = 0; r < records && r < MAX_SAVED_SLOTS && in; r++) {
+		int recordType = 0;
+		int recordId = 0;
+		int count = 0;
+		int level = 1;
+		int isFound = 0;
+		int stamp = 0;
+		in >> recordType >> recordId >> count >> level >> isFound >> stamp;
+		const std::optional<ItemKind> kind = itemFromFile(recordType, recordId);
+		if (!kind) // a newer build's item
+			continue;
+		const int i = itemIndex(*kind);
+		counts[i] = std::max(0, count);
+		levels[i] = std::clamp(level, 1, MAX_WEAPON_LEVEL);
+		found[i] = isFound != 0;
+		stamps[i] = std::max(0, stamp);
+	}
 }
-} // namespace
+
+ItemBag::SavedTail ItemBag::ReadTail(std::istream& in) {
+	SavedTail tail;
+	in >> tail.equipped.type >> tail.equipped.id >> tail.worn.type >> tail.worn.id;
+	for (ItemFileId& ring : tail.rings)
+		in >> ring.type >> ring.id;
+	in >> tail.older;
+	return tail;
+}
+
+void ItemBag::Equip(const SavedTail& tail) {
+	const std::optional<ItemKind> kind = itemFromFile(tail.equipped.type, tail.equipped.id);
+	equipped = kind && isWeapon(*kind) ? *kind : ItemKind::Club;
+	const std::optional<ItemKind> on = itemFromFile(tail.worn.type, tail.worn.id);
+	worn = on && isAmulet(*on) && counts[itemIndex(*on)] > 0 ? on : std::nullopt;
+	rings = {};
+	for (size_t hand = 0; hand < tail.rings.size(); hand++) {
+		const std::optional<ItemKind> ring = itemFromFile(tail.rings[hand].type, tail.rings[hand].id);
+		if (ring && isRing(*ring) && counts[itemIndex(*ring)] > HandsWearing(*ring))
+			rings[hand] = ring;
+	}
+	olderHand = tail.older == 1 ? Hand::Right : Hand::Left;
+}
 
 void ItemBag::Load(std::istream& in) {
 	RefillShots();
@@ -494,119 +485,18 @@ void ItemBag::Load(std::istream& in) {
 
 	std::string tok;
 	in >> tok;
-	int type = ItemType::MELEE_WEAPON;
-	int id = 0;
-	const bool byFile = tok == "INV9";
-	const bool hasRings = tok == "INV8" || byFile;
-	const bool hasStamps = tok == "INV6" || tok == "INV7" || hasRings;
-	bool hasFound = tok == "INV3" || tok == "INV4" || tok == "INV5" || hasStamps;
-	const bool resistance = tok == "INV5" || hasStamps;
-	const SlotShift shift = tok == "INV7" || hasRings ? NO_SHIFT : resistance ? SHIFT_BEFORE_INV7 : SHIFT_BEFORE_INV5;
-	int wornType = ItemType::EMPTY;
-	int wornId = 0;
-	std::array<ItemFileId, HAND_COUNT> ringIds = {{{ItemType::EMPTY, 0}, {ItemType::EMPTY, 0}}};
-	int older = 0;
-	if (byFile) {
-		int records = 0;
-		in >> records;
-		for (int r = 0; r < records && r < MAX_SAVED_SLOTS && in; r++) {
-			int recordType = 0;
-			int recordId = 0;
-			int count = 0;
-			int level = 1;
-			int isFound = 0;
-			int stamp = 0;
-			in >> recordType >> recordId >> count >> level >> isFound >> stamp;
-			if (const std::optional<ItemKind> kind = itemFromFile(recordType, recordId)) { // else: a newer build's item
-				const int i = itemIndex(*kind);
-				counts[i] = std::max(0, count);
-				levels[i] = std::clamp(level, 1, MAX_WEAPON_LEVEL);
-				found[i] = isFound != 0;
-				stamps[i] = std::max(0, stamp);
-			}
-		}
-		in >> type >> id >> wornType >> wornId;
-		for (ItemFileId& ring : ringIds)
-			in >> ring.type >> ring.id;
-		in >> older;
-	} else if (tok == "INV2" || tok == "INV3" || hasFound) {
-		int slots = 0;
-		in >> slots;
-		std::vector<int> saved(static_cast<size_t>(slots > 0 && slots <= MAX_SAVED_SLOTS ? slots : 0));
-		for (int& count : saved)
-			in >> count;
-		for (size_t slot = 0; slot < saved.size(); slot++)
-			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift))
-				counts[itemIndex(*kind)] = saved[slot];
-		for (int& level : saved)
-			in >> level;
-		for (size_t slot = 0; slot < saved.size(); slot++)
-			if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift)) // saves from before the cap of 5
-				levels[itemIndex(*kind)] = std::clamp(saved[slot], 1, MAX_WEAPON_LEVEL);
-		if (hasFound) {
-			for (int& f : saved)
-				in >> f;
-			for (size_t slot = 0; slot < saved.size(); slot++)
-				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift))
-					found[itemIndex(*kind)] = saved[slot] != 0;
-		}
-		if (hasStamps) {
-			for (int& stamp : saved)
-				in >> stamp;
-			for (size_t slot = 0; slot < saved.size(); slot++)
-				if (std::optional<ItemKind> kind = savedSlot(slot, saved.size(), shift))
-					stamps[itemIndex(*kind)] = std::max(0, saved[slot]);
-		}
-		in >> type >> id;
-		if (tok == "INV4" || resistance)
-			in >> wornType >> wornId;
-		if (hasRings) {
-			for (size_t hand = 0; hand < ringIds.size(); hand++)
-				in >> ringIds[hand].type >> ringIds[hand].id;
-			in >> older;
-		}
-	} else {
-		int first = 0;
-		if (!parseInt(tok, first)) { // neither a known tag nor a number: a broken save, or one from a newer build
-			in.setstate(std::ios::failbit);
-			return;
-		}
-		counts[itemIndex(OLD_SLOTS[0])] = first;
-		for (int slot = 1; slot < LEGACY_SLOT_COUNT; slot++)
-			in >> counts[itemIndex(OLD_SLOTS[slot])];
-
-		// equipped.type/id were added after older saves were written.
-		// Old saves have mapX (a float like "3.32501") at this position.
-		// Peek at the next token: if it contains '.', it's mapX — rewind and skip.
-		auto pos = in.tellg();
-		if ((in >> tok) && !tok.contains('.')) {
-			if (!parseInt(tok, type))
-				in.setstate(std::ios::failbit);
-			if (!in)
-				return;
-			if (!(in >> id))
-				in.clear();
-		} else {
-			in.clear();
-			in.seekg(pos);
-		}
+	if (tok !=
+		"INV9") { // a save from before the file ids, or from a newer build: refused (plan refactor-item-bag-load)
+		in.setstate(std::ios::failbit);
+		return;
 	}
+	ReadRecords(in);
+	const SavedTail tail = ReadTail(in);
 
 	for (int slot = 0; slot < ITEM_KIND_COUNT; slot++)
 		found[slot] = found[slot] || counts[slot] > 0;
 	lastStamp = *std::max_element(std::begin(stamps), std::end(stamps));
-
-	std::optional<ItemKind> kind = itemFromFile(type, id);
-	equipped = kind && isWeapon(*kind) ? *kind : ItemKind::Club;
-	std::optional<ItemKind> on = itemFromFile(wornType, wornId);
-	worn = on && isAmulet(*on) && counts[itemIndex(*on)] > 0 ? on : std::nullopt;
-	rings = {};
-	for (size_t hand = 0; hand < ringIds.size(); hand++) {
-		const std::optional<ItemKind> ring = itemFromFile(ringIds[hand].type, ringIds[hand].id);
-		if (ring && isRing(*ring) && counts[itemIndex(*ring)] > HandsWearing(*ring))
-			rings[hand] = ring;
-	}
-	olderHand = older == 1 ? Hand::Right : Hand::Left;
+	Equip(tail);
 }
 
 void ItemBag::Find(ItemKind kind, Journal& journal) {

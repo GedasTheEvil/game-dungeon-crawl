@@ -194,20 +194,6 @@ TEST_CASE("two worn rings survive a save and a load; a save from before the ring
 	CHECK(loaded.Count(ItemKind::GarnetCopper) == 1);
 	CHECK(loaded.Use(ItemKind::GarnetCopper, ALIVE)); // the older one (the amethyst) gives way
 	CHECK(loaded.RingOn(Hand::Right) == ItemKind::GarnetCopper);
-
-	// A bag as INV7: positional counts, levels, found and stamps, no rings after the worn amulet.
-	std::ostringstream line;
-	constexpr int SLOTS = ITEM_KIND_COUNT - TEST_WEAPON_COUNT; // the positional order (legacyIndex)
-	line << "INV7 " << SLOTS;
-	for (int i = 0; i < 4 * SLOTS; i++)
-		line << " " << (i < SLOTS ? (i == legacyIndex(ItemKind::AmethystGold) ? 1 : 0) : i < 2 * SLOTS ? 1 : 0);
-	line << " 1 0 0 0";
-	std::stringstream old(line.str() + "\n");
-	ItemBag before;
-	before.Load(old);
-	CHECK(before.Count(ItemKind::AmethystGold) == 1);
-	CHECK_FALSE(before.RingOn(Hand::Left).has_value());
-	CHECK_FALSE(before.RingOn(Hand::Right).has_value());
 }
 
 TEST_CASE("the garnet heals in a fight too, but not while poisoned") {

@@ -778,6 +778,6 @@
 32,45 surface 7/1/2 decal 15 0.743,0.550
 33,45 surface 6/1/2
 34,45 surface 6/1/2 torch fire torch 0.000,0.680,0.098
-35,45 surface 6/1/2
+35,45 surface 6/1/2 decal 16 0.539,0.609
 36,45 surface 6/1/2
 37,45 surface 7/1/2

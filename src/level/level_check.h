@@ -154,7 +154,7 @@ struct MonsterKind;
 // cells. A level with water, sand or shaped cells gets a second drawing after a "structure" line, the same rows in
 // cellGlyph (level.h); a level with fixtures one after a "wall" line, the same rows, the fixtures alone ('#' / '.':
 // none). A level with placed props (plan placed-decor) gets a "decor" drawing: decorGlyph (decor.h),
-// '-' bare; one with placed decals or torches a "decals" drawing: 'a' + the decal's index (DECAL_DEFS), upper case with
+// '-' bare; one with placed decals or torches a "decals" drawing: decalLetter (decor.h), upper case with
 // a torch, 't' a torch alone, '-' bare or no torch ('#' / '.': unset); one with placed container looks (plan
 // placed-container-looks) a "containers" drawing: CONTAINER_GLYPHS, a coffin's plain or inscribed lid 'p' / 'i'.
 [[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);

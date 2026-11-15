@@ -18,7 +18,13 @@ constexpr uint32_t WATER_DECOR_CHANCE_PERCENT = 50; // water cells are fewer tha
 constexpr uint32_t WATER_BANK_WEIGHT[DECOR_WATER_COUNT] = {4, 1, 1, 1};
 constexpr uint32_t WATER_MIDDLE_WEIGHT[DECOR_WATER_COUNT] = {1, 2, 3, 2};
 constexpr uint32_t DECAL_CHANCE_PERCENT = 35;
+// The Duat scenes (plan duat-wall-paintings) stay special: a scene is drawn on this share (per mille) of the decal
+// cells, where the zone has one that fits, and the scatter paints at most DECAL_SCENES_PER_LEVEL (placed ones do not
+// count).
+constexpr uint32_t DECAL_SCENE_PERMILLE = 8;
+constexpr int DECAL_SCENES_PER_LEVEL = 2;
 constexpr uint32_t DECAL_SALT = 0x51ed270bU;
+constexpr uint32_t DECAL_SCENE_SALT = 0x1f83d9abU;
 constexpr uint32_t TORCH_SALT = 0x2c1b3c6dU;
 constexpr uint32_t LADDER_SALT = 0x6a09e667U;
 constexpr uint32_t SURFACE_SALT = 0x3c6ef372U;
@@ -399,6 +405,7 @@ int scatterDecals(
 	DecalCell* decal
 ) {
 	int placed = 0;
+	int scenes = 0;
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++) {
 			DecalCell& cell = decal[cellIndex(i, j)];
@@ -424,21 +431,35 @@ int scatterDecals(
 							   layout.decor[cellIndex(i, j)].type < 0; // no dry grass under the water
 			const bool free = !layout.torch[cellIndex(i, j)]; // the torch covers the middle of the wall
 
-			uint32_t weights[DECAL_COUNT];
-			for (int d = 0; d < DECAL_COUNT; d++) {
-				const DecalAnchor anchor = DECAL_DEFS[d].anchor;
-				const bool fits = (anchor == DecalAnchor::Free && free) ||
-								  (anchor == DecalAnchor::Ceiling && ceiling) ||
-								  (anchor == DecalAnchor::Floor && floor);
-				weights[d] = fits ? tierWeight(DECAL_TIERS[d], tier) * look.decals[d] : 0;
-			}
+			uint32_t weights[DECAL_COUNT] = {};
+			const auto weigh = [&](bool scenes) {
+				for (int d = 0; d < DECAL_COUNT; d++) {
+					const DecalAnchor anchor = DECAL_DEFS[d].anchor;
+					const bool fits = (anchor == DecalAnchor::Free && free) ||
+									  (anchor == DecalAnchor::Ceiling && ceiling) ||
+									  (anchor == DecalAnchor::Floor && floor);
+					weights[d] = fits && isDecalScene(d) == scenes ? tierWeight(DECAL_TIERS[d], tier) * look.decals[d]
+																   : 0;
+				}
+			};
 			h = mix(h);
-			const int type = weightedPick(weights, DECAL_COUNT, h);
+			int type = -1;
+			// a scene by its own roll, so the other decals stay where they were before the scenes
+			const uint32_t sceneRoll = mix(h ^ DECAL_SCENE_SALT);
+			if (scenes < DECAL_SCENES_PER_LEVEL && sceneRoll % 1000 < DECAL_SCENE_PERMILLE) {
+				weigh(true);
+				type = weightedPick(weights, DECAL_COUNT, mix(sceneRoll));
+			}
+			if (type < 0) {
+				weigh(false);
+				type = weightedPick(weights, DECAL_COUNT, h);
+			}
 			if (type < 0)
 				continue;
 			h = mix(h);
 			placeDecal(cell, type, (h & 1U) != 0, h);
 			placed++;
+			scenes += isDecalScene(type) ? 1 : 0;
 		}
 	return placed;
 }

@@ -286,8 +286,8 @@
 12,21 surface 14/6/8
 13,21 surface 14/1/8
 14,21 surface 15/6/8
-15,21 surface 14/6/8 decal 0 0.322,0.382
-16,21 surface 14/6/8 decal 9m 0.611,0.372
+15,21 surface 14/6/8 decal 18 0.411,0.426
+16,21 surface 14/6/8 decal 18m 0.556,0.418
 17,21 surface 15/1/8
 18,21 surface 14/6/8
 19,21 surface 14/6/8 decal 8 0.445,0.593

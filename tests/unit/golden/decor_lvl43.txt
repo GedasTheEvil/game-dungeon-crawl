@@ -31,7 +31,7 @@
 15,2 surface 12/1/7
 16,2 surface 13/5/7
 17,2 surface 12/5/7
-18,2 surface 12/5/7 decal 0 0.369,0.413
+18,2 surface 12/5/7 decal 20 0.435,0.452
 19,2 surface 12/5/7
 20,2 surface 12/5/7 decal 8 0.478,0.453
 21,2 surface 13/1/7 torch fire torch 0.000,0.680,0.098
@@ -414,7 +414,7 @@
 19,27 surface 12/1/7 decal 10 0.387,0.387
 20,27 surface 12/5/7
 21,27 surface 13/1/7 decal 0 0.448,0.490
-22,27 surface 12/5/7 decal 0 0.455,0.428
+22,27 surface 12/5/7 decal 19 0.478,0.464
 23,27 surface 13/5/7 decal 8m 0.432,0.435
 24,27 surface 12/1/7 decal 0m 0.444,0.478
 25,27 surface 13/5/7

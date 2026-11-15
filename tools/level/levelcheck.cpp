@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
 			for (int d = 0; d < DECOR_COUNT; d++) // the --map decor and decal drawings (plan placed-decor)
 				std::println("prop {} {} {}", decorGlyph(d), d, DECOR_NAMES[d]);
 			for (int d = 0; d < DECAL_COUNT; d++)
-				std::println("decal {} {} {}", static_cast<char>('a' + d), d, DECAL_DEFS[d].name);
+				std::println("decal {} {} {}", decalLetter(d), d, DECAL_DEFS[d].name);
 			for (int c = 0; c < CONTAINER_COUNT; c++) // the --map containers drawing (plan placed-container-looks)
 				std::println("container {} {} {}", CONTAINER_GLYPHS[c], c, CONTAINER_NAMES[c]);
 			std::println("container {} coffin, plain lid", PLAIN_COFFIN_GLYPH);

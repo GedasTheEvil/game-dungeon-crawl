@@ -167,7 +167,7 @@
 17,11 surface 3/0/1 sand> prop scrollsm -0.079
 18,11 surface 3/1/1 decal 0m 0.491,0.433
 19,11 surface 5/0/1 sand<
-20,11 surface 3/0/1 decal 11 0.450,0.456
+20,11 surface 3/0/1 decal 16 0.460,0.473
 21,11 surface 3/0/1 prop brazierm 0.107 fire brazier 0.107,0.220,0.160
 22,11 surface 3/2/1 decal 9m 0.417,0.599
 23,11 surface 3/0/1 sand> prop coffin 0.000 torch fire torch 0.000,0.680,0.098

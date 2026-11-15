@@ -38,7 +38,7 @@
 8,5 surface 3/0/1 torch fire torch 0.000,0.680,0.098
 9,5 surface 4/0/1 sand> decal 15m 0.386,0.397
 10,5 surface 2/1/0m prop rubblem -0.067 decal 7m 0.388,0.610
-11,5 surface 1/0/0 sand< decal 10m 0.476,0.381
+11,5 surface 1/0/0 sand< decal 17m 0.490,0.425
 12,5 surface 0/0/0 sand> decal 7m 0.523,0.604
 13,5 surface 0/1/0 torch fire torch 0.000,0.680,0.098
 14,5 surface 0/1/0 decal 13 0.417,0.225
@@ -177,7 +177,7 @@
 11,11 surface 6/2/2 ladder 1/1
 11,12 surface 1/0/0 ladder 1/2
 5,13 surface 1/0/0
-6,13 surface 0/0/0 prop ushabti 0.033 decal 7 0.610,0.611
+6,13 surface 0/0/0 prop ushabti 0.033 decal 17 0.588,0.612
 7,13 surface 2/0/0 prop sarcophagusm 0.056 decal 3 0.562,0.600 torch fire torch 0.000,0.680,0.098
 8,13 surface 3/2/1 ladder 0/4m
 11,13 surface 0/1/0 ladder 1/1
@@ -331,7 +331,7 @@
 19,24 surface 5/1/1 decal 14 0.538,0.375 torch fire torch 0.000,0.680,0.098
 20,24 surface 2/0/0m sand<
 21,24 surface 0/1/0
-22,24 surface 2/1/0 decal 14 0.437,0.375
+22,24 surface 2/1/0 decal 17 0.565,0.616
 23,24 surface 4/0/1 sand<
 24,24 surface 5/2/1 prop canopic 0.048 decal 1 0.549,0.380
 25,24 surface 3/0/1 sand> torch fire torch 0.000,0.680,0.098

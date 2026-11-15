@@ -108,7 +108,7 @@
 11,10 surface 0/0/0
 12,10 surface 0/0/0
 13,10 surface 0/0/0
-14,10 surface 0/2/0 decal 8 0.439,0.420
+14,10 surface 0/2/0 decal 16 0.439,0.420
 15,10 surface 1/2/0 torch fire torch 0.000,0.680,0.098
 16,10 surface 0/0/0
 17,10 surface 0/0/0
@@ -438,7 +438,7 @@
 29,28 surface 0/0/0 sand< decal 11m 0.560,0.467
 30,28 surface 0/2/0 decal 8m 0.562,0.556
 31,28 surface 0/0/0 decal 11m 0.388,0.588
-32,28 surface 0/1/0 decal 0 0.468,0.549
+32,28 surface 0/1/0 decal 16 0.484,0.562
 33,28 surface 0/2/0
 34,28 surface 1/0/0 decal 9m 0.474,0.541
 35,28 surface 0/0/0 prop lampm -0.027 decal 9m 0.590,0.372 fire lamp 0.229,0.050,0.307

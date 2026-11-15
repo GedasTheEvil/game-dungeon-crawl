@@ -134,7 +134,7 @@
 19,8 surface 12/5/7
 20,8 surface 13/5/7 prop rubble -0.087 decal 7 0.622,0.525
 21,8 surface 12/5/7 decal 8m 0.549,0.402
-22,8 surface 12/5/7 decal 5m 0.459,0.625
+22,8 surface 12/5/7 decal 20m 0.467,0.409
 23,8 surface 12/5/7 sand>
 24,8 surface 13/1/7 decal 5 0.508,0.625
 25,8 surface 12/5/7 sand<>
@@ -335,7 +335,7 @@
 21,21 surface 12/5/7
 22,21 surface 13/5/7 prop water_reeds -0.053
 23,21 surface 12/5/7 prop water_padsm 0.042
-24,21 surface 12/5/7 decal 8 0.449,0.473
+24,21 surface 12/5/7 decal 19 0.449,0.473
 25,21 surface 12/5/7 prop water_reeds 0.043
 26,21 surface 12/1/7 decal 0 0.328,0.392
 27,21 surface 12/5/7 prop water_weed -0.079 decal 9 0.520,0.504

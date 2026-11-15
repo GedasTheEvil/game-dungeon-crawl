@@ -80,7 +80,7 @@
 38,6 surface 15/6/8 decal 9 0.450,0.497
 9,7 surface 15/6/8 ladder 0/2m
 9,8 surface 14/6/8 ladder 0/1m
-22,8 surface 14/6/8 decal 11 0.494,0.467
+22,8 surface 14/6/8 decal 16 0.495,0.483
 1,9 surface 14/1/8
 2,9 surface 15/1/8 prop coffin_mummy 0.000
 3,9 surface 14/6/8 sand< prop coffin 0.000
@@ -573,7 +573,7 @@
 2,40 surface 14/6/8
 3,40 surface 15/6/8 decal 6m 0.539,0.575 torch fire torch 0.000,0.680,0.098
 4,40 surface 14/6/8
-5,40 surface 14/1/8 decal 9m 0.614,0.542
+5,40 surface 14/1/8 decal 18m 0.557,0.556
 6,40 surface 14/6/8 decal 1m 0.355,0.470
 7,40 surface 15/6/8
 8,40 surface 14/6/8

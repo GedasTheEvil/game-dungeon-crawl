@@ -1,6 +1,6 @@
 # Duat wall paintings: the night barque, Apep bound, the scales, Nut
 
-Status: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -47,7 +47,31 @@ colours, weathered with `weather()`), each a scene readable at a cell's size:
   register style (profile figures, flat colour) are fine; if a scene does not read at game distance, drop it.
 * How many per level, so they stay special: a zone factor low enough for one or two a level.
 
+## Done
+
+* Six scenes, decals 16-21 (`DECAL_SCENE_FIRST`, `src/level/decor.h`), drawn in `tools/textures/decals.py` (Duat
+  scenes section): night barque (the ram-headed sun with the disc in his shrine, Mehen over it, two men and a jackal
+  hauling), Apep bound (four knives, the cat of Ra with a knife), the weighing (heart and feather, Anubis, Thoth facing
+  the scale, Ammit crouched), Nut (arched, stars, the evening sun at her mouth, the morning sun at her hips), baboons
+  (three, praising the sun), Aker (two lions back to back, the sun on the horizon). Each on a plaster band with the
+  ground line and the block border; free anchor, size 0.8.
+* Atlas grown to 8 x 8 (`DECAL_ATLAS_GRID`; 22 of 64 cells used), 2048 px.
+* Rarity (open question): a scene comes from its own roll, `DECAL_SCENE_PERMILLE` (8) of the decal cells, at most
+  `DECAL_SCENES_PER_LEVEL` (2) a level from the scatter; the other decals keep their rolls (golden diffs: only scene
+  lines). Zone factors in `ZONE_LOOKS`: barque priests' quarter, serpent temple, cisterns (3), Lake of Fire,
+  necropolis, Hall of Judgment; Apep serpent temple (3), cisterns; weighing necropolis, Hall of Judgment (3); Nut and
+  baboons Lake of Fire, Hall of Judgment; Aker Seth's desert, Land of Sokar (3). 26 of the 41 temple-tier levels get
+  one or two.
+* By hand (decal layer): the weighing beside inscription 131 (lvl52), Apep bound beside 18 (lvl27), the barque beside
+  the seventh hour's stela (lvl28), the baboons beside 117 "The baboons of the lake" (lvl42).
+* The checker's decal letters skip 't' (a torch alone): `decalLetter`.
+* Comic look: the ink outlines survive (scenario `duat_wall_paintings`, `002_weighing_lvl52_toon`).
+* Glossary: "Duat scene".
+
 ## Play-test
 
-* `bin/game --level 52`: the weighing painted beside its inscription.
-* `bin/game --level 30`, `--level 44`: the barque and the baboons on the walls of their zones; F1 for the comic look.
+* `bin/game --play tests/play/duat-wall-paintings.txt` (lvl52, by inscription 131): the weighing is painted beside
+  it. F1: the comic look keeps the figures.
+* `bin/game --level 28`: the night barque beside the seventh hour's stela, at the start.
+* `bin/game --level 42`: the baboons beside the inscription "The baboons of the lake" (top floor, right of middle).
+* `bin/game --level 44` (Nut, the baboons) and `--level 35` (Aker): scattered scenes, rare: one or two a level.

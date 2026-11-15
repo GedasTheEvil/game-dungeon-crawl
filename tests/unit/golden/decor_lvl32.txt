@@ -163,7 +163,7 @@
 27,13 surface 7/1/2
 28,13 surface 6/1/2 decal 0 0.346,0.405
 29,13 surface 7/1/2 decal 14m 0.384,0.375
-30,13 surface 6/1/2 decal 15 0.471,0.372
+30,13 surface 6/1/2 decal 16 0.489,0.418
 31,13 surface 6/1/2
 2,14 surface 11/4/6 decal 10 0.610,0.429
 3,14 surface 10/4/6 prop water_weed 0.090
@@ -254,7 +254,7 @@
 28,16 surface 10/4/6 torch fire torch 0.000,0.680,0.098
 29,16 surface 10/4/6
 30,16 surface 11/4/6 decal 15m 0.742,0.363
-31,16 surface 10/4/6 decal 3 0.505,0.600
+31,16 surface 10/4/6 decal 16 0.505,0.437
 35,16 surface 10/4/6 ladder 0/4m
 36,16 surface 10/4/6 decal 0m 0.302,0.441
 37,16 surface 10/4/6

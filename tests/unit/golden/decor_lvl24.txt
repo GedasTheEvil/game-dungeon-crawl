@@ -142,7 +142,7 @@
 22,11 surface 0/0/0 decal 14m 0.399,0.375 torch fire torch 0.000,0.680,0.098
 23,11 surface 1/2/0
 24,11 surface 0/0/0
-25,11 surface 0/0/0 decal 9m 0.349,0.500
+25,11 surface 0/0/0 decal 17m 0.425,0.523
 26,11 surface 0/2/0 decal 5 0.412,0.625
 27,11 surface 0/2/0 prop sarcophagus 0.073 torch fire torch 0.000,0.680,0.098
 28,11 surface 0/0/0 sand>
@@ -235,7 +235,7 @@
 5,16 surface 0/2/0
 6,16 surface 0/1/0 torch fire torch 0.000,0.680,0.098
 7,16 surface 0/2/0 decal 1 0.307,0.612
-8,16 surface 1/1/0 decal 15m 0.315,0.399
+8,16 surface 1/1/0 decal 17m 0.426,0.440
 9,16 surface 0/0/0
 10,16 surface 0/0/0
 11,16 surface 0/0/0

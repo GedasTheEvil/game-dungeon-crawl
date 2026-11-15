@@ -201,7 +201,7 @@
 26,14 surface 15/6/8 decal 9m 0.306,0.524
 27,14 surface 14/6/8 prop sarcophagusm 0.070 decal 0m 0.565,0.392
 28,14 surface 14/6/8 ladder 1/4
-3,15 surface 14/6/8 decal 7m 0.410,0.578
+3,15 surface 14/6/8 decal 18m 0.428,0.582
 4,15 surface 14/6/8
 5,15 surface 14/1/8 torch fire torch 0.000,0.680,0.098
 6,15 surface 14/1/8 decal 9 0.336,0.373
@@ -656,7 +656,7 @@
 14,45 surface 14/6/8 torch fire torch 0.000,0.680,0.098
 15,45 surface 14/6/8
 16,45 surface 14/6/8
-17,45 surface 15/6/8 decal 8 0.583,0.546
+17,45 surface 15/6/8 decal 18 0.583,0.546
 18,45 surface 14/6/8 sand>
 19,45 surface 14/1/8
 20,45 surface 14/6/8 sand< prop jackalm -0.098 decal 0m 0.574,0.510

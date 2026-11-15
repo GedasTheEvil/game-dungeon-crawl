@@ -1,4 +1,4 @@
-"""Generate the wall decal atlas media/textures/decorations/decals.png (RGBA, 4 x 4 cells of 256 px).
+"""Generate the wall decal atlas media/textures/decorations/decals.png (RGBA, 8 x 8 cells of 256 px).
 
     python3 tools/textures/decals.py [out.png]
 
@@ -18,7 +18,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 CELL = 256
 S = CELL * 2  # drawing resolution per cell
-GRID = 4
+GRID = 8  # room for 64 decals
 
 INK = (40, 28, 18, 255)
 PAINT = {
@@ -470,9 +470,334 @@ def moss():
     return weather(img, 24, 0.4, grain=12)
 
 
+# ---------------------------------------------------------------- Duat scenes (plan duat-wall-paintings)
+# Painted wall scenes in the register style of the tomb walls: profile figures in flat paint with an ink outline on a
+# band of plaster, weathered. Figures face right; flipped() turns one around.
+
+SKIN = (150, 70, 40, 240)  # a man's red-brown
+KILT = PAINT["white"]
+WIG = (34, 40, 70, 240)
+NIGHT = (24, 38, 84, 230)  # the night sky, Nut's body
+
+
+def flipped(img, x):
+    """img mirrored about the vertical line x."""
+    return img.transform(img.size, Image.AFFINE, (-1, 0, 2 * x, 0, 1, 0), resample=Image.BICUBIC)
+
+
+def scene_panel(d, top, bottom):
+    """The plaster band of a register, with its ground line."""
+    d.rectangle([6, top, S - 6, bottom], fill=(232, 216, 170, 80))
+    d.rectangle([6, top, S - 6, bottom], outline=(120, 78, 40, 200), width=5)
+    d.line([(6, bottom - 16), (S - 6, bottom - 16)], fill=INK, width=4)
+    for k in range(12):  # the band of coloured blocks under the ground line
+        d.rectangle([6 + k * 42, bottom - 14, 6 + (k + 1) * 42, bottom - 2], fill=PAINT[COLOURS[k % 3]])
+
+
+def limb(d, pts, w, c):
+    stroke(d, pts, w + 5, w + 5, INK)
+    stroke(d, pts, w, w, c)
+
+
+def head(d, x, y, u, kind, skin):
+    """A head looking right, its centre (x, y); u is a tenth of the figure's height."""
+    r = 0.8 * u
+    if kind == "jackal":
+        d.polygon([(x - r * 0.9, y - r * 0.4), (x - r * 0.6, y - r * 2.6), (x - r * 0.1, y - r * 0.9), (x + r * 0.3, y - r * 2.6), (x + r * 0.5, y - r * 0.7),
+                   (x + r * 2.3, y + r * 0.1), (x + r * 2.2, y + r * 0.5), (x + r * 0.5, y + r * 0.8), (x - r * 0.9, y + r * 0.9)], fill=PAINT["black"], outline=INK, width=3)
+        d.ellipse([x + r * 0.35, y - r * 0.3, x + r * 0.75, y + r * 0.05], fill=PAINT["gold"])
+    elif kind == "ibis":
+        d.ellipse([x - r, y - r, x + r, y + r], fill=PAINT["black"], outline=INK, width=3)
+        beak = [(x + r * (0.8 + 2.6 * t), y + r * (0.1 + 1.6 * t * t)) for t in (i / 8 for i in range(9))]
+        limb(d, beak, max(2, int(r * 0.35)), PAINT["black"])
+        d.ellipse([x + r * 0.15, y - r * 0.35, x + r * 0.5, y], fill=PAINT["white"])
+    elif kind == "ram":
+        d.polygon([(x - r * 1.0, y - r * 1.0), (x + r * 0.6, y - r * 1.1), (x + r * 2.2, y + r * 0.3), (x + r * 2.0, y + r * 1.0), (x + r * 0.8, y + r * 1.1),
+                   (x - r * 1.0, y + r * 1.0)], fill=skin, outline=INK, width=3)
+        d.ellipse([x + r * 0.7, y - r * 0.6, x + r * 1.1, y - r * 0.2], fill=INK)
+        spiral = [(x - r * 0.1 + r * 1.1 * math.cos(t) * (1 - t / 10), y + r * 0.2 + r * 1.1 * math.sin(t) * (1 - t / 10)) for t in (-1.2 + i * 0.4 for i in range(20))]
+        limb(d, spiral, max(4, int(r * 0.5)), PAINT["gold"])
+        return
+    else:
+        d.ellipse([x - r, y - r, x + r, y + r], fill=skin, outline=INK, width=3)
+        d.ellipse([x + r * 0.3, y - r * 0.3, x + r * 0.6, y], fill=INK)
+    # the striped wig of a god falls behind the head to the shoulder
+    d.polygon([(x - r * 1.1, y - r * 0.8), (x - r * 0.1, y - r * 0.9), (x - r * 0.2, y + r * 1.8), (x - r * 1.2, y + r * 1.6)], fill=WIG, outline=INK, width=3)
+
+
+def figure(d, x, g, h, kind="human", skin=SKIN, arms=None, stride=1.0):
+    """A standing figure looking right, feet on the ground line g at x, h tall. arms: two polylines in units u from
+    the shoulder (back arm, front arm); None hangs them."""
+    u = h / 10
+    sh = g - 8 * u
+    for fx, hx in ((-1.2 * stride, -0.35), (1.3 * stride, 0.35)):
+        limb(d, [(x + hx * u, g - 3.4 * u), (x + fx * u, g - 0.3 * u)], max(3, int(0.55 * u)), skin)
+        d.polygon([(x + fx * u - 0.2 * u, g - 0.4 * u), (x + fx * u + 0.9 * u, g - 0.1 * u), (x + fx * u - 0.2 * u, g)], fill=skin, outline=INK, width=2)
+    d.polygon([(x - 1.4 * u, sh), (x + 1.4 * u, sh), (x + 0.6 * u, g - 5.2 * u), (x - 0.5 * u, g - 5.2 * u)], fill=skin, outline=INK, width=3)
+    d.polygon([(x - 0.8 * u, g - 5.5 * u), (x + 0.9 * u, g - 5.5 * u), (x + 1.5 * u, g - 3.2 * u), (x - 1.1 * u, g - 3.2 * u)], fill=KILT, outline=INK, width=3)
+    d.line([(x - 0.8 * u, g - 5.3 * u), (x + 0.9 * u, g - 5.3 * u)], fill=PAINT["red"], width=max(2, int(0.25 * u)))
+    if arms is None:
+        arms = ([(0, 0), (-0.4, 2.0), (-0.3, 3.4)], [(0, 0), (0.4, 2.0), (0.6, 3.4)])
+    for side, arm in zip((-1.2, 1.2), arms):
+        limb(d, [(x + (side + ax) * u, sh + ay * u) for ax, ay in arm], max(3, int(0.45 * u)), skin)
+    d.rectangle([x - 0.35 * u, sh - 0.6 * u, x + 0.35 * u, sh + 0.1 * u], fill=skin)
+    head(d, x + 0.15 * u, sh - 1.2 * u, u, kind, skin)
+    return u
+
+
+def sun_disc(d, x, y, r, colour="red"):
+    d.ellipse([x - r, y - r, x + r, y + r], fill=PAINT[colour], outline=PAINT["gold"], width=max(2, int(r * 0.2)))
+    d.ellipse([x - r, y - r, x + r, y + r], outline=INK, width=2)
+
+
+def serpent(d, pts, w, colour, spots=True):
+    limb(d, pts, w, colour)
+    if spots:
+        for k in range(2, len(pts) - 2, 3):
+            x, y = pts[k]
+            d.ellipse([x - w * 0.22, y - w * 0.22, x + w * 0.22, y + w * 0.22], fill=INK)
+
+
+def night_barque():
+    """Ra's night barque: the ram-headed sun in his shrine, Mehen coiled over it, towed by three gods."""
+    img = layer()
+    d = ImageDraw.Draw(img)
+    scene_panel(d, 110, 410)
+    water = 394
+    for k in range(9):  # the water of the Duat under the boat
+        x0 = 20 + k * 54
+        d.line([(x0 + i * 6, water - 6 + 5 * math.sin(i)) for i in range(9)], fill=PAINT["blue"], width=4)
+    # the papyrus hull, both ends raised high
+    keel = [(180 + 300 * t, 372 + 10 * math.sin(math.pi * t)) for t in (i / 16 for i in range(17))]
+    deck = [(470 - 280 * t, 344) for t in (i / 4 for i in range(5))]
+    d.polygon([(150, 286), (166, 290)] + keel + [(500, 282), (512 - 20, 280), (468, 344)] + deck[1:] + [(170, 344)], fill=PAINT["gold"], outline=INK, width=4)
+    d.line([(178, 354), (466, 354)], fill=PAINT["red"], width=6)
+    # the shrine on deck, and in it the ram-headed sun
+    d.rectangle([262, 166, 392, 344], fill=(232, 216, 170, 220), outline=INK, width=4)
+    d.rectangle([254, 154, 400, 170], fill=PAINT["green"], outline=INK, width=3)
+    ra = layer()  # he looks ahead, the way the boat sails
+    figure(ImageDraw.Draw(ra), 327, 342, 136, "ram", SKIN, ([(0, 0), (-0.2, 2.0), (0.3, 3.4)], [(0, 0), (1.2, 1.8), (2.0, 0.8)]), stride=0.6)
+    sun_disc(ImageDraw.Draw(ra), 325, 190, 14)
+    img = Image.alpha_composite(img, flipped(ra, 327))
+    d = ImageDraw.Draw(img)
+    # Mehen, the coiled serpent, arches over the shrine
+    coil = [(327 + 92 * math.cos(math.pi * (1 - t)), 164 - 40 * math.sin(math.pi * t)) for t in (i / 24 for i in range(25))]
+    serpent(d, coil, 12, PAINT["green"])
+    d.polygon([(414, 166), (436, 156), (432, 174)], fill=PAINT["green"], outline=INK, width=3)
+    # the towing rope from the prow, and three gods hauling it, walking away from the boat
+    prow = (156, 300)
+    d.line([prow, (16, 300)], fill=INK, width=6)
+    d.line([prow, (16, 300)], fill=PAINT["gold"], width=2)
+    for k, x in enumerate((30, 78, 126)):
+        hauler = layer()
+        figure(ImageDraw.Draw(hauler), x, water - 2, 118, "jackal" if k == 1 else "human", PAINT["black"] if k == 1 else SKIN,
+               ([(0, 0), (-0.8, 1.6), (-1.6, 2.6)], [(0, 0), (-0.2, 1.8), (-0.8, 2.6)]), stride=1.3)
+        img = Image.alpha_composite(img, flipped(hauler, x))
+    img = flipped(img, S / 2)  # the barque sails left, into the next hour
+    return weather(img, 31, 0.45)
+
+
+def knife(d, x, y, length, ang):
+    tip = (x + math.cos(ang) * length, y + math.sin(ang) * length)
+    side = (math.cos(ang + math.pi / 2) * 8, math.sin(ang + math.pi / 2) * 8)
+    d.polygon([(x - side[0], y - side[1]), tip, (x + side[0] * 1.6, y + side[1] * 1.6)], fill=(210, 214, 220, 240), outline=INK, width=3)
+    hx, hy = x - math.cos(ang) * 28, y - math.sin(ang) * 28
+    limb(d, [(x, y), (hx, hy)], 9, PAINT["red"])
+
+
+def cat(d, x, g, h):
+    """The cat of Ra sitting up, a knife in its fore paw."""
+    u = h / 10
+    d.ellipse([x - 2.6 * u, g - 5.5 * u, x + 1.6 * u, g], fill=(196, 150, 70, 240), outline=INK, width=3)
+    d.polygon([(x - 0.4 * u, g - 4.8 * u), (x + 1.5 * u, g - 5.6 * u), (x + 1.8 * u, g - 0.2 * u), (x + 0.8 * u, g)], fill=(196, 150, 70, 240), outline=INK, width=3)
+    d.ellipse([x + 0.2 * u, g - 8.4 * u, x + 2.4 * u, g - 5.6 * u], fill=(196, 150, 70, 240), outline=INK, width=3)
+    for ex in (0.5, 1.6):
+        d.polygon([(x + ex * u, g - 7.8 * u), (x + (ex + 0.3) * u, g - 9.6 * u), (x + (ex + 0.7) * u, g - 7.9 * u)], fill=(196, 150, 70, 240), outline=INK, width=3)
+    d.ellipse([x + 1.6 * u, g - 7.4 * u, x + 2.0 * u, g - 7.0 * u], fill=PAINT["green"], outline=INK, width=1)
+    for k in range(3):
+        d.line([(x - 1.5 * u + k * 0.5 * u, g - 4.6 * u), (x - 1.2 * u + k * 0.5 * u, g - 3.2 * u)], fill=INK, width=3)
+    stroke(d, [(x - 2.4 * u, g - 0.4 * u), (x - 3.6 * u, g - 0.6 * u), (x - 4.2 * u, g - 2.0 * u)], 0.7 * u, 0.5 * u, INK)
+    limb(d, [(x + 1.2 * u, g - 4.6 * u), (x + 2.6 * u, g - 4.2 * u)], int(0.6 * u), (196, 150, 70, 240))
+    knife(d, x + 2.8 * u, g - 4.3 * u, 4.2 * u, 0.55)
+
+
+def apep_bound():
+    """Apep, the serpent of chaos, pinned to the ground by knives; the cat of Ra cuts off his head."""
+    img = layer()
+    d = ImageDraw.Draw(img)
+    scene_panel(d, 140, 400)
+    g = 384
+    body = [(28 + 360 * t, g - 44 - 30 * math.sin(t * 2.5 * math.pi) * (1 - 0.3 * t)) for t in (i / 40 for i in range(41))]
+    serpent(d, body, 26, (150, 96, 50, 240))
+    hx, hy = body[-1]
+    d.polygon([(hx - 8, hy - 20), (hx + 40, hy - 8), (hx + 44, hy + 10), (hx - 8, hy + 18)], fill=(150, 96, 50, 240), outline=INK, width=4)
+    d.ellipse([hx + 14, hy - 10, hx + 22, hy - 2], fill=PAINT["white"], outline=INK, width=2)
+    for k in (6, 15, 24, 33):  # the knives through the coils
+        x, y = body[k]
+        knife(d, x + 4, y - 64, 84, math.pi / 2 + 0.1)
+    cat(d, 430, g, 160)
+    return weather(img, 32, 0.45)
+
+
+def heart(d, x, y, s, colour):
+    d.polygon([(x - s * 0.5, y - s * 0.7), (x + s * 0.5, y - s * 0.7), (x + s * 0.6, y), (x + s * 0.3, y + s * 0.7), (x - s * 0.3, y + s * 0.7), (x - s * 0.6, y)],
+              fill=colour, outline=INK, width=3)
+    d.rectangle([x - s * 0.3, y - s, x + s * 0.3, y - s * 0.7], fill=colour, outline=INK, width=2)
+
+
+def ammit(d, x, g, h):
+    """The devourer, crouched: crocodile head, lion's fore part, hippo's hind part."""
+    u = h / 10
+    d.ellipse([x - 4.2 * u, g - 5.4 * u, x - 0.8 * u, g - 0.4 * u], fill=(170, 116, 90, 240), outline=INK, width=3)  # hippo
+    d.ellipse([x - 1.6 * u, g - 6.0 * u, x + 1.8 * u, g - 1.4 * u], fill=(206, 160, 70, 240), outline=INK, width=3)  # lion
+    for k in range(5):
+        d.ellipse([x - 1.2 * u + k * 0.6 * u, g - 4.8 * u + (k % 2) * 0.8 * u, x - 0.9 * u + k * 0.6 * u, g - 4.5 * u + (k % 2) * 0.8 * u], fill=INK)
+    limb(d, [(x + 0.8 * u, g - 2.0 * u), (x + 1.2 * u, g - 0.2 * u), (x + 2.0 * u, g - 0.2 * u)], int(0.7 * u), (206, 160, 70, 240))
+    limb(d, [(x - 3.2 * u, g - 1.0 * u), (x - 3.0 * u, g - 0.2 * u), (x - 2.2 * u, g - 0.2 * u)], int(0.8 * u), (170, 116, 90, 240))
+    d.polygon([(x + 0.6 * u, g - 7.6 * u), (x + 1.8 * u, g - 7.8 * u), (x + 5.0 * u, g - 6.4 * u), (x + 5.0 * u, g - 5.6 * u), (x + 1.6 * u, g - 5.0 * u),
+               (x + 0.4 * u, g - 5.0 * u)], fill=PAINT["green"], outline=INK, width=3)  # crocodile
+    d.line([(x + 2.0 * u, g - 6.0 * u), (x + 5.0 * u, g - 6.0 * u)], fill=INK, width=2)
+    for k in range(5):
+        tx = x + 2.2 * u + k * 0.55 * u
+        d.polygon([(tx, g - 6.0 * u), (tx + 0.25 * u, g - 5.6 * u), (tx + 0.5 * u, g - 6.0 * u)], fill=PAINT["white"])
+    d.ellipse([x + 1.4 * u, g - 7.4 * u, x + 1.9 * u, g - 6.9 * u], fill=PAINT["gold"], outline=INK, width=1)
+    d.polygon([(x - 0.4 * u, g - 7.8 * u), (x + 1.0 * u, g - 7.8 * u), (x + 0.8 * u, g - 4.6 * u), (x - 0.6 * u, g - 4.8 * u)], fill=WIG, outline=INK, width=2)
+
+
+def weighing():
+    """The weighing of the heart: Anubis steadies the balance, heart against feather, Thoth writes, Ammit waits."""
+    img = layer()
+    d = ImageDraw.Draw(img)
+    scene_panel(d, 110, 410)
+    g = 392
+    bx, top = 210, 160
+    d.rectangle([bx - 8, top, bx + 8, g], fill=PAINT["gold"], outline=INK, width=3)
+    d.polygon([(bx - 30, g), (bx + 30, g), (bx + 16, g - 20), (bx - 16, g - 20)], fill=PAINT["gold"], outline=INK, width=3)
+    d.rectangle([bx - 110, top + 8, bx + 110, top + 18], fill=PAINT["gold"], outline=INK, width=3)
+    d.ellipse([bx - 14, top - 18, bx + 14, top + 10], fill=PAINT["green"], outline=INK, width=3)  # Maat's head on the post
+    for s in (-1, 1):
+        px = bx + s * 100
+        for dx in (-26, 26):
+            d.line([(px, top + 18), (px + dx, top + 90)], fill=INK, width=2)
+        d.chord([px - 34, top + 74, px + 34, top + 106], 0, 180, fill=PAINT["gold"], outline=INK, width=3)
+    heart(d, bx - 100, top + 66, 18, PAINT["red"])
+    g_feather(d, bx + 74, top + 6, 52, 84, (244, 240, 226, 245))
+    d.line([(bx, top + 18), (bx, g - 60)], fill=INK, width=2)  # the plumb line
+    figure(d, 70, g, 170, "jackal", PAINT["black"], ([(0, 0), (0.6, 2.0), (1.4, 3.2)], [(0, 0), (1.6, 1.0), (3.2, 0.6)]), stride=0.7)
+    ibis = layer()
+    figure(ImageDraw.Draw(ibis), 330, g, 170, "ibis", SKIN, ([(0, 0), (0.8, 1.8), (1.8, 2.2)], [(0, 0), (1.4, 1.2), (2.6, 0.4)]), stride=0.7)
+    dd = ImageDraw.Draw(ibis)
+    dd.rectangle([352, 256, 362, 300], fill=PAINT["white"], outline=INK, width=2)  # his palette
+    ibis = flipped(ibis, 330)  # Thoth faces the scale
+    img = Image.alpha_composite(img, ibis)
+    ammit(ImageDraw.Draw(img), 418, g, 90)
+    return weather(img, 33, 0.45)
+
+
+def nut():
+    """Nut, the sky, arched over the world with stars on her body; the sun goes into her mouth and is born at her hips."""
+    img = layer()
+    d = ImageDraw.Draw(img)
+    g = 440
+
+    def arch(rx, ry, n=40):
+        """A boxy arch over the ground line g: Nut's back (outer) or belly (inner), from right to left."""
+        pts = []
+        for i in range(n + 1):
+            a = math.pi * i / n
+            c, s_ = math.cos(a), math.sin(a)
+            pts.append((256 + rx * math.copysign(abs(c) ** 0.35, c), g - ry * s_ ** 0.35))
+        return pts
+
+    outer, inner = arch(226, 330), arch(184, 280)
+    d.polygon(outer + list(reversed(inner)), fill=NIGHT, outline=INK, width=4)
+    rng = random.Random(34)
+    for _ in range(40):  # stars, five-pointed, along her body
+        k = rng.randrange(len(outer))
+        t = rng.uniform(0.2, 0.8)
+        x = outer[k][0] * (1 - t) + inner[k][0] * t
+        y = outer[k][1] * (1 - t) + inner[k][1] * t
+        if y > g - 24:
+            continue
+        r = 6
+        pts = [(x + r * (1 if j % 2 == 0 else 0.4) * math.cos(-math.pi / 2 + j * math.pi / 5),
+                y + r * (1 if j % 2 == 0 else 0.4) * math.sin(-math.pi / 2 + j * math.pi / 5)) for j in range(10)]
+        d.polygon(pts, fill=PAINT["gold"])
+    # her hands and feet on the earth
+    for x in (52, 460):
+        d.ellipse([x - 22, g - 10, x + 22, g + 6], fill=NIGHT, outline=INK, width=3)
+    # her head at the west (left) end, by her arms, looking in toward the world
+    hx, hy = 98, 360
+    d.polygon([(hx - 30, hy - 30), (hx + 6, hy - 34), (hx + 2, hy + 34), (hx - 30, hy + 30)], fill=WIG, outline=INK, width=3)
+    d.ellipse([hx - 14, hy - 24, hx + 26, hy + 18], fill=(196, 140, 90, 240), outline=INK, width=3)
+    d.ellipse([hx + 12, hy - 10, hx + 18, hy - 4], fill=INK)
+    sun_disc(d, hx + 46, hy + 2, 15)  # the evening sun, swallowed
+    sun_disc(d, 412, 150, 18)  # the morning sun, born again at her hips
+    d.line([(20, g + 8), (S - 20, g + 8)], fill=PAINT["green"], width=10)  # the earth
+    d.line([(20, g + 8), (S - 20, g + 8)], fill=INK, width=2)
+    return weather(img, 34, 0.4)
+
+
+def baboon(d, x, g, h):
+    """A seated baboon facing right, the forearms raised in praise."""
+    u = h / 10
+    grey = (128, 136, 110, 240)
+    d.ellipse([x - 2.6 * u, g - 5.2 * u, x + 1.2 * u, g], fill=grey, outline=INK, width=3)  # rump and back
+    d.ellipse([x - 1.6 * u, g - 8.4 * u, x + 1.4 * u, g - 4.0 * u], fill=(170, 176, 150, 240), outline=INK, width=3)  # the mane
+    d.polygon([(x + 0.6 * u, g - 7.6 * u), (x + 2.6 * u, g - 7.0 * u), (x + 2.6 * u, g - 6.0 * u), (x + 0.8 * u, g - 5.6 * u)], fill=(200, 120, 110, 240), outline=INK, width=3)
+    d.ellipse([x + 0.9 * u, g - 7.6 * u, x + 1.3 * u, g - 7.2 * u], fill=INK)
+    limb(d, [(x + 0.4 * u, g - 4.6 * u), (x + 1.8 * u, g - 4.0 * u), (x + 2.6 * u, g - 6.4 * u)], int(0.55 * u), grey)
+    limb(d, [(x + 1.0 * u, g - 0.6 * u), (x + 1.8 * u, g - 0.3 * u)], int(0.6 * u), grey)
+    stroke(d, [(x - 2.4 * u, g - 0.8 * u), (x - 3.2 * u, g - 0.2 * u)], 0.5 * u, 0.4 * u, INK)
+
+
+def baboons():
+    """Thoth's baboons greeting the rising sun."""
+    img = layer()
+    d = ImageDraw.Draw(img)
+    scene_panel(d, 150, 400)
+    g = 384
+    for k, x in enumerate((70, 190, 310)):
+        baboon(d, x, g - (10 if k == 1 else 0), 130)
+    sun_disc(d, 440, 250, 44)
+    for k in range(9):  # rays toward the baboons
+        a = math.pi * (0.6 + 0.08 * k)
+        d.line([(440 + 54 * math.cos(a), 250 + 54 * math.sin(a)), (440 + 80 * math.cos(a), 250 + 80 * math.sin(a))], fill=PAINT["gold"], width=4)
+    return weather(img, 35, 0.45)
+
+
+def lion(d, x, g, h):
+    """A couchant lion facing right."""
+    u = h / 10
+    tawny = (206, 160, 70, 240)
+    d.rounded_rectangle([x - 6 * u, g - 3.6 * u, x + 1.5 * u, g], radius=int(1.6 * u), fill=tawny, outline=INK, width=3)
+    d.ellipse([x - 0.6 * u, g - 7.6 * u, x + 3.0 * u, g - 2.6 * u], fill=(170, 100, 40, 240), outline=INK, width=3)  # mane
+    d.polygon([(x + 1.6 * u, g - 7.0 * u), (x + 3.8 * u, g - 6.2 * u), (x + 3.8 * u, g - 4.8 * u), (x + 1.6 * u, g - 4.2 * u)], fill=tawny, outline=INK, width=3)
+    d.ellipse([x + 2.6 * u, g - 6.4 * u, x + 3.0 * u, g - 6.0 * u], fill=INK)
+    limb(d, [(x + 1.0 * u, g - 0.6 * u), (x + 4.0 * u, g - 0.5 * u)], int(0.7 * u), tawny)
+    stroke(d, [(x - 5.8 * u, g - 2.0 * u), (x - 7.0 * u, g - 3.6 * u), (x - 6.6 * u, g - 4.6 * u)], 0.5 * u, 0.4 * u, INK)
+
+
+def aker():
+    """Aker, the two lions back to back guarding the horizon, the sun between them."""
+    img = layer()
+    d = ImageDraw.Draw(img)
+    scene_panel(d, 170, 400)
+    g = 384
+    right = layer()
+    lion(ImageDraw.Draw(right), 360, g, 100)
+    img = Image.alpha_composite(img, right)
+    img = Image.alpha_composite(img, flipped(right, S / 2))
+    d = ImageDraw.Draw(img)
+    d.chord([200, g - 60, 256, g + 60], 180, 360, fill=PAINT["gold"], outline=INK, width=3)  # the horizon's two hills
+    d.chord([256, g - 60, 312, g + 60], 180, 360, fill=PAINT["gold"], outline=INK, width=3)
+    sun_disc(d, 256, g - 58, 30)
+    return weather(img, 36, 0.45)
+
+
 # Order = atlas cell = DECAL_DEFS in src/level/decor.h.
 DECALS = [crack_a, crack_b, crack_floor, lambda: vines(4, 4, 34, False), lambda: vines(5, 3, 26, True), roots, stain, glyph_column, glyph_row, cartouche,
-          wedjat, winged_sun, papyrus, dry_grass, creeper, moss]
+          wedjat, winged_sun, papyrus, dry_grass, creeper, moss, night_barque, apep_bound, weighing, nut, baboons, aker]
 
 
 def bleed(img):

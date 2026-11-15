@@ -207,7 +207,7 @@
 15,11 surface 0/2/0
 16,11 surface 1/1/0
 17,11 surface 0/0/0
-18,11 surface 1/0/0 decal 7 0.579,0.580
+18,11 surface 1/0/0 decal 16 0.563,0.584
 19,11 surface 0/0/0
 20,11 surface 1/2/0
 21,11 surface 0/0/0 decal 15 0.480,0.501

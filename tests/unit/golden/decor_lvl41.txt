@@ -321,7 +321,7 @@
 1,22 surface 8/1/3
 2,22 surface 8/1/3 torch fire torch 0.000,0.680,0.098
 3,22 surface 9/3/3
-4,22 surface 8/1/5 decal 10 0.592,0.604
+4,22 surface 8/1/5 decal 21 0.537,0.607
 5,22 surface 9/3/3
 6,22 surface 8/1/3
 7,22 surface 8/3/3

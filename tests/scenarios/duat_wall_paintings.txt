@@ -1,0 +1,21 @@
+# Plan duat-wall-paintings: the painted Duat scenes placed by hand beside the texts they show. Screenshots of the walls
+# in tests/out/duat_wall_paintings/, the weighing also in the comic look (F1).
+seed 1
+god
+peace
+level 52 at 29 12
+wait 30
+screenshot weighing_lvl52
+toon on
+wait 2
+screenshot weighing_lvl52_toon
+toon off
+level 27 at 22 24
+wait 30
+screenshot apep_bound_lvl27
+level 28 at 35 45
+wait 30
+screenshot night_barque_lvl28
+level 42 at 28 41
+wait 30
+screenshot baboons_lvl42

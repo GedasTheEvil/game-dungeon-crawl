@@ -387,7 +387,7 @@
 19,28 surface 1/0/0 prop ushabtim 0.059
 20,28 surface 0/0/0 sand> prop ushabtim -0.011
 21,28 surface 0/1/0 prop coffin_mummy -0.000
-22,28 surface 1/0/0 sand< prop coffin 0.000 decal 8 0.500,0.586
+22,28 surface 1/0/0 sand< prop coffin 0.000 decal 16 0.500,0.586
 23,28 surface 0/0/0 sand> prop coffin_mummym -0.000 torch fire torch 0.000,0.680,0.098
 24,28 surface 1/1/0 prop coffin_mummym -0.000 decal 9 0.470,0.576
 25,28 surface 0/2/0 sand<>

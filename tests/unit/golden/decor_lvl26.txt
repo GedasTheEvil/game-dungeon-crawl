@@ -574,7 +574,7 @@
 16,39 surface 6/1/2
 17,39 surface 7/1/2
 18,39 surface 6/2/2 sand<> prop skeletonm -0.116
-19,39 surface 7/1/2 decal 14m 0.493,0.375
+19,39 surface 7/1/2 decal 16m 0.495,0.455
 20,39 surface 6/1/2 prop sarcophagusm -0.042 decal 10m 0.653,0.595
 21,39 surface 7/2/2 sand< torch fire torch 0.000,0.680,0.098
 22,39 surface 6/1/2 ladder 1/3

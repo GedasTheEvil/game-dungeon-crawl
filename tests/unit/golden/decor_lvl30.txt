@@ -115,7 +115,7 @@
 11,9 surface 10/4/6 decal 6m 0.572,0.575
 12,9 surface 10/4/6
 13,9 surface 11/4/6
-14,9 surface 10/4/6 decal 15m 0.268,0.350
+14,9 surface 10/4/6 decal 16m 0.407,0.400
 15,9 surface 10/4/6 ladder 1/1
 16,9 surface 10/4/6
 17,9 surface 11/4/6 torch fire torch 0.000,0.680,0.098
@@ -507,7 +507,7 @@
 35,35 surface 10/4/6 ladder 0/0
 35,36 surface 7/1/2 ladder 0/2
 6,37 surface 10/4/6
-7,37 surface 10/4/6 decal 6m 0.555,0.575
+7,37 surface 10/4/6 decal 16m 0.573,0.414
 8,37 surface 10/4/6 decal 6 0.466,0.575 torch fire torch 0.000,0.680,0.098
 9,37 surface 10/4/6 decal 6 0.465,0.575
 10,37 surface 10/4/6 prop osiris -0.073 decal 6 0.524,0.575

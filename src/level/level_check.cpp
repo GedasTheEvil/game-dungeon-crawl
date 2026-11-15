@@ -685,7 +685,7 @@ char decalGlyph(const Tile& t) {
 	const Dressing& d = t.dressing;
 	const bool torch = d.torch == TorchPlacing::Torch;
 	if (d.decal >= 0)
-		return static_cast<char>((torch ? 'A' : 'a') + d.decal);
+		return torch ? static_cast<char>(decalLetter(d.decal) - 'a' + 'A') : decalLetter(d.decal);
 	if (torch)
 		return 't';
 	if (hasPlacedDecal(d))

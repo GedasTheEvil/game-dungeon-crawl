@@ -82,7 +82,7 @@
 3,9 surface 14/1/8 prop brazierm -0.142 decal 11m 0.586,0.593 fire brazier -0.142,0.220,0.160
 4,9 surface 14/6/8 torch fire torch 0.000,0.680,0.098
 5,9 surface 14/1/8 prop thoth_baboon_standingm 0.058 decal 9m 0.650,0.499
-6,9 surface 14/6/8 sand<> decal 9m 0.500,0.527
+6,9 surface 14/6/8 sand<> decal 20m 0.500,0.544
 7,9 surface 15/1/8 prop scrolls -0.054
 8,9 surface 14/6/8 sand<
 9,9 surface 14/6/8 torch fire torch 0.000,0.680,0.098
@@ -142,7 +142,7 @@
 26,12 surface 14/6/8
 27,12 surface 14/6/8 decal 11m 0.395,0.578
 28,12 surface 14/6/8
-29,12 surface 14/6/8
+29,12 surface 14/6/8 decal 18 0.514,0.572
 30,12 surface 15/6/8
 31,12 surface 14/6/8 torch fire torch 0.000,0.680,0.098
 32,12 surface 14/6/8 ladder 1/4
@@ -218,7 +218,7 @@
 2,17 surface 14/6/8 prop thoth_baboon_seatedm -0.067
 3,17 surface 14/6/8 sand> torch fire torch 0.000,0.680,0.098
 4,17 surface 14/1/8
-5,17 surface 15/6/8 sand<> decal 10 0.419,0.400
+5,17 surface 15/6/8 sand<> decal 20 0.468,0.440
 6,17 surface 14/1/8
 7,17 surface 14/1/8 prop brazier 0.011 decal 10m 0.679,0.479 fire brazier 0.011,0.220,0.160
 8,17 surface 14/6/8 sand< torch fire torch 0.000,0.680,0.098

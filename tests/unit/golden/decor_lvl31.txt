@@ -668,7 +668,7 @@
 25,42 surface 10/4/6 decal 15m 0.556,0.368
 26,42 surface 10/4/6
 27,42 surface 10/4/6 decal 4 0.521,0.650
-28,42 surface 10/4/6 decal 4m 0.380,0.650
+28,42 surface 10/4/6 decal 16m 0.420,0.507
 20,43 surface 11/4/6 ladder 1/2
 20,44 surface 7/1/2 ladder 1/0
 8,45 surface 10/4/6 decal 15m 0.577,0.398

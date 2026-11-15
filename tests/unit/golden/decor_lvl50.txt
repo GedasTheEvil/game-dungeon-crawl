@@ -145,7 +145,7 @@
 28,11 surface 14/6/8 decal 0 0.319,0.412
 29,11 surface 14/6/8 decal 8m 0.472,0.574
 30,11 surface 14/6/8 sand>
-31,11 surface 15/1/8 decal 2 0.541,0.350
+31,11 surface 15/1/8 decal 18 0.527,0.591
 32,11 surface 14/6/8 torch fire torch 0.000,0.680,0.098
 33,11 surface 15/1/8 prop skeletonm -0.025
 34,11 surface 14/6/8 sand< prop canopicm 0.057 decal 8 0.569,0.539
@@ -496,7 +496,7 @@
 15,33 surface 14/6/8 ladder 1/1
 2,34 surface 6/1/2 decal 2m 0.530,0.350 torch fire torch 0.000,0.680,0.098
 3,34 surface 6/1/2 prop sarcophagus -0.068 decal 7m 0.497,0.571
-4,34 surface 6/1/2 prop sarcophagusm -0.019 decal 8 0.584,0.567
+4,34 surface 6/1/2 prop sarcophagusm -0.019 decal 16 0.584,0.567
 5,34 surface 6/1/2 prop canopic -0.053
 6,34 surface 6/1/2
 7,34 surface 6/1/2 prop potterym -0.005 decal 10m 0.286,0.406

@@ -5,6 +5,7 @@
 #include "../../src/level/decor_scatter.h"
 #include "../../src/level/level_gen.h"
 #include "../../src/level/tile_defs.h"
+#include "../../src/level/zone_look.h"
 #include <cmath>
 #include <memory>
 #include <string>
@@ -339,5 +340,38 @@ TEST_CASE("a level whose monsters are all slain scatters the same decorations: a
 				   layout->decal[k].type == alive.layout->decal[k].type && layout->torch[k] == alive.layout->torch[k] &&
 				   layout->surface[k].wall == alive.layout->surface[k].wall;
 		CHECK(same);
+	}
+}
+
+TEST_CASE("the Duat scenes: at most two a level from the scatter, only in their zones (plan duat-wall-paintings)") {
+	int levelsWithScenes = 0;
+	int total = 0;
+	for (int n = 1; n <= CAMPAIGN_LEVELS; n++) {
+		CAPTURE(n);
+		const Scattered s = campaignLevel(n);
+		const ZoneLook& look = levelLook(s.grid.meta.zone);
+		int scattered = 0;
+		for (int k = 0; k < LEVEL_CELL_COUNT; k++) {
+			const int type = s.layout->decal[k].type;
+			if (!isDecalScene(type) || hasPlacedDecal(s.grid.cells[k].dressing))
+				continue;
+			CHECK(look.decals[type] > 0);
+			scattered++;
+		}
+		CHECK(scattered <= 2);
+		MESSAGE("level ", n, " zone ", s.grid.meta.zone, ": ", scattered, " scenes");
+		levelsWithScenes += scattered > 0 ? 1 : 0;
+		total += scattered;
+	}
+	MESSAGE(levelsWithScenes, " levels with scenes, ", total, " in all");
+	CHECK(levelsWithScenes >= 20); // most levels of the temple zones show one
+}
+
+TEST_CASE("the decal letters skip 't', the torch alone (plan duat-wall-paintings)") {
+	for (int d = 0; d < DECAL_COUNT; d++) {
+		CHECK(decalLetter(d) != 't');
+		CHECK(decalLetter(d) <= 'z');
+		if (d > 0)
+			CHECK(decalLetter(d) > decalLetter(d - 1));
 	}
 }

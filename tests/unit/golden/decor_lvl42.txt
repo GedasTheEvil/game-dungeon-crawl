@@ -243,7 +243,7 @@
 24,17 surface 12/1/7 prop rubble 0.057 decal 0 0.587,0.588
 25,17 surface 13/1/7
 26,17 surface 12/5/7 sand<> prop lampm 0.026 decal 0m 0.623,0.457 fire lamp 0.282,0.050,0.307
-27,17 surface 12/1/7 decal 2 0.621,0.350
+27,17 surface 12/1/7 decal 20 0.581,0.495
 28,17 surface 13/1/7 ladder 0/4
 29,17 surface 12/5/7 sand<
 30,17 surface 12/5/7 sand> prop skeletonm 0.108
@@ -430,7 +430,7 @@
 6,31 surface 13/5/7 ladder 1/1
 6,32 surface 12/5/7 ladder 1/2
 36,32 surface 12/5/7
-2,33 surface 7/1/2 prop brazierm -0.048 decal 0 0.650,0.593 fire brazier -0.048,0.220,0.160
+2,33 surface 7/1/2 prop brazierm -0.048 decal 19 0.575,0.598 fire brazier -0.048,0.220,0.160
 3,33 surface 6/1/2 prop rubble 0.098 decal 5 0.447,0.625 torch fire torch 0.000,0.680,0.098
 4,33 surface 7/1/2 decal 10 0.675,0.511
 5,33 surface 6/1/2
@@ -564,7 +564,7 @@
 25,41 surface 13/5/7
 26,41 surface 12/5/7 decal 0m 0.452,0.584
 27,41 surface 12/5/7 sand>
-28,41 surface 13/1/7 prop jackalm 0.102
+28,41 surface 13/1/7 prop jackalm 0.102 decal 20 0.443,0.508
 29,41 surface 12/5/7 sand<>
 30,41 surface 13/1/7
 31,41 surface 12/5/7 sand< ladder 0/4

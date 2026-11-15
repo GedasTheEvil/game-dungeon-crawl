@@ -50,7 +50,7 @@
 10,4 surface 8/1/3
 11,4 surface 8/3/3 sand< prop sandm -0.000
 12,4 surface 9/3/5
-13,4 surface 8/3/5 decal 5 0.576,0.625
+13,4 surface 8/3/5 decal 21 0.560,0.536
 14,4 surface 9/3/5 prop jackalm -0.018
 15,4 surface 8/3/3
 16,4 surface 8/3/3
@@ -660,7 +660,7 @@
 25,45 surface 9/3/5 sand>
 26,45 surface 8/1/3
 27,45 surface 8/3/3 sand<> decal 1 0.397,0.363
-28,45 surface 8/1/3 decal 0 0.668,0.593
+28,45 surface 8/1/3 decal 21 0.584,0.598
 29,45 surface 9/3/5 sand< prop ushabtim -0.055
 30,45 surface 8/3/3 prop rubble -0.053 torch fire torch 0.000,0.680,0.098
 31,45 surface 9/3/3

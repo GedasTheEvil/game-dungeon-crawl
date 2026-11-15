@@ -2,31 +2,16 @@
 #define RIDDLE_H
 #include "../render/font.h"
 #include "../level/names.h"
-#include <istream>
+#include "../level/riddle_file.h"
+#include "../level/rng.h"
 #include <string>
 #include <vector>
-
-// Riddles live in text files, one theme per file (content/riddles/*.txt). Format: docs/riddles.md.
-struct RiddleEntry {
-	std::string theme;
-	std::vector<std::string> question; // one entry per Q: line, wrapped to the scroll when drawn
-	std::vector<std::string> answers; // normalized, see NormalizeAnswer
-	std::string hint;
-	std::string source; // "file:line" of the first Q:, for log messages
-};
-
-// Appends the riddles of one file to `out`; problems go to `errors` as "file:line: message".
-void ParseRiddles(
-	std::istream& in,
-	const std::string& source,
-	std::vector<RiddleEntry>& out,
-	std::vector<std::string>& errors
-);
 
 class Riddle {
   private:
 	std::vector<RiddleEntry> riddles;
-	std::vector<size_t> deck; // shuffled riddle indices still to be asked, so none repeats before all were seen
+	// Shuffled indices of the common riddles (no zone) still to be asked, so none repeats before all were seen.
+	std::vector<size_t> deck;
 	size_t selected = 0; // last riddle dealt from the deck
 	RiddleEntry shown; // the riddle on the scroll: from the deck, or a journal entry asked again
 	size_t journalIndex = 0;
@@ -40,6 +25,7 @@ class Riddle {
 	Font title, heading, body, small;
 
 	[[nodiscard]] bool CheckAnswer() const;
+	void shuffleDeck(Rng& rng); // refills `deck` with the common riddles
 	void DrawBackground();
 	void DrawScroll();
 	void DrawAnswer();
@@ -48,7 +34,9 @@ class Riddle {
 	Riddle();
 	// Replaces the riddles with the ones from a file, or from every *.txt of a directory. Returns the count.
 	size_t Load(const std::string& path);
-	void Ask(); // the next riddle of the shuffled deck, written down in the journal
+	// The next riddle, written down in the journal: on a zone level one of the zone's not met yet, else the next of
+	// the shuffled common deck.
+	void Ask();
 	void AskLate(size_t journalIndex); // a journal riddle not solved yet, for its late XP
 	// A name gate asks for the level's name (plan secret-name-gates); the right one opens it (Dungeon::SpeakName).
 	void AskName(const RoyalName& name);

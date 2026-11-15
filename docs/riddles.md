@@ -9,7 +9,11 @@ walked away from can be answered from there later, for a tenth of the gate's rew
 gate was met. The save game keeps a copy of each riddle, so editing a riddle file does not change the journal.
 
 The game loads every `content/riddles/*.txt` file at start-up. Add a file or edit one; no rebuild is needed.
-Riddles are dealt from a shuffled deck, so none repeats until all of them were asked.
+Riddles are dealt from a shuffled deck, so none repeats until all of them were asked. A file with a `zone:` line
+is a zone's own deck ([weighing-of-the-heart](plan/weighing-of-the-heart.feature.md)): its riddles are
+dealt only on that zone's levels, and those levels deal them first, each one not yet in the journal, then the
+common deck. `judgment.txt` is the Hall of Judgment's (lvl51-54): the assessors' questions, every answer taught by a
+text of the game.
 
 ## File format
 
@@ -26,6 +30,7 @@ H: It reads the same backwards.
 | Line | Meaning |
 |---|---|
 | `theme: NAME` | Heading on the scroll for the riddles below it. Default: the file name. |
+| `zone: SLUG` | The riddles below it belong to that zone (a slug of `ZONE_INFO`, `src/level/campaign.h`, as in the level files). An unknown slug is a load warning. |
 | `Q: TEXT` | Question. Several `Q:` lines start new lines on the scroll; long lines wrap. About 6 lines fit. |
 | `A: TEXT` | Accepted answer. Add one `A:` line per variant (`42`, `forty two`). At most 32 characters. |
 | `H: TEXT` | Optional hint, shown after two wrong answers. Without it, the hint gives the answer length. |

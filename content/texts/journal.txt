@@ -586,6 +586,22 @@ text: The spiders here hate the light. A torch on the wall, a brazier, a lamp, a
 	step into the cell it lights, nor the cells beside it, and one caught in it runs for the dark. They fear it only
 	while unhurt: a spider I have wounded forgets, and comes. So I go from flame to flame, like a moth with a plan.
 
+# The verdict of the scales on lvl54 (plan weighing-of-the-heart, judgment.h): one of the two is written when the
+# player is weighed. Light: reading, riddles, secrets outweigh the deaths and the ushabti smashed.
+[note.heart-light]
+title: The weighing of the heart
+text: The pan with my heart rose. Thoth wrote something short. Anubis nodded, which I did not know jackals could do.
+	Somewhere behind the throne something with a crocodile's mouth sighed and lay down again. What weighed for me:
+	the walls I read, the questions I answered, the names I found. What would have weighed against: dying, and
+	smashing the servants of the dead.
+
+[note.heart-heavy]
+title: The weighing of the heart
+text: The pan sank, just a little. I said the confession again, louder, and left out the part about the chests. It
+	rose. Thoth wrote something long. I am told the gods are fair. I am glad they are also tired. What weighed
+	against me: each time I died down here, and each servant figure I smashed. What would have helped: more walls
+	read, more questions answered, more hidden names found.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).
@@ -616,6 +632,22 @@ p2: I went in after him. Stone, then sand, then air that moves. I came up out of
 	grey. The statue is gone. The tents still stand, and the sun came up over Saqqara as if nothing had happened.
 p3: Life without end, the signs said. I do not know yet what that means. Someone should know what happened down
 	there. Now someone does.
+
+# The epilogue answers the scales (plan weighing-of-the-heart): written after Dawn when the heart was weighed on
+# lvl54, by the verdict (judgment.h). Before D. J.'s answer.
+[diary.scales-light]
+title: The scales
+p1: I keep coming back to the scales. My heart in one pan, the feather in the other, and the pan with my heart went
+	up. Thoth wrote something short. I have read the Book of the Dead often enough to know that short is good.
+p2: Whatever lay behind the throne stayed lying down. I think I am what the old texts call true of voice. I will
+	try to stay that way up here, where nobody weighs anything.
+
+[diary.scales-heavy]
+title: The scales
+p1: I keep coming back to the scales. My heart sank, a little, and then rose when I said the confession again. Thoth
+	wrote for a long time. I did not ask what.
+p2: The gods let me go anyway. Maybe the feather is kinder than the books say. Maybe they only wanted me out of
+	their hall. Either way, I will read more walls next time, and break fewer servants.
 
 # The epilogue answers the earlier expedition (plan expedition-ending): written after Dawn when D. J.'s last page
 # (page 24) is in the journal; answer-back-cover when his back cover (page 25, lvl49's right route) is too.

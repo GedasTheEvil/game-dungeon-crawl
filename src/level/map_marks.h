@@ -55,6 +55,7 @@ enum class MapMark : std::uint8_t {
 	Brazier,
 	PressurePlate, // plan pressure-plate
 	Stone,
+	Scales, // plan weighing-of-the-heart
 	None,
 };
 constexpr int MARK_COUNT = static_cast<int>(MapMark::None);
@@ -97,14 +98,14 @@ constexpr MarkDef MARK_DEFS[MARK_COUNT] = {
 	{"Treasure"},
 	{"Treasure, taken"},
 	{"Key", MarkTint::Lock},
-	{"Gate", MarkTint::Lock, MarkTurn::None, 40}, // open
-	{"Boss gate", MarkTint::None, MarkTurn::None, 41}, // open, the seal broken
-	{"Lever", MarkTint::Lock, MarkTurn::None, 42}, // pulled
+	{"Gate", MarkTint::Lock, MarkTurn::None, 41}, // open
+	{"Boss gate", MarkTint::None, MarkTurn::None, 42}, // open, the seal broken
+	{"Lever", MarkTint::Lock, MarkTurn::None, 43}, // pulled
 	{"Spikes"},
 	{"Death trap"},
 	{"Ceiling spikes"},
 	{"Ceiling death trap"},
-	{"Rock fall", MarkTint::None, MarkTurn::None, 43}, // fallen
+	{"Rock fall", MarkTint::None, MarkTurn::None, 44}, // fallen
 	{"Dart plate"},
 	{"Wall spikes"},
 	{"Fire vent"},
@@ -126,6 +127,7 @@ constexpr MarkDef MARK_DEFS[MARK_COUNT] = {
 	{"Brazier"},
 	{"Pressure plate", MarkTint::Lock},
 	{"Stone block"},
+	{"Scales of the judgment"},
 };
 [[nodiscard]] constexpr const MarkDef& markDef(MapMark m) { return MARK_DEFS[static_cast<int>(m)]; }
 
@@ -217,6 +219,8 @@ constexpr MarkDef MARK_DEFS[MARK_COUNT] = {
 		return MapMark::Dial;
 	case DECOR_BRAZIER:
 		return MapMark::Brazier;
+	case DECOR_SCALES:
+		return MapMark::Scales;
 	default:
 		return MapMark::None;
 	}

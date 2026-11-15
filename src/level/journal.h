@@ -217,8 +217,11 @@ enum class FieldNote : unsigned char {
 	NameGates, // a sealed name gate touched
 	Wading, // a step in half water
 	TheDark, // a light shunner (camel or tiny spider) kept out of the light, in view
+	// Plan weighing-of-the-heart: the verdict of the scales on the last level (judgment.h), one of the two.
+	HeartLight,
+	HeartHeavy,
 };
-constexpr int FIELD_NOTE_COUNT = 86 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 88 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);
@@ -253,8 +256,12 @@ enum class DiaryPage : unsigned char {
 	// (Answer), the back cover too (AnswerBackCover).
 	Answer,
 	AnswerBackCover,
+	// The epilogue answers the scales (plan weighing-of-the-heart), written at the win after Dawn when the heart was
+	// weighed: the verdict's page (judgment.h, verdictPage).
+	ScalesLight,
+	ScalesHeavy,
 };
-constexpr int DIARY_PAGE_COUNT = 5;
+constexpr int DIARY_PAGE_COUNT = 7;
 
 // The earlier expedition's notebook (plan expedition-notes): torn pages found over the campaign, numbered in order of
 // depth (Page tiles, level.h). Its own section of the journal, someone else's hand.
@@ -308,7 +315,10 @@ class Journal {
 
 	// Written once; the pages keep the order they were written in.
 	void WriteDiary(DiaryPage page);
-	void WriteEpilogue(); // at the win: Dawn, then the answer to D. J. if his last page was found
+	// At the win: Dawn, then the scales' page if the heart was weighed, then the answer to D. J. if his last page was
+	// found.
+	void WriteEpilogue();
+	[[nodiscard]] bool HasNote(FieldNote note) const;
 	[[nodiscard]] bool HasPage(int number) const;
 	[[nodiscard]] const std::vector<DiaryPage>& Diary() const { return diary; }
 

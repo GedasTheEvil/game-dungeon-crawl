@@ -1,0 +1,135 @@
+# The assessors' riddles (plan weighing-of-the-heart): the zone deck of the Hall of Judgment. On its levels the riddle
+# gates deal these while any is not met yet, then the common deck; elsewhere never. Every answer is taught by a text
+# the game shows: the source (inscription id in content/inscriptions/, note slug in content/texts/) is the comment
+# above each riddle. Format: docs/riddles.md.
+zone: hall_of_judgment
+theme: The Hall of the Two Truths
+
+# inscription 131 The weighing of the heart
+Q: One pan holds the feather.
+Q: What is set on the other?
+A: heart
+A: your heart
+A: the heart
+H: Inscription 131: light, it walks on; heavy, it is eaten.
+
+# inscription 131, 134 Maat, the feather
+Q: Whose feather is it, laid on the scale
+Q: against every heart that comes here?
+A: maat
+A: feather of maat
+A: maats
+H: The daughter of Ra, who sets the world in order.
+
+# inscription 131
+Q: Jackal-headed, I keep my hand on the scale
+Q: so that it does not tip by accident. Who am I?
+A: anubis
+A: inpu
+H: The jackal who weighs the heart, says the gate of this hour.
+
+# inscription 131, 132 The riddle of Thoth
+Q: Ibis-headed, I hold the reed pen.
+Q: When the scale stops, I write. Who am I?
+A: thoth
+A: djehuty
+H: The scribe of the gods. He is asking you this now.
+
+# inscription 131
+Q: A heart heavy with wrong does not come home.
+Q: Who eats it?
+A: devourer
+A: the devourer
+A: ammit
+A: ammut
+A: amemet
+H: Inscription 131 does not give her name, only her appetite.
+
+# inscription 131
+Q: A light heart walks on, out of this hall.
+Q: To which field?
+A: field of reeds
+A: reeds
+A: fields of reeds
+A: aaru
+A: iaru
+A: sekhet aaru
+H: The papyrus grows there. Inscription 136 names it too.
+
+# inscription 130 The negative confession
+Q: How many sins does the dead deny here,
+Q: one before each of the assessors?
+A: 42
+A: forty two
+A: fortytwo
+H: The answer to more questions than this one.
+
+# inscription 130
+Q: Say the confession with me:
+Q: I have not done wrong, I have not stolen,
+Q: I have not ______.
+A: killed
+A: told lies
+A: lied
+A: made anyone weep
+H: The negative confession, on a stela of this zone.
+
+# inscription 130
+Q: I have not stopped the ______
+Q: in its season.
+A: water
+A: the water
+A: flood
+A: inundation
+A: nile
+H: The confession again. The fields need it every summer.
+
+# inscription 133 The breath of the justified
+Q: What is the one whose heart is true called,
+Q: in the name of the god who rose from death?
+A: osiris justified
+A: osiris
+A: justified
+H: Inscription 133: "______-justified".
+
+# inscription 133
+Q: Not "tall", not "rich", not "brave":
+Q: what is the judged one called when the scale
+Q: is level? True of ______.
+A: voice
+H: Inscription 133. The confession is spoken, not written.
+
+# inscription 155 The throne of the judge (lvl53)
+Q: Who sits on the throne in this hall,
+Q: foremost of the Westerners,
+Q: with the forty-two before him?
+A: osiris
+A: wesir
+A: usir
+H: The king who came back from death. His ka is a skill.
+
+# inscription 130, 155
+Q: They sit in two rows before the throne,
+Q: one for each sin. What are they called?
+A: assessors
+A: the assessors
+A: judges
+A: the judges
+A: forty two judges
+H: Inscription 155 counts them.
+
+# inscription 131, 134
+Q: Weighed against a heart, I am light,
+Q: but nothing is true until I weigh it. What am I?
+A: feather
+A: the feather
+A: feather of maat
+H: Maat wears me in her hair.
+
+# inscription 130, N line
+Q: The man who wrote in the margins here
+Q: said he would fail at one sin. Which number?
+A: 9
+A: nine
+A: ninth
+H: The pencilled note under the negative confession.

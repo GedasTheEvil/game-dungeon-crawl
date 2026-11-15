@@ -7,6 +7,7 @@
 #include "../graphics/gl_includes.h"
 #include "../render/ui_draw.h"
 #include "../level/journal.h"
+#include "../level/campaign.h"
 #include "../level/player_actions.h"
 #include <algorithm>
 #include <cctype>
@@ -36,92 +37,9 @@ constexpr int CARET_BLINK_MS = 500;
 
 Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
 
-std::string trim(const std::string& s) {
-	size_t first = s.find_first_not_of(" \t\r\n");
-	if (first == std::string::npos)
-		return "";
-	return s.substr(first, s.find_last_not_of(" \t\r\n") - first + 1);
-}
-
 bool seshat() { return Game().player->stats.heka.Has(SkillId::WisdomOfSeshat); }
 
 } // namespace
-
-// ---- riddle files ----------------------------------------------------------
-
-void ParseRiddles(
-	std::istream& in,
-	const std::string& source,
-	std::vector<RiddleEntry>& out,
-	std::vector<std::string>& errors
-) {
-	std::string theme = std::filesystem::path(source).stem().string();
-	RiddleEntry current;
-	int lineNo = 0;
-	auto error = [&](const std::string& message) {
-		errors.push_back(source + ":" + std::to_string(lineNo) + ": " + message);
-	};
-	auto finish = [&]() {
-		if (!current.question.empty() && current.answers.empty())
-			errors.push_back(current.source + ": riddle has no A: line, skipped");
-		else if (!current.question.empty())
-			out.push_back(current);
-		current = RiddleEntry{};
-	};
-
-	std::string raw;
-	while (std::getline(in, raw)) {
-		lineNo++;
-		std::string line = trim(raw);
-		if (line.empty()) {
-			finish();
-			continue;
-		}
-		if (line[0] == '#')
-			continue;
-		// The fonts only have printable ASCII.
-		for (char& c : line)
-			if (static_cast<unsigned char>(c) < 32 || static_cast<unsigned char>(c) > 126) {
-				error("non-ASCII character, shown as '?'");
-				c = '?';
-			}
-
-		size_t colon = line.find(':');
-		std::string key = colon == std::string::npos ? "" : line.substr(0, colon);
-		std::string value = colon == std::string::npos ? "" : trim(line.substr(colon + 1));
-		if (key == "theme") {
-			finish();
-			theme = value;
-		} else if (key == "Q") {
-			if (!current.answers.empty())
-				finish();
-			if (current.question.empty()) {
-				current.theme = theme;
-				current.source = source + ":" + std::to_string(lineNo);
-			}
-			current.question.push_back(value);
-		} else if (key == "A" || key == "H") {
-			if (current.question.empty()) {
-				error(key + ": before any Q: line, ignored");
-				continue;
-			}
-			if (key == "H") {
-				current.hint = value;
-				continue;
-			}
-			std::string normalized = NormalizeAnswer(value);
-			if (normalized.empty())
-				error("answer has no letters or digits, ignored");
-			else if (value.size() > MAX_TYPED)
-				error("answer longer than " + std::to_string(MAX_TYPED) + " characters, ignored");
-			else
-				current.answers.push_back(normalized);
-		} else {
-			error("expected theme:, Q:, A: or H:, line ignored");
-		}
-	}
-	finish();
-}
 
 // ---- riddle screen ---------------------------------------------------------
 
@@ -167,20 +85,37 @@ size_t Riddle::Load(const std::string& path) {
 	return riddles.size();
 }
 
-void Riddle::Ask() {
-	if (deck.empty()) {
-		// The gameplay stream: scenario tests seed it and get the same riddles every run.
-		Rng& rng = Game().random.gameplay;
+void Riddle::shuffleDeck(Rng& rng) {
+	for (size_t i = 0; i < riddles.size(); i++)
+		if (riddles[i].zone.empty())
+			deck.push_back(i);
+	if (deck.empty()) // only zone riddles loaded (a scenario's file): deal those everywhere
 		for (size_t i = 0; i < riddles.size(); i++)
 			deck.push_back(i);
-		for (size_t i = deck.size(); i > 1; i--)
-			std::swap(deck[i - 1], deck[static_cast<size_t>(rng.below(static_cast<int>(i)))]);
-		// A fresh deck should not start with the riddle that was just asked.
-		if (deck.size() > 1 && deck.back() == selected)
-			std::swap(deck.front(), deck.back());
+	for (size_t i = deck.size(); i > 1; i--)
+		std::swap(deck[i - 1], deck[static_cast<size_t>(rng.below(static_cast<int>(i)))]);
+	// A fresh deck should not start with the riddle that was just asked.
+	if (deck.size() > 1 && deck.back() == selected)
+		std::swap(deck.front(), deck.back());
+}
+
+void Riddle::Ask() {
+	// The gameplay stream: scenario tests seed it and get the same riddles every run.
+	Rng& rng = Game().random.gameplay;
+	const int zoneId = Game().dungeon.Zone();
+	const std::vector<size_t> zoneLeft = zoneRiddlesLeft(
+		riddles,
+		isZone(zoneId) ? zoneInfo(static_cast<ZoneId>(zoneId)).slug : "",
+		Game().journal.Riddles()
+	);
+	if (!zoneLeft.empty()) {
+		selected = zoneLeft[static_cast<size_t>(rng.below(static_cast<int>(zoneLeft.size())))];
+	} else {
+		if (deck.empty())
+			shuffleDeck(rng);
+		selected = deck.back();
+		deck.pop_back();
 	}
-	selected = deck.back();
-	deck.pop_back();
 	shown = riddles[selected];
 	reward = Game().player->stats.RiddleXP();
 	late = false;

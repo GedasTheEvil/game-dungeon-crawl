@@ -728,6 +728,26 @@ def prop_shrine_isis():  # plan shrine-of-isis: a naos with Isis seated in it, a
     save(img, "prop_shrine_isis.png")
 
 
+def prop_scales():  # plan weighing-of-the-heart: the balance with the heart and the feather, Osiris behind
+    img, d = canvas(GOLD, 30)
+    floor(d)
+    d.rectangle(p(38, 44, 60, FLOOR_Y), fill=STONE_DARK)  # the dais
+    d.rectangle(p(42, 30, 56, 44), fill=RED)  # the throne
+    poly(d, [(44, 22), (52, 22), (54, 44), (42, 44)], LINEN, LINEN_DARK, 1)  # Osiris
+    d.ellipse(p(44, 14, 52, 23), fill=(40, 100, 55), outline=BRONZE_DARK, width=SS)  # his green face
+    poly(d, [(45, 14), (48, 4), (51, 14)], LINEN)  # the white crown
+    d.rectangle(p(19, 12, 21, FLOOR_Y), fill=BRONZE)  # the post
+    d.rectangle(p(16, 52, 24, FLOOR_Y), fill=STONE, outline=STONE_DARK, width=SS)
+    d.rectangle(p(4, 12, 36, 14), fill=GOLD, outline=BRONZE_DARK, width=SS)  # the beam
+    for x in (7, 33):
+        d.line(p(x, 14, x - 4, 32), fill=BLACK, width=SS)
+        d.line(p(x, 14, x + 4, 32), fill=BLACK, width=SS)
+        d.chord(p(x - 6, 28, x + 6, 36), 0, 180, fill=GOLD, outline=BRONZE_DARK)
+    d.ellipse(p(4, 25, 10, 31), fill=RED_LIGHT)  # the heart
+    d.line(p(33, 31, 35, 21), fill=LINEN, width=2 * SS)  # the feather
+    save(img, "prop_scales.png")
+
+
 def god_shrine(name, wall, statue):
     """Plan shrines-of-the-gods: the Isis shrine's naos with the god's wall colour, its statue drawn by statue(d)."""
     img, d = canvas(GOLD, 30)
@@ -852,7 +872,8 @@ def looks():
 def props():
     for f in (prop_web, prop_pottery, prop_canopic, prop_rubble, prop_sand, prop_skeleton, prop_brazier, prop_lamp,
               prop_scrolls, prop_ushabti, prop_cat, prop_jackal, prop_osiris, prop_sarcophagus, prop_water_reeds,
-              prop_water_weed, prop_water_pads, prop_water_lotus, prop_stargate, prop_dial_device, prop_shrine_isis):
+              prop_water_weed, prop_water_pads, prop_water_lotus, prop_stargate, prop_dial_device, prop_shrine_isis,
+              prop_scales):
         f()
     god_shrine("montu", (150, 40, 30), montu)
     god_shrine("ptah", (40, 100, 55), ptah)

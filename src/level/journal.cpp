@@ -225,9 +225,15 @@ void Journal::WriteDiary(DiaryPage page) {
 
 void Journal::WriteEpilogue() {
 	WriteDiary(DiaryPage::Dawn);
+	if (HasNote(FieldNote::HeartLight)) // plan weighing-of-the-heart
+		WriteDiary(DiaryPage::ScalesLight);
+	else if (HasNote(FieldNote::HeartHeavy))
+		WriteDiary(DiaryPage::ScalesHeavy);
 	if (HasPage(EXPEDITION_LAST_PAGE))
 		WriteDiary(HasPage(EXPEDITION_BACK_COVER) ? DiaryPage::AnswerBackCover : DiaryPage::Answer);
 }
+
+bool Journal::HasNote(FieldNote note) const { return std::ranges::contains(notes, note); }
 
 bool Journal::HasPage(int number) const {
 	return std::ranges::any_of(pages, [number](const ExpeditionPage& p) { return p.number == number; });

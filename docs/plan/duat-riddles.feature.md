@@ -25,7 +25,7 @@ riddles. Format: [riddles.md](../riddles.md) (Q, A per accepted spelling, H). Ru
 * Answers a player can also know from general Egyptian lore; the hint points to where the game said it.
 * Plain ASCII; accept the usual spellings (`serket`, `selket`, `serqet`).
 * Not the judgment's questions (heart, feather, Maat, Thoth's verdict, Ammit): those belong to
-  [weighing-of-the-heart](weighing-of-the-heart.feature.draft.opus.md)'s zone deck. If that plan is done first, don't
+  [weighing-of-the-heart](weighing-of-the-heart.feature.md)'s zone deck. If that plan is done first, don't
   repeat its riddles; if this one is first, keep those answers out anyway.
 
 Sample riddles (check each against the cited text):

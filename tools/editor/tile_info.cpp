@@ -323,6 +323,9 @@ constexpr PropInfo PROPS[DECOR_COUNT] = {
 	{"Shrine of Serket",
 	 "A naos with Serket in it (plan shrines-of-the-gods): praying there cures poison and wards it off for 2 minutes "
 	 "(4 with Serket's favour). Unlimited prayers; at most one shrine of any god a level, where poisoners are."},
+	{"Scales",
+	 "The scales of the judgment (plan weighing-of-the-heart): the heart and the feather, Thoth, Osiris enthroned. "
+	 "Interact weighs the run once; the verdict is a field note and a page of the epilogue. Lvl54, before the ankh."},
 };
 
 const char* anchorText(DecalAnchor anchor) {

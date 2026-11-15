@@ -14,7 +14,7 @@
 22,2 surface 6/1/2 prop jackal 0.193
 23,2 surface 6/1/2
 24,2 surface 7/1/2
-25,2 surface 6/1/2 decal 7 0.541,0.391
+25,2 surface 6/1/2 prop scales 0.000 decal 7 0.541,0.391
 26,2 surface 6/1/2
 9,3 surface 14/6/8 decal 7m 0.483,0.378
 10,3 surface 14/6/8 torch fire torch 0.000,0.680,0.098

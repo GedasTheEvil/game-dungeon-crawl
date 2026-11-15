@@ -1,6 +1,6 @@
 # The weighing of the heart: the Hall of Judgment keeps its promise
 
-Status: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size L, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -70,8 +70,31 @@ foremost of the Westerners, sits on the throne; the forty-two sit before him"), 
 * Score inputs: is opening a coffin "robbery" in this game's tone? The coffins note already jokes about it.
 * The zone-riddle rule: a `zone:` line per file, or per riddle?
 
+## Done
+
+* Step 1: `content/riddles/judgment.txt`, 15 riddles of the assessors and Thoth, the source text above each. A file's
+  `zone: SLUG` line (`src/level/riddle_file.*`, moved out of `ui/riddle.cpp` so the unit tests reach it): a zone
+  level deals one of its zone's riddles not yet in the journal (`zoneRiddlesLeft`), then the common deck; the common
+  deck never deals zone riddles. Decision: per file, and "left" means "not met yet" by the journal, so it holds across
+  saves and a new game. 15 riddles for the zone's 12 gates.
+* Step 2: the scales (`DECOR_SCALES`, `decor_scales.md3`, `build_scales` in `decor.py`): the balance with the heart
+  (an ib jar) and the feather, Thoth with his pen beside it and Osiris enthroned behind it in the same prop (the
+  `osiris` prop is a toppled statue, not a judge). Placed on lvl54 col 25, between the boss gate (col 23) and the
+  ankh (col 26). Verb "Be weighed" (`Interaction::Weigh`), once: the verdict (`src/level/judgment.h`) is a field
+  note, `HeartLight` or `HeartHeavy`. Light: inscriptions + 2 x riddles + 3 x secrets; heavy: 5 x deaths + 2 x
+  ushabti smashed (a coffin opened is excavation, not robbery: the default answer to the open question). Text only.
+  A map mark and an editor icon.
+* Step 3: the epilogue answers with a page of its own after Dawn ("The scales", `DiaryPage::ScalesLight` /
+  `ScalesHeavy`), before D. J.'s answer, the same way as plan expedition-ending; no verdict, no page.
+* Inscription 155 "The throne of the judge" on lvl53 (col 16, row 3, near the exit): Osiris on the throne, the 42
+  assessors, Thoth, Anubis, Maat, and Ammit named.
+* Not done: Ammit as a creature (the optional step).
+
 ## Play-test
 
-* `bin/game --level 51`: the riddle gates ask the assessors' questions, not palindromes.
-* A play script that starts on lvl54 past Anubis, the ankh ahead: walk to the scales, press E, read the verdict in the
-  journal (J), take the ankh, read the epilogue's last line.
+* `bin/game --play tests/play/weighing-of-the-heart.txt`: walk right onto the scales, E ("Be weighed"): the verdict
+  on the status line and in the journal (J, Field notes); E again does nothing.
+* Look at the scales: the balance with the red heart and the feather, Thoth beside it, Osiris enthroned behind; F1
+  for the comic look.
+* Take the ankh: after Dawn the page "The scales" answers the verdict.
+* `bin/game --level 51`: the riddle gates ask the assessors' questions (theme "The Hall of the Two Truths").

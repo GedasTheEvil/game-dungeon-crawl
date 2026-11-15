@@ -472,6 +472,19 @@ def brazier(sk):
     sk.path([(0.36, 0.56), (0.42, 0.8), (0.5, 0.64), (0.54, 0.95), (0.62, 0.7), (0.66, 0.56)], FLAME, 0.95, 16, 0.025)
 
 
+def scales(sk):
+    """The scales of the judgment (plan weighing-of-the-heart): the post, the beam, the two pans; the heart red."""
+    sk.pencil(0.5, 0.04, 0.5, 0.86, GRAPHITE, 0.95, 0, 0.025)
+    sk.pencil(0.36, 0.04, 0.64, 0.04, GRAPHITE, 0.95, 1)
+    sk.pencil(0.14, 0.82, 0.86, 0.82, GRAPHITE, 0.95, 2, 0.025)
+    for k, x in enumerate((0.22, 0.78)):
+        sk.pencil(x, 0.82, x - 0.1, 0.44, GRAPHITE, 0.8, 8 + 4 * k)
+        sk.pencil(x, 0.82, x + 0.1, 0.44, GRAPHITE, 0.8, 9 + 4 * k)
+        sk.arc(x, 0.44, 0.14, 0.08, math.pi, 2 * math.pi, 5, GRAPHITE, 0.9, 10 + 4 * k, 0.02)
+    sk.loop(0.22, 0.47, 0.05, 0.05, 5, RED, 0.95, 20, 0.02)
+    sk.pencil(0.78, 0.4, 0.8, 0.62, GRAPHITE, 0.7, 21)
+
+
 # In MapMark order (src/level/map_marks.h), then the second looks.
 MARKS = [
     entrance,
@@ -514,7 +527,8 @@ MARKS = [
     brazier,
     pressure_plate,
     stone,
-    gate_open,  # 40
+    scales,
+    gate_open,  # 41
     boss_gate_open,
     lever_pulled,
     rock_fallen,

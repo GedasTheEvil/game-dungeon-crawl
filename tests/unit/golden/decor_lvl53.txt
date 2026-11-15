@@ -14,7 +14,7 @@
 13,3 surface 14/1/8
 14,3 surface 15/6/8 sand< prop coffin 0.000
 15,3 surface 14/6/8 sand>
-16,3 surface 15/1/8 torch fire torch 0.000,0.680,0.098
+16,3 surface 15/1/8
 17,3 surface 14/6/8 sand<
 18,3 surface 15/6/8 decal 10 0.439,0.450
 19,3 surface 14/6/8 decal 10 0.637,0.563

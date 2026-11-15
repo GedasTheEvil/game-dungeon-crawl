@@ -36,7 +36,7 @@ COLL = "decor_new"
 PROPS = ["web", "pottery", "canopic", "rubble", "sand", "skeleton", "brazier", "lamp", "scrolls", "ushabti", "cat", "jackal", "osiris",
          "thoth_ibis_standing", "thoth_ibis_seated", "thoth_baboon_seated", "thoth_baboon_standing", "sarcophagus", "torch", "coffin",
          "coffin_large", "water_reeds", "water_weed", "water_pads", "water_lotus", "stargate", "stargate_track", "stargate_chevron",
-         "dial_device", "shrine_isis", "shrine_montu", "shrine_ptah", "shrine_amun", "shrine_serket"]
+         "dial_device", "shrine_isis", "shrine_montu", "shrine_ptah", "shrine_amun", "shrine_serket", "scales"]
 WATER_PROPS = {"water_reeds", "water_weed", "water_pads", "water_lotus"}  # stand in a basin (BASIN_Z), see build_env
 TEX_SIZE = 512
 TEX_SIZES = {"stargate": 1024}  # the props larger than the rest
@@ -47,7 +47,7 @@ PROP_SCALE = {"web": 1.2, "pottery": 1.4, "canopic": 1.5, "rubble": 1.3, "skelet
               "ushabti": 1.9, "cat": 1.3, "jackal": 1.3, "osiris": 1.4,
               "thoth_ibis_standing": 1.4, "thoth_ibis_seated": 1.4, "thoth_baboon_seated": 1.4, "thoth_baboon_standing": 1.4,
               "sarcophagus": 1.3, "shrine_isis": 1.35,
-              "shrine_montu": 1.35, "shrine_ptah": 1.35, "shrine_amun": 1.35, "shrine_serket": 1.35}
+              "shrine_montu": 1.35, "shrine_ptah": 1.35, "shrine_amun": 1.35, "shrine_serket": 1.35, "scales": 1.35}
 # Not enlarged (exact tile units): coffin (the mummy's, placed by the engine at mummy spawn tiles, see mummy.py COFFIN) and
 # coffin_large (the mummy priest's, see mummy_priest.py).
 SCALE_PIVOT = {"web": (-0.5, 0.0, 1.0)}  # the web grows out of its corner
@@ -1795,6 +1795,74 @@ def build_shrine_serket(b, M):
     add_parts(b, M, serket_statue(), loc=(0, STATUE_Y, NAOS_FLOOR), scale=1.05)
 
 
+def osiris_enthroned():
+    """Osiris seated on his throne (plan weighing-of-the-heart): green skin, wrapped in white linen to the neck, the
+    atef crown (the white crown between two plumes), crook and flail crossed on his chest. Base on z = 0, facing -Y."""
+    parts, head = seated_body("osiris_green", "kilt")
+    parts += [(rod(head + V((0, -0.011, -0.011)), head + V((0, -0.013, -0.03)), 0.0032, 0.0036, n=6), "regalia")]  # beard
+    top = head + V((0, 0.001, 0.009))
+    parts.append((revolve_geo_at(top, [(0.0, 0.0), (0.013, 0.0), (0.014, 0.014), (0.011, 0.03), (0.006, 0.042),
+                                       (0.0, 0.045)], 14), "limestone_fresh"))  # the white crown
+    parts.append((ellipsoid(top + V((0, 0, 0.047)), (0.0045, 0.0045, 0.0045), n=8, rings=4), "gold"))
+    for sx in (-1, 1):
+        parts.append((ellipsoid(top + V((sx * 0.017, 0.002, 0.026)), (0.0035, 0.006, 0.026), n=8, rings=6), "plume"))
+    chest = head + V((0, -0.018, -0.05))
+    parts.append((curve([chest + V((0.012, -0.004, -0.018)), chest + V((-0.01, -0.006, 0.012)), chest + V((-0.016, -0.006, 0.02)),
+                         chest + V((-0.021, -0.005, 0.016))], 0.0024, n=6), "regalia"))  # the crook
+    parts.append((rod(chest + V((-0.012, -0.004, -0.018)), chest + V((0.014, -0.006, 0.014)), 0.0022, n=6), "regalia"))  # the flail
+    for k in range(3):
+        tip = chest + V((0.015 + 0.002 * k, -0.006, 0.014))
+        parts.append((curve([tip, tip + V((0.006 + 0.002 * k, -0.002, -0.01)), tip + V((0.008 + 0.003 * k, -0.001, -0.024))], 0.0016, n=4),
+                      "regalia"))
+    return parts
+
+
+def build_scales(b, M):
+    """The scales of the judgment (plan weighing-of-the-heart): a balance on a stand, the heart in the left pan, the
+    feather of Maat in the right, level; Thoth beside it with his pen; Osiris enthroned behind on a dais. The player is
+    weighed here (interact)."""
+    # The dais of the judge, back right, and Osiris on it.
+    b.add(place(box(0.15, 0.12, 0.03), loc=(0.15, -0.07, 0.015)), M["stone_dark"], "root")
+    b.add(place(box(0.152, 0.004, 0.01), loc=(0.15, -0.131, 0.024)), M["paint_blue"], "root")
+    add_parts(b, M, osiris_enthroned(), rot(z=-12), (0.15, -0.06, 0.03), scale=1.15)
+    # The balance: a post on a stepped base, a beam with a plumb line, two pans on cords.
+    bx, by = -0.04, -0.2
+    b.add(place(box(0.09, 0.07, 0.016), loc=(bx, by, 0.008)), M["stone"], "root")
+    b.add(place(box(0.06, 0.05, 0.014), loc=(bx, by, 0.023)), M["limestone"], "root")
+    top = 0.255
+    b.add(rod((bx, by, 0.03), (bx, by, top), 0.006, 0.005, n=10), M["wood"], "root")
+    b.add(ellipsoid((bx, by, top + 0.012), (0.009, 0.009, 0.012), n=10, rings=5), M["gold"], "root")  # the finial
+    b.add(ellipsoid((bx, by - 0.003, top + 0.035), (0.0035, 0.0025, 0.016), n=8, rings=5), M["plume"], "root")  # Maat's feather
+    half = 0.105
+    b.add(rod((bx - half, by, top), (bx + half, by, top), 0.0045, n=8), M["gold"], "root")
+    b.add(rod((bx, by - 0.007, top - 0.004), (bx, by - 0.007, top - 0.06), 0.0011, n=4), M["black"], "root")  # the plumb line
+    b.add(ellipsoid((bx, by - 0.007, top - 0.064), (0.004, 0.004, 0.006), n=8, rings=4), M["gold"], "root")
+    pan_z = 0.15
+    for sx in (-1, 1):
+        x = bx + sx * half
+        b.add(ellipsoid((x, by, top), (0.006, 0.006, 0.006), n=8, rings=4), M["gold"], "root")
+        for k in range(3):  # three cords to the rim
+            a = 2 * math.pi * (k + 0.25) / 3
+            rim = V((x + 0.03 * math.cos(a), by + 0.03 * math.sin(a), pan_z + 0.006))
+            b.add(rod((x, by, top - 0.004), rim, 0.0009, n=4), M["black"], "root")
+        b.add(revolve_geo_at((x, by, pan_z), [(0.0, -0.004), (0.02, -0.002), (0.033, 0.006), (0.031, 0.007), (0.0, 0.0)], n=18),
+              M["gold"], "root")
+    # The heart (an ib jar, red) in the left pan; the feather upright in the right.
+    hx = bx - half
+    b.add(ellipsoid((hx, by, pan_z + 0.017), (0.013, 0.011, 0.014), n=12, rings=6), M["paint_red"], "root")
+    b.add(rod((hx, by, pan_z + 0.028), (hx, by, pan_z + 0.035), 0.007, 0.008, n=10), M["paint_red"], "root")
+    for sx in (-1, 1):  # its lugs
+        b.add(ellipsoid((hx + sx * 0.012, by, pan_z + 0.028), (0.004, 0.003, 0.0035), n=6, rings=3), M["paint_red"], "root")
+    fx = bx + half
+    feather = [(fx, by, pan_z + 0.004), (fx + 0.002, by, pan_z + 0.03), (fx + 0.006, by, pan_z + 0.055), (fx + 0.014, by, pan_z + 0.068)]
+    b.add(curve(feather, 0.0065, n=8, r_end=0.004, ref=V((0, -1, 0))), M["plume"], "root")
+    # Thoth, ibis-headed, to the left of the balance, turned to it, pen raised to write the verdict.
+    parts, crown = ibis_figure(seated=False, broken_beak=False)
+    turn, at = rot(z=-35), V((-0.22, -0.15, 0))
+    add_parts(b, M, parts, turn, at, scale=1.15)
+    add_parts(b, M, moon_crown(), turn, at + turn @ (crown * 1.15), scale=1.15)
+
+
 def revolve_geo_at(loc, profile, n=14):
     return place(revolve_geo(profile, n), loc=loc)
 
@@ -1834,6 +1902,7 @@ BUILDERS = {
     "shrine_ptah": build_shrine_ptah,
     "shrine_amun": build_shrine_amun,
     "shrine_serket": build_shrine_serket,
+    "scales": build_scales,
 }
 
 

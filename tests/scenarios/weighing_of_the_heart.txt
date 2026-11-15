@@ -1,0 +1,26 @@
+# Plan weighing-of-the-heart: the scales on lvl54 between the boss gate and the ankh weigh the heart once (a field
+# note; the zone wrote 2 on arrival), the epilogue answers with its page after Dawn. Screenshots in tests/out/weighing_of_the_heart/.
+god
+level 54 at 24 2
+wait 30
+screenshot hall
+walk to 25.5
+wait 10
+screenshot scales
+expect journal_notes == 2
+interact
+wait 5
+screenshot verdict
+expect journal_notes == 3
+interact
+wait 5
+expect journal_notes == 3
+key f1
+wait 5
+screenshot scales_comic
+key f1
+walk to 26.5
+interact
+wait 8s
+expect won == 1
+screenshot epilogue

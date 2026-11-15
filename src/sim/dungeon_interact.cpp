@@ -5,6 +5,7 @@
 #include "player.h"
 #include "../level/inscriptions.h"
 #include "../level/journal.h"
+#include "../level/judgment.h"
 #include "../level/loot.h"
 #include "../level/names.h"
 #include "dungeon_rules.h"
@@ -85,11 +86,25 @@ void Dungeon::Interact() {
 			))
 			sim.player->stats.Pray(*god, *sim.events);
 		break;
+	case Interaction::Weigh:
+		weighHeart();
+		break;
 	case Interaction::Answer:
 	case Interaction::Enter:
 		useGate();
 		break;
 	}
+}
+//======================================================================================
+// The scales (plan weighing-of-the-heart): the run weighed once, the verdict a field note; the epilogue answers it.
+void Dungeon::weighHeart() {
+	const Verdict verdict = ::weighHeart(sim.player->stats.run);
+	sim.events->Play(WorldSound::ShrinePray);
+	sim.events->Note(verdictNote(verdict));
+	if (verdict == Verdict::Light)
+		sim.events->Status(StatusTone::Good, "The pan with your heart rises. Thoth writes something short.");
+	else
+		sim.events->Status("The pan with your heart sinks, a little. Thoth writes for a long time.");
 }
 //======================================================================================
 std::optional<God> Dungeon::ShrineHere() const {
@@ -127,6 +142,10 @@ Interaction Dungeon::InteractVerb() const {
 		return Interaction::Press;
 	if (shrineGod(prop)) // plans shrine-of-isis, shrines-of-the-gods
 		return Interaction::Pray;
+	if (prop == DECOR_SCALES) // plan weighing-of-the-heart: once
+		return sim.journal->HasNote(FieldNote::HeartLight) || sim.journal->HasNote(FieldNote::HeartHeavy)
+				   ? Interaction::None
+				   : Interaction::Weigh;
 	const OwnedWeapons& owned = sim.items->Owned();
 	if (prop == DECOR_BRAZIER && (owned[static_cast<size_t>(itemIndex(ItemKind::SelfBow))] ||
 								  owned[static_cast<size_t>(itemIndex(ItemKind::CompositeBow))]))

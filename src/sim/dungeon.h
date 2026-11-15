@@ -677,6 +677,7 @@ class Dungeon {
 	float stargateRestDeg = 0.f;
 	void startDial();
 	void pressDialDevice();
+	void weighHeart(); // the scales of the judgment (plan weighing-of-the-heart)
 	void updateDial();
 	[[nodiscard]] float dialTrackDeg(int elapsedMs) const; // the track's turn so far in a dial
 	void updateTravel();

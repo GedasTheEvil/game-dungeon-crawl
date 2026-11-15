@@ -790,3 +790,14 @@ T: In the twelfth hour Ra passes through the serpent Life of the Gods.
 T: He goes in old, and comes out as Khepri; Shu and Nut receive him.
 T: She who sees the beauty of Ra keeps the last gate.
 N: Born again at the end of the night. I would settle for daylight.
+
+# lvl53, the judge (plan weighing-of-the-heart)
+id: 155
+title: The throne of the judge
+style: stela
+G: Q1 D4 A40 N35 Q3 M17 X1 Z2 A1 S29 C10 F34
+T: Osiris, foremost of the Westerners, sits on the throne.
+T: The forty-two assessors sit before him, one for each sin.
+T: Thoth stands at the scale, Anubis kneels at it, Maat is the feather.
+T: Behind the throne waits the devourer, Ammit, who eats what sinks.
+N: So that is who is behind the throne. Crocodile, lion and hippo, all three. I have met each one separately already.

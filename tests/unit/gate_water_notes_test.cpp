@@ -17,7 +17,7 @@ bool noted(const SimWorld& world, FieldNote note) {
 
 TEST_CASE("gate and water notes: the texts, saved by number after the trap notes") {
 	CHECK(static_cast<int>(FieldNote::RiddleGates) == static_cast<int>(FieldNote::CeilingTraps) + 1);
-	CHECK(static_cast<int>(FieldNote::TheDark) + 1 == FIELD_NOTE_COUNT);
+	CHECK(static_cast<int>(FieldNote::TheDark) + 1 == static_cast<int>(FieldNote::HeartLight)); // then the verdicts
 	for (const FieldNote n : {FieldNote::RiddleGates, FieldNote::NameGates, FieldNote::Wading, FieldNote::TheDark}) {
 		CHECK(std::string(fieldNoteText(n).title) != "");
 		CHECK(std::string(fieldNoteText(n).text) != "");

@@ -7,6 +7,7 @@
 #include "../graphics/gl_includes.h"
 #include "../render/ui_draw.h"
 #include "../level/journal.h"
+#include "../level/player_actions.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -258,9 +259,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			Game().ui.screen = Screen::Gameplay;
 			Game().dungeon.SpeakName(); // its status line, the sound
 		} else if (CheckAnswer()) {
-			Game().journal.Solve(journalIndex, late, answer);
-			Game().player->stats.run.riddles++;
-			Game().player->stats.AddXP(reward, Game().events);
+			solveRiddle(Game().player->stats, Game().journal, Game().events, journalIndex, late, answer, reward);
 			Game().Autosave(AutosaveMoment::Riddle); // plan autosave
 			if (late) {
 				Game().ui.screen = Screen::Journal;

@@ -1,6 +1,6 @@
 # Item, riddle and skill actions out of the screens into GL-free code
 
-Status: draft 2026-11-13, size L, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size L, needs nothing first.
 
 ## Problem
 
@@ -67,5 +67,20 @@ the inventory, shrines, riddles and skills (`make test`) must pass unchanged.
 
 * sim library or level library: the level library is enough if the shrine's `God` and the level number come in as
   values. Implementer's choice.
-* `Wear` / `WearRing` / `bagUser` overlap [player-control-in-sim](solved/player-control-in-sim.tooling.md):
+* `Wear` / `WearRing` / `bagUser` overlap [player-control-in-sim](player-control-in-sim.tooling.md):
   whichever lands first takes them.
+
+## Done
+
+* `src/level/player_actions.{h,cpp}` (level library: the shrine's `God` and the level number come in as values):
+  `PlayerActor` (stats, bag, journal, events, `BagUser`), `ActionResult` (done, the text, the item to select);
+  `offerItem` (with the gift), `mergeRings`, `wearRingOn`, `upgradeItem`, `useItem`, `drinkPotion`, `applyRings`,
+  `addItem`, `solveRiddle`, `learnSkill`. Sounds as `WorldSound::ItemOn` / `Drink` / `ShrinePray*`.
+* `Inventory` keeps the selection, `KeepPlaces`, the confirm box, the toast, the "only a god" hint and the quick-drink
+  cooldown; `Inventory::Gift` and `ApplyRings` are gone. `Game()` in `inventory.cpp`: 57 -> 31; no `AddXP`,
+  `Offered` or `run.` left in `inventory.cpp`, `riddle.cpp`, `skills_view.cpp`.
+* The Sky iron copy: `noteItem` (`item_bag.h`), called by `ItemBag::Find` and by `mergeRings`.
+* The scenario's `learn` calls `learnSkill` (it now writes the skill's field note too); its `wear` goes through
+  `Inventory::Use`. `SimWorld::Wear` / `WearRing` call `useItem` / `wearRingOn`.
+* Tests: `tests/unit/player_actions_test.cpp`.
+* Left out: the optional `ItemBag` owned by `GameState`.

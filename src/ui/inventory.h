@@ -4,6 +4,7 @@
 #include "../render/font.h"
 #include "../graphics/item.h"
 #include "../level/item_bag.h"
+#include "../level/player_actions.h"
 #include "../sim/dungeon_save.h"
 #include "../level/bindings.h"
 #include "../level/pointer.h"
@@ -80,7 +81,6 @@ class Inventory {
 	void AskOffer(int slot);
 	void AskMerge(int slot);
 	void Offer(ItemKind kind);
-	std::string Gift(God god); // after an offering (plan offering-gift)
 	void Merge(ItemKind ring);
 	// Mouse button down on the slot and still over it: the slot tile is pushed in.
 	[[nodiscard]] bool SlotHeld(int slot) const { return pointer.Held({Target::Slot, slot}); }
@@ -93,7 +93,7 @@ class Inventory {
 	void Upgrade(int slot);
 	// The ring card's hand buttons (the Use and Upgrade buttons' places): on that hand, or off it.
 	void WearOnHand(int slot, Hand hand);
-	void ApplyRings(); // the worn rings' bonus to the player
+	PlayerActor Actor(); // the player, this bag, the journal and the events, for the actions (player_actions.h)
 	std::string DrinkPotion(ItemKind potion); // applies it to the player; returns the feedback line
 	void Select(int slot);
 	[[nodiscard]] bool TabEnabled(ItemGroup group) const { return bag.AnyFound(group); }

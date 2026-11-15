@@ -16,6 +16,7 @@
 #include "../../src/level/inscriptions.h"
 #include "../../src/level/journal.h"
 #include "../../src/level/names.h"
+#include "../../src/level/player_actions.h"
 #include "../../src/level/rng.h"
 #include "../../src/level/world_events.h"
 #include <algorithm>
@@ -168,21 +169,23 @@ class SimWorld {
 			Give(weapon);
 		items.Use(weapon, bagUser(player));
 	}
+	// The player's actions over this world's bag, journal and events (player_actions.h, as the screens).
+	PlayerActor Actor() { return {player.stats, items, journal, events, bagUser(player)}; }
 	// As `wear` (given first if not held): the amulet on, its bonus applied.
 	void Wear(ItemKind amulet) {
 		if (items.Count(amulet) == 0)
 			Give(amulet);
+		PlayerActor actor = Actor();
 		if (items.Worn() != amulet)
-			items.Use(amulet, bagUser(player));
-		player.stats.Wear(amuletBonus(items.Worn()), true);
+			useItem(actor, amulet);
 	}
 	// As `wear <ring> left|right` (given first if not held): the ring on that hand, the rings' bonus applied.
 	void WearRing(ItemKind ring, Hand hand) {
 		if (items.Count(ring) == 0)
 			Give(ring);
+		PlayerActor actor = Actor();
 		if (items.RingOn(hand) != ring)
-			items.WearOn(ring, hand, true);
-		player.stats.WearRings(ringBonus(items.Rings()));
+			wearRingOn(actor, ring, hand);
 	}
 
 	// A press of the attack key with the equipped weapon (PlayerControl::Attack): false while a swing or its recovery

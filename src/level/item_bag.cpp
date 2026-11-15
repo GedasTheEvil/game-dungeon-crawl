@@ -608,6 +608,10 @@ void ItemBag::Load(std::istream& in) {
 
 void ItemBag::Find(ItemKind kind, Journal& journal) {
 	Add(kind);
+	noteItem(kind, journal);
+}
+
+void noteItem(ItemKind kind, Journal& journal) {
 	if (isAmulet(kind)) {
 		journal.LearnNote(amuletNote(amuletOf(kind).type));
 		return;

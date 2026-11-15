@@ -64,6 +64,8 @@ enum class WorldSound : unsigned char {
 	ShrinePrayPtah,
 	ShrinePrayAmun,
 	ShrinePraySerket,
+	ItemOn, // an amulet or a ring put on or off, an item upgraded, a skill learnt (plan item-actions-out-of-screens)
+	Drink, // a potion drunk
 };
 
 // A monster's or the player's own sound (CharacterModel: media/sounds/<model>_{die,att,jump,wake,att_ranged,roar}.wav).

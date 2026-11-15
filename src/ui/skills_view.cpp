@@ -3,6 +3,7 @@
 #include "../core/timer.h"
 #include "../graphics/gl_includes.h"
 #include "../level/input.h"
+#include "../level/player_actions.h"
 #include "../state/game_state.h"
 #include <GL/gl.h>
 #include <algorithm>
@@ -92,31 +93,8 @@ void SkillsScreen::PressLearn() {
 		return;
 	}
 	confirming = false;
-	LearnCure cure = LearnCure::None;
-	Game().player->stats.Learn(id, false, &cure);
-	if (const std::optional<FieldNote> note = skillNote(id))
-		Game().journal.LearnNote(*note);
-	std::string learnt = std::string("Learnt: ") + def.name;
-	if (cure == LearnCure::Poison)
-		learnt += ". The poison is gone";
-	else if (cure == LearnCure::Curses)
-		learnt += ". The curses lift";
-	if (id == SkillId::Hieroglyphs) {
-		const std::vector<Boon> boons = Game().journal.TranslateInscriptions();
-		const int copies = static_cast<int>(boons.size());
-		if (copies > 0) {
-			// Every copy gives the full XP at the level now, no penalty for learning late (plan inscription-xp).
-			const int xp = copies * Game().player->stats.InscriptionXP();
-			learnt += ". " + std::to_string(copies) + (copies == 1 ? " inscription" : " inscriptions") +
-					  " translated, +" + std::to_string(xp) + " XP";
-			for (const Boon& b : boons) // plan inscription-boons
-				if (b.Any())
-					learnt += ", " + Game().player->stats.Grant(b);
-			Game().player->stats.AddXP(xp, Game().events);
-		}
-	}
-	Game().assets.sounds.amulet_s.Play();
-	toast.Show(learnt, now);
+	if (const std::optional<std::string> learnt = learnSkill(Game().player->stats, Game().journal, Game().events, id))
+		toast.Show(*learnt, now);
 }
 
 void SkillsScreen::UpdateHover(float x, float y) {

@@ -214,6 +214,10 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 	case WorldSound::ShrinePrayAmun:
 	case WorldSound::ShrinePraySerket:
 		return sounds.shrinePray[static_cast<int>(sound) - static_cast<int>(WorldSound::ShrinePray)];
+	case WorldSound::ItemOn:
+		return sounds.amulet_s;
+	case WorldSound::Drink:
+		return sounds.drink_s;
 	}
 	std::unreachable();
 }

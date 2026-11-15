@@ -1,6 +1,6 @@
 #include "inventory.h"
 #include "../level/player_stats.h"
-#include "../level/offering_gift.h"
+#include "../level/player_actions.h"
 #include "../sim/player_control.h"
 #include "../graphics/item.h"
 #include "../state/game_state.h"
@@ -167,7 +167,10 @@ void Inventory::FollowInsanity(bool insane) {
 
 Inventory::~Inventory() {}
 
-void Inventory::AddItem(ItemKind kind) { bag.Find(kind, Game().journal); }
+void Inventory::AddItem(ItemKind kind) {
+	PlayerActor actor = Actor();
+	addItem(actor, kind);
+}
 
 Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
 
@@ -234,68 +237,40 @@ void Inventory::AskMerge(int slot) {
 
 void Inventory::Offer(ItemKind kind) {
 	const std::optional<God> god = Shrine();
+	if (!god)
+		return;
 	const HeldItems before = Held();
-	if (!god || !bag.Offer(kind, Game().player->Alive(), AtShrine::Yes))
+	PlayerActor actor = Actor();
+	const ActionResult offered = offerItem(actor, kind, *god, Game().dungeon.LevelNumber(), Game().alwaysGift);
+	if (!offered.done)
 		return;
 	KeepPlaces(before);
-	const int xp = offerXP(kind, Game().player->stats.CurrentXP());
-	Game().player->stats.Offered(*god);
-	Game().assets.sounds.shrinePray[static_cast<int>(*god)].Play();
-	Game().player->stats.AddXP(xp, Game().events);
-	char buf[64];
-	snprintf(buf, sizeof(buf), "%s accepts the offering. +%d XP", godDef(*god).name, xp);
-	ShowToast(buf + Gift(*god));
-}
-
-// Plan offering-gift: now and then the god gives a gift on top; its toast text (". Montu grants a gift: Might +1"),
-// empty for none.
-std::string Inventory::Gift(God god) {
-	PlayerStats& stats = Game().player->stats;
-	const OfferingGift gift =
-		RollOfferingGift(god, Game().dungeon.LevelNumber(), stats.run.nameSeed, stats.run.offerings, Game().alwaysGift);
-	stats.run.offerings++;
-	const std::string giver = std::string(". ") + godDef(god).name + " grants ";
-	if (gift.boon.Any())
-		return giver + "a gift: " + stats.Grant(gift.boon);
-	if (gift.item) {
-		AddItem(*gift.item);
-		const std::string name = itemText(*gift.item).name;
-		const bool vowel = std::string("AEIOU").contains(name.front());
-		return giver + (vowel ? "an " : "a ") + name;
-	}
-	return "";
+	ShowToast(offered.text);
 }
 
 void Inventory::Merge(ItemKind ring) {
 	const std::optional<God> god = Shrine();
-	const std::optional<ItemKind> next = nextMetal(ring);
+	if (!god)
+		return;
 	const HeldItems before = Held();
-	if (!god || !next || !bag.Merge(ring, Game().player->Alive(), AtShrine::Yes))
+	PlayerActor actor = Actor();
+	const ActionResult merged = mergeRings(actor, ring, *god);
+	if (!merged.done)
 		return;
 	KeepPlaces(before);
-	const ItemKind merged = *next;
-	if (ringOf(merged).metal == RingMetal::SkyIron)
-		Game().journal.LearnNote(FieldNote::SkyIron);
-	ApplyRings();
-	Game().player->stats.Offered(*god);
-	Game().assets.sounds.shrinePray[static_cast<int>(*god)].Play();
-	Select(itemIndex(merged));
-	ShowToast(std::string(godDef(*god).name) + " joins the rings: " + itemText(merged).name);
+	if (merged.select)
+		Select(itemIndex(*merged.select));
+	ShowToast(merged.text);
 }
 
-void Inventory::ApplyRings() { Game().player->stats.WearRings(ringBonus(bag.Rings())); }
+PlayerActor Inventory::Actor() {
+	return {Game().player->stats, bag, Game().journal, Game().events, bagUser(*Game().player)};
+}
 
 void Inventory::WearOnHand(int slot, Hand hand) {
-	const ItemKind ring = kindOf(slot);
-	if (!bag.WearOn(ring, hand, Game().player->Alive()))
-		return;
-	ApplyRings();
-	Game().assets.sounds.amulet_s.Play();
-	const char* side = hand == Hand::Left ? "left" : "right";
-	ShowToast(
-		std::string(itemText(ring).name) + (bag.RingOn(hand) == ring ? " put on the " : " taken off the ") + side +
-		" hand"
-	);
+	PlayerActor actor = Actor();
+	if (const ActionResult worn = wearRingOn(actor, kindOf(slot), hand); worn.done)
+		ShowToast(worn.text);
 }
 
 void Inventory::Upgrade(int slot) {
@@ -305,65 +280,31 @@ void Inventory::Upgrade(int slot) {
 		return;
 	}
 	const HeldItems before = Held();
-	if (!bag.Upgrade(kind, Game().player->Alive(), AtOne()))
+	PlayerActor actor = Actor();
+	const ActionResult upgraded = upgradeItem(actor, kind, AtOne());
+	if (!upgraded.done)
 		return;
 	KeepPlaces(before);
-	// An amulet: one of the next tier now; worn, it keeps the HP share.
-	if (const std::optional<ItemKind> upgraded = ::isAmulet(kind) ? nextTier(kind) : std::nullopt) {
-		if (bag.Worn() == upgraded)
-			Game().player->stats.Wear(amuletBonus(upgraded), true);
-		Game().assets.sounds.amulet_s.Play();
-		Select(itemIndex(*upgraded));
-		ShowToast(std::string("Upgraded: ") + itemText(*upgraded).name);
-		return;
-	}
-	char buf[64];
-	snprintf(buf, sizeof(buf), "%s reaches level %d", itemText(kindOf(slot)).name, bag.Level(kindOf(slot)));
-	ShowToast(buf);
+	if (upgraded.select)
+		Select(itemIndex(*upgraded.select));
+	ShowToast(upgraded.text);
 }
 
 void Inventory::Use(int slot) {
-	ItemKind kind = kindOf(slot);
-	if (!CanUse(slot, nullptr))
+	const HeldItems before = Held();
+	PlayerActor actor = Actor();
+	const ActionResult used = useItem(actor, kindOf(slot));
+	if (!used.done)
 		return;
-	if (::isPotion(kind)) {
-		const HeldItems before = Held();
-		ShowToast(DrinkPotion(kind));
+	if (::isPotion(kindOf(slot)))
 		KeepPlaces(before);
-		return;
-	}
-	if (::isRing(kind)) { // the quick way: off if worn, else on the free hand (or in place of the older one)
-		const WornRings before = bag.Rings();
-		bag.Use(kind, bagUser(*Game().player));
-		ApplyRings();
-		Game().assets.sounds.amulet_s.Play();
-		for (int hand = 0; hand < HAND_COUNT; hand++)
-			if (before[static_cast<size_t>(hand)] != bag.Rings()[static_cast<size_t>(hand)]) {
-				const bool on = bag.Rings()[static_cast<size_t>(hand)] == kind;
-				ShowToast(
-					std::string(itemText(kind).name) + (on ? " put on the " : " taken off the ") +
-					(hand == 0 ? "left" : "right") + " hand"
-				);
-				break;
-			}
-		return;
-	}
-	if (::isAmulet(kind)) {
-		bag.Use(kind, bagUser(*Game().player));
-		Game().player->stats.Wear(amuletBonus(bag.Worn()), true);
-		Game().assets.sounds.amulet_s.Play();
-		ShowToast(std::string(itemText(kind).name) + (bag.Worn() == kind ? " put on" : " taken off"));
-		return;
-	}
-	bag.Use(kind, bagUser(*Game().player));
-	ShowToast(std::string(itemText(kind).name) + " equipped");
+	if (!used.text.empty())
+		ShowToast(used.text);
 }
 
 std::string Inventory::DrinkPotion(ItemKind potion) {
-	Game().assets.sounds.drink_s.Play();
-	bag.Use(potion, bagUser(*Game().player));
-	Game().player->stats.run.Drink(potion);
-	return Game().player->stats.Drink(potionGain(potion));
+	PlayerActor actor = Actor();
+	return drinkPotion(actor, potion);
 }
 
 std::optional<ItemKind> Inventory::QuickChoice(QuickKind kind) const {

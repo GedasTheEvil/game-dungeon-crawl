@@ -232,6 +232,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | gap | | (combat) the distance between two hitboxes' edges, in tiles. Not a gap in the floor (see Map) | `Monster::MeleeGap` |
 | hitbox | | a body's box: half width from its model, used for reach and hits; F3 / `hitboxes on` shows them | `HalfWidth` |
 | might | Might | added to every hit the player deals | `PlayerStats::Might` |
+| player action | | what an item, riddle or skill action does to the game (the stats, the bag, the journal, the run's counters, the XP), outside the screens (plan [item-actions-out-of-screens](plan/solved/item-actions-out-of-screens.tooling.md)) | `PlayerActor`, `ActionResult`, `offerItem`, `useItem`, `learnSkill` |
 | player level | Level (stats) | the player's level from XP; raises HP, stamina, armour, might. Not the map level | `PlayerStats::CurrentLevel`, `levelXP` |
 | poison tier | | weak, medium or strong poison; ticks damage until it runs out; medium and strong scale with the victim's max HP above a floor | `PoisonTier`, `POISON_TIERS` |
 | touch poison | sap | a melee hit on the plant may poison the player; ranged hits do not | `TouchPoison` |

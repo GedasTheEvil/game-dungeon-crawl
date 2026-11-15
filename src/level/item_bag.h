@@ -66,6 +66,10 @@ enum class UseBlock : std::uint8_t {
 	StrongerResistance
 };
 
+// The journal's note of an item come into the bag (found, or made by a ring merge): its potion group's, or the
+// weapons note and its damage type's, or its amulet type's, or its ring gem's (and Sky iron's).
+void noteItem(ItemKind kind, Journal& journal);
+
 class ItemBag {
   private:
 	int counts[ITEM_KIND_COUNT] = {};

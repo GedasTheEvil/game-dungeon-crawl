@@ -1,6 +1,7 @@
 #include "scenario.h"
 #include "scenario_fields.h"
 #include "../level/scenario_script.h"
+#include "../level/player_actions.h"
 #include "../graphics/gl_includes.h"
 #include "../level/input.h"
 #include "../graphics/draw.h"
@@ -445,18 +446,9 @@ bool runInstant(const Command& cmd) {
 			report(cmd, false, "no such page, or found already");
 		return true;
 	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
-		if (!Game().player->stats.Learn(static_cast<SkillId>(cmd.ticks), true)) {
+		if (!learnSkill(Game().player->stats, Game().journal, Game().events, static_cast<SkillId>(cmd.ticks), true)) {
 			report(cmd, false, "learnt already, or no heka to spend");
 			return true;
-		}
-		if (static_cast<SkillId>(cmd.ticks) == SkillId::Hieroglyphs) {
-			const std::vector<Boon> boons = Game().journal.TranslateInscriptions();
-			for (const Boon& b : boons)
-				Game().player->stats.Grant(b);
-			Game().player->stats.AddXP(
-				static_cast<int>(boons.size()) * Game().player->stats.InscriptionXP(),
-				Game().events
-			);
 		}
 		report(cmd, true, "");
 		return true;

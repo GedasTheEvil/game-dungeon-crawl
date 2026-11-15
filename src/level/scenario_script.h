@@ -71,6 +71,7 @@ enum class CommandType : unsigned char {
 	Release,
 	Click,
 	KillBoss,
+	KillMonster,
 	HurtBoss,
 	PoisonBoss,
 	Heka,

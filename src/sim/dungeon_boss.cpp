@@ -25,6 +25,15 @@ void Dungeon::HurtBoss(int dmg) {
 		playerHit(monsters[bossFight.slot], dmg, nullptr);
 }
 //======================================================================================
+bool Dungeon::KillNearestMonster() {
+	const Monster* nearest = nearestMonster();
+	if (nearest == nullptr)
+		return false;
+	Monster& mon = monsters[nearest - monsters];
+	playerHit(mon, mon.Health(), nullptr);
+	return true;
+}
+//======================================================================================
 void Dungeon::PoisonBoss(PoisonTier tier) {
 	if (bossFight.slot >= 0)
 		monsters[bossFight.slot].TakePoison(tier, true, sim.random->gameplay);

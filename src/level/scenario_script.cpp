@@ -306,6 +306,15 @@ bool parsePoison(const Args& args, Command& cmd) {
 	return false;
 }
 
+// killmonster: nothing, or `all` (a = 1).
+bool parseKillMonster(const Args& args, Command& cmd) {
+	cmd.a = 0.f;
+	if (args.empty())
+		return true;
+	cmd.a = 1.f;
+	return args.size() == 1 && args[0] == "all";
+}
+
 // A column (a) and a prop of DECOR_NAMES (ticks).
 bool parseProp(const Args& args, Command& cmd) {
 	for (int d = 0; args.size() == 2 && parseFloat(args[0], cmd.a) && d < DECOR_COUNT; d++)
@@ -441,6 +450,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Hints:
 	case CommandType::Gifts:
 	case CommandType::KillBoss:
+	case CommandType::KillMonster:
 	case CommandType::HurtBoss:
 	case CommandType::PoisonBoss:
 	case CommandType::PoisonMonster:
@@ -533,6 +543,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"release", CommandType::Release, twoNumbers, "<x%> <y%> (0..100, y from the bottom)"},
 		{"click", CommandType::Click, twoNumbers, "<x%> <y%> (0..100, y from the bottom)"},
 		{"killboss", CommandType::KillBoss, noArgs, ""},
+		{"killmonster", CommandType::KillMonster, parseKillMonster, "[all]"},
 		{"hurtboss", CommandType::HurtBoss, numberAtLeast<1>, "<hp>"},
 		{"poisonboss", CommandType::PoisonBoss, parsePoison, "<weak|medium|strong>"},
 		{"heka", CommandType::Heka, numberAtLeast<1>, "<count>"},

@@ -1,6 +1,6 @@
 # Scenario command killmonster: the nearest monster dies as if killed by the player
 
-Status: draft 2026-11-15, size S, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Problem
 

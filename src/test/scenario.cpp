@@ -391,6 +391,13 @@ bool runInstant(const Command& cmd) {
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
 		Game().dungeon.HurtBoss(Game().dungeon.BossHealth());
 		return true;
+	case CommandType::KillMonster: { // the nearest, or `all`, nearest first: through the player's killing hit
+		bool killed = Game().dungeon.KillNearestMonster();
+		report(cmd, killed, killed ? "" : "no monster lives");
+		while (cmd.a > 0.5f && killed)
+			killed = Game().dungeon.KillNearestMonster();
+		return true;
+	}
 	case CommandType::HurtBoss:
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
 		Game().dungeon.HurtBoss(static_cast<int>(cmd.a));

@@ -1,0 +1,16 @@
+# Plan kill-monster-command: killmonster kills the nearest monster through the player's killing hit (XP, field note); `all` clears the level.
+seed 1
+god
+level tests/levels/bleeding
+wait 30
+walk to 18
+walk to 24
+expect xp == 0
+expect nearest > 0
+killmonster
+expect xp > 0
+expect journal_notes >= 1
+expect nearest > 0
+killmonster all
+expect nearest == 0
+quit

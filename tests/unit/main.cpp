@@ -7,7 +7,7 @@ namespace {
 // Well above 0, so no "0 means unset" field mistakes a moment at the start for "never".
 constexpr int START_MS = 100000;
 
-// Every test case starts on its own virtual clock, the same whatever ran before it.
+// Every test case starts on its own virtual clock, the same whatever ran before it (plan unit-clock-per-test).
 class VirtualClockPerCase : public doctest::IReporter {
   public:
 	explicit VirtualClockPerCase(const doctest::ContextOptions&) {}

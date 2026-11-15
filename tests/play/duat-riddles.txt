@@ -1,0 +1,5 @@
+# Plan duat-riddles: the two riddle gates of tests/levels/riddle, asking only the riddles of content/riddles/duat.txt.
+# god; walk right to a gate, E opens the scroll. Answer, or fail twice to see the hint; Esc walks away.
+god
+level tests/levels/riddle
+riddles content/riddles/duat.txt

@@ -1,6 +1,6 @@
 # Riddles of the Duat: riddles the game's own texts answer
 
-Status: draft 2026-11-13, size S, needs nothing first. From the lore coverage audit of 2026-11-13.
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-13, size S, needs nothing first. From the lore coverage audit of 2026-11-13.
 
 ## Idea
 
@@ -73,5 +73,7 @@ Unit test: `tests/unit/riddle_files_test.cpp` already fails on a repeated questi
 
 ## Play-test
 
-* A play script with `riddles content/riddles/duat.txt` (as `tests/scenarios/solved/riddle.txt` uses it) before a
-  riddle gate: each riddle reads well on the scroll (about 6 lines fit), the hints help.
+* `bin/game --play tests/play/duat-riddles.txt`: walk right to a riddle gate, E. Each riddle reads well on the scroll
+  (about 6 lines fit), the hint after two wrong answers helps without giving the answer away.
+* The riddles of `content/riddles/duat.txt` (25, each with its source in a `#` comment) ask about gods, bosses, hours
+  and notes the game shows; none is about the weighing of the heart. Answer a few from the journal.

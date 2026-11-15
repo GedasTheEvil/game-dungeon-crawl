@@ -1,0 +1,18 @@
+# (plan duat-riddles): riddles of content/riddles/duat.txt on the scroll (about 6 lines fit); screenshots only.
+seed 1
+god
+level tests/levels/riddle
+riddles content/riddles/duat.txt
+wait 30
+walk right 3
+interact
+wait 5
+expect riddle == 1
+screenshot riddle_a
+key esc
+wait 5
+walk right 4
+interact
+wait 5
+screenshot riddle_b
+key esc

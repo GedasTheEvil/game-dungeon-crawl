@@ -1,0 +1,210 @@
+# Riddles of the Duat: every answer is taught by a text the game shows (plan duat-riddles). Format: docs/riddles.md.
+# The source (inscription id in content/inscriptions/, note slug in content/texts/) is the comment above each riddle,
+# so a later text change can keep them in step. Not here: the weighing of the heart (heart, feather, Maat, Thoth's
+# verdict, Ammit), that is the judgment's zone deck (plan weighing-of-the-heart).
+theme: Riddle of the Duat
+
+# monsters.txt boss-scarab; note.hour-12; diary.dawn
+Q: I roll the sun across the sky as a beetle rolls
+Q: its ball, and I made myself. Who am I?
+A: khepri
+A: khepera
+A: kheper
+H: The lord of the first boss's lair.
+
+# inscription 17 The serpent of chaos, 18 Overthrowing Apep; monsters.txt apep
+Q: Every night I try to swallow the sun,
+Q: and every night I fail. Who am I?
+A: apep
+A: apophis
+A: apopis
+H: The serpent of chaos. The priests spat on him.
+
+# inscription 99 The boatman's fee (cisterns, lvl31)
+Q: The ferryman of the dead asks one fee,
+Q: and it is not gold. What is it?
+A: a word
+A: word
+A: words
+H: Book of the Dead, spell 99, on a wall of the cisterns.
+
+# note.amulet-traps (Eye of Horus); inscription 13 (Horus)
+Q: I see the spikes first. Worn, I cut the bite
+Q: of darts and spikes. Which eye am I?
+A: eye of horus
+A: horus
+A: wedjat
+A: udjat
+A: wadjet
+H: An amulet for the floors with teeth.
+
+# inscription 16 The djed of Osiris, 68; note.shrine-of-ptah; skill djed-of-ptah
+Q: I am the backbone of Osiris, and I stand for ever.
+Q: Ptah's sceptre carries me. What am I?
+A: djed
+A: djed pillar
+A: the djed
+H: A pillar. Stand firm like it.
+
+# inscription 12 Serket, 80; skill serkets-favour
+Q: Mistress of the scorpions, I let the throat
+Q: breathe. Her hand heals what her sting has done.
+Q: Who am I?
+A: serket
+A: selket
+A: serqet
+A: selqet
+A: serquet
+H: Her shrine takes the poison out of you.
+
+# inscription 15 Hymn to Hapi, 94; skill favour-of-hapi
+Q: I come forth from the earth to keep Egypt alive,
+Q: and I flood the fields that Ra has made.
+Q: Who am I?
+A: hapi
+A: hapy
+H: The Nile in flood.
+
+# inscription 23 Sobek of Shedet, 95; monsters.txt sobek
+Q: Lord of the waters, I rest in my lake.
+Q: When you see me charge, step aside.
+Q: Which crocodile god am I?
+A: sobek
+A: sebek
+A: suchos
+H: Of Shedet. The boss of the cisterns.
+
+# inscription 47 Seth in the prow, 49 The red hippopotamus, 50; monsters.txt seth
+Q: I took the shape of a red hippopotamus to fight
+Q: Horus, and he harpooned me. Who am I?
+A: seth
+A: set
+A: setekh
+H: Lord of the red land, and of the prow of Ra's boat.
+
+# inscription 3 The ushabti spell; monsters.txt ushabti
+Q: Buried to work for the dead when the gods call,
+Q: I answer "Here I am!" What am I?
+A: ushabti
+A: shabti
+A: shawabti
+A: ushabtis
+H: A servant figure. One stands up in the halls.
+
+# inscription 116 The lake of fire, 117; monsters.txt baboon
+Q: How many baboons guard the shore of the lake of
+Q: fire, one at each corner?
+A: 4
+A: four
+H: Count the corners of the lake.
+
+# inscription 36 The priest's cell
+Q: For how many days did the priest of the hidden
+Q: name speak it over the dead?
+A: 70
+A: seventy
+H: A priest's cell, and the mummy's linen.
+
+# inscription 77 The ring of seven; note.stargate; note.dial-device
+Q: How many marks round the rim of the stone ring
+Q: against the wall?
+A: 7
+A: seven
+H: The ring of seven marks.
+
+# note.hour-12; diary.dawn
+Q: Ra passes through a serpent, Life of the Gods,
+Q: tail to mouth. Which sign of life is in its name?
+A: ankh
+A: the ankh
+H: The jackal's statue held it in its hand.
+
+# note.amulet-pierce (Shen ring)
+Q: Points glance off me: stabs, darts and arrows
+Q: hurt less. Which ring am I?
+A: shen ring
+A: shen
+H: An amulet, worn against the stab.
+
+# note.sky-iron
+Q: I fall from Nut's body as shooting stars, rarer
+Q: than gold. The old texts call me bia-n-pet.
+Q: What am I?
+A: sky iron
+A: iron of heaven
+A: meteoric iron
+A: iron
+H: A ring from two gold rings at a shrine.
+
+# skill speed-of-mafdet; note.speed-of-mafdet
+Q: I am the cheetah who runs down snakes.
+Q: I lend you my feet. Who am I?
+A: mafdet
+A: mafdett
+H: A skill of the Heka page: a fifth faster.
+
+# skill wisdom-of-seshat; note.wisdom-of-seshat
+Q: I measured every temple before it was built,
+Q: so I know its hidden rooms. Who am I?
+A: seshat
+H: She shows a riddle's hint at once.
+
+# skill quiver-of-neith; note.quiver-of-neith
+Q: I am the huntress of the crossed arrows.
+Q: I count your quiver better than you do.
+Q: Who am I?
+A: neith
+A: net
+A: nit
+H: A skill that refills the quiver.
+
+# inscription 5 Shezmu, lord of the press; monsters.txt vampire-bat
+Q: Lord of the wine press, I squeeze the wicked like
+Q: grapes and drink the life of those I bite.
+Q: Who am I?
+A: shezmu
+A: shesmu
+H: The vampire bat is his.
+
+# inscription 104 Montu; skill strength-of-montu
+Q: Falcon of the battle, lord of Thebes and the
+Q: strong arm, I give power to the one who calls me.
+Q: Who am I?
+A: montu
+A: month
+A: mentu
+A: monthu
+H: A skill of the Heka page lends his arm.
+
+# inscription 91 The uraeus on the brow; note.hour-7
+Q: In the seventh hour I coil round the boat of Ra
+Q: and guard it from Apep. Who am I?
+A: mehen
+H: A coiled serpent of the seventh hour.
+
+# inscription 34 The words of Isis
+Q: Bitten by the serpent Isis made, Ra gave her one
+Q: secret to be healed. It gave her power over him.
+Q: What was it?
+A: his name
+A: name
+A: ra's name
+A: secret name
+A: his secret name
+H: The words of Isis, on a wall.
+
+# inscription 109 Sokar of the dark land; note.hour-5
+Q: Lord of the Shetyt, the hidden place of the dead,
+Q: my land is dark and its roads are of sand.
+Q: Who am I?
+A: sokar
+A: seker
+A: sokaris
+H: Lord of the fifth hour's cavern.
+
+# inscription 122 The heat of Babi; monsters.txt babi
+Q: Bull of the baboons, my heat is that of the forge
+Q: and my mouth is red. Who am I?
+A: babi
+A: baba
+H: His servants guard the shore of fire.

@@ -1,6 +1,6 @@
 # Split levelcheck's main: options, per-level report, ranking
 
-Status: draft 2026-11-15, size S, needs nothing first.
+Status: solved 2026-11-16. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Problem
 
@@ -15,3 +15,11 @@ per-level report, the path scripts and the ranking, all in one. The file changed
 * No behaviour change: `bin/levelcheck content/levels/lvl*`, `--quiet`, `--map`, `--legend` and `--script DIR` print
   the same before and after (diff them).
 * Rerun `make complexity`: `main` and each part under 25; note the numbers here. 
+
+## Result
+
+Done 2026-11-16. Complexity after (clang-tidy, threshold 1): `main` 13 (was 75), `parseOptions` 9, `loadEntries` 8,
+`printLegend` 12, `printRanking` 12, `printReport` 14 (unchanged), `writeScript` under 2. All under 25.
+Output of `lvl*` plain, `--quiet`, `--map`, `--legend`, `--script DIR` (files too), usage errors and exit codes is
+identical before and after. One edge differs: files are now loaded after all options are parsed, so with an unreadable
+file before a bad option the usage error no longer comes after that file's error line (stderr order only).

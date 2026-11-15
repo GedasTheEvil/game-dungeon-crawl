@@ -5,7 +5,7 @@
 // The many edges along a rim would pile their alpha up: each pass writes the depth and tests GL_LESS, so a pixel takes
 // one line of a pass, the next pass a little nearer (its polygon offset) to come over it. That depth would hide what
 // is drawn behind later, so the contours wait for the end of the opaque scene (queueContour, drawContours).
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "../state/assets.h"
 #include "../render/lighting.h"
 #include <GL/gl.h>
@@ -26,13 +26,13 @@ constexpr float CONTOUR_OFFSET = 2.f * CONTOUR_PASSES;
 constexpr float CONTOUR_OFFSET_STEP = 2.f;
 } // namespace
 
-void Dungeon::queueContour(float strength, std::function<void(int texture)> draw) {
+void DungeonView::queueContour(float strength, std::function<void(int texture)> draw) {
 	Contour c{{}, strength, std::move(draw)};
 	glGetFloatv(GL_MODELVIEW_MATRIX, c.modelview.data());
 	contours.push_back(std::move(c));
 }
 //======================================================================================
-void Dungeon::drawContours() {
+void DungeonView::drawContours() {
 	if (contours.empty())
 		return;
 	GLint viewport[4] = {0, 0, 0, 0};
@@ -55,7 +55,7 @@ void Dungeon::drawContours() {
 	glEnable(GL_POLYGON_OFFSET_LINE);
 	// Each pass's alpha a, so that the passes over each other make 1 - (1 - a)^n = CONTOUR_CORE.
 	const float alpha = 1.f - std::pow(1.f - CONTOUR_CORE, 1.f / static_cast<float>(CONTOUR_PASSES));
-	const int white = sim.assets->textures.nullTex.ID();
+	const int white = assets.textures.nullTex.ID();
 	for (const Contour& c : contours) {
 		glLoadMatrixf(c.modelview.data());
 		glColor4f(CONTOUR_COLOUR[0], CONTOUR_COLOUR[1], CONTOUR_COLOUR[2], alpha * c.strength);

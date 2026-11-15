@@ -266,7 +266,7 @@ void drawGameplay() {
 		const ItemKind kind = Game().ui.inventory->EquippedKind();
 		hitboxes = HitboxView{Game().player->stats.WeaponReach(kind), !isRanged(kind), Game().camera.Facing()};
 	}
-	Game().dungeon.Draw(hitboxes ? &*hitboxes : nullptr);
+	Game().dungeonView.Draw(hitboxes ? &*hitboxes : nullptr);
 
 	glPopMatrix();
 
@@ -280,7 +280,7 @@ void drawGameplay() {
 	glPopMatrix();
 	glPushMatrix(); // the water over the player and the monsters in it, as the level is drawn
 	glTranslatef(-200, 0.0, -10);
-	Game().dungeon.DrawWater();
+	Game().dungeonView.DrawWater();
 	glPopMatrix();
 
 	if (Game().player->stats.vitals.burning.Any()) // plan fire-damage

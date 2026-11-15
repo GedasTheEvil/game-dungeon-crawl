@@ -7,6 +7,7 @@
 #include "../graphics/texture_registry.h"
 #include "../render/animated_model.h"
 #include "../sim/dungeon.h"
+#include "../graphics/dungeon_view.h"
 #include "../render/font.h"
 #include "../graphics/item.h"
 #include "../ui/inventory.h"
@@ -88,6 +89,7 @@ class GameState {
 	GameRandom random;
 	UIContext ui;
 	Dungeon dungeon;
+	DungeonView dungeonView{dungeon, assets}; // the dungeon drawn (plan dungeon-view-split)
 	Journal journal; // what the archaeologist wrote down, kept per save game
 	InscriptionBook inscriptions; // the wall inscriptions' texts, content/inscriptions/*.txt
 	NameList names; // the royal names of the name gates, content/names/*.txt (plan secret-name-gates)

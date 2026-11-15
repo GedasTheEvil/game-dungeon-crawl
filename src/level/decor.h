@@ -30,7 +30,7 @@ constexpr bool isThoth(int decor) { return decor >= DECOR_THOTH && decor < DECOR
 constexpr int DECOR_COFFIN = 18; // empty, on every mummy's spawn tile: it lies in there until it wakes
 constexpr int DECOR_COFFIN_LARGE = 23; // the mummy priest's, a head longer and gilded (plan mummy-boss)
 // The decoy (plan placed-decor): the coffin with a mummy asleep in it for good, its model in the entombed pose
-// (Dungeon::drawDecoys), never a monster. Placed only (the decor layer), no model file of its own: the coffin's.
+// (DungeonView::drawDecoys), never a monster. Placed only (the decor layer), no model file of its own: the coffin's.
 constexpr int DECOR_COFFIN_MUMMY = 24;
 [[nodiscard]] constexpr bool isCoffin(int decor) {
 	return decor == DECOR_COFFIN || decor == DECOR_COFFIN_LARGE || decor == DECOR_COFFIN_MUMMY;
@@ -200,7 +200,7 @@ constexpr int CEILING_STARS = 0; // over painted walls
 constexpr int CEILING_SLABS = 1; // over stone walls
 constexpr int CEILING_ROUGH = 2; // over rough walls
 // Over sandstone walls: worn rock under a crust of sand; cracked where a light shaft comes through
-// (Dungeon::lightShaft), or sandier.
+// (DungeonView::lightShaft), or sandier.
 constexpr int CEILING_SANDSTONE = 3;
 constexpr int CEILING_SANDSTONE_CRACKED = 4;
 constexpr int CEILING_SANDSTONE_SANDY = 5;

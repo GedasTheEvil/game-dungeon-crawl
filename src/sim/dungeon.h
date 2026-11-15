@@ -19,13 +19,10 @@
 #include "../level/zone_look.h"
 #include <array>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
-
-class Item;
 
 struct RoyalName;
 
@@ -59,6 +56,8 @@ struct HitboxView {
 };
 
 class Dungeon {
+	friend class DungeonView; // its drawing (src/graphics/dungeon_view.h, plan dungeon-view-split)
+
   private:
 	static constexpr int MAP_WIDTH = LEVEL_WIDTH;
 	static constexpr int MAP_HEIGHT = LEVEL_HEIGHT;
@@ -129,7 +128,6 @@ class Dungeon {
 	};
 	std::vector<ChestGas> chestGas;
 	void updateChestGas();
-	void drawChestGas(); // after the opaque scene, drawSummonEffects' frame
 	// 0 .. 1: how much a closed trapped container in cell shows its tell (darker), by the player's distance.
 	[[nodiscard]] float chestTell(int cell) const;
 	// Tomb-curse coffins (plan tomb-curse-containers): a coffin with an execration text on its lid, an inscribed one
@@ -143,23 +141,13 @@ class Dungeon {
 	// The Wisdom of Seshat and Disarm trap (plan heka-surplus, dungeon_seshat.cpp): the level's sealed rooms
 	// (secretRooms, found on load), put on the draft map with the player near; the red contour's strength, 0 .. 1, by
 	// the player's distance (1 up to OUTLINE_FADE tiles before `far`, 0 from it): a closed trapped container's, a
-	// disguised mimic's. queueContour keeps it, with the modelview matrix of now, for drawContours after the opaque
-	// scene (dungeon_render_outlines.cpp): the rim round what `draw` shows with the given texture (the plain white
-	// one).
+	// disguised mimic's; DungeonView::queueContour draws it.
 	std::vector<std::vector<int>> secrets;
 	void findSecretRooms();
 	void revealSecretRooms();
 	[[nodiscard]] float outlineNear(float col, float row, float far) const;
 	[[nodiscard]] float containerOutlineAt(int cell) const;
 	[[nodiscard]] float mimicOutline(const Monster& mon) const;
-	struct Contour {
-		std::array<float, 16> modelview;
-		float strength;
-		std::function<void(int texture)> draw;
-	};
-	std::vector<Contour> contours; // this frame's, drawn and cleared by drawContours
-	void queueContour(float strength, std::function<void(int texture)> draw);
-	void drawContours();
 	[[nodiscard]] bool containerShows(int cell) const; // opened and its clip played: the item shows
 	// 0 closed .. 1 open, the cell's clip.
 	[[nodiscard]] float containerOpening(int cell) const;
@@ -360,43 +348,9 @@ class Dungeon {
 	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest; the
 	// cursed mimic's chest is where it died).
 	void markSlain(const Monster& mon);
-	void DrawMonsters(const CellRect& drawn); // at their actual position, not their spawn tile
-	void drawDecoys(const CellRect& drawn); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool inView(const Monster& mon) const;
 	void noteSeenMonsters(); // the monsters on screen go in the journal
-	void drawHitboxes(const HitboxView& weapon);
-	void DrawTreasureTile(int i, int j); // the container, open or not, and the item once it shows
-	void drawContainerEffects(); // the dust of a jar breaking, after the opaque scene
-	// The see-through second parts of the items on the chests (a ring's gem, Item::DrawPart), after the opaque scene,
-	// where DrawTreasureTile left them.
-	void drawItemParts();
-	struct ItemPartDraw {
-		std::array<float, 16> modelview; // the item's frame, as Item::Draw had it
-		Item* item;
-		float rotA, scale;
-	};
-	std::vector<ItemPartDraw> itemParts; // this frame's, from DrawTreasureTile
-	void DrawTrapTile(bool isDeathTrap);
-	void drawCeilingTrap(int i, int j); // CeilingSpikes, CeilingDeath (plan ceiling-spikes)
-	void drawDecorTile(int i, int j);
-	void drawDecalTile(int i, int j);
-	void drawTorchTile(int i, int j);
-	void drawLadderTile(int i, int j);
-	void addLights(const CellRect& drawn);
-	void drawFires(const CellRect& drawn);
-	void drawCellSurfaces(int i, int j); // the rock face of a solid cell, the walls, floor and ceiling of an open one
-	void drawShapeBlocks(int i, int j, float basinFloor); // a shaped cell's solid sub-cells (plan subcell-physics)
-	CellRect drawnCells; // the cells the last Draw drew, for DrawWater
-	void pushLevelFrame() const; // Draw's frame: the view's first cell at the origin, scrolled with the player
-	void drawWaterCell(int i, int j, float x, float y);
 	[[nodiscard]] bool dryOpen(int col, int row) const; // walkable and not water: a basin's edge
-	[[nodiscard]] bool deepAt(int col, int row) const;
-	// A deep water cell's water inside its rock slabs, in world units from the cell's corner (WATER_SLAB).
-	struct WaterBox {
-		float left, right, bottom;
-	};
-	[[nodiscard]] WaterBox deepWaterBox(int col, int row) const;
-	void drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const;
 	Tile Map(float x, float y) const;
 	// The player's hitbox (Player::HalfWidth), stepping sideways (dir -1 or 1) to centre toX at map height y, hits
 	// something solid: the cell the player is in or the one at the hitbox's side (plan floor-queries), or a solid
@@ -446,36 +400,11 @@ class Dungeon {
 	void startRockFall(int cell, bool byPlayer = false); // an armed rock fall cell was stepped into: the rumble starts
 	static void landRock(Tile& t); // a falling rock fall's end: a rock becomes a Stone, a sand fall is Fallen
 	void updateRocks();
-	void drawKeyTile(int i, int j);
-	void drawPageTile(int i, int j);
-	void drawGateTile(int i, int j);
-	void drawLeverTile(int i, int j);
-	// At the cell origin: the columns face the camera, plasma between them; a name gate's pulses (nameGateAlpha).
-	void drawTeleporterTile(int i, int j);
-	// A ring platform (plan ring-transporter): the plate in the floor, the housing in the ceiling, the rings while they
-	// carry the player; a sealed one's plate breathes like a name gate's plasma.
-	void drawRingPlatformTile(int i, int j);
-	// The Stargate's inner track at its turn and its lit chevrons (plan stargate-chamber), in its prop's frame.
-	void drawStargate(int i, int j);
-	void addStargateLights(const CellRect& drawn); // the chevrons' glow on the walls round it
-	// The plasma's opacity in a teleporter's cell: 1, but for a sealed name gate's breath and the shimmer of one just
-	// opened.
-	[[nodiscard]] float nameGateAlpha(int cell) const;
-	void drawTileContent(int i, int j); // the fixture on the back wall, then what stands in the cell, by tile type
-	void drawFixture(int i, int j);
-	void drawAnkhTile();
-	void drawDoorTile(int i, int j); // a sphinx gate: entrance, exit, riddle or empty
-	// The scrolling plasma of the gates, over the quad v (its corners take the texture's (0, 0), (0, 1), (1, 1), (1,
-	// 0)).
-	void drawPortal(const float normal[3], const float v[4][3], bool red = false, float alpha = 1.f) const;
-	void drawRockFallTile(int i, int j);
-	void drawMechanismEffects(); // dust, after the opaque scene
 	DartTraps dartTraps;
 	void updateDartTraps();
 	[[nodiscard]] bool plateLoaded(int col, int row) const; // the player or a heavy monster stands on it
 	void pressPlate(int col, int row, bool byPlayer);
 	void updateDarts();
-	void drawDartPlateTile(int i, int j); // the plate and the dart holes above it
 	// Pressure plates (dungeon_plates.cpp, plan pressure-plate): each tick the weight on every plate; while all plates
 	// of a colour carry theirs, its plate gates open, else they close (not on anyone standing in the gate's cell).
 	std::vector<char> plateDown = std::vector<char>(MAP_CELL_COUNT, 0); // a plate carries its weight (drawn sunk)
@@ -488,10 +417,6 @@ class Dungeon {
 	void closePlateGate(int cell, int now); // from open, or back down from opening
 	void finishClosedGates();
 	[[nodiscard]] bool gateCellFree(int cell) const; // no one in the gate's cell: it may come down
-	void drawPressurePlateTile(int i, int j);
-	void drawStoneTile(int i, int j);
-	void drawInscriptionTile(int i, int j); // its atlas cell on the back wall
-	void drawDarts(); // with the frame origin of DrawMonsters
 	// Rhythm traps (dungeon_spikes.cpp, plans rhythm-traps, fire-jet-trap, poison-drip-trap): each wall spikes', fire
 	// vent's and poison drip's live state from the clock; coming out, the spikes stab and shove out whoever stands in
 	// the cell. A fire vent's jet burns whoever stands in its cell, a jump too (updateTraps); so does a poison drip's
@@ -499,7 +424,6 @@ class Dungeon {
 	void updateRhythmTraps();
 	void stabWallSpikes(int col, int row);
 	[[nodiscard]] std::optional<float> outOfSpikes(int col, int row, float centre, float half) const;
-	void drawWallSpikesTile(int i, int j); // the slotted panel and the spikes, as far out as the cycle has them
 	// The fire vent's jet is on in a cell of row the body from left to right overlaps.
 	[[nodiscard]] bool inFireJet(float left, float right, int row) const;
 	// A cell of row the body from left to right overlaps has a fixture that is `on`.
@@ -510,13 +434,7 @@ class Dungeon {
 	[[nodiscard]] bool inPuddle(float x, int row) const;
 	void updateDrips();
 	bool playerPuddled = false, playerDropped = false; // the puddle's poison, the drop took this entry
-	void
-	drawPoisonDrips(const CellRect& drawn); // the stain, the lump, the puddle and the falling venom, after the opaque
-	void addPoisonDripLights(const CellRect& drawn); // a faint green glow off each puddle
 	bool playerScorched = false; // the fire jet's line was told this entry (reset on leaving it)
-	void drawFireVentTile(); // the vent low in the back wall
-	void drawFireJets(const CellRect& drawn); // the jets and the telegraph's glow, after the opaque tiles
-	void addFireVentLights(const CellRect& drawn); // the jets light the corridor, the telegraph glows
 	// Sunlight mirrors (dungeon_sun.cpp, plan sunlight-mirrors): the beams as the mirrors and gates stand (traceBeams),
 	// the cells they light (map index); a turned mirror swings from its old angle, a sun disc just lit flares.
 	std::vector<BeamStep> sunBeams;
@@ -536,7 +454,6 @@ class Dungeon {
 	// the beam that falls on it (from above when none does), swinging after a turn.
 	[[nodiscard]] float mirrorAngle(int cell) const;
 	[[nodiscard]] float mirrorFaceDeg(int cell) const; // mirrorAngle without the swing
-	void drawMirrorTile(int i, int j); // the stand, the mirror and the pointer showing its way
 	// Dragging (dungeon_drag.cpp, plans mirror-drag, pressure-plate): what is held, its cell (map index, -1: none),
 	// a body's monster slot, and the thing's centre's x less the player's, kept while it is dragged: it stays on that
 	// side, the player faces it.
@@ -571,9 +488,6 @@ class Dungeon {
 	void updateDrag(); // once a tick: lets go when the player can no longer drag (dead, in the air, held, ...)
 	// Map x the dragged thing in cell is drawn off its cell's centre (0 for any other).
 	[[nodiscard]] float dragShift(int cell) const;
-	void drawSunDiscTile(int i, int j);
-	void drawSunBeams(); // after the opaque scene, drawSummonEffects' frame
-	void addSunLights(const CellRect& drawn);
 	// The Mother of Webs (dungeon_webs.cpp, plan camel-spider-boss): awake, a douser (MonsterKind::douseCells) puts
 	// out the torches and lamps near it on its row (DecorLayout::doused), a spinner (MonsterKind::webs) spins webs.
 	void updateSpinner(const Monster& mon);
@@ -598,7 +512,6 @@ class Dungeon {
 	// A blade's swing over the floor of row from fromX to toX (map x): the webs there are cut. How many.
 	int cutWebs(float fromX, float toX, int row);
 	[[nodiscard]] bool webFloor(int col, int row) const; // a web can lie there: dry floor, nothing in the cell
-	void drawWebs(); // the webs, the burning ones in flames; drawSummonEffects' frame
 	Monster monsters[MAX_MONSTERS];
 	[[nodiscard]] const Monster* nearestMonster() const; // the living one nearest the player; null if none
 	// An empty slot, else the slot of a dead monster, else that of the farthest monster out of sight (sent back to
@@ -636,7 +549,6 @@ class Dungeon {
 	bool wallSummonCell(int& outWall, int& outCell, int& outRow) const;
 	int playerFacing = -1; // the way the player last walked or turned (Move): -1 left (as the game starts), +1 right
 	int walkDir = -1; // the way the player last stepped (Move), turned or not: dragging, pulling or pushing
-	void drawSummonEffects(); // sand and dust where minions came out, the burrowers' holes, after the opaque scene
 	// Where a burrower went down or came up (Monster::Dive): sand thrown up and a dark hole, for BURROW_HOLE_MS.
 	struct Hole {
 		float x; // map x
@@ -650,22 +562,6 @@ class Dungeon {
 	// Dust kicked up by a step in sand (plan desert-chapter), for SAND_PUFF_MS: drawn with the holes.
 	std::vector<Hole> puffs;
 	std::vector<Hole> pours; // sand falls pouring down, from the end of the warning (startMs)
-	// Sand on the floor (dungeon_render_sand.cpp, plan desert-chapter).
-	[[nodiscard]] float driftHeight(int i, int j, float u, float v) const; // world units over the floor
-	void drawSandDrift(int i, int j); // in drawCellSurfaces' frame
-	void drawSandEffects(); // the steps' dust, a worm's ripple, the sand falls; drawSummonEffects' frame
-	void drawGusts(); // the sand blown along the sandstorm halls (plan sandstorm-halls); drawSandEffects' frame
-	// A sandstorm hall's shelter (plan sandstorm-halls): the side of cell (i, j) its pillar stands on, against the
-	// back wall, -1 left / +1 right: the side a gust blows in from (a gust beside it blowing this way), or the side of
-	// the pillar in the open cell below in a tall hall; 0: none.
-	[[nodiscard]] int windbreakSide(int i, int j) const;
-	// The pillar in drawCellSurfaces' frame, the wall texture bound: a base on the floor, a capital under the ceiling.
-	static void drawWindbreak(int side, bool floor, bool ceiling);
-	void drawRipple(float x, float y, float z, float size, int now) const; // size: 1 a worm's
-	// A shaft of daylight falls through the cracked sandstone ceiling of (i, j) (CEILING_SANDSTONE_CRACKED, picked by
-	// scatterSurfaces).
-	[[nodiscard]] bool lightShaft(int i, int j) const;
-	void drawHole(float x, float y, float z, float fade) const;
 	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of
 	// them. False: neither is floor it can stand on.
 	[[nodiscard]] bool burrowTarget(const Monster& mon, float& outX) const;
@@ -724,11 +620,6 @@ class Dungeon {
 	void blazeAt(float x, float y, int ms); // the floor of the cell under (x, y) burns, unless it is wet or no floor
 	void updateBlazes();
 	[[nodiscard]] bool blazeFloor(int col, int row) const; // a dry floor cell
-	void drawBlazes(); // drawSummonEffects' frame
-	void addBlazeLights();
-	void addVenomLights();
-	void addFireLights(); // the fire arrows' and the burning monsters' (plan fire-damage)
-	void drawBurning(); // flames on the burning monsters and the fire arrows; drawSummonEffects' frame
 	// The last power hit (plan skill-power-hit): where it landed (map units), when, its charge 0..1. Its spark and the
 	// view's shake (PowerHitShake) grow with the charge.
 	struct PowerHitMark {
@@ -737,9 +628,6 @@ class Dungeon {
 		float power = 0.f;
 	};
 	PowerHitMark powerHit;
-	void drawPowerSpark(); // drawSummonEffects' frame
-	void drawStunStars(); // stars over each stunned monster's head (plan skill-stun); drawSummonEffects' frame
-	void drawShots(); // with the frame origin of DrawMonsters
 	[[nodiscard]] bool clearRow(float fromX, float toX, int row) const; // no solid cell between the two on row
 	// A dung ball (plan scarab-dung-ball, dungeon_balls.cpp): kicked off by a roller (Monster::UpdateRoll), it rolls
 	// along the floor of its row; map units, (x, y) the bottom of the ball.
@@ -759,15 +647,11 @@ class Dungeon {
 	bool updateRoller(Monster& mon); // the windup and the kick; true: busy with it, no walk or bite
 	void updateBalls();
 	void breakBall(DungBall& ball, bool inWater);
-	void drawBalls(); // the balls rolling and in the windups; with the frame origin of DrawMonsters
-	void drawBallEffects(); // Khepri's flames, the crumbs of the broken ones; drawSummonEffects' frame
-	void addBallLights(); // the burning balls'; same frame as addLights
 
 	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
 	void updateTraps();
 	void updateMonsterPoison(); // the running poison of each monster; the player's poison kill is theirs
 	void updateBurning(); // the player's and each monster's fire (plan fire-damage); a monster's burning kill rewards
-	void drawMissiles(); // with the frame origin of DrawMonsters
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
@@ -811,13 +695,8 @@ class Dungeon {
 	void startCutScene(const std::vector<int>& opened);
 	void updateCutScene();
 	[[nodiscard]] int cutSceneLengthMs() const;
-	Timer portalTimer{50}; // steps the portal texture scroll
-	float portalScroll = 0.f;
-	float riddleMarkYaw = 0.f; // the spinning question mark over a riddle gate
-	float treasureSpin = 0.f; // degrees: the item turning over a treasure chest
 	// The monster tiles in the gameplay window (ViewWindow, 10 x 6 cells round the player) spawn their monsters.
 	void spawnInView();
-	void updateAnimations(); // the portal scroll, the riddle mark, the treasure items
 
   public:
 	// Feet at (x, y) in map units, half wide (a box; 0 a point), touch a spike or death trap's hitbox:
@@ -902,9 +781,6 @@ class Dungeon {
 	[[nodiscard]] int DecorTierUsed() const;
 	void Update();
 	void AnimateMonsters(); // once a tick, after Update: every active monster (Monster::Animate)
-	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
-	// The water over everything in it (the player too), see-through: after the player, in Draw's frame.
-	void DrawWater();
 	bool Move(float dirX, float dirY); // false: blocked or held (PlayerHeldBy), the player did not move
 	// Dragging (plans mirror-drag, pressure-plate): the drag key takes hold of a draggable thing (a mirror, a stone, an
 	// emptied chest, a monster's body: findDraggable) in the player's cell or the next one they face (facing -1 / +1),

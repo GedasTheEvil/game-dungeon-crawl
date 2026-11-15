@@ -1,7 +1,7 @@
 // The Mother of Webs' webs over the floor (plan camel-spider-boss, the rules in dungeon_webs.cpp): pale threads from
 // the middle of the cell out to its edges and rings round it, a faint sheet between them. A cut web fades, a burning
 // one goes up in flames.
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "../state/assets.h"
 #include "fire.h"
 #include "../render/lighting.h"
@@ -21,18 +21,18 @@ constexpr float SAG = 0.82f; // a ring's thread between two spokes sags in towar
 
 //======================================================================================
 // Same window and frame as drawSummonEffects.
-void Dungeon::drawWebs() {
-	if (webs.empty())
+void DungeonView::drawWebs() {
+	if (d.webs.empty())
 		return;
 	const int now = GameClock::now();
-	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
-	sim.assets->textures.nullTex.Bind();
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
+	assets.textures.nullTex.Bind();
 	Lighting::setEmissive(true); // seen in the dark too, a faint grey
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
-	for (const Web& w : webs) {
-		const int col = w.cell % MAP_WIDTH, row = w.cell / MAP_WIDTH;
+	for (const Dungeon::Web& w : d.webs) {
+		const int col = w.cell % Dungeon::MAP_WIDTH, row = w.cell / Dungeon::MAP_WIDTH;
 		if (!drawnCells.contains(static_cast<float>(col) + 0.5f, row))
 			continue;
 		const int age = w.goneMs < 0 ? 0 : now - w.goneMs;
@@ -83,9 +83,9 @@ void Dungeon::drawWebs() {
 	glDisable(GL_BLEND);
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
-	for (const Web& w : webs) // after the threads: the sprites blend over them
+	for (const Dungeon::Web& w : d.webs) // after the threads: the sprites blend over them
 		if (w.burnt && w.goneMs >= 0) {
-			const int col = w.cell % MAP_WIDTH, row = w.cell / MAP_WIDTH;
+			const int col = w.cell % Dungeon::MAP_WIDTH, row = w.cell / Dungeon::MAP_WIDTH;
 			const float fade = 1.f - static_cast<float>(now - w.goneMs) / static_cast<float>(WEB_BURN_MS);
 			for (int k = -1; k <= 1; k++)
 				Fire::draw(

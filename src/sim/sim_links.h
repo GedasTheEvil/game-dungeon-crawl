@@ -3,7 +3,6 @@
 
 #include "monster.h"
 
-struct Assets;
 class Player;
 class Journal;
 class ItemBag;
@@ -20,7 +19,6 @@ struct SimLinks {
 	Journal* journal = nullptr;
 	ItemBag* items = nullptr; // the inventory's contents
 	GameRandom* random = nullptr;
-	Assets* assets = nullptr; // models and textures: only the drawing (dungeon_render*.cpp) reads them
 	WorldEvents* events = nullptr;
 	const MonsterTypes* monsterTypes = nullptr; // the kinds and their ModelInfo, by MonsterTypeId
 	const InscriptionBook* inscriptions = nullptr; // the texts of the wall inscriptions; null: none can be read

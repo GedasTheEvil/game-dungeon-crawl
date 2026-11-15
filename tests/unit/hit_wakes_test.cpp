@@ -59,7 +59,6 @@ TEST_CASE("a walker hit by the player, then left with no way to them, runs off; 
 		 &world.journal,
 		 &world.items,
 		 &world.random,
-		 nullptr,
 		 &world.events,
 		 &recklessTypes(),
 		 &world.inscriptions,

@@ -1,6 +1,6 @@
 // Drawing the sunlight mirrors (plan sunlight-mirrors; dungeon_sun.cpp has their rules): the mirrors on their stands,
 // the sun discs, the beams and their light.
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "../sim/dungeon_rules.h"
 #include "../state/assets.h"
 #include "fire.h"
@@ -44,30 +44,34 @@ void enterPropSpace() {
 }
 } // namespace
 
-void Dungeon::drawMirrorTile(int i, int j) {
-	const MechanismSet& set = sim.assets->mechanisms;
-	const int cell = MapIndex(i, j);
+void DungeonView::drawMirrorTile(int i, int j) {
+	const MechanismSet& set = assets.mechanisms;
+	const int cell = d.MapIndex(i, j);
 	glPushMatrix();
-	glTranslatef(dragShift(cell) * RenderConfig::TILE_SIZE, 0, 0); // dragged, it follows the player (plan mirror-drag)
+	glTranslatef(
+		d.dragShift(cell) * RenderConfig::TILE_SIZE,
+		0,
+		0
+	); // dragged, it follows the player (plan mirror-drag)
 	enterPropSpace();
 	if (set.mirrorStand != nullptr)
 		set.mirrorStand->Show();
 	glTranslatef(0, BEAM_HEIGHT, BEAM_DEPTH);
 	glPushMatrix();
-	glRotatef(mirrorAngle(cell), 0, 0, 1);
+	glRotatef(d.mirrorAngle(cell), 0, 0, 1);
 	if (set.mirror != nullptr)
 		set.mirror->Show();
 	glPopMatrix();
 	glTranslatef(0, 0, POINTER_AHEAD);
-	glRotatef(dirDeg(mirrorDir(map[cell])), 0, 0, 1);
+	glRotatef(dirDeg(mirrorDir(d.map[cell])), 0, 0, 1);
 	if (set.mirrorPointer != nullptr)
 		set.mirrorPointer->Show();
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::drawSunDiscTile(int i, int j) {
-	const MechanismSet& set = sim.assets->mechanisms;
-	const Fixture disc = MapAt(i, j).fixture;
+void DungeonView::drawSunDiscTile(int i, int j) {
+	const MechanismSet& set = assets.mechanisms;
+	const Fixture disc = d.MapAt(i, j).fixture;
 	if (set.sunDisc == nullptr || !isLockColour(disc.attr))
 		return;
 	glPushMatrix();
@@ -77,8 +81,8 @@ void Dungeon::drawSunDiscTile(int i, int j) {
 }
 //======================================================================================
 // Same window and frame as drawSummonEffects.
-void Dungeon::drawSunBeams() {
-	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
+void DungeonView::drawSunBeams() {
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
 	auto world = [&](float mx, float my, float& x, float& y) {
 		x = (mx - col0) * T;
 		y = (my - row0) * T;
@@ -98,13 +102,13 @@ void Dungeon::drawSunBeams() {
 		SunBeam::glow(x, y, BEAM_Z, size, strength);
 	};
 	bool fresh = true; // the next step starts a beam, at its light shaft
-	for (const BeamStep& s : sunBeams) {
+	for (const BeamStep& s : d.sunBeams) {
 		if (fresh) {
 			edgePoint(s.cell, opposite(s.in), px, py);
 			glowAt(px, py, 22.f, 0.8f); // the crack the sun comes through
 			fresh = false;
 		}
-		const bool mirror = map[s.cell].type == Mirror;
+		const bool mirror = d.map[s.cell].type == Mirror;
 		float x = 0.f, y = 0.f;
 		if (mirror && s.out != s.in) { // turned, or caught
 			centrePoint(s.cell, x, y);
@@ -116,9 +120,12 @@ void Dungeon::drawSunBeams() {
 		fresh = true;
 		if (mirror && s.out == opposite(s.in))
 			continue;
-		const int next = s.cell + beamDx(s.out) + beamDy(s.out) * MAP_WIDTH;
-		const Tile ahead = IsInBounds(s.cell % MAP_WIDTH + beamDx(s.out), s.cell / MAP_WIDTH + beamDy(s.out))
-							   ? map[next]
+		const int next = s.cell + beamDx(s.out) + beamDy(s.out) * Dungeon::MAP_WIDTH;
+		const Tile ahead = d.IsInBounds(
+							   s.cell % Dungeon::MAP_WIDTH + beamDx(s.out),
+							   s.cell / Dungeon::MAP_WIDTH + beamDy(s.out)
+						   )
+							   ? d.map[next]
 							   : wallTile();
 		if (ahead.type == Gate && beamDy(s.out) == 0) // the portcullis stands in the middle of its cell
 			centrePoint(next, x, y);
@@ -137,11 +144,11 @@ void Dungeon::drawSunBeams() {
 	const int now = GameClock::now();
 	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++)
 		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++) {
-			if (!IsInBounds(i, j) || MapAt(i, j).fixture.type != SunDisc || !sunDiscLit(MapAt(i, j).fixture))
+			if (!d.IsInBounds(i, j) || d.MapAt(i, j).fixture.type != SunDisc || !sunDiscLit(d.MapAt(i, j).fixture))
 				continue;
 			float flare = 0.f;
-			for (const Motion& m : litDiscs)
-				if (m.cell == MapIndex(i, j))
+			for (const Dungeon::Motion& m : d.litDiscs)
+				if (m.cell == d.MapIndex(i, j))
 					flare = 1.f - motionProgress(m.startMs, SUN_DISC_FLARE_MS);
 			float x = 0.f, y = 0.f;
 			world(static_cast<float>(i) + 0.5f, static_cast<float>(j) + BEAM_HEIGHT, x, y);
@@ -151,15 +158,15 @@ void Dungeon::drawSunBeams() {
 }
 //======================================================================================
 // Same frame as addLights: along the beams every other cell and each corner, the lit sun discs.
-void Dungeon::addSunLights(const CellRect& drawn) {
+void DungeonView::addSunLights(const CellRect& drawn) {
 	const CellRect near = drawn.grown(2);
 	auto inside = [&](int col, int row) {
 		return col >= near.col0 && col < near.col0 + near.cols && row >= near.row0 && row < near.row0 + near.rows;
 	};
-	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
-	for (size_t k = 0; k < sunBeams.size(); k++) {
-		const BeamStep& s = sunBeams[k];
-		const int col = s.cell % MAP_WIDTH, row = s.cell / MAP_WIDTH;
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
+	for (size_t k = 0; k < d.sunBeams.size(); k++) {
+		const BeamStep& s = d.sunBeams[k];
+		const int col = s.cell % Dungeon::MAP_WIDTH, row = s.cell / Dungeon::MAP_WIDTH;
 		if (!inside(col, row) || (k % 2 != 0 && s.in == s.out && !s.ends))
 			continue;
 		Lighting::add(
@@ -172,12 +179,12 @@ void Dungeon::addSunLights(const CellRect& drawn) {
 	}
 	for (int j = near.row0; j < near.row0 + near.rows; j++)
 		for (int i = near.col0; i < near.col0 + near.cols; i++)
-			if (IsInBounds(i, j) && MapAt(i, j).fixture.type == SunDisc && sunDiscLit(MapAt(i, j).fixture))
+			if (d.IsInBounds(i, j) && d.MapAt(i, j).fixture.type == SunDisc && sunDiscLit(d.MapAt(i, j).fixture))
 				Lighting::add(
 					(static_cast<float>(i) + 0.5f - col0) * T,
 					(static_cast<float>(j) + BEAM_HEIGHT - row0) * T,
 					-T + 4.f,
 					Lighting::SUNBEAM,
-					static_cast<uint32_t>(MapIndex(i, j))
+					static_cast<uint32_t>(d.MapIndex(i, j))
 				);
 }

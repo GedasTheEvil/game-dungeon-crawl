@@ -74,15 +74,7 @@ void GameState::Load() {
 		LOG_WARNINGF("game", "Texts: %s", message.c_str());
 	LOG_INFO("game", "Loaded " + std::to_string(gameTexts().Size()) + " texts");
 	dungeon.Link(
-		{player.get(),
-		 &journal,
-		 &ui.inventory->Bag(),
-		 &random,
-		 &assets,
-		 &events,
-		 &assets.monsterTypes,
-		 &inscriptions,
-		 &names}
+		{player.get(), &journal, &ui.inventory->Bag(), &random, &events, &assets.monsterTypes, &inscriptions, &names}
 	);
 
 	timers.idleModel.Reset();

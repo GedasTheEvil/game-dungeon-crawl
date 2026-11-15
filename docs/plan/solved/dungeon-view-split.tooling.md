@@ -1,6 +1,6 @@
 # The dungeon draw members and their state out of Dungeon into a DungeonView
 
-Status: draft 2026-11-13, size L, needs nothing first.
+Status: solved 2026-11-15. Was: draft 2026-11-13, size L, needs nothing first.
 
 ## Problem
 
@@ -60,3 +60,19 @@ library).
 
 * `friend` vs const accessors: `friend` keeps the move mechanical; accessors document what the drawing reads but add
   many one-line getters. Implementer's choice, per file.
+
+## Done
+
+* `src/graphics/dungeon_view.{h,cpp}`: `class DungeonView` with `Dungeon& d` and `Assets& assets` (`friend class
+  DungeonView;` in `Dungeon`), owned by `GameState::dungeonView`; `graphics/draw.cpp` calls its `Draw` and
+  `DrawWater`. All 80 members of `dungeon_render*.cpp` moved in one step, not one file per commit: a script prefixed
+  the Dungeon's members with `d.` (nested types and statics with `Dungeon::`) where the compiler found them
+  undeclared. The bodies are otherwise unchanged.
+* Render-only state moved: `contours`, `itemParts`, `drawnCells`, `WaterBox`. The animation counters are gone:
+  `portalScroll()`, `riddleMarkYaw()`, `treasureSpin()` follow `GameClock::now()` (the same speeds: one step per 50 ms,
+  one degree per 16 ms tick); `Dungeon::updateAnimations` is gone.
+* `SimLinks::assets`, `class Item;` and `<functional>` are out of `src/sim/dungeon.h`; `grep -c "draw\|Draw"` there
+  finds 13 comment lines only. `touch src/graphics/dungeon_view.h && make` rebuilds nothing under `src/sim/`.
+* Check: 38 render scenarios (312 screenshots) before and after. 75 differ, each only where a gate's plasma, a
+  treasure's item or a riddle mark is (the animations' phase now starts at clock 0); the rest are byte-identical.
+* Left as is: `friend` instead of const accessors (open question: `friend` kept the move mechanical).

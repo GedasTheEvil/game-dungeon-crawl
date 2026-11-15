@@ -10,7 +10,8 @@ constexpr float TILE_HALF = TILE_SIZE / 2.f;
 constexpr float WATER_BASIN_DEPTH = 15.f;
 constexpr float WATER_SURFACE = -3.f;
 constexpr float WATER_DEPTH = WATER_BASIN_DEPTH + WATER_SURFACE; // from the basin floor to the surface
-// Deep water meeting an open cell below or beside it sits on / against a rock slab this thick (Dungeon::deepWaterBox).
+// Deep water meeting an open cell below or beside it sits on / against a rock slab this thick
+// (DungeonView::deepWaterBox).
 constexpr float WATER_SLAB = 4.f;
 constexpr float WATER_SINK_RAMP = 0.3f; // tiles from a dry edge: wading in, the sink grows over this
 // A sand burrower (the worm, Rerek) in sand is drawn this far up, so its low body shows over the drift's crest

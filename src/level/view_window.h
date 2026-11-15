@@ -16,7 +16,7 @@ struct CellRect {
 };
 
 // The gameplay window round the player: WIDTH x HEIGHT cells from (firstCol(), originRow). Monsters spawn in it and
-// are seen in it (the journal), whatever the window size. Dungeon::Draw's frame puts cell (originCol, originRow) at
+// are seen in it (the journal), whatever the window size. DungeonView::Draw's frame puts cell (originCol, originRow) at
 // the origin; the column left of it belongs to the window too.
 struct ViewWindow {
 	static constexpr int WIDTH = 10;
@@ -35,8 +35,8 @@ constexpr int DRAWN_EXTRA_ROWS = 4;
 
 // The cells to draw: the gameplay window, widened to cover what the camera sees of the level (plus a margin cell for
 // models that reach past their cell), at most DRAWN_EXTRA_* past it. clip: projection x modelview (column-major, as
-// glGet gives it) in Dungeon::Draw's frame, where a cell is tileSize wide and cell (originCol, originRow) sits at the
-// origin. The level lies between z 0 (the rock face) and z -tileSize (the back wall).
+// glGet gives it) in DungeonView::Draw's frame, where a cell is tileSize wide and cell (originCol, originRow) sits at
+// the origin. The level lies between z 0 (the rock face) and z -tileSize (the back wall).
 [[nodiscard]] CellRect drawnWindow(const ViewWindow& view, const float clip[16], float tileSize);
 
 #endif

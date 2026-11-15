@@ -2,7 +2,7 @@
 // the lump of venom swelling in it, wobbling in the telegraph, then falling into the glossy green puddle on the floor
 // with a splash, the venom pouring after it while the drop is out; small drops ring the puddle in between. All of it
 // from the cycle and the clock (spike_cycle.h), nothing kept.
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "../state/assets.h"
 #include "fire.h"
 #include "../render/lighting.h"
@@ -112,26 +112,26 @@ void smallDrop(float x, float floor, float ceiling, int ageMs) {
 
 //======================================================================================
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
-void Dungeon::drawPoisonDrips(const CellRect& drawn) {
+void DungeonView::drawPoisonDrips(const CellRect& drawn) {
 	const int now = GameClock::now();
 	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
 	bool set = false;
 	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++)
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
-			if (!IsInBounds(i, j) || MapAt(i, j).fixture.type != PoisonDrip)
+			if (!d.IsInBounds(i, j) || d.MapAt(i, j).fixture.type != PoisonDrip)
 				continue;
 			if (!set) {
 				set = true;
-				sim.assets->textures.nullTex.Bind(); // white: the colour alone
+				assets.textures.nullTex.Bind(); // white: the colour alone
 				Lighting::setEmissive(true); // venom glows a little: the trap reads in the dark
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glDisable(GL_CULL_FACE);
 				glDepthMask(GL_FALSE);
 			}
-			const Fixture& f = MapAt(i, j).fixture;
-			const float x = static_cast<float>(i - view().originCol) * T + RenderConfig::TILE_HALF;
-			const float y = static_cast<float>(j - view().originRow) * T;
+			const Fixture& f = d.MapAt(i, j).fixture;
+			const float x = static_cast<float>(i - d.view().originCol) * T + RenderConfig::TILE_HALF;
+			const float y = static_cast<float>(j - d.view().originRow) * T;
 			const float floor = y + PUDDLE_LIFT, ceiling = y + T;
 			const int at = spikeCycleMs(f, now), out = spikeOutMs(f), period = spikePeriodMs(f);
 			disc(x, ceiling - 0.2f, DRIP_Z, STAIN_RX, STAIN_RZ, STAIN, Rgba{STAIN.r, STAIN.g, STAIN.b, 0.f});
@@ -171,10 +171,10 @@ void Dungeon::drawPoisonDrips(const CellRect& drawn) {
 					x,
 					floor + 1.f,
 					DRIP_Z,
-					static_cast<uint32_t>(MapIndex(i, j)) * 2654435761u,
+					static_cast<uint32_t>(d.MapIndex(i, j)) * 2654435761u,
 					1.f - static_cast<float>(landed) / SPLASH_MS
 				);
-				sim.assets->textures.nullTex.Bind(); // the fire binds its sprite and sets its own blending
+				assets.textures.nullTex.Bind(); // the fire binds its sprite and sets its own blending
 				Lighting::setEmissive(true);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -199,16 +199,16 @@ void Dungeon::drawPoisonDrips(const CellRect& drawn) {
 }
 //======================================================================================
 // Same frame as addLights.
-void Dungeon::addPoisonDripLights(const CellRect& drawn) {
+void DungeonView::addPoisonDripLights(const CellRect& drawn) {
 	const CellRect lit = drawn.grown(1);
 	for (int j = lit.row0; j < lit.row0 + lit.rows; j++)
 		for (int i = lit.col0; i < lit.col0 + lit.cols; i++)
-			if (IsInBounds(i, j) && MapAt(i, j).fixture.type == PoisonDrip)
+			if (d.IsInBounds(i, j) && d.MapAt(i, j).fixture.type == PoisonDrip)
 				Lighting::add(
-					static_cast<float>(i - view().originCol) * T + RenderConfig::TILE_HALF,
-					static_cast<float>(j - view().originRow) * T + 2.f,
+					static_cast<float>(i - d.view().originCol) * T + RenderConfig::TILE_HALF,
+					static_cast<float>(j - d.view().originRow) * T + 2.f,
 					DRIP_Z,
 					PUDDLE_GLOW,
-					static_cast<uint32_t>(MapIndex(i, j))
+					static_cast<uint32_t>(d.MapIndex(i, j))
 				);
 }

@@ -1,6 +1,6 @@
 // Drawing the decorations scatterDecor placed (decor_scatter.h): props, decals, torches, ladders, and the flames and
 // lights of the fires among them. Also the inscriptions, decals the level places.
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "../level/gameplay_config.h"
 #include "../level/names.h"
 #include "../state/assets.h"
@@ -140,13 +140,13 @@ void waterMotion(int type, int cell) {
 }
 } // namespace
 
-void Dungeon::drawDecorTile(int i, int j) {
-	const DecorCell& cell = decoration.decor[MapIndex(i, j)];
+void DungeonView::drawDecorTile(int i, int j) {
+	const DecorCell& cell = d.decoration.decor[d.MapIndex(i, j)];
 	if (cell.type < 0)
 		return;
 
 	const int shown = decorModel(cell.type);
-	AnimatedModel* model = sim.assets->decor.model[shown].get();
+	AnimatedModel* model = assets.decor.model[shown].get();
 	if (model == nullptr)
 		return;
 
@@ -158,31 +158,31 @@ void Dungeon::drawDecorTile(int i, int j) {
 		RenderConfig::TILE_SIZE
 	);
 	if (isWaterProp(cell.type))
-		waterMotion(cell.type, MapIndex(i, j));
+		waterMotion(cell.type, d.MapIndex(i, j));
 
 	// Textured only (lighting is baked in); the toon pass would wash out dark details.
-	sim.assets->decor.tex[shown].Bind();
+	assets.decor.tex[shown].Bind();
 	model->Show(); // no face culling, so the mirrored winding does not matter
 	if (cell.type == DECOR_STARGATE)
 		drawStargate(i, j);
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::drawDecalTile(int i, int j) {
-	const DecalCell& cell = decoration.decal[MapIndex(i, j)];
+void DungeonView::drawDecalTile(int i, int j) {
+	const DecalCell& cell = d.decoration.decal[d.MapIndex(i, j)];
 	if (cell.type < 0)
 		return;
-	sim.assets->decor.decalTex.Bind();
+	assets.decor.decalTex.Bind();
 	wallQuad(cell.x, cell.y, DECAL_DEFS[cell.type].size, atlasCell(cell.type, DECAL_ATLAS_GRID), cell.mirror);
 }
 //======================================================================================
 // Composed from its plate and signs (plan composed-inscriptions); without a text it shows the scattered cartouche.
-void Dungeon::drawInscriptionTile(int i, int j) {
-	const int id = MapAt(i, j).fixture.attr;
-	const InscriptionText* text = isInscriptionId(id) && sim.inscriptions != nullptr ? sim.inscriptions->Find(id)
-																					 : nullptr;
-	const RoyalName* name = id == NAME_CARTOUCHE_ID ? LevelName() : nullptr; // plan secret-name-gates: it spells it
-	const DecorSet& decor = sim.assets->decor;
+void DungeonView::drawInscriptionTile(int i, int j) {
+	const int id = d.MapAt(i, j).fixture.attr;
+	const InscriptionText* text = isInscriptionId(id) && d.sim.inscriptions != nullptr ? d.sim.inscriptions->Find(id)
+																					   : nullptr;
+	const RoyalName* name = id == NAME_CARTOUCHE_ID ? d.LevelName() : nullptr; // plan secret-name-gates: it spells it
+	const DecorSet& decor = assets.decor;
 	if (text == nullptr && name == nullptr) {
 		decor.decalTex.Bind();
 		wallQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, atlasCell(DECAL_CARTOUCHE, DECAL_ATLAS_GRID), false);
@@ -207,30 +207,30 @@ void Dungeon::drawInscriptionTile(int i, int j) {
 	);
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	if (const float glint = InscriptionGlint(i, j); glint > 0.f) {
+	if (const float glint = d.InscriptionGlint(i, j); glint > 0.f) {
 		decor.inscriptionPlates.Bind();
-		glintQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, plateCell(style), glint, MapIndex(i, j));
+		glintQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, plateCell(style), glint, d.MapIndex(i, j));
 	}
 }
 //======================================================================================
-void Dungeon::drawTorchTile(int i, int j) {
-	AnimatedModel* model = sim.assets->decor.torch.get();
-	if (!decoration.torch[MapIndex(i, j)] || model == nullptr)
+void DungeonView::drawTorchTile(int i, int j) {
+	AnimatedModel* model = assets.decor.torch.get();
+	if (!d.decoration.torch[d.MapIndex(i, j)] || model == nullptr)
 		return;
 
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
 	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
-	sim.assets->decor.torchTex.Bind();
+	assets.decor.torchTex.Bind();
 	model->Show();
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::drawLadderTile(int i, int j) {
-	const LadderCell& cell = decoration.ladder[MapIndex(i, j)];
+void DungeonView::drawLadderTile(int i, int j) {
+	const LadderCell& cell = d.decoration.ladder[d.MapIndex(i, j)];
 	if (cell.style < 0)
 		return;
-	AnimatedModel* model = sim.assets->decor.ladder[cell.style][cell.piece].get();
+	AnimatedModel* model = assets.decor.ladder[cell.style][cell.piece].get();
 	if (model == nullptr)
 		return;
 
@@ -241,7 +241,7 @@ void Dungeon::drawLadderTile(int i, int j) {
 		RenderConfig::TILE_SIZE,
 		RenderConfig::TILE_SIZE
 	);
-	sim.assets->decor.ladderTex[cell.style][cell.piece].Bind();
+	assets.decor.ladderTex[cell.style][cell.piece].Bind();
 	model->Show(); // textured only, like the props
 	glPopMatrix();
 }
@@ -272,16 +272,16 @@ FlameSource flameSource(const Flame& f) {
 //======================================================================================
 // Lights from flames a little beyond the drawn window too, so light spills in before its source is visible.
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
-void Dungeon::addLights(const CellRect& drawn) {
-	const int col0 = view().originCol;
-	const int row0 = view().originRow;
+void DungeonView::addLights(const CellRect& drawn) {
+	const int col0 = d.view().originCol;
+	const int row0 = d.view().originRow;
 	const CellRect lit = drawn.grown(2);
 	for (int j = lit.row0; j < lit.row0 + lit.rows; j++)
 		for (int i = lit.col0; i < lit.col0 + lit.cols; i++) {
-			if (!IsInBounds(i, j))
+			if (!d.IsInBounds(i, j))
 				continue;
 			Flame flames[MAX_CELL_FLAMES];
-			int n = flamesAt(decoration, MapIndex(i, j), flames);
+			int n = flamesAt(d.decoration, d.MapIndex(i, j), flames);
 			float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
 			float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
 			for (int k = 0; k < n; k++) {
@@ -294,21 +294,21 @@ void Dungeon::addLights(const CellRect& drawn) {
 					oy + RenderConfig::TILE_SIZE * 0.3f,
 					-RenderConfig::TILE_SIZE * 0.45f,
 					Lighting::LIGHT_SHAFT,
-					static_cast<uint32_t>(MapIndex(i, j))
+					static_cast<uint32_t>(d.MapIndex(i, j))
 				);
 		}
 }
 //======================================================================================
 // After all opaque tiles: the sprites do not write depth, so later tiles would paint over them.
-void Dungeon::drawFires(const CellRect& drawn) {
-	const int col0 = view().originCol;
-	const int row0 = view().originRow;
+void DungeonView::drawFires(const CellRect& drawn) {
+	const int col0 = d.view().originCol;
+	const int row0 = d.view().originRow;
 	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++)
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
-			if (!IsInBounds(i, j))
+			if (!d.IsInBounds(i, j))
 				continue;
 			Flame flames[MAX_CELL_FLAMES];
-			int n = flamesAt(decoration, MapIndex(i, j), flames);
+			int n = flamesAt(d.decoration, d.MapIndex(i, j), flames);
 			float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
 			float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
 			for (int k = 0; k < n; k++) {
@@ -318,13 +318,13 @@ void Dungeon::drawFires(const CellRect& drawn) {
 		}
 	// A torch or a lamp the Mother of Webs put out (plan camel-spider-boss): its flame dies down.
 	const int now = GameClock::now();
-	for (const Motion& m : snuffs) {
+	for (const Dungeon::Motion& m : d.snuffs) {
 		const int age = now - m.startMs;
-		const int i = m.cell % MAP_WIDTH, j = m.cell / MAP_WIDTH;
+		const int i = m.cell % Dungeon::MAP_WIDTH, j = m.cell / Dungeon::MAP_WIDTH;
 		if (age < 0 || age >= SNUFF_MS || !drawn.contains(static_cast<float>(i) + 0.5f, j))
 			continue;
 		Flame flames[MAX_CELL_FLAMES];
-		const int n = flamesAt(decoration, m.cell, flames, true);
+		const int n = flamesAt(d.decoration, m.cell, flames, true);
 		const float ox = static_cast<float>(i - col0) * RenderConfig::TILE_SIZE;
 		const float oy = static_cast<float>(j - row0) * RenderConfig::TILE_SIZE;
 		for (int k = 0; k < n; k++)
@@ -338,12 +338,12 @@ void Dungeon::drawFires(const CellRect& drawn) {
 //======================================================================================
 // In the prop's frame (drawDecorTile): the track turned round the ring's centre, then each lit chevron over its dark
 // one, added on in its glow.
-void Dungeon::drawStargate(int i, int j) {
-	const DecorSet& decor = sim.assets->decor;
+void DungeonView::drawStargate(int i, int j) {
+	const DecorSet& decor = assets.decor;
 	glPushMatrix();
 	glTranslatef(0, GATE_CENTRE_Y, GATE_CENTRE_Z);
 	glPushMatrix();
-	glRotatef(StargateTrackDeg(i, j), 0, 0, 1);
+	glRotatef(d.StargateTrackDeg(i, j), 0, 0, 1);
 	glTranslatef(0, -GATE_CENTRE_Y, -GATE_CENTRE_Z);
 	if (decor.stargateTrack != nullptr)
 		decor.stargateTrack->Show();
@@ -353,7 +353,7 @@ void Dungeon::drawStargate(int i, int j) {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDepthMask(GL_FALSE);
 		for (int k = 0; k < STARGATE_CHEVRONS; k++) {
-			const float glow = ChevronGlow(i, j, k);
+			const float glow = d.ChevronGlow(i, j, k);
 			if (glow <= 0.f)
 				continue;
 			glPushMatrix();
@@ -370,24 +370,25 @@ void Dungeon::drawStargate(int i, int j) {
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::addStargateLights(const CellRect& drawn) {
-	if (!Dialling())
+void DungeonView::addStargateLights(const CellRect& drawn) {
+	if (!d.Dialling())
 		return;
-	const int col = dial.cell % MAP_WIDTH, row = dial.cell / MAP_WIDTH;
+	const int col = d.dial.cell % Dungeon::MAP_WIDTH, row = d.dial.cell / Dungeon::MAP_WIDTH;
 	if (!drawn.grown(2).contains(static_cast<float>(col) + 0.5f, row))
 		return;
 	float glow = 0.f;
 	for (int k = 0; k < STARGATE_CHEVRONS; k++)
-		glow += ChevronGlow(col, row, k);
+		glow += d.ChevronGlow(col, row, k);
 	glow /= STARGATE_CHEVRONS;
 	if (glow <= 0.f)
 		return;
 	const Lighting::LightDef light = {glow, 0.55f * glow, 0.2f * glow, CHEVRON_LIGHT_RADIUS, 0.1f};
 	Lighting::add(
-		static_cast<float>(col - view().originCol) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF,
-		static_cast<float>(row - view().originRow) * RenderConfig::TILE_SIZE + GATE_CENTRE_Y * RenderConfig::TILE_SIZE,
+		static_cast<float>(col - d.view().originCol) * RenderConfig::TILE_SIZE + RenderConfig::TILE_HALF,
+		static_cast<float>(row - d.view().originRow) * RenderConfig::TILE_SIZE +
+			GATE_CENTRE_Y * RenderConfig::TILE_SIZE,
 		-RenderConfig::TILE_SIZE + GATE_CENTRE_Z * RenderConfig::TILE_SIZE + 6.f,
 		light,
-		static_cast<uint32_t>(dial.cell)
+		static_cast<uint32_t>(d.dial.cell)
 	);
 }

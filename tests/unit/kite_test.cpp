@@ -28,7 +28,6 @@ const Monster& kiterIn(SimWorld& world, const char* level) {
 		 &world.journal,
 		 &world.items,
 		 &world.random,
-		 nullptr,
 		 &world.events,
 		 &kiterTypes(),
 		 &world.inscriptions,

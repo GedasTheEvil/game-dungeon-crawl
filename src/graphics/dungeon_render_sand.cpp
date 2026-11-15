@@ -1,6 +1,6 @@
 // Sand on the floor (plan desert-chapter): the drifts, the quicksand's swirl, the dust of the steps, the sand worm's
 // ripple and the sand falls pouring down.
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "../state/assets.h"
 #include "../sim/player.h"
 #include <GL/gl.h>
@@ -35,18 +35,18 @@ float smooth(float e0, float e1, float x) {
 // The drift's height (world units) at (u, v) of cell (i, j): u 0..1 left to right, v 0..1 back wall to front. Ripples
 // run in level coordinates, so drifts side by side meet; towards an open neighbour without sand the drift runs out,
 // against rock it piles up, and it piles against the back wall too. Quicksand sags in the middle.
-float Dungeon::driftHeight(int i, int j, float u, float v) const {
+float DungeonView::driftHeight(int i, int j, float u, float v) const {
 	const float x = static_cast<float>(i) + u;
 	float h = DRIFT_HEIGHT * (0.8f + 0.35f * (1.f - v) * (1.f - v));
 	h += RIPPLE * std::sin(6.2832f * (2.3f * x + 0.4f * v)) + 0.5f * RIPPLE * std::sin(6.2832f * (5.1f * x - 0.9f * v));
 	for (int side : {-1, 1}) {
 		const float edge = side < 0 ? u : 1.f - u; // 0 at that side's border
-		if (isRock(i + side, j))
+		if (d.isRock(i + side, j))
 			h += 0.5f * DRIFT_HEIGHT * (1.f - smooth(0.f, 0.5f, edge));
-		else if (!IsInBounds(i + side, j) || !inSand(MapAt(i + side, j)))
+		else if (!d.IsInBounds(i + side, j) || !inSand(d.MapAt(i + side, j)))
 			h *= smooth(0.f, DRIFT_EDGE, edge);
 	}
-	if (inQuicksand(MapAt(i, j))) {
+	if (inQuicksand(d.MapAt(i, j))) {
 		const float r = std::hypot(u - 0.5f, (v - 0.5f) * 0.8f) / 0.45f;
 		h *= 1.f - QUICKSAND_DIP * std::max(0.f, 1.f - r) * std::max(0.f, 1.f - r);
 	}
@@ -55,11 +55,11 @@ float Dungeon::driftHeight(int i, int j, float u, float v) const {
 //======================================================================================
 // The drift as a grid over the cell's floor, its front edge closed by a strip of sand down to the floor. Quicksand is
 // darker, and up close its sand twists slowly round the middle (the tell).
-void Dungeon::drawSandDrift(int i, int j) {
-	const bool quick = inQuicksand(MapAt(i, j));
+void DungeonView::drawSandDrift(int i, int j) {
+	const bool quick = inQuicksand(d.MapAt(i, j));
 	float twist = 0.f;
 	if (quick) {
-		const float near = std::hypot(mapX - static_cast<float>(i) - 0.5f, (mapY - static_cast<float>(j)) * 2.f);
+		const float near = std::hypot(d.mapX - static_cast<float>(i) - 0.5f, (d.mapY - static_cast<float>(j)) * 2.f);
 		const float k = 1.f - smooth(1.f, SWIRL_NEAR, near);
 		twist = k * SWIRL_TWIST * std::sin(static_cast<float>(GameClock::now()) * 0.0011f + static_cast<float>(i));
 	}
@@ -74,7 +74,7 @@ void Dungeon::drawSandDrift(int i, int j) {
 		for (int b = 0; b <= DRIFT_NZ; b++)
 			hs[a][b] = driftHeight(i, j, static_cast<float>(a) / DRIFT_NX, static_cast<float>(b) / DRIFT_NZ);
 
-	sim.assets->decor.floorTex[FLOOR_SAND].Bind();
+	assets.decor.floorTex[FLOOR_SAND].Bind();
 	if (quick)
 		glColor3f(0.78f, 0.68f, 0.55f);
 	constexpr float DX = T / DRIFT_NX, DZ = T / DRIFT_NZ;
@@ -110,14 +110,18 @@ void Dungeon::drawSandDrift(int i, int j) {
 //======================================================================================
 // Same window and frame as drawSummonEffects: the dust of the steps in sand, a sand worm's ripple under the sand, the
 // sand falls pouring down.
-void Dungeon::drawSandEffects() {
+void DungeonView::drawSandEffects() {
 	const int now = GameClock::now();
-	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
-	puffs.erase(
-		std::remove_if(puffs.begin(), puffs.end(), [now](const Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }),
-		puffs.end()
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
+	d.puffs.erase(
+		std::remove_if(
+			d.puffs.begin(),
+			d.puffs.end(),
+			[now](const Dungeon::Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }
+		),
+		d.puffs.end()
 	);
-	for (const Hole& p : puffs)
+	for (const Dungeon::Hole& p : d.puffs)
 		Grit::puff(
 			(p.x - col0) * T,
 			(static_cast<float>(p.row) - row0) * T + DRIFT_HEIGHT,
@@ -127,7 +131,7 @@ void Dungeon::drawSandEffects() {
 			static_cast<uint32_t>(p.startMs)
 		);
 
-	for (const Monster& mon : monsters) {
+	for (const Monster& mon : d.monsters) {
 		const std::optional<float> x = mon.Active() && mon.Type()->sandBurrow ? mon.BurrowRipple() : std::nullopt;
 		if (!x)
 			continue;
@@ -135,21 +139,23 @@ void Dungeon::drawSandEffects() {
 		drawRipple(cx, cy, RenderConfig::MONSTER_DEPTH, std::sqrt(mon.Type()->scale / RIPPLE_SCALE), now);
 	}
 
-	pours.erase(
+	d.pours.erase(
 		std::remove_if(
-			pours.begin(),
-			pours.end(),
-			[now](const Hole& h) { return now - h.startMs >= SAND_POUR_MS + 400; }
+			d.pours.begin(),
+			d.pours.end(),
+			[now](const Dungeon::Hole& h) { return now - h.startMs >= SAND_POUR_MS + 400; }
 		),
-		pours.end()
+		d.pours.end()
 	);
-	for (const Motion& m : fallingRocks) // the stream starts as the warning ends
-		if (isSandFall(map[m.cell]) && now - m.startMs >= ROCK_WARN_MS &&
-			std::none_of(pours.begin(), pours.end(), [&](const Hole& h) {
+	for (const Dungeon::Motion& m : d.fallingRocks) // the stream starts as the warning ends
+		if (isSandFall(d.map[m.cell]) && now - m.startMs >= ROCK_WARN_MS &&
+			std::none_of(d.pours.begin(), d.pours.end(), [&](const Dungeon::Hole& h) {
 				return h.startMs == m.startMs + ROCK_WARN_MS;
 			}))
-			pours.push_back(
-				{static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, m.startMs + ROCK_WARN_MS}
+			d.pours.push_back(
+				{static_cast<float>(m.cell % Dungeon::MAP_WIDTH) + 0.5f,
+				 m.cell / Dungeon::MAP_WIDTH,
+				 m.startMs + ROCK_WARN_MS}
 			);
 	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++) // after the opaque scene
 		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++)
@@ -158,9 +164,9 @@ void Dungeon::drawSandEffects() {
 					(static_cast<float>(i) + 0.5f - col0) * T,
 					(static_cast<float>(j) - row0) * T,
 					-T * SHAFT_DEPTH,
-					static_cast<uint32_t>(MapIndex(i, j))
+					static_cast<uint32_t>(d.MapIndex(i, j))
 				);
-	for (const Hole& p : pours)
+	for (const Dungeon::Hole& p : d.pours)
 		Grit::pour(
 			(p.x - col0) * T,
 			(static_cast<float>(p.row + 1) - row0) * T,
@@ -173,14 +179,14 @@ void Dungeon::drawSandEffects() {
 //======================================================================================
 // Same frame as drawSandEffects: the sand blown through each cell of a sandstorm hall (plan sandstorm-halls), after the
 // opaque scene.
-void Dungeon::drawGusts() {
+void DungeonView::drawGusts() {
 	const int now = GameClock::now();
-	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
 	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++)
 		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++) {
-			if (!IsInBounds(i, j))
+			if (!d.IsInBounds(i, j))
 				continue;
-			const Fixture& f = MapAt(i, j).fixture;
+			const Fixture& f = d.MapAt(i, j).fixture;
 			if (f.type != SandGust)
 				continue;
 			Grit::gust(
@@ -191,28 +197,28 @@ void Dungeon::drawGusts() {
 				gustDir(f),
 				gustStrength(f, now),
 				now,
-				static_cast<uint32_t>(MapIndex(i, j))
+				static_cast<uint32_t>(d.MapIndex(i, j))
 			);
 		}
 }
 //======================================================================================
-int Dungeon::windbreakSide(int i, int j) const {
-	if (!IsInBounds(i, j) || isRock(i, j) || MapAt(i, j).fixture.type == SandGust)
+int DungeonView::windbreakSide(int i, int j) const {
+	if (!d.IsInBounds(i, j) || d.isRock(i, j) || d.MapAt(i, j).fixture.type == SandGust)
 		return 0;
 	for (const int side : {-1, 1})
-		if (IsInBounds(i + side, j)) {
-			const Fixture& f = MapAt(i + side, j).fixture;
+		if (d.IsInBounds(i + side, j)) {
+			const Fixture& f = d.MapAt(i + side, j).fixture;
 			if (f.type == SandGust && gustDir(f) == -side)
 				return side;
 		}
 	constexpr int TALL = 2; // rows of a tall hall the pillar goes up through
-	for (int below = 1; below <= TALL && !isRock(i, j - below); below++)
-		if (const int side = windbreakSide(i, j - below); side != 0 && isRock(i, j - below - 1))
+	for (int below = 1; below <= TALL && !d.isRock(i, j - below); below++)
+		if (const int side = windbreakSide(i, j - below); side != 0 && d.isRock(i, j - below - 1))
 			return side;
 	return 0;
 }
 //======================================================================================
-void Dungeon::drawWindbreak(int side, bool floor, bool ceiling) {
+void DungeonView::drawWindbreak(int side, bool floor, bool ceiling) {
 	constexpr float WIDTH = 0.26f * T, DEPTH = 0.34f * T; // the shaft
 	constexpr float LIP = 0.05f * T, SLAB = 0.07f * T; // the base and the capital stand out this far, this high
 	const float outer = side > 0 ? T : 0.f; // the cell's side the wind comes from
@@ -263,18 +269,18 @@ void Dungeon::drawWindbreak(int side, bool floor, bool ceiling) {
 		box(b0, b1, T - SLAB, T, -T + DEPTH + LIP);
 }
 //======================================================================================
-bool Dungeon::lightShaft(int i, int j) const {
-	return IsInBounds(i, j) && !isRock(i, j) && isRock(i, j + 1) &&
-		   decoration.surface[MapIndex(i, j)].ceiling == CEILING_SANDSTONE_CRACKED;
+bool DungeonView::lightShaft(int i, int j) const {
+	return d.IsInBounds(i, j) && !d.isRock(i, j) && d.isRock(i, j + 1) &&
+		   d.decoration.surface[d.MapIndex(i, j)].ceiling == CEILING_SANDSTONE_CRACKED;
 }
 //======================================================================================
 // A worm under the sand: a low mound of sand that heaves, dark grains rolling off it.
-void Dungeon::drawRipple(float x, float y, float z, float size, int now) const {
+void DungeonView::drawRipple(float x, float y, float z, float size, int now) const {
 	const float rx = 13.f * size, rz = 8.f * size, h = 6.f * size; // world units
 	constexpr int PUFF_MS = 900;
 	constexpr int SIDES = 16;
 	const float heave = 0.7f + 0.3f * std::sin(static_cast<float>(now) * 0.012f);
-	sim.assets->decor.floorTex[FLOOR_SAND].Bind();
+	assets.decor.floorTex[FLOOR_SAND].Bind();
 	glColor3f(0.8f, 0.68f, 0.52f); // stirred-up sand, a shade darker
 	glBegin(GL_TRIANGLE_FAN);
 	glNormal3f(0, 1, 0);

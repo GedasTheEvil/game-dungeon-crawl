@@ -195,7 +195,6 @@ void Dungeon::Update() {
 	updateMonsterPoison();
 	updateBurning();
 	spawnInView();
-	updateAnimations();
 }
 //======================================================================================
 void Dungeon::spawnInView() {
@@ -204,13 +203,6 @@ void Dungeon::spawnInView() {
 		for (int i = v.firstCol(); i < v.firstCol() + ViewWindow::WIDTH; i++)
 			if (IsInBounds(i, j) && MapAt(i, j).type == MonsterSpawn)
 				SpawnMonster(i, j);
-}
-//======================================================================================
-void Dungeon::updateAnimations() {
-	if (portalTimer.TimePassed())
-		portalScroll -= 0.022f;
-	riddleMarkYaw += 1.f;
-	treasureSpin += 1.f;
 }
 //======================================================================================
 std::optional<Dungeon::TrapContact> Dungeon::inTrap(float x, float y, float half) const {

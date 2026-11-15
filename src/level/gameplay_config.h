@@ -31,7 +31,7 @@ constexpr float PLAYER_MOVE_STEP = WALK_SPEED * static_cast<float>(UPDATE_TICK_M
 constexpr float PLAYER_FORWARD_MOVE_STEP = 0.9f * PLAYER_MOVE_STEP; // climbing up
 
 // Map x within a cell at which the drawn player (always at the screen centre) is in front of the ladder:
-// tile i is drawn from 40 * (i - mapX) - 2 and the ladder stands at its middle (Dungeon::Draw). Climbing pulls the
+// tile i is drawn from 40 * (i - mapX) - 2 and the ladder stands at its middle (DungeonView::Draw). Climbing pulls the
 // player there.
 constexpr float LADDER_GRIP_X = 0.45f;
 // The climb clip's phase per tile moved along the rungs, as a share of a tile climbed: the hands move on a sideways
@@ -67,7 +67,7 @@ constexpr float TRAP_HITBOX_Y_SCALE = 0.006f;
 // (Dungeon::updateTraps).
 constexpr float SPIKES_SCALE = 16.f;
 constexpr float DEATH_TRAP_SCALE = 40.f;
-// Ceiling traps (plan ceiling-spikes, Dungeon::drawCeilingTrap): the spikes' model a quarter tile wide, this many
+// Ceiling traps (plan ceiling-spikes, DungeonView::drawCeilingTrap): the spikes' model a quarter tile wide, this many
 // along the cell's depth on each underside, its height stretched (the death trap's tips longer).
 constexpr int CEILING_TRAP_ROWS = 4;
 constexpr float CEILING_SPIKES_STRETCH = 1.5f;

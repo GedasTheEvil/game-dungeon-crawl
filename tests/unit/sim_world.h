@@ -56,7 +56,7 @@ class SimWorld {
 		GameClock::enableVirtual();
 		player.SetModel(playerModel());
 		player.scale = PLAYER_SCALE;
-		dungeon.Link({&player, &journal, &items, &random, nullptr, &events, &monsterTypes(), &inscriptions, &names});
+		dungeon.Link({&player, &journal, &items, &random, &events, &monsterTypes(), &inscriptions, &names});
 	}
 
 	// As the scenario command `level path` (with `seed`): a fresh player on the level's entrance. A number: the

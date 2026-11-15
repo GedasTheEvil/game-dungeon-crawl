@@ -1,5 +1,5 @@
 // The Stargate chamber (plan stargate-chamber): the ring dialled, its chevrons locking one by one, the seventh that
-// will not, the reward the first time; its dial device. Drawn by Dungeon::drawStargate (dungeon_render_decor.cpp).
+// will not, the reward the first time; its dial device. Drawn by DungeonView::drawStargate (dungeon_render_decor.cpp).
 #include "dungeon.h"
 #include "player.h"
 #include "../level/decor.h"

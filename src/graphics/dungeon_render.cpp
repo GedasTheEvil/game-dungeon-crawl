@@ -1,4 +1,4 @@
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "../state/assets.h"
 #include "../sim/player.h"
 #include "../level/item_bag.h"
@@ -36,21 +36,21 @@ void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 }
 } // namespace
 
-bool Dungeon::deepAt(int col, int row) const {
-	return IsInBounds(col, row) && MapAt(col, row).structure == Structure::DeepWater;
+bool DungeonView::deepAt(int col, int row) const {
+	return d.IsInBounds(col, row) && d.MapAt(col, row).structure == Structure::DeepWater;
 }
 //======================================================================================
 // Deep water cannot hang in the air: where it meets a cell that is neither rock nor deep water, below it or beside it,
 // a rock slab holds it, inside the water cell.
-Dungeon::WaterBox Dungeon::deepWaterBox(int col, int row) const {
+DungeonView::WaterBox DungeonView::deepWaterBox(int col, int row) const {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	constexpr float S = RenderConfig::WATER_SLAB;
-	auto bare = [&](int c, int r) { return !isRock(c, r) && !deepAt(c, r); };
+	auto bare = [&](int c, int r) { return !d.isRock(c, r) && !deepAt(c, r); };
 	return {bare(col - 1, row) ? S : 0.f, bare(col + 1, row) ? T - S : T, bare(col, row - 1) ? S : 0.f};
 }
 //======================================================================================
 // The rock face over part of a cell, at its front, matching a solid cell's texture (one over 2 x 2 cells).
-void Dungeon::drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const {
+void DungeonView::drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	const float u0 = static_cast<float>(i & 1) * 0.5f;
 	const float t0 = static_cast<float>(j & 1) * 0.5f;
@@ -63,7 +63,7 @@ void Dungeon::drawRockStrip(int i, int j, float x0, float x1, float y0, float y1
 		{u0 + x0 / T * 0.5f, t0 + y1 / T * 0.5f}
 	};
 	glDisable(GL_BLEND);
-	sim.assets->decor.rockTex.Bind();
+	assets.decor.rockTex.Bind();
 	quad(n, v, st);
 }
 //======================================================================================
@@ -71,22 +71,22 @@ void Dungeon::drawRockStrip(int i, int j, float x0, float x1, float y0, float y1
 // against solid neighbours, the floor over a solid cell and the ceiling under one. On the side walls u runs from the
 // back to the front, so they meet the back wall's edge seamlessly; on the floor and ceiling t = 1 is the back edge.
 // Deep water counts as solid for the cells around it; its own box shrinks inside its slabs (deepWaterBox).
-void Dungeon::drawCellSurfaces(int i, int j) {
+void DungeonView::drawCellSurfaces(int i, int j) {
 	constexpr float T = RenderConfig::TILE_SIZE;
-	DecorSet& tex = sim.assets->decor;
+	DecorSet& tex = assets.decor;
 
-	if (isRock(i, j)) {
+	if (d.isRock(i, j)) {
 		drawRockStrip(i, j, 0, T, 0, T);
 		return;
 	}
 
-	const SurfaceCell& cell = decoration.surface[MapIndex(i, j)];
+	const SurfaceCell& cell = d.decoration.surface[d.MapIndex(i, j)];
 	float w0 = cell.wallMirror ? 1.f : 0.f;
 	float w1 = 1.f - w0;
 	// Half water lies in a basin: its walls reach down to the basin floor, a stone wall faces a dry neighbour.
-	const bool basin = inHalfWater(MapAt(i, j));
+	const bool basin = inHalfWater(d.MapAt(i, j));
 	const bool deep = deepAt(i, j);
-	const bool halfAbove = IsInBounds(i, j + 1) && inHalfWater(MapAt(i, j + 1));
+	const bool halfAbove = d.IsInBounds(i, j + 1) && inHalfWater(d.MapAt(i, j + 1));
 	// Under a basin the walls stop at its floor, where the basin's own walls take over.
 	const float h = halfAbove ? T - RenderConfig::WATER_BASIN_DEPTH : T;
 	const WaterBox box = deep ? deepWaterBox(i, j) : WaterBox{0.f, T, 0.f};
@@ -112,9 +112,11 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		quad(n, v, st);
 	}
 	// A side wall faces rock, deep water beside a dry cell, a dry cell beside a basin or deep water.
-	auto wallAt = [&](int c) { return isRock(c, j) || (!deep && deepAt(c, j)) || ((basin || deep) && dryOpen(c, j)); };
+	auto wallAt = [&](int c) {
+		return d.isRock(c, j) || (!deep && deepAt(c, j)) || ((basin || deep) && d.dryOpen(c, j));
+	};
 	if (wallAt(i - 1) || box.left > 0.f) {
-		const float top = isRock(i - 1, j) || deep || deepAt(i - 1, j) ? h : 0.f;
+		const float top = d.isRock(i - 1, j) || deep || deepAt(i - 1, j) ? h : 0.f;
 		const float x = box.left;
 		const float n[3] = {1, 0, 0};
 		const float v[4][3] = {{x, b, -T}, {x, b, 0}, {x, top, 0}, {x, top, -T}};
@@ -122,14 +124,14 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		quad(n, v, st);
 	}
 	if (wallAt(i + 1) || box.right < T) {
-		const float top = isRock(i + 1, j) || deep || deepAt(i + 1, j) ? h : 0.f;
+		const float top = d.isRock(i + 1, j) || deep || deepAt(i + 1, j) ? h : 0.f;
 		const float x = box.right;
 		const float n[3] = {-1, 0, 0};
 		const float v[4][3] = {{x, b, -T}, {x, b, 0}, {x, top, 0}, {x, top, -T}};
 		const float st[4][2] = {{w0, tb}, {w1, tb}, {w1, top / T}, {w0, top / T}};
 		quad(n, v, st);
 	}
-	if (isRock(i, j - 1) || box.bottom > 0.f) {
+	if (d.isRock(i, j - 1) || box.bottom > 0.f) {
 		const float n[3] = {0, 1, 0};
 		const float v[4][3] = {{box.left, b, 0}, {box.right, b, 0}, {box.right, b, -T}, {box.left, b, -T}};
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
@@ -154,20 +156,20 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 		}
 	}
 	// The ceiling under rock, under the slab of deep water and under a basin's floor.
-	if (isRock(i, j + 1) || (!deep && (deepAt(i, j + 1) || halfAbove))) {
+	if (d.isRock(i, j + 1) || (!deep && (deepAt(i, j + 1) || halfAbove))) {
 		const float n[3] = {0, -1, 0};
 		const float v[4][3] = {{0, h, 0}, {T, h, 0}, {T, h, -T}, {0, h, -T}};
 		const float st[4][2] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 		tex.ceilingTex[cell.ceiling].Bind();
 		quad(n, v, st);
 	}
-	if (hasShape(MapAt(i, j)))
+	if (hasShape(d.MapAt(i, j)))
 		drawShapeBlocks(i, j, b);
-	if (inSand(MapAt(i, j)))
+	if (inSand(d.MapAt(i, j)))
 		drawSandDrift(i, j);
 	if (const int side = windbreakSide(i, j); side != 0) {
 		tex.wallTex[cell.wall].Bind();
-		drawWindbreak(side, isRock(i, j - 1), isRock(i, j + 1));
+		drawWindbreak(side, d.isRock(i, j - 1), d.isRock(i, j + 1));
 	}
 	glColor3f(1, 1, 1);
 }
@@ -176,17 +178,18 @@ void Dungeon::drawCellSurfaces(int i, int j) {
 // front one face per run along a sub-cell row. Only the faces next to an open sub-cell (of this cell or a neighbour)
 // are drawn: the tops as floor, the undersides as ceiling, the sides as wall; the back wall is behind them. In a basin
 // the bottom row reaches down to its floor (basinFloor, world units under the row).
-void Dungeon::drawShapeBlocks(int i, int j, float basinFloor) {
+void DungeonView::drawShapeBlocks(int i, int j, float basinFloor) {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	constexpr float S = T / SUBCELLS;
-	DecorSet& tex = sim.assets->decor;
-	const SurfaceCell& cell = decoration.surface[MapIndex(i, j)];
-	const Tile tile = MapAt(i, j);
+	DecorSet& tex = assets.decor;
+	const SurfaceCell& cell = d.decoration.surface[d.MapIndex(i, j)];
+	const Tile tile = d.MapAt(i, j);
 	// A sub-cell of this cell, or of a neighbour for a column or row one past the edge; rock outside the level.
 	auto solid = [&](int c, int r) {
 		const int ci = i + (c < 0 ? -1 : (c >= SUBCELLS ? 1 : 0));
 		const int rj = j + (r < 0 ? -1 : (r >= SUBCELLS ? 1 : 0));
-		return !IsInBounds(ci, rj) || subcellSolid(MapAt(ci, rj), (c + SUBCELLS) % SUBCELLS, (r + SUBCELLS) % SUBCELLS);
+		return !d.IsInBounds(ci, rj) ||
+			   subcellSolid(d.MapAt(ci, rj), (c + SUBCELLS) % SUBCELLS, (r + SUBCELLS) % SUBCELLS);
 	};
 	const float w0 = cell.wallMirror ? 1.f : 0.f;
 	const float w1 = 1.f - w0;
@@ -243,52 +246,52 @@ void Dungeon::drawShapeBlocks(int i, int j, float basinFloor) {
 }
 //======================================================================================
 // The container (containers.h) in its stance, at its frame of the opening clip; once open, the item turns over it
-// (treasureSpin). An emptied container stays, open. The item prototype is shared: its angle and size are only
+// (treasureSpin()). An emptied container stays, open. The item prototype is shared: its angle and size are only
 // borrowed.
-void Dungeon::DrawTreasureTile(int i, int j) {
-	const int cell = MapIndex(i, j);
-	const TreasureLook look = treasureLook(cell);
+void DungeonView::DrawTreasureTile(int i, int j) {
+	const int cell = d.MapIndex(i, j);
+	const TreasureLook look = d.treasureLook(cell);
 	const ContainerDef& def = containerDef(look.kind);
 
 	glPushMatrix();
 	glTranslatef(
 		RenderConfig::ITEM_OFFSET_X +
-			(look.x + dragShift(cell)) * RenderConfig::TILE_SIZE, // dragged (plan pressure-plate)
+			(look.x + d.dragShift(cell)) * RenderConfig::TILE_SIZE, // dragged (plan pressure-plate)
 		0,
 		RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE
 	);
-	Item& container = *sim.assets->items.containers[std::to_underlying(look.kind)];
+	Item& container = *assets.items.containers[std::to_underlying(look.kind)];
 	container.rotA = look.yaw;
 	// A trapped one's tell (plan trapped-chests): darker, a stained brown, only with the player close by.
-	if (const float tell = chestTell(cell); tell > 0.f) {
+	if (const float tell = d.chestTell(cell); tell > 0.f) {
 		const float shade = 1.f - tell * (1.f - CHEST_TELL_SHADE);
 		glColor3f(shade, shade * 0.9f, shade * 0.85f);
 	}
-	container.Draw(containerOpening(cell));
-	if (const float near = containerOutlineAt(cell); near > 0.f) // Disarm trap (plan heka-surplus)
-		queueContour(near, [&container, yaw = look.yaw, pose = containerOpening(cell)](int texture) {
+	container.Draw(d.containerOpening(cell));
+	if (const float near = d.containerOutlineAt(cell); near > 0.f) // Disarm trap (plan heka-surplus)
+		queueContour(near, [&container, yaw = look.yaw, pose = d.containerOpening(cell)](int texture) {
 			container.rotA = yaw; // the prototype is shared: its angle is only borrowed
 			container.Draw(pose, texture);
 		});
 	// A cursed coffin's execration text (plan tomb-curse-containers): its red lid over the plain one, only up close.
-	if (const float text = coffinTell(cell); text > 0.f) {
-		Item& cursed = *sim.assets->items.cursedCoffin;
+	if (const float text = d.coffinTell(cell); text > 0.f) {
+		Item& cursed = *assets.items.cursedCoffin;
 		cursed.rotA = look.yaw;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glColor4f(1, 1, 1, text);
-		cursed.Draw(containerOpening(cell)); // the same model and frame: the depth test (GL_LEQUAL) lets it on top
+		cursed.Draw(d.containerOpening(cell)); // the same model and frame: the depth test (GL_LEQUAL) lets it on top
 		glDisable(GL_BLEND);
 	}
 	glColor3f(1, 1, 1);
 
-	const Tile tile = MapAt(i, j);
+	const Tile tile = d.MapAt(i, j);
 	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value);
-		kind && isTreasure(tile) && containerShows(cell)) {
-		Item* item = sim.assets->items.Of(*kind);
+		kind && isTreasure(tile) && d.containerShows(cell)) {
+		Item* item = assets.items.Of(*kind);
 		const float angle = item->rotA;
 		const float scale = item->scale;
-		item->rotA = treasureSpin;
+		item->rotA = treasureSpin();
 		const bool potion = isPotion(*kind);
 		const bool ring = isRing(*kind);
 		item->scale = potion ? scale : ring ? RING_CHEST_SCALE : std::max(scale, CHEST_MIN_SCALE);
@@ -306,7 +309,7 @@ void Dungeon::DrawTreasureTile(int i, int j) {
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::drawItemParts() {
+void DungeonView::drawItemParts() {
 	glPushMatrix();
 	for (const ItemPartDraw& draw : itemParts) {
 		glLoadMatrixf(draw.modelview.data());
@@ -325,21 +328,21 @@ void Dungeon::drawItemParts() {
 //======================================================================================
 // A jar breaking open: a puff of dust out of its shards (Grit::burst), and a trapped chest's gas. In the tile loop's
 // frame, like drawSummonEffects.
-void Dungeon::drawContainerEffects() {
+void DungeonView::drawContainerEffects() {
 	drawChestGas();
 	const int now = GameClock::now();
 	const CellRect& drawn = drawnCells;
-	for (int j = std::max(drawn.row0, 0); j < std::min(drawn.row0 + drawn.rows, MAP_HEIGHT); j++)
-		for (int i = std::max(drawn.col0, 0); i < std::min(drawn.col0 + drawn.cols, MAP_WIDTH); i++) {
-			const int cell = MapIndex(i, j);
-			const ContainerCell& c = containers[cell];
-			const TreasureLook look = treasureLook(cell);
+	for (int j = std::max(drawn.row0, 0); j < std::min(drawn.row0 + drawn.rows, Dungeon::MAP_HEIGHT); j++)
+		for (int i = std::max(drawn.col0, 0); i < std::min(drawn.col0 + drawn.cols, Dungeon::MAP_WIDTH); i++) {
+			const int cell = d.MapIndex(i, j);
+			const Dungeon::ContainerCell& c = d.containers[cell];
+			const TreasureLook look = d.treasureLook(cell);
 			if (!c.opened || !containerDef(look.kind).smashes || now - c.openedMs >= Grit::BURST_MS)
 				continue;
-			const float x = static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE +
+			const float x = static_cast<float>(i - d.view().originCol) * RenderConfig::TILE_SIZE +
 							RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE;
-			const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE -
-							(inHalfWater(MapAt(i, j)) ? RenderConfig::WATER_BASIN_DEPTH : 0.f);
+			const float y = static_cast<float>(j - d.view().originRow) * RenderConfig::TILE_SIZE -
+							(inHalfWater(d.MapAt(i, j)) ? RenderConfig::WATER_BASIN_DEPTH : 0.f);
 			const float z = RenderConfig::ITEM_OFFSET_Z - Item::DRAW_DEPTH + look.z * RenderConfig::TILE_SIZE;
 			Grit::burst(
 				x,
@@ -353,15 +356,15 @@ void Dungeon::drawContainerEffects() {
 }
 //======================================================================================
 // Green, thinning out over its last second.
-void Dungeon::drawChestGas() {
+void DungeonView::drawChestGas() {
 	constexpr int FADE_MS = 1000;
 	const int now = GameClock::now();
-	for (const ChestGas& g : chestGas) {
-		const int i = g.cell % MAP_WIDTH, j = g.cell / MAP_WIDTH;
-		const TreasureLook look = treasureLook(g.cell);
-		const float x = static_cast<float>(i - view().originCol) * RenderConfig::TILE_SIZE +
+	for (const Dungeon::ChestGas& g : d.chestGas) {
+		const int i = g.cell % Dungeon::MAP_WIDTH, j = g.cell / Dungeon::MAP_WIDTH;
+		const TreasureLook look = d.treasureLook(g.cell);
+		const float x = static_cast<float>(i - d.view().originCol) * RenderConfig::TILE_SIZE +
 						RenderConfig::ITEM_OFFSET_X + look.x * RenderConfig::TILE_SIZE;
-		const float y = static_cast<float>(j - view().originRow) * RenderConfig::TILE_SIZE +
+		const float y = static_cast<float>(j - d.view().originRow) * RenderConfig::TILE_SIZE +
 						0.25f * RenderConfig::TILE_SIZE;
 		const float z = RenderConfig::ITEM_OFFSET_Z - Item::DRAW_DEPTH + look.z * RenderConfig::TILE_SIZE;
 		const float fade = std::clamp(static_cast<float>(CHEST_GAS_MS - (now - g.startMs)) / FADE_MS, 0.f, 1.f);
@@ -369,11 +372,11 @@ void Dungeon::drawChestGas() {
 	}
 }
 //======================================================================================
-void Dungeon::DrawTrapTile(bool isDeathTrap) {
+void DungeonView::DrawTrapTile(bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
-	Trap* tileTrap = isDeathTrap ? sim.assets->traps.deathTrap.get() : sim.assets->traps.spikes.get();
+	Trap* tileTrap = isDeathTrap ? assets.traps.deathTrap.get() : assets.traps.spikes.get();
 	tileTrap->Show();
 
 	glPopMatrix();
@@ -381,11 +384,11 @@ void Dungeon::DrawTrapTile(bool isDeathTrap) {
 //======================================================================================
 // A ceiling trap (plan ceiling-spikes): the floor trap's model upside down on each underside (ceilingUndersides), a
 // row of them along the cell's depth, a quarter tile wide; the death trap's tips longer.
-void Dungeon::drawCeilingTrap(int i, int j) {
+void DungeonView::drawCeilingTrap(int i, int j) {
 	constexpr float S = RenderConfig::TILE_SIZE / SUBCELLS;
-	const Tile tile = MapAt(i, j);
+	const Tile tile = d.MapAt(i, j);
 	const bool death = tile.fixture.type == CeilingDeath;
-	Trap& trap = death ? *sim.assets->traps.deathTrap : *sim.assets->traps.spikes;
+	Trap& trap = death ? *assets.traps.deathTrap : *assets.traps.spikes;
 	const float stretch = death ? CEILING_DEATH_STRETCH : CEILING_SPIKES_STRETCH;
 	const std::uint16_t undersides = ceilingUndersides(tile);
 	for (int r = 1; r < SUBCELLS; r++)
@@ -409,10 +412,10 @@ void Dungeon::drawCeilingTrap(int i, int j) {
 		}
 }
 //======================================================================================
-void Dungeon::drawPortal(const float normal[3], const float v[4][3], bool red, float alpha) const {
-	float px = static_cast<float>((static_cast<int>(portalScroll * 100) % 100)) / 200.0f;
+void DungeonView::drawPortal(const float normal[3], const float v[4][3], bool red, float alpha) const {
+	float px = static_cast<float>((static_cast<int>(portalScroll() * 100) % 100)) / 200.0f;
 	const float st[4][2] = {{px, 0}, {px, 1}, {px + 1, 1}, {px + 1, 0}};
-	(red ? sim.assets->textures.portalRed : sim.assets->textures.portal).Bind();
+	(red ? assets.textures.portalRed : assets.textures.portal).Bind();
 	Lighting::setEmissive(true);
 	const bool faded = alpha < 1.f;
 	if (faded) { // a name gate's breath: the columns show through
@@ -438,51 +441,51 @@ void Dungeon::drawPortal(const float normal[3], const float v[4][3], bool red, f
 //======================================================================================
 // Plan secret-name-gates: sealed, the plasma breathes into transparency and back with a flicker; spoken, it shimmers
 // a moment, then holds steady.
-float Dungeon::nameGateAlpha(int cell) const {
+float DungeonView::nameGateAlpha(int cell) const {
 	const float now = static_cast<float>(GameClock::now());
-	if (isNameGate(map[cell])) {
+	if (isNameGate(d.map[cell])) {
 		const float breath = 0.5f + 0.5f * std::cos(now / NAME_GATE_BREATH_MS * 2.f * static_cast<float>(M_PI));
 		const float flicker = 0.06f * std::sin(now * 0.031f + static_cast<float>(cell));
 		return std::clamp(NAME_GATE_MIN_ALPHA + (1.f - NAME_GATE_MIN_ALPHA) * breath + flicker, 0.f, 1.f);
 	}
-	const float since = now - static_cast<float>(namedAtMs);
-	if (cell != namedCell || since < 0.f || since >= NAME_GATE_SHIMMER_MS)
+	const float since = now - static_cast<float>(d.namedAtMs);
+	if (cell != d.namedCell || since < 0.f || since >= NAME_GATE_SHIMMER_MS)
 		return 1.f;
 	const float t = since / NAME_GATE_SHIMMER_MS; // the flicker dies down to full
 	return 1.f - (1.f - t) * 0.5f * (1.f + std::sin(since * 0.06f));
 }
 //======================================================================================
 // The plasma fills the gap between the columns, in their centre plane (props.py, build_columns).
-void Dungeon::drawTeleporterTile(int i, int j) {
+void DungeonView::drawTeleporterTile(int i, int j) {
 	glPushMatrix();
 	glTranslatef(20, 0, -30);
 	glScalef(40, 40, 40);
-	sim.assets->textures.columns.Bind();
-	sim.assets->models.columns->Show();
+	assets.textures.columns.Bind();
+	assets.models.columns->Show();
 	glPopMatrix();
 
 	const float normal[3] = {0, 0, 1};
 	const float v[4][3] = {{10, 0, -30}, {10, 36, -30}, {30, 36, -30}, {30, 0, -30}};
-	drawPortal(normal, v, false, nameGateAlpha(MapIndex(i, j)));
+	drawPortal(normal, v, false, nameGateAlpha(d.MapIndex(i, j)));
 }
 //======================================================================================
-void Dungeon::drawAnkhTile() {
+void DungeonView::drawAnkhTile() {
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
 	glScalef(40, 40, 40);
-	sim.assets->textures.ankh.Bind();
-	sim.assets->models.ankh->Show();
+	assets.textures.ankh.Bind();
+	assets.models.ankh->Show();
 	glPopMatrix();
 }
 //======================================================================================
 // The doorway stands against the side wall, plasma inside it; with no side wall it turns to the back wall and faces
 // the camera. Unturned it is on the left.
-void Dungeon::drawDoorTile(int i, int j) {
-	const Tile tile = MapAt(i, j);
+void DungeonView::drawDoorTile(int i, int j) {
+	const Tile tile = d.MapAt(i, j);
 	float yaw = 0;
-	if (isRock(i + 1, j) && !isRock(i - 1, j))
+	if (d.isRock(i + 1, j) && !d.isRock(i - 1, j))
 		yaw = 180;
-	else if (!isRock(i + 1, j) && !isRock(i - 1, j))
+	else if (!d.isRock(i + 1, j) && !d.isRock(i - 1, j))
 		yaw = -90;
 
 	glPushMatrix();
@@ -491,8 +494,8 @@ void Dungeon::drawDoorTile(int i, int j) {
 	glRotatef(yaw, 0, 1, 0);
 	glPushMatrix();
 	glScalef(40, 40, 40);
-	sim.assets->textures.sphinx.Bind();
-	sim.assets->models.sphinx->Show();
+	assets.textures.sphinx.Bind();
+	assets.models.sphinx->Show();
 	glPopMatrix();
 
 	if (tile.attr == GateEntrance || tile.attr == GateExit) {
@@ -506,16 +509,16 @@ void Dungeon::drawDoorTile(int i, int j) {
 		glPushMatrix();
 		glTranslatef(0, 20, 0);
 		glScalef(10, 10, 10);
-		sim.assets->textures.questionMark.Bind();
-		glRotatef(riddleMarkYaw, 0, 1, 0);
-		sim.assets->models.question->Show();
+		assets.textures.questionMark.Bind();
+		glRotatef(riddleMarkYaw(), 0, 1, 0);
+		assets.models.question->Show();
 		glPopMatrix();
 	}
 	glPopMatrix();
 }
 //======================================================================================
-void Dungeon::drawFixture(int i, int j) {
-	switch (MapAt(i, j).fixture.type) {
+void DungeonView::drawFixture(int i, int j) {
+	switch (d.MapAt(i, j).fixture.type) {
 	case Lever:
 		drawLeverTile(i, j);
 		break;
@@ -543,14 +546,14 @@ void Dungeon::drawFixture(int i, int j) {
 	}
 }
 //======================================================================================
-void Dungeon::drawTileContent(int i, int j) {
+void DungeonView::drawTileContent(int i, int j) {
 	drawFixture(i, j); // on the back wall plane, behind the object
-	const Tile tile = MapAt(i, j);
+	const Tile tile = d.MapAt(i, j);
 	if (!isTileType(tile.type))
 		return; // the game treats an unknown type as open space
 	switch (static_cast<DungeonTileType>(tile.type)) {
 	case NoObject:
-		if (containers[MapIndex(i, j)].emptied)
+		if (d.containers[d.MapIndex(i, j)].emptied)
 			DrawTreasureTile(i, j); // its item taken, the open container stays
 		break;
 	case MonsterSpawn: // the monster is drawn where it is now (DrawMonsters)
@@ -615,9 +618,9 @@ void Dungeon::drawTileContent(int i, int j) {
 	}
 }
 //======================================================================================
-void Dungeon::pushLevelFrame() const {
+void DungeonView::pushLevelFrame() const {
 	glPushMatrix();
-	const float x = mapX + cutShot.dx, y = mapY + cutShot.dy; // the camera's place, as view()
+	const float x = d.mapX + d.cutShot.dx, y = d.mapY + d.cutShot.dy; // the camera's place, as view()
 	glTranslatef(
 		-RenderConfig::TILE_SIZE * (x - static_cast<float>(static_cast<int>(x))),
 		-RenderConfig::TILE_SIZE * (y - static_cast<float>(static_cast<int>(y))),
@@ -626,10 +629,10 @@ void Dungeon::pushLevelFrame() const {
 	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 }
 //======================================================================================
-void Dungeon::Draw(const HitboxView* hitboxes) {
+void DungeonView::Draw(const HitboxView* hitboxes) {
 	pushLevelFrame();
 
-	const ViewWindow v = view();
+	const ViewWindow v = d.view();
 	float projection[16];
 	float modelview[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, projection);
@@ -664,8 +667,8 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++) {
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
 			drawCellSurfaces(i, j); // outside the level: rock
-			if (IsInBounds(i, j)) {
-				const Tile tile = MapAt(i, j);
+			if (d.IsInBounds(i, j)) {
+				const Tile tile = d.MapAt(i, j);
 				// What stands in a shaped cell stands on the floor under its middle (plan subcell-physics).
 				const float raised = hasShape(tile) ? floorHeight(tile, 0.5f) * RenderConfig::TILE_SIZE : 0.f;
 				drawDecalTile(i, j);
@@ -724,9 +727,9 @@ void Dungeon::Draw(const HitboxView* hitboxes) {
 //======================================================================================
 // Debug view (RenderSettings::Hitboxes), in DrawMonsters' frame: the monster boxes red, the player's green, the reach
 // of the equipped weapon yellow.
-void Dungeon::drawHitboxes(const HitboxView& weapon) {
-	const auto firstCol = static_cast<float>(view().firstCol());
-	const auto firstRow = static_cast<float>(view().originRow);
+void DungeonView::drawHitboxes(const HitboxView& weapon) {
+	const auto firstCol = static_cast<float>(d.view().firstCol());
+	const auto firstRow = static_cast<float>(d.view().originRow);
 	constexpr float DEPTH = RenderConfig::MONSTER_DEPTH;
 	auto box = [&](float left, float right, float bottom, float top) {
 		glBegin(GL_LINE_LOOP);
@@ -736,25 +739,25 @@ void Dungeon::drawHitboxes(const HitboxView& weapon) {
 		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
 		glEnd();
 	};
-	sim.assets->textures.nullTex.Bind();
+	assets.textures.nullTex.Bind();
 	Lighting::setEmissive(true);
 	glDisable(GL_DEPTH_TEST);
 	glLineWidth(2.f);
 	glColor3f(1, 0.2f, 0.2f);
-	for (const Monster& mon : monsters)
+	for (const Monster& mon : d.monsters)
 		if (mon.Active() && mon.Alive())
 			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
-	for (const DungBall& b : balls) // the box that hits the player (Dungeon::updateBalls)
+	for (const Dungeon::DungBall& b : d.balls) // the box that hits the player (Dungeon::updateBalls)
 		if (b.breakMs < 0)
 			box(b.x - b.rules.radius, b.x + b.rules.radius, b.y, b.y + 2.f * b.rules.radius);
-	const Player& player = *sim.player;
+	const Player& player = *d.sim.player;
 	const float half = player.HalfWidth();
 	glColor3f(0.2f, 1, 0.2f);
-	box(mapX - half, mapX + half, mapY, mapY + player.Height());
+	box(d.mapX - half, d.mapX + half, d.mapY, d.mapY + player.Height());
 	const auto dir = static_cast<float>(weapon.facing);
 	const float from = weapon.fromEdge ? half : 0.f;
 	glColor3f(1, 1, 0.2f);
-	box(mapX + dir * from, mapX + dir * (from + weapon.reach), mapY, mapY + player.Height() / 2.f);
+	box(d.mapX + dir * from, d.mapX + dir * (from + weapon.reach), d.mapY, d.mapY + player.Height() / 2.f);
 	glLineWidth(1.f);
 	glEnable(GL_DEPTH_TEST);
 	Lighting::setEmissive(false);
@@ -780,13 +783,13 @@ void colour(const Rgba& c, float alpha) { glColor4f(c.r, c.g, c.b, c.a * alpha);
 // Half water fills its basin (WATER_BASIN_DEPTH under the row's floor) up to WATER_SURFACE: a surface with drifting
 // glints; over deep water also a see-through front with a bright waterline (a rock cell below hides the basin's
 // front). Deep water: a dark front up to the basin of the half water above it, inside its slabs (deepWaterBox).
-void Dungeon::drawWaterCell(int i, int j, float x, float y) {
+void DungeonView::drawWaterCell(int i, int j, float x, float y) {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	constexpr float B = RenderConfig::WATER_BASIN_DEPTH;
-	const Structure s = MapAt(i, j).structure;
+	const Structure s = d.MapAt(i, j).structure;
 	glBegin(GL_QUADS);
 	if (s == Structure::DeepWater) {
-		const float top = inHalfWater(MapAt(i, j + 1)) ? T - B : T;
+		const float top = inHalfWater(d.MapAt(i, j + 1)) ? T - B : T;
 		const WaterBox box = deepWaterBox(i, j);
 		glNormal3f(0, 0, 1);
 		colour(DEEP_FRONT, 1.f);
@@ -798,7 +801,7 @@ void Dungeon::drawWaterCell(int i, int j, float x, float y) {
 		return;
 	}
 	constexpr float S = RenderConfig::WATER_SURFACE;
-	if (MapAt(i, j - 1).structure == Structure::DeepWater) {
+	if (d.MapAt(i, j - 1).structure == Structure::DeepWater) {
 		glNormal3f(0, 0, 1);
 		colour(WATER_FRONT, 1.f);
 		glVertex3f(x, y - B, 0);
@@ -836,17 +839,17 @@ void Dungeon::drawWaterCell(int i, int j, float x, float y) {
 	glEnd();
 }
 //======================================================================================
-void Dungeon::DrawWater() {
+void DungeonView::DrawWater() {
 	pushLevelFrame();
-	const ViewWindow v = view();
+	const ViewWindow v = d.view();
 	const CellRect& drawn = drawnCells;
-	sim.assets->textures.nullTex.Bind();
+	assets.textures.nullTex.Bind();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE); // see-through: it hides nothing behind it, and the ink draws no lines on it
 	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++)
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
-			const Structure s = IsInBounds(i, j) ? MapAt(i, j).structure : Structure::Wall;
+			const Structure s = d.IsInBounds(i, j) ? d.MapAt(i, j).structure : Structure::Wall;
 			if (s != Structure::HalfWater && s != Structure::DeepWater)
 				continue;
 			drawWaterCell(

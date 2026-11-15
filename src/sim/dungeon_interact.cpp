@@ -386,7 +386,6 @@ int Dungeon::travelPhaseMs() const {
 }
 //======================================================================================
 void Dungeon::updateTravel() {
-	updateAnimations();
 	if (GameClock::now() - travel.startMs < travelPhaseMs())
 		return;
 	const int now = GameClock::now();

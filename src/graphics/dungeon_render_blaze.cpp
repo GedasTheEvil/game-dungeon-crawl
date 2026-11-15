@@ -1,6 +1,6 @@
 // A floor set burning by Babi's big coal (plan babi-boss, the rules in dungeon_blaze.cpp): flames over the floor of
 // the cell, flaring up as it catches and dying down at the end, and their light.
-#include "../sim/dungeon.h"
+#include "dungeon_view.h"
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"
@@ -23,11 +23,11 @@ float strength(int startMs, int endMs, int now) {
 
 //======================================================================================
 // Same window and frame as drawSummonEffects.
-void Dungeon::drawBlazes() {
+void DungeonView::drawBlazes() {
 	const int now = GameClock::now();
-	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
-	for (const Blaze& b : blazes) {
-		const int col = b.cell % MAP_WIDTH, row = b.cell / MAP_WIDTH;
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
+	for (const Dungeon::Blaze& b : d.blazes) {
+		const int col = b.cell % Dungeon::MAP_WIDTH, row = b.cell / Dungeon::MAP_WIDTH;
 		if (!drawnCells.contains(static_cast<float>(col) + 0.5f, row))
 			continue;
 		const float fade = strength(b.startMs, b.endMs, now);
@@ -44,11 +44,11 @@ void Dungeon::drawBlazes() {
 }
 //======================================================================================
 // Same frame as addLights.
-void Dungeon::addBlazeLights() {
+void DungeonView::addBlazeLights() {
 	const int now = GameClock::now();
-	const auto col0 = static_cast<float>(view().originCol), row0 = static_cast<float>(view().originRow);
-	for (const Blaze& b : blazes) {
-		const int col = b.cell % MAP_WIDTH, row = b.cell / MAP_WIDTH;
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
+	for (const Dungeon::Blaze& b : d.blazes) {
+		const int col = b.cell % Dungeon::MAP_WIDTH, row = b.cell / Dungeon::MAP_WIDTH;
 		Lighting::LightDef light = BLAZE_LIGHT;
 		light.radius *= strength(b.startMs, b.endMs, now);
 		Lighting::add(

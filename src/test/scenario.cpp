@@ -29,6 +29,7 @@
 #include <optional>
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -133,7 +134,7 @@ const char* screenName() {
 	case Screen::Death:
 		return "death";
 	}
-	return "?";
+	std::unreachable();
 }
 
 std::string stateLine() {

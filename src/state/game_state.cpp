@@ -24,6 +24,7 @@
 #include "../core/paths.h"
 #include "../test/scenario.h"
 #include <sstream>
+#include <utility>
 
 namespace {
 std::unique_ptr<GameState> gGame;
@@ -214,7 +215,7 @@ Sound& soundOf(SoundBank& sounds, WorldSound sound) {
 	case WorldSound::ShrinePraySerket:
 		return sounds.shrinePray[static_cast<int>(sound) - static_cast<int>(WorldSound::ShrinePray)];
 	}
-	return sounds.arrowHit;
+	std::unreachable();
 }
 bool isGustSound(WorldSound sound) { return sound == WorldSound::GustRise || sound == WorldSound::GustBlow; }
 const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
@@ -232,7 +233,7 @@ const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
 	case CharacterSound::Roar:
 		return model.roarSound;
 	}
-	return model.dieSound;
+	std::unreachable();
 }
 } // namespace
 

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <utility>
 
 // Disarm trap (plan heka-surplus): its own roll, after the trap ward's, only when the ward failed.
 bool Dungeon::disarmed() {
@@ -60,7 +61,7 @@ std::string Dungeon::fireChestTrap(int cell) {
 		chestSwarm(cell);
 		return "Scarabs pour out of it!";
 	}
-	return "";
+	std::unreachable();
 }
 //======================================================================================
 void Dungeon::tombCurse(Curse c, const char* execration) {

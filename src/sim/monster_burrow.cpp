@@ -135,5 +135,5 @@ bool Monster::UpdateBurrow() {
 		}
 		return false;
 	}
-	return false;
+	std::unreachable();
 }

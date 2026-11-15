@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <optional>
 #include <sstream>
+#include <utility>
 
 namespace Scenario {
 namespace {
@@ -642,7 +643,7 @@ bool compare(float lhs, Op op, float rhs) {
 	case Op::Ge:
 		return lhs >= rhs;
 	}
-	return false;
+	std::unreachable();
 }
 
 std::vector<std::string> parseScript(std::istream& in, const std::string& name, Script& script) {

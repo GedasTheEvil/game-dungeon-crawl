@@ -2,6 +2,7 @@
 #define INTERACTION_H
 
 #include <cstdint>
+#include <utility>
 
 // What the interact key does in the player's cell (plan interact-prompt): Dungeon::InteractVerb decides it,
 // Dungeon::Interact does it, the HUD prompt shows it ("[E] Open").
@@ -51,7 +52,7 @@ constexpr const char* interactionVerb(Interaction verb) {
 	case Interaction::Pray:
 		return "Pray";
 	}
-	return "";
+	std::unreachable();
 }
 
 #endif

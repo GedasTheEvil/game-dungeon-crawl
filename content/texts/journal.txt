@@ -558,6 +558,34 @@ text: Spikes on the underside of a low ceiling, the venomous kind too, as on the
 	through my armour, and the death trap's tips poison strongly. Under a low ceiling that bristles, I keep my feet
 	on the ground.
 
+[note.riddle-gates]
+title: Riddle gates
+text: A sphinx at the gate, and a scroll with a question. The old texts call a sphinx shesep-ankh, a living image;
+	this one is living enough to ask. A right answer pays a share of the way to my next level, at least 500
+	experience. Wrong answers cost nothing and I can try again; after two, the scroll lets slip a hint. Walking away
+	spends the gate and loses the reward, but the riddle stays in my notes, and answering it there pays a tenth. It
+	does not block the way.
+
+[note.name-gates]
+title: Name gates
+text: A sealed gate, and no riddle, only a demand for a name. Somewhere on this level a king's name is carved in a
+	cartouche: copy it, read it, speak it. Without the skill I read the signs myself; with Words of Thoth the page
+	says it plainly. Wrong tries cost nothing, but there is no hint and no reward for the name itself. Walking away
+	leaves it sealed. The right name opens it for good, a doorway to a hidden room. In Egypt a name was a part of
+	you. Here it is a key.
+
+[note.wading]
+title: Water
+text: Water up to my knees. I wade at half my pace, I cannot sprint in it and
+	the water is too deep to jump. Fire does not last in it, and what burns me burns a tenth as hard. Something
+	may lie low in it, waiting. The shore is the only place to run or jump; Hapi eases the water for those he favours.
+
+[note.the-dark]
+title: The dark
+text: The spiders here hate the light. A torch on the wall, a brazier, a lamp, a sunbeam from a mirror: they will not
+	step into the cell it lights, nor the cells beside it, and one caught in it runs for the dark. They fear it only
+	while unhurt: a spider I have wounded forgets, and comes. So I go from flame to flame, like a moth with a plan.
+
 # The prologue (plan journal-intro): how the archaeologist came here, a title and up to three paragraphs (p1..p3)
 # per page. The statue is Anubis (the boss of the last level), the ankh the one won there; the club is the
 # starting weapon (items.cpp).

@@ -398,6 +398,8 @@ bool Dungeon::Move(float dirX, float dirY) {
 		); // the draw prunes too, but a headless run never draws
 		puffs.push_back({mapX, static_cast<int>(mapY), now});
 	}
+	if (moved && PlayerWading())
+		sim.events->Note(FieldNote::Wading); // plan field-notes-gates-and-water
 	if (moved && PlayerWading() && GameClock::now() - wadeSoundMs >= WADE_SPLASH_MS) {
 		wadeSoundMs = GameClock::now();
 		sim.events->Play(WorldSound::Wade);

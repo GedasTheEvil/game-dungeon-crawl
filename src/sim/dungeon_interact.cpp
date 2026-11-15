@@ -320,6 +320,7 @@ void Dungeon::useGate() {
 		return;
 	switch (here.attr) {
 	case GateRiddle:
+		sim.events->Note(FieldNote::RiddleGates); // plan field-notes-gates-and-water
 		sim.events->AskRiddle();
 		SetMapBAtPlayer(GateEmpty);
 		break;
@@ -333,6 +334,7 @@ void Dungeon::useGate() {
 			if (sim.player->stats.heka.Has(SkillId::WisdomOfSeshat))
 				if (const std::optional<JournalInscription> page = nameCartouchePage(true))
 					sim.journal->ReadInscription(*page);
+			sim.events->Note(FieldNote::NameGates); // plan field-notes-gates-and-water
 			sim.events->AskName();
 		} else if (!sim.player->jump.jumping && !sim.player->jump.falling &&
 				   teleportPartner(map, MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))) >= 0)

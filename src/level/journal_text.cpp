@@ -83,6 +83,7 @@ constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote:
 	"djed-of-ptah",	   "breath-of-shu",	  "speed-of-mafdet", "wisdom-of-seshat", "disarm-trap",
 	"quiver-of-neith", "shrine-of-montu", "shrine-of-ptah",	 "shrine-of-amun",	 "shrine-of-serket",
 	"sky-iron",		   "pressure-plates", "floor-spikes",	 "rock-falls",		 "ceiling-traps",
+	"riddle-gates",	   "name-gates",	  "wading",			 "the-dark",
 };
 
 std::string fieldNoteKey(int note) {

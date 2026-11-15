@@ -614,8 +614,11 @@ void Dungeon::updateWalker(Monster& mon) {
 		return;
 	}
 	if (dir != 0 && runs && !walkerReaches(mon, dir)) {
-		if (mon.ShunsLight() && mon.sameRow(mapY) && litBetween(mon))
+		if (mon.ShunsLight() && mon.sameRow(mapY) && litBetween(mon)) {
 			sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::ShunLight);
+			if (inView(mon))
+				sim.events->Note(FieldNote::TheDark); // plan field-notes-gates-and-water
+		}
 		fleeFrom(mon, dir);
 		return;
 	}

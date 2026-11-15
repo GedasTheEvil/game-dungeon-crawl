@@ -2,6 +2,7 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/decor.h"
+#include <algorithm>
 
 namespace {
 const Monster* spider(const SimWorld& world) {
@@ -54,6 +55,9 @@ TEST_CASE("in the dark the camel spider runs at the player, faster than they wal
 	world.Wait(15000);
 	CHECK(world.Hp() < hp);
 	CHECK_FALSE(world.Saw(MonsterCamelSpider, CreatureMove::ShunLight));
+	CHECK(std::ranges::none_of(world.said, [](const WorldEvent& e) {
+		return e.kind == WorldEvent::Kind::Note && e.note == FieldNote::TheDark; // no light, no note
+	}));
 }
 
 TEST_CASE("the camel spider will not follow the player into the light: it keeps out of the bow's range") {
@@ -70,6 +74,9 @@ TEST_CASE("the camel spider will not follow the player into the light: it keeps 
 	CHECK(world.Hp() == hp);
 	CHECK(s->Left() - (world.X() + world.player.HalfWidth()) >= COWARD_SAFE_GAP - 0.2f);
 	CHECK(world.Saw(MonsterCamelSpider, CreatureMove::ShunLight));
+	CHECK(std::ranges::any_of(world.said, [](const WorldEvent& e) { // plan field-notes-gates-and-water
+		return e.kind == WorldEvent::Kind::Note && e.note == FieldNote::TheDark;
+	}));
 
 	// The player steps out of the light (west of it is wall, so the torch goes out): it comes at once.
 	world.dungeon.PlaceTorch(3, row, false);

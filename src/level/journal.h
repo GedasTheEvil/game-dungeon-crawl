@@ -212,8 +212,13 @@ enum class FieldNote : unsigned char {
 	FloorSpikes, // the first time in a spike or death trap (plan journal-trap-notes)
 	RockFalls, // the first rock or sand fall set off by the player (plan journal-trap-notes)
 	CeilingTraps, // the first jump into ceiling spikes (plan journal-trap-notes)
+	// Plan field-notes-gates-and-water: the first of each.
+	RiddleGates, // a riddle gate's scroll opened
+	NameGates, // a sealed name gate touched
+	Wading, // a step in half water
+	TheDark, // a light shunner (camel or tiny spider) kept out of the light, in view
 };
-constexpr int FIELD_NOTE_COUNT = 82 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
+constexpr int FIELD_NOTE_COUNT = 86 + AMULET_TYPE_COUNT + RING_GEM_COUNT;
 // The hour note of a zone (ZoneId as an int; isZone).
 [[nodiscard]] constexpr FieldNote hourNote(int zone) {
 	return static_cast<FieldNote>(static_cast<int>(FieldNote::HourFirst) + zone);

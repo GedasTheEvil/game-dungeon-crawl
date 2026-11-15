@@ -1,0 +1,10 @@
+# Plan armor-split: 10 armour and a Cut Guard (28%) worn, an Armor potion in the bag. Open the inventory (I): the
+# stats card shows Stab, Cut, Smash and Fire; hover Cut for its make-up; drink the Armor potion: all three go up.
+seed 1
+god
+level tests/levels/classic1
+gear 10 0 0
+give amulet 26
+wear amulet_of_cut_guard
+give potion 3
+wait 10

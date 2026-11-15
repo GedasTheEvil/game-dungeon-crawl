@@ -105,3 +105,26 @@ TEST_CASE("fire in water: a tenth of the fire share, the rest unchanged (plan fi
 	CHECK(resistedDamage(100, mixed, inWaterResist(NO_RESISTANCES)) == 46);
 	CHECK(fireDamage(100, mixed, inWaterResist(NO_RESISTANCES)) == doctest::Approx(6.0));
 }
+
+// Plan armor-split: each type takes its own armour's share after its resistance; fire none.
+TEST_CASE("per type armour: each share of a hit after its own type's armour") {
+	// 50 smash, 50 stab; smash armour 50 halves its share, stab armour 0: 25 + 50.
+	CHECK(playerHitDamage(100, {50, 0, 50}, NO_RESISTANCES, ArmorPoints{50, 0, 0}, false) == 75);
+	CHECK(playerHitDamage(100, {50, 0, 50}, NO_RESISTANCES, ArmorPoints{0, 0, 50}, false) == 75);
+	CHECK(playerHitDamage(100, {0, 100, 0}, NO_RESISTANCES, ArmorPoints{50, 0, 50}, false) == 100);
+	// The same on every type is the old single armour.
+	for (int armor : {0, 5, 10, 50})
+		CHECK(
+			playerHitDamage(57, {30, 30, 30, 10}, NO_RESISTANCES, armorAll(armor), false) ==
+			playerHitDamage(57, {30, 30, 30, 10}, NO_RESISTANCES, armor, false)
+		);
+	CHECK(armorMean(ArmorPoints{1, 2, 4}) == 2);
+}
+
+TEST_CASE("the guard share: 1 - rate x 50 / (50 + armour), fire only its rate") {
+	const Resistances cutWard = {NORMAL, 80, NORMAL, 80};
+	CHECK(guardShare(DamageType::Slash, cutWard, armorAll(10)) == doctest::Approx(1.0 - 0.8 * 50.0 / 60.0)); // 33.3%
+	CHECK(guardShare(DamageType::Pierce, cutWard, armorAll(10)) == doctest::Approx(1.0 / 6.0));
+	CHECK(guardShare(DamageType::Blunt, cutWard, armorAll(0)) == doctest::Approx(0.0));
+	CHECK(guardShare(DamageType::Fire, cutWard, armorAll(50)) == doctest::Approx(0.2));
+}

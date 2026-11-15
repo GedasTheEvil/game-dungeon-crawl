@@ -120,7 +120,7 @@ RunRecord recordOf(const PlayerStats& stats, std::string name, std::string date,
 	r.playerLevel = stats.CurrentLevel();
 	r.maxHp = stats.CurrentMaxHP();
 	r.stamina = stats.MaxStamina();
-	r.armor = stats.CurrentArmor();
+	r.armor = armorMean(stats.CurrentArmor()); // one number (plan armor-split): the mean of smash, cut and stab
 	r.might = stats.CurrentMight();
 	for (int i = 0; i < SKILL_COUNT; i++)
 		if (stats.heka.Has(static_cast<SkillId>(i)))

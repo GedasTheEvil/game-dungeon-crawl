@@ -27,7 +27,8 @@ class Inventory {
 		UseButton,
 		UpgradeButton,
 		OfferButton,
-		MergeButton
+		MergeButton,
+		Guard // a stats card guard cell (plan armor-split): only its tooltip
 	};
 
 	static constexpr int NO_SLOT = -1;

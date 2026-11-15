@@ -79,7 +79,7 @@ TEST_CASE("the stat skills: health, might, armor and stamina with the skill, the
 	earn(stats, 4);
 	const int hp = stats.CurrentMaxHP();
 	const int might = stats.CurrentMight();
-	const int armor = stats.CurrentArmor();
+	const int armor = armorMean(stats.CurrentArmor());
 	const int stamina = stats.MaxStamina();
 	stats.LoseHP(10);
 	const int wounded = stats.CurrentHP();
@@ -89,7 +89,7 @@ TEST_CASE("the stat skills: health, might, armor and stamina with the skill, the
 	REQUIRE(stats.Learn(SkillId::StrengthOfMontu));
 	CHECK(stats.CurrentMight() == might + SKILL_MIGHT);
 	REQUIRE(stats.Learn(SkillId::DjedOfPtah));
-	CHECK(stats.CurrentArmor() == armor + SKILL_ARMOR);
+	CHECK(stats.CurrentArmor() == armorAll(armor + SKILL_ARMOR));
 	stats.SetStamina(stamina);
 	REQUIRE(stats.Learn(SkillId::BreathOfShu));
 	CHECK(stats.MaxStamina() == stamina * (100 + SKILL_STAMINA_PERCENT) / 100);

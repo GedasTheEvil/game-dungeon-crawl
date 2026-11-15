@@ -136,7 +136,7 @@ TEST_CASE("the screech's blast hurts the player in the cone, through the armour;
 	const ScreechRules& rules = *monsterKind(MonsterGiantBat)->screech;
 	SimWorld armoured;
 	armoured.player.stats.AddXP(10000000, armoured.events);
-	REQUIRE(armoured.player.stats.CurrentArmor() > 0);
+	REQUIRE(armorMean(armoured.player.stats.CurrentArmor()) > 0);
 	const int expected = armoured.player.stats.HitDamage(rules.damage, SCREECH_MIX, false);
 	CHECK(expected < rules.damage);
 	CHECK(blastLoss(false) == expected);

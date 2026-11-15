@@ -135,7 +135,10 @@ void PlayerStats::Heal(int hpPart) {
 		vitals.hp = static_cast<int>(heal + static_cast<float>(vitals.hp));
 }
 
-void PlayerStats::AddArmor(int na) { Armor += na; }
+void PlayerStats::AddArmor(int na) {
+	for (int& a : Armor)
+		a += na;
+}
 
 int PlayerStats::HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor, bool inWater) const {
 	return playerHitDamage(dmg, mix, inWater ? inWaterResist(resist) : resist, CurrentArmor(), ignoreArmor);
@@ -148,7 +151,7 @@ bool PlayerStats::AdvanceLevel(WorldEvents& events) {
 		return false;
 
 	if (level % 5 == 0)
-		Armor++;
+		AddArmor(1);
 
 	if (level % 8 == 0)
 		Might++;
@@ -376,7 +379,8 @@ void PlayerStats::Pray(God g, WorldEvents& events) {
 		break;
 	case God::Ptah:
 		left = BLESSING_MS;
-		events.Status(StatusTone::Good, "Ptah steadies me: Armor %d for %d min", CurrentArmor(), left / 60000);
+		events
+			.Status(StatusTone::Good, "Ptah steadies me: Armor %d for %d min", armorMean(CurrentArmor()), left / 60000);
 		break;
 	case God::Amun:
 		left = BLESSING_MS;
@@ -434,7 +438,7 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 		snprintf(buf, sizeof(buf), "Might rises to %d", CurrentMight());
 	} else if (gain.armor > 0) {
 		AddArmor(gain.armor);
-		snprintf(buf, sizeof(buf), "Armor rises to %d", CurrentArmor());
+		snprintf(buf, sizeof(buf), "Armor rises to %d", armorMean(CurrentArmor()));
 	} else if (gain.resistPercent > 0) {
 		const bool cured = gain.cure && vitals.poison.Any();
 		if (gain.cure)
@@ -466,8 +470,8 @@ std::string PlayerStats::Drink(const PotionGain& gain) {
 }
 
 void PlayerStats::Dump(std::ostream& f) const {
-	f << level << " " << XP << " " << Armor << " " << MaxHP << " " << vitals.hp << " " << Might << " " << stamina
-	  << "\n";
+	f << level << " " << XP << " " << armorMean(Armor) << " " << MaxHP << " " << vitals.hp << " " << Might << " "
+	  << stamina << "\n";
 	vitals.poison.Save(f);
 	vitals.bleeding.Save(f);
 	f << "RESIST " << resist_percent << " " << resist_left_ms << "\n";
@@ -478,13 +482,16 @@ void PlayerStats::Dump(std::ostream& f) const {
 		f << " " << blessing_left_ms[static_cast<size_t>(g)];
 	f << "\n";
 	f << "BOONS " << max_stamina_percent << "\n";
+	f << "ARMOR " << Armor[0] << " " << Armor[1] << " " << Armor[2] << "\n"; // per type (plan armor-split)
 	heka.Dump(f);
 	curses.Dump(f);
 	run.Dump(f);
 }
 
 void PlayerStats::LoadDump(std::istream& f) {
-	f >> level >> XP >> Armor >> MaxHP >> vitals.hp >> Might;
+	int armor = 0;
+	f >> level >> XP >> armor >> MaxHP >> vitals.hp >> Might;
+	Armor = armorAll(armor); // a save from before the armor split: the one number on every type
 
 	int loadedStamina = 100;
 
@@ -540,6 +547,12 @@ void PlayerStats::LoadDump(std::istream& f) {
 		f.seekg(boons);
 	} else
 		f >> max_stamina_percent;
+	const auto split = f.tellg();
+	if (!(f >> tag) || tag != "ARMOR") { // a save from before the armor split (plan armor-split)
+		f.clear();
+		f.seekg(split);
+	} else
+		f >> Armor[0] >> Armor[1] >> Armor[2];
 	heka.LoadDump(f);
 	SetStamina(loadedStamina); // clamped to the max, which needs the boons and the skills
 	curses.LoadDump(f);

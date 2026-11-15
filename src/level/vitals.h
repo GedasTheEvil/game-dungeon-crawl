@@ -35,7 +35,8 @@ struct Harm {
 // the blessings, so they are passed in, not kept.
 struct Guard {
 	Resistances resist = NO_RESISTANCES;
-	std::optional<int> armor; // the player's (playerHitDamage: armour on the non-fire shares); a monster has none
+	std::optional<ArmorPoints>
+		armor; // the player's, per type (playerHitDamage: armour on the non-fire shares); a monster has none
 };
 
 class Vitals {

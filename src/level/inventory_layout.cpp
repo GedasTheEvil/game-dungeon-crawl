@@ -1,4 +1,7 @@
 #include "inventory_layout.h"
+#include <cmath>
+#include <cstdio>
+#include <utility>
 #include <algorithm>
 
 namespace InventoryLayout {
@@ -36,6 +39,36 @@ Rect sortRect(int order) {
 	return {x, TAB_Y, SORT_W[std::clamp(order, 0, SORT_ORDER_COUNT - 1)], TAB_H};
 }
 
+namespace {
+// "33.3", "20", "-50": one decimal unless whole.
+std::string percent(double value) {
+	const double tenths = std::round(value * 10.0);
+	char buf[16];
+	if (std::fmod(tenths, 10.0) == 0.0)
+		snprintf(buf, sizeof(buf), "%d", static_cast<int>(tenths / 10.0));
+	else
+		snprintf(buf, sizeof(buf), "%.1f", tenths / 10.0);
+	return buf;
+}
+} // namespace
+
+std::string guardText(DamageType type, const Resistances& resist, const ArmorPoints& armor) {
+	return percent(guardShare(type, resist, armor) * 100.0) + "%";
+}
+
+std::string guardTooltip(DamageType type, const Resistances& resist, const ArmorPoints& armor) {
+	const auto t = std::to_underlying(type);
+	const std::string name = DAMAGE_TYPE_NAMES[t];
+	const std::string ward = percent(100.0 - static_cast<double>(resist[t])) + "%";
+	if (type == DamageType::Fire)
+		return name + ": " + ward + "\nthe fire guard's; armour does not stop fire";
+	const std::string points = std::to_string(armor[t]) + "a";
+	if (resist[t] == NORMAL)
+		return name + ": " + points + "\n" + std::to_string(armor[t]) + " armour, no ward";
+	return name + ": " + ward + " + " + points + "\nthe ward's " + ward + ", then " + std::to_string(armor[t]) +
+		   " armour";
+}
+
 Hit hitAt(const GridOrder& order, int scroll, bool twoButtons, ShrineRow shrineRow, float x, float y) {
 	Hit hit;
 	for (ItemKind kind : order)
@@ -47,6 +80,9 @@ Hit hitAt(const GridOrder& order, int scroll, bool twoButtons, ShrineRow shrineR
 	for (int order = 1; order < SORT_ORDER_COUNT; order++)
 		if (sortRect(order).contains(x, y))
 			hit.sort = order;
+	for (int i = 0; i < GUARD_COUNT; i++)
+		if (guardRect(i).contains(x, y))
+			hit.guard = i;
 	if (!twoButtons) {
 		if (WIDE_BUTTON.contains(x, y))
 			hit.button = Button::Use;

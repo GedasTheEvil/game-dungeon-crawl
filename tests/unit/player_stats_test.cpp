@@ -2,6 +2,8 @@
 #include "../../src/core/timer.h"
 #include "../../src/level/player_stats.h"
 #include <filesystem>
+#include <functional>
+#include <sstream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -48,7 +50,7 @@ TEST_CASE("one big XP gain climbs several levels: armour every 5, might every 8"
 	WorldEvents events;
 	stats.AddXP(static_cast<int>(PlayerStats::LevelXP(8)) + 1, events);
 	CHECK(stats.CurrentLevel() == 8);
-	CHECK(stats.CurrentArmor() == 1);
+	CHECK(stats.CurrentArmor() == armorAll(1));
 	CHECK(stats.CurrentMight() == 1);
 	CHECK(stats.CurrentMaxHP() == 50 + 7 * HP_PER_LEVEL);
 	CHECK(events.Take().size() == 14); // a status line and a note per level
@@ -148,7 +150,7 @@ TEST_CASE("an amulet adds to might, armour and max HP; the HP keeps its share") 
 	CHECK(stats.CurrentMaxHP() == 60);
 	CHECK(stats.CurrentHP() == 30);
 	CHECK(stats.CurrentMight() == 2);
-	CHECK(stats.CurrentArmor() == 1);
+	CHECK(stats.CurrentArmor() == armorAll(1));
 	stats.Wear(AmuletBonus{}, true);
 	CHECK(stats.CurrentMaxHP() == 50);
 	CHECK(stats.CurrentHP() == 25);
@@ -276,4 +278,39 @@ TEST_CASE("the stats survive a save and a load") {
 	CHECK(loaded.vitals.poison.Any());
 	CHECK(loaded.PotionResistPercent() == 50);
 	CHECK(loaded.PotionResistLeftMs() == PotionEffect::RESIST_MS - 1000);
+}
+
+namespace {
+// The stats saved, the dump's lines edited by `edit`, then loaded.
+PlayerStats reloaded(const PlayerStats& stats, const std::function<std::string(const std::string&)>& edit) {
+	std::ostringstream out;
+	stats.Dump(out);
+	std::istringstream in(edit(out.str()));
+	PlayerStats loaded = freshStats();
+	loaded.LoadDump(in);
+	return loaded;
+}
+} // namespace
+
+// Plan armor-split: armour points per type, saved per type; an old save's one number goes on all three.
+TEST_CASE("armour is saved per type; a save from before the split gives its armour to every type") {
+	PlayerStats stats = freshStats();
+	stats.AddArmor(7);
+	CHECK(stats.CurrentArmor() == armorAll(7));
+	const PlayerStats same = reloaded(stats, [](const std::string& s) { return s; });
+	CHECK(same.CurrentArmor() == armorAll(7));
+	const PlayerStats split = reloaded(stats, [](const std::string& s) {
+		std::string edited = s;
+		edited.replace(edited.find("ARMOR 7 7 7"), 11, "ARMOR 1 2 3");
+		return edited;
+	});
+	CHECK(split.CurrentArmor() == ArmorPoints{1, 2, 3});
+	const PlayerStats old = reloaded(stats, [](const std::string& s) {
+		std::string edited = s;
+		const size_t at = edited.find("ARMOR 7 7 7\n");
+		edited.erase(at, 12);
+		return edited;
+	});
+	CHECK(old.CurrentArmor() == armorAll(7));
+	CHECK(old.CurrentMaxHP() == stats.CurrentMaxHP());
 }

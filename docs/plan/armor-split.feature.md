@@ -1,6 +1,6 @@
 # Armor split into stab, cut and smash, wards shown
 
-Status: draft 2026-11-15, size M, needs first [ui-tooltip](ui-tooltip.feature.md).
+Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Idea
 

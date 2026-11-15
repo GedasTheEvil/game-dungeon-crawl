@@ -141,6 +141,27 @@ TEST_CASE("the inventory's panels, tabs, sort buttons and use buttons fit the ca
 	}
 }
 
+// Plan armor-split: the stats card's guard cells, under the grid's rule, and their text.
+TEST_CASE("the stats card's guard cells fit under the grid, apart, and say what the guard is made of") {
+	using namespace InventoryLayout;
+	std::vector<Rect> cells;
+	for (int i = 0; i < GUARD_COUNT; i++) {
+		cells.push_back(guardRect(i));
+		CHECK(cells.back().within(ITEMS_PANEL.inset(1.1f)));
+		CHECK(cells.back().y + cells.back().h < STATS_RULE_Y);
+		const Hit hit = hitAt({}, 0, false, ShrineRow::None, cells.back().cx(), cells.back().cy());
+		CHECK(hit.guard == i);
+	}
+	checkApart(cells);
+	const Resistances cutWard = {NORMAL, 80, NORMAL, 80};
+	CHECK(guardText(DamageType::Slash, cutWard, armorAll(10)) == "33.3%");
+	CHECK(guardText(DamageType::Blunt, cutWard, armorAll(0)) == "0%");
+	CHECK(guardText(DamageType::Blunt, NO_RESISTANCES, armorAll(50)) == "50%");
+	CHECK(guardTooltip(DamageType::Slash, cutWard, armorAll(10)).starts_with("cut: 20% + 10a\n"));
+	CHECK(guardTooltip(DamageType::Pierce, cutWard, armorAll(10)).starts_with("stab: 10a\n"));
+	CHECK(guardTooltip(DamageType::Fire, cutWard, armorAll(10)).starts_with("fire: 20%\n"));
+}
+
 TEST_CASE("every tab's visible slots fit the items panel, apart, under its tabs, in every sort and scroll") {
 	using namespace InventoryLayout;
 	for (const ItemBag& bag : {ItemBag{}, allFound()})

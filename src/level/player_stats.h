@@ -30,7 +30,7 @@ class PlayerStats {
   private:
 	int level = 1;
 	double XP = 0;
-	int Armor = 0;
+	ArmorPoints Armor{}; // per type (plan armor-split): smash, cut, stab
 	int MaxHP = 50;
 	int Might = 0;
 	int stamina = 100;
@@ -102,10 +102,16 @@ class PlayerStats {
 		const int skill = heka.Has(SkillId::StrengthOfMontu) ? SKILL_MIGHT : 0;
 		return cursedMight(Might + amulet.might + skill + (Blessed(God::Montu) ? MONTU_MIGHT : 0), curses);
 	}
-	[[nodiscard]] int CurrentArmor() const {
+	// Per type (plan armor-split): every source adds the same to smash, cut and stab.
+	[[nodiscard]] ArmorPoints CurrentArmor() const {
 		const int skill = heka.Has(SkillId::DjedOfPtah) ? SKILL_ARMOR : 0;
-		return cursedArmor(Armor + amulet.armor + skill + (Blessed(God::Ptah) ? PTAH_ARMOR : 0), curses);
+		const int all = amulet.armor + skill + (Blessed(God::Ptah) ? PTAH_ARMOR : 0);
+		ArmorPoints current{};
+		for (size_t t = 0; t < ARMOR_TYPE_COUNT; t++)
+			current[t] = cursedArmor(Armor[t] + all, curses);
+		return current;
 	}
+
 	[[nodiscard]] int CurrentHP() const { return vitals.hp; }
 	[[nodiscard]] int CurrentMaxHP() const {
 		const int percent = amulet.maxHpPercent + (heka.Has(SkillId::KaOfOsiris) ? SKILL_HEALTH_PERCENT : 0) +
@@ -135,7 +141,7 @@ class PlayerStats {
 		vitals.hp = CurrentMaxHP();
 		vitals.bleeding.Stop();
 	}
-	void AddArmor(int na = 1);
+	void AddArmor(int na = 1); // to every type
 	// HP lost to a hit of dmg dealt as mix: the resistances, then the armour unless ignoreArmor; at least 1.
 	[[nodiscard]] int HitDamage(int dmg, const DamageMix& mix, bool ignoreArmor, bool inWater = false) const;
 	// How the player takes a hit (Vitals::Cost): the worn resistances and the current armour.

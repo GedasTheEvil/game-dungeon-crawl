@@ -86,7 +86,7 @@ TEST_CASE("vulnerability cuts the armour; disease the max HP, the HP keeping its
 	WorldEvents events;
 	stats.AddArmor(10);
 	stats.LayCurse(Curse::Vulnerability, CurseGrade::Lesser, events, testRng());
-	CHECK(stats.CurrentArmor() == 4);
+	CHECK(stats.CurrentArmor() == armorAll(4));
 
 	stats.LoseHP(25); // 25 of 50
 	stats.LayCurse(Curse::Disease, CurseGrade::Lesser, events, testRng());
@@ -96,7 +96,7 @@ TEST_CASE("vulnerability cuts the armour; disease the max HP, the HP keeping its
 	CHECK(stats.CurrentMaxHP() == 15);
 	stats.AdvanceCurses(CURSE_MS, events);
 	CHECK(stats.CurrentMaxHP() == 50);
-	CHECK(stats.CurrentArmor() == 10);
+	CHECK(stats.CurrentArmor() == armorAll(10));
 	CHECK(stats.CurrentHP() >= 24); // the share, give or take the rounding of three changes
 	CHECK(stats.CurrentHP() <= 27);
 }

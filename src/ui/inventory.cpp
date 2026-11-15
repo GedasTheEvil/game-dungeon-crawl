@@ -34,6 +34,7 @@ constexpr float NAME_BAND_H = 4.4f;
 constexpr float SLOT_SCALE = 14.5f;
 
 constexpr const char* GROUP_NAMES[ITEM_GROUP_COUNT] = {"Weapons", "Potions", "Amulets", "Rings"};
+constexpr const char* GUARD_LABELS[GUARD_COUNT] = {"Stab", "Cut", "Smash", "Fire"}; // GUARD_TYPES (plan armor-split)
 constexpr PlayerHud::Icon GROUP_ICONS[ITEM_GROUP_COUNT] = {
 	PlayerHud::weaponIcon(ItemKind::ShortSword),
 	PlayerHud::Icon::Potion,
@@ -447,6 +448,7 @@ void Inventory::UpdateHover(float x, float y) {
 		hit.slot != NO_HIT				? Pick{Target::Slot, hit.slot}
 		: hit.tab != NO_HIT				? Pick{Target::Tab, hit.tab}
 		: hit.sort != NO_HIT			? Pick{Target::SortButton, hit.sort}
+		: hit.guard != NO_HIT			? Pick{Target::Guard, hit.guard}
 		: hit.button == Button::Use		? Pick{Target::UseButton}
 		: hit.button == Button::Upgrade ? Pick{Target::UpgradeButton}
 		: hit.button == Button::Offer	? Pick{Target::OfferButton}
@@ -490,8 +492,8 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	const Pick at = pointer.hovered;
 	if (state == GLUT_DOWN) {
 		// Any button on a slot; only the left one on the rest, a dimmed tab takes none.
-		const bool takes = at.target == Target::Slot ||
-						   (button == MOUSE_LEFT_BUTTON && (at.target != Target::Tab || TabEnabled(groupAt(at.index))));
+		const bool takes = at.target == Target::Slot || (button == MOUSE_LEFT_BUTTON && at.target != Target::Guard &&
+														 (at.target != Target::Tab || TabEnabled(groupAt(at.index))));
 		pointer.Down(takes ? at : Pick{}, button);
 		if (at.target == Target::Slot)
 			Select(at.index);
@@ -530,6 +532,7 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 		if (button == MOUSE_RIGHT_BUTTON)
 			Use(fired.index);
 		return;
+	case Target::Guard:
 	case Target::None:
 		return;
 	}
@@ -1191,15 +1194,17 @@ void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 	beginShapes();
 }
 
-// Two rows under the potions: level and XP with the attributes, then the health and stamina bars.
+// Three rows under the grid: level and XP with the attributes, the health and stamina bars, then the guard per damage
+// type (plan armor-split) with its make-up in a tooltip.
 void Inventory::DrawStatus() {
 	const PlayerStats* s = &Game().player->stats;
-	constexpr float ROW_A = 20.2f;
-	constexpr float ROW_B = 15.4f;
+	constexpr float ROW_A = STATS_ROW_Y[0];
+	constexpr float ROW_B = STATS_ROW_Y[1];
+	constexpr float ROW_C = STATS_ROW_Y[2];
 	constexpr float BAR_H = 2.4f;
 	float x0 = ITEMS_PANEL.x + 5;
 
-	line(x0, 25.6f, ITEMS_PANEL.x + ITEMS_PANEL.w - 5, 25.6f, BRONZE, 1.f, 1.f);
+	line(x0, STATS_RULE_Y, ITEMS_PANEL.x + ITEMS_PANEL.w - 5, STATS_RULE_Y, BRONZE, 1.f, 1.f);
 
 	auto bar = [&](float x, float y, float w, float ratio, Color top, Color bottom) {
 		ratio = ratio < 0.f ? 0.f : (ratio > 1.f ? 1.f : ratio);
@@ -1231,11 +1236,9 @@ void Inventory::DrawStatus() {
 	snprintf(buf, sizeof(buf), "%d/%d", static_cast<int>(s->CurrentXP()), static_cast<int>(levelEnd));
 	text(small, 41.5f, ROW_A, buf, GOLD);
 	snprintf(buf, sizeof(buf), "%d", s->CurrentMight());
-	labelValue(62.f, ROW_A, "Might", buf);
-	snprintf(buf, sizeof(buf), "%d", s->CurrentArmor());
-	labelValue(74.f, ROW_A, "Armor", buf);
+	labelValue(66.f, ROW_A, "Might", buf);
 	snprintf(buf, sizeof(buf), "%d", s->Damage(EquippedDamage()));
-	labelValue(86.f, ROW_A, "Dmg", buf);
+	labelValue(80.f, ROW_A, "Dmg", buf);
 
 	text(small, x0, ROW_B, "Health", GOLD_DIM);
 	snprintf(buf, sizeof(buf), "%d/%d", s->CurrentHP(), s->CurrentMaxHP());
@@ -1243,6 +1246,18 @@ void Inventory::DrawStatus() {
 	text(small, 54.f, ROW_B, "Stamina", GOLD_DIM);
 	snprintf(buf, sizeof(buf), "%d/%d", Game().player->stats.Stamina(), Game().player->stats.MaxStamina());
 	text(small, 81.5f, ROW_B, buf, GOLD);
+
+	const ArmorPoints armor = s->CurrentArmor();
+	const int hoveredGuard = HoveredAt(Target::Guard);
+	for (int i = 0; i < GUARD_COUNT; i++) {
+		const DamageType type = GUARD_TYPES[i];
+		const char* label = GUARD_LABELS[i];
+		const float x = guardRect(i).x + 0.5f;
+		text(small, x, ROW_C, label, hoveredGuard == i ? LABEL : GOLD_DIM);
+		text(small, x + small.TextWidth(label) + 1.2f, ROW_C, guardText(type, s->resist, armor).c_str(), GOLD);
+	}
+	if (hoveredGuard >= 0)
+		tooltip(guardRect(hoveredGuard), guardTooltip(GUARD_TYPES[hoveredGuard], s->resist, armor));
 	beginShapes();
 }
 

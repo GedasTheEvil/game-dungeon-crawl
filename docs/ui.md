@@ -260,7 +260,7 @@ by `input.cpp`). The look: a dark label like a panel's fill (`PANEL_TOP` to `PAN
 `BRONZE` frame, the picture-frame drop shadow, `hudSmall` text in `GOLD`, one line per `'\n'`, `TOOLTIP_LINE` (3.4)
 apart. Placed under the anchor, centred; above it where that leaves the canvas, else beside it; then moved inside the
 canvas (`ui::tooltipRect`, `TooltipTimer` for the delay: `ui_layout.h`, checked by `tests/unit/ui_layout_test.cpp`).
-Screenshots: `tests/scenarios/ui_tooltip.txt`. The screen tabs' names use it; the inventory's group tabs, sort buttons
+Screenshots: `tests/scenarios/ui_tooltip.txt`. The screen tabs' names and the stats card's guard cells use it; the inventory's group tabs, sort buttons
 and the journal's ribbons still have their own labels.
 
 ### Draft map
@@ -341,6 +341,15 @@ left corner, `R` in the right. The ring card has two buttons, Left hand and Righ
 Upgrade; on the hand it is worn on the button reads "Take off". Under the effect: what each hand wears, and in green
 what the worn rings of the selected gem give together ([ring-accessories](plan/solved/ring-accessories.md)). The
 gem is drawn see-through over the band, with a slow glint (`Item::DrawPart`).
+
+### Stats card
+
+Under the inventory's grid, after a `BRONZE` rule (`STATS_RULE_Y`), three rows of `small` labels (`GOLD_DIM`) and
+values (`GOLD`) (`Inventory::DrawStatus`, rows `STATS_ROW_Y`): level, the XP bar and count, Might, Dmg; health and
+stamina bars; the guard share per damage type ([armor-split](plan/armor-split.feature.md)): `Stab`, `Cut`,
+`Smash`, `Fire`, the share of a hit of that type the player does not take (`guardShare`: 1 - rate x 50 / (50 +
+armour); fire only its rate), cells `guardRect`. A hovered cell lights its label and shows its make-up in a
+[tooltip](#tooltip) (`guardTooltip`): the ward's percent and the type's armour points, `cut: 28% + 10a`.
 
 ### Heka screen
 

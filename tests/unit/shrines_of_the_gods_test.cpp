@@ -48,13 +48,13 @@ TEST_CASE("Shrines of the gods: each shrine's prop prays to its god, with its so
 TEST_CASE("Shrines of the gods: Montu Might +5, Ptah Armor +5, both at once") {
 	Player player;
 	WorldEvents events;
-	const int might = player.stats.CurrentMight(), armor = player.stats.CurrentArmor();
+	const int might = player.stats.CurrentMight(), armor = armorMean(player.stats.CurrentArmor());
 	player.stats.Pray(God::Montu, events);
 	CHECK(player.stats.CurrentMight() == might + MONTU_MIGHT);
-	CHECK(player.stats.CurrentArmor() == armor);
+	CHECK(player.stats.CurrentArmor() == armorAll(armor));
 	player.stats.Pray(God::Ptah, events);
 	CHECK(player.stats.CurrentMight() == might + MONTU_MIGHT); // the gods stack
-	CHECK(player.stats.CurrentArmor() == armor + PTAH_ARMOR);
+	CHECK(player.stats.CurrentArmor() == armorAll(armor + PTAH_ARMOR));
 	CHECK(MONTU_MIGHT == 5);
 	CHECK(PTAH_ARMOR == 5);
 }

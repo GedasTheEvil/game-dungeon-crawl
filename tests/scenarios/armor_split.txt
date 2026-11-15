@@ -1,0 +1,16 @@
+# Plan armor-split: the stats card's guard row (stab, cut, smash, fire) with 10 armour and a Cut Guard (28%), and the
+# cut cell's tooltip.
+seed 1
+god
+level tests/levels/classic1
+gear 10 0 0
+give amulet 26
+wear amulet_of_cut_guard
+wait 10
+expect armor == 10
+key i
+mouse 26.9 15.9
+wait 400ms
+screenshot cut_tooltip
+mouse 80 50
+wait 400ms

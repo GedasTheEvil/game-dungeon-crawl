@@ -7,6 +7,7 @@
 #include "ui_layout.h"
 #include "item_bag.h"
 #include "items.h"
+#include <string>
 #include <vector>
 
 namespace InventoryLayout {
@@ -55,6 +56,24 @@ using GridOrder = std::vector<ItemKind>;
 [[nodiscard]] Rect tabRect(int group);
 [[nodiscard]] Rect sortRect(int order);
 
+// The stats card under the grid (plan armor-split): three rows, the last the guard per damage type, one cell each in
+// GUARD_TYPES order (stab, cut, smash, fire): the share of a hit the player does not take, its make-up on hover.
+constexpr float STATS_RULE_Y = 25.6f; // the bronze rule over the card
+constexpr float STATS_ROW_Y[3] = {22.4f, 18.6f, 14.8f}; // baselines: level and attributes, health and stamina, guard
+constexpr int GUARD_COUNT = 4;
+constexpr DamageType GUARD_TYPES[GUARD_COUNT] =
+	{DamageType::Pierce, DamageType::Slash, DamageType::Blunt, DamageType::Fire};
+constexpr float GUARD_X = ITEMS_PANEL.x + 5;
+constexpr float GUARD_W = 21.f; // a cell, from its label to the next one's
+[[nodiscard]] constexpr Rect guardRect(int i) {
+	return {GUARD_X + static_cast<float>(i) * GUARD_W - 0.5f, STATS_ROW_Y[2] - 0.6f, GUARD_W - 2.f, 3.4f};
+}
+// A guard cell's value, the share of `type` not taken in percent, one decimal unless whole: "33.3%", "0%".
+[[nodiscard]] std::string guardText(DamageType type, const Resistances& resist, const ArmorPoints& armor);
+// Its tooltip: the ward's percent (100 - the rate), then the type's armour points: "cut: 20% + 10a"; without a ward
+// only "cut: 10a"; fire has no armour: "fire: 20%", "fire: 0%". A second line says what the parts are.
+[[nodiscard]] std::string guardTooltip(DamageType type, const Resistances& resist, const ArmorPoints& armor);
+
 // The shrine row's buttons: none (away from a shrine, or a potion), Offer, Offer and Merge (a ring).
 enum class ShrineRow : std::uint8_t { None, Offer, OfferMerge };
 
@@ -66,6 +85,7 @@ struct Hit {
 	int slot = NO_HIT; // a visible slot of the open tab (its grid `order`)
 	int tab = NO_HIT;
 	int sort = NO_HIT; // a SortOrder past Found
+	int guard = NO_HIT; // a stats card guard cell (guardRect)
 	Button button = Button::None;
 };
 [[nodiscard]] Hit hitAt(const GridOrder& order, int scroll, bool twoButtons, ShrineRow shrineRow, float x, float y);

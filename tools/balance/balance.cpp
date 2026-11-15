@@ -548,7 +548,7 @@ void printRow(const char* zone, const MonsterKind& kind, const Stats& s) {
 		kind.label,
 		s.level,
 		probe.player.stats.CurrentMaxHP(),
-		probe.player.stats.CurrentArmor(),
+		armorMean(probe.player.stats.CurrentArmor()),
 		probe.player.stats.CurrentMight(),
 		itemText(tank.weapon).shortName,
 		cell(tank, Tactic::Tank),

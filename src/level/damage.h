@@ -124,20 +124,54 @@ constexpr DamageMix BLAZE_MIX = {0, 0, 0, 100}; // a floor set burning by Babi's
 // stopped hurting once the potions and amulets had stacked the armour up (the balance sim, 2026-10-26).
 constexpr int ARMOR_HALVES = 50;
 
-// A hit on the player: the type resistances first, then the armour's share (none if ignoreArmor); at least 1.
-// Resistance first keeps its share worth the same on weak and strong hits. Armour acts on the non-fire shares only:
-// fire goes through it (plan fire-damage).
-[[nodiscard]] inline int
-playerHitDamage(int damage, const DamageMix& mix, const Resistances& resist, int armor, bool ignoreArmor) {
+// The player's armour points per type it acts on (plan armor-split): smash, cut and stab, indexed by DamageType. Fire
+// has none: it goes through armour (plan fire-damage). Every armour source today adds the same to all three.
+constexpr int ARMOR_TYPE_COUNT = 3;
+using ArmorPoints = std::array<int, ARMOR_TYPE_COUNT>;
+[[nodiscard]] constexpr ArmorPoints armorAll(int points) { return {points, points, points}; }
+// The three's mean, rounded down: the one number of a status line or the leaderboard.
+[[nodiscard]] constexpr int armorMean(const ArmorPoints& a) { return (a[0] + a[1] + a[2]) / ARMOR_TYPE_COUNT; }
+
+// The share of a hit of that type the armour lets through: ARMOR_HALVES / (ARMOR_HALVES + armour); a curse below 0
+// adds nothing.
+[[nodiscard]] inline double armorKept(int armor) {
+	return static_cast<double>(ARMOR_HALVES) / static_cast<double>(ARMOR_HALVES + std::max(0, armor));
+}
+
+// The share of a hit of one type the player does not take, 0..1 (the inventory's guard rows, plan armor-split): its
+// resistance rate, then that type's armour (none for fire). A 20% cut ward and 10 armour: 1 - 0.8 x 50 / 60 = 33.3%.
+[[nodiscard]] inline double guardShare(DamageType type, const Resistances& resist, const ArmorPoints& armor) {
+	const auto t = std::to_underlying(type);
+	const double kept = static_cast<double>(resist[t]) / 100.0 * (type == DamageType::Fire ? 1.0 : armorKept(armor[t]));
+	return 1.0 - kept;
+}
+
+// A hit on the player: per type the resistance first, then that type's armour share (none if ignoreArmor); at least
+// 1. Resistance first keeps its share worth the same on weak and strong hits. Fire goes through armour (plan
+// fire-damage).
+[[nodiscard]] inline int playerHitDamage(
+	int damage,
+	const DamageMix& mix,
+	const Resistances& resist,
+	const ArmorPoints& armor,
+	bool ignoreArmor
+) {
 	if (ignoreArmor)
 		return resistedDamage(damage, mix, resist);
-	double sum = 0.0;
-	for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
-		sum += t == FIRE ? 0.0 : static_cast<double>(mix[t]) * resist[t];
-	const double other = static_cast<double>(damage) * sum / 10000.0;
-	const double kept = static_cast<double>(ARMOR_HALVES) / static_cast<double>(ARMOR_HALVES + std::max(0, armor));
+	double sum = 0.0; // the non-fire shares, each after its resistance
+	double kept = 0.0; // ... and its armour
+	for (size_t t = 0; t < ARMOR_TYPE_COUNT; t++) {
+		const double share = static_cast<double>(mix[t]) * resist[t];
+		sum += share;
+		kept += share * armorKept(armor[t]);
+	}
 	const double fire = fireDamage(damage, mix, resist);
-	return hitDamage(fire + other * kept, sum > 0.0 || fire > 0.0);
+	return hitDamage(fire + static_cast<double>(damage) * kept / 10000.0, sum > 0.0 || fire > 0.0);
+}
+// The same armour on every type.
+[[nodiscard]] inline int
+playerHitDamage(int damage, const DamageMix& mix, const Resistances& resist, int armor, bool ignoreArmor) {
+	return playerHitDamage(damage, mix, resist, armorAll(armor), ignoreArmor);
 }
 
 // Fire sets its target burning (plan fire-damage): for BURN_MS it takes BURN_TICK_PERCENT % of the hit's fire share a

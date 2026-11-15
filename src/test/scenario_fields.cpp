@@ -30,7 +30,7 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::Might:
 		return static_cast<float>(Game().player->stats.CurrentMight());
 	case Field::Armor:
-		return static_cast<float>(Game().player->stats.CurrentArmor());
+		return static_cast<float>(armorMean(Game().player->stats.CurrentArmor()));
 	case Field::EquipType:
 		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).type);
 	case Field::EquipId:

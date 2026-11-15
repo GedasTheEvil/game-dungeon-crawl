@@ -1,6 +1,6 @@
 # Heka screen: long skill effects wrap to 2 lines on the card
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
+Status: solved 2026-11-15 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Repro
 
@@ -25,7 +25,7 @@ its width: a long one runs past the card's right edge (or under the next card).
   edge minus a pad. Never more than 2 lines: if a text still needs 3, shorten that effect text instead.
 * Two lines need room: move the name up and/or tighten the line gap for 2-line cards (`CARD_NAME_Y`,
   `CARD_EFFECT_Y`), or lay out every card for 2 lines so the names line up. Implementer's choice; keep the look of
-  [docs/ui.md](../ui.md).
+  [docs/ui.md](../../ui.md).
 * A unit test over all `SKILLS`: every effect wraps to at most 2 lines at the card's text width (needs the font
   metrics; if that is not unit-testable, a scenario screenshot of the Heka screen instead).
 

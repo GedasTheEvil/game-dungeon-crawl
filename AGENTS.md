@@ -76,5 +76,11 @@ still ask before pushing.
 This overrides the global "no git actions" and "no worktrees" rules for these steps only.
 Still ask before other git actions (rewriting `master` history, config, other branches).
 
+## Version
+`.version` is `PROUD.DEFAULT.SHAME` ([development.md](docs/development.md#build-and-run)). Bump it in the commit that
+implements the work: a feature raises DEFAULT by 1 (SHAME resets to 0); a fix of bugs only raises SHAME by 1. Several
+features and bugs in one go: DEFAULT +1 once, nothing else. Tooling only: no bump. PROUD is the user's alone: never
+change it.
+
 ## Old save games
 This game has no real players yet. Old saves can mostly be ignored.

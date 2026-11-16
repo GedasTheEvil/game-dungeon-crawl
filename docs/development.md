@@ -32,7 +32,8 @@ read their file arguments from the current directory.
   installed (no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
 * Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)
   `PROUD.DEFAULT.SHAME`: PROUD for a release we are proud of, DEFAULT for a normal one, SHAME for fixing something
-  embarrassing; bump it by hand, a lower part resets to 0.
+  embarrassing; a lower part resets to 0. Who bumps what: [AGENTS.md](../AGENTS.md#version) (agents bump DEFAULT
+  for a feature, SHAME for a bug fix; PROUD only the user).
 * `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
   scenario's setup (level, gear) by hand. `--no-sound` mutes either. See [testing.md](testing.md#play-by-hand).
 * Level editor: `make editor`, `make run-editor [LEVEL=content/levels/lvl3]` (opens that file). See [tools/editor/readme.md](../tools/editor/readme.md).

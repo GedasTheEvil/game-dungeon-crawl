@@ -1,10 +1,10 @@
 # Skill Bleed: cutting hits may make a foe bleed
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size S, needs nothing first.
 
 ## Idea
 
-A Heka skill like Stun (plan [skill-stun](solved/skill-stun.md)), for cutting weapons: a weapon hit that does not
+A Heka skill like Stun (plan [skill-stun](skill-stun.md)), for cutting weapons: a weapon hit that does not
 kill may make the monster bleed.
 
 ## Plan

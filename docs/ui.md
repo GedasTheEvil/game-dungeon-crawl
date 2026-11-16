@@ -251,7 +251,7 @@ window-wide one, so it stays in the same place. Its clicks are handled before th
 
 ### Tooltip
 
-Hover text on the 160 x 100 screens ([ui-tooltip](plan/ui-tooltip.feature.md)): a short total on the screen, what it
+Hover text on the 160 x 100 screens ([ui-tooltip](plan/solved/ui-tooltip.feature.md)): a short total on the screen, what it
 is made of on hover. While drawing, a screen calls `ui::tooltip(anchor, text)` for its hovered element (or its
 focused one while the keyboard has the focus); the last call of a frame wins. `Draw()` (`graphics/draw.cpp`) draws it
 last, over everything, in the 160 x 100 canvas (`ui::drawTooltip`), once the same anchor and text were asked for
@@ -260,7 +260,7 @@ by `input.cpp`). The look: a dark label like a panel's fill (`PANEL_TOP` to `PAN
 `BRONZE` frame, the picture-frame drop shadow, `hudSmall` text in `GOLD`, one line per `'\n'`, `TOOLTIP_LINE` (3.4)
 apart. Placed under the anchor, centred; above it where that leaves the canvas, else beside it; then moved inside the
 canvas (`ui::tooltipRect`, `TooltipTimer` for the delay: `ui_layout.h`, checked by `tests/unit/ui_layout_test.cpp`).
-Screenshots: `tests/scenarios/ui_tooltip.txt`. The screen tabs' names and the stats card's guard cells use it; the inventory's group tabs, sort buttons
+Screenshots: `tests/scenarios/solved/ui_tooltip.txt`. The screen tabs' names and the stats card's guard cells use it; the inventory's group tabs, sort buttons
 and the journal's ribbons still have their own labels.
 
 ### Draft map

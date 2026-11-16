@@ -332,7 +332,7 @@ void processMouse(int button, int state, int x, int y) {
 	if (action && state == GLUT_UP)
 		releaseBinding(*action);
 
-	if (ScreenTabs::Has(Game().ui.screen) && ScreenTabs::Mouse(button, state, x, y))
+	if (ScreenTabs::Has(Game().ui.screen) && ScreenTabs::Mouse(Game().ui, button, state, x, y))
 		return;
 
 	if (UiScreen* tab = Game().ui.TabScreen()) {
@@ -372,7 +372,7 @@ void processMousePassiveMotion(int a, int b) {
 		return;
 	}
 	if (ScreenTabs::Has(Game().ui.screen))
-		ScreenTabs::Motion(a, b);
+		ScreenTabs::Motion(Game().ui, a, b);
 	if (UiScreen* tab = Game().ui.TabScreen())
 		tab->MouseMotion(a, b); // the map pans only while its button is held
 }
@@ -389,7 +389,7 @@ void processMouseActiveMotion(int a, int b) {
 		return;
 	}
 	if (ScreenTabs::Has(Game().ui.screen))
-		ScreenTabs::Motion(a, b);
+		ScreenTabs::Motion(Game().ui, a, b);
 	if (UiScreen* tab = Game().ui.TabScreen())
 		tab->MouseMotion(a, b);
 }

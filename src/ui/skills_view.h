@@ -8,12 +8,16 @@
 #include "../render/ui_draw.h"
 #include <string>
 #include <vector>
+#include "screen_world.h"
 
 // The Heka screen ([K], plan skills): a card per skill (a list that scrolls, plan heka-surplus) and the heka left to
 // spend; the papyrus on the right tells the selected skill and learns it, after a second press to confirm (no
 // unlearning). Its layout: skills_layout.h. The game is paused while it is open.
+struct UIContext;
+
 class SkillsScreen final : public UiScreen {
   public:
+	SkillsScreen(const ScreenWorld& world, UIContext& ui) : world(world), ui(ui) {}
 	void Draw() override;
 	void MouseFunction(int button, int state, int x, int y) override;
 	void MouseMotion(int x, int y) override;
@@ -24,6 +28,8 @@ class SkillsScreen final : public UiScreen {
 	[[nodiscard]] int MostEffectLines();
 
   private:
+	const ScreenWorld& world; // the game it shows and changes (plan game-state-split)
+	UIContext& ui;
 	enum class Target : unsigned char { None, Card, LearnButton };
 	struct Pick {
 		Target target = Target::None;

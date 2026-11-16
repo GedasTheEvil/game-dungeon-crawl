@@ -73,8 +73,8 @@ constexpr std::array<int, 4> ANIMATION_RATES = {0, 24, 30, 60};
 // The choices the Frame rate row steps through (plan frame-rate-cap).
 constexpr std::array<int, 4> FRAME_RATES = {FRAME_RATE_MONITOR, 30, 60, FRAME_RATE_UNLIMITED};
 
-bool& switchOf(OptionId id) {
-	Settings& s = Game().settings;
+bool& switchOf(const ScreenWorld& world, OptionId id) {
+	Settings& s = world.settings;
 	switch (id) {
 	case OptionId::Fullscreen:
 		return s.display.fullscreen;
@@ -97,8 +97,8 @@ bool& switchOf(OptionId id) {
 	}
 }
 
-int& sliderOf(OptionId id) {
-	Settings& s = Game().settings;
+int& sliderOf(const ScreenWorld& world, OptionId id) {
+	Settings& s = world.settings;
 	switch (id) {
 	case OptionId::Brightness:
 		return s.display.brightness;
@@ -194,7 +194,7 @@ void MainMenu::DrawOptions() {
 // One row a setting: its name and what it does, its switch, choice or slider on the right.
 void MainMenu::DrawRows() {
 	OptionRows rows = optionRows(optionsTab);
-	const Settings& settings = Game().settings;
+	const Settings& settings = world.settings;
 	for (int i = 0; i < rows.count; i++) {
 		const OptionRow& row = rows[i];
 		const int target = OPTION_BASE + i;
@@ -208,7 +208,7 @@ void MainMenu::DrawRows() {
 		bool on = false;
 		bool enabled = true;
 		if (row.kind == OptionKind::Switch) {
-			on = switchOf(row.id);
+			on = switchOf(world, row.id);
 			Rect r = tile(control, on ? TileStyle::Lapis : TileStyle::Stone, isHovered, pointer.Held(target));
 			std::snprintf(value, sizeof(value), "%s", on ? "On" : "Off");
 			control = r;
@@ -238,7 +238,7 @@ void MainMenu::DrawRows() {
 			control = r;
 		} else {
 			// Track, the filled part, the knob; the number to the right.
-			const int level = sliderOf(row.id);
+			const int level = sliderOf(world, row.id);
 			const SliderRange range = sliderRange(row.id);
 			const float t = static_cast<float>(level - range.lo) / static_cast<float>(range.hi - range.lo);
 			if (row.id == OptionId::Brightness)
@@ -273,7 +273,7 @@ void MainMenu::DrawRows() {
 void MainMenu::DrawControlCell(int target, const Rect& r) {
 	const int action = (target - BIND_BASE) / BINDING_SLOTS;
 	const int slot = (target - BIND_BASE) % BINDING_SLOTS;
-	const InputKey& key = Game().settings.controls.Of(static_cast<BindAction>(action)).Slot(slot);
+	const InputKey& key = world.settings.controls.Of(static_cast<BindAction>(action)).Slot(slot);
 	const bool waiting = capturing == target;
 	const bool isHovered = pointer.hovered == target;
 
@@ -359,7 +359,7 @@ void MainMenu::DrawFooterHint() {
 
 void MainMenu::ActivateOption(int row, int step) {
 	const OptionRow option = optionRows(optionsTab)[row];
-	Settings::Display& display = Game().settings.display;
+	Settings::Display& display = world.settings.display;
 	if (option.id == OptionId::WindowSize) {
 		if (display.fullscreen) {
 			ShowToast("Leave fullscreen to pick a window size");
@@ -402,7 +402,7 @@ void MainMenu::ActivateOption(int row, int step) {
 		else
 			display.frameRate = at == FRAME_RATES.end() || at == FRAME_RATES.begin() ? FRAME_RATES.back() : *(at - 1);
 	} else if (option.kind == OptionKind::Switch) {
-		bool& on = switchOf(option.id);
+		bool& on = switchOf(world, option.id);
 		on = !on;
 		if (option.id == OptionId::Fullscreen) {
 			if (on)
@@ -411,7 +411,7 @@ void MainMenu::ActivateOption(int row, int step) {
 				glutLeaveFullScreen();
 		}
 	}
-	Game().ApplySettings(true);
+	world.applySettings(true);
 }
 
 void MainMenu::StepOption(int row, int step) {
@@ -420,25 +420,25 @@ void MainMenu::StepOption(int row, int step) {
 		ActivateOption(row, step);
 		return;
 	}
-	int& level = sliderOf(option.id);
+	int& level = sliderOf(world, option.id);
 	const SliderRange range = sliderRange(option.id);
 	level = std::clamp(level + range.step * step, range.lo, range.hi);
-	Game().ApplySettings(true);
+	world.applySettings(true);
 	if (samplesEffects(option.id))
-		Game().assets.sounds.lever.Play(); // a sample at the new volume
+		world.assets.sounds.lever.Play(); // a sample at the new volume
 }
 
 void MainMenu::SetSlider(int row, int x) {
 	const OptionRow option = optionRows(optionsTab)[row];
 	float cx = 0.f;
 	float cy = 0.f;
-	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, 0, cx, cy);
+	ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, 0, cx, cy);
 	Rect track = optionControl(row, option.kind);
 	const float t = std::clamp((cx - track.x) / track.w, 0.f, 1.f);
 	const SliderRange range = sliderRange(option.id);
 	const float steps = static_cast<float>(range.hi - range.lo) / static_cast<float>(range.step);
-	sliderOf(option.id) = range.lo + static_cast<int>(std::lround(t * steps)) * range.step;
-	Game().ApplySettings(false);
+	sliderOf(world, option.id) = range.lo + static_cast<int>(std::lround(t * steps)) * range.step;
+	world.applySettings(false);
 }
 
 void MainMenu::StartCapture(int target) { capturing = target; }
@@ -450,8 +450,8 @@ void MainMenu::CaptureKey(const InputKey& key) {
 		return;
 	}
 	if (key == InputKey::Char(KEY_DELETE) || key == InputKey::Special(SPECIAL_KEYPAD_DELETE)) {
-		Game().settings.controls.Clear(static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS), slot);
-		Game().ApplySettings(true);
+		world.settings.controls.Clear(static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS), slot);
+		world.applySettings(true);
 		capturing = NONE;
 		return;
 	}
@@ -470,7 +470,7 @@ void MainMenu::Bind(const InputKey& key) {
 	auto action = static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS);
 	const int slot = (capturing - BIND_BASE) % BINDING_SLOTS;
 	capturing = NONE;
-	if (std::optional<BindAction> from = Game().settings.controls.Bind(action, slot, key))
+	if (std::optional<BindAction> from = world.settings.controls.Bind(action, slot, key))
 		ShowToast(keyCap(key) + " moved here from " + bindActionLabel(*from));
-	Game().ApplySettings(true);
+	world.applySettings(true);
 }

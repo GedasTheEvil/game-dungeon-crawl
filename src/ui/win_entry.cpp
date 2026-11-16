@@ -32,41 +32,39 @@ std::string today() {
 } // namespace
 
 void WinEntry::Follow() {
-	if (!Game().dungeon.Won()) {
+	if (!world.dungeon.Won()) {
 		state = State::Hidden;
 		confirm.Cancel();
 		return;
 	}
-	if (state == State::Epilogue && Game().ui.screen == Screen::Gameplay) // the journal was closed
+	if (state == State::Epilogue && ui.screen == Screen::Gameplay) // the journal was closed
 		finish();
 	if (state != State::Hidden)
 		return;
-	if (!Game().player->stats.run.campaign) {
+	if (!world.player.stats.run.campaign) {
 		openEpilogue(RecordsView::NONE);
 		return;
 	}
 	state = State::Typing;
-	name = Game().leaderboard.LastName();
+	name = world.leaderboard.LastName();
 }
 
 void WinEntry::openEpilogue(int row) {
 	marked = row;
 	state = State::Epilogue;
-	Game().journal.WriteEpilogue();
-	Game().ui.journal.OpenDiary(
-		Game().player->stats.run.campaign ? "goes to the Hall of Records" : "goes to the main menu"
-	);
-	Game().ui.screen = Screen::Journal;
+	world.journal.WriteEpilogue();
+	ui.journal.OpenDiary(world.player.stats.run.campaign ? "goes to the Hall of Records" : "goes to the main menu");
+	ui.screen = Screen::Journal;
 }
 
 void WinEntry::finish() {
 	state = State::Done;
-	MainMenu& menu = Game().ui.menu;
+	MainMenu& menu = ui.menu;
 	menu.ResetSubScreens();
 	menu.inGame = false; // the run is over
-	if (Game().player->stats.run.campaign)
+	if (world.player.stats.run.campaign)
 		menu.OpenRecords(marked);
-	Game().ui.screen = Screen::Menu;
+	ui.screen = Screen::Menu;
 }
 
 void WinEntry::KeyPressed(unsigned char key) {
@@ -74,7 +72,7 @@ void WinEntry::KeyPressed(unsigned char key) {
 		if (key == KEY_ESCAPE)
 			confirm.Cancel();
 		else
-			confirm.Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
+			confirm.Navigate(navKeyOf(InputKey::Char(key), world.settings.controls));
 	} else if (key == KEY_ESCAPE)
 		confirm.Ask("Leave without entering the Hall of Records?", [this] { openEpilogue(RecordsView::NONE); });
 	else if (key == KEY_ENTER)
@@ -88,7 +86,7 @@ void WinEntry::KeyPressed(unsigned char key) {
 
 void WinEntry::SpecialKeyPressed(int key) {
 	if (confirm.Open())
-		confirm.Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls));
+		confirm.Navigate(navKeyOf(InputKey::Special(key), world.settings.controls));
 }
 
 void WinEntry::record() {
@@ -96,8 +94,8 @@ void WinEntry::record() {
 	if (start == std::string::npos)
 		return; // a name is needed; Esc skips
 	const std::string trimmed = name.substr(start, name.find_last_not_of(' ') - start + 1);
-	Leaderboard& board = Game().leaderboard;
-	const bool written = board.Add(recordOf(Game().player->stats, trimmed, today(), GAME_VERSION));
+	Leaderboard& board = world.leaderboard;
+	const bool written = board.Add(recordOf(world.player.stats, trimmed, today(), GAME_VERSION));
 	openEpilogue(written ? static_cast<int>(board.Records().size()) - 1 : RecordsView::NONE);
 }
 
@@ -131,10 +129,10 @@ void WinEntry::drawPanel(const Rect& area) {
 	fillRect({PANEL.x + 0.8f, PANEL.y - 1.f, PANEL.w, PANEL.h}, BLACK, BLACK, 0.5f); // drop shadow
 	panel(PANEL, 0.94f);
 
-	const RunStats& run = Game().player->stats.run;
+	const RunStats& run = world.player.stats.run;
 	const std::string summary = "Time " + formatPlayTime(run.PlayMs()) + "    Slain " +
 								std::to_string(run.SlainTotal()) + "    Potions " + std::to_string(run.DrunkTotal()) +
-								"    Level " + std::to_string(Game().player->stats.CurrentLevel());
+								"    Level " + std::to_string(world.player.stats.CurrentLevel());
 	beginText();
 	textCentered(title, PANEL.cx(), PANEL.y + PANEL.h - TITLE_DOWN, "The Ankh of Life", GOLD_BRIGHT);
 	textCentered(body, PANEL.cx(), PANEL.y + PANEL.h - SUMMARY_DOWN, summary.c_str(), GOLD);

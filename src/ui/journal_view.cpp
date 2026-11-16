@@ -88,7 +88,7 @@ constexpr std::array<SectionLook, JournalScreen::SECTION_COUNT> SECTIONS = {{
 	{"Log", "L", BRONZE},
 }};
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
+Rect visibleArea(const RenderSettings& render) { return ui::visibleArea(CANVAS_W, CANVAS_H, render.resX, render.resY); }
 
 // A ribbon hanging out of the right or left page edge, `depth` further out.
 Rect ribbonRect(int index, bool left, float depth) {
@@ -104,10 +104,10 @@ Rect cornerRect(int side) {
 // A silk ribbon with a frayed swallowtail end (media/textures/ui/ribbon.png, tools/textures/ribbon.py). The texture is
 // RIBBON_TEX_LEN x RIBBON_H plus one unit right and below for its shadow; a shorter ribbon crops its inner end. A left
 // ribbon is mirrored, the swallowtail pointing left.
-void ribbon(const Rect& r, bool left, Color c) {
+void ribbon(const ScreenWorld& world, const Rect& r, bool left, Color c) {
 	float u0 = (RIBBON_TEX_LEN - r.w) / RIBBON_TEX_W;
 	Rect tex = {left ? r.x - RIBBON_SHADOW : r.x, r.y - RIBBON_SHADOW, r.w + RIBBON_SHADOW, r.h + RIBBON_SHADOW};
-	texturedRect(tex, Game().assets.textures.ribbon.ID(), c, left ? 1.f : u0, 0.f, left ? u0 : 1.f, 1.f);
+	texturedRect(tex, world.assets.textures.ribbon.ID(), c, left ? 1.f : u0, 0.f, left ? u0 : 1.f, 1.f);
 	beginShapes();
 }
 
@@ -138,18 +138,18 @@ Color darker(Color c, float f) { return {c.r * f, c.g * f, c.b * f}; }
 
 int JournalScreen::PageCount(Section s) const {
 	if (s == Section::Diary)
-		return static_cast<int>(Game().journal.Diary().size());
+		return static_cast<int>(world.journal.Diary().size());
 	if (s == Section::Riddles)
-		return static_cast<int>(Game().journal.Riddles().size());
+		return static_cast<int>(world.journal.Riddles().size());
 	if (s == Section::Creatures)
-		return static_cast<int>(Game().journal.Creatures().size());
+		return static_cast<int>(world.journal.Creatures().size());
 	if (s == Section::Inscriptions)
-		return static_cast<int>(Game().journal.Inscriptions().size());
+		return static_cast<int>(world.journal.Inscriptions().size());
 	if (s == Section::Expedition)
-		return static_cast<int>(Game().journal.Pages().size());
+		return static_cast<int>(world.journal.Pages().size());
 	if (s == Section::Log)
 		return static_cast<int>(logPages.size());
-	return static_cast<int>(Game().journal.Notes().size());
+	return static_cast<int>(world.journal.Notes().size());
 }
 
 int JournalScreen::SpreadCount(Section s) const { return std::max(1, (PageCount(s) + 1) / 2); }
@@ -206,14 +206,14 @@ int JournalScreen::RiddleOnPage(int side) const { return section == Section::Rid
 
 bool JournalScreen::CanAnswer(int side) const {
 	int index = RiddleOnPage(side);
-	return index >= 0 && !Game().journal.Riddles()[static_cast<size_t>(index)].solved;
+	return index >= 0 && !world.journal.Riddles()[static_cast<size_t>(index)].solved;
 }
 
 void JournalScreen::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }
 
 void JournalScreen::SeeShown() {
 	for (const auto& [s, index] : shownNew)
-		Game().journal.MarkSeen(static_cast<JournalPart>(s), static_cast<size_t>(index));
+		world.journal.MarkSeen(static_cast<JournalPart>(s), static_cast<size_t>(index));
 	shownNew.clear();
 }
 
@@ -237,7 +237,7 @@ void JournalScreen::OpenDiary(const char* closes) {
 	section = Section::Diary;
 	spread[std::to_underlying(section)] = SpreadCount(section) - 1;
 	closesTo = closes;
-	Game().assets.sounds.pageTurn.Play();
+	world.assets.sounds.pageTurn.Play();
 }
 
 // ---- page turns ------------------------------------------------------------
@@ -275,7 +275,7 @@ void JournalScreen::StartTurn(Opening to, bool dragged) {
 	turn.target = static_cast<float>(M_PI);
 	turn.lastMs = GameClock::now();
 	pointer.Move({});
-	Game().assets.sounds.pageTurn.Play();
+	world.assets.sounds.pageTurn.Play();
 }
 
 void JournalScreen::FinishTurn() {
@@ -341,17 +341,17 @@ void JournalScreen::Activate(const Hit& hit) {
 		break;
 	case Target::AnswerLeft:
 	case Target::AnswerRight:
-		Game().ui.riddle->AskLate(static_cast<size_t>(RiddleOnPage(hit.target == Target::AnswerLeft ? 0 : 1)));
-		Game().ui.screen = Screen::Riddle;
+		ui.riddle->AskLate(static_cast<size_t>(RiddleOnPage(hit.target == Target::AnswerLeft ? 0 : 1)));
+		ui.screen = Screen::Riddle;
 		break;
 	case Target::None:
 		break;
 	}
 }
 
-void JournalScreen::KeyPressed(unsigned char key) { Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls)); }
+void JournalScreen::KeyPressed(unsigned char key) { Navigate(navKeyOf(InputKey::Char(key), world.settings.controls)); }
 
-void JournalScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
+void JournalScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), world.settings.controls)); }
 
 // Left / Right turn the page, Up / Down go to the next section with pages. On a riddles spread Enter focuses its first
 // Answer button, then answers; with an Answer focused, Left / Right go to the other one before they turn the page.
@@ -403,7 +403,7 @@ void JournalScreen::Navigate(NavKey key) {
 void JournalScreen::MouseMotion(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+	toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
 	if (turn.dragging) {
 		// The corner moves with the mouse, from where it was grabbed.
 		turn.cornerX = RIGHT_PAGE.w + CornerLocalX(cx) - CornerLocalX(turn.pressX);
@@ -424,7 +424,7 @@ void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 		return;
 	float cx = 0.f;
 	float cy = 0.f;
-	toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+	toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
 	if (state == GLUT_DOWN) {
 		const Hit at = pointer.hovered;
 		bool corner = at.target == Target::PrevPage || at.target == Target::NextPage;
@@ -532,13 +532,13 @@ void JournalScreen::Draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Rect area = visibleArea();
+	Rect area = visibleArea(world.render);
 	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
-	backdrop(area, Game().assets.textures.loadingBackground.ID());
+	backdrop(area, world.assets.textures.loadingBackground.ID());
 	titleBar(title, CANVAS_W / 2, "Journal", SCREEN_TABS_TITLE_REACH);
 	DrawBook(open);
 	DrawRibbons(false);
@@ -547,7 +547,7 @@ void JournalScreen::Draw() {
 			const Rect& p = pageRect(side);
 			texturedRect(
 				p,
-				Game().assets.textures.journalPaper.ID(),
+				world.assets.textures.journalPaper.ID(),
 				{1, 1, 1},
 				side == 0 ? 1.f : 0.f,
 				0.f,
@@ -578,7 +578,7 @@ void JournalScreen::Draw() {
 	}
 	DrawCorners();
 	DrawFooter();
-	ScreenTabs::Draw();
+	ScreenTabs::Draw(ui);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -594,8 +594,8 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 	bool turning = slot == PageSlot::Front || slot == PageSlot::Back;
 	float overhang = turning ? RIBBON_OVERHANG : 0.f;
 	Rect r = {side == 0 ? p.x - overhang : p.x, p.y, p.w + overhang, p.h};
-	Rect area = visibleArea();
-	float perUnit = static_cast<float>(Game().render.resY) / area.h;
+	Rect area = visibleArea(world.render);
+	float perUnit = static_cast<float>(world.render.resY) / area.h;
 	RenderTarget& target = pages[std::to_underlying(slot)];
 	if (!target.Begin(static_cast<int>(std::lround(r.w * perUnit)), static_cast<int>(std::lround(r.h * perUnit)))) {
 		pagesFailed = true;
@@ -623,7 +623,7 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 	// The paper texture has its spine on the left: the left page draws it mirrored.
 	texturedRect(
 		p,
-		Game().assets.textures.journalPaper.ID(),
+		world.assets.textures.journalPaper.ID(),
 		{1, 1, 1},
 		side == 0 ? 1.f : 0.f,
 		0.f,
@@ -641,7 +641,7 @@ void JournalScreen::DrawBook(const Opening& at) {
 	fillRect({COVER.x + 1.f, COVER.y - 1.2f, COVER.w, COVER.h}, BLACK, BLACK, 0.5f); // shadow
 	texturedRect(
 		COVER,
-		Game().assets.textures.journalCloth.ID(),
+		world.assets.textures.journalCloth.ID(),
 		CLOTH,
 		0.f,
 		0.f,
@@ -702,10 +702,10 @@ void JournalScreen::DrawBook(const Opening& at) {
 void JournalScreen::DrawRibbon(int ribbon, bool left, float depth, bool open, bool hovered) {
 	Rect r = ribbonRect(ribbon, left, depth);
 	const SectionLook& look = SECTIONS[static_cast<size_t>(ribbon)];
-	::ribbon(r, left, hovered ? darker(look.colour, 1.25f) : look.colour);
+	::ribbon(world, r, left, hovered ? darker(look.colour, 1.25f) : look.colour);
 	if (open) // tucked in between the open pages
 		fillRect({left ? r.x + r.w - 1.f : r.x, r.y, 1.f, r.h}, BLACK, BLACK, 0.25f);
-	if (ribbon < JOURNAL_PART_COUNT && Game().journal.AnyNew(static_cast<JournalPart>(ribbon)))
+	if (ribbon < JOURNAL_PART_COUNT && world.journal.AnyNew(static_cast<JournalPart>(ribbon)))
 		newMark(left ? r.x + RIBBON_NEW_AT : r.x + r.w - RIBBON_NEW_AT, r.cy(), 1.1f);
 	if (open || hovered) { // its letter, written on the ribbon end
 		beginText();

@@ -3,6 +3,7 @@
 
 #include "../render/font.h"
 #include "confirm_box.h"
+#include "screen_world.h"
 #include <cstdint>
 #include <string>
 
@@ -12,9 +13,13 @@
 /// run out of the Hall of Records. Then the epilogue opens in the journal; closing it opens the Hall of Records with
 /// the new row marked (a run off the campaign: the main menu). No saves and no way back into the game meanwhile.
 
+struct UIContext;
+
 class WinEntry {
   public:
 	static constexpr size_t MAX_NAME = 20;
+
+	WinEntry(const ScreenWorld& world, UIContext& ui) : world(world), ui(ui) {}
 
 	// Each update: opens when the game is won (the name field holds the last name used), goes on once the epilogue's
 	// journal is closed, resets when the game is no longer won (a new game, a load).
@@ -25,6 +30,8 @@ class WinEntry {
 	void Draw(int resX, int resY);
 
   private:
+	const ScreenWorld& world;
+	UIContext& ui; // the journal for the epilogue, the menu for the Hall of Records
 	enum class State : std::uint8_t { Hidden, Typing, Epilogue, Done };
 	State state = State::Hidden;
 	std::string name;

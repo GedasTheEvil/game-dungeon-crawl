@@ -372,7 +372,7 @@ void drawGameplay() {
 	}
 	if (!Game().ui.winEntry.Typing()) // the win's name entry sits there
 		PlayerHud::draw(
-			playerHudView(),
+			playerHudView(Game().ui.world),
 			Game().render.resX,
 			Game().render.resY,
 			Game().assets.fonts.hudBody,

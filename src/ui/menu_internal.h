@@ -12,6 +12,8 @@
 /// option rows, the icons and the slot helpers. Only for these files.
 
 // Same 160 x 100 canvas (y up) and look as the inventory: a framed panel on the carved slate, lapis and stone tiles.
+struct RenderSettings; // state/game_state.h
+
 namespace menu_internal {
 using namespace ui;
 
@@ -88,7 +90,7 @@ Rect helpKeysButton();
 
 Rect slotRect(int slot, bool load);
 Rect tabRect(int tab);
-Rect visibleArea();
+Rect visibleArea(const RenderSettings& render);
 
 // ---- options ----------------------------------------------------------------
 

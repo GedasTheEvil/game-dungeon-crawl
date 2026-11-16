@@ -59,16 +59,13 @@ class GameState {
 	Settings settings; // the Options choices (saves/settings.ini)
 	bool cacheLoaded = false;
 	MessageLog messages; // the gameplay status lines and this level's log of them (plan message-log)
-	std::unique_ptr<Player> player;
+	std::unique_ptr<Player> player = std::make_unique<Player>(); // set up by Load
 	// The player's items: weapons, potions, amulets, rings (plan bag-out-of-inventory). The inventory screen shows
 	// and changes it, the world adds to it (SimLinks), the save holds it.
 	ItemBag bag;
 	PlayerView playerView; // the player's model, drawn
 	GameTimers timers;
 	GameRandom random;
-	// The screens, apart so this header includes no ui/ (plan game-state-split): bound to uiOwned.
-	std::unique_ptr<UIContext> uiOwned;
-	UIContext& ui;
 	Dungeon dungeon;
 	DungeonView dungeonView{dungeon, assets}; // the dungeon drawn (plan dungeon-view-split)
 	Journal journal; // what the archaeologist wrote down, kept per save game
@@ -76,14 +73,18 @@ class GameState {
 	NameList names; // the royal names of the name gates, content/names/*.txt (plan secret-name-gates)
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	Leaderboard leaderboard; // the won runs, saves/leaderboard.txt (plan leaderboard)
-	SaveService saves{*this};
-	ItemCommands itemCommands{*this}; // the quick drinks, the weapon keys, insanity's club (plan game-state-split) //
-									  // the save files, the autosave and the quick save (plan game-state-split)
+	SaveService saves{*this}; // the save files, the autosave and the quick save (plan game-state-split)
+	// The quick drinks, the weapon keys, insanity's club (plan game-state-split).
+	ItemCommands itemCommands{*this};
 	// The first hints show in a campaign run (plan controls-help); scenario `hints on` shows them in any run.
 	bool hintsAnyRun = false;
 	// Every offering brings a gift (plan offering-gift), for the play scripts: scenario `gifts on`.
 	bool alwaysGift = false;
 	bool debug = false; // --debug: F3 shows the hitboxes (plan controls-help)
+	// The screens, apart so this header includes no ui/ (plan game-state-split): bound to uiOwned. Last: they hold
+	// references to the parts above (ScreenWorld).
+	std::unique_ptr<UIContext> uiOwned;
+	UIContext& ui;
 
 	GameState();
 	~GameState();

@@ -6,6 +6,7 @@
 #include "../level/ui_layout.h"
 #include <string>
 #include <vector>
+#include "screen_world.h"
 
 /// @file records_view.h
 /// The Hall of Records (plan leaderboard): the main menu's sub-screen of the leaderboard. A list of rank, name and
@@ -14,6 +15,7 @@
 
 class RecordsView {
   public:
+	explicit RecordsView(const ScreenWorld& world) : world(world) {}
 	static constexpr int NONE = -1;
 	static constexpr int VISIBLE_ROWS = 10;
 
@@ -34,6 +36,7 @@ class RecordsView {
 	void Scroll(int rows);
 
   private:
+	const ScreenWorld& world; // the game it shows and changes (plan game-state-split)
 	static constexpr int SORT_BASE = 0;
 	static constexpr int ROW_BASE = 10;
 

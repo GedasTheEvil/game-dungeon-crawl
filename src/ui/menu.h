@@ -11,12 +11,17 @@
 #include "../level/pointer.h"
 #include "records_view.h"
 #include "../render/ui_draw.h"
+#include "screen_world.h"
 
 /// @file menu.h
 /// Main menu, in-game menu and its save / load / options / How to Play / credits / Hall of Records screens.
 
+struct UIContext;
+
 class MainMenu {
   private:
+	const ScreenWorld& world; // the game it shows and changes (plan game-state-split)
+	UIContext& ui;
 	static constexpr int NONE = -1;
 	// Click targets: menu buttons and save slots use their index.
 	static constexpr int BACK = 100; // Back button of the sub-screens
@@ -83,7 +88,7 @@ class MainMenu {
 	void ConfirmInput(const std::function<void()>& forward); // the box had the input: a closed box ends the focus
 
   public:
-	MainMenu();
+	MainMenu(const ScreenWorld& world, UIContext& ui);
 	~MainMenu();
 	bool inGame;
 	bool saveD;

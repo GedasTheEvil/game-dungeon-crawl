@@ -36,15 +36,15 @@ constexpr int WRONG_MS = 1600;
 constexpr int SHAKE_MS = 400;
 constexpr int CARET_BLINK_MS = 500;
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
-
-bool seshat() { return Game().player->stats.heka.Has(SkillId::WisdomOfSeshat); }
+Rect visibleArea(const RenderSettings& render) { return ui::visibleArea(CANVAS_W, CANVAS_H, render.resX, render.resY); }
 
 } // namespace
 
 // ---- riddle screen ---------------------------------------------------------
 
-Riddle::Riddle() {
+bool Riddle::Seshat() const { return world.player.stats.heka.Has(SkillId::WisdomOfSeshat); }
+
+Riddle::Riddle(const ScreenWorld& world, UIContext& ui) : world(world), ui(ui) {
 	loadScreenFonts(title, heading, body, small, 7.f);
 	Load(CONTENT_DIR "riddles");
 }
@@ -102,12 +102,12 @@ void Riddle::shuffleDeck(Rng& rng) {
 
 void Riddle::Ask() {
 	// The gameplay stream: scenario tests seed it and get the same riddles every run.
-	Rng& rng = Game().random.gameplay;
-	const int zoneId = Game().dungeon.Zone();
+	Rng& rng = world.random.gameplay;
+	const int zoneId = world.dungeon.Zone();
 	const std::vector<size_t> zoneLeft = zoneRiddlesLeft(
 		riddles,
 		isZone(zoneId) ? zoneInfo(static_cast<ZoneId>(zoneId)).slug : "",
-		Game().journal.Riddles()
+		world.journal.Riddles()
 	);
 	if (!zoneLeft.empty()) {
 		selected = zoneLeft[static_cast<size_t>(rng.below(static_cast<int>(zoneLeft.size())))];
@@ -118,7 +118,7 @@ void Riddle::Ask() {
 		deck.pop_back();
 	}
 	shown = riddles[selected];
-	reward = Game().player->stats.RiddleXP();
+	reward = world.player.stats.RiddleXP();
 	late = false;
 	nameGate = false;
 	JournalRiddle note;
@@ -126,29 +126,29 @@ void Riddle::Ask() {
 	note.question = shown.question;
 	note.answers = shown.answers;
 	note.hint = shown.hint;
-	note.level = Game().dungeon.LevelNumber();
+	note.level = world.dungeon.LevelNumber();
 	note.lateXP = lateRiddleXP(reward);
-	journalIndex = Game().journal.MeetRiddle(note);
+	journalIndex = world.journal.MeetRiddle(note);
 	answer.clear();
 	misses = 0;
-	if (seshat()) { // the Wisdom of Seshat (plan heka-surplus): the hint at once
+	if (Seshat()) { // the Wisdom of Seshat (plan heka-surplus): the hint at once
 		misses = HINT_AFTER_MISSES;
-		Game().journal.ShowHint(journalIndex);
+		world.journal.ShowHint(journalIndex);
 	}
 	wrongAtMs = -100000;
 }
 
 void Riddle::AskLate(size_t index) {
-	const JournalRiddle& note = Game().journal.Riddles().at(index);
+	const JournalRiddle& note = world.journal.Riddles().at(index);
 	shown = RiddleEntry{note.theme, note.question, note.answers, note.hint, "journal"};
 	reward = note.lateXP;
 	late = true;
 	nameGate = false;
 	journalIndex = index;
 	answer.clear();
-	misses = note.hintShown || seshat() ? HINT_AFTER_MISSES : 0;
-	if (seshat())
-		Game().journal.ShowHint(journalIndex);
+	misses = note.hintShown || Seshat() ? HINT_AFTER_MISSES : 0;
+	if (Seshat())
+		world.journal.ShowHint(journalIndex);
 	wrongAtMs = -100000;
 }
 
@@ -178,36 +178,36 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 
 	if (key == KEY_ESCAPE) { // walk away: the gate stays open, the reward is lost; the journal keeps the riddle
 		if (nameGate) { // it stays sealed, to be asked again
-			Game().ui.screen = Screen::Gameplay;
-			Game().ShowStatus("The way stays sealed.");
+			ui.screen = Screen::Gameplay;
+			world.Status("The way stays sealed.");
 			return;
 		}
 		if (late) {
-			Game().ui.screen = Screen::Journal;
+			ui.screen = Screen::Journal;
 			return;
 		}
-		Game().ui.screen = Screen::Gameplay;
-		Game().ShowStatus("The riddle stays unanswered");
+		ui.screen = Screen::Gameplay;
+		world.Status("The riddle stays unanswered");
 	} else if (key == KEY_ENTER) {
 		if (NormalizeAnswer(answer).empty())
 			return;
 		if (nameGate && CheckAnswer()) {
-			Game().ui.screen = Screen::Gameplay;
-			Game().dungeon.SpeakName(); // its status line, the sound
+			ui.screen = Screen::Gameplay;
+			world.dungeon.SpeakName(); // its status line, the sound
 		} else if (CheckAnswer()) {
-			solveRiddle(Game().player->stats, Game().journal, Game().events, journalIndex, late, answer, reward);
-			Game().saves.Autosave(AutosaveMoment::Riddle); // plan autosave
+			solveRiddle(world.player.stats, world.journal, world.events, journalIndex, late, answer, reward);
+			world.saves.Autosave(AutosaveMoment::Riddle); // plan autosave
 			if (late) {
-				Game().ui.screen = Screen::Journal;
-				Game().ui.journal.ShowToast("Riddle answered, got " + std::to_string(reward) + " XP");
+				ui.screen = Screen::Journal;
+				ui.journal.ShowToast("Riddle answered, got " + std::to_string(reward) + " XP");
 				return;
 			}
-			Game().ui.screen = Screen::Gameplay;
-			Game().ShowStatus("Riddle answered, got %d XP", reward);
+			ui.screen = Screen::Gameplay;
+			world.Status("Riddle answered, got " + std::to_string(reward) + " XP");
 		} else {
 			misses++;
 			if (!nameGate && misses >= HINT_AFTER_MISSES)
-				Game().journal.ShowHint(journalIndex);
+				world.journal.ShowHint(journalIndex);
 			wrongAtMs = GameClock::now();
 			answer.clear();
 		}
@@ -225,7 +225,7 @@ void Riddle::Draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Rect area = visibleArea();
+	Rect area = visibleArea(world.render);
 	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -249,7 +249,7 @@ void Riddle::Draw() {
 }
 
 void Riddle::DrawBackground() {
-	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
+	backdrop(visibleArea(world.render), world.assets.textures.loadingBackground.ID());
 	titleBar(
 		title,
 		CANVAS_W / 2,
@@ -261,7 +261,7 @@ void Riddle::DrawBackground() {
 
 	// The two hounds at the gate; the empty black bottom of the render is cropped off.
 	fillRect({GATE_PANEL.x + 0.8f, GATE_PANEL.y - 1.f, GATE_PANEL.w, GATE_PANEL.h}, BLACK, BLACK, 0.45f);
-	texturedRect(GATE_PANEL, Game().assets.textures.riddleBackground.ID(), {1, 1, 1}, 0.12f, 0.25f, 0.88f, 1.f);
+	texturedRect(GATE_PANEL, world.assets.textures.riddleBackground.ID(), {1, 1, 1}, 0.12f, 0.25f, 0.88f, 1.f);
 	beginShapes();
 	ring(GATE_PANEL.inset(8.f), 8.f, BLACK, 0.f, 0.5f);
 	strokeRect(GATE_PANEL, BRONZE, 1.f, 3.f);
@@ -269,7 +269,7 @@ void Riddle::DrawBackground() {
 	cornerStuds(GATE_PANEL);
 
 	// Papyrus scroll for the riddle, framed like the inventory details.
-	texturedRect(SCROLL, Game().assets.textures.papyrus.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
+	texturedRect(SCROLL, world.assets.textures.papyrus.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
 	beginShapes();
 	strokeRect(SCROLL, BRONZE, 1.f, 3.f);
 	cornerStuds(SCROLL);
@@ -300,12 +300,12 @@ void Riddle::DrawScroll() {
 
 	// Plan secret-name-gates: no hint, but a player without the skill is told where the name might be. The Wisdom of
 	// Seshat (plan heka-surplus) writes the name itself in the margin.
-	if (nameGate && seshat()) {
+	if (nameGate && Seshat()) {
 		std::vector<std::string> hintLines = wrap(small, "Seshat writes it in the margin: " + knownName, SCROLL.w - 12);
 		float hy = 35.f + (hintLines.size() > 1 ? 1.7f : 0.f);
 		for (size_t i = 0; i < hintLines.size() && i < 2; i++)
 			textCentered(small, cx, hy - 3.4f * static_cast<float>(i), hintLines[i].c_str(), INK_FADED);
-	} else if (nameGate && misses > 0 && !Game().player->stats.heka.Has(SkillId::Hieroglyphs)) {
+	} else if (nameGate && misses > 0 && !world.player.stats.heka.Has(SkillId::Hieroglyphs)) {
 		std::vector<std::string> hintLines = wrap(
 			small,
 			"A name is asked. The wall glyphs I copied might hold it.",

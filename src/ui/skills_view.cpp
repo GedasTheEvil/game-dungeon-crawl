@@ -41,22 +41,22 @@ constexpr Color WAX = {0.62f, 0.17f, 0.08f};
 constexpr Color TOAST = {1.f, 0.9f, 0.6f};
 constexpr float PULSE_RATE = 0.004f; // radians per ms
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
+Rect visibleArea(const RenderSettings& render) { return ui::visibleArea(CANVAS_W, CANVAS_H, render.resX, render.resY); }
 
-void toCanvas(int mouseX, int mouseY, float& x, float& y) {
-	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, mouseX, mouseY, x, y);
+void toCanvas(const RenderSettings& render, int mouseX, int mouseY, float& x, float& y) {
+	ui::toCanvas(visibleArea(render), render.resX, render.resY, mouseX, mouseY, x, y);
 }
 
-const Heka& heka() { return Game().player->stats.heka; }
+const Heka& heka(const ScreenWorld& world) { return world.player.stats.heka; }
 
-void skillIconAt(const Rect& r, int cell, Color tint) {
-	atlasIcon(r, Game().assets.textures.skillIcons.ID(), cell, SKILL_ICON_COLUMNS, SKILL_ICON_ROWS, tint);
+void skillIconAt(const ScreenWorld& world, const Rect& r, int cell, Color tint) {
+	atlasIcon(r, world.assets.textures.skillIcons.ID(), cell, SKILL_ICON_COLUMNS, SKILL_ICON_ROWS, tint);
 	beginShapes();
 }
 
 // The papyrus scroll of the details (docs/ui.md, Papyrus scroll).
-void papyrus(const Rect& r) {
-	texturedRect(r, Game().assets.textures.papyrus.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
+void papyrus(const ScreenWorld& world, const Rect& r) {
+	texturedRect(r, world.assets.textures.papyrus.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
 	beginShapes();
 	strokeRect(r, BRONZE, 1.f, 3.f);
 	cornerStuds(r);
@@ -85,7 +85,7 @@ void SkillsScreen::MoveSelection(int dx, int dy) {
 void SkillsScreen::PressLearn() {
 	const auto id = static_cast<SkillId>(selected);
 	const SkillDef& def = skillDef(id);
-	Heka& points = Game().player->stats.heka;
+	Heka& points = world.player.stats.heka;
 	const int now = GameClock::now();
 	if (points.Has(id)) {
 		if (points.Rank(id) == 2 || !upgradable(id))
@@ -99,7 +99,7 @@ void SkillsScreen::PressLearn() {
 			return;
 		}
 		confirming = false;
-		if (const std::optional<std::string> upgraded = upgradeSkill(Game().player->stats, Game().events, id))
+		if (const std::optional<std::string> upgraded = upgradeSkill(world.player.stats, world.events, id))
 			toast.Show(*upgraded, now);
 		return;
 	}
@@ -112,7 +112,7 @@ void SkillsScreen::PressLearn() {
 		return;
 	}
 	confirming = false;
-	if (const std::optional<std::string> learnt = learnSkill(Game().player->stats, Game().journal, Game().events, id))
+	if (const std::optional<std::string> learnt = learnSkill(world.player.stats, world.journal, world.events, id))
 		toast.Show(*learnt, now);
 }
 
@@ -128,7 +128,7 @@ void SkillsScreen::UpdateHover(float x, float y) {
 void SkillsScreen::MouseMotion(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	toCanvas(x, y, cx, cy);
+	toCanvas(world.render, x, y, cx, cy);
 	UpdateHover(cx, cy);
 }
 
@@ -136,7 +136,7 @@ void SkillsScreen::MouseMotion(int x, int y) {
 void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	toCanvas(x, y, cx, cy);
+	toCanvas(world.render, x, y, cx, cy);
 	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
 		if (state == GLUT_DOWN)
 			scroll = std::clamp(scroll + (button == MOUSE_WHEEL_UP ? -1 : 1), 0, MAX_SCROLL);
@@ -159,9 +159,9 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 		PressLearn();
 }
 
-void SkillsScreen::KeyPressed(unsigned char key) { Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls)); }
+void SkillsScreen::KeyPressed(unsigned char key) { Navigate(navKeyOf(InputKey::Char(key), world.settings.controls)); }
 
-void SkillsScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
+void SkillsScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), world.settings.controls)); }
 
 void SkillsScreen::Navigate(NavKey key) {
 	switch (key) {
@@ -220,13 +220,13 @@ void SkillsScreen::Draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	const Rect area = visibleArea();
+	const Rect area = visibleArea(world.render);
 	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
-	backdrop(area, Game().assets.textures.loadingBackground.ID());
+	backdrop(area, world.assets.textures.loadingBackground.ID());
 	titleBar(title, CANVAS_W / 2, "Heka", SCREEN_TABS_TITLE_REACH);
 	panel(CARDS_PANEL, 0.9f);
 	DrawPoints();
@@ -236,7 +236,7 @@ void SkillsScreen::Draw() {
 	DrawScrollBar();
 	DrawDetails();
 	DrawFooter();
-	ScreenTabs::Draw();
+	ScreenTabs::Draw(ui);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -246,10 +246,10 @@ void SkillsScreen::Draw() {
 
 // The heka mark and the heka left to spend over the cards; the skills learnt on the right.
 void SkillsScreen::DrawPoints() {
-	const int free = heka().Free();
-	skillIconAt(POINTS_ICON, HEKA_ICON, free > 0 ? Color{1, 1, 1} : POOR_ICON);
+	const int free = heka(world).Free();
+	skillIconAt(world, POINTS_ICON, HEKA_ICON, free > 0 ? Color{1, 1, 1} : POOR_ICON);
 	char learnt[32];
-	snprintf(learnt, sizeof(learnt), "Learnt %d of %d", heka().Learnt(), SKILL_COUNT);
+	snprintf(learnt, sizeof(learnt), "Learnt %d of %d", heka(world).Learnt(), SKILL_COUNT);
 	const std::string points = free > 0 ? "Heka to spend: " + std::to_string(free) : "No heka to spend";
 	beginText();
 	text(heading, POINTS_TEXT_X, POINTS_BASELINE, points.c_str(), free > 0 ? GOLD : LABEL_DIM);
@@ -263,7 +263,7 @@ void SkillsScreen::DrawPoints() {
 void SkillsScreen::DrawCard(int card) {
 	const auto id = static_cast<SkillId>(card);
 	const SkillDef& def = skillDef(id);
-	const bool learnt = heka().Has(id);
+	const bool learnt = heka(world).Has(id);
 	const bool sealed = def.sealed && !learnt; // a scenario's `learn` can learn a sealed one
 	const bool isSelected = card == selected;
 	const Pick pick = {Target::Card, card};
@@ -284,8 +284,8 @@ void SkillsScreen::DrawCard(int card) {
 	const Rect well = iconWell(r, CARD_WELL_INSET);
 	fillRect(well, learnt ? LAPIS_DARK : WELL, learnt ? LAPIS_DARK : WELL, 1.f);
 	strokeRect(well, hovered ? GOLD : GOLD_DIM, sealed ? 0.5f : 1.f, 1.f);
-	const Color tint = sealed ? DIM_ICON : (learnt || heka().Free() > 0 ? Color{1, 1, 1} : POOR_ICON);
-	skillIconAt(well.inset(0.4f), skillIcon(id), tint);
+	const Color tint = sealed ? DIM_ICON : (learnt || heka(world).Free() > 0 ? Color{1, 1, 1} : POOR_ICON);
+	skillIconAt(world, well.inset(0.4f), skillIcon(id), tint);
 
 	const float markX = r.x + r.w - 2.4f;
 	const float markY = r.y + r.h - 2.4f;
@@ -300,17 +300,17 @@ void SkillsScreen::DrawCard(int card) {
 	text(body, textX, r.y + CARD_NAME_Y, def.name, nameColor);
 	// The rank (plan skill-upgrades), left of the seal; bright once a heka can deepen it.
 	if (learnt && upgradable(id)) {
-		const char* rank = heka().Rank(id) == 2 ? "II" : "I";
+		const char* rank = heka(world).Rank(id) == 2 ? "II" : "I";
 		text(
 			small,
 			markX - CARD_MARK - 1.f - small.TextWidth(rank),
 			markY - 1.f,
 			rank,
-			heka().CanUpgrade(id) ? GOLD_BRIGHT : GOLD
+			heka(world).CanUpgrade(id) ? GOLD_BRIGHT : GOLD
 		);
 	}
 	float y = r.y + CARD_EFFECT_Y;
-	for (const std::string& l : EffectLines(card, heka().Rank(id) == 2)) {
+	for (const std::string& l : EffectLines(card, heka(world).Rank(id) == 2)) {
 		text(small, textX, y, l.c_str(), sealed ? DIM_TEXT : (learnt ? GOLD_DIM : LABEL_DIM));
 		y -= CARD_EFFECT_STEP;
 	}
@@ -331,14 +331,14 @@ void SkillsScreen::DrawScrollBar() {
 void SkillsScreen::DrawDetails() {
 	const auto id = static_cast<SkillId>(selected);
 	const SkillDef& def = skillDef(id);
-	const int rank = heka().Rank(id);
+	const int rank = heka(world).Rank(id);
 	const bool learnt = rank > 0;
 	const bool deepen = learnt && upgradable(id); // rank II is shown
-	const bool canLearn = learnt ? heka().CanUpgrade(id) : heka().CanLearn(id);
+	const bool canLearn = learnt ? heka(world).CanUpgrade(id) : heka(world).CanLearn(id);
 	const Rect& p = DETAIL_PANEL;
 
-	papyrus(p);
-	skillIconAt(DETAIL_ICON, skillIcon(id), def.sealed && !learnt ? DIM_ICON : Color{1, 1, 1});
+	papyrus(world, p);
+	skillIconAt(world, DETAIL_ICON, skillIcon(id), def.sealed && !learnt ? DIM_ICON : Color{1, 1, 1});
 	line(p.x + DETAIL_PAD, DETAIL_RULE_Y, p.x + p.w - DETAIL_PAD, DETAIL_RULE_Y, INK_FADED, 1.f, 1.f);
 	diamond(p.cx(), DETAIL_RULE_Y, 0.8f, INK_RED, 1.f);
 

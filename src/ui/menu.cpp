@@ -53,7 +53,7 @@ Rect tabRect(int tab) {
 	return {OPTIONS_PANEL.x + 5 + static_cast<float>(tab) * (TAB_W + 2), y, TAB_W, TAB_H};
 }
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
+Rect visibleArea(const RenderSettings& render) { return ui::visibleArea(CANVAS_W, CANVAS_H, render.resX, render.resY); }
 
 enum class MenuAction : std::uint8_t {
 	Continue,
@@ -113,10 +113,10 @@ struct ButtonList {
 	[[nodiscard]] const MenuButton& operator[](int i) const { return buttons[i]; }
 };
 
-ButtonList menuButtons(bool inGame) {
+ButtonList menuButtons(const ScreenWorld& world, bool inGame) {
 	if (inGame)
 		return {IN_GAME_BUTTONS.data(), static_cast<int>(IN_GAME_BUTTONS.size())};
-	if (Game().saves.folder.Latest())
+	if (world.saves.folder.Latest())
 		return {CONTINUE_BUTTONS.data(), static_cast<int>(CONTINUE_BUTTONS.size())};
 	return {MAIN_BUTTONS.data(), static_cast<int>(MAIN_BUTTONS.size())};
 }
@@ -125,7 +125,7 @@ constexpr const char* LOST = " The play since the last save is lost.";
 } // namespace menu_internal
 using namespace menu_internal;
 
-MainMenu::MainMenu() {
+MainMenu::MainMenu(const ScreenWorld& world, UIContext& ui) : world(world), ui(ui), records(world) {
 	inGame = false;
 	saveD = false;
 	loadD = false;
@@ -183,7 +183,7 @@ void MainMenu::Draw() {
 		DrawFooter(inGame ? "Arrows: move    Enter: pick    Esc: return to game" : "Arrows: move    Enter: pick");
 	}
 	if (confirm.Open())
-		confirm.Draw(heading, body, small, visibleArea());
+		confirm.Draw(heading, body, small, visibleArea(world.render));
 	EndFrame();
 }
 
@@ -191,7 +191,7 @@ void MainMenu::BeginCanvas() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Rect area = visibleArea();
+	Rect area = visibleArea(world.render);
 	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -207,7 +207,7 @@ void MainMenu::EndFrame() {
 
 void MainMenu::DrawBackground(const char* caption) {
 	bool wide = saveD || loadD || optionsD || recordsD || helpD;
-	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
+	backdrop(visibleArea(world.render), world.assets.textures.loadingBackground.ID());
 	titleBar(title, CENTRE, caption, wide ? 58.f : 44.f);
 	panel(
 		recordsD   ? records.Panel()
@@ -216,13 +216,13 @@ void MainMenu::DrawBackground(const char* caption) {
 		: optionsD ? OPTIONS_PANEL
 		: loadD	   ? LOAD_PANEL
 		: saveD	   ? SLOT_PANEL
-				   : menuPanel(menuButtons(inGame).count),
+				   : menuPanel(menuButtons(world, inGame).count),
 		0.9f
 	);
 }
 
 void MainMenu::DrawButtons() {
-	ButtonList buttons = menuButtons(inGame);
+	ButtonList buttons = menuButtons(world, inGame);
 	for (int i = 0; i < buttons.count; i++) {
 		const MenuButton& b = buttons[i];
 		bool isHovered = pointer.hovered == i;
@@ -306,20 +306,20 @@ std::vector<MainMenu::Placed> MainMenu::Targets() const {
 	}
 	if (saveD || loadD) {
 		for (int slot = 0; slot < SaveSlots::COUNT; slot++) {
-			const bool used = SaveSlots::DescribeFile(Game().saves.folder.Slot(slot)).used;
+			const bool used = SaveSlots::DescribeFile(world.saves.folder.Slot(slot)).used;
 			if (used) // before its slot, which it sits on
 				targets.push_back({DELETE_BASE + slot, deleteRect(slot, loadD)});
 			if (saveD || used)
 				targets.push_back({slot, slotRect(slot, loadD)});
 		}
-		if (loadD && Game().saves.folder.HasAutosave())
+		if (loadD && world.saves.folder.HasAutosave())
 			targets.push_back({AUTOSAVE_TARGET, slotRect(AUTOSAVE_TARGET, true)});
-		if (loadD && Game().saves.folder.HasQuicksave())
+		if (loadD && world.saves.folder.HasQuicksave())
 			targets.push_back({QUICKSAVE_TARGET, slotRect(QUICKSAVE_TARGET, true)});
 		targets.push_back({BACK, BACK_BUTTON});
 		return targets;
 	}
-	int count = menuButtons(inGame).count;
+	int count = menuButtons(world, inGame).count;
 	for (int i = 0; i < count; i++)
 		targets.push_back({i, buttonRect(i, count)});
 	return targets;
@@ -328,7 +328,7 @@ std::vector<MainMenu::Placed> MainMenu::Targets() const {
 int MainMenu::TargetAt(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+	ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
 	if (recordsD)
 		if (const int target = records.TargetAt(cx, cy); target != RecordsView::NONE)
 			return RECORDS_BASE + target;
@@ -409,8 +409,8 @@ void MainMenu::Activate(int target) {
 	}
 	if (helpD) {
 		if (target == HELP_HINTS) {
-			Game().settings.gameplay.hints = !Game().settings.gameplay.hints;
-			Game().ApplySettings(true);
+			world.settings.gameplay.hints = !world.settings.gameplay.hints;
+			world.applySettings(true);
 		} else if (target == HELP_KEYS) {
 			ResetSubScreens();
 			optionsD = true;
@@ -422,8 +422,8 @@ void MainMenu::Activate(int target) {
 		if (target >= BIND_BASE)
 			StartCapture(target);
 		else if (target == RESET_CONTROLS) {
-			Game().settings.controls = Bindings{};
-			Game().ApplySettings(true);
+			world.settings.controls = Bindings{};
+			world.applySettings(true);
 			ShowToast("Controls reset to the defaults");
 		} else if (target >= OPTION_BASE)
 			ActivateOption(target - OPTION_BASE);
@@ -438,40 +438,40 @@ void MainMenu::Activate(int target) {
 	}
 	if (saveD) {
 		AskOrDo(
-			SaveSlots::DescribeFile(Game().saves.folder.Slot(target)).used,
+			SaveSlots::DescribeFile(world.saves.folder.Slot(target)).used,
 			"Overwrite the save in slot " + std::to_string(target + 1) + "?",
 			[this, target] { SaveToSlot(target); }
 		);
 		return;
 	}
 	if (loadD) {
-		AskOrDo(inGame && Game().saves.UnsavedProgress(), "Load " + saveName(target) + "?" + LOST, [this, target] {
+		AskOrDo(inGame && world.saves.UnsavedProgress(), "Load " + saveName(target) + "?" + LOST, [this, target] {
 			LoadFrom(target);
 		});
 		return;
 	}
 
-	switch (menuButtons(inGame)[target].action) {
+	switch (menuButtons(world, inGame)[target].action) {
 	case MenuAction::Continue:
-		if (!Game().saves.LoadLatest())
+		if (!world.saves.LoadLatest())
 			ShowToast("Could not load the newest save");
 		break;
 	case MenuAction::NewGame:
 		AskOrDo(
-			Game().saves.folder.HasAutosave(),
+			world.saves.folder.HasAutosave(),
 			"Start a new game? The autosave of the last run is replaced.",
 			[this] {
-				Game().ui.screen = Screen::Gameplay;
-				Game().NewGame();
+				ui.screen = Screen::Gameplay;
+				world.newGame();
 				inGame = true;
 			}
 		);
 		break;
 	case MenuAction::Resume:
-		Game().ui.screen = Screen::Gameplay;
+		ui.screen = Screen::Gameplay;
 		break;
 	case MenuAction::Journal:
-		Game().ui.screen = Screen::Journal;
+		ui.screen = Screen::Journal;
 		openedJournal = true;
 		break;
 	case MenuAction::Save:
@@ -493,7 +493,7 @@ void MainMenu::Activate(int target) {
 		creditsD = true;
 		break;
 	case MenuAction::MainMenu:
-		AskOrDo(Game().saves.UnsavedProgress(), std::string("Leave for the main menu?") + LOST, [this] {
+		AskOrDo(world.saves.UnsavedProgress(), std::string("Leave for the main menu?") + LOST, [this] {
 			inGame = false;
 		});
 		break;
@@ -519,7 +519,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	if (confirm.Open()) {
 		float cx = 0.f;
 		float cy = 0.f;
-		ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+		ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
 		ConfirmInput([&] { confirm.Button(button, state == GLUT_DOWN, cx, cy); });
 		return;
 	}
@@ -545,9 +545,9 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		if (state == GLUT_UP) {
 			const OptionRow option = optionRows(optionsTab)[dragging - OPTION_BASE];
 			dragging = NONE;
-			Game().ApplySettings(true);
+			world.applySettings(true);
 			if (option.id == OptionId::Effects || option.id == OptionId::Master)
-				Game().assets.sounds.lever.Play(); // a sample at the new volume
+				world.assets.sounds.lever.Play(); // a sample at the new volume
 		}
 		return;
 	}
@@ -579,7 +579,7 @@ void MainMenu::MousePassiveMotion(int x, int y) {
 	if (confirm.Open()) {
 		float cx = 0.f;
 		float cy = 0.f;
-		ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+		ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
 		confirm.Move(cx, cy);
 		return;
 	}
@@ -616,24 +616,24 @@ void MainMenu::OpenRecords(int marked) {
 
 void MainMenu::KeyPressed(unsigned char key) {
 	if (confirm.Open())
-		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls)); });
+		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Char(key), world.settings.controls)); });
 	else if ((saveD || loadD) && key == KEY_DELETE)
 		AskDelete();
 	else if (recordsD)
 		records.Key(key);
 	else
-		Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
+		Navigate(navKeyOf(InputKey::Char(key), world.settings.controls));
 }
 
 void MainMenu::SpecialKeyPressed(int key) {
 	if (confirm.Open())
-		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); });
+		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Special(key), world.settings.controls)); });
 	else if ((saveD || loadD) && key == SPECIAL_KEYPAD_DELETE)
 		AskDelete();
 	else if (recordsD)
 		records.SpecialKey(key);
 	else
-		Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls));
+		Navigate(navKeyOf(InputKey::Special(key), world.settings.controls));
 }
 
 void MainMenu::ResetSubScreens() {

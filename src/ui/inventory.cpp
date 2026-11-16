@@ -108,15 +108,16 @@ Rect handBadge(const Rect& r, int hand) {
 // The question mark of an item not found yet, centred in `r`.
 void unknownMark(Font& font, const Rect& r, float alpha) { textCenteredIn(font, r, "?", {0.45f, 0.42f, 0.38f}, alpha); }
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
+Rect visibleArea(const RenderSettings& render) { return ui::visibleArea(CANVAS_W, CANVAS_H, render.resX, render.resY); }
 
-void toCanvas(int mouseX, int mouseY, float& x, float& y) {
-	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, mouseX, mouseY, x, y);
+void toCanvas(const RenderSettings& render, int mouseX, int mouseY, float& x, float& y) {
+	ui::toCanvas(visibleArea(render), render.resX, render.resY, mouseX, mouseY, x, y);
 }
 
 } // namespace
 
-Inventory::Inventory(ItemBag& bag, ItemCommands& commands) : bag(bag), commands(commands) {
+Inventory::Inventory(const ScreenWorld& world, UIContext& ui)
+	: world(world), ui(ui), bag(world.bag), commands(world.items) {
 	loadScreenFonts(title, heading, body, small, 7.f);
 
 	Reset();
@@ -153,7 +154,7 @@ void Inventory::ViewFrom(const UiViewState& view) {
 
 Inventory::~Inventory() {}
 
-Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
+Item* Inventory::Model(ItemKind kind) const { return world.assets.items.Of(kind); }
 
 int Inventory::EquippedDamage() const {
 	return weaponDamage(bag.Equipped(), weaponDef(bag.Equipped()).damage, bag.Level(bag.Equipped()));
@@ -162,7 +163,7 @@ int Inventory::EquippedDamage() const {
 // ---- actions ---------------------------------------------------------------
 
 bool Inventory::CanUse(int slot, const char** reason) const {
-	UseBlock block = bag.Block(kindOf(slot), bagUser(*Game().player));
+	UseBlock block = bag.Block(kindOf(slot), bagUser(world.player));
 	if (reason != nullptr)
 		*reason = block != UseBlock::None ? blockReason(block)
 				  : isPotion(slot)		  ? "Drink"
@@ -172,12 +173,12 @@ bool Inventory::CanUse(int slot, const char** reason) const {
 	return block == UseBlock::None;
 }
 
-bool Inventory::CanUpgrade(int slot) const { return bag.CanUpgrade(kindOf(slot), Game().player->Alive(), AtOne()); }
+bool Inventory::CanUpgrade(int slot) const { return bag.CanUpgrade(kindOf(slot), world.player.Alive(), AtOne()); }
 
-std::optional<God> Inventory::Shrine() { return Game().dungeon.ShrineHere(); }
+std::optional<God> Inventory::Shrine() const { return world.dungeon.ShrineHere(); }
 
 bool Inventory::ReadyAtShrine(int slot) const {
-	const bool alive = Game().player->Alive();
+	const bool alive = world.player.Alive();
 	return isRing(slot) ? bag.CanMerge(kindOf(slot), alive, AtShrine::Yes)
 						: bag.CanUpgrade(kindOf(slot), alive, AtShrine::Yes);
 }
@@ -192,13 +193,13 @@ ShrineRow Inventory::ShrineButtons() const {
 void Inventory::AskOffer(int slot) {
 	const ItemKind kind = kindOf(slot);
 	const std::optional<God> god = Shrine();
-	if (!god || !bag.CanOffer(kind, Game().player->Alive(), AtShrine::Yes))
+	if (!god || !bag.CanOffer(kind, world.player.Alive(), AtShrine::Yes))
 		return;
 	const std::string what = (isWeapon(slot)   ? "a spare "
 							  : isPotion(slot) ? "a "
 											   : "the ") +
 							 std::string(itemText(kind).name);
-	const int xp = offerXP(kind, Game().player->stats.CurrentXP());
+	const int xp = offerXP(kind, world.player.stats.CurrentXP());
 	confirm.Ask(
 		"Offer " + what + " to " + godDef(*god).name + " for " + std::to_string(xp) + " XP? It is gone for good.",
 		[this, kind] { Offer(kind); }
@@ -208,7 +209,7 @@ void Inventory::AskOffer(int slot) {
 void Inventory::AskMerge(int slot) {
 	const ItemKind ring = kindOf(slot);
 	const std::optional<ItemKind> next = nextMetal(ring);
-	if (!next || !bag.CanMerge(ring, Game().player->Alive(), AtOne()))
+	if (!next || !bag.CanMerge(ring, world.player.Alive(), AtOne()))
 		return;
 	std::string two = itemText(ring).name; // "Copper Ring of Reach" -> "Copper Rings of Reach"
 	if (const size_t at = two.find("Ring"); at != std::string::npos)
@@ -222,7 +223,7 @@ void Inventory::Offer(ItemKind kind) {
 		return;
 	const HeldItems before = Held();
 	PlayerActor actor = commands.Actor();
-	const ActionResult offered = offerItem(actor, kind, *god, Game().dungeon.LevelNumber(), Game().alwaysGift);
+	const ActionResult offered = offerItem(actor, kind, *god, world.dungeon.LevelNumber(), world.alwaysGift);
 	if (!offered.done)
 		return;
 	KeepPlaces(before);
@@ -384,7 +385,7 @@ void Inventory::UpdateHover(float x, float y) {
 void Inventory::MouseMotion(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	toCanvas(x, y, cx, cy);
+	toCanvas(world.render, x, y, cx, cy);
 	if (confirm.Open()) {
 		confirm.Move(cx, cy);
 		return;
@@ -397,7 +398,7 @@ void Inventory::MouseMotion(int x, int y) {
 void Inventory::MouseFunction(int button, int state, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	toCanvas(x, y, cx, cy);
+	toCanvas(world.render, x, y, cx, cy);
 	if (confirm.Open()) {
 		confirm.Button(button, state == GLUT_DOWN, cx, cy);
 		if (!confirm.Open())
@@ -467,12 +468,12 @@ void Inventory::KeyPressed(unsigned char key) {
 		if (key == KEY_ESCAPE)
 			confirm.Cancel();
 		else
-			confirm.Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
+			confirm.Navigate(navKeyOf(InputKey::Char(key), world.settings.controls));
 		if (!confirm.Open())
 			pointer.Clear();
 		return;
 	}
-	if (const NavKey nav = navKeyOf(InputKey::Char(key), Game().settings.controls); nav != NavKey::None) {
+	if (const NavKey nav = navKeyOf(InputKey::Char(key), world.settings.controls); nav != NavKey::None) {
 		Navigate(nav);
 		return;
 	}
@@ -510,7 +511,7 @@ void Inventory::Navigate(NavKey key) {
 }
 
 void Inventory::SpecialKeyPressed(int key) {
-	const NavKey nav = navKeyOf(InputKey::Special(key), Game().settings.controls);
+	const NavKey nav = navKeyOf(InputKey::Special(key), world.settings.controls);
 	if (!confirm.Open()) {
 		Navigate(nav);
 		return;
@@ -537,7 +538,7 @@ void Inventory::Draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	Rect area = visibleArea();
+	Rect area = visibleArea(world.render);
 	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -580,7 +581,7 @@ void Inventory::Draw() {
 		DrawSlotLabels(slot);
 	DrawHints();
 	DrawFooter();
-	ScreenTabs::Draw();
+	ScreenTabs::Draw(ui);
 	if (confirm.Open())
 		confirm.Draw(heading, body, small, area);
 
@@ -606,14 +607,14 @@ void Inventory::DrawScrollBar() {
 }
 
 void Inventory::DrawBackground() {
-	backdrop(visibleArea(), Game().assets.textures.loadingBackground.ID());
+	backdrop(visibleArea(world.render), world.assets.textures.loadingBackground.ID());
 	titleBar(title, CANVAS_W / 2, "Inventory", SCREEN_TABS_TITLE_REACH);
 
 	panel(ITEMS_PANEL, 0.9f);
 
 	// Papyrus scroll for the details, in a frame matching the items panel.
 	glEnable(GL_TEXTURE_2D);
-	Game().assets.textures.papyrus.Bind();
+	world.assets.textures.papyrus.Bind();
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.04f, 0.07f);
@@ -636,7 +637,7 @@ void Inventory::DrawBackground() {
 // One tile per group: its icon and name. The open one lapis, the others stone; a group with nothing found yet is
 // dimmed and does not take clicks.
 void Inventory::DrawTabs() {
-	const int icons = Game().assets.textures.hudIcons.ID();
+	const int icons = world.assets.textures.hudIcons.ID();
 	for (int group = 0; group < ITEM_GROUP_COUNT; group++) {
 		const bool enabled = TabEnabled(groupAt(group));
 		const bool active = groupAt(group) == tab;
@@ -870,7 +871,7 @@ void Inventory::DrawRingDetails(const ItemText& info) {
 	else
 		snprintf(hands, sizeof(hands), "Two rings, one on each hand");
 	textCentered(small, cx, STAT_Y + 0.5f, hands, INK_FADED);
-	const std::string sum = ringSumText(Game().player->stats.Rings(), ringOf(kindOf(selectedSlot)).gem);
+	const std::string sum = ringSumText(world.player.stats.Rings(), ringOf(kindOf(selectedSlot)).gem);
 	if (!sum.empty())
 		textCentered(small, cx, STAT_Y - 3.2f, ("Worn: " + sum).c_str(), INK_GREEN);
 }
@@ -1059,7 +1060,7 @@ void Inventory::DrawShrineButtons() {
 	const ShrineRow row = ShrineButtons();
 	if (row == ShrineRow::None)
 		return;
-	const bool alive = Game().player->Alive();
+	const bool alive = world.player.Alive();
 	DrawButton(Target::OfferButton, "Offer", bag.CanOffer(kindOf(selectedSlot), alive, AtShrine::Yes));
 	if (row == ShrineRow::OfferMerge)
 		DrawButton(Target::MergeButton, "Merge", bag.CanMerge(kindOf(selectedSlot), alive, AtShrine::Yes));
@@ -1087,7 +1088,7 @@ void Inventory::DrawButton(Target which, const char* label, bool enabled) {
 // Three rows under the grid: level and XP with the attributes, the health and stamina bars, then the guard per damage
 // type (plan armor-split) with its make-up in a tooltip.
 void Inventory::DrawStatus() {
-	const PlayerStats* s = &Game().player->stats;
+	const PlayerStats* s = &world.player.stats;
 	constexpr float ROW_A = STATS_ROW_Y[0];
 	constexpr float ROW_B = STATS_ROW_Y[1];
 	constexpr float ROW_C = STATS_ROW_Y[2];
@@ -1111,7 +1112,7 @@ void Inventory::DrawStatus() {
 	bar(66.f,
 		ROW_B,
 		14.f,
-		ratioOf(Game().player->stats.Stamina(), Game().player->stats.MaxStamina()),
+		ratioOf(world.player.stats.Stamina(), world.player.stats.MaxStamina()),
 		{0.95f, 0.85f, 0.3f},
 		STAMINA);
 
@@ -1134,7 +1135,7 @@ void Inventory::DrawStatus() {
 	snprintf(buf, sizeof(buf), "%d/%d", s->CurrentHP(), s->CurrentMaxHP());
 	text(small, 41.5f, ROW_B, buf, GOLD);
 	text(small, 54.f, ROW_B, "Stamina", GOLD_DIM);
-	snprintf(buf, sizeof(buf), "%d/%d", Game().player->stats.Stamina(), Game().player->stats.MaxStamina());
+	snprintf(buf, sizeof(buf), "%d/%d", world.player.stats.Stamina(), world.player.stats.MaxStamina());
 	text(small, 81.5f, ROW_B, buf, GOLD);
 
 	const ArmorPoints armor = s->CurrentArmor();

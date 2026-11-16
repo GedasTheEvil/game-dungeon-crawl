@@ -26,7 +26,7 @@ Rect helpKeysButton() {
 using namespace menu_internal;
 
 void MainMenu::DrawHelp() {
-	const std::vector<HelpGroup> groups = controlsHelp(Game().settings.controls);
+	const std::vector<HelpGroup> groups = controlsHelp(world.settings.controls);
 	for (int column = 0; column < static_cast<int>(COLUMNS.size()); column++) {
 		const float x = columnX(column);
 		float top = HELP_TOP;
@@ -54,7 +54,7 @@ void MainMenu::DrawHelp() {
 		}
 	}
 
-	const bool on = Game().settings.gameplay.hints;
+	const bool on = world.settings.gameplay.hints;
 	const bool keysHovered = pointer.hovered == HELP_KEYS;
 	const Rect keys = tile(helpKeysButton(), TileStyle::Stone, keysHovered, pointer.Held(HELP_KEYS));
 	const bool hintsHovered = pointer.hovered == HELP_HINTS;

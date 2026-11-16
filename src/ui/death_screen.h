@@ -5,14 +5,18 @@
 #include "../level/bindings.h"
 #include "../level/pointer.h"
 #include <cstdint>
+#include "screen_world.h"
 
 /// @file death_screen.h
 /// The death screen (plan autosave): once the death clip has played, a panel over the dimmed game with two buttons,
 /// Retry from the newest save (greyed out without one) and Main Menu. A screen of its own (Screen::Death): no ticks,
 /// no other screen opens over it.
 
+struct UIContext;
+
 class DeathScreen {
   public:
+	DeathScreen(const ScreenWorld& world, UIContext& ui) : world(world), ui(ui) {}
 	// Each update: counts the death once (SaveService::CountDeath), opens the screen DEATH_SCREEN_DELAY_MS later (from
 	// the game, not over a menu), resets when the player lives again (a load, a new game).
 	void Follow();
@@ -23,6 +27,8 @@ class DeathScreen {
 	void Draw(int resX, int resY); // over the game, drawn just before
 
   private:
+	const ScreenWorld& world; // the game it shows and changes (plan game-state-split)
+	UIContext& ui;
 	enum class State : std::uint8_t { Alive, Dying, Shown };
 	static constexpr int NONE = -1;
 	static constexpr int RETRY = 0;

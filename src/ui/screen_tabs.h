@@ -7,6 +7,8 @@
 // The tab strip of the inventory, the draft map, the journal and the Heka screen (ui::screenTabs): a click on a tab, or
 // its key (I, M, J, K by default, input.cpp), switches straight to that screen. The open screen's own key still closes
 // it to the game.
+struct UIContext;
+
 struct ScreenTabsState {
 	ui::Pointer<int> pointer{-1}; // a tab's index
 };
@@ -14,10 +16,10 @@ struct ScreenTabsState {
 namespace ScreenTabs {
 [[nodiscard]] bool Has(Screen s); // the screen shows the strip
 // Over the open screen, in the 160 x 100 canvas; the screen's projection need not be that canvas.
-void Draw();
+void Draw(UIContext& screens);
 // True when the click was on the strip (the screen does not get it).
-bool Mouse(int button, int state, int x, int y);
-void Motion(int x, int y);
+bool Mouse(UIContext& screens, int button, int state, int x, int y);
+void Motion(UIContext& screens, int x, int y);
 } // namespace ScreenTabs
 
 #endif

@@ -1,7 +1,7 @@
 #include "screen_tabs.h"
 #include "../render/gl_includes.h"
 #include "../level/input.h"
-#include "../state/game_state.h"
+#include "../state/game_state.h" // RenderSettings
 #include "../state/ui_context.h"
 #include "../render/ui_draw.h"
 #include <GL/gl.h>
@@ -16,12 +16,14 @@ int tabOf(Screen s) {
 	return -1;
 }
 
-ui::Rect visibleArea() { return ui::visibleArea(ui::CANVAS_W, ui::CANVAS_H, Game().render.resX, Game().render.resY); }
+ui::Rect visibleArea(const RenderSettings& render) {
+	return ui::visibleArea(ui::CANVAS_W, ui::CANVAS_H, render.resX, render.resY);
+}
 
-int tabAt(int x, int y) {
+int tabAt(const RenderSettings& render, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
-	ui::toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+	ui::toCanvas(visibleArea(render), render.resX, render.resY, x, y, cx, cy);
 	return ui::screenTabAt(cx, cy);
 }
 } // namespace
@@ -30,26 +32,26 @@ namespace ScreenTabs {
 
 bool Has(Screen s) { return tabOf(s) >= 0; }
 
-void Draw() {
-	const ui::Pointer<int>& tabs = Game().ui.tabs.pointer;
-	const int open = tabOf(Game().ui.screen);
+void Draw(UIContext& screens) {
+	const ui::Pointer<int>& tabs = screens.tabs.pointer;
+	const int open = tabOf(screens.screen);
 	if (open < 0)
 		return;
-	if (Game().ui.screen != Screen::Journal) // switched away from the journal by its tabs: what it showed was seen
-		Game().ui.journal.SeeShown();
+	if (screens.screen != Screen::Journal) // switched away from the journal by its tabs: what it showed was seen
+		screens.journal.SeeShown();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	ui::Rect area = visibleArea();
+	ui::Rect area = visibleArea(screens.world.render);
 	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 	ui::screenTabs(
-		Game().assets.fonts.hudSmall,
+		screens.world.assets.fonts.hudSmall,
 		static_cast<ui::ScreenTab>(open),
 		tabs.hovered,
 		tabs.pressed,
-		Game().journal.AnyNew()
+		screens.world.journal.AnyNew()
 	);
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -57,11 +59,11 @@ void Draw() {
 	glColor3f(1, 1, 1);
 }
 
-bool Mouse(int button, int state, int x, int y) {
-	ui::Pointer<int>& tabs = Game().ui.tabs.pointer;
+bool Mouse(UIContext& screens, int button, int state, int x, int y) {
+	ui::Pointer<int>& tabs = screens.tabs.pointer;
 	if (button != MOUSE_LEFT_BUTTON)
 		return false;
-	tabs.Move(tabAt(x, y));
+	tabs.Move(tabAt(screens.world.render, x, y));
 	if (state == GLUT_DOWN) {
 		tabs.Down(tabs.hovered, button);
 		return tabs.Pressing();
@@ -69,13 +71,13 @@ bool Mouse(int button, int state, int x, int y) {
 	if (!tabs.Pressing())
 		return false;
 	if (const int fired = tabs.Up(tabs.hovered, button); fired >= 0) {
-		Game().ui.screen = TAB_SCREENS[fired];
-		Game().ui.menu.openedJournal = false;
+		screens.screen = TAB_SCREENS[fired];
+		screens.menu.openedJournal = false;
 		tabs.Clear(); // the new screen's strip has it under the mouse, but not hovered until it moves
 	}
 	return true;
 }
 
-void Motion(int x, int y) { Game().ui.tabs.pointer.Move(tabAt(x, y)); }
+void Motion(UIContext& screens, int x, int y) { screens.tabs.pointer.Move(tabAt(screens.world.render, x, y)); }
 
 } // namespace ScreenTabs

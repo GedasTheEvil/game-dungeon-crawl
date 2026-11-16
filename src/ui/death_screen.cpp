@@ -18,12 +18,11 @@ constexpr float TITLE_Y = 56.f;
 constexpr std::array<Rect, 2> BUTTONS = {{{52, 42, 56, 9}, {52, 31, 56, 9}}};
 constexpr float DIM = 0.55f; // the game behind the panel
 
-Rect visibleArea() { return ui::visibleArea(CANVAS_W, CANVAS_H, Game().render.resX, Game().render.resY); }
+Rect visibleArea(const RenderSettings& render) { return ui::visibleArea(CANVAS_W, CANVAS_H, render.resX, render.resY); }
 } // namespace
 
 void DeathScreen::Follow() {
-	GameState& game = Game();
-	if (game.player->Alive()) {
+	if (world.player.Alive()) {
 		state = State::Alive;
 		return;
 	}
@@ -31,13 +30,13 @@ void DeathScreen::Follow() {
 	if (state == State::Alive) {
 		state = State::Dying;
 		diedMs = now;
-		game.saves.CountDeath();
+		world.saves.CountDeath();
 	}
-	if (state != State::Dying || now - diedMs < DEATH_SCREEN_DELAY_MS || game.ui.screen != Screen::Gameplay)
+	if (state != State::Dying || now - diedMs < DEATH_SCREEN_DELAY_MS || ui.screen != Screen::Gameplay)
 		return;
 	state = State::Shown;
-	game.ui.screen = Screen::Death;
-	const auto latest = game.saves.folder.Latest();
+	ui.screen = Screen::Death;
+	const auto latest = world.saves.folder.Latest();
 	retryEnabled = latest.has_value();
 	retryLabel = latest ? "Retry from " + latest->Label() : "Retry";
 	pointer.Clear();
@@ -45,8 +44,8 @@ void DeathScreen::Follow() {
 }
 
 void DeathScreen::activate(int button) {
-	if (const auto latest = Game().saves.folder.Latest(); button == RETRY && retryEnabled && latest) {
-		if (!Game().saves.LoadIntoGame(latest->path)) { // a broken file (plan save-load-safety): no second try
+	if (const auto latest = world.saves.folder.Latest(); button == RETRY && retryEnabled && latest) {
+		if (!world.saves.LoadIntoGame(latest->path)) { // a broken file (plan save-load-safety): no second try
 			retryEnabled = false;
 			retryLabel = "Could not load " + latest->Label();
 			pointer.Move(MAIN_MENU);
@@ -55,20 +54,20 @@ void DeathScreen::activate(int button) {
 	}
 	if (button != MAIN_MENU)
 		return;
-	MainMenu& menu = Game().ui.menu;
+	MainMenu& menu = ui.menu;
 	menu.ResetSubScreens();
 	menu.inGame = false;
-	Game().ui.screen = Screen::Menu;
+	ui.screen = Screen::Menu;
 }
 
 void DeathScreen::KeyPressed(unsigned char key) {
 	if (key == KEY_ESCAPE)
 		activate(MAIN_MENU);
 	else
-		Navigate(navKeyOf(InputKey::Char(key), Game().settings.controls));
+		Navigate(navKeyOf(InputKey::Char(key), world.settings.controls));
 }
 
-void DeathScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), Game().settings.controls)); }
+void DeathScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), world.settings.controls)); }
 
 void DeathScreen::Navigate(NavKey key) {
 	if (key == NavKey::Activate)
@@ -80,7 +79,7 @@ void DeathScreen::Navigate(NavKey key) {
 int DeathScreen::buttonAt(int x, int y) const {
 	float cx = 0.f;
 	float cy = 0.f;
-	toCanvas(visibleArea(), Game().render.resX, Game().render.resY, x, y, cx, cy);
+	toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
 	for (int i = 0; i < static_cast<int>(BUTTONS.size()); i++)
 		if (BUTTONS[static_cast<size_t>(i)].contains(cx, cy))
 			return i == RETRY && !retryEnabled ? NONE : i;

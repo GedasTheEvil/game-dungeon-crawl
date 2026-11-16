@@ -16,13 +16,17 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "screen_world.h"
 
 // The archaeologist's journal ([J]): a cloth-bound field notebook open on two grid pages, a coloured ribbon bookmark
 // in the first page of each section with pages, hanging out on the left or right. Pages turn over the spine
-// (ui/page_curl.h): a click, a key or a drag of a page corner. The data is Game().journal (level/journal.h); this is
-// only the screen. The game is paused while it is open. It opens on the section and pages looked at last.
+// (ui/page_curl.h): a click, a key or a drag of a page corner. The data is ScreenWorld::journal (level/journal.h); this
+// is only the screen. The game is paused while it is open. It opens on the section and pages looked at last.
+struct UIContext;
+
 class JournalScreen final : public UiScreen {
   public:
+	JournalScreen(const ScreenWorld& world, UIContext& ui) : world(world), ui(ui) {}
 	// Log (plan message-log): this level's status lines, newest first; not saved.
 	enum class Section : std::uint8_t { Diary, Creatures, Riddles, FieldNotes, Inscriptions, Expedition, Log };
 	static constexpr int SECTION_COUNT = 7;
@@ -49,6 +53,8 @@ class JournalScreen final : public UiScreen {
 	void ViewFrom(const UiViewState& view);
 
   private:
+	const ScreenWorld& world; // the game it shows and changes (plan game-state-split)
+	UIContext& ui;
 	// Clickable things: the ribbons, the page corners, the Answer button of each page.
 	enum class Target : std::uint8_t { None, Ribbon, PrevPage, NextPage, AnswerLeft, AnswerRight };
 	struct Hit {
@@ -96,7 +102,7 @@ class JournalScreen final : public UiScreen {
 	const char* closesTo = nullptr; // opened on the diary, not closed yet: what the close key does (OpenDiary)
 	// The new entries on the open spread, shown and so seen once it is left (SeeShown); section and index.
 	std::vector<std::pair<Section, int>> shownNew;
-	// The log section's pages, laid out each frame from Game().messages (PaginateLog): its lines, wrapped.
+	// The log section's pages, laid out each frame from ScreenWorld::messages (PaginateLog): its lines, wrapped.
 	struct LogEntry {
 		std::vector<std::string> lines;
 		StatusTone tone = StatusTone::Plain;

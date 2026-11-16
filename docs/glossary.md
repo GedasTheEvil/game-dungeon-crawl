@@ -287,6 +287,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | item kind | | one item: a weapon, a potion, an amulet tier, a ring (gem and metal); the save ids follow it | `ItemKind` |
 | journal | Journal | the archaeologist's notebook: diary, creatures, riddles, field notes, inscriptions, expedition, log | `Journal` |
 | status line | | a gameplay message over the running game ("Gained 30 XP"): up to three stack, each on its own timer; good news and dangers stay longer, in colour ([message-log](plan/solved/message-log.md)) | `MessageLog`, `StatusMessage`, `StatusTone`, `StatusBox` |
+| screen world | | what the screens read and change of the game, handed to each screen instead of `Game()` (plan game-state-split) | `ScreenWorld`, `UIContext::world` |
 | log | Log | the journal's section with this level's last 50 status lines, newest first; not saved ([message-log](plan/solved/message-log.md)) | `MessageLog::Log`, `JournalScreen::DrawLog` |
 | diary | Diary | the archaeologist's own entries, the journal's first section; a new game opens it on the prologue ([journal-intro](plan/solved/journal-intro.md)), the win on the epilogue | `DiaryPage`, `Journal::Begin`, `JournalScreen::OpenDiary` |
 | epilogue | | the Diary's last entry, written at the win: up into the dawn with the ankh, the twelfth hour; closing it goes to the Hall of Records ([win-ending-flow](plan/solved/win-ending-flow.md)) | `DiaryPage::Dawn`, `WinEntry` |

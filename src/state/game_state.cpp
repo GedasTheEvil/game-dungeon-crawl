@@ -34,7 +34,29 @@ GameState& Game() {
 	return *gGame;
 }
 
-GameState::GameState() : uiOwned(std::make_unique<UIContext>()), ui(*uiOwned) {}
+GameState::GameState()
+	: uiOwned(
+		  std::make_unique<UIContext>(ScreenWorld{
+			  assets,
+			  render,
+			  settings,
+			  *player,
+			  bag,
+			  itemCommands,
+			  journal,
+			  dungeon,
+			  events,
+			  random,
+			  leaderboard,
+			  saves,
+			  messages,
+			  inscriptions,
+			  [this](bool save) { ApplySettings(save); },
+			  [this] { NewGame(); },
+			  alwaysGift
+		  })
+	  ),
+	  ui(*uiOwned) {}
 
 GameState::~GameState() {
 	void* selfPtr = this;
@@ -66,12 +88,11 @@ void GameState::Load() {
 	assets.Load([this](float percent, const char* step, const char* detail) {
 		assets.DrawLoadingScreen(percent, step, detail);
 	});
-	ui.riddle = std::make_unique<Riddle>();
-	ui.inventory = std::make_unique<Inventory>(bag, itemCommands);
+	ui.riddle = std::make_unique<Riddle>(ui.world, ui);
+	ui.inventory = std::make_unique<Inventory>(ui.world, ui);
 
 	Texture playerTexture;
 	playerTexture.LoadPNG(MEDIA_DIR "textures/characters/archeologist.png");
-	player = std::make_unique<Player>();
 	playerView.Load("characters/archeologist", std::move(playerTexture), *player);
 	player->scale = PLAYER_SCALE;
 	for (const std::string& message : inscriptions.Load(CONTENT_DIR "inscriptions"))

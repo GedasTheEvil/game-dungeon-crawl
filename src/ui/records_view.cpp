@@ -119,7 +119,7 @@ countLines(const char* title, const std::vector<std::pair<std::string, int>>& co
 }
 } // namespace
 
-std::vector<RunRecord> RecordsView::shown() const { return Game().leaderboard.Shown(); }
+std::vector<RunRecord> RecordsView::shown() const { return world.leaderboard.Shown(); }
 
 void RecordsView::Open(int markedRecord) {
 	order = RecordOrder::Time;

@@ -14,10 +14,16 @@
 #include "../ui/skills_view.h"
 #include "../ui/screen_tabs.h"
 #include "../level/ui_layout.h"
+#include "../ui/screen_world.h"
 #include <memory>
 
 // The screens over the game and what shows on top of it (GameState::ui; plan game-state-split).
 struct UIContext {
+	explicit UIContext(const ScreenWorld& world)
+		: world(world), menu(this->world, *this), winEntry(this->world, *this), map(this->world, *this),
+		  journal(this->world, *this), skills(this->world, *this), death(this->world, *this) {}
+
+	ScreenWorld world; // the game the screens show and change
 	Screen screen = Screen::Menu; // the game starts in the main menu
 	std::unique_ptr<Inventory> inventory;
 	std::unique_ptr<Riddle> riddle;

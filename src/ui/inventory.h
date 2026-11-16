@@ -7,6 +7,7 @@
 #include "../level/item_bag.h"
 #include "../level/player_actions.h"
 #include "../state/item_commands.h"
+#include "screen_world.h"
 #include "../sim/dungeon_save.h"
 #include "../level/bindings.h"
 #include "../level/pointer.h"
@@ -18,6 +19,8 @@
 #include <optional>
 
 // The inventory screen: the items in the ItemBag, one tab per ItemGroup, with their models, details and buttons.
+struct UIContext;
+
 class Inventory final : public UiScreen {
   private:
 	// Clickable things on the screen.
@@ -37,6 +40,8 @@ class Inventory final : public UiScreen {
 	static constexpr int NO_TAB = -1;
 	static constexpr int NO_SORT = -1;
 
+	const ScreenWorld& world; // the game it shows and changes (plan game-state-split)
+	UIContext& ui; // the tab strip
 	ItemBag& bag; // the player's items, GameState::bag (plan bag-out-of-inventory)
 	ItemCommands& commands; // the actions on them (plan game-state-split)
 	int selectedSlot = 0; // a slot is an ItemKind index; the grid shows them in tabOrder
@@ -64,13 +69,13 @@ class Inventory final : public UiScreen {
 
 	Font title, heading, body, small;
 
-	[[nodiscard]] static Item* Model(ItemKind kind);
+	[[nodiscard]] Item* Model(ItemKind kind) const;
 	[[nodiscard]] bool CanUse(int slot, const char** reason) const;
 	[[nodiscard]] bool CanUpgrade(int slot) const;
 	// The god whose shrine the player stands at (plan shrine-offerings): amulets upgrade, rings merge and spares are
 	// offered only there.
-	[[nodiscard]] static std::optional<God> Shrine();
-	[[nodiscard]] static AtShrine AtOne() { return Shrine() ? AtShrine::Yes : AtShrine::No; }
+	[[nodiscard]] std::optional<God> Shrine() const;
+	[[nodiscard]] AtShrine AtOne() const { return Shrine() ? AtShrine::Yes : AtShrine::No; }
 	// What a shrine would allow: an amulet's upgrade or a ring's merge (the slot's pulsing arrow, the Upgrade button
 	// that says where to go).
 	[[nodiscard]] bool ReadyAtShrine(int slot) const;
@@ -135,7 +140,7 @@ class Inventory final : public UiScreen {
 	void DrawShrineButtons();
 
   public:
-	Inventory(ItemBag& bag, ItemCommands& commands);
+	Inventory(const ScreenWorld& world, UIContext& ui);
 	~Inventory();
 	void Reset(); // a new game: the first tabs, found first (ItemCommands::Reset empties the bag)
 	// The open tab and the sort orders into / out of a save (plan save-remembers-ui-state). Setting opens the tab at

@@ -299,9 +299,9 @@ void markQuad(float x, float y, float cell, const ShownMark& shown) {
 	}
 }
 
-void beginMarks() {
+void beginMarks(const ScreenWorld& world) {
 	glEnable(GL_TEXTURE_2D);
-	Game().assets.textures.mapMarks.Bind();
+	world.assets.textures.mapMarks.Bind();
 	glBegin(GL_QUADS);
 }
 
@@ -315,10 +315,10 @@ ShownMark shownMark(const Dungeon& d, int i, int j) {
 	return cellMark(d.Cell(i, j), d.PropAt(i, j), d.ContainerEmptied(i, j));
 }
 
-void drawBackground(float canvasW) {
+void drawBackground(const ScreenWorld& world, float canvasW) {
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	Game().assets.textures.loadingBackground.Bind();
+	world.assets.textures.loadingBackground.Bind();
 	glColor3f(0.30f, 0.24f, 0.18f);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -336,11 +336,11 @@ void drawBackground(float canvasW) {
 }
 
 // The papyrus sheet is landscape, the map portrait: the texture is turned a quarter round.
-void drawPaper(const Rect& r) {
+void drawPaper(const ScreenWorld& world, const Rect& r) {
 	beginShapes();
 	fillRect({r.x + 1.2f, r.y - 1.2f, r.w, r.h}, BLACK, BLACK, 0.45f); // shadow
 	glEnable(GL_TEXTURE_2D);
-	Game().assets.textures.papyrus.Bind();
+	world.assets.textures.papyrus.Bind();
 	glColor4f(1, 1, 1, 1);
 	glBegin(GL_QUADS);
 	glTexCoord2f(1, 0);
@@ -391,13 +391,19 @@ std::vector<LegendRow> legendRows(const Dungeon& d) {
 }
 
 // One row per mark, then the red ring of "you are here".
-void drawLegend(const Rect& slip, const std::vector<LegendRow>& rows, float rowH, float resScale) {
-	drawPaper(slip);
+void drawLegend(
+	const ScreenWorld& world,
+	const Rect& slip,
+	const std::vector<LegendRow>& rows,
+	float rowH,
+	float resScale
+) {
+	drawPaper(world, slip);
 	const float cell = std::min(LEGEND_CELL, rowH * 0.85f);
 	const float top = slip.y + slip.h - LEGEND_HEAD;
 	const auto rowBottom = [&](size_t k) { return top - rowH * static_cast<float>(k + 1); };
 	beginShapes();
-	beginMarks();
+	beginMarks(world);
 	for (size_t k = 0; k < rows.size(); k++)
 		markQuad(slip.x + LEGEND_PAD, rowBottom(k) + (rowH - cell) / 2, cell, rows[k]);
 	endMarks();
@@ -409,7 +415,7 @@ void drawLegend(const Rect& slip, const std::vector<LegendRow>& rows, float rowH
 	glDisable(GL_LINE_SMOOTH);
 
 	beginText();
-	Font& font = Game().assets.fonts.hudSmall;
+	Font& font = world.assets.fonts.hudSmall;
 	textCentered(font, slip.cx(), slip.y + slip.h - LEGEND_HEAD + 2.f, "Legend", INK);
 	for (size_t k = 0; k <= rows.size(); k++)
 		textMiddle(
@@ -463,8 +469,8 @@ void unclip() {
 } // namespace
 
 void DraftMap::Draw() {
-	const Dungeon& d = Game().dungeon;
-	float resScale = static_cast<float>(Game().render.resY) / REFERENCE_RES_Y;
+	const Dungeon& d = world.dungeon;
+	float resScale = static_cast<float>(world.render.resY) / REFERENCE_RES_Y;
 	if (d.LevelNumber() != level) {
 		level = d.LevelNumber();
 		zoom.Reset();
@@ -472,21 +478,21 @@ void DraftMap::Draw() {
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	canvasW = beginSquareCanvas(CANVAS_H, Game().render.resX, Game().render.resY);
+	canvasW = beginSquareCanvas(CANVAS_H, world.render.resX, world.render.resY);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
-	drawBackground(canvasW);
+	drawBackground(world, canvasW);
 
 	// The sheet fits the whole level; the sketch is scaled up to fill it with the part explored so far.
 	float drawH = PAPER_H - PAPER_PAD_TOP - PAPER_PAD_BOTTOM;
 	float drawW = drawH / LEVEL_HEIGHT * LEVEL_WIDTH;
 	Rect paper = {(canvasW - drawW) / 2 - PAPER_PAD_X, (CANVAS_H - PAPER_H) / 2, drawW + 2 * PAPER_PAD_X, PAPER_H};
-	drawPaper(paper);
+	drawPaper(world, paper);
 
 	// The legend slip left of the sheet; in a narrow window it lies over the sheet's margin.
 	const std::vector<LegendRow> rows = legendRows(d);
-	Font& small = Game().assets.fonts.hudSmall;
+	Font& small = world.assets.fonts.hudSmall;
 	float namesW = std::max(small.TextWidth("Legend"), small.TextWidth(YOU));
 	for (const LegendRow& row : rows)
 		namesW = std::max(namesW, small.TextWidth(markDef(row.mark).name));
@@ -556,7 +562,7 @@ void DraftMap::Draw() {
 	sk.flush(1.5f * pxScale);
 
 	glDisable(GL_LINE_SMOOTH);
-	beginMarks(); // one symbol a cell
+	beginMarks(world); // one symbol a cell
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
 			if (d.Explored(i, j))
@@ -572,19 +578,19 @@ void DraftMap::Draw() {
 
 	// "You are here": a red ring round the archaeologist.
 	float px, py;
-	Game().dungeon.getC(px, py);
+	world.dungeon.getC(px, py);
 	sk.loop(px, py + 0.5f, 0.6f, 0.6f, 9, PENCIL_RED, 1.f, 7u);
 	sk.flush(2.f * pxScale);
 	diamond(originX + px * cell, originY + (py + 0.5f) * cell, cell * 0.22f, PENCIL_RED, 1.f);
 	glDisable(GL_LINE_SMOOTH);
 	unclip();
-	drawLegend(slip, rows, rowH, resScale); // over the sketch, where it lies over the sheet
+	drawLegend(world, slip, rows, rowH, resScale); // over the sketch, where it lies over the sheet
 
-	std::string title = "Level " + std::to_string(Game().dungeon.LevelNumber());
-	if (!Game().dungeon.LevelTitle().empty())
-		title += ": " + Game().dungeon.LevelTitle();
+	std::string title = "Level " + std::to_string(world.dungeon.LevelNumber());
+	if (!world.dungeon.LevelTitle().empty())
+		title += ": " + world.dungeon.LevelTitle();
 	beginText();
-	textCentered(Game().assets.fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
+	textCentered(world.assets.fonts.status, paper.cx(), paper.y + paper.h - PAPER_PAD_TOP + 2.5f, title.c_str(), INK);
 	textCentered(
 		small,
 		paper.cx(),
@@ -592,7 +598,7 @@ void DraftMap::Draw() {
 		"Wheel, + / -: zoom    Drag, arrows: pan    M / Esc: close",
 		INK_FADED
 	);
-	ScreenTabs::Draw();
+	ScreenTabs::Draw(ui);
 
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -601,7 +607,7 @@ void DraftMap::Draw() {
 }
 
 void DraftMap::toCanvas(int x, int y, float& cx, float& cy) const {
-	ui::toCanvas({0, 0, canvasW, CANVAS_H}, Game().render.resX, Game().render.resY, x, y, cx, cy);
+	ui::toCanvas({0, 0, canvasW, CANVAS_H}, world.render.resX, world.render.resY, x, y, cx, cy);
 }
 
 void DraftMap::KeyPressed(unsigned char key) {
@@ -612,12 +618,12 @@ void DraftMap::KeyPressed(unsigned char key) {
 	else if (key == '-' || key == '_')
 		zoom.ZoomAt(fit, 1.f / MapZoom::STEP, fit.area.cx(), fit.area.cy());
 	else
-		pan(zoom, fit, navKeyOf(InputKey::Char(key), Game().settings.controls));
+		pan(zoom, fit, navKeyOf(InputKey::Char(key), world.settings.controls));
 }
 
 void DraftMap::SpecialKeyPressed(int key) {
 	if (fit.cell > 0.f)
-		pan(zoom, fit, navKeyOf(InputKey::Special(key), Game().settings.controls));
+		pan(zoom, fit, navKeyOf(InputKey::Special(key), world.settings.controls));
 }
 
 void DraftMap::MouseFunction(int button, int state, int x, int y) {

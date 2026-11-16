@@ -69,6 +69,14 @@ A screen's `Draw()`:
 The screen does not end the frame: `Draw()` (`graphics/draw.cpp`) calls the screen that is open (`GameState::ui.screen`,
 one at a time) and then flushes, lets the scenario runner take its screenshot and swaps the buffers.
 
+## The game a screen sees
+
+A screen reads and changes the game through `ScreenWorld` (`ui/screen_world.h`: the assets, the window size, the
+settings, the player, the bag, the item commands, the journal, the dungeon, the saves, ...; plan game-state-split),
+never through `Game()`. It takes the world and the `UIContext` (`state/ui_context.h`, the other screens and which one
+is open) in its constructor, which `UIContext` (or `GameState::Load` for the inventory and the riddle) calls. A free
+helper in its `.cpp` takes what it needs as an argument (`visibleArea(world.render)`).
+
 ## Parts
 
 ### Backdrop
@@ -409,7 +417,7 @@ hint sits under the panel. Any arrow moves the focus to the other tile, Enter pi
 
 ### Status box
 
-The gameplay status lines (`Game().ShowStatus`, world `Status` events; `MessageLog`, [message-log](plan/solved/message-log.md))
+The gameplay status lines (`GameState::ShowStatus`, `ScreenWorld::Status`, world `Status` events; `MessageLog`, [message-log](plan/solved/message-log.md))
 over the running game: up to three stacked, oldest at the top, 1.5 apart, each a `panel` (fill alpha 0.92) sized to
 its text, min 40 wide, the first one's top edge at y 86, centred, with the picture-frame drop shadow. `hudBody` font
 (4.2) in `GOLD`; good news (`StatusTone::Good`: level up, heka taken, a curse lifted) in faience green, dangers

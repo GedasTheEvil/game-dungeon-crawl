@@ -3,20 +3,19 @@
 #include "../level/bindings.h"
 #include "../core/timer.h"
 #include "../state/game_state.h"
-#include "../state/ui_context.h"
 #include <optional>
 #include <utility>
 
 namespace {
 // A quick slot: the potion its key would drink now, empty when none of that kind is left.
-PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
-	const ItemCommands& items = Game().itemCommands;
+PlayerHud::Slot quickSlot(const ScreenWorld& world, QuickKind kind, const std::string& key) {
+	const ItemCommands& items = world.items;
 	PlayerHud::Slot slot;
 	slot.key = key;
 	if (std::optional<ItemKind> potion = items.QuickChoice(kind)) {
 		slot.icon = PlayerHud::Icon::Potion;
 		slot.tint = Inventory::PotionColor(*potion);
-		slot.count = Game().bag.Count(*potion);
+		slot.count = world.bag.Count(*potion);
 	}
 	if (std::optional<int> drunk = items.QuickDrinkMs(kind))
 		slot.flashAgeMs = GameClock::now() - *drunk;
@@ -25,11 +24,11 @@ PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
 
 // The antidote's slot (plan hud-antidote-and-level): its count, empty when none is left; the HUD blinks it while the
 // player is poisoned and has one.
-PlayerHud::Slot antidoteSlot() {
-	const ItemCommands& items = Game().itemCommands;
+PlayerHud::Slot antidoteSlot(const ScreenWorld& world) {
+	const ItemCommands& items = world.items;
 	PlayerHud::Slot slot;
-	slot.key = keyCapOf(Game().settings.controls, BindAction::QuickAntidote);
-	if (const int count = Game().bag.Count(ItemKind::Antidote); count > 0) {
+	slot.key = keyCapOf(world.settings.controls, BindAction::QuickAntidote);
+	if (const int count = world.bag.Count(ItemKind::Antidote); count > 0) {
 		slot.icon = PlayerHud::Icon::Potion;
 		slot.tint = Inventory::PotionColor(ItemKind::Antidote);
 		slot.count = count;
@@ -40,8 +39,8 @@ PlayerHud::Slot antidoteSlot() {
 }
 } // namespace
 
-PlayerHud::View playerHudView() {
-	const PlayerStats& stats = Game().player->stats;
+PlayerHud::View playerHudView(const ScreenWorld& world) {
+	const PlayerStats& stats = world.player.stats;
 	PlayerHud::View view;
 	view.hp = stats.CurrentHP();
 	view.maxHp = stats.CurrentMaxHP();
@@ -51,46 +50,46 @@ PlayerHud::View playerHudView() {
 		view.staminaRefusedAgeMs = GameClock::now() - *refused;
 	view.xpRatio = stats.LevelProgress();
 	view.level = stats.CurrentLevel();
-	view.keysHeld = Game().dungeon.KeysHeld();
-	view.levelKeys = Game().dungeon.LevelKeys();
-	view.slots[0].icon = PlayerHud::weaponIcon(Game().bag.Equipped());
-	view.slots[0].key = equipKeysCap(Game().settings.controls);
-	if (const ItemKind weapon = Game().bag.Equipped(); isRanged(weapon)) {
-		const ItemBag& bag = Game().bag;
+	view.keysHeld = world.dungeon.KeysHeld();
+	view.levelKeys = world.dungeon.LevelKeys();
+	view.slots[0].icon = PlayerHud::weaponIcon(world.bag.Equipped());
+	view.slots[0].key = equipKeysCap(world.settings.controls);
+	if (const ItemKind weapon = world.bag.Equipped(); isRanged(weapon)) {
+		const ItemBag& bag = world.bag;
 		view.slots[0].shots = stats.Shots(weapon);
 		view.slots[0].shotsLeft = bag.ShotsLeft(weapon, view.slots[0].shots);
 		view.slots[0].shotRecovery = bag.ShotRecovery(weapon, stats.ShotRecoveryPace());
 	}
-	if (const std::optional<int> refused = Game().player->shotRefusedMs) {
+	if (const std::optional<int> refused = world.player.shotRefusedMs) {
 		view.slots[0].shotRefusedAgeMs = GameClock::now() - *refused;
-		view.slots[0].shotTooClose = Game().player->shotTooClose;
+		view.slots[0].shotTooClose = world.player.shotTooClose;
 	}
-	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(Game().settings.controls, BindAction::QuickHeal));
-	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(Game().settings.controls, BindAction::QuickStamina));
-	view.slots[PlayerHud::ANTIDOTE_SLOT] = antidoteSlot();
-	if (std::optional<ItemKind> worn = Game().bag.Worn()) {
+	view.slots[1] = quickSlot(world, QuickKind::Health, keyCapOf(world.settings.controls, BindAction::QuickHeal));
+	view.slots[2] = quickSlot(world, QuickKind::Stamina, keyCapOf(world.settings.controls, BindAction::QuickStamina));
+	view.slots[PlayerHud::ANTIDOTE_SLOT] = antidoteSlot(world);
+	if (std::optional<ItemKind> worn = world.bag.Worn()) {
 		constexpr const char* TIERS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
 		const Amulet amulet = amuletOf(*worn);
 		view.slots[PlayerHud::AMULET_SLOT].icon = PlayerHud::amuletIcon(amulet.type);
 		view.slots[PlayerHud::AMULET_SLOT].badge = TIERS[std::to_underlying(amulet.tier)];
 	}
 	for (int hand = 0; hand < HAND_COUNT; hand++)
-		if (std::optional<ItemKind> ring = Game().bag.RingOn(static_cast<Hand>(hand))) {
+		if (std::optional<ItemKind> ring = world.bag.RingOn(static_cast<Hand>(hand))) {
 			const Rgb c = ringGemColour(ringOf(*ring).gem);
 			view.ringWorn[hand] = true;
 			view.ringSkyIron[hand] = ringOf(*ring).metal == RingMetal::SkyIron;
 			view.ringGem[hand] = {c.r, c.g, c.b};
 		}
-	view.statuses = statusList(stats, Game().dungeon.PlayerTerrainMood()); // a web: hostile (plan same-hazards-for-all)
+	view.statuses = statusList(stats, world.dungeon.PlayerTerrainMood()); // a web: hostile (plan same-hazards-for-all)
 	view.poisoned = stats.vitals.poison.Any();
 	view.staminaSkillShown = stats.heka.HasStaminaSkill();
-	view.staminaSkillOn = Game().player->staminaSkills;
-	if (std::optional<int> refused = Game().player->staminaSkillRefusedMs)
+	view.staminaSkillOn = world.player.staminaSkills;
+	if (std::optional<int> refused = world.player.staminaSkillRefusedMs)
 		view.staminaSkillRefusedAgeMs = GameClock::now() - *refused;
-	view.staminaSkillKey = keyCapOf(Game().settings.controls, BindAction::StaminaSkills);
+	view.staminaSkillKey = keyCapOf(world.settings.controls, BindAction::StaminaSkills);
 	view.hekaWaiting = stats.heka.Waiting(); // plan heka-surplus: not while every skill is learnt
-	view.hekaKey = keyCapOf(Game().settings.controls, BindAction::Skills);
-	view.journalNew = Game().journal.AnyNew();
-	view.journalKey = keyCapOf(Game().settings.controls, BindAction::Journal);
+	view.hekaKey = keyCapOf(world.settings.controls, BindAction::Skills);
+	view.journalNew = world.journal.AnyNew();
+	view.journalKey = keyCapOf(world.settings.controls, BindAction::Journal);
 	return view;
 }

@@ -172,15 +172,15 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 	std::string number = std::to_string(page + 1);
 	std::string xref;
 	if (at.section == Section::Creatures)
-		xref = "lvl " + std::to_string(Game().journal.Creatures()[static_cast<size_t>(page)].level);
+		xref = "lvl " + std::to_string(world.journal.Creatures()[static_cast<size_t>(page)].level);
 	else if (at.section == Section::Riddles)
-		xref = "lvl " + std::to_string(Game().journal.Riddles()[static_cast<size_t>(page)].level);
+		xref = "lvl " + std::to_string(world.journal.Riddles()[static_cast<size_t>(page)].level);
 	else if (at.section == Section::Inscriptions)
-		xref = "lvl " + std::to_string(Game().journal.Inscriptions()[static_cast<size_t>(page)].level);
+		xref = "lvl " + std::to_string(world.journal.Inscriptions()[static_cast<size_t>(page)].level);
 	else if (at.section == Section::Expedition)
-		xref = "lvl " + std::to_string(Game().journal.Pages()[static_cast<size_t>(page)].level);
+		xref = "lvl " + std::to_string(world.journal.Pages()[static_cast<size_t>(page)].level);
 	else if (at.section == Section::Log)
-		xref = "lvl " + std::to_string(Game().messages.Level());
+		xref = "lvl " + std::to_string(world.messages.Level());
 	auto outer = [&](const Font& f, const std::string& s) {
 		return side == 0 ? p.x + PAGE_PAD : p.x + p.w - PAGE_PAD - f.TextWidth(s.c_str());
 	};
@@ -190,7 +190,7 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 		text(handTiny, outer(handTiny, xref), top - XREF_TOP, xref.c_str(), PENCIL, FADED);
 	beginShapes();
 	// A new entry: a red dot and "new" in the top inner corner, until the spread is left.
-	if (at.section != Section::Log && Game().journal.IsNew(static_cast<JournalPart>(at.section), page)) {
+	if (at.section != Section::Log && world.journal.IsNew(static_cast<JournalPart>(at.section), page)) {
 		float dotX = side == 0 ? p.x + p.w - NEW_IN : p.x + NEW_IN;
 		newMark(dotX, top - NEW_TOP, NEW_DOT);
 		beginText();
@@ -236,7 +236,7 @@ void JournalScreen::DrawPageContent(Opening at, int side, bool live) {
 }
 
 void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, bool answerHeld) {
-	const JournalRiddle& r = Game().journal.Riddles()[static_cast<size_t>(index)];
+	const JournalRiddle& r = world.journal.Riddles()[static_cast<size_t>(index)];
 	float top = p.y + p.h;
 	float cx = p.cx();
 	float width = p.w - 2 * PAGE_PAD;
@@ -287,8 +287,8 @@ void JournalScreen::DrawRiddle(const Rect& p, int index, bool answerHovered, boo
 }
 
 void JournalScreen::DrawCreature(const Rect& p, int index) {
-	const JournalCreature& c = Game().journal.Creatures()[static_cast<size_t>(index)];
-	const MonsterType& t = Game().assets.monsterTypes[static_cast<size_t>(c.type)];
+	const JournalCreature& c = world.journal.Creatures()[static_cast<size_t>(index)];
+	const MonsterType& t = world.assets.monsterTypes[static_cast<size_t>(c.type)];
 	const MonsterKind* kind = monsterKind(c.type);
 	float top = p.y + p.h;
 	float cx = p.cx();
@@ -375,7 +375,7 @@ void JournalScreen::DrawCreature(const Rect& p, int index) {
 }
 
 void JournalScreen::DrawFieldNote(const Rect& p, int index) {
-	const FieldNoteText& note = fieldNoteText(Game().journal.Notes()[static_cast<size_t>(index)]);
+	const FieldNoteText& note = fieldNoteText(world.journal.Notes()[static_cast<size_t>(index)]);
 	float top = p.y + p.h;
 	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, note.title);
 	beginText();
@@ -390,7 +390,7 @@ void JournalScreen::DrawFieldNote(const Rect& p, int index) {
 // A dated heading, the entry in ink under it, smaller when it would not fit. While a new game shows it, the last
 // page tells the key that closes the book, in pencil at the bottom.
 void JournalScreen::DrawDiary(const Rect& p, int index) {
-	const DiaryText& page = diaryText(Game().journal.Diary()[static_cast<size_t>(index)]);
+	const DiaryText& page = diaryText(world.journal.Diary()[static_cast<size_t>(index)]);
 	float top = p.y + p.h;
 	float width = p.w - 2 * PAGE_PAD;
 	underlinedHeading(handHeading, p.cx(), top - HEADING_TOP, page.title);
@@ -421,7 +421,7 @@ void JournalScreen::DrawDiary(const Rect& p, int index) {
 		y -= l.empty() ? step / 2 : step;
 	}
 	if (closesTo != nullptr && index == PageCount(Section::Diary) - 1) {
-		std::string hint = keyCapOf(Game().settings.controls, BindAction::Journal) + " or Esc " + closesTo;
+		std::string hint = keyCapOf(world.settings.controls, BindAction::Journal) + " or Esc " + closesTo;
 		textCentered(handSmall, p.cx(), p.y + COMMENT_BOTTOM - COMMENT_STEP, hint.c_str(), PENCIL, FADED);
 	}
 	beginShapes();
@@ -433,7 +433,7 @@ void JournalScreen::PaginateLog() {
 	const float width = LEFT_PAGE.w - 2 * PAGE_PAD;
 	const float room = LEFT_PAGE.h - LOG_TOP - LOG_BOTTOM;
 	float used = 0;
-	const std::deque<StatusMessage>& log = Game().messages.Log();
+	const std::deque<StatusMessage>& log = world.messages.Log();
 	for (auto it = log.rbegin(); it != log.rend(); ++it) {
 		LogEntry entry{{}, it->tone};
 		for (const std::string& line : StatusBox::SplitLines(it->Shown()))
@@ -468,7 +468,7 @@ void JournalScreen::DrawLog(const Rect& p, int index) {
 // Someone else's notebook page, torn out and pasted in a little askew: their heading on the first rule, their lines
 // on the rules under it, in sepia ink at the margin line.
 void JournalScreen::DrawExpedition(const Rect& p, int index) {
-	const ExpeditionPage& found = Game().journal.Pages()[static_cast<size_t>(index)];
+	const ExpeditionPage& found = world.journal.Pages()[static_cast<size_t>(index)];
 	const ExpeditionPageText& page = expeditionPageText(found.number);
 	const float w = TORN_H * TORN_ASPECT;
 	const Rect sheet = {p.cx() - w / 2, p.y + TORN_BOTTOM, w, TORN_H};
@@ -480,14 +480,14 @@ void JournalScreen::DrawExpedition(const Rect& p, int index) {
 	beginShapes();
 	texturedRect(
 		{sheet.x + 0.4f, sheet.y - 0.5f, sheet.w, sheet.h},
-		Game().assets.textures.expeditionPage.ID(),
+		world.assets.textures.expeditionPage.ID(),
 		BLACK,
 		0.f,
 		1.f,
 		1.f,
 		0.f
 	); // pasted on: a thin shadow
-	texturedRect(sheet, Game().assets.textures.expeditionPage.ID(), {1, 1, 1}, 0.f, 1.f, 1.f, 0.f);
+	texturedRect(sheet, world.assets.textures.expeditionPage.ID(), {1, 1, 1}, 0.f, 1.f, 1.f, 0.f);
 
 	const float top = sheet.y + sheet.h;
 	const float step = TORN_RULE_STEP * sheet.h;
@@ -512,7 +512,7 @@ void JournalScreen::DrawExpedition(const Rect& p, int index) {
 // The hieroglyphs copied from the wall (composed like the wall's), the translation in ink under them, the
 // archaeologist's comment pencilled at the bottom.
 void JournalScreen::DrawInscription(const Rect& p, int index) {
-	const JournalInscription& e = Game().journal.Inscriptions()[static_cast<size_t>(index)];
+	const JournalInscription& e = world.journal.Inscriptions()[static_cast<size_t>(index)];
 	float top = p.y + p.h;
 	float width = p.w - 2 * PAGE_PAD;
 	// A copy made without the hieroglyph skill: the glyphs and a pencilled line, no title, no translation.
@@ -520,9 +520,9 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 
 	// Composed like the wall's (plan composed-inscriptions): a name cartouche from its copied signs, a text from its
 	// style and G: line.
-	const InscriptionText* source = isInscriptionId(e.id) ? Game().inscriptions.Find(e.id) : nullptr;
+	const InscriptionText* source = isInscriptionId(e.id) ? world.inscriptions.Find(e.id) : nullptr;
 	if (source != nullptr || e.id == NAME_CARTOUCHE_ID) {
-		const DecorSet& decor = Game().assets.decor;
+		const DecorSet& decor = world.assets.decor;
 		const float paper[3] = {PAPER.r, PAPER.g, PAPER.b};
 		glEnable(GL_TEXTURE_2D);
 		drawInscription(
@@ -578,8 +578,8 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 }
 
 void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt) {
-	const MonsterType& t = Game().assets.monsterTypes[static_cast<size_t>(type)];
-	const CharacterModel& model = Game().assets.monsterModels[static_cast<size_t>(type)];
+	const MonsterType& t = world.assets.monsterTypes[static_cast<size_t>(type)];
+	const CharacterModel& model = world.assets.monsterModels[static_cast<size_t>(type)];
 	constexpr ModelState POSE =
 		ModelState::Move; // the mimic's idle clip is its disguise, the bat's hangs it upside down
 	const AnimatedModel* clip = model.Clip(model.Info().Shown(POSE));
@@ -664,7 +664,7 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 		glPolygonMode(GL_BACK, GL_LINE);
-		glLineWidth(SKETCH_LINE_PX * static_cast<float>(Game().render.resY) / 720.f);
+		glLineWidth(SKETCH_LINE_PX * static_cast<float>(world.render.resY) / 720.f);
 		glColor4f(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
 		clip->Show(frame0);
 	}

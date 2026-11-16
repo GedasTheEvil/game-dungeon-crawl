@@ -1,11 +1,11 @@
 # Player manual (HTML): the game, controls, monsters, items
 
-Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size L, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size L, needs nothing first.
 
 ## Idea
 
 A player manual in HTML for new or returning players. It looks as close to the game UI as HTML allows
-([docs/ui.md](../ui.md): the backdrop, panels, papyrus scroll, `GOLD` / `BRONZE` / `LABEL` colours, the game's fonts as
+([docs/ui.md](../../ui.md): the backdrop, panels, papyrus scroll, `GOLD` / `BRONZE` / `LABEL` colours, the game's fonts as
 web fonts). Sections: about the game, controls, monsters, items (potions, amulets, rings, weapons), conditions
 (poison, bleeding, burning, daze, curses), skills.
 
@@ -25,7 +25,7 @@ Decisions (the user, 2026-11-16):
 The rest:
 
 * Hand-written HTML and CSS (no generator: the manual lists examples, not every kind). One shared stylesheet in the
-  game's look ([docs/ui.md](../ui.md): backdrop, panels, papyrus scroll, `GOLD` / `BRONZE` / `LABEL` colours, the
+  game's look ([docs/ui.md](../../ui.md): backdrop, panels, papyrus scroll, `GOLD` / `BRONZE` / `LABEL` colours, the
   game's fonts as web fonts from `content/`, copied or linked).
 * Sections: about the game, controls (the default bindings, a note that Options can change them), monsters, items
   (potions, amulets, rings, weapons; examples, not every one), conditions (poison, bleeding, burning, daze, curses),

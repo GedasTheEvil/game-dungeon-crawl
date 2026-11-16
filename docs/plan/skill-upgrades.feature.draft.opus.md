@@ -20,8 +20,8 @@ worth a fresh skill, so the choice is about synergy, not value.
   upgrade is left to buy. Saved on the `HEKA` line as one more field; a save without it loads as no upgrades.
 * Every place that reads `Has(SkillId::X)` for an upgradable skill reads the rank instead (a helper per value, e.g.
   `dodgePercent(heka)`), so rank I values stay exactly as today.
-* Chances near a cap: the rank II gain is a share of the failure left, not of the rank I gain (Disarm trap 80% to
-  95%: 75% of the 20% left), so nothing reaches a sure 100%.
+* Chances near a cap: the rank II gain is a share of the failure left, not of the rank I gain, so nothing reaches a
+  sure 100%.
 * Heka screen (`ui/skills_*`, [ui.md](../ui.md)): a learnt upgradable card shows "I" and, with a heka free, the
   upgrade action (same key/click as learning) and the rank II effect line; an upgraded card shows "II". No new icons:
   the rank is a numeral on the card. Lore text per rank II in `content/texts/skills.txt`.
@@ -49,10 +49,8 @@ Starting points; tune in the play-test.
 | Quiver of Neith | +40% shots, 25% faster | +70% shots, 44% faster | 75% |
 | Serket's favour | 10% resist, half as long | 20% resist, a third as long | 100% resist |
 | Blessing of Isis | 10% resist, half as long | 20% resist, a third as long | 100% resist |
-| Disarm trap | 80%, contour 2.6 tiles | 95%, contour 4 tiles | 75% of the failure left |
 
-No rank II: Words of Thoth, Wisdom of Seshat, Favour of Hapi (on/off rules; a rank II would need a new effect, its
-own draft if wanted).
+No rank II (the user, 2026-11-16): Words of Thoth, Wisdom of Seshat, Favour of Hapi, Disarm trap.
 
 ### Open points (implementer's choice)
 

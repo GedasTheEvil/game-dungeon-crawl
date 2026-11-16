@@ -176,6 +176,7 @@ TEST_CASE("a trap amulet cuts trap damage; the hundredths carry to the next hit"
 TEST_CASE("a regeneration amulet heals only while safe and not poisoned") {
 	PlayerStats stats = freshStats();
 	stats.LoseHP(10);
+	GameClock::advance(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
 	stats.Regenerate(true, 1000);
 	CHECK(stats.CurrentHP() == 40); // no amulet
 	AmuletBonus bonus;

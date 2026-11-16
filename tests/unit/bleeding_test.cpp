@@ -105,6 +105,7 @@ TEST_CASE("bleeding: any heal stops it, the regeneration gives no HP while it ru
 	CHECK_FALSE(stats.vitals.bleeding.Any());
 
 	stats.LoseHP(20);
+	GameClock::advance(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
 	const int hp = stats.CurrentHP();
 	stats.WearRings(ringBonus(WornRings{ItemKind::GarnetGold, ItemKind::GarnetGold}));
 	stats.vitals.bleeding.Apply(BleedTier::Weak);

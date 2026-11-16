@@ -40,6 +40,7 @@ TEST_CASE("regeneration heals 1 HP a second while safe, none while poisoned or c
 	REQUIRE(world.Load("tests/levels/empty_row"));
 	world.WaitTicks(10);
 	world.player.stats.LoseHP(25);
+	world.Wait(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
 	world.Wear(amulet(AmuletType::Regeneration, AmuletTier::Normal));
 	CHECK(world.dungeon.PlayerSafe());
 	CHECK(world.Hp() == 25);

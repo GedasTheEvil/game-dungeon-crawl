@@ -19,6 +19,8 @@
 // Who dealt a harm. Weapon: the player's doing (a weapon, an arrow, the venom amulet, a sunbeam): a kill by its poison
 // or fire is the player's (Vitals::poisonByPlayer, burnByPlayer). Monster: a bite, a shot, a screech. Trap: no XP for
 // the kill.
+constexpr int REGEN_DAMAGE_PAUSE_MS = 5000; // no HP regeneration this long after any HP loss (plan regen-after-damage)
+
 enum class HarmSource : std::uint8_t { Weapon, Monster, Trap };
 
 // A hit: its damage before the resistances, its mix, who dealt it.
@@ -43,6 +45,7 @@ class Vitals {
   private:
 	int trapCarry = 0; // thousandths of a HP of trap damage not taken yet (TrapLoss)
 	int outUntilMs = -1; // out of action (KnockOut) until this GameClock time
+	int regenPausedUntilMs = -1; // no HP regeneration until this GameClock time (plan regen-after-damage), not saved
 
   public:
 	explicit Vitals(int startHp = 0) : hp(startHp) {}
@@ -59,11 +62,16 @@ class Vitals {
 
 	[[nodiscard]] bool Alive() const { return hp > 0; }
 	// HP off, armour or not (the caller worked the hit out). Returns the HP lost: never more than it had.
+	// Every HP loss goes through here: a loss pauses the regeneration (plan regen-after-damage).
 	int Lose(int dmg) {
 		const int lost = std::clamp(dmg, 0, std::max(0, hp));
 		hp -= dmg;
+		if (lost > 0)
+			regenPausedUntilMs = GameClock::now() + REGEN_DAMAGE_PAUSE_MS;
 		return lost;
 	}
+	// No HP regeneration now: a loss in the last REGEN_DAMAGE_PAUSE_MS or a fire burning (plan regen-after-damage).
+	[[nodiscard]] bool RegenBlocked() const { return burning.Any() || GameClock::now() < regenPausedUntilMs; }
 	// The resistances it takes a hit with: in water the fire rate is cut (plan fire-in-water).
 	[[nodiscard]] Resistances Taken(const Resistances& resist) const {
 		return inWater ? inWaterResist(resist) : resist;

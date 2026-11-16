@@ -1,6 +1,6 @@
 # Regeneration: none while burning, none for 5 s after any damage
 
-Status: draft 2026-11-16, size S, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
 
 ## Idea
 
@@ -27,6 +27,6 @@ poisoned, bleeding or not `Dungeon::PlayerSafe` (which already includes burning)
 
 ## Play-test
 
-* `tests/play/regen-after-damage.txt`: garnet ring and a regeneration amulet worn, HP low, a weak monster near.
+* `bin/game --play tests/play/regen-after-damage.txt`: garnet ring and a regeneration amulet worn, HP low (30 off), a camel spider and a mummy near.
 * Let it hit you: HP does not rise for 5 s after each hit, then rises again.
 * Stand in fire: no HP regeneration while burning.

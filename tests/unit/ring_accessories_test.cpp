@@ -200,6 +200,7 @@ TEST_CASE("two worn rings survive a save and a load; a save from before the ring
 TEST_CASE("the garnet heals in a fight too, but not while poisoned") {
 	PlayerStats stats;
 	stats.LoseHP(20);
+	GameClock::advance(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
 	const int hp = stats.CurrentHP();
 	stats.WearRings(ringBonus(worn(ItemKind::GarnetGold, std::nullopt)));
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
@@ -221,6 +222,7 @@ TEST_CASE("the sky-iron garnet heals 1% of max HP every 2 s, at least 1 (plan sk
 		PlayerStats stats; // 50 max HP
 		stats.AddMaxHP(maxHpPercent);
 		stats.LoseHP(stats.CurrentMaxHP() - 1);
+		GameClock::advance(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
 		stats.WearRings(ringBonus(worn(ItemKind::GarnetSkyIron, second)));
 		for (int ms = 0; ms < 20000; ms += UPDATE_TICK_MS)
 			stats.Regenerate(false, UPDATE_TICK_MS);
@@ -408,4 +410,40 @@ TEST_CASE("the first sky-iron ring writes the note Sky iron, once (plan sky-iron
 	bag.Find(ItemKind::GarnetSkyIron, journal);
 	bag.Find(ItemKind::LapisSkyIron, journal);
 	CHECK(journal.Notes() == std::vector{ringNote(RingGem::Garnet), FieldNote::SkyIron, ringNote(RingGem::Lapis)});
+}
+
+TEST_CASE("no regeneration while burning or for 5 s after any HP loss (plan regen-after-damage)") {
+	PlayerStats stats;
+	stats.LoseHP(20);
+	GameClock::advance(REGEN_DAMAGE_PAUSE_MS);
+	stats.WearRings(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold))); // 1 HP every 1.5 s
+	AmuletBonus amulet;
+	amulet.regenHpPerSecond = 2;
+	stats.Wear(amulet, true);
+	auto tick = [&](int ms, bool safe) {
+		for (int t = 0; t < ms; t += UPDATE_TICK_MS) {
+			stats.Regenerate(safe, UPDATE_TICK_MS);
+			GameClock::advance(UPDATE_TICK_MS);
+		}
+	};
+	const int start = stats.CurrentHP();
+	tick(3000, false);
+	CHECK(stats.CurrentHP() == start + 2); // the rings heal in a fight
+	stats.LoseHP(1); // a hit
+	const int hit = stats.CurrentHP();
+	tick(REGEN_DAMAGE_PAUSE_MS - UPDATE_TICK_MS, true);
+	CHECK(stats.CurrentHP() == hit); // neither ring nor amulet
+	tick(2000, true);
+	CHECK(stats.CurrentHP() > hit); // the pause is over
+	stats.vitals.burning.Ignite(1.0, 5000);
+	const int burn = stats.CurrentHP();
+	tick(4000, true);
+	CHECK(stats.CurrentHP() == burn); // burning: none
+	stats.vitals.burning.Douse();
+	tick(3000, true);
+	CHECK(stats.CurrentHP() > burn);
+	stats.LoseHP(0); // no damage, no pause
+	const int calm = stats.CurrentHP();
+	tick(3000, true);
+	CHECK(stats.CurrentHP() > calm);
 }

@@ -428,7 +428,7 @@ struct AmuletBonus {
 // All metals of a gem share the band and gem models (ringBandModel, ringGemModel), the metal and the gem as texture and
 // tint.
 enum class RingGem : std::uint8_t {
-	Garnet, // heals slowly, also in a fight
+	Garnet, // heals slowly, also in a fight (not while burning or for 5 s after a loss)
 	Lapis, // stamina comes back faster
 	Feldspar, // poison wears off faster
 	Jasper, // walk and sprint faster (not the jump)

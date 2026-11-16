@@ -1,6 +1,7 @@
 #ifndef SKILLS_VIEW_H
 #define SKILLS_VIEW_H
 
+#include "ui_screen.h"
 #include "../render/font.h"
 #include "../level/bindings.h"
 #include "../level/pointer.h"
@@ -11,13 +12,13 @@
 // The Heka screen ([K], plan skills): a card per skill (a list that scrolls, plan heka-surplus) and the heka left to
 // spend; the papyrus on the right tells the selected skill and learns it, after a second press to confirm (no
 // unlearning). Its layout: skills_layout.h. The game is paused while it is open.
-class SkillsScreen {
+class SkillsScreen final : public UiScreen {
   public:
-	void Draw();
-	void MouseFunction(int button, int state, int x, int y);
-	void MouseMotion(int x, int y);
-	void KeyPressed(unsigned char key);
-	void SpecialKeyPressed(int key);
+	void Draw() override;
+	void MouseFunction(int button, int state, int x, int y) override;
+	void MouseMotion(int x, int y) override;
+	void KeyPressed(unsigned char key) override;
+	void SpecialKeyPressed(int key) override;
 	// The most lines any skill's effect (rank I or II) takes on its card (at most 2 fit; scenario field
 	// skill_card_lines).
 	[[nodiscard]] int MostEffectLines();

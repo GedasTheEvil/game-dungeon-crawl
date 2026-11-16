@@ -45,6 +45,25 @@ GameState::~GameState() {
 	LOG_DEBUGF("game", "Deleting cashe %p", selfPtr);
 }
 
+UiScreen* UIContext::TabScreen() {
+	switch (screen) {
+	case Screen::Inventory:
+		return inventory.get();
+	case Screen::Map:
+		return &map;
+	case Screen::Journal:
+		return &journal;
+	case Screen::Skills:
+		return &skills;
+	case Screen::Menu:
+	case Screen::Riddle:
+	case Screen::Death:
+	case Screen::Gameplay:
+		return nullptr;
+	}
+	return nullptr;
+}
+
 void GameState::Load() {
 	assets.LoadLoadingScreen();
 	DrawLoad(10, "Loading", "");

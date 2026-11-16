@@ -5,7 +5,6 @@
 #include "../input/input_actions.h"
 #include "../ui/inventory.h"
 #include "../ui/player_hud.h"
-#include "../ui/screen_state.h"
 #include "../core/logger.h"
 #include "../core/paths.h"
 #include "../level/zone_music.h"
@@ -44,7 +43,7 @@ void playMusic() {
 		}
 		return at->second;
 	};
-	const Screen screen = ScreenState::GetDrawScreen(Game());
+	const Screen screen = Game().ui.screen;
 	const bool menu = (screen == Screen::Menu && !Game().ui.menu.inGame) || screen == Screen::Death ||
 					  Game().dungeon.Won();
 	Game().assets.sounds.music.Play(musicFile(Game().dungeon.Zone(), menu, exists));
@@ -58,7 +57,7 @@ void tick() {
 	}
 
 	playMusic();
-	if (ScreenState::GetDrawScreen(Game()) != Screen::Gameplay) {
+	if (Game().ui.screen != Screen::Gameplay) {
 		glutPostRedisplay();
 		return;
 	}

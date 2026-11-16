@@ -1,6 +1,7 @@
 #ifndef JOURNAL_VIEW_H
 #define JOURNAL_VIEW_H
 
+#include "ui_screen.h"
 #include "../render/font.h"
 #include "../render/render_target.h"
 #include "../render/textures.h"
@@ -20,13 +21,13 @@
 // in the first page of each section with pages, hanging out on the left or right. Pages turn over the spine
 // (ui/page_curl.h): a click, a key or a drag of a page corner. The data is Game().journal (level/journal.h); this is
 // only the screen. The game is paused while it is open. It opens on the section and pages looked at last.
-class JournalScreen {
+class JournalScreen final : public UiScreen {
   public:
 	// Log (plan message-log): this level's status lines, newest first; not saved.
 	enum class Section : std::uint8_t { Diary, Creatures, Riddles, FieldNotes, Inscriptions, Expedition, Log };
 	static constexpr int SECTION_COUNT = 7;
 
-	void Draw();
+	void Draw() override;
 	// A new game's prologue (plan journal-intro) or the win's epilogue (plan win-ending-flow): the book opens on the
 	// Diary's last spread, the close key hinted on its last page ("J or Esc " + `closes`) until the game runs again
 	// (EndDiary).
@@ -37,10 +38,10 @@ class JournalScreen {
 	void SeeShown();
 	// The arrows and the bound move keys turn pages and switch sections; Enter / Space / Interact focus and press the
 	// riddle Answer buttons (Navigate).
-	void KeyPressed(unsigned char key);
-	void SpecialKeyPressed(int key);
-	void MouseFunction(int button, int state, int x, int y);
-	void MouseMotion(int x, int y);
+	void KeyPressed(unsigned char key) override;
+	void SpecialKeyPressed(int key) override;
+	void MouseFunction(int button, int state, int x, int y) override;
+	void MouseMotion(int x, int y) override;
 	void ShowToast(const std::string& text);
 	// The open section and each section's spread into / out of a save (plan save-remembers-ui-state). Setting
 	// closes any turn; the first Draw clamps a spread past its section's end and skips an empty section.

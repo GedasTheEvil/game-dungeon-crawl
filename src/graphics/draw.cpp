@@ -1,7 +1,6 @@
 #include "draw.h"
 #include <GL/gl.h>
 #include "../state/game_state.h"
-#include "../ui/screen_state.h"
 #include "../ui/player_hud.h"
 #include "../ui/player_hud_view.h"
 #include "../ui/inventory.h"
@@ -174,24 +173,18 @@ void Draw() {
 	if (!Game().cacheLoaded)
 		return;
 
-	switch (ScreenState::GetDrawScreen(Game())) {
+	switch (Game().ui.screen) {
 	case Screen::Menu:
 		Game().ui.menu.Draw();
-		break;
-	case Screen::Inventory:
-		Game().ui.inventory->Draw();
 		break;
 	case Screen::Riddle:
 		Game().ui.riddle->Draw();
 		break;
+	case Screen::Inventory:
 	case Screen::Map:
-		Game().ui.map.Draw();
-		break;
 	case Screen::Journal:
-		Game().ui.journal.Draw();
-		break;
 	case Screen::Skills:
-		Game().ui.skills.Draw();
+		Game().ui.TabScreen()->Draw();
 		break;
 	case Screen::Gameplay:
 		drawGameplay();

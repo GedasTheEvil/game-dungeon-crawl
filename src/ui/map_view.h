@@ -1,6 +1,7 @@
 #ifndef MAP_VIEW_H
 #define MAP_VIEW_H
 
+#include "ui_screen.h"
 #include "map_zoom.h"
 
 // The archaeologist's draft map ([M]): a pencil sketch on papyrus of the cells explored on this level
@@ -8,13 +9,13 @@
 // keys, gates and levers are drawn in their lock colour. A legend slip beside the sheet names the symbols drawn so far.
 // The wheel and + / - zoom, a drag and the arrows pan (plan map-symbols-and-zoom). The game is paused while it is
 // open.
-class DraftMap {
+class DraftMap final : public UiScreen {
   public:
-	void Draw();
-	void KeyPressed(unsigned char key);
-	void SpecialKeyPressed(int key);
-	void MouseFunction(int button, int state, int x, int y);
-	void MouseMotion(int x, int y);
+	void Draw() override;
+	void KeyPressed(unsigned char key) override;
+	void SpecialKeyPressed(int key) override;
+	void MouseFunction(int button, int state, int x, int y) override;
+	void MouseMotion(int x, int y) override;
 
   private:
 	MapZoom zoom;

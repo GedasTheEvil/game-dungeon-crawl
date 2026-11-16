@@ -419,7 +419,7 @@ void keyPressed(unsigned char key, int x, int y) {
 	ui::hideTooltip();
 	if (skipCutScene())
 		return;
-	if (ScreenState::ShouldRouteKeyboardToRiddle(Game())) {
+	if (Game().ui.screen == Screen::Riddle) {
 		Game().ui.riddle->KeyboardF(key, x, y);
 		return;
 	}
@@ -467,20 +467,14 @@ void keyPressed(unsigned char key, int x, int y) {
 
 	if (screen == Screen::Menu)
 		menu.KeyPressed(key);
-	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
+	if (Game().ui.screen == Screen::Menu)
 		return; // while the menu is shown, only [esc] and the sub-screen's keys are handled
 
 	std::optional<BindAction> action = bound(InputKey::Char(key));
 	if (action && pressBinding(*action))
 		return;
-	if (screen == Screen::Inventory)
-		Game().ui.inventory->KeyPressed(key);
-	if (screen == Screen::Skills)
-		Game().ui.skills.KeyPressed(key);
-	if (screen == Screen::Journal)
-		Game().ui.journal.KeyPressed(key);
-	if (screen == Screen::Map)
-		Game().ui.map.KeyPressed(key);
+	if (UiScreen* tab = Game().ui.TabScreen())
+		tab->KeyPressed(key);
 }
 
 void specialKeyPressed(int key, int x, int y) {
@@ -511,21 +505,15 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 	if (Game().ui.screen == Screen::Menu)
 		Game().ui.menu.SpecialKeyPressed(key);
-	if (ScreenState::ShouldBlockKeyboardGameplay(Game()))
+	if (Game().ui.screen == Screen::Menu)
 		return;
 
 	std::optional<BindAction> action = bound(InputKey::Special(key));
 	if (action && pressBinding(*action))
 		return;
 
-	if (Game().ui.screen == Screen::Journal)
-		Game().ui.journal.SpecialKeyPressed(key);
-	if (Game().ui.screen == Screen::Inventory)
-		Game().ui.inventory->SpecialKeyPressed(key);
-	if (Game().ui.screen == Screen::Skills)
-		Game().ui.skills.SpecialKeyPressed(key);
-	if (Game().ui.screen == Screen::Map)
-		Game().ui.map.SpecialKeyPressed(key);
+	if (UiScreen* tab = Game().ui.TabScreen())
+		tab->SpecialKeyPressed(key);
 	if (Game().ui.screen != Screen::Gameplay)
 		return;
 
@@ -568,7 +556,7 @@ void processMouse(int button, int state, int x, int y) {
 		skipButton = -1;
 		return;
 	}
-	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
+	if (Game().ui.screen == Screen::Menu) {
 		Game().ui.menu.MouseFunction(button, state, x, y);
 		return;
 	}
@@ -585,21 +573,8 @@ void processMouse(int button, int state, int x, int y) {
 	if (ScreenTabs::Has(Game().ui.screen) && ScreenTabs::Mouse(button, state, x, y))
 		return;
 
-	if (ScreenState::ShouldRouteMouseToInventory(Game())) {
-		Game().ui.inventory->MouseFunction(button, state, x, y);
-		return;
-	}
-
-	if (Game().ui.screen == Screen::Journal) {
-		Game().ui.journal.MouseFunction(button, state, x, y);
-		return;
-	}
-	if (Game().ui.screen == Screen::Skills) {
-		Game().ui.skills.MouseFunction(button, state, x, y);
-		return;
-	}
-	if (Game().ui.screen == Screen::Map) {
-		Game().ui.map.MouseFunction(button, state, x, y);
+	if (UiScreen* tab = Game().ui.TabScreen()) {
+		tab->MouseFunction(button, state, x, y);
 		return;
 	}
 
@@ -629,7 +604,7 @@ void lookAt(int x, int y) {
 
 void processMousePassiveMotion(int a, int b) {
 	lookAt(a, b);
-	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
+	if (Game().ui.screen == Screen::Menu) {
 		Game().ui.menu.MousePassiveMotion(a, b);
 		return;
 	}
@@ -639,18 +614,14 @@ void processMousePassiveMotion(int a, int b) {
 	}
 	if (ScreenTabs::Has(Game().ui.screen))
 		ScreenTabs::Motion(a, b);
-	if (ScreenState::ShouldRouteMouseToInventory(Game()))
-		Game().ui.inventory->MouseMotion(a, b);
-	if (Game().ui.screen == Screen::Journal)
-		Game().ui.journal.MouseMotion(a, b);
-	if (Game().ui.screen == Screen::Skills)
-		Game().ui.skills.MouseMotion(a, b);
+	if (UiScreen* tab = Game().ui.TabScreen())
+		tab->MouseMotion(a, b); // the map pans only while its button is held
 }
 
 // A button held (the attack's power hit charge) still turns the camera: no jump at the release.
 void processMouseActiveMotion(int a, int b) {
 	lookAt(a, b);
-	if (ScreenState::ShouldRouteMouseToMenu(Game())) {
+	if (Game().ui.screen == Screen::Menu) {
 		Game().ui.menu.MouseDrag(a, b);
 		return;
 	}
@@ -660,14 +631,8 @@ void processMouseActiveMotion(int a, int b) {
 	}
 	if (ScreenTabs::Has(Game().ui.screen))
 		ScreenTabs::Motion(a, b);
-	if (ScreenState::ShouldRouteMouseToInventory(Game()))
-		Game().ui.inventory->MouseMotion(a, b);
-	if (Game().ui.screen == Screen::Journal)
-		Game().ui.journal.MouseMotion(a, b);
-	if (Game().ui.screen == Screen::Skills)
-		Game().ui.skills.MouseMotion(a, b);
-	if (Game().ui.screen == Screen::Map)
-		Game().ui.map.MouseMotion(a, b);
+	if (UiScreen* tab = Game().ui.TabScreen())
+		tab->MouseMotion(a, b);
 }
 
 // The cursor left or entered the window: the first motion back does not turn the camera by the way it went outside.

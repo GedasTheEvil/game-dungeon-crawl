@@ -121,7 +121,7 @@ float playerPos(GameplayAction axisOf) {
 }
 
 const char* screenName() {
-	switch (ScreenState::GetDrawScreen(Game())) {
+	switch (Game().ui.screen) {
 	case Screen::Menu:
 		return "menu";
 	case Screen::Inventory:
@@ -446,7 +446,7 @@ void runItemCommand(const Command& cmd) {
 		report(cmd, true, "");
 		return;
 	case CommandType::Select: // like a click on its slot, also when it is on another tab
-		if (ScreenState::GetDrawScreen(Game()) != Screen::Inventory) {
+		if (Game().ui.screen != Screen::Inventory) {
 			report(cmd, false, std::string("the inventory is not open, screen ") + screenName());
 			return;
 		}
@@ -454,7 +454,7 @@ void runItemCommand(const Command& cmd) {
 		report(cmd, true, "");
 		return;
 	case CommandType::Sort: // like a click on its button, for the open tab
-		if (ScreenState::GetDrawScreen(Game()) != Screen::Inventory) {
+		if (Game().ui.screen != Screen::Inventory) {
 			report(cmd, false, std::string("the inventory is not open, screen ") + screenName());
 			return;
 		}
@@ -710,7 +710,7 @@ void runWorldCommand(const Command& cmd) {
 	}
 	case CommandType::SpeakName: { // plan secret-name-gates: the level's name typed into the open scroll, key by key
 		const RoyalName* name = Game().dungeon.LevelName();
-		if (name == nullptr || ScreenState::GetDrawScreen(Game()) != Screen::Riddle) {
+		if (name == nullptr || Game().ui.screen != Screen::Riddle) {
 			report(cmd, false, std::string("no name, or the scroll is not open: screen ") + screenName());
 			return;
 		}

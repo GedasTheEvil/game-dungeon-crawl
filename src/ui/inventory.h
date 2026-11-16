@@ -1,5 +1,6 @@
 #ifndef INVENTORY_H
 #define INVENTORY_H
+#include "ui_screen.h"
 #include <string>
 #include "../render/font.h"
 #include "../graphics/item.h"
@@ -16,7 +17,7 @@
 #include <optional>
 
 // The inventory screen: the items in the ItemBag, one tab per ItemGroup, with their models, details and buttons.
-class Inventory {
+class Inventory final : public UiScreen {
   private:
 	// Clickable things on the screen.
 	enum class Target : unsigned char {
@@ -149,15 +150,15 @@ class Inventory {
 	void ViewTo(UiViewState& view) const;
 	void ViewFrom(const UiViewState& view);
 	void AddItem(ItemKind kind); // found: its journal notes (ItemBag::Find)
-	void Draw();
+	void Draw() override;
 	// Once a tick while the screen is not open: the items it used up sort as empty again.
 	void ForgetUsedUp() {
 		usedUpHere = {};
 		reopened = true;
 	}
-	void MouseFunction(int button, int state, int x, int y);
-	void MouseMotion(int x, int y);
-	void KeyPressed(unsigned char key);
+	void MouseFunction(int button, int state, int x, int y) override;
+	void MouseMotion(int x, int y) override;
+	void KeyPressed(unsigned char key) override;
 	// Selects the item and opens its tab, like a click on its slot (scenario `select`).
 	void SelectItem(ItemKind kind) { Select(itemIndex(kind)); }
 	// The open tab's order (scenario `sort`); the selected item stays selected and in view.
@@ -165,7 +166,7 @@ class Inventory {
 	[[nodiscard]] ItemGroup OpenTab() const { return tab; }
 	// The selected item's place in its tab's grid, in the open order (scenario `expect selected`).
 	[[nodiscard]] int SelectedPosition() const;
-	void SpecialKeyPressed(int key);
+	void SpecialKeyPressed(int key) override;
 	// In game, the class keys (1 melee, 2 ranged): equips the next weapon of that class held, in ItemKind order and
 	// wrapping round, with the toast; the first one if the other class is in hand. None held: nothing.
 	void EquipNext(bool ranged);

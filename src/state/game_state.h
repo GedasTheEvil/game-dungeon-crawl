@@ -12,6 +12,7 @@
 #include "../graphics/item.h"
 #include "../level/item_bag.h"
 #include "../ui/inventory.h"
+#include "../ui/ui_screen.h"
 #include "../ui/screen.h"
 #include "../level/rng.h"
 #include "../audio/sound.h"
@@ -74,6 +75,8 @@ struct UIContext {
 	int bannerLevel = 0; // the campaign level whose banner shows (plan zone-looks, ZoneBanner), since bannerStartMs
 	int bannerStartMs = 0;
 	float bannerTop = ZoneBanner::TOP; // under the status lines; it only moves down while it shows (plan message-log)
+	// The open tab screen (inventory, map, journal, skills; plan screen-interface), nullptr on any other.
+	[[nodiscard]] UiScreen* TabScreen();
 };
 
 class GameState {

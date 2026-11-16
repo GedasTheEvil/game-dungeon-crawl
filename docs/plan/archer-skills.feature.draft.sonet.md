@@ -27,8 +27,8 @@ From the user: three Heka skills (names may change):
   venom amulet, [venom-amulet](solved/venom-amulet.md)). Rank I medium, rank II strong (`skill-upgrades` rank II).
   Chance: 20% (open point). Poison arrows: every ranged weapon (bows, sling, stick, javelin) or bows only (open point);
   poison blade: melee hits only.
-* Stacking with the venom amulet (which poisons melee and missile hits): roll once, the stronger tier wins (default),
-  not two rolls. Sharp arrows' bleed and the Bleed skill: one roll, the higher chance.
+* Stacking with the venom amulet (which poisons melee and missile hits), from the user: the chances add, one roll
+  (skill 20% + amulet 20% = 40%). A hit that poisons takes the stronger tier of the two. Sharp arrows' bleed and the Bleed skill: one roll, the higher chance.
 
 ### Open points (implementer's choice; warn the user)
 

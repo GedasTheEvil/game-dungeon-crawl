@@ -65,5 +65,8 @@ void solveRiddle(
 // ..."), nothing if it could not be learnt.
 std::optional<std::string>
 learnSkill(PlayerStats& stats, Journal& journal, WorldEvents& events, SkillId id, bool force = false);
+// A heka spent on the skill's rank II (plan skill-upgrades). Returns the toast ("Rank II: ..."), nothing if it could
+// not be upgraded.
+std::optional<std::string> upgradeSkill(PlayerStats& stats, WorldEvents& events, SkillId id);
 
 #endif

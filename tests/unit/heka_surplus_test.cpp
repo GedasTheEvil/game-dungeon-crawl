@@ -62,15 +62,19 @@ TEST_CASE("more skills than the campaign's heka: at least 4 left unlearnt at the
 	CHECK(SKILL_COUNT - bosses >= 4);
 }
 
-TEST_CASE("the HUD's heka waits only while some skill can still be learnt") {
+TEST_CASE("the HUD's heka waits only while some skill can still be learnt or upgraded") {
 	Heka heka;
 	CHECK_FALSE(heka.Waiting()); // no heka
-	for (int boss = 1; boss <= SKILL_COUNT + 1; boss++)
+	for (int boss = 1; boss <= 2 * SKILL_COUNT + 1; boss++)
 		heka.Earn(boss * 2);
 	CHECK(heka.Waiting());
 	for (int i = 0; i < SKILL_COUNT; i++)
 		REQUIRE(heka.Learn(static_cast<SkillId>(i)));
-	CHECK(heka.Free() == 1);
+	CHECK(heka.Waiting()); // rank II left to buy (plan skill-upgrades)
+	for (int i = 0; i < SKILL_COUNT; i++)
+		if (upgradable(static_cast<SkillId>(i)))
+			REQUIRE(heka.Upgrade(static_cast<SkillId>(i)));
+	CHECK(heka.Free() > 0);
 	CHECK_FALSE(heka.Waiting()); // a heka free, nothing left to buy
 }
 

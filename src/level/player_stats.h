@@ -63,6 +63,7 @@ class PlayerStats {
 	bool AdvanceLevel(WorldEvents& events);
 	void RegenerateStamina();
 	void keepHpShare(int oldMax); // the HP keeps its share of the max HP as the max changed from oldMax
+	void gainMax(int oldMaxHP, int oldMaxStamina); // a skill raised the maxes: the gain on top (Learn, Upgrade)
 
   public:
 	void SetSprintRequested(bool requested) { sprint_requested = requested; }
@@ -85,7 +86,7 @@ class PlayerStats {
 	void UpdateStamina(WorldEvents& events);
 	[[nodiscard]] int Stamina() const { return stamina; }
 	[[nodiscard]] int MaxStamina() const {
-		const int skill = heka.Has(SkillId::BreathOfShu) ? SKILL_STAMINA_PERCENT : 0;
+		const int skill = heka.ByRank(SkillId::BreathOfShu, SKILL_STAMINA_PERCENT, SKILL_STAMINA_PERCENT_2);
 		return (100 + (level - 1) * 10) * (100 + max_stamina_percent + skill) / 100;
 	}
 	void SetStamina(int value);
@@ -99,12 +100,12 @@ class PlayerStats {
 	// With the worn amulet's bonus, the stat skills' (plan heka-surplus) and the running curses (weakness,
 	// vulnerability, disease).
 	[[nodiscard]] int CurrentMight() const {
-		const int skill = heka.Has(SkillId::StrengthOfMontu) ? SKILL_MIGHT : 0;
+		const int skill = heka.ByRank(SkillId::StrengthOfMontu, SKILL_MIGHT, SKILL_MIGHT_2);
 		return cursedMight(Might + amulet.might + skill + (Blessed(God::Montu) ? MONTU_MIGHT : 0), curses);
 	}
 	// Per type (plan armor-split): every source adds the same to smash, cut and stab.
 	[[nodiscard]] ArmorPoints CurrentArmor() const {
-		const int skill = heka.Has(SkillId::DjedOfPtah) ? SKILL_ARMOR : 0;
+		const int skill = heka.ByRank(SkillId::DjedOfPtah, SKILL_ARMOR, SKILL_ARMOR_2);
 		const int all = amulet.armor + skill + (Blessed(God::Ptah) ? PTAH_ARMOR : 0);
 		ArmorPoints current{};
 		for (size_t t = 0; t < ARMOR_TYPE_COUNT; t++)
@@ -114,7 +115,7 @@ class PlayerStats {
 
 	[[nodiscard]] int CurrentHP() const { return vitals.hp; }
 	[[nodiscard]] int CurrentMaxHP() const {
-		const int percent = amulet.maxHpPercent + (heka.Has(SkillId::KaOfOsiris) ? SKILL_HEALTH_PERCENT : 0) +
+		const int percent = amulet.maxHpPercent + heka.ByRank(SkillId::KaOfOsiris, SKILL_HEALTH_PERCENT, SKILL_HEALTH_PERCENT_2) +
 							(Blessed(God::Amun) ? AMUN_MAX_HP_PERCENT : 0);
 		return cursedMaxHP(MaxHP + MaxHP * percent / 100, curses);
 	}
@@ -122,6 +123,8 @@ class PlayerStats {
 	// heal beyond it). False: nothing learnt. Serket's favour cures a running poison and the Blessing of Isis lifts
 	// every curse, once (plan learn-skill-cures); `cure` tells which one did something.
 	bool Learn(SkillId id, bool force = false, LearnCure* cure = nullptr);
+	// Spends a heka on its rank II (Heka::Upgrade, plan skill-upgrades), the new share of the max on top as Learn.
+	bool Upgrade(SkillId id);
 	[[nodiscard]] int CurrentLevel() const { return level; }
 	[[nodiscard]] double CurrentXP() const { return XP; }
 	[[nodiscard]] std::optional<int> LevelUpMs() const { return level_up_ms; }
@@ -215,7 +218,7 @@ class PlayerStats {
 	[[nodiscard]] const RingBonus& Rings() const { return rings; }
 	// The feldspar rings: the poison's time runs down this much faster.
 	[[nodiscard]] int PoisonFasterPercent() const { return rings.poisonFasterPercent; }
-	// Tiles: the weapon's reach with the Sharp eye skill (weaponReach) and the rock crystal rings.
+	// Tiles: the weapon's reach with the Eye of Horus skill (weaponReach) and the rock crystal rings.
 	[[nodiscard]] float WeaponReach(ItemKind weapon) const {
 		return weaponReach(weapon, heka) * static_cast<float>(100 + rings.reachPercent) / 100.f;
 	}

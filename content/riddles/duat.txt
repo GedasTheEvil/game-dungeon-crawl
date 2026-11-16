@@ -28,7 +28,7 @@ A: word
 A: words
 H: Book of the Dead, spell 99, on a wall of the cisterns.
 
-# note.amulet-traps (Eye of Horus); inscription 13 (Horus)
+# note.amulet-traps (the wedjat amulet); inscription 13 (Horus)
 Q: I see the spikes first. Worn, I cut the bite
 Q: of darts and spikes. Which eye am I?
 A: eye of horus

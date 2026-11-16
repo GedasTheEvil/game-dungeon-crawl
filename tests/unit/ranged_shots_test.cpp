@@ -217,3 +217,50 @@ TEST_CASE("a refused shot costs no attack interval (plan player-control-in-sim)"
 	CHECK_FALSE(world.Attack()); // no shot left
 	CHECK(world.player.attackTimer.TimePassed(true)); // the refusal did not restart the attack timer
 }
+
+// Eye of Horus (plan skill-eye-of-horus): rank I, too close only while the hitboxes overlap; rank II, never.
+TEST_CASE("Eye of Horus: a monster near but not on the player is no longer too close") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/archery"));
+	world.Equip(ItemKind::SelfBow);
+	world.WaitTicks(30);
+	REQUIRE(world.Walk(11.6f));
+	world.WaitTicks(10);
+	const Monster* plant = world.dungeon.NearestMonster();
+	REQUIRE(plant != nullptr);
+	const float gap = plant->Left() - (world.X() + world.player.HalfWidth());
+	REQUIRE(gap > 0.f); // apart, under the bow's minimum range
+	CHECK(world.dungeon.ShotRefused(ItemKind::SelfBow, 1) == Dungeon::ShotRefusal::TooClose);
+	world.player.stats.heka.Earn(5);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::EyeOfHorus, true));
+	CHECK(world.dungeon.ShotRefused(ItemKind::SelfBow, 1) == Dungeon::ShotRefusal::None);
+	CHECK(weaponMinRange(ItemKind::SelfBow, world.player.stats.heka) == 0.f); // the sim's kite stops backing off
+	CHECK(world.Attack());
+}
+
+TEST_CASE("Eye of Horus: hitboxes overlapping are too close at rank I, never at rank II") {
+	SimWorld world;
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/archery"));
+	world.Equip(ItemKind::SelfBow);
+	world.WaitTicks(30);
+	world.player.stats.heka.Earn(5);
+	world.player.stats.heka.Earn(10);
+	REQUIRE(world.player.stats.heka.Learn(SkillId::EyeOfHorus, true));
+	REQUIRE(world.Walk(11.6f));
+	world.WaitTicks(10);
+	const Monster* plant = nullptr;
+	// Into the plant step by step until the boxes overlap.
+	for (int i = 0; i < 400; i++) {
+		plant = world.dungeon.NearestMonster();
+		REQUIRE(plant != nullptr);
+		if (plant->Left() < world.X() + world.player.HalfWidth())
+			break;
+		world.HoldWalk(1, 20);
+	}
+	REQUIRE(plant->Left() < world.X() + world.player.HalfWidth()); // the plant does not stop the walk
+	CHECK(world.dungeon.ShotRefused(ItemKind::SelfBow, 1) == Dungeon::ShotRefusal::TooClose);
+	REQUIRE(world.player.stats.heka.Upgrade(SkillId::EyeOfHorus));
+	CHECK(world.dungeon.ShotRefused(ItemKind::SelfBow, 1) == Dungeon::ShotRefusal::None);
+}

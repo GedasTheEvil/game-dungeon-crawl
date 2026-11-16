@@ -100,15 +100,15 @@ TEST_CASE("Blessing of Isis: with the skill a curse that takes runs half as long
 	plain.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
 	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
 	CHECK(plain.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS);
-	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
+	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS / GOD_SKILL_DIVISOR);
 	// A restarted curse is halved too, and so is a greater one replacing a lesser one.
 	blessed.stats.curses.Advance(60000);
 	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Lesser, events, testRng());
-	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
+	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS / GOD_SKILL_DIVISOR);
 	blessed.stats.curses.Advance(30000);
 	blessed.stats.LayCurse(Curse::Weakness, CurseGrade::Greater, events, testRng());
 	CHECK(blessed.stats.curses.Grade(Curse::Weakness) == CurseGrade::Greater);
-	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS_ISIS);
+	CHECK(blessed.stats.curses.LeftMs(Curse::Weakness) == CURSE_MS / GOD_SKILL_DIVISOR);
 }
 } // namespace
 
@@ -123,14 +123,14 @@ TEST_CASE("a boss level gives one heka, only the first time") {
 
 TEST_CASE("learning spends a heka; no heka, learnt already or sealed: nothing") {
 	Heka heka;
-	CHECK_FALSE(heka.Learn(SkillId::SharpEye, true)); // no heka
+	CHECK_FALSE(heka.Learn(SkillId::EyeOfHorus, true)); // no heka
 	heka.Earn(5);
-	CHECK(heka.Learn(SkillId::SharpEye, true));
-	CHECK(heka.Has(SkillId::SharpEye));
+	CHECK(heka.Learn(SkillId::EyeOfHorus, true));
+	CHECK(heka.Has(SkillId::EyeOfHorus));
 	CHECK(heka.Free() == 0);
 	CHECK(heka.Spent() == 1);
 	heka.Earn(10);
-	CHECK_FALSE(heka.Learn(SkillId::SharpEye, true)); // learnt already
+	CHECK_FALSE(heka.Learn(SkillId::EyeOfHorus, true)); // learnt already
 	CHECK(heka.Free() == 1);
 	for (int s = 0; s < SKILL_COUNT; s++) {
 		const auto id = static_cast<SkillId>(s);
@@ -276,11 +276,11 @@ TEST_CASE("Serket's favour: with the skill a poison that takes runs half as long
 	CHECK(a.next() == Rng(3).next());
 }
 
-TEST_CASE("Sharp eye: ranged weapons reach 30% farther, melee ones the same") {
+TEST_CASE("Eye of Horus: ranged weapons reach 30% farther, melee ones the same") {
 	Heka plain;
 	Heka eye;
 	eye.Earn(5);
-	REQUIRE(eye.Learn(SkillId::SharpEye, true));
+	REQUIRE(eye.Learn(SkillId::EyeOfHorus, true));
 	for (int k = 0; k < ITEM_KIND_COUNT; k++) {
 		const auto kind = static_cast<ItemKind>(k);
 		if (!isWeapon(kind))
@@ -442,4 +442,102 @@ TEST_CASE("skill-god-resist: the resisted line names its source") {
 		line = lastStatus();
 	}
 	CHECK(line == "Isis's blessing turns the curse away");
+}
+
+// Skill ranks (plan skill-upgrades): a second heka on a learnt, upgradable skill makes it rank II.
+TEST_CASE("rank II: one more heka on a learnt upgradable skill, once; none for the others") {
+	Heka heka;
+	heka.Earn(5);
+	CHECK_FALSE(heka.CanUpgrade(SkillId::Dodge)); // not learnt
+	REQUIRE(heka.Learn(SkillId::Dodge, true));
+	CHECK(heka.Rank(SkillId::Dodge) == 1);
+	CHECK_FALSE(heka.CanUpgrade(SkillId::Dodge)); // no heka
+	CHECK_FALSE(heka.Waiting());
+	heka.Earn(10);
+	CHECK(heka.Waiting());
+	CHECK(heka.Upgrade(SkillId::Dodge));
+	CHECK(heka.Rank(SkillId::Dodge) == 2);
+	CHECK(heka.Spent() == 2);
+	CHECK(heka.Free() == 0);
+	heka.Earn(15);
+	CHECK_FALSE(heka.Upgrade(SkillId::Dodge)); // rank II is the last
+	for (SkillId none : {SkillId::Hieroglyphs, SkillId::WisdomOfSeshat, SkillId::FavourOfHapi, SkillId::DisarmTrap}) {
+		CHECK_FALSE(upgradable(none));
+		REQUIRE(heka.Learn(none, true));
+		CHECK_FALSE(heka.CanUpgrade(none));
+		heka.Earn(20 + static_cast<int>(none));
+		CHECK_FALSE(heka.Upgrade(none));
+	}
+}
+
+TEST_CASE("rank II: the HUD tile waits while only an upgrade is left to buy") {
+	Heka heka;
+	for (int s = 0; s < SKILL_COUNT; s++) {
+		heka.Earn(s + 1);
+		REQUIRE(heka.Learn(static_cast<SkillId>(s), true));
+	}
+	CHECK_FALSE(heka.Waiting());
+	heka.Earn(40);
+	CHECK(heka.Waiting());
+}
+
+TEST_CASE("rank II is saved; a HEKA line without it loads as no upgrades") {
+	Heka heka;
+	heka.Earn(5);
+	heka.Earn(10);
+	REQUIRE(heka.Learn(SkillId::Stun, true));
+	REQUIRE(heka.Upgrade(SkillId::Stun));
+	std::stringstream out;
+	heka.Dump(out);
+	out << "NEXT 1\n";
+	Heka loaded;
+	loaded.LoadDump(out);
+	CHECK(loaded.Rank(SkillId::Stun) == 2);
+	CHECK(loaded.Free() == 0);
+	std::string next;
+	CHECK((out >> next && next == "NEXT"));
+
+	std::stringstream old("HEKA 1 5 1\nNEXT 1\n"); // Stun learnt, from before plan skill-upgrades
+	Heka before;
+	before.LoadDump(old);
+	CHECK(before.Rank(SkillId::Stun) == 1);
+	CHECK(before.Free() == 0);
+	CHECK((old >> next && next == "NEXT"));
+}
+
+TEST_CASE("rank II values: stats, chances never sure, durations") {
+	CHECK(rankTwoChance(10) == 19);
+	CHECK(rankTwoChance(25) == 43);
+	CHECK(rankTwoChance(100) == 100);
+	CHECK(rankTwoChance(99) < 100);
+	PlayerStats stats;
+	const int might = stats.CurrentMight();
+	const int maxHp = stats.CurrentMaxHP();
+	const int maxStamina = stats.MaxStamina();
+	for (int level = 1; level <= 8; level++)
+		stats.heka.Earn(level);
+	for (SkillId id : {SkillId::StrengthOfMontu, SkillId::KaOfOsiris, SkillId::BreathOfShu, SkillId::BlessingOfIsis})
+		REQUIRE(stats.Learn(id, true));
+	CHECK(stats.CurrentMight() == might + SKILL_MIGHT);
+	CHECK(stats.CurseResistPercent() == ISIS_RESIST_PERCENT);
+	for (SkillId id : {SkillId::StrengthOfMontu, SkillId::KaOfOsiris, SkillId::BreathOfShu, SkillId::BlessingOfIsis})
+		REQUIRE(stats.Upgrade(id));
+	CHECK(stats.CurrentMight() == might + SKILL_MIGHT_2);
+	CHECK(stats.CurrentMaxHP() == maxHp * (100 + SKILL_HEALTH_PERCENT_2) / 100);
+	CHECK(stats.CurrentHP() == stats.CurrentMaxHP()); // the gain on top
+	CHECK(stats.MaxStamina() == maxStamina * (100 + SKILL_STAMINA_PERCENT_2) / 100);
+	CHECK(stats.CurseResistPercent() == rankTwoChance(ISIS_RESIST_PERCENT));
+	WorldEvents events;
+	stats.TakeCurse(Curse::Weakness, CurseGrade::Lesser, events);
+	CHECK(stats.curses.LeftMs(Curse::Weakness) == CURSE_MS / GOD_SKILL_DIVISOR_2);
+}
+
+TEST_CASE("Eye of Horus rank II: ranged weapons reach 60% farther") {
+	Heka eye;
+	eye.Earn(5);
+	eye.Earn(10);
+	REQUIRE(eye.Learn(SkillId::EyeOfHorus, true));
+	REQUIRE(eye.Upgrade(SkillId::EyeOfHorus));
+	CHECK(weaponReach(ItemKind::SelfBow, eye) == doctest::Approx(weaponReach(ItemKind::SelfBow) * 1.6f));
+	CHECK(weaponReach(ItemKind::Club, eye) == weaponReach(ItemKind::Club));
 }

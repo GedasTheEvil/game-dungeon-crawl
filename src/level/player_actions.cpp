@@ -163,3 +163,10 @@ learnSkill(PlayerStats& stats, Journal& journal, WorldEvents& events, SkillId id
 	events.Play(WorldSound::ItemOn);
 	return learnt;
 }
+
+std::optional<std::string> upgradeSkill(PlayerStats& stats, WorldEvents& events, SkillId id) {
+	if (!stats.Upgrade(id))
+		return std::nullopt;
+	events.Play(WorldSound::ItemOn);
+	return std::string("Rank II: ") + skillDef(id).name;
+}

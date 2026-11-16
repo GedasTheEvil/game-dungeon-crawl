@@ -411,9 +411,12 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactH
 //======================================================================================
 // Stun (plan skill-stun): with the skill, the hit's blunt share decides the chance, rolled on the gameplay stream.
 void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
-	if (!sim.player->stats.heka.Has(SkillId::Stun))
+	const int rank = sim.player->stats.heka.Rank(SkillId::Stun);
+	if (rank == 0)
 		return;
-	const int chance = STUN_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Blunt)] / 100;
+	int chance = STUN_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Blunt)] / 100;
+	if (rank == 2) // plan skill-upgrades
+		chance = rankTwoChance(chance);
 	if (chance <= 0 || !sim.random->gameplay.percent(chance) || !mon.StunHit(STUN_MS, wasLurking))
 		return;
 	const auto& notes = sim.journal->Notes();
@@ -427,9 +430,12 @@ void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 // most one tier. Rolled through Monster::TakeBleed, whose cut rate scales it once more and which never bleeds a
 // bloodless kind.
 void Dungeon::bleedRoll(Monster& mon, const DamageMix& mix) {
-	if (!sim.player->stats.heka.Has(SkillId::Bleed))
+	const int rank = sim.player->stats.heka.Rank(SkillId::Bleed);
+	if (rank == 0)
 		return;
 	int chance = BLEED_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Slash)] / 100;
+	if (rank == 2) // plan skill-upgrades
+		chance = rankTwoChance(chance);
 	if (mon.Type()->isBoss())
 		chance = chance * BOSS_BLEED_PERCENT / 100;
 	const int before = mon.BleedMask();

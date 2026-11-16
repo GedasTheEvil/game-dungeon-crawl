@@ -284,13 +284,13 @@ TEST_CASE("the jasper walks faster on the ground, the jump carries as far as wit
 	CHECK(stats.WalkFactor(false) == doctest::Approx(1.17f * SLOWNESS_WALK_FACTOR));
 }
 
-TEST_CASE("the rock crystal reaches farther, melee and ranged, times the Sharp eye") {
+TEST_CASE("the rock crystal reaches farther, melee and ranged, times the Eye of Horus") {
 	PlayerStats stats;
 	stats.WearRings(ringBonus(worn(ItemKind::CrystalGold, std::nullopt)));
 	CHECK(stats.WeaponReach(ItemKind::Dagger) == doctest::Approx(weaponReach(ItemKind::Dagger) * 1.25f));
 	CHECK(stats.WeaponReach(ItemKind::SelfBow) == doctest::Approx(weaponReach(ItemKind::SelfBow) * 1.25f));
 	stats.heka.Earn(5);
-	REQUIRE(stats.heka.Learn(SkillId::SharpEye, true));
+	REQUIRE(stats.heka.Learn(SkillId::EyeOfHorus, true));
 	CHECK(stats.WeaponReach(ItemKind::SelfBow) == doctest::Approx(weaponReach(ItemKind::SelfBow) * 1.3f * 1.25f));
 }
 

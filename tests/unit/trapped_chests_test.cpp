@@ -249,7 +249,7 @@ TEST_CASE("the trap ward: the grand one stops every chest trap, a lesser one abo
 		grand.WaitTicks(1);
 		lesser.WaitTicks(1);
 		CHECK(trapOf(grand).empty());
-		CHECK(grand.Told("Eye of Horus"));
+		CHECK(grand.Told("wedjat"));
 		CHECK_FALSE(grand.player.stats.curses.Any());
 		CHECK(grand.player.stats.vitals.poison.LeftMs(PoisonTier::Medium) == 0);
 		fired += trapOf(lesser).empty() ? 0 : 1;

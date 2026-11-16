@@ -124,7 +124,7 @@ TEST_CASE("a coffin with the text curses as it opens and holds one bonus more; t
 		CHECK(noted(world, FieldNote::TombCurses));
 		CHECK(noted(world, FieldNote::Coffins));
 		CHECK_FALSE(warded.player.stats.curses.Any());
-		CHECK(warded.Told("Eye of Horus"));
+		CHECK(warded.Told("wedjat"));
 		for (SimWorld* w : {&world, &warded}) {
 			w->Wait(containerOpenMsMax() + UPDATE_TICK_MS);
 			REQUIRE(w->dungeon.InteractVerb() == Interaction::Take);

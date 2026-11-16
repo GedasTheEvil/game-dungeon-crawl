@@ -148,7 +148,7 @@ TEST_CASE("Serket's favour: a poison lasts half as long, at the same damage a se
 		Poison full;
 		Poison half;
 		full.Apply(tier);
-		half.Apply(tier, true);
+		half.Apply(tier, 2);
 		CHECK(half.LeftMs(tier) == full.LeftMs(tier) / 2);
 		CHECK(half.Advance(1000, maxHp) == perSecond);
 		CHECK(half.Advance(1000, maxHp) == perSecond);

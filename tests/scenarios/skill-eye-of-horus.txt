@@ -1,0 +1,37 @@
+# Plan skill-eye-of-horus: a monster under the bow's minimum range but not on the player: refused without the skill,
+# shot with it. Then plan skill-upgrades on the Heka screen: Dodge rank I, the Rank II button, rank II.
+god
+level tests/levels/archery
+give ranged 0
+equip self-bow
+wait 30
+walk right 11.6
+wait 10
+expect shots == 5
+attack
+wait 2
+expect shots == 5
+heka 3
+learn eye_of_horus
+expect skills == 1
+wait 1s
+attack
+wait 1s
+expect shots == 4
+learn dodge
+expect heka == 1
+key k
+wait 2
+key down
+wait 2
+screenshot rank_one
+key enter
+wait 2
+screenshot rank_two_confirm
+key enter
+wait 2
+screenshot rank_two
+expect heka == 0
+expect skills == 2
+key k
+dump

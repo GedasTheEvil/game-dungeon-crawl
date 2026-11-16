@@ -1,6 +1,6 @@
 # Skill: Eye of Horus (Sharp eye renamed, the minimum range shrinks)
 
-Status: draft 2026-11-16, size S, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
 
 ## Idea
 
@@ -10,7 +10,7 @@ The user: the Sharp eye skill becomes "Eye of Horus". Next to its range bonus (r
 
 * Rank I (the skill learnt): the minimum range shrinks to the player's hitbox. A shot is refused as too close
   (`ShotRefusal::TooClose`) only while the player's and the monster's hitboxes intersect.
-* Rank II (a second heka, [skill-upgrades](skill-upgrades.feature.draft.opus.md)): no minimum range at all, a shot is
+* Rank II (a second heka, [skill-upgrades](skill-upgrades.feature.md)): no minimum range at all, a shot is
   never refused as too close.
 
 ## Plan
@@ -31,7 +31,17 @@ The user: the Sharp eye skill becomes "Eye of Horus". Next to its range bonus (r
 * Scenario: a monster next to the player (gap below the bow's minimum range, no overlap): refused without the skill,
   shoots with it.
 
+## Implementation notes
+
+* `SkillId::EyeOfHorus`; the amulet is now the "Wedjat" (its riddle already took "wedjat" as an answer).
+* `TooCloseRule` / `tooCloseRule(heka)` and `weaponMinRange(weapon, heka)` (`level/items.h`): rank I measures from the
+  player's front edge (`Player::HalfWidth`) to the monster's near edge, too close below 0 (an overlap; touching is
+  not); rank II never refuses. The balance sim's kite reads `weaponMinRange(weapon, heka)`.
+* Rank II: done with [skill-upgrades](skill-upgrades.feature.md) (160%, no minimum range).
+
 ## Play-test
 
-* Learn Eye of Horus, let a jackal walk up: the bow fires until the jackal is on top of you, then "too close".
-* The card and journal say "Eye of Horus"; the trap-ward amulet has its new name.
+* `bin/game --play tests/play/skill-eye-of-horus.txt`. Walk right up to the plant (col 13) and shoot: "Too close to
+  shoot". Learn Eye of Horus (K): from the same spot the bow fires.
+* Walk into the plant: "too close" again. Spend the second heka on Rank II: the bow fires even then.
+* The card and journal say "Eye of Horus"; the trap-ward amulet is now the "Wedjat".

@@ -132,7 +132,7 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::Heka:
 		return static_cast<float>(Game().player->stats.heka.Free());
 	case Field::Skills:
-		return static_cast<float>(Game().player->stats.heka.Spent());
+		return static_cast<float>(Game().player->stats.heka.Learnt());
 	case Field::Curses: {
 		int mask = 0;
 		for (int c = 0; c < CURSE_COUNT; c++)

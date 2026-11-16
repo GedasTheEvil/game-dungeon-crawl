@@ -21,7 +21,7 @@ void Dungeon::springChestTrap(int cell) {
 	const bool full = rng.percent(TRAPPED_CHEST_FULL_PERCENT);
 	const bool warded = rng.percent(sim.player->stats.TrapWardPercent());
 	const bool safe = warded || disarmed();
-	std::string line = warded ? "Something clicks inside, and nothing happens. The Eye of Horus saw it first."
+	std::string line = warded ? "Something clicks inside, and nothing happens. The wedjat saw it first."
 					   : safe ? "A thread across the lid, a catch under it: I undo the trap before it springs."
 							  : fireChestTrap(cell);
 	if (!full && sim.player->stats.heka.Has(SkillId::DisarmTrap)) {
@@ -137,7 +137,7 @@ float Dungeon::coffinTell(int cell) const { return cursedCoffin(cell) ? tellNear
 void Dungeon::coffinCurse() {
 	Rng& rng = sim.random->gameplay;
 	if (rng.percent(sim.player->stats.TrapWardPercent())) {
-		sim.events->Status("The red text on the lid flakes away as I lift it. The Eye of Horus read it first.");
+		sim.events->Status("The red text on the lid flakes away as I lift it. The wedjat read it first.");
 		return;
 	}
 	if (disarmed()) { // plan heka-surplus

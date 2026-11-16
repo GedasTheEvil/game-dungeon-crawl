@@ -1,0 +1,9 @@
+# Plan skill-upgrades: Dodge and Stun learnt (rank I), a mace in hand, four heka free to spend on rank II on the Heka
+# screen (K). tests/levels/bleeding: a camel spider (col 20) and a mummy (col 26) to stun and to dodge.
+seed 1
+level tests/levels/bleeding
+heka 6
+learn dodge
+learn stun
+give melee 7
+equip mace

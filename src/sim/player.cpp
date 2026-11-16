@@ -6,12 +6,11 @@
 #include "../level/head_bump.h"
 #include "render_config.h"
 
-int powerHitBonusPercent(int points) {
+int powerHitBonusPercent(int points, int rank) {
 	if (points <= 0)
 		return 0;
-	return static_cast<int>(
-		std::lround(POWER_CURVE_SCALE * std::log1p(static_cast<double>(points) / POWER_CURVE_POINTS))
-	);
+	const double scale = POWER_CURVE_SCALE * (rank == 2 ? POWER_CURVE_RANK_2_PERCENT : 100) / 100.0; // plan skill-upgrades
+	return static_cast<int>(std::lround(scale * std::log1p(static_cast<double>(points) / POWER_CURVE_POINTS)));
 }
 
 namespace {
@@ -122,7 +121,8 @@ int Player::TakeHit(int dmg, const DamageMix& mix, WorldEvents& events, bool ign
 }
 
 bool Player::Dodges(WorldEvents& events, Rng& rng) {
-	if (!Alive() || !stats.heka.Has(SkillId::Dodge) || !rng.percent(DODGE_PERCENT))
+	const int chance = stats.heka.ByRank(SkillId::Dodge, DODGE_PERCENT, rankTwoChance(DODGE_PERCENT));
+	if (!Alive() || chance == 0 || !rng.percent(chance))
 		return false;
 	events.Status("Dodged");
 	events.Play(WorldSound::Dodge);
@@ -158,12 +158,12 @@ void Player::Poison(PoisonTier tier, WorldEvents& events, Rng& rng) {
 		return;
 	}
 	const bool poisoned = stats.vitals.poison.Any();
-	if (!stats.vitals.TakePoison( // the Serket's favour skill: half the time (plan skill-serkets-favour)
+	if (!stats.vitals.TakePoison( // the Serket's favour skill: half the time, rank II a third (plan skill-serkets-favour)
 			tier,
 			stats.PoisonResistPercent(),
 			rng,
 			HarmSource::Monster,
-			stats.heka.Has(SkillId::SerketsFavour)
+			stats.heka.ByRank(SkillId::SerketsFavour, GOD_SKILL_DIVISOR, GOD_SKILL_DIVISOR_2, 1)
 		)) {
 		// The source named, plan skill-god-resist: the potion, else the amulet, else only the skill.
 		const char* line = "Serket's favour spares you the venom";

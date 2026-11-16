@@ -108,7 +108,7 @@ TEST_CASE("a record written and read back; a broken line and a record without a 
 	RunRecord r = run("Hatshepsut", 3723000, 9100, 4, 7, 2);
 	r.date = "2026-10-13";
 	r.version = "abc1234";
-	r.skills = {"Dodge", "Sharp eye"};
+	r.skills = {"Dodge", "Eye of Horus"};
 	r.slain = {{"Rat", 12}, {"Mummy", 3}};
 	r.potions = {{"Antidote", 1}};
 	r.levelMs = {60000, 120000};

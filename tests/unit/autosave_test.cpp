@@ -30,7 +30,7 @@ TEST_CASE("the autosave waits while the player is poisoned, burning, held, in th
 	world.WaitTicks(30);
 	CHECK_FALSE(world.dungeon.PlayerInDanger());
 
-	world.player.stats.vitals.poison.Apply(PoisonTier::Weak, false);
+	world.player.stats.vitals.poison.Apply(PoisonTier::Weak);
 	CHECK(world.dungeon.PlayerInDanger());
 	world.player.stats.vitals.poison.Cure();
 	world.player.stats.vitals.burning.Ignite(5.0);

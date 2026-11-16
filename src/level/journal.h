@@ -134,7 +134,7 @@ enum class FieldNote : unsigned char {
 	Resistance, // the first lesser or greater resistance potion
 	Heka, // the first boss's heka: the skills
 	SerketsFavour, // Serket's favour learnt (written on learning, not on the first poison)
-	SharpEye, // Sharp eye learnt (written on learning)
+	EyeOfHorus, // Eye of Horus learnt (written on learning; was Sharp eye)
 	// The first curse of each kind, in Curse order (curseNote).
 	CurseWeakness,
 	CurseClumsiness,

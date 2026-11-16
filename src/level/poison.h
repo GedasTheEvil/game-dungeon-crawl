@@ -25,10 +25,10 @@ class Poison {
 	TierDrain drain;
 
   public:
-	// (Re)starts that tier's timer; halved: half the time at the same damage a second (Serket's favour).
-	void Apply(PoisonTier tier, bool halved = false) {
+	// (Re)starts that tier's timer; 1 / divisor of the time at the same damage a second (Serket's favour: 2, rank II 3).
+	void Apply(PoisonTier tier, int divisor = 1) {
 		const int duration = POISON_TIERS[std::to_underlying(tier)].durationMs;
-		drain.Apply(std::to_underlying(tier), halved ? duration / 2 : duration);
+		drain.Apply(std::to_underlying(tier), duration / divisor);
 	}
 	void Cure() { drain.Stop(); }
 	// Time passes: the HP the running tiers take in it, the percent tiers by the victim's max HP. fasterPercent (the

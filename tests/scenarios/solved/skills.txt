@@ -17,7 +17,7 @@ click 78.7 19.5
 wait 2
 screenshot sealed_refused
 expect heka == 1
-learn sharp_eye
+learn eye_of_horus
 expect heka == 0
 expect skills == 1
 key s

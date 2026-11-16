@@ -1,6 +1,6 @@
 # Skill upgrades: a second heka on a learnt skill
 
-Status: draft 2026-11-16, size M, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
 
 ## Idea
 
@@ -41,7 +41,7 @@ Starting points; tune in the play-test.
 | Breath of Shu | max stamina +25% | +50% | 100% |
 | Speed of Mafdet | walk, sprint +20% | +35% | 75% (movement and collision feel; the jump reach stays) |
 | Dodge | 10% | 20% | 100% |
-| Sharp eye | ranged reach 130% | 160%, no minimum range ([skill-eye-of-horus](skill-eye-of-horus.feature.draft.opus.md)) | 100% |
+| Sharp eye | ranged reach 130% | 160%, no minimum range ([skill-eye-of-horus](skill-eye-of-horus.feature.md)) | 100% |
 | Stun | 25% of the blunt share | 50% | 100% (boss still half, not again within 5 s) |
 | Bleed | 20% of the cut share | 40% | 100% (tier-up halves follow it) |
 | Flaming arrows | +40% fire, 10% stamina | +80% fire, same cost | 100% |
@@ -57,9 +57,23 @@ No rank II (the user, 2026-11-16): Words of Thoth, Wisdom of Seshat, Favour of H
 * The exact share per skill within 75%..125%; a weak, niche skill may get 125%.
 * Whether a rank II may be bought on the same level as rank I (default: yes, no gate).
 
+## Implementation notes
+
+* Values: the table above, in `level/skills.h` (`*_2` constants). Chances (Dodge, Stun, Bleed, Serket's and Isis's
+  resist): `rankTwoChance`, rank I plus rank I's share of the failure left: Dodge 10% -> 19%, a mace's stun 25% ->
+  43%, the resists 10% -> 19%. Serket's favour and the Blessing of Isis: a third as long (`GOD_SKILL_DIVISOR_2`);
+  their shrines stay twice as long at both ranks. Power hit: the curve's scale x1.75. Eye of Horus: 160%, no minimum
+  range ([skill-eye-of-horus](skill-eye-of-horus.feature.md)).
+* No gate: rank II can be bought right after rank I.
+* Heka screen: the button reads "Rank II" (not "Upgrade", the shrine's word), confirmed by a second press like Learn.
+  An upgradable learnt card shows "I" or "II" left of its seal (bright while a heka can deepen it); an upgraded card
+  shows rank II's effect line; the papyrus shows rank II's effect and lore (`rank2` in `content/texts/skills.txt`).
+* `learn <skill> 2`: learns it (if not yet) and its rank II. `expect skills` counts skills learnt, not heka spent.
+* Leaderboard: a rank II skill is listed with " II".
+
 ## Play-test
 
-* Play command: a script giving free heka and one skill learnt.
+* `bin/game --play tests/play/skill-upgrades.txt`: Dodge and Stun learnt, a mace, four heka free.
 * Learn Dodge, then upgrade it on the Heka screen: the card shows II, two heka spent, the HUD tile stops pulsing
   when nothing is left to buy.
 * With Stun II and a mace, monsters are stunned about twice as often as with Stun I.

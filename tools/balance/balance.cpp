@@ -387,7 +387,7 @@ Outcome fight(const MonsterKind& kind, const Stats& s, Tactic tactic, uint64_t s
 	if (mon == nullptr)
 		return out;
 	const float reach = weaponReach(bestMelee(kind, s.difficulty, s.might));
-	const float keep = std::max(1.2f, weaponMinRange(out.weapon) + 0.3f); // kite: backs off when closer
+	const float keep = std::max(1.2f, weaponMinRange(out.weapon, world.player.stats.heka) + 0.3f); // kite: backs off when closer
 	bool cornered = false;
 	const int limit = tactic == Tactic::RunPast ? RUN_MS : FIGHT_MS;
 	for (int t = 0; t < limit; t += UPDATE_TICK_MS) {

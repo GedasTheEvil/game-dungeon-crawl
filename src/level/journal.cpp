@@ -121,8 +121,8 @@ std::optional<FieldNote> skillNote(SkillId skill) {
 	switch (skill) {
 	case SkillId::SerketsFavour:
 		return FieldNote::SerketsFavour;
-	case SkillId::SharpEye:
-		return FieldNote::SharpEye;
+	case SkillId::EyeOfHorus:
+		return FieldNote::EyeOfHorus;
 	case SkillId::FavourOfHapi:
 		return FieldNote::FavourOfHapi;
 	case SkillId::BlessingOfIsis:

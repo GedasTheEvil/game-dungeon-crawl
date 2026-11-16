@@ -12,7 +12,7 @@
 
 // Power hit (plan skill-power-hit): the bonus% of a melee hit charged with this many stamina points, on the weapon's
 // damage (POWER_CURVE_SCALE, POWER_CURVE_POINTS); 0 for none.
-[[nodiscard]] int powerHitBonusPercent(int points);
+[[nodiscard]] int powerHitBonusPercent(int points, int rank = 1);
 
 // A power hit's charge (Player::StartCharge): the melee attack key held down.
 struct PowerCharge {
@@ -89,7 +89,7 @@ class Player {
 	// 0..1 of the cap (POWER_CAP_PERCENT of max stamina): the charge built so far, the one of the swing under way.
 	[[nodiscard]] float ChargeShare() const;
 	[[nodiscard]] float SwingShare() const;
-	[[nodiscard]] int PowerDamage(int damage) const { return damage + damage * powerHitBonusPercent(swingPower) / 100; }
+	[[nodiscard]] int PowerDamage(int damage) const { return damage + damage * powerHitBonusPercent(swingPower, stats.heka.Rank(SkillId::PowerHit)) / 100; }
 
 	void SetModel(const ModelInfo& info); // the clips and measures of its model; standing
 	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (the drawing only shows them)

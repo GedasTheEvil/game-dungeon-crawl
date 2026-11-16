@@ -53,8 +53,13 @@ Dungeon::ShotRefusal Dungeon::ShotRefused(ItemKind weapon, int dir) const {
 		return ShotRefusal::Empty;
 	// Only a monster the shot would aim at (aimTarget: on the row, not hidden, no wall between), or one already past
 	// the launch point but not behind the player. Measured as the aim's range: from the launch point to its near edge.
-	const float minRange = weaponMinRange(weapon);
-	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
+	// With Eye of Horus only one whose hitbox overlaps the player's, from the player's front edge; at rank II none.
+	const TooCloseRule rule = tooCloseRule(sim.player->stats.heka);
+	if (rule == TooCloseRule::Never)
+		return ShotRefusal::None;
+	const float minRange = rule == TooCloseRule::MinRange ? weaponMinRange(weapon) : 0.f;
+	const float x0 = mapX + static_cast<float>(dir) * (rule == TooCloseRule::MinRange ? ARROW_LAUNCH_AHEAD
+																					: sim.player->HalfWidth());
 	const auto row = static_cast<int>(std::floor(mapY));
 	for (const Monster& mon : monsters) {
 		if (!mon.Active() || !mon.Alive() || mon.lurking() || mon.Hidden() || mon.Row() != row)
@@ -170,9 +175,14 @@ void Dungeon::Shoot(
 		const int cost = std::max(1, player.stats.MaxStamina() * FLAMING_ARROW_STAMINA_PERCENT / 100);
 		if (player.stats.ConsumeStamina(cost)) {
 			flaming = true;
-			shotDamage = damage * (100 + FLAMING_ARROW_BONUS_PERCENT) / 100;
+			const int bonus = player.stats.heka.ByRank( // plan skill-upgrades
+				SkillId::FlamingArrows,
+				FLAMING_ARROW_BONUS_PERCENT,
+				FLAMING_ARROW_BONUS_PERCENT_2
+			);
+			shotDamage = damage * (100 + bonus) / 100;
 			// The fire's share of the new total; the rest keeps its proportions, the rounding goes to the fire.
-			const int fireShare = FLAMING_ARROW_BONUS_PERCENT * 100 / (100 + FLAMING_ARROW_BONUS_PERCENT);
+			const int fireShare = bonus * 100 / (100 + bonus);
 			dealt[FIRE] = 100;
 			for (size_t t = 0; t < DAMAGE_TYPE_COUNT; t++)
 				if (t != FIRE) {

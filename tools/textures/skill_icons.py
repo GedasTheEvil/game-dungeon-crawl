@@ -126,7 +126,7 @@ def power_hit():
     return img
 
 
-def sharp_eye():
+def eye_of_horus():
     """The eye of Horus with an arrow flying out to the right."""
     img, d = canvas()
     stroke(d, [(200, 330), (180, 450)], LAPIS, 30)
@@ -306,7 +306,7 @@ def bleed_skill():
 
 
 # Order = atlas cell: the heka mark, then SkillId order.
-ICONS = [heka, stun, thoth, dodge, power_hit, sharp_eye, hapi, serket, isis, flaming_arrows, ka_of_osiris,
+ICONS = [heka, stun, thoth, dodge, power_hit, eye_of_horus, hapi, serket, isis, flaming_arrows, ka_of_osiris,
          strength_of_montu, djed_of_ptah, breath_of_shu, speed_of_mafdet, wisdom_of_seshat, disarm_trap,
          quiver_of_neith, bleed_skill]
 ROWS = (len(ICONS) + GRID - 1) // GRID

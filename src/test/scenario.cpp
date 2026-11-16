@@ -637,13 +637,27 @@ void runProgressCommand(const Command& cmd) {
 		else
 			report(cmd, false, "no such page, or found already");
 		return;
-	case CommandType::Learn: // spends a heka on it, also on a sealed one (its rules not in yet)
-		if (!learnSkill(Game().player->stats, Game().journal, Game().events, static_cast<SkillId>(cmd.ticks), true)) {
+	case CommandType::Learn: { // spends a heka on it, also on a sealed one (its rules not in yet); `2`: and rank II
+		const auto id = static_cast<SkillId>(cmd.ticks);
+		PlayerStats& stats = Game().player->stats;
+		if (cmd.a >= 2.f && stats.heka.Has(id)) {
+			if (!upgradeSkill(stats, Game().events, id))
+				report(cmd, false, "no rank II, upgraded already, or no heka to spend");
+			else
+				report(cmd, true, "");
+			return;
+		}
+		if (!learnSkill(stats, Game().journal, Game().events, id, true)) {
 			report(cmd, false, "learnt already, or no heka to spend");
+			return;
+		}
+		if (cmd.a >= 2.f && !upgradeSkill(stats, Game().events, id)) {
+			report(cmd, false, "no rank II, or no heka to spend");
 			return;
 		}
 		report(cmd, true, "");
 		return;
+	}
 	default:
 		break;
 	}

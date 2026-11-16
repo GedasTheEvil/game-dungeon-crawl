@@ -18,7 +18,7 @@ JournalRiddle riddle(const char* question) {
 
 TEST_CASE("every skill but Stun has a field note, written on learning") {
 	CHECK(skillNote(SkillId::SerketsFavour) == FieldNote::SerketsFavour);
-	CHECK(skillNote(SkillId::SharpEye) == FieldNote::SharpEye);
+	CHECK(skillNote(SkillId::EyeOfHorus) == FieldNote::EyeOfHorus);
 	CHECK(skillNote(SkillId::FavourOfHapi) == FieldNote::FavourOfHapi);
 	CHECK(skillNote(SkillId::BlessingOfIsis) == FieldNote::BlessingOfIsis);
 	CHECK(skillNote(SkillId::Dodge) == FieldNote::Dodge);

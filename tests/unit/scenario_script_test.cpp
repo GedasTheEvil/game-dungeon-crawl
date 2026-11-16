@@ -80,7 +80,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"poisonboss", "poisonboss strong"},
 	{"heka", "heka 2"},
 	{"page", "page 24"},
-	{"learn", "learn sharp_eye"},
+	{"learn", "learn eye_of_horus"},
 	{"curse", "curse weakness greater"},
 	{"campaign", "campaign"},
 	{"speakname", "speakname"},

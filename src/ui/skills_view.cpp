@@ -79,14 +79,29 @@ void SkillsScreen::MoveSelection(int dx, int dy) {
 	Select(row * COLUMNS + column);
 }
 
-// Learn: the first press asks, the second learns. Refused (learnt, sealed, no heka): the toast tells why.
+// Learn, or on a learnt upgradable skill its rank II (plan skill-upgrades): the first press asks, the second spends.
+// Refused (sealed, no heka): the toast tells why.
 void SkillsScreen::PressLearn() {
 	const auto id = static_cast<SkillId>(selected);
 	const SkillDef& def = skillDef(id);
 	Heka& points = Game().player->stats.heka;
 	const int now = GameClock::now();
-	if (points.Has(id))
+	if (points.Has(id)) {
+		if (points.Rank(id) == 2 || !upgradable(id))
+			return;
+		if (!points.CanUpgrade(id)) {
+			toast.Show("No heka to spend: slay a guardian", now);
+			return;
+		}
+		if (!confirming) {
+			confirming = true;
+			return;
+		}
+		confirming = false;
+		if (const std::optional<std::string> upgraded = upgradeSkill(Game().player->stats, Game().events, id))
+			toast.Show(*upgraded, now);
 		return;
+	}
 	if (!points.CanLearn(id)) {
 		toast.Show(def.sealed ? "Its heka sleeps: not in this tomb yet" : "No heka to spend: slay a guardian", now);
 		return;
@@ -178,15 +193,16 @@ void SkillsScreen::LoadFonts() {
 	}
 }
 
-// The effect under a card's name (plan heka-card-effect-two-lines): wrapped to the card's text width, from the icon
-// well to the right edge.
-std::vector<std::string> SkillsScreen::EffectLines(int card) {
+// The effect under a card's name (plan heka-card-effect-two-lines), rank II's once upgraded (plan skill-upgrades):
+// wrapped to the card's text width, from the icon well to the right edge.
+std::vector<std::string> SkillsScreen::EffectLines(int card, bool rankTwo) {
 	LoadFonts();
 	const Rect r = cardRect(card, scroll);
 	const Rect well = iconWell(r, CARD_WELL_INSET);
+	const SkillDef& def = skillDef(static_cast<SkillId>(card));
 	return wrap(
 		small,
-		skillDef(static_cast<SkillId>(card)).effect,
+		rankTwo && def.rankTwo != nullptr ? def.rankTwo : def.effect,
 		r.x + r.w - CARD_TEXT_PAD - (well.x + well.w + CARD_TEXT_PAD)
 	);
 }
@@ -194,7 +210,7 @@ std::vector<std::string> SkillsScreen::EffectLines(int card) {
 int SkillsScreen::MostEffectLines() {
 	size_t most = 0;
 	for (int card = 0; card < SKILL_COUNT; card++)
-		most = std::max(most, EffectLines(card).size());
+		most = std::max({most, EffectLines(card, false).size(), EffectLines(card, true).size()});
 	return static_cast<int>(most);
 }
 
@@ -232,7 +248,7 @@ void SkillsScreen::DrawPoints() {
 	const int free = heka().Free();
 	skillIconAt(POINTS_ICON, HEKA_ICON, free > 0 ? Color{1, 1, 1} : POOR_ICON);
 	char learnt[32];
-	snprintf(learnt, sizeof(learnt), "Learnt %d of %d", heka().Spent(), SKILL_COUNT);
+	snprintf(learnt, sizeof(learnt), "Learnt %d of %d", heka().Learnt(), SKILL_COUNT);
 	const std::string points = free > 0 ? "Heka to spend: " + std::to_string(free) : "No heka to spend";
 	beginText();
 	text(heading, POINTS_TEXT_X, POINTS_BASELINE, points.c_str(), free > 0 ? GOLD : LABEL_DIM);
@@ -281,8 +297,13 @@ void SkillsScreen::DrawCard(int card) {
 	const Color nameColor = sealed ? DIM_TEXT : (hovered ? TEXT_HOVER : (learnt ? GOLD : LABEL));
 	beginText();
 	text(body, textX, r.y + CARD_NAME_Y, def.name, nameColor);
+	if (learnt && upgradable(id)) { // the rank (plan skill-upgrades), left of the seal; bright once a heka can deepen it
+		const char* rank = heka().Rank(id) == 2 ? "II" : "I";
+		text(small, markX - CARD_MARK - 1.f - small.TextWidth(rank), markY - 1.f, rank,
+			 heka().CanUpgrade(id) ? GOLD_BRIGHT : GOLD);
+	}
 	float y = r.y + CARD_EFFECT_Y;
-	for (const std::string& l : EffectLines(card)) {
+	for (const std::string& l : EffectLines(card, heka().Rank(id) == 2)) {
 		text(small, textX, y, l.c_str(), sealed ? DIM_TEXT : (learnt ? GOLD_DIM : LABEL_DIM));
 		y -= CARD_EFFECT_STEP;
 	}
@@ -298,12 +319,15 @@ void SkillsScreen::DrawScrollBar() {
 	fillRect(scrollThumb(scroll), GOLD, GOLD_DIM, 1.f);
 }
 
-// The selected skill on papyrus: its icon, name, effect and lore, what it takes, and the Learn button.
+// The selected skill on papyrus: its icon, name, effect and lore, what it takes, and the Learn button. A learnt
+// upgradable one (plan skill-upgrades): rank II's effect and lore, and the Rank II button until it has it.
 void SkillsScreen::DrawDetails() {
 	const auto id = static_cast<SkillId>(selected);
 	const SkillDef& def = skillDef(id);
-	const bool learnt = heka().Has(id);
-	const bool canLearn = heka().CanLearn(id);
+	const int rank = heka().Rank(id);
+	const bool learnt = rank > 0;
+	const bool deepen = learnt && upgradable(id); // rank II is shown
+	const bool canLearn = learnt ? heka().CanUpgrade(id) : heka().CanLearn(id);
 	const Rect& p = DETAIL_PANEL;
 
 	papyrus(p);
@@ -314,25 +338,29 @@ void SkillsScreen::DrawDetails() {
 	beginText();
 	textCentered(heading, p.cx(), DETAIL_NAME_Y, def.name, INK);
 	float y = DETAIL_EFFECT_Y;
-	for (const std::string& l : wrap(body, def.effect, p.w - 2 * DETAIL_PAD)) {
+	const std::string effect = deepen ? std::string("II: ") + def.rankTwo : def.effect;
+	for (const std::string& l : wrap(body, effect, p.w - 2 * DETAIL_PAD)) {
 		text(body, p.x + DETAIL_PAD, y, l.c_str(), INK);
 		y -= DETAIL_EFFECT_STEP;
 	}
 	y -= 1.f;
-	for (const std::string& l : wrap(small, skillLore(id), p.w - 2 * DETAIL_PAD)) {
+	for (const std::string& l : wrap(small, deepen ? skillRankTwoLore(id) : skillLore(id), p.w - 2 * DETAIL_PAD)) {
 		text(small, p.x + DETAIL_PAD, y, l.c_str(), INK_FADED);
 		y -= DETAIL_LORE_STEP;
 	}
 
-	const char* status = learnt		  ? "Learnt"
-						 : def.sealed ? "Sealed: not in this tomb yet"
-						 : !canLearn  ? "Needs 1 heka: slay a guardian"
-						 : confirming ? "For good: no unlearning"
-									  : "Costs 1 heka";
-	const Color statusColor = learnt ? INK_GREEN : (def.sealed ? INK_FADED : (!canLearn || confirming ? INK_RED : INK));
+	const bool done = rank == 2 || (learnt && !deepen); // nothing more to buy
+	const char* status = rank == 2				? "Rank II learnt"
+						 : done					? "Learnt"
+						 : def.sealed && !learnt ? "Sealed: not in this tomb yet"
+						 : !canLearn			? (learnt ? "Rank I learnt. Rank II needs 1 heka" : "Needs 1 heka: slay a guardian")
+						 : confirming			? "For good: no unlearning"
+												: (learnt ? "Rank I learnt. Rank II costs 1 heka" : "Costs 1 heka");
+	const Color statusColor = done ? INK_GREEN
+									: (def.sealed && !learnt ? INK_FADED : (!canLearn || confirming ? INK_RED : INK));
 	textCentered(small, p.cx(), DETAIL_STATUS_Y, status, statusColor);
 	beginShapes();
-	if (learnt)
+	if (done)
 		return;
 
 	const bool hovered = canLearn && pointer.hovered.target == Target::LearnButton;
@@ -348,7 +376,7 @@ void SkillsScreen::DrawDetails() {
 	textCenteredIn(
 		canLearn ? heading : body,
 		b,
-		confirming ? "Sure? Learn" : "Learn",
+		learnt ? (confirming ? "Sure? Rank II" : "Rank II") : (confirming ? "Sure? Learn" : "Learn"),
 		!canLearn ? INK_FADED : (hovered ? TEXT_HOVER : GOLD)
 	);
 	beginShapes();

@@ -77,8 +77,9 @@ float PlayerStats::SprintMoveMultiplier() const {
 
 float PlayerStats::WalkFactor(bool airborne, bool firmGround) const {
 	const float rings = airborne ? 1.f : static_cast<float>(100 + this->rings.speedPercent) / 100.f;
-	const bool swift = !airborne && firmGround && heka.Has(SkillId::SpeedOfMafdet);
-	const float skill = swift ? static_cast<float>(100 + SKILL_SPEED_PERCENT) / 100.f : 1.f;
+	const int swift = !airborne && firmGround ? heka.ByRank(SkillId::SpeedOfMafdet, SKILL_SPEED_PERCENT, SKILL_SPEED_PERCENT_2)
+											  : 0;
+	const float skill = static_cast<float>(100 + swift) / 100.f;
 	return (curses.Has(Curse::Slowness) ? SLOWNESS_WALK_FACTOR : 1.f) * rings * skill;
 }
 
@@ -180,9 +181,7 @@ bool PlayerStats::Learn(SkillId id, bool force, LearnCure* cure) {
 	const int oldMaxStamina = MaxStamina();
 	if (!heka.Learn(id, force))
 		return false;
-	if (vitals.hp > 0)
-		vitals.hp += std::max(0, CurrentMaxHP() - oldMaxHP);
-	AddStamina(MaxStamina() - oldMaxStamina);
+	gainMax(oldMaxHP, oldMaxStamina);
 	LearnCure cured = LearnCure::None;
 	if (id == SkillId::SerketsFavour && vitals.poison.Any()) {
 		vitals.poison.Cure();
@@ -194,6 +193,21 @@ bool PlayerStats::Learn(SkillId id, bool force, LearnCure* cure) {
 	if (cure != nullptr)
 		*cure = cured;
 	return true;
+}
+
+bool PlayerStats::Upgrade(SkillId id) {
+	const int oldMaxHP = CurrentMaxHP();
+	const int oldMaxStamina = MaxStamina();
+	if (!heka.Upgrade(id))
+		return false;
+	gainMax(oldMaxHP, oldMaxStamina);
+	return true;
+}
+
+void PlayerStats::gainMax(int oldMaxHP, int oldMaxStamina) {
+	if (vitals.hp > 0)
+		vitals.hp += std::max(0, CurrentMaxHP() - oldMaxHP);
+	AddStamina(MaxStamina() - oldMaxStamina);
 }
 
 void PlayerStats::AddMaxStamina(int percent) {
@@ -231,7 +245,7 @@ int PlayerStats::TypeMightPercent(const DamageMix& mix) const {
 
 int PlayerStats::Shots(ItemKind weapon) const {
 	const int shots = weaponDef(weapon).shots;
-	const int percent = amulet.shotsPercent + (heka.Has(SkillId::QuiverOfNeith) ? QUIVER_SHOTS_PERCENT : 0);
+	const int percent = amulet.shotsPercent + heka.ByRank(SkillId::QuiverOfNeith, QUIVER_SHOTS_PERCENT, QUIVER_SHOTS_PERCENT_2);
 	if (shots == 0 || percent == 0)
 		return shots;
 	return shots + std::max(1, (shots * percent + 99) / 100);
@@ -239,7 +253,7 @@ int PlayerStats::Shots(ItemKind weapon) const {
 
 ShotPace PlayerStats::ShotRecoveryPace() const {
 	const int speed = 100 + amulet.shotRecoveryPercent +
-					  (heka.Has(SkillId::QuiverOfNeith) ? QUIVER_RECOVERY_PERCENT : 0);
+					  heka.ByRank(SkillId::QuiverOfNeith, QUIVER_RECOVERY_PERCENT, QUIVER_RECOVERY_PERCENT_2);
 	return {SHOT_RECOVERY_DELAY_MS * 100 / speed, SHOT_RECOVERY_MS * 100 / speed};
 }
 
@@ -276,13 +290,13 @@ bool PlayerStats::LayCurse(Curse c, CurseGrade grade, WorldEvents& events, Rng& 
 }
 
 int PlayerStats::CurseResistPercent() const {
-	return std::min(100, heka.Has(SkillId::BlessingOfIsis) ? ISIS_RESIST_PERCENT : 0);
+	return std::min(100, heka.ByRank(SkillId::BlessingOfIsis, ISIS_RESIST_PERCENT, rankTwoChance(ISIS_RESIST_PERCENT)));
 }
 
 void PlayerStats::TakeCurse(Curse c, CurseGrade grade, WorldEvents& events) {
 	const int oldMax = CurrentMaxHP();
-	// Blessing of Isis (plan skill-blessing-of-isis): curses last half as long.
-	const int duration = heka.Has(SkillId::BlessingOfIsis) ? CURSE_MS_ISIS : CURSE_MS;
+	// Blessing of Isis (plan skill-blessing-of-isis): curses last half as long, a third at rank II.
+	const int duration = CURSE_MS / heka.ByRank(SkillId::BlessingOfIsis, GOD_SKILL_DIVISOR, GOD_SKILL_DIVISOR_2, 1);
 	const bool fresh = curses.Lay(c, grade, duration);
 	run.cursed++;
 	keepHpShare(oldMax);
@@ -338,7 +352,11 @@ void PlayerStats::WearRings(const RingBonus& bonus) {
 }
 
 int PlayerStats::PoisonResistPercent() const {
-	const int skill = heka.Has(SkillId::SerketsFavour) ? SERKET_RESIST_PERCENT : 0; // plan skill-god-resist
+	const int skill = heka.ByRank( // plan skill-god-resist
+		SkillId::SerketsFavour,
+		SERKET_RESIST_PERCENT,
+		rankTwoChance(SERKET_RESIST_PERCENT)
+	);
 	return std::min(100, amulet.poisonResistPercent + PotionResistPercent() + skill);
 }
 

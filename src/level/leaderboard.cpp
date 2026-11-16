@@ -123,8 +123,8 @@ RunRecord recordOf(const PlayerStats& stats, std::string name, std::string date,
 	r.armor = armorMean(stats.CurrentArmor()); // one number (plan armor-split): the mean of smash, cut and stab
 	r.might = stats.CurrentMight();
 	for (int i = 0; i < SKILL_COUNT; i++)
-		if (stats.heka.Has(static_cast<SkillId>(i)))
-			r.skills.emplace_back(SKILLS[static_cast<size_t>(i)].name);
+		if (const int rank = stats.heka.Rank(static_cast<SkillId>(i)); rank > 0) // " II" at rank II (plan skill-upgrades)
+			r.skills.emplace_back(std::string(SKILLS[static_cast<size_t>(i)].name) + (rank == 2 ? " II" : ""));
 	for (int type = 1; type <= MONSTER_TYPE_MAX; type++)
 		if (const MonsterKind* kind = monsterKind(type); kind != nullptr && run.Slain(type) > 0)
 			r.slain.emplace_back(kind->name, run.Slain(type));

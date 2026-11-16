@@ -104,10 +104,12 @@ text: Serket likes me. Her children still bite, but they hurt me less: every poi
 	land at all. At her shrine she listens twice as long: four minutes without venom. The day she
 	took me in, she drew out the venom I carried.
 
-[note.sharp-eye]
-title: Sharp eye
+[note.eye-of-horus]
+title: Eye of Horus
 text: Horus lent me an eye. I will give it back. Probably. Meanwhile my bows, the sling, the javelin and the
-	throwing stick all reach a third farther: even a foe far away is in my sights.
+	throwing stick all reach a third farther: even a foe far away is in my sights. And a foe up close no longer
+	spoils my aim: only one standing right on top of me does. With a second heka the eye sees farther still, and
+	nothing is too close.
 
 [note.curse-weakness]
 title: Weakness
@@ -210,7 +212,7 @@ text: The priests knew how to bring the sun underground. So did a certain archae
 title: Trapped chests
 text: Some chests bite back. Darts from the lock, a puff of green gas, a curse on the lid, deeper down a nest of
 	scarabs. Up close a trapped one looks darker, as if it knew. Half of them were robbed long ago and only the trap is
-	left; the rest hold a little more than a plain chest. The Eye of Horus sees most traps before they go off.
+	left; the rest hold a little more than a plain chest. The wedjat amulet sees most traps before they go off.
 
 [note.tomb-curses]
 title: Tomb curses
@@ -303,9 +305,9 @@ text: Serket's scorpion. Her children spare me: a poisoned bite or sting fails 1
 	lesser to grand. It adds to a resistance potion's share.
 
 [note.amulet-traps]
-title: Eye of Horus
-text: The eye of Horus sees the spikes first. Spike, death trap and dart damage is cut by 25, 50, 75 percent, and
-	the grand eye makes me immune. A chest's trap goes off as much less often.
+title: Wedjat
+text: The wedjat, the healed eye, sees the spikes first. Spike, death trap and dart damage is cut by 25, 50, 75 percent, and
+	the grand wedjat makes me immune. A chest's trap goes off as much less often.
 
 [note.amulet-blunt]
 title: Djed pillar
@@ -489,7 +491,7 @@ text: Seshat measured every temple before it was built, so she knows its hidden 
 [note.disarm-trap]
 title: Disarm trap
 text: I see the threads now. Four times in five a trapped chest, jar or coffin opens quietly: no darts, no gas, no
-	curse, no scarabs. With the Eye of Horus it is safer still. Up close, trapped containers and the mimics that
+	curse, no scarabs. With the wedjat amulet it is safer still. Up close, trapped containers and the mimics that
 	pass for them show a red rim. And a trapped one is never empty: where its treasure was taken, something of its
 	depth lies instead.
 

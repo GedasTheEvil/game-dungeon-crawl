@@ -1,47 +1,60 @@
 # The details on a skill's card of the Heka page, under its effect (plan texts-to-content, docs/texts.md).
-# [skill.<name>], the name of its row in src/level/skills.cpp.
+# [skill.<name>], the name of its row in src/level/skills.cpp. rank2: the details of rank II (plan skill-upgrades).
 
 [skill.stun]
 lore: A good knock on the head stops anything for a moment, gods' beasts too.
+rank2: Rank II: a stunned foe learns nothing. Your blows stun nearly twice as often; a guardian still shakes it off sooner.
 
 [skill.words-of-thoth]
 lore: Thoth, lord of writing, opens the carved words on the walls.
 
 [skill.dodge]
 lore: Step aside at the last moment: a bite or a sting may find only air.
+rank2: Rank II: you read the blow before it starts. About one in five misses.
 
 [skill.power-hit]
 lore: Put your back into it: hold the blow, and the longer, the harder it lands. Paid in stamina.
+rank2: Rank II: the whole body behind the blow. Held blows land 75% harder than rank I's.
 
-[skill.sharp-eye]
-lore: Horus lends an eye: bows, sling, javelin and throwing stick carry farther.
+[skill.eye-of-horus]
+lore: Horus lends an eye: bows, sling, javelin and throwing stick carry farther, and only a foe on top of you is too
+	close to shoot.
+rank2: Rank II: the healed eye sees all. Reach 60% farther, and nothing is too close to shoot.
 
 [skill.favour-of-hapi]
 lore: Hapi, the Nile in flood, lets you through his shallows.
 
 [skill.serkets-favour]
 lore: Serket's children still bite, but they do not mean it as much.
+rank2: Rank II: Serket calls her children off. Poisons last a third as long, about one in five never lands.
 
 [skill.blessing-of-isis]
 lore: Isis has a knot for every curse. She ties fast.
+rank2: Rank II: her knots hold tighter. Curses last a third as long, about one in five never lands.
 
 [skill.flaming-arrows]
 lore: Sekhmet lends her flame: the arrow flies on fire, and what it hits burns.
+rank2: Rank II: Sekhmet's breath. Twice the fire on each arrow, for the same stamina.
 
 [skill.ka-of-osiris]
 lore: Osiris came back from death. A share of his ka keeps you standing longer.
+rank2: Rank II: half again of his ka. Max health +50%.
 
 [skill.strength-of-montu]
 lore: Montu, the falcon lord of war, lends you his arm.
+rank2: Rank II: his other arm too. Might +10.
 
 [skill.djed-of-ptah]
 lore: Ptah's djed pillar, the backbone of Osiris, stiffens your skin.
+rank2: Rank II: a second pillar. Armor +10.
 
 [skill.breath-of-shu]
 lore: Shu, the air between earth and sky, fills your lungs.
+rank2: Rank II: the whole sky in your chest. Max stamina +50%.
 
 [skill.speed-of-mafdet]
 lore: Mafdet, the cheetah who runs down snakes, lends her feet. Not in water or sand; a jump reaches as far as ever.
+rank2: Rank II: she runs beside you. Walk and sprint 35% faster.
 
 [skill.wisdom-of-seshat]
 lore: Seshat measured every temple: riddle hints at once, the royal name, sealed rooms on the map.
@@ -51,6 +64,8 @@ lore: Containers' traps fail 4 times in 5, trapped ones and mimics glow red up c
 
 [skill.quiver-of-neith]
 lore: Neith, the huntress of the crossed arrows, refills your quiver before you reach for it.
+rank2: Rank II: she hunts with you. 70% more shots, back 44% faster.
 
 [skill.bleed]
 lore: A clean cut keeps opening after the blade is gone. Blood and bone, not linen or stone.
+rank2: Rank II: the cut finds the vein. Foes bleed nearly twice as often.

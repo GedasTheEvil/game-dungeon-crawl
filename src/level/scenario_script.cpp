@@ -383,9 +383,13 @@ bool parseContainer(const Args& args, Command& cmd) {
 	return false;
 }
 
-// The skill (ticks) by its name: lower case, '_' for spaces, no apostrophes (serkets_favour).
+// The skill (ticks) by its name: lower case, '_' for spaces, no apostrophes (serkets_favour); then the rank (a), 1
+// unless a 2 follows (plan skill-upgrades).
 bool parseSkill(const Args& args, Command& cmd) {
-	for (int s = 0; args.size() == 1 && s < SKILL_COUNT; s++) {
+	if (args.size() == 2 && args[1] != "2")
+		return false;
+	cmd.a = args.size() == 2 ? 2.f : 1.f;
+	for (int s = 0; (args.size() == 1 || args.size() == 2) && s < SKILL_COUNT; s++) {
 		std::string slug;
 		for (const char* c = SKILLS[static_cast<size_t>(s)].name; *c; c++)
 			if (*c == ' ')
@@ -567,7 +571,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"learn",
 		 CommandType::Learn,
 		 parseSkill,
-		 "<skill>: stun, sharp_eye, serkets_favour, ... (its name, _ for spaces)"},
+		 "<skill> [2]: stun, eye_of_horus, serkets_favour, ... (its name, _ for spaces); 2: learn it and rank II"},
 		{"curse", CommandType::Curse, parseCurse, "<weakness|clumsiness|...|insanity> [greater]"},
 		{"campaign", CommandType::Campaign, noArgs, ""},
 		{"speakname", CommandType::SpeakName, noArgs, ""},

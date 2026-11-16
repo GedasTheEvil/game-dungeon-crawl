@@ -32,7 +32,7 @@ constexpr std::array<const char*, std::to_underlying(FieldNote::AmuletFirst)> FI
 	"resistance",
 	"heka",
 	"serkets-favour",
-	"sharp-eye",
+	"eye-of-horus",
 	"curse-weakness",
 	"curse-clumsiness",
 	"curse-vulnerability",

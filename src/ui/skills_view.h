@@ -18,7 +18,8 @@ class SkillsScreen {
 	void MouseMotion(int x, int y);
 	void KeyPressed(unsigned char key);
 	void SpecialKeyPressed(int key);
-	// The most lines any skill's effect takes on its card (at most 2 fit; scenario field skill_card_lines).
+	// The most lines any skill's effect (rank I or II) takes on its card (at most 2 fit; scenario field
+	// skill_card_lines).
 	[[nodiscard]] int MostEffectLines();
 
   private:
@@ -38,7 +39,7 @@ class SkillsScreen {
 	bool fontsLoaded = false;
 
 	void LoadFonts();
-	std::vector<std::string> EffectLines(int card);
+	std::vector<std::string> EffectLines(int card, bool rankTwo);
 	void Select(int card);
 	void MoveSelection(int dx, int dy);
 	void Navigate(NavKey key); // the arrows and the bound move keys pick a card, Enter / Space / Interact learn

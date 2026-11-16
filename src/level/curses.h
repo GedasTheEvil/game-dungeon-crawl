@@ -23,7 +23,6 @@ constexpr int CURSE_MS = 120000; // every curse lasts 2 minutes
 // not land. Added to the item and blessing resists, 100 the upper limit.
 constexpr int SERKET_RESIST_PERCENT = 10;
 constexpr int ISIS_RESIST_PERCENT = 10;
-constexpr int CURSE_MS_ISIS = CURSE_MS / 2; // with the Blessing of Isis skill (plan skill-blessing-of-isis)
 // The Protection of Isis (plan shrine-of-isis): prayed for at a Shrine of Isis, no curse lands; twice as long with the
 // Blessing of Isis skill.
 constexpr int ISIS_WARD_MS = 120000;

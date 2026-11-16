@@ -326,13 +326,13 @@ struct ItemDef {
 [[nodiscard]] inline const DamageMix& weaponMix(ItemKind weapon) { return weaponDef(weapon).mix; }
 // Tiles: the melee reach from the player's box edge, or how far the ranged weapon aims (WeaponDef::range).
 [[nodiscard]] inline float weaponReach(ItemKind weapon) { return 0.1f * static_cast<float>(weaponDef(weapon).range); }
-// With the Sharp eye skill a ranged weapon aims SHARP_EYE_RANGE_PERCENT % as far (plan skill-sharp-eye); melee reach is
-// not changed.
-constexpr int SHARP_EYE_RANGE_PERCENT = 130;
+// With the Eye of Horus skill (plans skill-sharp-eye, skill-eye-of-horus) a ranged weapon aims EYE_OF_HORUS_RANGE_PERCENT
+// % as far, EYE_OF_HORUS_RANGE_PERCENT_2 at rank II; melee reach is not changed.
+constexpr int EYE_OF_HORUS_RANGE_PERCENT = 130;
 [[nodiscard]] inline float weaponReach(ItemKind weapon, const Heka& heka) {
 	const float reach = weaponReach(weapon);
-	return isRanged(weapon) && heka.Has(SkillId::SharpEye) ? reach * static_cast<float>(SHARP_EYE_RANGE_PERCENT) / 100.f
-														   : reach;
+	const int percent = heka.ByRank(SkillId::EyeOfHorus, EYE_OF_HORUS_RANGE_PERCENT, EYE_OF_HORUS_RANGE_PERCENT_2, 100);
+	return isRanged(weapon) ? reach * static_cast<float>(percent) / 100.f : reach;
 }
 // A ranged weapon deals at most this share of its melee twin's damage per second (plan ranged-weaker-than-melee; the
 // rule at ITEMS, items.cpp).
@@ -340,6 +340,16 @@ constexpr int RANGED_TWIN_DPS_PERCENT = 70;
 // Tiles: a ranged weapon's minimum range (WeaponDef::minRange), 0 for melee.
 [[nodiscard]] inline float weaponMinRange(ItemKind weapon) {
 	return 0.1f * static_cast<float>(weaponDef(weapon).minRange);
+}
+// What makes a monster too close to shoot (Dungeon::ShotRefused, plan skill-eye-of-horus): the weapon's minimum range;
+// with Eye of Horus only a monster whose hitbox overlaps the player's; at rank II nothing.
+enum class TooCloseRule : std::uint8_t { MinRange, Overlap, Never };
+[[nodiscard]] inline TooCloseRule tooCloseRule(const Heka& heka) {
+	return heka.ByRank(SkillId::EyeOfHorus, TooCloseRule::Overlap, TooCloseRule::Never, TooCloseRule::MinRange);
+}
+// Tiles a player with this heka keeps between them and a monster to shoot it: the minimum range, 0 with the skill.
+[[nodiscard]] inline float weaponMinRange(ItemKind weapon, const Heka& heka) {
+	return tooCloseRule(heka) == TooCloseRule::MinRange ? weaponMinRange(weapon) : 0.f;
 }
 [[nodiscard]] inline MissileKind missileOf(ItemKind weapon) { return weaponDef(weapon).missile; }
 [[nodiscard]] inline bool isThrown(ItemKind weapon) { return isWeapon(weapon) && weaponDef(weapon).thrown; }

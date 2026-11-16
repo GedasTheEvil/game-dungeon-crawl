@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <GL/gl.h>
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../state/game_state.h"
 #include "../level/input.h"
 #include "../core/paths.h"

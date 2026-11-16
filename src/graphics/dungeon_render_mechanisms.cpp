@@ -2,7 +2,7 @@
 // platforms (dungeon_mechanisms.cpp, dungeon_darts.cpp and dungeon_spikes.cpp have their rules).
 #include "dungeon_view.h"
 #include "../sim/dungeon_rules.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "../sim/render_config.h"
 #include "fire.h"
 #include "../render/lighting.h"

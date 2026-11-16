@@ -1,6 +1,6 @@
 #include <cmath>
 #include <GL/gl.h>
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "menu_internal.h"
 
 namespace menu_internal {

@@ -1,6 +1,6 @@
 #include "journal_view.h"
 #include "journal_internal.h"
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../render/inscription_draw.h"
 #include "../level/input.h"
 #include "../input/input_actions.h"

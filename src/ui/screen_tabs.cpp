@@ -1,5 +1,5 @@
 #include "screen_tabs.h"
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../level/input.h"
 #include "../state/game_state.h"
 #include "../render/ui_draw.h"

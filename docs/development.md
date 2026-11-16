@@ -77,7 +77,7 @@ The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`
 ## Project layout
 
 * `src/` - one directory per library, then the game ([Libraries](#libraries), plan src-dirs-by-layer): `core` (base),
-  `level`, `sim`, `render`; the game's own `game` (`main`, sound), `graphics` (the game's drawing), `ui`, `input`,
+  `level`, `sim`, `render`; the game's own `game` (`main`), `audio` (SDL_mixer sounds), `graphics` (the game's drawing, the loaded `Assets`), `ui`, `input`,
   `state`, `test` (scenario runner).
 * `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
 * `bin/` - the game, the tools and the unit test runner (not tracked by git).
@@ -160,7 +160,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 
 * `game/game.cpp` - `main`: SDL, the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
   `GameState`, created before the window.
-* `state/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
+* `graphics/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
   monster types). The rows come from the level library: `KINDS` (`level/monster_kinds.cpp`), `ITEMS` (`level/items.cpp`).
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status lines
   (`ShowStatus`, `MessageLog`), save / load.

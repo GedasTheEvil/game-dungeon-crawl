@@ -1,14 +1,14 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
-#include "../graphics/character_model.h"
+#include "character_model.h"
 #include "../sim/monster.h"
-#include "../graphics/item.h"
-#include "../graphics/trap.h"
-#include "../graphics/texture_registry.h"
+#include "item.h"
+#include "trap.h"
+#include "texture_registry.h"
 #include "../render/animated_model.h"
 #include "../render/font.h"
-#include "../game/sound.h"
+#include "../audio/sound.h"
 #include "../level/containers.h"
 #include "../level/decor.h"
 #include "../level/inscription_layout.h"

@@ -1,6 +1,6 @@
 #include "player_hud_view.h"
 #include "inventory.h"
-#include "../input/input_actions.h"
+#include "../level/bindings.h"
 #include "../core/timer.h"
 #include "../state/game_state.h"
 #include <optional>
@@ -27,7 +27,7 @@ PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
 PlayerHud::Slot antidoteSlot() {
 	const Inventory& inventory = *Game().ui.inventory;
 	PlayerHud::Slot slot;
-	slot.key = keyCapOf(BindAction::QuickAntidote);
+	slot.key = keyCapOf(Game().settings.controls, BindAction::QuickAntidote);
 	if (const int count = inventory.Count(ItemKind::Antidote); count > 0) {
 		slot.icon = PlayerHud::Icon::Potion;
 		slot.tint = Inventory::PotionColor(ItemKind::Antidote);
@@ -53,7 +53,7 @@ PlayerHud::View playerHudView() {
 	view.keysHeld = Game().dungeon.KeysHeld();
 	view.levelKeys = Game().dungeon.LevelKeys();
 	view.slots[0].icon = PlayerHud::weaponIcon(Game().ui.inventory->EquippedKind());
-	view.slots[0].key = equipKeysCap();
+	view.slots[0].key = equipKeysCap(Game().settings.controls);
 	if (const ItemKind weapon = Game().ui.inventory->EquippedKind(); isRanged(weapon)) {
 		const ItemBag& bag = Game().ui.inventory->Bag();
 		view.slots[0].shots = stats.Shots(weapon);
@@ -64,8 +64,8 @@ PlayerHud::View playerHudView() {
 		view.slots[0].shotRefusedAgeMs = GameClock::now() - *refused;
 		view.slots[0].shotTooClose = Game().player->shotTooClose;
 	}
-	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(BindAction::QuickHeal));
-	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(BindAction::QuickStamina));
+	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(Game().settings.controls, BindAction::QuickHeal));
+	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(Game().settings.controls, BindAction::QuickStamina));
 	view.slots[PlayerHud::ANTIDOTE_SLOT] = antidoteSlot();
 	if (std::optional<ItemKind> worn = Game().ui.inventory->Bag().Worn()) {
 		constexpr const char* TIERS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
@@ -86,10 +86,10 @@ PlayerHud::View playerHudView() {
 	view.staminaSkillOn = Game().player->staminaSkills;
 	if (std::optional<int> refused = Game().player->staminaSkillRefusedMs)
 		view.staminaSkillRefusedAgeMs = GameClock::now() - *refused;
-	view.staminaSkillKey = keyCapOf(BindAction::StaminaSkills);
+	view.staminaSkillKey = keyCapOf(Game().settings.controls, BindAction::StaminaSkills);
 	view.hekaWaiting = stats.heka.Waiting(); // plan heka-surplus: not while every skill is learnt
-	view.hekaKey = keyCapOf(BindAction::Skills);
+	view.hekaKey = keyCapOf(Game().settings.controls, BindAction::Skills);
 	view.journalNew = Game().journal.AnyNew();
-	view.journalKey = keyCapOf(BindAction::Journal);
+	view.journalKey = keyCapOf(Game().settings.controls, BindAction::Journal);
 	return view;
 }

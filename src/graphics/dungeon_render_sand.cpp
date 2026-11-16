@@ -1,7 +1,7 @@
 // Sand on the floor (plan desert-chapter): the drifts, the quicksand's swirl, the dust of the steps, the sand worm's
 // ripple and the sand falls pouring down.
 #include "dungeon_view.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "../sim/player.h"
 #include <GL/gl.h>
 #include <algorithm>

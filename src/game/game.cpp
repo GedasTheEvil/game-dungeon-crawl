@@ -1,4 +1,4 @@
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 
 #include <GL/glu.h>
 #include <GL/gl.h>
@@ -15,7 +15,7 @@
 #include "../graphics/draw.h"
 #include "../state/game_loop.h"
 #include "../render/textures.h"
-#include "sound.h"
+#include "../audio/sound.h"
 #include "../state/game_state.h"
 #include "../core/logger.h"
 #include "../core/paths.h"

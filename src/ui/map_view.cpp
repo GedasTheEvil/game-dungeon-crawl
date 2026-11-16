@@ -1,7 +1,7 @@
 #include "map_view.h"
 #include "../level/map_marks.h"
 #include "../render/ui_draw.h"
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../state/game_state.h"
 #include "../level/bindings.h"
 #include "../level/input.h"

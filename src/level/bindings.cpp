@@ -265,6 +265,20 @@ std::optional<InputKey> parseKeyName(const std::string& name) {
 	return std::nullopt;
 }
 
+std::string keyCapOf(const Bindings& bindings, BindAction action) {
+	const InputKey* key = bindings.Of(action).First();
+	return key ? keyCap(*key) : "";
+}
+
+std::string equipKeysCap(const Bindings& controls) {
+	const InputKey* melee = controls.Of(BindAction::EquipMelee).First();
+	const InputKey* ranged = controls.Of(BindAction::EquipRanged).First();
+	if (melee != nullptr && ranged != nullptr && melee->kind == InputKey::Kind::Char &&
+		ranged->kind == InputKey::Kind::Char && ranged->code == melee->code + 1)
+		return keyCap(*melee) + "-" + keyCap(*ranged);
+	return keyCapOf(controls, BindAction::EquipMelee) + keyCapOf(controls, BindAction::EquipRanged);
+}
+
 std::string keyCap(const InputKey& key) {
 	if (const NamedKey* entry = named(key))
 		return entry->cap;

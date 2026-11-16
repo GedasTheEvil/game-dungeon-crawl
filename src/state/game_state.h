@@ -1,7 +1,7 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
 
-#include "assets.h"
+#include "../graphics/assets.h"
 #include "../sim/player.h"
 #include "../graphics/player_view.h"
 #include "../graphics/texture_registry.h"
@@ -13,7 +13,7 @@
 #include "../ui/inventory.h"
 #include "../ui/screen.h"
 #include "../level/rng.h"
-#include "../game/sound.h"
+#include "../audio/sound.h"
 #include "../level/player_stats.h"
 #include "../core/timer.h"
 #include "../graphics/trap.h"

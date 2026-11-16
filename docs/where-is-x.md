@@ -79,7 +79,7 @@ gets its row. A feature's numbers (speeds, ranges, timings) sit in `level/gamepl
 | Save / load | `state/game_state.cpp`, the file and its checks `sim/dungeon_save.*`, `level/save_slots.*`, `sim/dungeon_io.cpp` (the dungeon's part; the hurt monsters and the boss fight: `Dungeon::dumpMonsters` / `loadMonsters`), the confirm box `ui/confirm_box.*` |
 | Quick save (F5) and quick load (F9) | `GameState::Quicksave` / `LoadQuicksave`, the keys in `specialKeyPressed` (`input/input.cpp`), the Load list in `ui/menu_slots.cpp` |
 | Autosave, death screen, Continue | `GameState::Autosave` / `CountDeath` (`state/game_state.cpp`), the safe moments `AutosaveMoment` (`level/world_events.h`) and `Dungeon::PlayerInDanger` (`sim/dungeon_monsters.cpp`), `ui/death_screen.*`, the Load list in `ui/menu_slots.cpp` and Continue in `ui/menu.cpp`, the newest save `GameState::LatestSave` / `SaveSlots::PickLatest` |
-| Models, textures, sounds loaded once | `state/assets.cpp` |
+| Models, textures, sounds loaded once | `graphics/assets.cpp` |
 | Zone looks: stone, decor set, light, haze, ambient loop, the level banner | `ZONE_LOOKS`, `levelLook` (`level/zone_look.h`), `Dungeon::Look`, the loop played in `state/game_loop.cpp`, the banner `ui/zone_banner.*` |
 | How to Play page, first hints | the page `ui/menu_help.cpp`, its rows and the hint texts `level/controls_help.*`, the hint triggers `state/first_hints.cpp` (`Dungeon::PlayerFacesJump`, `PlayerAtLadder`), the shown hints `RunStats::hints` |
 | Options and the settings file | `Settings` (`level/settings_ini.*`, the file `state/settings.*`, [settings.md](settings.md)), the Options rows and key cells in `ui/menu_options.cpp` |

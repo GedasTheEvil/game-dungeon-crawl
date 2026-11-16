@@ -4,7 +4,7 @@
 #include "../sim/model_info.h"
 #include "../render/animated_model.h"
 #include "../render/textures.h"
-#include "../game/sound.h"
+#include "../audio/sound.h"
 #include "../level/rng.h"
 #include <array>
 #include <memory>

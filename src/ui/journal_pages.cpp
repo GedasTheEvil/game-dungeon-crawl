@@ -1,10 +1,10 @@
 // Each section's page drawing of the journal; the book, ribbons, page turns and input are in journal_view.cpp.
 #include "journal_view.h"
 #include "journal_internal.h"
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../render/inscription_draw.h"
 #include "../level/input.h"
-#include "../input/input_actions.h"
+#include "../level/bindings.h"
 #include "../state/game_state.h"
 #include "../level/decor.h"
 #include "../level/inscriptions.h"
@@ -421,7 +421,7 @@ void JournalScreen::DrawDiary(const Rect& p, int index) {
 		y -= l.empty() ? step / 2 : step;
 	}
 	if (closesTo != nullptr && index == PageCount(Section::Diary) - 1) {
-		std::string hint = keyCapOf(BindAction::Journal) + " or Esc " + closesTo;
+		std::string hint = keyCapOf(Game().settings.controls, BindAction::Journal) + " or Esc " + closesTo;
 		textCentered(handSmall, p.cx(), p.y + COMMENT_BOTTOM - COMMENT_STEP, hint.c_str(), PENCIL, FADED);
 	}
 	beginShapes();

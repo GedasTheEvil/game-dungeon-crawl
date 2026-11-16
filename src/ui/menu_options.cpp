@@ -6,7 +6,7 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../state/game_state.h"
 #include "../state/settings.h"
 #include "../level/input.h"

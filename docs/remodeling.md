@@ -288,7 +288,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   has no texture of its own: each potion bakes one on its UVs (`POTIONS`: `media/textures/items/potion_<kind>.png`, the
   palette keys `liquid` / `liquid_dark` it overrides), so look-alikes differ by the liquid only. The liquid reaches the
   shoulder: a chest's gold heap hides the bottom. The engine loads each vessel once and gives every potion its own
-  texture (`loadPotions` in `src/state/assets.cpp`, `Item::shareModel`); no tint on the model, `PotionDef::colour`
+  texture (`loadPotions` in `src/graphics/assets.cpp`, `Item::shareModel`); no tint on the model, `PotionDef::colour`
   tints the icons only. Albedo x AO textures (no baked light), 512 px.
   The glass vessels (`GLASS_VESSELS`: flask, lotus, cobra; [potion-glass-vessels](plan/solved/potion-glass-vessels.md)) are
   two models on one origin: the opaque bits with the liquid (a closed lathe up to the shoulder, a little inside the

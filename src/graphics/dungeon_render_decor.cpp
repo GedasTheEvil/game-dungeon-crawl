@@ -4,7 +4,7 @@
 #include "../level/gameplay_monster_kinds.h"
 #include "../level/gameplay_world.h"
 #include "../level/names.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "../sim/render_config.h"
 #include "fire.h"
 #include "../render/inscription_draw.h"

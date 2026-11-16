@@ -102,6 +102,10 @@ enum class NavKey : std::uint8_t { None, Up, Down, Left, Right, Activate };
 [[nodiscard]] std::optional<InputKey> parseKeyName(const std::string& name);
 // The key cap label: "A", "Space", "Left", "PgUp", "F12", "Shift", "LMB".
 [[nodiscard]] std::string keyCap(const InputKey& key);
+// Key cap labels for the HUD: the action's first key ("H"); empty when unbound.
+[[nodiscard]] std::string keyCapOf(const Bindings& bindings, BindAction action);
+// "1-2" while the melee and ranged keys are two keys in a row, else their first keys one after the other.
+[[nodiscard]] std::string equipKeysCap(const Bindings& bindings);
 
 // "v, enter, mouse_left", or "none".
 [[nodiscard]] std::string formatBinding(const Binding& binding);

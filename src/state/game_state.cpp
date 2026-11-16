@@ -1,10 +1,10 @@
 #include "game_state.h"
-#include "loading_text.h"
+#include "../graphics/loading_text.h"
 #include "settings.h"
 #include "../ui/player_hud.h"
 #include <filesystem>
 #include <GL/gl.h>
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include <fstream>
 #include <cassert>
 #include <cstdarg>

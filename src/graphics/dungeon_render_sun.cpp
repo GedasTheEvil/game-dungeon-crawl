@@ -2,7 +2,7 @@
 // the sun discs, the beams and their light.
 #include "dungeon_view.h"
 #include "../sim/dungeon_rules.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"

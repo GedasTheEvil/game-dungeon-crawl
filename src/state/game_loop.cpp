@@ -1,6 +1,6 @@
 #include "game_loop.h"
 #include "game_state.h"
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../sim/render_config.h"
 #include "../input/input_actions.h"
 #include "../ui/inventory.h"

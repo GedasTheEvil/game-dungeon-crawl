@@ -49,8 +49,4 @@ PlayerControl playerControl();
 // The gameplay action a binding runs; None for the ones handled outside it (sprint, look, the screens).
 GameplayAction gameplayActionOf(BindAction action);
 
-// Key cap labels for the HUD, from the bindings: "H", "1-2"; empty when unbound.
-std::string keyCapOf(BindAction action);
-std::string equipKeysCap();
-
 #endif

@@ -6,7 +6,7 @@
 // one line of a pass, the next pass a little nearer (its polygon offset) to come over it. That depth would hide what
 // is drawn behind later, so the contours wait for the end of the opaque scene (queueContour, drawContours).
 #include "dungeon_view.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "../render/lighting.h"
 #include <GL/gl.h>
 #include <cmath>

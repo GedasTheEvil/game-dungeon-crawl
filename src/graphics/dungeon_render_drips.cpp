@@ -3,7 +3,7 @@
 // with a splash, the venom pouring after it while the drop is out; small drops ring the puddle in between. All of it
 // from the cycle and the clock (spike_cycle.h), nothing kept.
 #include "dungeon_view.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"

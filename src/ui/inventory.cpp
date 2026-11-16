@@ -8,7 +8,7 @@
 #include "../core/timer.h"
 #include "../level/input.h"
 #include <GL/gl.h>
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../render/lighting.h"
 #include "../level/inventory_layout.h"
 #include "../render/ui_draw.h"

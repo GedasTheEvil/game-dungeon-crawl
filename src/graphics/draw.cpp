@@ -11,13 +11,13 @@
 #include "../ui/zone_banner.h"
 #include "../ui/interact_prompt.h"
 #include "../render/ui_draw.h"
-#include "../input/input_actions.h"
+#include "../level/bindings.h"
 #include "../render/lighting.h"
 #include "../render/brightness.h"
 #include "../render/ink.h"
 #include "../render/motion_fx.h"
 #include "fire.h"
-#include "gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../sim/render_config.h"
 #include "../level/gameplay_monster_kinds.h"
 #include "../level/gameplay_skills.h"
@@ -391,7 +391,7 @@ void drawGameplay() {
 	const bool prompt = Game().player->Alive() && !Game().dungeon.Won() && !Game().dungeon.Travelling();
 	InteractPrompt::draw(
 		prompt ? Game().dungeon.InteractVerb() : Interaction::None,
-		keyCapOf(BindAction::Interact),
+		keyCapOf(Game().settings.controls, BindAction::Interact),
 		Game().render.resX,
 		Game().render.resY,
 		Game().assets.fonts.hudBody,

@@ -1,7 +1,7 @@
 #include "skills_view.h"
 #include "../level/skills_layout.h"
 #include "../core/timer.h"
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../level/input.h"
 #include "../level/player_actions.h"
 #include "../state/game_state.h"

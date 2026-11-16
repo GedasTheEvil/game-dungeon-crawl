@@ -2,7 +2,7 @@
 #include <array>
 #include <optional>
 #include <utility>
-#include "../graphics/gl_includes.h"
+#include "../render/gl_includes.h"
 #include "../state/game_state.h"
 #include "../render/ink.h"
 #include "../graphics/frame_rate.h"
@@ -316,22 +316,6 @@ GameplayAction gameplayActionOf(BindAction action) {
 		break;
 	}
 	return GameplayAction::None;
-}
-
-std::string keyCapOf(BindAction action) {
-	const InputKey* key = Game().settings.controls.Of(action).First();
-	return key ? keyCap(*key) : "";
-}
-
-// "1-2" while the melee and ranged keys are two keys in a row, else their first keys one after the other.
-std::string equipKeysCap() {
-	const Bindings& controls = Game().settings.controls;
-	const InputKey* melee = controls.Of(BindAction::EquipMelee).First();
-	const InputKey* ranged = controls.Of(BindAction::EquipRanged).First();
-	if (melee != nullptr && ranged != nullptr && melee->kind == InputKey::Kind::Char &&
-		ranged->kind == InputKey::Kind::Char && ranged->code == melee->code + 1)
-		return keyCap(*melee) + "-" + keyCap(*ranged);
-	return keyCapOf(BindAction::EquipMelee) + keyCapOf(BindAction::EquipRanged);
 }
 
 namespace {

@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <memory>
-#include "../game/sound.h"
+#include "../audio/sound.h"
 #include "../render/animated_model.h"
 #include "../render/textures.h"
 #include "../level/items.h"

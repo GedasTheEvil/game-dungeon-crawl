@@ -2,7 +2,7 @@
 // dungeon_monsters.cpp, dungeon_arrows.cpp and dungeon_boss.cpp).
 #include "dungeon_view.h"
 #include "../sim/dungeon_rules.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "monster_draw.h"
 #include "../sim/player.h"
 #include "fire.h"

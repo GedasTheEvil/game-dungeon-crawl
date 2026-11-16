@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/state/loading_text.h"
+#include "../../src/graphics/loading_text.h"
 #include "../../src/level/items.h"
 #include "../../src/level/monster_kinds.h"
 

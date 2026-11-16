@@ -1,5 +1,5 @@
 #include "dungeon_view.h"
-#include "../state/assets.h"
+#include "assets.h"
 #include "../sim/player.h"
 #include "../level/item_bag.h"
 #include "../level/journal.h"

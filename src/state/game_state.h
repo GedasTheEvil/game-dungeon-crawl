@@ -10,6 +10,7 @@
 #include "../graphics/dungeon_view.h"
 #include "../render/font.h"
 #include "../graphics/item.h"
+#include "../level/item_bag.h"
 #include "../ui/inventory.h"
 #include "../ui/screen.h"
 #include "../level/rng.h"
@@ -84,6 +85,9 @@ class GameState {
 	bool cacheLoaded = false;
 	MessageLog messages; // the gameplay status lines and this level's log of them (plan message-log)
 	std::unique_ptr<Player> player;
+	// The player's items: weapons, potions, amulets, rings (plan bag-out-of-inventory). The inventory screen shows
+	// and changes it, the world adds to it (SimLinks), the save holds it.
+	ItemBag bag;
 	PlayerView playerView; // the player's model, drawn
 	GameTimers timers;
 	GameRandom random;

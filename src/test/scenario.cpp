@@ -480,12 +480,8 @@ void runItemCommand(const Command& cmd) {
 	case CommandType::Chest: { // opens N chests holding this item, like picking them up
 		int bonus = 0;
 		for (int i = 0; i < cmd.ticks; i++) {
-			std::vector<ItemKind> loot = RollChestLoot(
-				cmd.item,
-				Game().ui.inventory->Bag().Owned(),
-				Game().dungeon.LevelNumber(),
-				Game().random.gameplay
-			);
+			std::vector<ItemKind> loot =
+				RollChestLoot(cmd.item, Game().bag.Owned(), Game().dungeon.LevelNumber(), Game().random.gameplay);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (ItemKind entry : loot)
 				Game().ui.inventory->AddItem(entry);

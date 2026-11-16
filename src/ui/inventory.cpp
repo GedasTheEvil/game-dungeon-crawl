@@ -116,7 +116,7 @@ void toCanvas(int mouseX, int mouseY, float& x, float& y) {
 
 } // namespace
 
-Inventory::Inventory() {
+Inventory::Inventory(ItemBag& bag) : bag(bag) {
 	loadScreenFonts(title, heading, body, small, 7.f);
 
 	Reset();

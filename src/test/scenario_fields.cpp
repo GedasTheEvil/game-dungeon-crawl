@@ -32,9 +32,9 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::Armor:
 		return static_cast<float>(armorMean(Game().player->stats.CurrentArmor()));
 	case Field::EquipType:
-		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).type);
+		return static_cast<float>(fileIdOf(Game().bag.Equipped()).type);
 	case Field::EquipId:
-		return static_cast<float>(fileIdOf(Game().ui.inventory->EquippedKind()).id);
+		return static_cast<float>(fileIdOf(Game().bag.Equipped()).id);
 	case Field::Keys:
 		return static_cast<float>(Game().dungeon.KeysHeld());
 	case Field::Poison:
@@ -60,10 +60,8 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::Attacking: // a swing or a bow draw under way
 		return Game().player->attackStartMs >= 0 ? 1.f : 0.f;
 	case Field::Shots: {
-		const ItemKind weapon = Game().ui.inventory->EquippedKind();
-		return isRanged(weapon) ? static_cast<float>(
-									  Game().ui.inventory->Bag().ShotsLeft(weapon, Game().player->stats.Shots(weapon))
-								  )
+		const ItemKind weapon = Game().bag.Equipped();
+		return isRanged(weapon) ? static_cast<float>(Game().bag.ShotsLeft(weapon, Game().player->stats.Shots(weapon)))
 								: -1.f;
 	}
 	case Field::Nearest:
@@ -99,7 +97,7 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::MaxHp:
 		return static_cast<float>(Game().player->stats.CurrentMaxHP());
 	case Field::Worn: {
-		const std::optional<ItemKind> worn = Game().ui.inventory->Bag().Worn();
+		const std::optional<ItemKind> worn = Game().bag.Worn();
 		return worn ? static_cast<float>(fileIdOf(*worn).id) : -1.f;
 	}
 	case Field::Safe:
@@ -155,9 +153,9 @@ float Scenario::fieldValue(const Command& cmd) {
 		}));
 	}
 	case Field::ItemCount:
-		return static_cast<float>(Game().ui.inventory->Count(cmd.item));
+		return static_cast<float>(Game().bag.Count(cmd.item));
 	case Field::ItemLevel:
-		return static_cast<float>(Game().ui.inventory->Level(cmd.item));
+		return static_cast<float>(Game().bag.Level(cmd.item));
 	}
 	return 0.f;
 }

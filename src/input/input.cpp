@@ -203,9 +203,7 @@ class PlayerActionController {
 } // namespace
 
 // The player's controls in the world (plan player-control-in-sim), shared with the unit tests' SimWorld.
-PlayerControl playerControl() {
-	return {Game().dungeon, *Game().player, Game().ui.inventory->Bag(), Game().events, attackRefusalTold};
-}
+PlayerControl playerControl() { return {Game().dungeon, *Game().player, Game().bag, Game().events, attackRefusalTold}; }
 
 void executeGameplayAction(GameplayAction action) { PlayerActionController::execute(action); }
 

@@ -52,10 +52,10 @@ PlayerHud::View playerHudView() {
 	view.level = stats.CurrentLevel();
 	view.keysHeld = Game().dungeon.KeysHeld();
 	view.levelKeys = Game().dungeon.LevelKeys();
-	view.slots[0].icon = PlayerHud::weaponIcon(Game().ui.inventory->EquippedKind());
+	view.slots[0].icon = PlayerHud::weaponIcon(Game().bag.Equipped());
 	view.slots[0].key = equipKeysCap(Game().settings.controls);
-	if (const ItemKind weapon = Game().ui.inventory->EquippedKind(); isRanged(weapon)) {
-		const ItemBag& bag = Game().ui.inventory->Bag();
+	if (const ItemKind weapon = Game().bag.Equipped(); isRanged(weapon)) {
+		const ItemBag& bag = Game().bag;
 		view.slots[0].shots = stats.Shots(weapon);
 		view.slots[0].shotsLeft = bag.ShotsLeft(weapon, view.slots[0].shots);
 		view.slots[0].shotRecovery = bag.ShotRecovery(weapon, stats.ShotRecoveryPace());
@@ -67,14 +67,14 @@ PlayerHud::View playerHudView() {
 	view.slots[1] = quickSlot(QuickKind::Health, keyCapOf(Game().settings.controls, BindAction::QuickHeal));
 	view.slots[2] = quickSlot(QuickKind::Stamina, keyCapOf(Game().settings.controls, BindAction::QuickStamina));
 	view.slots[PlayerHud::ANTIDOTE_SLOT] = antidoteSlot();
-	if (std::optional<ItemKind> worn = Game().ui.inventory->Bag().Worn()) {
+	if (std::optional<ItemKind> worn = Game().bag.Worn()) {
 		constexpr const char* TIERS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
 		const Amulet amulet = amuletOf(*worn);
 		view.slots[PlayerHud::AMULET_SLOT].icon = PlayerHud::amuletIcon(amulet.type);
 		view.slots[PlayerHud::AMULET_SLOT].badge = TIERS[std::to_underlying(amulet.tier)];
 	}
 	for (int hand = 0; hand < HAND_COUNT; hand++)
-		if (std::optional<ItemKind> ring = Game().ui.inventory->Bag().RingOn(static_cast<Hand>(hand))) {
+		if (std::optional<ItemKind> ring = Game().bag.RingOn(static_cast<Hand>(hand))) {
 			const Rgb c = ringGemColour(ringOf(*ring).gem);
 			view.ringWorn[hand] = true;
 			view.ringSkyIron[hand] = ringOf(*ring).metal == RingMetal::SkyIron;

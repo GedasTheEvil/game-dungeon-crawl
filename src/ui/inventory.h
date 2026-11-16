@@ -35,7 +35,7 @@ class Inventory {
 	static constexpr int NO_TAB = -1;
 	static constexpr int NO_SORT = -1;
 
-	ItemBag bag;
+	ItemBag& bag; // the player's items, GameState::bag (plan bag-out-of-inventory)
 	int selectedSlot = 0; // a slot is an ItemKind index; the grid shows them in tabOrder
 	ItemGroup tab = ItemGroup::Weapons; // the selected slot's group
 	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
@@ -141,7 +141,7 @@ class Inventory {
 	void DrawShrineButtons();
 
   public:
-	Inventory();
+	explicit Inventory(ItemBag& bag);
 	~Inventory();
 	void Reset(); // a new game: only the club
 	// The open tab and the sort orders into / out of a save (plan save-remembers-ui-state). Setting opens the tab at
@@ -193,11 +193,8 @@ class Inventory {
 	[[nodiscard]] std::optional<int> QuickDrinkMs(QuickKind kind) const;
 	[[nodiscard]] std::optional<int> AntidoteMs() const { return antidoteMs; }
 	Item* Equipped() { return Model(bag.Equipped()); }
-	[[nodiscard]] ItemKind EquippedKind() const { return bag.Equipped(); }
 	[[nodiscard]] static ui::Color PotionColor(ItemKind potion); // the potion icons' tint (HUD quick slot)
 	[[nodiscard]] int Count(ItemKind kind) const { return bag.Count(kind); }
-	ItemBag& Bag() { return bag; } // what the world adds to (SimLinks)
-	[[nodiscard]] int Level(ItemKind kind) const { return bag.Level(kind); }
 	// Weapon damage with its level bonus.
 	[[nodiscard]] int EquippedDamage() const;
 	void BagLoaded(); // a save game was read into the bag (dungeon_save.h): the selection follows it

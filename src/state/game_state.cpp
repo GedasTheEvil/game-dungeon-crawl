@@ -50,7 +50,7 @@ void GameState::Load() {
 	DrawLoad(10, "Loading", "");
 	assets.Load([this](float percent, const char* step, const char* detail) { DrawLoad(percent, step, detail); });
 	ui.riddle = std::make_unique<Riddle>();
-	ui.inventory = std::make_unique<Inventory>();
+	ui.inventory = std::make_unique<Inventory>(bag);
 
 	Texture playerTexture;
 	playerTexture.LoadPNG(MEDIA_DIR "textures/characters/archeologist.png");
@@ -72,9 +72,7 @@ void GameState::Load() {
 	for (const std::string& message : textProblems())
 		LOG_WARNINGF("game", "Texts: %s", message.c_str());
 	LOG_INFO("game", "Loaded " + std::to_string(gameTexts().Size()) + " texts");
-	dungeon.Link(
-		{player.get(), &journal, &ui.inventory->Bag(), &random, &events, &assets.monsterTypes, &inscriptions, &names}
-	);
+	dungeon.Link({player.get(), &journal, &bag, &random, &events, &assets.monsterTypes, &inscriptions, &names});
 
 	timers.idleModel.Reset();
 
@@ -487,7 +485,7 @@ bool GameState::Save(const char filename[]) {
 	}
 	std::ostringstream text;
 	UiViewState view = ViewState();
-	writeSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal, view});
+	writeSaveGame(text, SaveParts{dungeon, *player, bag, journal, view});
 	if (!writeFileSafely(filename, text.str())) {
 		LOG_ERRORF("game", "can't write save file %s", filename);
 		return false;
@@ -510,7 +508,7 @@ bool GameState::LoadSave(const char filename[]) {
 		return false;
 	}
 	UiViewState view = ViewState(); // a broken save puts these back too
-	const bool loaded = loadSaveGame(text, SaveParts{dungeon, *player, ui.inventory->Bag(), journal, view});
+	const bool loaded = loadSaveGame(text, SaveParts{dungeon, *player, bag, journal, view});
 	ui.inventory->BagLoaded();
 	ApplyViewState(view);
 	if (!loaded) {

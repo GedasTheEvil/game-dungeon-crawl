@@ -66,11 +66,11 @@ void drawWeapon() { // in the fist nearer the camera
 	const auto dir = static_cast<float>(facing);
 	Item* weapon = Game().ui.inventory->Equipped();
 	const Player& player = *Game().player;
-	if (isThrown(Game().ui.inventory->EquippedKind()) && player.attackStartMs >= 0 && player.attackLanded)
+	if (isThrown(Game().bag.Equipped()) && player.attackStartMs >= 0 && player.attackLanded)
 		return; // in the air: the hand is empty until the swing ends
 	if (Game().dungeon.Dragging())
 		return; // both hands on the thing dragged (plan drag-animation)
-	const WeaponMotion& motion = weaponDef(Game().ui.inventory->EquippedKind()).motion;
+	const WeaponMotion& motion = weaponDef(Game().bag.Equipped()).motion;
 	// A power hit (plan skill-power-hit): drawn back further as the charge builds, and in the swing it starts.
 	const SwingPose pose = player.Charging()
 							   ? chargePose(motion, GameClock::now() - player.charge.startMs, player.ChargeShare())
@@ -285,7 +285,7 @@ void drawGameplay() {
 
 	std::optional<HitboxView> hitboxes;
 	if (Game().render.Hitboxes) {
-		const ItemKind kind = Game().ui.inventory->EquippedKind();
+		const ItemKind kind = Game().bag.Equipped();
 		hitboxes = HitboxView{Game().player->stats.WeaponReach(kind), !isRanged(kind), Game().camera.Facing()};
 	}
 	Game().dungeonView.Draw(hitboxes ? &*hitboxes : nullptr);

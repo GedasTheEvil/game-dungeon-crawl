@@ -18,7 +18,6 @@ constexpr float ARROW_LAUNCH_AHEAD = 0.1f; // tiles in front of the player's cen
 constexpr float ARROW_STEP_S = 0.005f; // hit test interval along the flight
 } // namespace
 
-float Dungeon::Missile::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }
 bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const {
 	const auto row = static_cast<int>(std::floor(y));
 	float nearest = range;
@@ -191,12 +190,13 @@ void Dungeon::Shoot(
 			player.staminaSkillRefusedMs = GameClock::now();
 		}
 	}
-	missiles.push_back(
+	projectiles.missiles.push_back(
 		{kind, x0, y0, static_cast<float>(dir) * vx, vy, shotDamage, dealt, GameClock::now(), fire || flaming, exact}
 	);
 }
 void Dungeon::updateMissiles() {
 	const int now = GameClock::now();
+	std::vector<Missile>& missiles = projectiles.missiles;
 	for (auto it = missiles.begin(); it != missiles.end();) {
 		Missile& a = *it;
 		const MissileRules& rules = rulesOf(a.kind);
@@ -251,13 +251,6 @@ void Dungeon::updateMissiles() {
 		it = gone ? missiles.erase(it) : it + 1;
 	}
 }
-std::vector<float> Dungeon::StuckMissileXs() const {
-	std::vector<float> xs;
-	for (const Missile& a : missiles)
-		if (a.stuckMs >= 0)
-			xs.push_back(a.endX);
-	return xs;
-}
 bool Dungeon::clearRow(float fromX, float toX, int row) const {
 	const int dir = toX > fromX ? 1 : -1;
 	for (auto col = static_cast<int>(std::floor(fromX)); col != static_cast<int>(std::floor(toX)) + dir; col += dir)
@@ -285,27 +278,16 @@ void Dungeon::shootAtPlayer(const Monster& mon, float x, float y) {
 			v.damage = mon.TerrainDamage();
 			v.spread = SHOT_FAN_SPREAD * (static_cast<float>(f) - static_cast<float>(ranged->fan - 1) / 2.f);
 			aimShot(v);
-			shots.push_back(v);
+			projectiles.shots.push_back(v);
 		}
 	}
 	if (big)
 		sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::Blaze);
 }
-void Dungeon::aimShot(MonsterShot& v) const {
-	const float dx = mapX - v.x;
-	const float dy = mapY + (v.big ? 0.f : SHOT_CHEST * sim.player->Height()) - v.y;
-	const float len = std::max(std::hypot(dx, dy), 0.01f);
-	const float c = std::cos(v.spread), s = std::sin(v.spread);
-	v.vx = SHOT_SPEED * (c * dx - s * dy) / len;
-	v.vy = SHOT_SPEED * (s * dx + c * dy) / len;
-}
-int Dungeon::ShotCount(bool big) const {
-	return static_cast<int>(std::count_if(shots.begin(), shots.end(), [big](const MonsterShot& v) {
-		return v.splatMs < 0 && (!big || v.big);
-	}));
-}
+void Dungeon::aimShot(MonsterShot& v) const { v.aimAt(mapX, mapY + (v.big ? 0.f : SHOT_CHEST * sim.player->Height())); }
 void Dungeon::updateShots() {
 	const int now = GameClock::now();
+	std::vector<MonsterShot>& shots = projectiles.shots;
 	for (auto it = shots.begin(); it != shots.end();) {
 		MonsterShot& v = *it;
 		if (v.splatMs >= 0) {

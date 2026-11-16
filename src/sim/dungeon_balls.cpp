@@ -18,7 +18,7 @@ constexpr float BALL_STEP_S = 0.004f; // the hit test's interval along the roll
 bool Dungeon::updateRoller(Monster& mon) {
 	if (mon.RollingBall()) {
 		if (mon.UpdateRoll())
-			balls.push_back(
+			projectiles.balls.push_back(
 				{mon.BallX(),
 				 static_cast<float>(mon.Row()),
 				 mon.BallDir(),
@@ -43,6 +43,7 @@ void Dungeon::updateBalls() {
 	Player& player = *sim.player;
 	const float half = player.HalfWidth();
 	const float height = player.Height();
+	std::vector<DungBall>& balls = projectiles.balls;
 	for (auto it = balls.begin(); it != balls.end();) {
 		DungBall& b = *it;
 		if (b.breakMs >= 0) {

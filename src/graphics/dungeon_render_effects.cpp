@@ -229,7 +229,7 @@ void DungeonView::drawMissiles() {
 	const auto firstCol = static_cast<float>(d.view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(d.view().originRow);
 	const int now = GameClock::now();
-	for (const Dungeon::Missile& a : d.missiles) {
+	for (const Missile& a : d.projectiles.missiles) {
 		AnimatedModel* model = assets.items.missiles[std::to_underlying(a.kind)].get();
 		if (!model)
 			continue;
@@ -290,7 +290,7 @@ void DungeonView::drawBalls() {
 		model->Show();
 		glPopMatrix();
 	};
-	for (const Dungeon::DungBall& b : d.balls)
+	for (const DungBall& b : d.projectiles.balls)
 		if (b.breakMs < 0) {
 			const float r = b.rules.radius;
 			draw(b.x, b.y, r, -static_cast<float>(b.dir) * b.rolled / r * RAD_TO_DEG);
@@ -307,7 +307,7 @@ void DungeonView::drawBalls() {
 void DungeonView::drawBallEffects() {
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
 	const int now = GameClock::now();
-	for (const Dungeon::DungBall& b : d.balls) {
+	for (const DungBall& b : d.projectiles.balls) {
 		const RollRules& rules = b.rules;
 		const float x = RenderConfig::TILE_SIZE * (b.x - col0), y = RenderConfig::TILE_SIZE * (b.y - row0);
 		const auto seed = static_cast<uint32_t>(b.startMs);
@@ -350,7 +350,7 @@ void DungeonView::drawBallEffects() {
 }
 // The burning balls' light; same frame as addLights.
 void DungeonView::addBallLights() {
-	for (const Dungeon::DungBall& b : d.balls)
+	for (const DungBall& b : d.projectiles.balls)
 		if (b.breakMs < 0 && b.rules.burns())
 			Lighting::add(
 				RenderConfig::TILE_SIZE * (b.x - static_cast<float>(d.view().originCol)),
@@ -391,7 +391,7 @@ void DungeonView::drawShots() {
 	const auto firstCol = static_cast<float>(d.view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(d.view().originRow);
 	const int now = GameClock::now();
-	for (const Dungeon::MonsterShot& v : d.shots) {
+	for (const MonsterShot& v : d.projectiles.shots) {
 		if (v.waiting(now)) // a volley's later shot, still in the thrower's hand
 			continue;
 		float stretch = 1.6f, squash = 1.f, alpha = 0.85f;
@@ -428,7 +428,7 @@ void DungeonView::drawShots() {
 }
 // The light of each flying glob, venom or fire; same frame as addLights.
 void DungeonView::addVenomLights() {
-	for (const Dungeon::MonsterShot& v : d.shots) {
+	for (const MonsterShot& v : d.projectiles.shots) {
 		const GlobLook& look = globLook(v.from->ranged);
 		if (v.splatMs < 0 && !v.waiting(GameClock::now()) && look.light != nullptr)
 			Lighting::add(
@@ -443,7 +443,7 @@ void DungeonView::addVenomLights() {
 // The fire arrows' and the burning monsters' light; same frame as addLights.
 void DungeonView::addFireLights() {
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
-	for (const Dungeon::Missile& a : d.missiles)
+	for (const Missile& a : d.projectiles.missiles)
 		if (a.fire && a.stuckMs < 0)
 			Lighting::add(
 				RenderConfig::TILE_SIZE * (a.X() - col0),

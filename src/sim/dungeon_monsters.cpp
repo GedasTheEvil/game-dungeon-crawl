@@ -239,9 +239,7 @@ int Dungeon::MonsterBarsShown() const {
 void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
-	missiles.clear();
-	shots.clear();
-	balls.clear();
+	projectiles.Clear();
 	holes.clear();
 	sprays.clear();
 	puffs.clear();

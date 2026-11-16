@@ -117,10 +117,10 @@ struct ScreechRules {
 	int damage = 0;
 };
 
-// A ranged attack: from afar along its row, it stops and shoots at the player (Dungeon::MonsterShot): the cobras'
-// spat venom, the Anubis's bolt of light, the mummy priest's spoken curse, the baboon's burning coal. The release and
-// its height come from the model's ranged clip, measured by its script's --measure (tools/blender/models/cobra.py,
-// anubis.py).
+// A ranged attack: from afar along its row, it stops and shoots at the player (MonsterShot, sim/projectiles.h): the
+// cobras' spat venom, the Anubis's bolt of light, the mummy priest's spoken curse, the baboon's burning coal. The
+// release and its height come from the model's ranged clip, measured by its script's --measure
+// (tools/blender/models/cobra.py, anubis.py).
 struct RangedRules {
 	int damage = 0; // on a hit, of the type's attack mix
 	std::optional<PoisonTier> poison; // a hit poisons; nullopt: no poison (the Anubis's bolt)
@@ -194,13 +194,13 @@ struct CallRules {
 
 // The dung ball (plan scarab-dung-ball, Roll): with the player on its row minRange..maxRange tiles away (between the
 // boxes, out of bite reach) and no wall between, it turns its back on them and shapes a ball for windupMs (its
-// ranged clip), then kicks it off. The ball (Dungeon::DungBall) rolls along the floor towards the player at speed,
-// over traps; it falls into a pit, sinks in water, breaks on a wall, after DUNG_BALL_MAX_ROLL tiles or on the player
-// (damage, blunt). A jump clears it.
-// A pounce (plan monster-balance): a leaper leaps at the player on its row from minGap..maxGap tiles away (between the
-// boxes), not from half water, the way clear of walls, pits and traps, and lands landGap tiles short of them, never
-// nearer: in bite reach, or a roller in its ball's band (Dungeon::pounce, Monster::UpdateJump). No new pounce for
-// cooldownMs after one; its leaps over gaps keep their own MONSTER_JUMP_COOLDOWN_MS.
+// ranged clip), then kicks it off. The ball (DungBall, sim/projectiles.h) rolls along the floor towards the player at
+// speed, over traps; it falls into a pit, sinks in water, breaks on a wall, after DUNG_BALL_MAX_ROLL tiles or on the
+// player (damage, blunt). A jump clears it. A pounce (plan monster-balance): a leaper leaps at the player on its row
+// from minGap..maxGap tiles away (between the boxes), not from half water, the way clear of walls, pits and traps, and
+// lands landGap tiles short of them, never nearer: in bite reach, or a roller in its ball's band (Dungeon::pounce,
+// Monster::UpdateJump). No new pounce for cooldownMs after one; its leaps over gaps keep their own
+// MONSTER_JUMP_COOLDOWN_MS.
 struct PounceRules {
 	float minGap = 0.f;
 	float maxGap = 0.f;

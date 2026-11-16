@@ -731,7 +731,7 @@ void DungeonView::drawHitboxes(const HitboxView& weapon) {
 	for (const Monster& mon : d.monsters)
 		if (mon.Active() && mon.Alive())
 			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
-	for (const Dungeon::DungBall& b : d.balls) // the box that hits the player (Dungeon::updateBalls)
+	for (const DungBall& b : d.projectiles.balls) // the box that hits the player (Dungeon::updateBalls)
 		if (b.breakMs < 0)
 			box(b.x - b.rules.radius, b.x + b.rules.radius, b.y, b.y + 2.f * b.rules.radius);
 	const Player& player = *d.sim.player;

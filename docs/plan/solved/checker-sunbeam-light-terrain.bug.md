@@ -1,6 +1,6 @@
 # Level checker: sunbeams and light shafts are not light terrain
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Repro
 

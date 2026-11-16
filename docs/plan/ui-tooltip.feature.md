@@ -6,7 +6,7 @@ Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 202
 
 The UI screens have no tooltip, only the screen-switch tabs' name labels (plan screen-switch-tabs) and the journal's
 hovered ribbon label. A shared tooltip lets a screen show a short total and explain it on hover (first use: the armor
-split's `cut: 20% + 10a`, plan [armor-split](armor-split.feature.md)).
+split's `cut: 20% + 10a`, plan [armor-split](solved/armor-split.feature.md)).
 
 ## Plan
 

@@ -346,7 +346,7 @@ gem is drawn see-through over the band, with a slow glint (`Item::DrawPart`).
 
 Under the inventory's grid, after a `BRONZE` rule (`STATS_RULE_Y`), three rows of `small` labels (`GOLD_DIM`) and
 values (`GOLD`) (`Inventory::DrawStatus`, rows `STATS_ROW_Y`): level, the XP bar and count, Might, Dmg; health and
-stamina bars; the guard share per damage type ([armor-split](plan/armor-split.feature.md)): `Stab`, `Cut`,
+stamina bars; the guard share per damage type ([armor-split](plan/solved/armor-split.feature.md)): `Stab`, `Cut`,
 `Smash`, `Fire`, the share of a hit of that type the player does not take (`guardShare`: 1 - rate x 50 / (50 +
 armour); fire only its rate), cells `guardRect`. A hovered cell lights its label and shows its make-up in a
 [tooltip](#tooltip) (`guardTooltip`): the ward's percent and the type's armour points, `cut: 28% + 10a`.

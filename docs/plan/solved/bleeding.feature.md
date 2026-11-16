@@ -1,6 +1,6 @@
 # Bleeding: a cut condition in three tiers for the player and monsters
 
-Status: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size L, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-15, waiting for the user's play-test. Was: draft 2026-11-15, size L, needs nothing first.
 
 ## Idea
 

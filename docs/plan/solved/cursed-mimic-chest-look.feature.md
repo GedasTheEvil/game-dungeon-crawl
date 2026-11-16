@@ -1,6 +1,6 @@
 # Cursed mimic: the chest it leaves keeps its cursed look
 
-Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
 
 ## Idea
 

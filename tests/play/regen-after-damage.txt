@@ -1,9 +1,0 @@
-# Plan regen-after-damage: a gold garnet ring and a regeneration amulet worn, HP low, a camel spider (col 20) and a
-# mummy (col 26) near on tests/levels/bleeding.
-seed 1
-level tests/levels/bleeding
-give ring 2
-give amulet 32
-wear gold_ring_of_regeneration left
-wear amulet_of_regeneration
-hurt 30

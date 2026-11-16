@@ -1,9 +1,0 @@
-# Plan cursed-mimic-chest-look: tests/levels/cursed_mimic, the player in col 5, a death trap in col 7 (keep off it),
-# the cursed mimic in col 9, still a dark chest. Shoot it with the bow to wake it, then finish it with the mace when it
-# comes over the trap. The chest it leaves is dark like the mimic. Save, load: still dark.
-seed 1
-level tests/levels/cursed_mimic
-god
-give ranged 0
-give melee 7
-equip self-bow

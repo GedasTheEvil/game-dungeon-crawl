@@ -1,6 +1,6 @@
 # Regeneration: none while burning, none for 5 s after any damage
 
-Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
 
 ## Idea
 

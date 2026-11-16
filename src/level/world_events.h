@@ -1,7 +1,7 @@
 #ifndef WORLD_EVENTS_H
 #define WORLD_EVENTS_H
 
-#include "journal.h"
+#include "journal_ids.h"
 #include <string>
 #include <vector>
 

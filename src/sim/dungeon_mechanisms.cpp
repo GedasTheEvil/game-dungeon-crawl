@@ -21,17 +21,13 @@ void Dungeon::resetMechanisms() {
 	for (const Tile& t : map)
 		if (t.type == Key && isLockColour(t.attr))
 			levelKeys |= lockBit(t.attr);
-	openingGates.clear();
-	closingGates.clear();
-	std::fill(plateDown.begin(), plateDown.end(), 0);
-	platesSettled = false;
-	platesOpened = 0;
+	gates.Clear();
+	plates.Reset();
 	cutScene.End();
 	fallingRocks.clear();
 	dartTraps = {};
 	chestGas.clear();
-	mirrorSwings.clear();
-	litDiscs.clear();
+	sun.Clear();
 	drag = {};
 	dragSettle = {};
 	// A save taken mid-motion finishes it on load.
@@ -44,7 +40,7 @@ void Dungeon::resetMechanisms() {
 			landRock(t);
 		else if (platePressed(t))
 			setPlatePressed(t, false);
-	traceSunBeams();
+	sun.Trace(map);
 }
 void Dungeon::updateMechanisms() {
 	int col = static_cast<int>(mapX);
@@ -85,12 +81,12 @@ void Dungeon::updateMechanisms() {
 		float gap = dir > 0 ? static_cast<float>(col + 1) - mapX : mapX - static_cast<float>(col);
 		if (next.type == Gate && gateState(next) == GateState::Closed && isLockColour(next.attr) &&
 			(keysHeld & lockBit(next.attr)) != 0 && gap < GATE_APPROACH) {
-			startOpeningGate(MapIndex(col + dir, row), GameClock::now());
+			gates.StartOpening(map, MapIndex(col + dir, row), GameClock::now());
 			sim.events->Play(WorldSound::GateOpen);
 		}
 	}
 
-	finishOpenedGates();
+	gates.FinishOpened(map);
 	updatePlates();
 	updateSunBeams();
 	updateRocks();
@@ -149,26 +145,11 @@ void Dungeon::landRock(Tile& t) {
 	else
 		setObject(t, Tile{Stone, 0, 0});
 }
-void Dungeon::startOpeningGate(int cell, int startMs) {
-	if (map[cell].type != Gate || gateState(map[cell]) != GateState::Closed)
-		return;
-	setGateState(map[cell], GateState::Opening);
-	openingGates.push_back({cell, startMs});
-}
-void Dungeon::finishOpenedGates() {
-	for (auto it = openingGates.begin(); it != openingGates.end();) {
-		if (motionProgress(it->startMs, GATE_OPEN_MS) >= 1.f) {
-			setGateState(map[it->cell], GateState::Open);
-			it = openingGates.erase(it);
-		} else
-			++it;
-	}
-}
 void Dungeon::openGates(int colour) {
 	std::vector<int> opened;
 	for (int cell = 0; cell < MAP_WIDTH * MAP_HEIGHT; cell++)
 		if (map[cell].type == Gate && map[cell].attr == colour && gateState(map[cell]) == GateState::Closed) {
-			startOpeningGate(cell, GameClock::now());
+			gates.StartOpening(map, cell, GameClock::now());
 			opened.push_back(cell);
 		}
 	if (opened.empty())
@@ -182,7 +163,7 @@ void Dungeon::bumpGate(int col, int row) {
 		return;
 
 	if (gate.attr != BOSS_LOCK && (keysHeld & lockBit(gate.attr)) != 0) {
-		startOpeningGate(MapIndex(col, row), GameClock::now());
+		gates.StartOpening(map, MapIndex(col, row), GameClock::now());
 		sim.events->Play(WorldSound::GateOpen);
 		return;
 	}

@@ -2,7 +2,6 @@
 // CutScene's (cut_scene.cpp). Here: each gate starts to open as the camera comes to it, and opens at once on a skip.
 #include "dungeon.h"
 #include "../core/timer.h"
-#include <algorithm>
 
 void Dungeon::startCutScene(const std::vector<int>& opened) {
 	if (Travelling())
@@ -11,19 +10,15 @@ void Dungeon::startCutScene(const std::vector<int>& opened) {
 	if (stops.empty())
 		return;
 	for (const CutScene::Stop& stop : stops)
-		for (Motion& m : openingGates)
-			if (m.cell == stop.cell)
-				m.startMs = stop.arrivalMs;
+		gates.DelayOpening(stop.cell, stop.arrivalMs);
 	updateCutScene();
 }
 void Dungeon::updateCutScene() {
-	finishOpenedGates();
+	gates.FinishOpened(map);
 	if (!cutScene.Update(mapX, mapY))
 		SkipCutScene();
 }
 void Dungeon::SkipCutScene() {
-	const int now = GameClock::now();
-	for (Motion& m : openingGates) // a gate the camera had not come to yet opens now
-		m.startMs = std::min(m.startMs, now);
+	gates.HurryOpening(GameClock::now()); // a gate the camera had not come to yet opens now
 	cutScene.End();
 }

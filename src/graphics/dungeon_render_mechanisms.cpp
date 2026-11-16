@@ -155,19 +155,7 @@ void DungeonView::drawPageTile(int i, int j) {
 }
 void DungeonView::drawGateTile(int i, int j) {
 	Tile tile = d.MapAt(i, j);
-	float lift = 0.f;
-	if (gateState(tile) == GateState::Open)
-		lift = 1.f;
-	else if (gateState(tile) == GateState::Opening || gateState(tile) == GateState::Closing) {
-		// A plate gate comes down the way it went up (plan pressure-plate).
-		const bool up = gateState(tile) == GateState::Opening;
-		for (const Dungeon::Motion& m : up ? d.openingGates : d.closingGates)
-			if (m.cell == d.MapIndex(i, j)) {
-				const float p = motionProgress(m.startMs, GATE_OPEN_MS);
-				const float s = p * p * (3.f - 2.f * p);
-				lift = up ? s : 1.f - s;
-			}
-	}
+	const float lift = d.gates.Lift(d.MapIndex(i, j), gateState(tile));
 	if (lift >= 1.f)
 		return; // up inside the ceiling
 

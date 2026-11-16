@@ -18,6 +18,7 @@
 #include "cut_scene.h"
 #include "gate_travel.h"
 #include "stargate_dial.h"
+#include "mechanisms.h"
 #include "../level/sun_beam.h"
 #include "../level/zone_look.h"
 #include <array>
@@ -388,13 +389,10 @@ class Dungeon {
 	// basin and the sand under it.
 	[[nodiscard]] bool playerOnStep() const;
 	// Keys, gates, levers and rock falls (dungeon_mechanisms.cpp, drawn in dungeon_render_mechanisms.cpp).
-	struct Motion {
-		int cell; // map index
-		int startMs; // GameClock time the motion began
-	};
+	using Motion = CellMotion;
 	int keysHeld = 0; // bit (colour - 1) per key picked up on this level
 	int levelKeys = 0; // bit (colour - 1) per key the level has, picked up or not
-	std::vector<Motion> openingGates; // c = 2 while in here, then 1 (open)
+	GateMotions gates; // the gates on the move (mechanisms.h)
 	std::vector<Motion> fallingRocks; // c = 2 while in here, then 1 (fallen)
 	int lockedHintMs = -1000000; // last "the gate is locked" message, to keep it from repeating every step
 	int waterHintMs = -1000000; // last "too deep to jump" message
@@ -403,10 +401,8 @@ class Dungeon {
 	int wadeSoundMs = -1000000; // last splashing step, or step in sand
 	void resetMechanisms();
 	void updateMechanisms();
-	void startOpeningGate(int cell, int startMs);
 	// Opens the closed gates of the colour; a cut-scene shows the ones off the screen (startCutScene).
 	void openGates(int colour);
-	void finishOpenedGates(); // the gates whose motion has run are open
 	void bumpGate(int col, int row); // the player walked into a closed gate
 	void startRockFall(int cell, bool byPlayer = false); // an armed rock fall cell was stepped into: the rumble starts
 	static void landRock(Tile& t); // a falling rock fall's end: a rock becomes a Stone, a sand fall is Fallen
@@ -418,15 +414,8 @@ class Dungeon {
 	void updateDarts();
 	// Pressure plates (dungeon_plates.cpp, plan pressure-plate): each tick the weight on every plate; while all plates
 	// of a colour carry theirs, its plate gates open, else they close (not on anyone standing in the gate's cell).
-	std::vector<char> plateDown = std::vector<char>(MAP_CELL_COUNT, 0); // a plate carries its weight (drawn sunk)
-	bool platesSettled = false; // the first tick after a load sets plateDown without a click
-	std::vector<Motion> closingGates; // c = 3 while in here, then 0 (closed)
-	int platesOpened =
-		0; // bit (colour - 1): its plate gates opened once on this visit (the status line, the cut-scene)
+	PressurePlates plates; // which carry their weight (mechanisms.h)
 	void updatePlates();
-	void openPlateGate(int cell, int now); // from closed, or back up from closing
-	void closePlateGate(int cell, int now); // from open, or back down from opening
-	void finishClosedGates();
 	[[nodiscard]] bool gateCellFree(int cell) const; // no one in the gate's cell: it may come down
 	// Rhythm traps (dungeon_spikes.cpp, plans rhythm-traps, fire-jet-trap, poison-drip-trap): each wall spikes', fire
 	// vent's and poison drip's live state from the clock; coming out, the spikes stab and shove out whoever stands in
@@ -446,25 +435,11 @@ class Dungeon {
 	void updateDrips();
 	bool playerPuddled = false, playerDropped = false; // the puddle's poison, the drop took this entry
 	bool playerScorched = false; // the fire jet's line was told this entry (reset on leaving it)
-	// Sunlight mirrors (dungeon_sun.cpp, plan sunlight-mirrors): the beams as the mirrors and gates stand (traceBeams),
-	// the cells they light (map index); a turned mirror swings from its old angle, a sun disc just lit flares.
-	std::vector<BeamStep> sunBeams;
-	std::vector<char> sunlit = std::vector<char>(MAP_CELL_COUNT, 0);
-	struct MirrorSwing {
-		int cell;
-		int startMs;
-		float fromDeg;
-	};
-	std::vector<MirrorSwing> mirrorSwings;
-	std::vector<Motion> litDiscs;
-	void traceSunBeams(); // sunBeams and sunlit as the map stands
+	// Sunlight mirrors (dungeon_sun.cpp, plan sunlight-mirrors): the beams, the lit cells, the swings and flares.
+	SunMirrors sun;
 	// Traces the beams, lights the sun discs they fall on (their gates open), sets the sun burners in them on fire.
 	void updateSunBeams();
 	bool TurnMirror(); // interact on a mirror: a quarter turn clockwise; false if there is none
-	// Degrees round the depth axis, counter-clockwise as the camera sees it, from up: the mirror's face as it reflects
-	// the beam that falls on it (from above when none does), swinging after a turn.
-	[[nodiscard]] float mirrorAngle(int cell) const;
-	[[nodiscard]] float mirrorFaceDeg(int cell) const; // mirrorAngle without the swing
 	// Dragging (dungeon_drag.cpp, plans mirror-drag, pressure-plate): what is held, its cell (map index, -1: none),
 	// a body's monster slot, and the thing's centre's x less the player's, kept while it is dragged: it stays on that
 	// side, the player faces it.
@@ -804,7 +779,7 @@ class Dungeon {
 	// the stone, emptied chest or mirror in its cell.
 	[[nodiscard]] int WeightOn(int col, int row) const;
 	[[nodiscard]] bool PlateDown(int col, int row) const {
-		return IsInBounds(col, row) && plateDown[MapIndex(col, row)] != 0;
+		return IsInBounds(col, row) && plates.Down(MapIndex(col, row));
 	}
 	[[nodiscard]] bool PlayerCanDrag(int facing) const { return !Dragging() && findDraggable(facing).cell >= 0; }
 	// Standing in half water (not in the air): the walk slows to WADE_SPEED_FACTOR (WADE_SPEED_FACTOR_HAPI with the
@@ -1029,9 +1004,7 @@ class Dungeon {
 	// Unit tests: the map x where the missiles stuck in a wall, the floor or a solid sub-cell are.
 	[[nodiscard]] std::vector<float> StuckMissileXs() const;
 	// A beam of sunlight runs through (col, row) now (plan sunlight-mirrors); it counts as light for Lit too.
-	[[nodiscard]] bool Sunlit(int col, int row) const {
-		return IsInBounds(col, row) && sunlit[static_cast<size_t>(MapIndex(col, row))] != 0;
-	}
+	[[nodiscard]] bool Sunlit(int col, int row) const { return IsInBounds(col, row) && sun.Sunlit(MapIndex(col, row)); }
 	// Scenario `mirror`: the mirror in (col, row) points dir (BeamDir), at once. False: no mirror there.
 	bool SetMirror(int col, int row, int dir);
 	bool KillNearestMonster(); // scenario tests (plan kill-monster-command): as if the player killed it (XP, note,

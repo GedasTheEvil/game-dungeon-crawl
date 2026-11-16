@@ -137,10 +137,8 @@ bool Dungeon::dragTo(float x) {
 			return true;
 		setObject(map[cell], map[drag.cell]);
 		clearObject(map[drag.cell]);
-		for (MirrorSwing& m : mirrorSwings)
-			if (m.cell == drag.cell)
-				m.cell = cell;
-		traceSunBeams(); // the beams follow a mirror at once
+		sun.MoveSwing(drag.cell, cell);
+		sun.Trace(map); // the beams follow a mirror at once
 		break;
 	case DragKind::Chest:
 		if (to == from)

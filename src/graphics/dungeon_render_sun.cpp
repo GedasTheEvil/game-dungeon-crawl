@@ -59,7 +59,7 @@ void DungeonView::drawMirrorTile(int i, int j) {
 		set.mirrorStand->Show();
 	glTranslatef(0, BEAM_HEIGHT, BEAM_DEPTH);
 	glPushMatrix();
-	glRotatef(d.mirrorAngle(cell), 0, 0, 1);
+	glRotatef(d.sun.Angle(d.map, cell), 0, 0, 1);
 	if (set.mirror != nullptr)
 		set.mirror->Show();
 	glPopMatrix();
@@ -101,7 +101,7 @@ void DungeonView::drawSunBeams() {
 		SunBeam::glow(x, y, BEAM_Z, size, strength);
 	};
 	bool fresh = true; // the next step starts a beam, at its light shaft
-	for (const BeamStep& s : d.sunBeams) {
+	for (const BeamStep& s : d.sun.Beams()) {
 		if (fresh) {
 			edgePoint(s.cell, opposite(s.in), px, py);
 			glowAt(px, py, 22.f, 0.8f); // the crack the sun comes through
@@ -145,10 +145,7 @@ void DungeonView::drawSunBeams() {
 		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++) {
 			if (!d.IsInBounds(i, j) || d.MapAt(i, j).fixture.type != SunDisc || !sunDiscLit(d.MapAt(i, j).fixture))
 				continue;
-			float flare = 0.f;
-			for (const Dungeon::Motion& m : d.litDiscs)
-				if (m.cell == d.MapIndex(i, j))
-					flare = 1.f - motionProgress(m.startMs, SUN_DISC_FLARE_MS);
+			const float flare = d.sun.Flare(d.MapIndex(i, j));
 			float x = 0.f, y = 0.f;
 			world(static_cast<float>(i) + 0.5f, static_cast<float>(j) + BEAM_HEIGHT, x, y);
 			const float pulse = 0.08f * std::sin(static_cast<float>(now) * 0.003f + static_cast<float>(i));
@@ -162,8 +159,8 @@ void DungeonView::addSunLights(const CellRect& drawn) {
 		return col >= near.col0 && col < near.col0 + near.cols && row >= near.row0 && row < near.row0 + near.rows;
 	};
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
-	for (size_t k = 0; k < d.sunBeams.size(); k++) {
-		const BeamStep& s = d.sunBeams[k];
+	for (size_t k = 0; k < d.sun.Beams().size(); k++) {
+		const BeamStep& s = d.sun.Beams()[k];
 		const int col = s.cell % Dungeon::MAP_WIDTH, row = s.cell / Dungeon::MAP_WIDTH;
 		if (!inside(col, row) || (k % 2 != 0 && s.in == s.out && !s.ends))
 			continue;

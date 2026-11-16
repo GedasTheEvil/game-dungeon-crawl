@@ -89,7 +89,9 @@ class Player {
 	// 0..1 of the cap (POWER_CAP_PERCENT of max stamina): the charge built so far, the one of the swing under way.
 	[[nodiscard]] float ChargeShare() const;
 	[[nodiscard]] float SwingShare() const;
-	[[nodiscard]] int PowerDamage(int damage) const { return damage + damage * powerHitBonusPercent(swingPower, stats.heka.Rank(SkillId::PowerHit)) / 100; }
+	[[nodiscard]] int PowerDamage(int damage) const {
+		return damage + damage * powerHitBonusPercent(swingPower, stats.heka.Rank(SkillId::PowerHit)) / 100;
+	}
 
 	void SetModel(const ModelInfo& info); // the clips and measures of its model; standing
 	void Animate(); // once a tick: death / revival pose, the blood, the clip frame (the drawing only shows them)

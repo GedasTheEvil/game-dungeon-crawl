@@ -115,7 +115,8 @@ class PlayerStats {
 
 	[[nodiscard]] int CurrentHP() const { return vitals.hp; }
 	[[nodiscard]] int CurrentMaxHP() const {
-		const int percent = amulet.maxHpPercent + heka.ByRank(SkillId::KaOfOsiris, SKILL_HEALTH_PERCENT, SKILL_HEALTH_PERCENT_2) +
+		const int percent = amulet.maxHpPercent +
+							heka.ByRank(SkillId::KaOfOsiris, SKILL_HEALTH_PERCENT, SKILL_HEALTH_PERCENT_2) +
 							(Blessed(God::Amun) ? AMUN_MAX_HP_PERCENT : 0);
 		return cursedMaxHP(MaxHP + MaxHP * percent / 100, curses);
 	}

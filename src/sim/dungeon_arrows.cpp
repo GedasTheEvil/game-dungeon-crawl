@@ -58,8 +58,8 @@ Dungeon::ShotRefusal Dungeon::ShotRefused(ItemKind weapon, int dir) const {
 	if (rule == TooCloseRule::Never)
 		return ShotRefusal::None;
 	const float minRange = rule == TooCloseRule::MinRange ? weaponMinRange(weapon) : 0.f;
-	const float x0 = mapX + static_cast<float>(dir) * (rule == TooCloseRule::MinRange ? ARROW_LAUNCH_AHEAD
-																					: sim.player->HalfWidth());
+	const float x0 = mapX + static_cast<float>(dir) *
+								(rule == TooCloseRule::MinRange ? ARROW_LAUNCH_AHEAD : sim.player->HalfWidth());
 	const auto row = static_cast<int>(std::floor(mapY));
 	for (const Monster& mon : monsters) {
 		if (!mon.Active() || !mon.Alive() || mon.lurking() || mon.Hidden() || mon.Row() != row)

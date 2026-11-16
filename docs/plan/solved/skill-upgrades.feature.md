@@ -1,6 +1,6 @@
 # Skill upgrades: a second heka on a learnt skill
 
-Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
 
 ## Idea
 
@@ -22,7 +22,7 @@ worth a fresh skill, so the choice is about synergy, not value.
   `dodgePercent(heka)`), so rank I values stay exactly as today.
 * Chances near a cap: the rank II gain is a share of the failure left, not of the rank I gain, so nothing reaches a
   sure 100%.
-* Heka screen (`ui/skills_*`, [ui.md](../ui.md)): a learnt upgradable card shows "I" and, with a heka free, the
+* Heka screen (`ui/skills_*`, [ui.md](../../ui.md)): a learnt upgradable card shows "I" and, with a heka free, the
   upgrade action (same key/click as learning) and the rank II effect line; an upgraded card shows "II". No new icons:
   the rank is a numeral on the card. Lore text per rank II in `content/texts/skills.txt`.
 * Scenario `learn` command: `learn <skill> 2` (or `upgrade <skill>`) for tests and play scripts.
@@ -41,7 +41,7 @@ Starting points; tune in the play-test.
 | Breath of Shu | max stamina +25% | +50% | 100% |
 | Speed of Mafdet | walk, sprint +20% | +35% | 75% (movement and collision feel; the jump reach stays) |
 | Dodge | 10% | 20% | 100% |
-| Sharp eye | ranged reach 130% | 160%, no minimum range ([skill-eye-of-horus](skill-eye-of-horus.feature.md)) | 100% |
+| Sharp eye | ranged reach 130% | 160%, no minimum range ([skill-eye-of-horus](../skill-eye-of-horus.feature.md)) | 100% |
 | Stun | 25% of the blunt share | 50% | 100% (boss still half, not again within 5 s) |
 | Bleed | 20% of the cut share | 40% | 100% (tier-up halves follow it) |
 | Flaming arrows | +40% fire, 10% stamina | +80% fire, same cost | 100% |
@@ -63,7 +63,7 @@ No rank II (the user, 2026-11-16): Words of Thoth, Wisdom of Seshat, Favour of H
   resist): `rankTwoChance`, rank I plus rank I's share of the failure left: Dodge 10% -> 19%, a mace's stun 25% ->
   43%, the resists 10% -> 19%. Serket's favour and the Blessing of Isis: a third as long (`GOD_SKILL_DIVISOR_2`);
   their shrines stay twice as long at both ranks. Power hit: the curve's scale x1.75. Eye of Horus: 160%, no minimum
-  range ([skill-eye-of-horus](skill-eye-of-horus.feature.md)).
+  range ([skill-eye-of-horus](../skill-eye-of-horus.feature.md)).
 * No gate: rank II can be bought right after rank I.
 * Heka screen: the button reads "Rank II" (not "Upgrade", the shrine's word), confirmed by a second press like Learn.
   An upgradable learnt card shows "I" or "II" left of its seal (bright while a heka can deepen it); an upgraded card

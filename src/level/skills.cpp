@@ -28,16 +28,17 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Wisdom of Seshat", "Hints, names, sealed rooms", nullptr, false},
 	{"Disarm trap", "Chest traps fail, mimics shown", nullptr, false},
 	// Plan skill-quiver-of-neith: more shots, back faster (PlayerStats::Shots, ShotRecoveryPace).
-	{"Quiver of Neith", "Ranged weapons hold 40% more shots, back 25% faster", "70% more shots, back 44% faster", false},
+	{"Quiver of Neith",
+	 "Ranged weapons hold 40% more shots, back 25% faster",
+	 "70% more shots, back 44% faster",
+	 false},
 	// Plan skill-bleed: a cutting hit may make a foe bleed.
 	{"Bleed", "Cutting hits may make a foe bleed", "Bleeds nearly twice as often", false},
 }};
 
 const char* skillLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".lore").c_str(); }
 
-const char* skillRankTwoLore(SkillId id) {
-	return gameText("skill." + textSlug(skillDef(id).name) + ".rank2").c_str();
-}
+const char* skillRankTwoLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".rank2").c_str(); }
 
 bool Heka::Earn(int level) {
 	if (level == CAMPAIGN_LEVELS || std::ranges::contains(levels, level))
@@ -52,9 +53,7 @@ int Heka::Spent() const { return std::popcount(learned) + std::popcount(upgraded
 
 bool Heka::CanLearn(SkillId id) const { return !skillDef(id).sealed && !Has(id) && Free() > 0; }
 
-bool Heka::CanUpgrade(SkillId id) const {
-	return Has(id) && upgradable(id) && (upgraded & bit(id)) == 0 && Free() > 0;
-}
+bool Heka::CanUpgrade(SkillId id) const { return Has(id) && upgradable(id) && (upgraded & bit(id)) == 0 && Free() > 0; }
 
 bool Heka::Waiting() const {
 	if (Free() <= 0)

@@ -125,7 +125,8 @@ class Heka {
 	// Spends a heka on rank II; false (nothing spent) unless CanUpgrade.
 	bool Upgrade(SkillId id);
 
-	// "HEKA n level... learnt upgraded"; LoadDump reads it when the tag is there (saves from before the skills have none).
+	// "HEKA n level... learnt upgraded"; LoadDump reads it when the tag is there (saves from before the skills have
+	// none).
 	void Dump(std::ostream& out) const;
 	void LoadDump(std::istream& in);
 

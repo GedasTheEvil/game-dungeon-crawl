@@ -326,8 +326,8 @@ struct ItemDef {
 [[nodiscard]] inline const DamageMix& weaponMix(ItemKind weapon) { return weaponDef(weapon).mix; }
 // Tiles: the melee reach from the player's box edge, or how far the ranged weapon aims (WeaponDef::range).
 [[nodiscard]] inline float weaponReach(ItemKind weapon) { return 0.1f * static_cast<float>(weaponDef(weapon).range); }
-// With the Eye of Horus skill (plans skill-sharp-eye, skill-eye-of-horus) a ranged weapon aims EYE_OF_HORUS_RANGE_PERCENT
-// % as far, EYE_OF_HORUS_RANGE_PERCENT_2 at rank II; melee reach is not changed.
+// With the Eye of Horus skill (plans skill-sharp-eye, skill-eye-of-horus) a ranged weapon aims
+// EYE_OF_HORUS_RANGE_PERCENT % as far, EYE_OF_HORUS_RANGE_PERCENT_2 at rank II; melee reach is not changed.
 constexpr int EYE_OF_HORUS_RANGE_PERCENT = 130;
 [[nodiscard]] inline float weaponReach(ItemKind weapon, const Heka& heka) {
 	const float reach = weaponReach(weapon);

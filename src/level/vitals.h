@@ -94,8 +94,8 @@ class Vitals {
 		trapCarry = static_cast<int>(total % 1000);
 		return static_cast<int>(total / 1000);
 	}
-	// A poisoned hit: that tier (re)starts (1 / divisor of the time, Serket's favour) unless the ward (percent, rolled on
-	// rng only when > 0) shrugs it off. True: it took.
+	// A poisoned hit: that tier (re)starts (1 / divisor of the time, Serket's favour) unless the ward (percent, rolled
+	// on rng only when > 0) shrugs it off. True: it took.
 	bool TakePoison(PoisonTier tier, int wardPercent, Rng& rng, HarmSource source, int divisor = 1) {
 		if (wardPercent > 0 && rng.percent(wardPercent))
 			return false;

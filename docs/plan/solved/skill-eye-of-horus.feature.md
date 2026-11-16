@@ -1,12 +1,12 @@
 # Skill: Eye of Horus (Sharp eye renamed, the minimum range shrinks)
 
-Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
 
 ## Idea
 
 The user: the Sharp eye skill becomes "Eye of Horus". Next to its range bonus (ranged reach 130%,
 `SHARP_EYE_RANGE_PERCENT`) it takes the minimum range of ranged weapons away
-([ranged-weaker-than-melee](solved/ranged-weaker-than-melee.md)):
+([ranged-weaker-than-melee](ranged-weaker-than-melee.md)):
 
 * Rank I (the skill learnt): the minimum range shrinks to the player's hitbox. A shot is refused as too close
   (`ShotRefusal::TooClose`) only while the player's and the monster's hitboxes intersect.
@@ -25,7 +25,7 @@ The user: the Sharp eye skill becomes "Eye of Horus". Next to its range bonus (r
   (`src/level/items.h`) that takes the `Heka`, as `weaponReach` does, keeps the rule in one place.
 * Rank II: if skill-upgrades is implemented first, its Sharp eye row gets "no minimum range" on top of its reach; if
   this draft lands first, skill-upgrades adds rank II here (the skill-upgrades implementer reads this draft).
-* The headless sim's kite (backs off to the bow's minimum range, [monster-balance](solved/monster-balance.md))
+* The headless sim's kite (backs off to the bow's minimum range, [monster-balance](monster-balance.md))
   reads the same helper, so a sim player with the skill stops backing off.
 * Unit tests: refusal with and without the skill, hitboxes touching vs. a gap of 0.1 tile, rank II never refuses.
 * Scenario: a monster next to the player (gap below the bow's minimum range, no overlap): refused without the skill,

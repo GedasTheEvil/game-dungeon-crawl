@@ -77,8 +77,9 @@ float PlayerStats::SprintMoveMultiplier() const {
 
 float PlayerStats::WalkFactor(bool airborne, bool firmGround) const {
 	const float rings = airborne ? 1.f : static_cast<float>(100 + this->rings.speedPercent) / 100.f;
-	const int swift = !airborne && firmGround ? heka.ByRank(SkillId::SpeedOfMafdet, SKILL_SPEED_PERCENT, SKILL_SPEED_PERCENT_2)
-											  : 0;
+	const int swift = !airborne && firmGround
+						  ? heka.ByRank(SkillId::SpeedOfMafdet, SKILL_SPEED_PERCENT, SKILL_SPEED_PERCENT_2)
+						  : 0;
 	const float skill = static_cast<float>(100 + swift) / 100.f;
 	return (curses.Has(Curse::Slowness) ? SLOWNESS_WALK_FACTOR : 1.f) * rings * skill;
 }
@@ -245,7 +246,8 @@ int PlayerStats::TypeMightPercent(const DamageMix& mix) const {
 
 int PlayerStats::Shots(ItemKind weapon) const {
 	const int shots = weaponDef(weapon).shots;
-	const int percent = amulet.shotsPercent + heka.ByRank(SkillId::QuiverOfNeith, QUIVER_SHOTS_PERCENT, QUIVER_SHOTS_PERCENT_2);
+	const int percent = amulet.shotsPercent +
+						heka.ByRank(SkillId::QuiverOfNeith, QUIVER_SHOTS_PERCENT, QUIVER_SHOTS_PERCENT_2);
 	if (shots == 0 || percent == 0)
 		return shots;
 	return shots + std::max(1, (shots * percent + 99) / 100);

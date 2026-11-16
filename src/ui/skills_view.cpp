@@ -297,10 +297,16 @@ void SkillsScreen::DrawCard(int card) {
 	const Color nameColor = sealed ? DIM_TEXT : (hovered ? TEXT_HOVER : (learnt ? GOLD : LABEL));
 	beginText();
 	text(body, textX, r.y + CARD_NAME_Y, def.name, nameColor);
-	if (learnt && upgradable(id)) { // the rank (plan skill-upgrades), left of the seal; bright once a heka can deepen it
+	// The rank (plan skill-upgrades), left of the seal; bright once a heka can deepen it.
+	if (learnt && upgradable(id)) {
 		const char* rank = heka().Rank(id) == 2 ? "II" : "I";
-		text(small, markX - CARD_MARK - 1.f - small.TextWidth(rank), markY - 1.f, rank,
-			 heka().CanUpgrade(id) ? GOLD_BRIGHT : GOLD);
+		text(
+			small,
+			markX - CARD_MARK - 1.f - small.TextWidth(rank),
+			markY - 1.f,
+			rank,
+			heka().CanUpgrade(id) ? GOLD_BRIGHT : GOLD
+		);
 	}
 	float y = r.y + CARD_EFFECT_Y;
 	for (const std::string& l : EffectLines(card, heka().Rank(id) == 2)) {
@@ -350,14 +356,15 @@ void SkillsScreen::DrawDetails() {
 	}
 
 	const bool done = rank == 2 || (learnt && !deepen); // nothing more to buy
-	const char* status = rank == 2				? "Rank II learnt"
-						 : done					? "Learnt"
+	const char* status = rank == 2				 ? "Rank II learnt"
+						 : done					 ? "Learnt"
 						 : def.sealed && !learnt ? "Sealed: not in this tomb yet"
-						 : !canLearn			? (learnt ? "Rank I learnt. Rank II needs 1 heka" : "Needs 1 heka: slay a guardian")
-						 : confirming			? "For good: no unlearning"
-												: (learnt ? "Rank I learnt. Rank II costs 1 heka" : "Costs 1 heka");
+						 : !canLearn
+							 ? (learnt ? "Rank I learnt. Rank II needs 1 heka" : "Needs 1 heka: slay a guardian")
+						 : confirming ? "For good: no unlearning"
+									  : (learnt ? "Rank I learnt. Rank II costs 1 heka" : "Costs 1 heka");
 	const Color statusColor = done ? INK_GREEN
-									: (def.sealed && !learnt ? INK_FADED : (!canLearn || confirming ? INK_RED : INK));
+								   : (def.sealed && !learnt ? INK_FADED : (!canLearn || confirming ? INK_RED : INK));
 	textCentered(small, p.cx(), DETAIL_STATUS_Y, status, statusColor);
 	beginShapes();
 	if (done)

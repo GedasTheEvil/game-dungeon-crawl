@@ -9,7 +9,8 @@
 int powerHitBonusPercent(int points, int rank) {
 	if (points <= 0)
 		return 0;
-	const double scale = POWER_CURVE_SCALE * (rank == 2 ? POWER_CURVE_RANK_2_PERCENT : 100) / 100.0; // plan skill-upgrades
+	const double scale = POWER_CURVE_SCALE * (rank == 2 ? POWER_CURVE_RANK_2_PERCENT : 100) /
+						 100.0; // plan skill-upgrades
 	return static_cast<int>(std::lround(scale * std::log1p(static_cast<double>(points) / POWER_CURVE_POINTS)));
 }
 

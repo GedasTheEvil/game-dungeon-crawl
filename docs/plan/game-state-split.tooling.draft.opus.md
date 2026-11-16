@@ -14,11 +14,11 @@ loop).
 ## Plan
 
 * One piece at a time:
-  * the sound mapping to `audio/`;
-  * `DrawLoad` to `graphics/`;
+  * done 2026-11-16: the sound mapping next to its data (`SoundBank::Of`, `CharacterModel::SoundOf`);
+  * done 2026-11-16: `DrawLoad` to `Assets::DrawLoadingScreen` (`graphics/assets.cpp`);
+  * done 2026-11-16: `PlayerActionController`, `playerControl()`, the held walk, charge and look steps from input
+    to `state/gameplay_commands.*`;
   * saves to a `SaveService` (`state/saves.cpp`);
-  * `PlayerActionController`, `playerControl()` and the held-walk and charge steps from input to
-    `state/gameplay_commands.cpp`;
   * the gameplay actions still in the inventory screen (quick drink, equip, wear, add item; plan
     [bag-out-of-inventory](solved/bag-out-of-inventory.tooling.md)).
 * Screens take explicit references (as `Inventory::Actor()` does) instead of `Game()`.

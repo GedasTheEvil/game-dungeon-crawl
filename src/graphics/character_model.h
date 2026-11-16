@@ -18,6 +18,8 @@ struct CharacterClips {
 
 // The clips, texture and sounds of one character (a monster type or the player), loaded once and shared by every
 // instance. Instances keep their own ModelState and ClipPlayback.
+enum class CharacterSound : unsigned char; // level/world_events.h
+
 class CharacterModel {
   private:
 	std::shared_ptr<const CharacterClips> shape = std::make_shared<CharacterClips>(); // empty until Load
@@ -28,6 +30,8 @@ class CharacterModel {
   public:
 	// media/sounds/<category>/<name>_{die,att,jump,wake,att_ranged,roar}.wav, all optional
 	Sound dieSound, attackSound, jumpSound, wakeSound, attackRangedSound, roarSound;
+	// The model's sound for a world event's CharacterSound.
+	[[nodiscard]] const Sound& SoundOf(CharacterSound sound) const;
 
 	// The model files of name, parsed without GL (any thread): Load's first half.
 	struct Parsed {

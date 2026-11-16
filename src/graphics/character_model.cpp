@@ -65,3 +65,21 @@ void CharacterModel::Show(ModelState state, const ClipPlayback& playback, int te
 	const ModelState shown = info.Shown(state);
 	Clip(shown)->Show(playback[static_cast<int>(shown)], texture >= 0 ? texture : this->texture.ID());
 }
+
+const Sound& CharacterModel::SoundOf(CharacterSound sound) const {
+	switch (sound) {
+	case CharacterSound::Die:
+		return dieSound;
+	case CharacterSound::Attack:
+		return attackSound;
+	case CharacterSound::Jump:
+		return jumpSound;
+	case CharacterSound::Wake:
+		return wakeSound;
+	case CharacterSound::AttackRanged:
+		return attackRangedSound;
+	case CharacterSound::Roar:
+		return roarSound;
+	}
+	std::unreachable();
+}

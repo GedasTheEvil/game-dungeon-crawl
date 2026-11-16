@@ -1,4 +1,5 @@
 #include "assets.h"
+#include "../render/gl_includes.h"
 #include "../level/monster_kinds.h"
 #include <cstdio>
 #include <algorithm>
@@ -492,4 +493,181 @@ void Assets::Load(const std::function<void(float, const char*, const char*)>& pr
 	progress(95, "Loading game font", "");
 	loadFonts(fonts);
 	textureBatch.Finish();
+}
+
+Sound& SoundBank::Of(WorldSound sound) {
+	switch (sound) {
+	case WorldSound::ArrowHit:
+		return arrowHit;
+	case WorldSound::ArrowWall:
+		return arrowWall;
+	case WorldSound::StoneHit:
+		return stoneHit;
+	case WorldSound::StoneWall:
+		return stoneWall;
+	case WorldSound::KeyPickup:
+		return keyPickup;
+	case WorldSound::GateOpen:
+		return gateOpen;
+	case WorldSound::GateLocked:
+		return gateLocked;
+	case WorldSound::Lever:
+		return lever;
+	case WorldSound::RockRumble:
+		return rockRumble;
+	case WorldSound::RockCrash:
+		return rockCrash;
+	case WorldSound::SandHiss:
+		return sandHiss;
+	case WorldSound::SandPour:
+		return sandPour;
+	case WorldSound::SandStep:
+		return sandStep;
+	case WorldSound::Teleport:
+		return teleport;
+	case WorldSound::SummonDig:
+		return summonDig;
+	case WorldSound::SummonDrop:
+		return summonDrop;
+	case WorldSound::Wade:
+		return wade;
+	case WorldSound::Splash:
+		return splash;
+	case WorldSound::PlateClick:
+		return plateClick;
+	case WorldSound::Dart:
+		return dart;
+	case WorldSound::SpikeScrape:
+		return spikeScrape;
+	case WorldSound::SpikeThunk:
+		return spikeThunk;
+	case WorldSound::FireHiss:
+		return fireHiss;
+	case WorldSound::FireRoar:
+		return fireRoar;
+	case WorldSound::DripPlips:
+		return dripPlips;
+	case WorldSound::DripCreak:
+		return dripCreak;
+	case WorldSound::DripSplat:
+		return dripSplat;
+	case WorldSound::GustRise:
+		return gustRise;
+	case WorldSound::GustBlow:
+		return gustBlow;
+	case WorldSound::MirrorTurn:
+		return mirrorTurn;
+	case WorldSound::SunDisc:
+		return sunDisc;
+	case WorldSound::RingsDown:
+		return ringsDown;
+	case WorldSound::RingsUp:
+		return ringsUp;
+	case WorldSound::ChevronLock:
+		return chevronLock;
+	case WorldSound::ChevronFail:
+		return chevronFail;
+	case WorldSound::DialPress:
+		return dialPress;
+	case WorldSound::Dodge:
+		return dodge;
+	case WorldSound::PowerHit:
+		return powerHit;
+	case WorldSound::LidWood:
+		return lidWood;
+	case WorldSound::LidReed:
+		return lidReed;
+	case WorldSound::LidStone:
+		return lidStone;
+	case WorldSound::JarSmash:
+		return jarSmash;
+	case WorldSound::LidCoffin:
+		return lidCoffin;
+	case WorldSound::PagePickup:
+		return pageTurn;
+	case WorldSound::DungThud:
+		return dungThud;
+	case WorldSound::ShotDry:
+		return shotDry;
+	case WorldSound::ShotTooClose:
+		return shotTooClose;
+	case WorldSound::HeadBump:
+		return headBump;
+	case WorldSound::ShrinePray:
+	case WorldSound::ShrinePrayMontu:
+	case WorldSound::ShrinePrayPtah:
+	case WorldSound::ShrinePrayAmun:
+	case WorldSound::ShrinePraySerket:
+		return shrinePray[static_cast<int>(sound) - static_cast<int>(WorldSound::ShrinePray)];
+	case WorldSound::ItemOn:
+		return amulet_s;
+	case WorldSound::Drink:
+		return drink_s;
+	case WorldSound::LandSoft:
+		return landSoft;
+	case WorldSound::LandHard:
+		return landHard;
+	}
+	std::unreachable();
+}
+
+void Assets::DrawLoadingScreen(float percent, const char step[], const char detail[]) {
+	LOG_INFOF("loading", "DrawLoadingScreen %.0f%%: %s [%s]", static_cast<double>(percent), step, detail);
+
+	if (percent > 100)
+		percent = 100;
+
+	percent *= 1.18;
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
+	glLoadIdentity();
+
+	glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
+	glLoadIdentity(); // Reset The Projection Matrix
+	glOrtho(0, 140, 0, 140, -200, 200); // Set Up An Ortho Screen
+	glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
+
+	// Background image
+	textures.loadingBackground.Bind();
+
+	glBegin(GL_QUADS);
+	glNormal3f(0, 0, 1);
+	glTexCoord2f(0, 0);
+	glVertex3i(0, 0, -40);
+	glTexCoord2f(0, 1);
+	glVertex3i(0, 140, -40);
+	glTexCoord2f(1, 1);
+	glVertex3i(140, 140, -40);
+	glTexCoord2f(1, 0);
+	glVertex3i(140, 0, -40);
+	glEnd();
+
+	// progressbar
+	textures.loadingBar.Bind();
+
+	glColor3f(1.2, 0.6, 0);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0);
+	glVertex3f(10, 28, 0);
+	glTexCoord2f(1, 0);
+	glVertex3f(percent + 10, 28, 0);
+	glTexCoord2f(1, 1);
+	glVertex3f(percent + 10, 38, 0);
+	glTexCoord2f(0, 1);
+	glVertex3f(10, 38, 0);
+	glEnd();
+
+	glColor3f(1, 1, 1);
+
+	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+	glEnable(GL_BLEND);
+	fonts.loading.print(loading_text::LEFT, 17, step);
+	glColor3f(0.9f, 0.9f, 0.9f); // the detail line, a little dimmer
+	fonts.loadingDetail.print(loading_text::LEFT, 9.5f, detail);
+	glColor3f(1, 1, 1);
+	glDisable(GL_BLEND);
+
+	glFlush();
+
+	glutSwapBuffers();
 }

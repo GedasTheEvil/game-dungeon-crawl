@@ -164,6 +164,8 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   monster types). The rows come from the level library: `KINDS` (`level/monster_kinds.cpp`), `ITEMS` (`level/items.cpp`).
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status lines
   (`ShowStatus`, `MessageLog`), save / load.
+* `state/gameplay_commands.*` - what a key, a click or a scenario asks the player to do (walk, attack, drinks, the
+  look keys) and the per-tick steps of the keys held; `input/` maps the bound keys to them.
 * `state/settings*` - `Settings`: the Options choices and key bindings, kept in `saves/settings.ini`
   ([settings.md](settings.md)).
 * `sim/` - `Dungeon` (the level being played: map, monsters, mechanisms, decorations, save data), `MonsterType`

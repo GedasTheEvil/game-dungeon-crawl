@@ -3,7 +3,7 @@
 #include <cstring>
 
 // The loading screen's two text lines (plan loading-two-lines). The fonts are monospaced, so the width maths is
-// plain: Assets::LoadLoadingScreen, DrawLoad and the unit test share these numbers.
+// plain: Assets::LoadLoadingScreen, DrawLoadingScreen and the unit test share these numbers.
 namespace loading_text {
 constexpr float STEP_SIZE = 7.f; // line 1: what loads
 constexpr float STEP_SPACING = -1.f;

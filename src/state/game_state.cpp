@@ -66,8 +66,10 @@ UiScreen* UIContext::TabScreen() {
 
 void GameState::Load() {
 	assets.LoadLoadingScreen();
-	DrawLoad(10, "Loading", "");
-	assets.Load([this](float percent, const char* step, const char* detail) { DrawLoad(percent, step, detail); });
+	assets.DrawLoadingScreen(10, "Loading", "");
+	assets.Load([this](float percent, const char* step, const char* detail) {
+		assets.DrawLoadingScreen(percent, step, detail);
+	});
 	ui.riddle = std::make_unique<Riddle>();
 	ui.inventory = std::make_unique<Inventory>(bag);
 
@@ -118,146 +120,14 @@ void GameState::PushStatus(const std::string& text, StatusTone tone) {
 }
 //==============================================================
 namespace {
-Sound& soundOf(SoundBank& sounds, WorldSound sound) {
-	switch (sound) {
-	case WorldSound::ArrowHit:
-		return sounds.arrowHit;
-	case WorldSound::ArrowWall:
-		return sounds.arrowWall;
-	case WorldSound::StoneHit:
-		return sounds.stoneHit;
-	case WorldSound::StoneWall:
-		return sounds.stoneWall;
-	case WorldSound::KeyPickup:
-		return sounds.keyPickup;
-	case WorldSound::GateOpen:
-		return sounds.gateOpen;
-	case WorldSound::GateLocked:
-		return sounds.gateLocked;
-	case WorldSound::Lever:
-		return sounds.lever;
-	case WorldSound::RockRumble:
-		return sounds.rockRumble;
-	case WorldSound::RockCrash:
-		return sounds.rockCrash;
-	case WorldSound::SandHiss:
-		return sounds.sandHiss;
-	case WorldSound::SandPour:
-		return sounds.sandPour;
-	case WorldSound::SandStep:
-		return sounds.sandStep;
-	case WorldSound::Teleport:
-		return sounds.teleport;
-	case WorldSound::SummonDig:
-		return sounds.summonDig;
-	case WorldSound::SummonDrop:
-		return sounds.summonDrop;
-	case WorldSound::Wade:
-		return sounds.wade;
-	case WorldSound::Splash:
-		return sounds.splash;
-	case WorldSound::PlateClick:
-		return sounds.plateClick;
-	case WorldSound::Dart:
-		return sounds.dart;
-	case WorldSound::SpikeScrape:
-		return sounds.spikeScrape;
-	case WorldSound::SpikeThunk:
-		return sounds.spikeThunk;
-	case WorldSound::FireHiss:
-		return sounds.fireHiss;
-	case WorldSound::FireRoar:
-		return sounds.fireRoar;
-	case WorldSound::DripPlips:
-		return sounds.dripPlips;
-	case WorldSound::DripCreak:
-		return sounds.dripCreak;
-	case WorldSound::DripSplat:
-		return sounds.dripSplat;
-	case WorldSound::GustRise:
-		return sounds.gustRise;
-	case WorldSound::GustBlow:
-		return sounds.gustBlow;
-	case WorldSound::MirrorTurn:
-		return sounds.mirrorTurn;
-	case WorldSound::SunDisc:
-		return sounds.sunDisc;
-	case WorldSound::RingsDown:
-		return sounds.ringsDown;
-	case WorldSound::RingsUp:
-		return sounds.ringsUp;
-	case WorldSound::ChevronLock:
-		return sounds.chevronLock;
-	case WorldSound::ChevronFail:
-		return sounds.chevronFail;
-	case WorldSound::DialPress:
-		return sounds.dialPress;
-	case WorldSound::Dodge:
-		return sounds.dodge;
-	case WorldSound::PowerHit:
-		return sounds.powerHit;
-	case WorldSound::LidWood:
-		return sounds.lidWood;
-	case WorldSound::LidReed:
-		return sounds.lidReed;
-	case WorldSound::LidStone:
-		return sounds.lidStone;
-	case WorldSound::JarSmash:
-		return sounds.jarSmash;
-	case WorldSound::LidCoffin:
-		return sounds.lidCoffin;
-	case WorldSound::PagePickup:
-		return sounds.pageTurn;
-	case WorldSound::DungThud:
-		return sounds.dungThud;
-	case WorldSound::ShotDry:
-		return sounds.shotDry;
-	case WorldSound::ShotTooClose:
-		return sounds.shotTooClose;
-	case WorldSound::HeadBump:
-		return sounds.headBump;
-	case WorldSound::ShrinePray:
-	case WorldSound::ShrinePrayMontu:
-	case WorldSound::ShrinePrayPtah:
-	case WorldSound::ShrinePrayAmun:
-	case WorldSound::ShrinePraySerket:
-		return sounds.shrinePray[static_cast<int>(sound) - static_cast<int>(WorldSound::ShrinePray)];
-	case WorldSound::ItemOn:
-		return sounds.amulet_s;
-	case WorldSound::Drink:
-		return sounds.drink_s;
-	case WorldSound::LandSoft:
-		return sounds.landSoft;
-	case WorldSound::LandHard:
-		return sounds.landHard;
-	}
-	std::unreachable();
-}
 bool isGustSound(WorldSound sound) { return sound == WorldSound::GustRise || sound == WorldSound::GustBlow; }
-const Sound& characterSound(const CharacterModel& model, CharacterSound sound) {
-	switch (sound) {
-	case CharacterSound::Die:
-		return model.dieSound;
-	case CharacterSound::Attack:
-		return model.attackSound;
-	case CharacterSound::Jump:
-		return model.jumpSound;
-	case CharacterSound::Wake:
-		return model.wakeSound;
-	case CharacterSound::AttackRanged:
-		return model.attackRangedSound;
-	case CharacterSound::Roar:
-		return model.roarSound;
-	}
-	std::unreachable();
-}
 } // namespace
 
 void GameState::ApplyWorldEvents() {
 	for (const WorldEvent& event : events.Take())
 		switch (event.kind) {
 		case WorldEvent::Kind::Sound: // a gust's wind drowns the rest (plan sandstorm-halls)
-			soundOf(assets.sounds, event.sound).Play(isGustSound(event.sound) ? 1.f : 1.f - dungeon.SoundMuffle());
+			assets.sounds.Of(event.sound).Play(isGustSound(event.sound) ? 1.f : 1.f - dungeon.SoundMuffle());
 			break;
 		case WorldEvent::Kind::Status:
 			PushStatus(event.text, event.tone);
@@ -266,11 +136,8 @@ void GameState::ApplyWorldEvents() {
 			journal.LearnNote(event.note);
 			break;
 		case WorldEvent::Kind::CharacterSound:
-			characterSound(
-				event.who == PLAYER_CHARACTER ? playerView.Model()
-											  : assets.monsterModels[static_cast<size_t>(event.who)],
-				event.character
-			)
+			(event.who == PLAYER_CHARACTER ? playerView.Model() : assets.monsterModels[static_cast<size_t>(event.who)])
+				.SoundOf(event.character)
 				.Play(1.f - dungeon.SoundMuffle());
 			break;
 		case WorldEvent::Kind::AskRiddle:
@@ -420,66 +287,6 @@ void GameState::ApplySettings(bool save) {
 		SettingsFile::Save(settings);
 }
 //==============================================================
-void GameState::DrawLoad(float xxx, const char step[], const char detail[]) {
-	LOG_INFOF("loading", "DrawLoad %.0f%%: %s [%s]", static_cast<double>(xxx), step, detail);
-
-	if (xxx > 100)
-		xxx = 100;
-
-	xxx *= 1.18;
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
-	glLoadIdentity(); // Reset The Projection Matrix
-	glOrtho(0, 140, 0, 140, -200, 200); // Set Up An Ortho Screen
-	glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
-
-	// Background image
-	assets.textures.loadingBackground.Bind();
-
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0, 0);
-	glVertex3i(0, 0, -40);
-	glTexCoord2f(0, 1);
-	glVertex3i(0, 140, -40);
-	glTexCoord2f(1, 1);
-	glVertex3i(140, 140, -40);
-	glTexCoord2f(1, 0);
-	glVertex3i(140, 0, -40);
-	glEnd();
-
-	// progressbar
-	assets.textures.loadingBar.Bind();
-
-	glColor3f(1.2, 0.6, 0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex3f(10, 28, 0);
-	glTexCoord2f(1, 0);
-	glVertex3f(xxx + 10, 28, 0);
-	glTexCoord2f(1, 1);
-	glVertex3f(xxx + 10, 38, 0);
-	glTexCoord2f(0, 1);
-	glVertex3f(10, 38, 0);
-	glEnd();
-
-	glColor3f(1, 1, 1);
-
-	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	glEnable(GL_BLEND);
-	assets.fonts.loading.print(loading_text::LEFT, 17, step);
-	glColor3f(0.9f, 0.9f, 0.9f); // the detail line, a little dimmer
-	assets.fonts.loadingDetail.print(loading_text::LEFT, 9.5f, detail);
-	glColor3f(1, 1, 1);
-	glDisable(GL_BLEND);
-
-	glFlush();
-
-	glutSwapBuffers();
-}
 //==============================================================
 // The settings a save keeps (plan save-remembers-ui-state): the player's look and the two screens' pages.
 UiViewState GameState::ViewState() const {

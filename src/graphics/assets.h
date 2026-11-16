@@ -15,6 +15,7 @@
 #include "../level/items.h"
 #include "../level/level.h"
 #include "../level/shrines.h"
+#include "../level/world_events.h"
 #include <array>
 #include <functional>
 #include <memory>
@@ -48,6 +49,9 @@ struct SoundBank {
 	Sound chevronLock, chevronFail,
 		dialPress; // the Stargate dialled, the seventh failing, its dial device (plan stargate-chamber)
 	Ambience ambience; // the zone's loop (plan zone-looks): media/sounds/ambience/<ZoneLook::ambience>.wav
+
+	// The sound a world event plays (GameState::ApplyWorldEvents).
+	[[nodiscard]] Sound& Of(WorldSound sound);
 };
 
 struct FontSet {
@@ -142,6 +146,8 @@ struct Assets {
 
 	// The loading screen's own background, bar and font, before everything else.
 	void LoadLoadingScreen();
+	// The loading screen: its background, the bar at `percent` (0..100), what loads and its detail; swaps the buffers.
+	void DrawLoadingScreen(float percent, const char step[], const char detail[]);
 	// progress(percent, step, detail) draws the loading screen.
 	void Load(const std::function<void(float, const char*, const char*)>& progress);
 };

@@ -1,6 +1,6 @@
 # The player's position and motion in Player, not Dungeon
 
-Status: draft 2026-11-16, size M, needs nothing first.
+Status: draft 2026-11-16, size M, needs nothing first. On hold: a field move alone (about 410 lines) leaves the movement rules and the Player*() queries in Dungeon, which need the map; worth it only together with moving the movement logic (size L).
 
 ## Problem
 

@@ -263,7 +263,7 @@ void DungeonView::DrawTreasureTile(int i, int j) {
 		0,
 		RenderConfig::ITEM_OFFSET_Z + look.z * RenderConfig::TILE_SIZE
 	);
-	Item& container = *assets.items.containers[std::to_underlying(look.kind)];
+	Item& container = look.cursed ? *assets.items.cursedChest : *assets.items.containers[std::to_underlying(look.kind)];
 	container.rotA = look.yaw;
 	// A trapped one's tell (plan trapped-chests): darker, a stained brown, only with the player close by.
 	if (const float tell = d.chestTell(cell); tell > 0.f) {

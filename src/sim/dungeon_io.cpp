@@ -7,10 +7,11 @@
 
 namespace {
 // The containers in a save: one character per cell after the tag. An opened container is saved as open, its clip
-// played. A dropped one: the chest, or a dead mimic jar's jar (plan tomb-curse-containers).
+// played. A dropped one: the chest, a dead mimic jar's jar (plan tomb-curse-containers), or a dead cursed mimic's chest
+// (plan cursed-mimic-chest-look).
 constexpr std::string_view CONTAINERS_TAG = "containers:";
 constexpr char CLOSED = '.', OPENED = 'o', EMPTIED = 'e', DROPPED = 'd', DROPPED_EMPTIED = 'x', DROPPED_JAR = 'j',
-			   DROPPED_JAR_EMPTIED = 'k';
+			   DROPPED_JAR_EMPTIED = 'k', DROPPED_CURSED = 'c', DROPPED_CURSED_EMPTIED = 'y';
 // The hurt monsters in a save (plan save-live-monsters): the tag, their count, then col row hp each; the boss fight's
 // counters after BOSS_TAG, if one runs. Saves from before have neither.
 constexpr std::string_view MONSTERS_TAG = "monsters:";
@@ -22,6 +23,8 @@ char Dungeon::containerChar(const ContainerCell& c) {
 		return CLOSED;
 	if (c.dropped && c.droppedKind == Container::Jar)
 		return c.emptied ? DROPPED_JAR_EMPTIED : DROPPED_JAR;
+	if (c.dropped && c.cursed)
+		return c.emptied ? DROPPED_CURSED_EMPTIED : DROPPED_CURSED;
 	if (c.dropped)
 		return c.emptied ? DROPPED_EMPTIED : DROPPED;
 	return c.emptied ? EMPTIED : OPENED;
@@ -30,10 +33,12 @@ char Dungeon::containerChar(const ContainerCell& c) {
 Dungeon::ContainerCell Dungeon::containerFromChar(char c) {
 	ContainerCell cell;
 	const bool jar = c == DROPPED_JAR || c == DROPPED_JAR_EMPTIED;
-	cell.opened = c == OPENED || c == EMPTIED || c == DROPPED || c == DROPPED_EMPTIED || jar;
-	cell.emptied = c == EMPTIED || c == DROPPED_EMPTIED || c == DROPPED_JAR_EMPTIED;
-	cell.dropped = c == DROPPED || c == DROPPED_EMPTIED || jar;
+	const bool cursed = c == DROPPED_CURSED || c == DROPPED_CURSED_EMPTIED;
+	cell.opened = c == OPENED || c == EMPTIED || c == DROPPED || c == DROPPED_EMPTIED || jar || cursed;
+	cell.emptied = c == EMPTIED || c == DROPPED_EMPTIED || c == DROPPED_JAR_EMPTIED || c == DROPPED_CURSED_EMPTIED;
+	cell.dropped = c == DROPPED || c == DROPPED_EMPTIED || jar || cursed;
 	cell.droppedKind = jar ? Container::Jar : Container::Chest;
+	cell.cursed = cursed;
 	cell.openedMs = GameClock::now() - CONTAINER_OPENED_LONG_AGO_MS;
 	return cell;
 }

@@ -250,6 +250,10 @@ void loadItems(ItemPrototypes& items, const Progress& progress, BarSpan span) {
 	items.cursedCoffin = std::make_unique<Item>();
 	items.cursedCoffin->shareModel(coffin, "container_coffin_cursed");
 	items.cursedCoffin->scale = coffin.scale;
+	const Item& chest = *items.containers[std::to_underlying(Container::Chest)];
+	items.cursedChest = std::make_unique<Item>();
+	items.cursedChest->shareModel(chest, "treasure_chest_cursed"); // tools/blender/models/mimic.py --cursed
+	items.cursedChest->scale = chest.scale;
 	loadPotions(items);
 	for (size_t i = 0; i < AMULET_TYPE_COUNT; i++)
 		items.amulets[i] = loadItem(amuletModel(static_cast<AmuletType>(i)), AMULET_SCALE);

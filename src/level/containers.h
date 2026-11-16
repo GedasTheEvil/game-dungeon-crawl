@@ -77,6 +77,7 @@ struct TreasureLook {
 	int16_t yaw = 0;
 	float x = 0.f, z = 0.f;
 	bool inscribed = false; // a coffin with an execration text on its lid (COFFIN_INSCRIBED_PERCENT)
+	bool cursed = false; // a dead cursed mimic's chest: the cursed mimic's colours (droppedLook)
 };
 
 // The stances, by weight: facing the camera, angled, side-on, pushed against the back wall, its back against
@@ -100,7 +101,10 @@ constexpr StanceDef STANCES[STANCE_COUNT] = {
 };
 
 // A kill's chest and the one a dead mimic leaves (plan treasure-containers): a plain wooden chest facing the camera
-// where the mimic stood, open from the start. A dead mimic jar leaves its smashed jar (plan tomb-curse-containers).
-constexpr TreasureLook droppedLook(Container kind = Container::Chest) { return TreasureLook{kind}; }
+// where the mimic stood, open from the start. A dead mimic jar leaves its smashed jar (plan tomb-curse-containers), a
+// dead cursed mimic a chest in its colours (plan cursed-mimic-chest-look).
+constexpr TreasureLook droppedLook(Container kind = Container::Chest, bool cursed = false) {
+	return TreasureLook{.kind = kind, .cursed = cursed};
+}
 
 #endif

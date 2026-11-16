@@ -207,9 +207,9 @@ void Dungeon::openContainer() {
 		coffinCurse();
 }
 //======================================================================================
-void Dungeon::placeDroppedChest(int cell, ItemFileId item, Container kind) {
+void Dungeon::placeDroppedChest(int cell, ItemFileId item, Container kind, bool cursed) {
 	setObject(map[cell], Tile{Treasure, item.type, item.id});
-	containers[cell] = {true, false, true, kind, GameClock::now() - containerDef(kind).openMs};
+	containers[cell] = {true, false, true, kind, GameClock::now() - containerDef(kind).openMs, cursed};
 }
 //======================================================================================
 float Dungeon::containerOpening(int cell) const {
@@ -222,7 +222,8 @@ float Dungeon::containerOpening(int cell) const {
 bool Dungeon::containerShows(int cell) const { return containerOpening(cell) >= 1.f; }
 //======================================================================================
 TreasureLook Dungeon::treasureLook(int cell) const {
-	return containers[cell].dropped ? droppedLook(containers[cell].droppedKind) : decoration.treasure[cell];
+	const ContainerCell& c = containers[cell];
+	return c.dropped ? droppedLook(c.droppedKind, c.cursed) : decoration.treasure[cell];
 }
 //======================================================================================
 bool Dungeon::PlaceContainer(int col, int row, int kind, int stance, bool inscribed) {

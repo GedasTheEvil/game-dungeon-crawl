@@ -226,6 +226,7 @@ TEST_CASE("the mimic jar lies in wait however near; opened, it wakes; killed, it
 	REQUIRE(item.has_value());
 	CHECK(isPotion(*item));
 	CHECK(world.dungeon.LookAt(JAR_COL, ROW).kind == Container::Jar);
+	CHECK_FALSE(world.dungeon.LookAt(JAR_COL, ROW).cursed); // only the cursed mimic's (plan cursed-mimic-chest-look)
 	world.SaveAndLoad();
 	CHECK(world.dungeon.LookAt(JAR_COL, ROW).kind == Container::Jar);
 	CHECK(world.dungeon.Cell(JAR_COL, ROW).type == Treasure);

@@ -68,7 +68,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   the lid dips 4.5 deg and the box swells 1.2% once per loop).
   Sounds: `tools/audio/mimic_sounds.py` (`media/sounds/monsters/mimic_{wake,att,die}.wav`).
   `-- --cursed` builds the cursed mimic (plan cursed-mimic, `mimic_cursed*.md3`, `mimic_cursed.png`): the same mesh, rig, attack, die
-  and idle, a hop in place as its move clip (10), a leap (`_jump`, 10, once), the chest recoloured (near-black wood, purple for the lapis).
+  and idle, a hop in place as its move clip (10), a leap (`_jump`, 10, once), the chest recoloured (near-black wood, purple for the lapis). Its left half is also `items/treasure_chest_cursed.png` (plan cursed-mimic-chest-look): the chest a dead cursed mimic leaves.
   Mummy sounds: `tools/audio/mummy_sounds.py` (`media/sounds/monsters/mummy_{wake,att,die}.wav`).
 * `tools/blender/models/archeologist.py` - player example: anubis-style humanoid built facing +Y and turned 180 by the rig object,
   per-frame root height from the lowest point (feet, knees, body) instead of hand-keyed root z, hat dropped on death.

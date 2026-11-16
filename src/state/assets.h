@@ -65,6 +65,7 @@ struct ItemPrototypes {
 	std::array<std::unique_ptr<Item>, CONTAINER_COUNT> containers; // by Container (containers.h)
 	// The coffin with the execration text on its lid (plan tomb-curse-containers): its model, the cursed texture.
 	std::unique_ptr<Item> cursedCoffin;
+	std::unique_ptr<Item> cursedChest; // a dead cursed mimic's chest (plan cursed-mimic-chest-look)
 	std::array<std::unique_ptr<Item>, WEAPON_KIND_COUNT> weapons; // in ItemKind order
 	std::array<std::unique_ptr<Item>, POTION_KIND_COUNT> potions; // in ItemKind order; one vessel's share its model
 	std::array<std::unique_ptr<Item>, AMULET_TYPE_COUNT> amulets; // by AmuletType: its tiers share the model

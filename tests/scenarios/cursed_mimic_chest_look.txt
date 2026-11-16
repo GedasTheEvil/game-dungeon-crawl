@@ -1,0 +1,11 @@
+# Plan cursed-mimic-chest-look: the chest a killed cursed mimic leaves has its dark colours (a save of a test level
+# loads campaign level 1: the save is checked in tests/unit/cursed_mimic_test.cpp).
+seed 1
+god
+level tests/levels/cursed_mimic at 8 2
+wait 30
+screenshot mimic
+killmonster
+wait 5s
+screenshot dropped
+quit

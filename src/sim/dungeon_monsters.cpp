@@ -108,7 +108,11 @@ bool Dungeon::updateMimicChest(Monster& mon) {
 	// died (its spawn tile is slain), on the floor under it.
 	const OwnedWeapons& owned = sim.items->Owned();
 	if (mon.Type()->locomotion == Locomotion::AmbushHop)
-		dropChest(mon, RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay, mon.Type()->ringDropPercent));
+		dropChest(
+			mon,
+			RollCursedMimicLoot(owned, levelNumber, sim.random->gameplay, mon.Type()->ringDropPercent),
+			true
+		);
 	else if (mon.Type()->disguise == Container::Jar) // its die clip ends in the container's smashed jar
 		placeDroppedChest(
 			MapIndex(mon.Col(), mon.SpawnRow()),
@@ -206,7 +210,7 @@ bool Dungeon::PlayerInDanger() const {
 //======================================================================================
 // A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest
 // free floor cell beside it; lost if there is none (a kill over a pit or a trap).
-void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
+void Dungeon::dropChest(const Monster& mon, ItemKind weapon, bool cursed) {
 	constexpr int MAX_FALL = 12;
 	constexpr int MAX_SIDE = 3;
 	const auto deathCol = static_cast<int>(std::floor(mon.CentreX()));
@@ -226,7 +230,7 @@ void Dungeon::dropChest(const Monster& mon, ItemKind weapon) {
 			const int row = IsInBounds(col, mon.Row()) ? floorCell(col, mon.Row()) : -1;
 			if (row < 0)
 				continue;
-			placeDroppedChest(MapIndex(col, row), fileIdOf(weapon)); // open: the player sees what it left
+			placeDroppedChest(MapIndex(col, row), fileIdOf(weapon), Container::Chest, cursed); // open: its item shows
 			return;
 		}
 }

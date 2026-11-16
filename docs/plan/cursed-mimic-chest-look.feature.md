@@ -1,6 +1,6 @@
 # Cursed mimic: the chest it leaves keeps its cursed look
 
-Status: draft 2026-11-16, size M, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
 
 ## Idea
 
@@ -21,5 +21,15 @@ chest's.
 
 ## Play-test
 
-* `tests/play/cursed-mimic-chest-look.txt`: a cursed mimic next to the start, the player strong enough to kill it.
-* Kill it: the chest it leaves has the cursed mimic's look, not the normal chest's. Save, load: still so.
+* `bin/game --play tests/play/cursed-mimic-chest-look.txt`: the cursed mimic 4 cells to the right, a death trap
+  between (keep off it). Shoot it awake with the bow, then the mace (key) when it comes over.
+* The chest it leaves is dark like the mimic (near-black wood, purple panels), not the normal chest. Take the item: it
+  stays dark. Save, load: still dark.
+
+## Done
+
+* `ContainerCell::cursed` (save chars `c`, `y`), `TreasureLook::cursed` from `droppedLook`, set by `dropChest` for the
+  cursed mimic only; a dragged chest keeps it (the cell is copied).
+* Drawn with `ItemPrototypes::cursedChest`: the chest model, `items/treasure_chest_cursed.png` = the left half of
+  `monsters/mimic_cursed.png` (the chest's UVs; `mimic.py --cursed --export` writes it too). No new model.
+* The map legend marks it as any treasure (by tile type). Test: `tests/unit/cursed_mimic_test.cpp`.

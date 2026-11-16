@@ -103,14 +103,16 @@ class Dungeon {
 		bool dropped = false; // a kill's or a dead mimic's chest: droppedLook(droppedKind), open from the start
 		Container droppedKind = Container::Chest; // the chest, or a dead mimic jar's smashed jar
 		int openedMs = 0; // GameClock
+		bool cursed = false; // a dead cursed mimic's chest: its look (plan cursed-mimic-chest-look)
 	};
 	ContainerCell containers[MAP_CELL_COUNT];
 	static constexpr int CONTAINER_OPENED_LONG_AGO_MS = 1000000; // a loaded open container's clip has played
 	static char containerChar(const ContainerCell& c); // in a save (dungeon_io.cpp)
 	static ContainerCell containerFromChar(char c);
 	void openContainer(); // Interact Open on a closed treasure: its clip starts
-	// A chest a kill or a dead mimic leaves on cell (map index): open, its item showing. kind: a mimic jar's jar.
-	void placeDroppedChest(int cell, ItemFileId item, Container kind = Container::Chest);
+	// A chest a kill or a dead mimic leaves on cell (map index): open, its item showing. kind: a mimic jar's jar;
+	// cursed: a cursed mimic's chest, drawn in its colours.
+	void placeDroppedChest(int cell, ItemFileId item, Container kind = Container::Chest, bool cursed = false);
 	// Trapped chests (plan trapped-chests, dungeon_chest_traps.cpp): openContainer on a TrappedTreasure rolls its
 	// contents and its trap (loot.h), the trap goes off unless the trap ward stops it.
 	void springChestTrap(int cell);
@@ -673,7 +675,7 @@ class Dungeon {
 	void updateBalls();
 	void breakBall(DungBall& ball, bool inWater);
 
-	void dropChest(const Monster& mon, ItemKind weapon); // RollKillDrop
+	void dropChest(const Monster& mon, ItemKind weapon, bool cursed = false); // RollKillDrop; cursed: placeDroppedChest
 	void updateTraps();
 	void updateMonsterPoison(); // the running poison of each monster; the player's poison kill is theirs
 	void updateBurning(); // the player's and each monster's fire (plan fire-damage); a monster's burning kill rewards

@@ -97,6 +97,17 @@ TEST_CASE("killed, the cursed mimic leaves its chest where it died, not on its s
 			col = c;
 	CHECK(col >= 4);
 	CHECK(col <= 6);
+	// Plan cursed-mimic-chest-look: the chest it leaves keeps its colours, also after a load and once emptied.
+	CHECK(world.dungeon.LookAt(col, 2).kind == Container::Chest);
+	CHECK(world.dungeon.LookAt(col, 2).cursed);
+	world.SaveAndLoad();
+	CHECK(world.dungeon.LookAt(col, 2).cursed);
+	REQUIRE(world.WalkTo(static_cast<float>(col) + 0.5f));
+	world.Interact(); // open from the start: take the item
+	world.SaveAndLoad();
+	CHECK(world.dungeon.Cell(col, 2).type != Treasure);
+	CHECK(world.dungeon.ContainerEmptied(col, 2));
+	CHECK(world.dungeon.LookAt(col, 2).cursed);
 }
 
 TEST_CASE("the cursed mimic's chest holds an amulet half the time, else the mimic's loot") {

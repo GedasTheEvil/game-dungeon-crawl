@@ -27,7 +27,8 @@ Texture: 1024 x 512, left half = treasure_chest.png unchanged, right half = the 
 die and idle; its move clip (`mimic_cursed.md3`) is a hop in place (crouch, spring with the lid agape, the lid snapping
 shut as it lands; the engine moves it along the row) and it has a leap (`_jump`, plays once: crouch, stretched in the
 air, the snap on landing, back to the awake pose; the engine's arc lifts it, MONSTER_JUMP_MS). Texture: the chest
-recoloured by colour class (cursed_pixels): near-black wood, tarnished bronze for the gold, a deep purple lining, purple
+recoloured by colour class (cursed_pixels; its left half is also `items/treasure_chest_cursed.png`, the chest a dead
+cursed mimic leaves, plan cursed-mimic-chest-look): near-black wood, tarnished bronze for the gold, a deep purple lining, purple
 where the chest has lapis blue (its panels, inlays, the keyhole plate): from afar still a chest, the hint is the
 colour; the mouth a little darker and more purple.
 """
@@ -62,6 +63,7 @@ MOUTH_TEX = 512  # the mouth half of the 1024 x 512 texture
 REVIEW_VIEW = {"target": (0, -0.2, 0.42), "ortho": 2.0, "res": (440, 400)}
 CHEST_MD3 = os.path.join(REPO, "media", "models", "items", "treasure_chest.md3")
 CHEST_PNG = os.path.join(REPO, "media", "textures", "items", "treasure_chest.png")
+CURSED_CHEST_PNG = os.path.join(REPO, "media", "textures", "items", "treasure_chest_cursed.png")
 
 W, D, H, T = items.CHEST_W, items.CHEST_D, items.CHEST_H, items.CHEST_WALL
 Z0 = items.CHEST_LEG
@@ -647,6 +649,17 @@ def cursed_pixels(px, mouth=False):
     return out
 
 
+def save_png(name, px, path):
+    """Writes RGBA rows (Blender's bottom-up order) as a PNG."""
+    h, w = px.shape[:2]
+    img = bpy.data.images.new(name, w, h, alpha=False)
+    img.pixels = px.ravel().tolist()
+    img.filepath_raw = path
+    img.file_format = "PNG"
+    img.save()
+    bpy.data.images.remove(img)
+
+
 def build(bake=True, tex_path=None, cursed=REVIEW_CURSED):
     clips = CURSED_CLIPS if cursed else CLIPS
     if bpy.context.object and bpy.context.object.mode != "OBJECT":
@@ -716,6 +729,8 @@ def build(bake=True, tex_path=None, cursed=REVIEW_CURSED):
         tex.file_format = "PNG"
         tex.save()
         common.use_baked_material(obj, tex)
+        if cursed and tex_path:  # the chest a dead cursed mimic leaves (plan cursed-mimic-chest-look): the chest item's UVs
+            save_png("treasure_chest_cursed", out[:, :cw], CURSED_CHEST_PNG)
 
     rig = build_rig(coll)
     common.rig_object(obj, rig)

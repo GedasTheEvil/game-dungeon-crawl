@@ -397,7 +397,7 @@ dimmed (black, alpha 0.6), a `panel` `{36, 34, 88, 34}`, the question in `body` 
 No, Left / Right move between them. While it is open the screen hands it the mouse (in canvas units) and the keys,
 and `InSubScreen()` is true, so Esc reaches `BackOut()`. The menu asks with `AskOrDo(ask, question, action)`: before
 overwriting or deleting a slot, before New Game while an autosave exists, and before Load or Main Menu in a run with
-play since the last save (`GameState::UnsavedProgress`). Exit is only on the main menu, after the run was left: it
+play since the last save (`SaveService::UnsavedProgress`). Exit is only on the main menu, after the run was left: it
 does not ask.
 
 ### Death screen

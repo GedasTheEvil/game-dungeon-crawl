@@ -27,10 +27,10 @@ std::string saveName(int target) {
 
 std::string pathOf(int target) {
 	if (target == AUTOSAVE_TARGET)
-		return Game().AutosavePath();
+		return Game().saves.folder.Autosave();
 	if (target == QUICKSAVE_TARGET)
-		return Game().QuicksavePath();
-	return Game().SlotPath(target);
+		return Game().saves.folder.Quicksave();
+	return Game().saves.folder.Slot(target);
 }
 } // namespace menu_internal
 using namespace menu_internal;
@@ -138,10 +138,10 @@ void MainMenu::DrawSlot(int slot) {
 	beginShapes();
 }
 
-// A failed save stays on Save Game with the old file kept (GameState::Save).
+// A failed save stays on Save Game with the old file kept (SaveService::Write).
 void MainMenu::SaveToSlot(int slot) {
 	const std::string name = "slot " + std::to_string(slot + 1);
-	if (!Game().Save(Game().SlotPath(slot).c_str())) {
+	if (!Game().saves.Write(Game().saves.folder.Slot(slot))) {
 		ShowToast("Could not save to " + name);
 		return;
 	}
@@ -151,13 +151,13 @@ void MainMenu::SaveToSlot(int slot) {
 
 // A save that cannot be loaded leaves the game as it was, on Load Game.
 void MainMenu::LoadFrom(int target) {
-	if (!Game().LoadSaveIntoGame(pathOf(target)))
+	if (!Game().saves.LoadIntoGame(pathOf(target)))
 		ShowToast("Could not load " + saveName(target));
 }
 
 void MainMenu::DeleteSlot(int slot) {
 	std::error_code error;
-	std::filesystem::remove(Game().SlotPath(slot), error);
+	std::filesystem::remove(Game().saves.folder.Slot(slot), error);
 	ShowToast(
 		error ? "Could not delete slot " + std::to_string(slot + 1) : "Slot " + std::to_string(slot + 1) + " deleted"
 	);
@@ -166,6 +166,6 @@ void MainMenu::DeleteSlot(int slot) {
 // Delete on a used slot (or its delete button): as a click on the delete button.
 void MainMenu::AskDelete() {
 	const int slot = pointer.hovered >= DELETE_BASE ? pointer.hovered - DELETE_BASE : pointer.hovered;
-	if (slot >= 0 && slot < SaveSlots::COUNT && SaveSlots::DescribeFile(Game().SlotPath(slot)).used)
+	if (slot >= 0 && slot < SaveSlots::COUNT && SaveSlots::DescribeFile(Game().saves.folder.Slot(slot)).used)
 		Activate(DELETE_BASE + slot);
 }

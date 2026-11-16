@@ -114,9 +114,9 @@ float Scenario::fieldValue(const Command& cmd) {
 	case Field::DeathScreen:
 		return Game().ui.screen == Screen::Death ? 1.f : 0.f;
 	case Field::Quicksave:
-		return Game().HasQuicksave() ? 1.f : 0.f;
+		return Game().saves.folder.HasQuicksave() ? 1.f : 0.f;
 	case Field::LatestSave: { // plan retry-latest-save: 0 none, -1 autosave, -2 quick save, else the slot's number
-		const auto latest = Game().LatestSave();
+		const auto latest = Game().saves.folder.Latest();
 		if (!latest)
 			return 0.f;
 		using Kind = SaveSlots::Latest::Kind;

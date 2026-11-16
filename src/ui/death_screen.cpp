@@ -31,13 +31,13 @@ void DeathScreen::Follow() {
 	if (state == State::Alive) {
 		state = State::Dying;
 		diedMs = now;
-		game.CountDeath();
+		game.saves.CountDeath();
 	}
 	if (state != State::Dying || now - diedMs < DEATH_SCREEN_DELAY_MS || game.ui.screen != Screen::Gameplay)
 		return;
 	state = State::Shown;
 	game.ui.screen = Screen::Death;
-	const auto latest = game.LatestSave();
+	const auto latest = game.saves.folder.Latest();
 	retryEnabled = latest.has_value();
 	retryLabel = latest ? "Retry from " + latest->Label() : "Retry";
 	pointer.Clear();
@@ -45,8 +45,8 @@ void DeathScreen::Follow() {
 }
 
 void DeathScreen::activate(int button) {
-	if (const auto latest = Game().LatestSave(); button == RETRY && retryEnabled && latest) {
-		if (!Game().LoadSaveIntoGame(latest->path)) { // a broken file (plan save-load-safety): no second try
+	if (const auto latest = Game().saves.folder.Latest(); button == RETRY && retryEnabled && latest) {
+		if (!Game().saves.LoadIntoGame(latest->path)) { // a broken file (plan save-load-safety): no second try
 			retryEnabled = false;
 			retryLabel = "Could not load " + latest->Label();
 			pointer.Move(MAIN_MENU);

@@ -13,7 +13,7 @@
 
 class DeathScreen {
   public:
-	// Each update: counts the death once (GameState::CountDeath), opens the screen DEATH_SCREEN_DELAY_MS later (from
+	// Each update: counts the death once (SaveService::CountDeath), opens the screen DEATH_SCREEN_DELAY_MS later (from
 	// the game, not over a menu), resets when the player lives again (a load, a new game).
 	void Follow();
 	void KeyPressed(unsigned char key); // Enter picks, Esc = Main Menu

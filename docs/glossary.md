@@ -324,14 +324,14 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 
 | Term | In game | Meaning | Code |
 |---|---|---|---|
-| autosave | Autosave | the one save the game writes itself at safe moments (a level start, a riddle answered, a boss slain), never while the player is in danger; `saves/autosave.sav`, read-only for the player ([autosave](plan/solved/autosave.md)) | `GameState::Autosave`, `SaveSlots::AUTOSAVE`, `AutosaveMoment` |
-| quick save | Quick saved, Quick save | the one save F5 writes at once (only while alive) and F9 loads, also from the death screen; `saves/quicksave.sav`, no slot ([quick save](plan/solved/quick-save.md)) | `GameState::Quicksave`, `LoadQuicksave`, `SaveSlots::QUICKSAVE` |
-| Continue | Continue | the main menu's first button while any save exists: loads the newest one ([retry latest save](plan/solved/retry-latest-save.md)) | `MenuAction::Continue`, `GameState::LoadLatestSave` |
-| newest save | Retry from Slot 3, Retry from Quick Save | the save with the latest file time among the autosave, the six slots and the quick save; the death screen's Retry and Continue load it | `GameState::LatestSave`, `SaveSlots::PickLatest` |
+| autosave | Autosave | the one save the game writes itself at safe moments (a level start, a riddle answered, a boss slain), never while the player is in danger; `saves/autosave.sav`, read-only for the player ([autosave](plan/solved/autosave.md)) | `SaveService::Autosave` (`src/state/saves.cpp`), `SaveSlots::AUTOSAVE`, `AutosaveMoment` |
+| quick save | Quick saved, Quick save | the one save F5 writes at once (only while alive) and F9 loads, also from the death screen; `saves/quicksave.sav`, no slot ([quick save](plan/solved/quick-save.md)) | `SaveService::Quicksave`, `LoadQuicksave`, `SaveSlots::QUICKSAVE` |
+| Continue | Continue | the main menu's first button while any save exists: loads the newest one ([retry latest save](plan/solved/retry-latest-save.md)) | `MenuAction::Continue`, `SaveService::LoadLatest` |
+| newest save | Retry from Slot 3, Retry from Quick Save | the save with the latest file time among the autosave, the six slots and the quick save; the death screen's Retry and Continue load it | `SaveFolder::Latest`, `SaveSlots::PickLatest` |
 | campaign run | | a run begun with New Game on level 1; only its win goes on the leaderboard (scenario `campaign`) | `RunStats::campaign` |
 | death screen | You died | the panel over the dimmed game after the death clip: Retry from the newest save, Main Menu | `DeathScreen`, `Screen::Death` |
 | deaths | Deaths | a run's deaths, counted at the death and written into the autosave then, so a retry keeps them | `RunStats::deaths` |
-| unsaved progress | The play since the last save is lost | (plan save-load-safety) 3 s or more of play since the last save or load: Main Menu and Load Game ask first then | `GameState::UnsavedProgress` |
+| unsaved progress | The play since the last save is lost | (plan save-load-safety) 3 s or more of play since the last save or load: Main Menu and Load Game ask first then | `SaveService::UnsavedProgress` |
 | confirm box | Yes, No | (plan save-load-safety) the question over a menu screen before an action that throws away play or a save | `ConfirmBox` |
 | save file tags | | (plan save-load-safety) a save's first word `SAVEGAME` and last word `END`: a tagged save without its end was cut and does not load; an older save has neither | `SaveSlots::FILE_TAG`, `SaveSlots::END_TAG` |
 | exploration score | Explored | a run's inscriptions read x10 + treasures picked up x10 + riddles answered x30 + secrets found x30 | `explorationScore` |

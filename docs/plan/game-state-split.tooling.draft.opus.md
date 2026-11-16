@@ -18,7 +18,9 @@ loop).
   * done 2026-11-16: `DrawLoad` to `Assets::DrawLoadingScreen` (`graphics/assets.cpp`);
   * done 2026-11-16: `PlayerActionController`, `playerControl()`, the held walk, charge and look steps from input
     to `state/gameplay_commands.*`;
-  * saves to a `SaveService` (`state/saves.cpp`);
+  * done 2026-11-16: saves to a `SaveService` (`state/saves.*`, `Game().saves`): write, read, load into the game,
+    autosave, quick save, latest save, the death count; the files' paths and the newest save in `SaveFolder`
+    (`level/save_slots.*`, unit-tested), the autosave's death rewrite in `SaveSlots::SetFileDeaths`;
   * the gameplay actions still in the inventory screen (quick drink, equip, wear, add item; plan
     [bag-out-of-inventory](solved/bag-out-of-inventory.tooling.md)).
 * Screens take explicit references (as `Inventory::Actor()` does) instead of `Game()`.

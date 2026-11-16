@@ -743,7 +743,7 @@ void runDataCommand(const Command& cmd) {
 		return;
 	}
 	case CommandType::SaveGame: // relative paths land in the output directory
-		report(cmd, Game().Save((!cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg).c_str()), "");
+		report(cmd, Game().saves.Write(!cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg), "");
 		return;
 	case CommandType::LoadGame: {
 		std::string path = !cmd.arg.contains('/') ? gRunner.outDir + "/" + cmd.arg : cmd.arg;
@@ -751,13 +751,13 @@ void runDataCommand(const Command& cmd) {
 			report(cmd, false, "no such file");
 			return;
 		}
-		const bool loaded = Game().LoadSave(path.c_str());
+		const bool loaded = Game().saves.Read(path);
 		report(cmd, loaded, loaded ? stateLine() : "cannot load");
 		return;
 	}
 	case CommandType::Autosave: // as at a level start (plan autosave), into the output directory
-		Game().Autosave(AutosaveMoment::LevelStart);
-		report(cmd, Game().HasAutosave(), "");
+		Game().saves.Autosave(AutosaveMoment::LevelStart);
+		report(cmd, Game().saves.folder.HasAutosave(), "");
 		return;
 	default:
 		break;
@@ -1082,7 +1082,7 @@ void Scenario::runPlaySetup() {
 		runInstant(gRunner.script.commands[i]);
 		Game().ApplyWorldEvents();
 	}
-	Game().Autosave(AutosaveMoment::LevelStart); // plan autosave: the death screen's retry starts here
+	Game().saves.Autosave(AutosaveMoment::LevelStart); // plan autosave: the death screen's retry starts here
 	for (const std::string& failure : gRunner.failures)
 		fprintf(stderr, "play setup: %s\n", failure.c_str());
 }
@@ -1154,7 +1154,7 @@ void step() {
 	Game().render.resX = gRunner.script.resX;
 	Game().render.resY = gRunner.script.resY;
 	Game().leaderboard.SetPath(gRunner.outDir + "/leaderboard.txt"); // as main() sets it for a lone run
-	Game().saveDir = gRunner.outDir;
+	Game().saves.folder.dir = gRunner.outDir;
 	Game().leaderboard.Load();
 	for (;;)
 		step();

@@ -1,8 +1,8 @@
 #ifndef SAVE_SLOTS_H
 #define SAVE_SLOTS_H
 
-// The six save game slots on disk: saves/save<N>.sav. The menu draws them; GameState::Save / LoadSave write and read a
-// game. The autosave (plan autosave) is no slot: the game writes it (GameState::Autosave), the player only loads it.
+// The six save game slots on disk: saves/save<N>.sav. The menu draws them; SaveService::Write / Read write and read a
+// game. The autosave (plan autosave) is no slot: the game writes it (SaveService::Autosave), the player only loads it.
 // Nor is the quick save (plan quick-save): F5 writes it, F9 loads it.
 
 #include <array>
@@ -48,6 +48,24 @@ class SaveSlots {
 	// A tie goes to the later in that order. None when no file exists.
 	[[nodiscard]] static std::optional<Latest>
 	PickLatest(const std::string& autosave, const std::array<std::string, COUNT>& slots, const std::string& quicksave);
+
+	// One more death in the save file at `path` (plan autosave): its run's count becomes `deaths`, the file's time
+	// stays the save's own (PickLatest goes by it). False without the file or without its run statistics.
+	static bool SetFileDeaths(const std::string& path, int deaths);
+};
+
+// Where the saves go (plan game-state-split): saves/, or a scenario's output directory (tests/out/<name>/, set by the
+// runner, plan game-code-without-scenario), so scenarios never touch saves/.
+struct SaveFolder {
+	std::string dir; // empty: saves/
+
+	[[nodiscard]] std::string Autosave() const;
+	[[nodiscard]] std::string Quicksave() const;
+	[[nodiscard]] std::string Slot(int slot) const;
+	[[nodiscard]] bool HasAutosave() const;
+	[[nodiscard]] bool HasQuicksave() const;
+	// The newest of the autosave, the slots and the quick save (plan retry-latest-save): Retry and Continue load it.
+	[[nodiscard]] std::optional<SaveSlots::Latest> Latest() const;
 };
 
 #endif

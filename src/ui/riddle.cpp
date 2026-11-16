@@ -196,7 +196,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 			Game().dungeon.SpeakName(); // its status line, the sound
 		} else if (CheckAnswer()) {
 			solveRiddle(Game().player->stats, Game().journal, Game().events, journalIndex, late, answer, reward);
-			Game().Autosave(AutosaveMoment::Riddle); // plan autosave
+			Game().saves.Autosave(AutosaveMoment::Riddle); // plan autosave
 			if (late) {
 				Game().ui.screen = Screen::Journal;
 				Game().ui.journal.ShowToast("Riddle answered, got " + std::to_string(reward) + " XP");

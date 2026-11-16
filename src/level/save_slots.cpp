@@ -1,5 +1,6 @@
 #include "save_slots.h"
 #include "run_stats.h"
+#include "../core/logger.h"
 #include <algorithm>
 #include <map>
 #include <sstream>
@@ -113,4 +114,48 @@ std::optional<SaveSlots::Latest> SaveSlots::PickLatest(
 		consider(Latest::Kind::Slot, slot, slots[static_cast<size_t>(slot)]);
 	consider(Latest::Kind::Quicksave, 0, quicksave);
 	return best;
+}
+
+bool SaveSlots::SetFileDeaths(const std::string& path, int deaths) {
+	std::string text;
+	{
+		std::ifstream in(path);
+		if (!in)
+			return false;
+		std::stringstream all;
+		all << in.rdbuf();
+		text = all.str();
+	}
+	if (!RunStats::SetDeaths(text, deaths)) {
+		LOG_WARNING("saves", path + " has no run statistics: its deaths stay");
+		return false;
+	}
+	std::error_code error;
+	const auto written = std::filesystem::last_write_time(path, error);
+	{
+		std::ofstream out(path);
+		out << text;
+	}
+	if (!error)
+		std::filesystem::last_write_time(path, written, error);
+	return true;
+}
+
+std::string SaveFolder::Autosave() const { return dir.empty() ? SaveSlots::AUTOSAVE : dir + "/autosave.sav"; }
+
+std::string SaveFolder::Quicksave() const { return dir.empty() ? SaveSlots::QUICKSAVE : dir + "/quicksave.sav"; }
+
+std::string SaveFolder::Slot(int slot) const {
+	return dir.empty() ? SaveSlots::FileName(slot) : dir + "/save" + std::to_string(slot) + ".sav";
+}
+
+bool SaveFolder::HasAutosave() const { return SaveSlots::DescribeFile(Autosave()).used; }
+
+bool SaveFolder::HasQuicksave() const { return SaveSlots::DescribeFile(Quicksave()).used; }
+
+std::optional<SaveSlots::Latest> SaveFolder::Latest() const {
+	std::array<std::string, SaveSlots::COUNT> slots;
+	for (int slot = 0; slot < SaveSlots::COUNT; slot++)
+		slots[static_cast<size_t>(slot)] = Slot(slot);
+	return SaveSlots::PickLatest(Autosave(), slots, Quicksave());
 }

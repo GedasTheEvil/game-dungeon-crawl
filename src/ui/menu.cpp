@@ -116,7 +116,7 @@ struct ButtonList {
 ButtonList menuButtons(bool inGame) {
 	if (inGame)
 		return {IN_GAME_BUTTONS.data(), static_cast<int>(IN_GAME_BUTTONS.size())};
-	if (Game().LatestSave())
+	if (Game().saves.folder.Latest())
 		return {CONTINUE_BUTTONS.data(), static_cast<int>(CONTINUE_BUTTONS.size())};
 	return {MAIN_BUTTONS.data(), static_cast<int>(MAIN_BUTTONS.size())};
 }
@@ -306,15 +306,15 @@ std::vector<MainMenu::Placed> MainMenu::Targets() const {
 	}
 	if (saveD || loadD) {
 		for (int slot = 0; slot < SaveSlots::COUNT; slot++) {
-			const bool used = SaveSlots::DescribeFile(Game().SlotPath(slot)).used;
+			const bool used = SaveSlots::DescribeFile(Game().saves.folder.Slot(slot)).used;
 			if (used) // before its slot, which it sits on
 				targets.push_back({DELETE_BASE + slot, deleteRect(slot, loadD)});
 			if (saveD || used)
 				targets.push_back({slot, slotRect(slot, loadD)});
 		}
-		if (loadD && Game().HasAutosave())
+		if (loadD && Game().saves.folder.HasAutosave())
 			targets.push_back({AUTOSAVE_TARGET, slotRect(AUTOSAVE_TARGET, true)});
-		if (loadD && Game().HasQuicksave())
+		if (loadD && Game().saves.folder.HasQuicksave())
 			targets.push_back({QUICKSAVE_TARGET, slotRect(QUICKSAVE_TARGET, true)});
 		targets.push_back({BACK, BACK_BUTTON});
 		return targets;
@@ -438,14 +438,14 @@ void MainMenu::Activate(int target) {
 	}
 	if (saveD) {
 		AskOrDo(
-			SaveSlots::DescribeFile(Game().SlotPath(target)).used,
+			SaveSlots::DescribeFile(Game().saves.folder.Slot(target)).used,
 			"Overwrite the save in slot " + std::to_string(target + 1) + "?",
 			[this, target] { SaveToSlot(target); }
 		);
 		return;
 	}
 	if (loadD) {
-		AskOrDo(inGame && Game().UnsavedProgress(), "Load " + saveName(target) + "?" + LOST, [this, target] {
+		AskOrDo(inGame && Game().saves.UnsavedProgress(), "Load " + saveName(target) + "?" + LOST, [this, target] {
 			LoadFrom(target);
 		});
 		return;
@@ -453,15 +453,19 @@ void MainMenu::Activate(int target) {
 
 	switch (menuButtons(inGame)[target].action) {
 	case MenuAction::Continue:
-		if (!Game().LoadLatestSave())
+		if (!Game().saves.LoadLatest())
 			ShowToast("Could not load the newest save");
 		break;
 	case MenuAction::NewGame:
-		AskOrDo(Game().HasAutosave(), "Start a new game? The autosave of the last run is replaced.", [this] {
-			Game().ui.screen = Screen::Gameplay;
-			Game().NewGame();
-			inGame = true;
-		});
+		AskOrDo(
+			Game().saves.folder.HasAutosave(),
+			"Start a new game? The autosave of the last run is replaced.",
+			[this] {
+				Game().ui.screen = Screen::Gameplay;
+				Game().NewGame();
+				inGame = true;
+			}
+		);
 		break;
 	case MenuAction::Resume:
 		Game().ui.screen = Screen::Gameplay;
@@ -489,7 +493,9 @@ void MainMenu::Activate(int target) {
 		creditsD = true;
 		break;
 	case MenuAction::MainMenu:
-		AskOrDo(Game().UnsavedProgress(), std::string("Leave for the main menu?") + LOST, [this] { inGame = false; });
+		AskOrDo(Game().saves.UnsavedProgress(), std::string("Leave for the main menu?") + LOST, [this] {
+			inGame = false;
+		});
 		break;
 	case MenuAction::Quit: // glutMainLoop returns, main cleans up
 		glutLeaveMainLoop();

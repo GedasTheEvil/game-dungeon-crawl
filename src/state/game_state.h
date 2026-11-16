@@ -24,8 +24,7 @@
 #include "../level/journal.h"
 #include "../level/leaderboard.h"
 #include "../level/world_events.h"
-#include "../level/save_slots.h"
-#include <optional>
+#include "saves.h"
 #include "../level/settings_ini.h"
 #include <array>
 #include <memory>
@@ -76,10 +75,7 @@ class GameState {
 	NameList names; // the royal names of the name gates, content/names/*.txt (plan secret-name-gates)
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	Leaderboard leaderboard; // the won runs, saves/leaderboard.txt (plan leaderboard)
-	// Where the autosave, the quick save and the slots go: empty for saves/ (SaveSlots), a scenario run its
-	// tests/out/<name>/ (set by the runner, plan game-code-without-scenario).
-	std::string saveDir;
-	int savedPlayMs = 0; // the run's play time at the last save or load (UnsavedProgress)
+	SaveService saves{*this}; // the save files, the autosave and the quick save (plan game-state-split)
 	// The first hints show in a campaign run (plan controls-help); scenario `hints on` shows them in any run.
 	bool hintsAnyRun = false;
 	// Every offering brings a gift (plan offering-gift), for the play scripts: scenario `gifts on`.
@@ -89,34 +85,9 @@ class GameState {
 	GameState();
 	~GameState();
 	void Load();
-	// False when the file cannot be written (the old one stays) or read; a failed load leaves the game as it was
-	// (plan save-load-safety).
 	[[nodiscard]] UiViewState ViewState() const; // what a save keeps of the screens and the look (UiViewState)
 	void ApplyViewState(const UiViewState& view);
-	[[nodiscard]] bool Save(const char filename[]);
-	[[nodiscard]] bool LoadSave(const char filename[]);
-	// Play time since the last save or load (plan save-load-safety): leaving the run then asks first.
-	[[nodiscard]] bool UnsavedProgress() const;
 	void NewGame();
-	// The autosave (plan autosave): SaveSlots::AUTOSAVE, a scenario's in its output directory.
-	[[nodiscard]] std::string AutosavePath() const;
-	[[nodiscard]] bool HasAutosave() const;
-	// A safe moment: writes the autosave and shows "Autosaved". Skipped (the old one stays) while the player is dead or
-	// in danger (Dungeon::PlayerInDanger); a level start is always written.
-	void Autosave(AutosaveMoment moment);
-	// What loading a save file shows: the gameplay, no menu page. False if it cannot be loaded: nothing changes.
-	bool LoadSaveIntoGame(const std::string& path);
-	// The quick save (plan quick-save): SaveSlots::QUICKSAVE, a scenario's in its output directory.
-	[[nodiscard]] std::string QuicksavePath() const;
-	[[nodiscard]] bool HasQuicksave() const;
-	void Quicksave(); // F5: writes it and shows "Quick saved"; nothing while the player is dead
-	void LoadQuicksave(); // F9: into the game with "Quick loaded", or the toast "No quick save"
-	// The slot's file (plan retry-latest-save): SaveSlots::FileName, a scenario's in its output directory.
-	[[nodiscard]] std::string SlotPath(int slot) const;
-	// The newest of the autosave, the slots and the quick save (plan retry-latest-save): Retry and Continue load it.
-	[[nodiscard]] std::optional<SaveSlots::Latest> LatestSave() const;
-	bool LoadLatestSave(); // into the game; false without a save or when it cannot be loaded
-	void CountDeath(); // the player just died: one more death, in the autosave's file too
 	// Hands the graphics and sound choices to the renderer and the mixer; with `save`, writes the file too.
 	void ApplySettings(bool save);
 	[[gnu::format(printf, 2, 3)]] void ShowStatus(const char* format, ...);

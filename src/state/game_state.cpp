@@ -3,19 +3,15 @@
 #include "../graphics/loading_text.h"
 #include "settings.h"
 #include "../ui/player_hud.h"
-#include <filesystem>
 #include <GL/gl.h>
 #include "../render/gl_includes.h"
-#include <fstream>
 #include <cassert>
 #include <cstdarg>
 #include <cstdio>
 #include "../core/logger.h"
 #include <memory>
 #include "../level/gameplay_player.h"
-#include "../level/campaign.h"
 #include "../level/texts.h"
-#include "../sim/dungeon_save.h"
 #include "../render/animated_model.h"
 #include "../render/brightness.h"
 #include "../render/ink.h"
@@ -23,7 +19,6 @@
 #include "../render/lighting.h"
 #include "../graphics/particles_draw.h"
 #include "../core/paths.h"
-#include <sstream>
 #include <utility>
 
 namespace {
@@ -146,7 +141,7 @@ void GameState::ApplyWorldEvents() {
 			ui.screen = Screen::Riddle;
 			break;
 		case WorldEvent::Kind::Autosave:
-			Autosave(event.moment);
+			saves.Autosave(event.moment);
 			break;
 		case WorldEvent::Kind::AskName: // plan secret-name-gates
 			if (const RoyalName* name = dungeon.LevelName()) {
@@ -170,105 +165,12 @@ void GameState::NewGame() {
 	dungeon.LoadCampaignLevel(1);
 	dungeon.ClearWin();
 	player->Reanimate();
-	Autosave(AutosaveMoment::LevelStart);
+	saves.Autosave(AutosaveMoment::LevelStart);
 	// The story starts in the notebook: the prologue, open before the first frame of play (plan journal-intro).
 	if (journal.TakeIntro()) {
 		ui.journal.OpenDiary("closes the journal");
 		ui.screen = Screen::Journal;
 	}
-}
-//==============================================================
-// Scenarios never touch saves/: the runner points saveDir at tests/out/<name>/.
-std::string GameState::AutosavePath() const {
-	return saveDir.empty() ? SaveSlots::AUTOSAVE : saveDir + "/autosave.sav";
-}
-
-bool GameState::HasAutosave() const { return SaveSlots::DescribeFile(AutosavePath()).used; }
-
-void GameState::Autosave(AutosaveMoment moment) {
-	if (!player->Alive() || dungeon.Won() || (moment != AutosaveMoment::LevelStart && dungeon.PlayerInDanger()))
-		return;
-	ui.autosaved.Show(Save(AutosavePath().c_str()) ? "Autosaved" : "Autosave failed", GameClock::now());
-}
-
-bool GameState::LoadSaveIntoGame(const std::string& path) {
-	if (!LoadSave(path.c_str()))
-		return false;
-	ui.screen = Screen::Gameplay;
-	ui.menu.ResetSubScreens();
-	ui.menu.inGame = true;
-	return true;
-}
-
-bool GameState::UnsavedProgress() const {
-	constexpr int UNSAVED_PLAY_MS = 3000; // a look around after a load is no progress
-	return player->stats.run.PlayMs() - savedPlayMs >= UNSAVED_PLAY_MS;
-}
-
-std::string GameState::QuicksavePath() const {
-	return saveDir.empty() ? SaveSlots::QUICKSAVE : saveDir + "/quicksave.sav";
-}
-
-bool GameState::HasQuicksave() const { return SaveSlots::DescribeFile(QuicksavePath()).used; }
-
-void GameState::Quicksave() {
-	if (!player->Alive() || dungeon.Won()) // a save is never of a won game (plan win-ending-flow)
-		return;
-	ui.autosaved.Show(Save(QuicksavePath().c_str()) ? "Quick saved" : "Quick save failed", GameClock::now());
-}
-
-void GameState::LoadQuicksave() {
-	if (!HasQuicksave()) {
-		ui.autosaved.Show("No quick save", GameClock::now());
-		return;
-	}
-	ui.autosaved.Show(
-		LoadSaveIntoGame(QuicksavePath()) ? "Quick loaded" : "Could not load the quick save",
-		GameClock::now()
-	);
-}
-
-std::string GameState::SlotPath(int slot) const {
-	return saveDir.empty() ? SaveSlots::FileName(slot) : saveDir + "/save" + std::to_string(slot) + ".sav";
-}
-
-std::optional<SaveSlots::Latest> GameState::LatestSave() const {
-	std::array<std::string, SaveSlots::COUNT> slots;
-	for (int slot = 0; slot < SaveSlots::COUNT; slot++)
-		slots[static_cast<size_t>(slot)] = SlotPath(slot);
-	return SaveSlots::PickLatest(AutosavePath(), slots, QuicksavePath());
-}
-
-bool GameState::LoadLatestSave() {
-	const auto latest = LatestSave();
-	return latest && LoadSaveIntoGame(latest->path);
-}
-
-// A load puts the saved count back, so the file learns the death now: a retry, or Continue after a restart, keeps it.
-void GameState::CountDeath() {
-	const int deaths = ++player->stats.run.deaths;
-	std::string text;
-	{
-		std::ifstream in(AutosavePath());
-		if (!in)
-			return;
-		std::stringstream all;
-		all << in.rdbuf();
-		text = all.str();
-	}
-	if (!RunStats::SetDeaths(text, deaths)) {
-		LOG_WARNING("game", "The autosave has no run statistics: its deaths stay");
-		return;
-	}
-	// The file's time stays the save's own: the newest save (plan retry-latest-save) goes by it.
-	std::error_code error;
-	const auto written = std::filesystem::last_write_time(AutosavePath(), error);
-	{
-		std::ofstream out(AutosavePath());
-		out << text;
-	}
-	if (!error)
-		std::filesystem::last_write_time(AutosavePath(), written, error);
 }
 //==============================================================
 void GameState::ApplySettings(bool save) {
@@ -288,7 +190,6 @@ void GameState::ApplySettings(bool save) {
 		SettingsFile::Save(settings);
 }
 //==============================================================
-//==============================================================
 // The settings a save keeps (plan save-remembers-ui-state): the player's look and the two screens' pages.
 UiViewState GameState::ViewState() const {
 	UiViewState view;
@@ -304,51 +205,3 @@ void GameState::ApplyViewState(const UiViewState& view) {
 	ui.inventory->ViewFrom(view);
 	ui.journal.ViewFrom(view);
 }
-//==============================================================
-bool GameState::Save(const char filename[]) {
-	if (!cacheLoaded) {
-		LOG_ERROR("game", "can't save without loading cashe");
-		return false;
-	}
-	std::ostringstream text;
-	UiViewState view = ViewState();
-	writeSaveGame(text, SaveParts{dungeon, *player, bag, journal, view});
-	if (!writeFileSafely(filename, text.str())) {
-		LOG_ERRORF("game", "can't write save file %s", filename);
-		return false;
-	}
-	savedPlayMs = player->stats.run.PlayMs();
-	return true;
-}
-//==============================================================
-// Read and checked before the game changes: a missing or broken file leaves the game as it was (plan
-// save-load-safety).
-bool GameState::LoadSave(const char filename[]) {
-	if (!cacheLoaded) {
-		LOG_ERROR("game", "can't load without loading cashe");
-		return false;
-	}
-	LOG_INFOF("game", "Loading save %s", filename);
-	std::string text;
-	if (!readWholeFile(filename, text)) {
-		LOG_ERRORF("game", "can't open save file %s", filename);
-		return false;
-	}
-	UiViewState view = ViewState(); // a broken save puts these back too
-	const bool loaded = loadSaveGame(text, SaveParts{dungeon, *player, bag, journal, view});
-	ui.inventory->BagLoaded();
-	ApplyViewState(view);
-	if (!loaded) {
-		LOG_ERRORF("game", "broken save file %s", filename);
-		return false;
-	}
-	messages.Clear(); // the log is not saved
-	dungeon.ClearWin(); // a save is never of a won game
-	const int levelNumber = dungeon.LevelNumber();
-	dungeon.scatterDecorations(campaignLevelFile(levelNumber).c_str(), levelNumber);
-	LOG_INFOF("game", "Loaded level %d", levelNumber);
-	PlayerHud::reset();
-	savedPlayMs = player->stats.run.PlayMs();
-	return true;
-}
-//==============================================================

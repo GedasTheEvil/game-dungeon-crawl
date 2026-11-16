@@ -210,7 +210,7 @@ class SimWorld {
 		return Control().ReleaseCharge() != PlayerControl::Began::None;
 	}
 
-	// As `savegame` then `loadgame` (GameState::Save, LoadSave): the level number, the stats, the bag, the dungeon and
+	// As `savegame` then `loadgame` (SaveService::Write, Read): the level number, the stats, the bag, the dungeon and
 	// the journal through a file, and back.
 	void SaveAndLoad() {
 		const std::string path = "build/sim_world.sav";

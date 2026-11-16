@@ -205,3 +205,50 @@ TEST_CASE("the newest save by file time wins: autosave, a slot or the quick save
 	CHECK(SaveSlots::PickLatest(autosave, slots, quicksave)->Label() == "Autosave");
 	fs::remove_all(dir);
 }
+
+TEST_CASE("a save folder: saves/ by default, a scenario's own directory, the newest save in it") {
+	const SaveFolder home;
+	CHECK(home.Autosave() == SaveSlots::AUTOSAVE);
+	CHECK(home.Quicksave() == SaveSlots::QUICKSAVE);
+	CHECK(home.Slot(3) == SaveSlots::FileName(3));
+
+	namespace fs = std::filesystem;
+	const fs::path dir = "build/save_folder_test";
+	fs::remove_all(dir);
+	fs::create_directories(dir);
+	const SaveFolder scenario{dir.string()};
+	CHECK(scenario.Autosave() == dir.string() + "/autosave.sav");
+	CHECK(scenario.Quicksave() == dir.string() + "/quicksave.sav");
+	CHECK(scenario.Slot(2) == dir.string() + "/save2.sav");
+	CHECK_FALSE(scenario.HasAutosave());
+	CHECK_FALSE(scenario.Latest().has_value());
+
+	std::ofstream(scenario.Quicksave()) << "1 STATS";
+	CHECK(scenario.HasQuicksave());
+	CHECK_FALSE(scenario.HasAutosave());
+	REQUIRE(scenario.Latest().has_value());
+	CHECK(scenario.Latest()->kind == SaveSlots::Latest::Kind::Quicksave);
+	fs::remove_all(dir);
+}
+
+TEST_CASE("a death goes into the autosave's file; its time stays, no file or no run statistics change nothing") {
+	namespace fs = std::filesystem;
+	const std::string path = "build/set_file_deaths_test.sav";
+	fs::remove(path);
+	CHECK_FALSE(SaveSlots::SetFileDeaths(path, 1));
+	CHECK_FALSE(fs::exists(path));
+
+	std::ofstream(path) << "RUN 1 0 0 0 0 0 0 0 0\nNAMES 42\nJOURNAL\n";
+	const auto written = fs::file_time_type::clock::now() - std::chrono::seconds(100);
+	fs::last_write_time(path, written);
+	REQUIRE(SaveSlots::SetFileDeaths(path, 3));
+	CHECK(fs::last_write_time(path) == written);
+	std::ifstream in(path);
+	std::stringstream text;
+	text << in.rdbuf();
+	CHECK(text.str() == "RUN 1 0 0 0 0 0 0 0 0\nNAMES 42\nDEATHS 3\nJOURNAL\n");
+
+	std::ofstream(path) << "no run here\n";
+	CHECK_FALSE(SaveSlots::SetFileDeaths(path, 4));
+	fs::remove(path);
+}

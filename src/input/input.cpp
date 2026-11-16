@@ -252,7 +252,7 @@ void specialKeyPressed(int key, int x, int y) {
 	}
 	if (Game().ui.screen == Screen::Death) {
 		if (key == SPECIAL_QUICK_LOAD) // plan quick-save: also from the death screen
-			Game().LoadQuicksave();
+			Game().saves.LoadQuicksave();
 		else
 			Game().ui.death.SpecialKeyPressed(key);
 		return;
@@ -287,9 +287,9 @@ void specialKeyPressed(int key, int x, int y) {
 	if (key == SPECIAL_TOGGLE_HITBOXES && Game().debug) // plan controls-help: a debug key, only with --debug
 		Game().render.Hitboxes = !Game().render.Hitboxes;
 	if (key == SPECIAL_QUICK_SAVE)
-		Game().Quicksave();
+		Game().saves.Quicksave();
 	if (key == SPECIAL_QUICK_LOAD)
-		Game().LoadQuicksave();
+		Game().saves.LoadQuicksave();
 }
 
 void keyReleased(unsigned char key, int x, int y) {

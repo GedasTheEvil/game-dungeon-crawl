@@ -24,7 +24,7 @@ struct UiViewState {
 	bool operator==(const UiViewState&) const = default;
 };
 
-// A save game (GameState::Save / LoadSave): the level number, the player's stats, the bag, the dungeon, the
+// A save game (SaveService::Write / Read): the level number, the player's stats, the bag, the dungeon, the
 // remembered settings (the stamina-skill toggle, lit arrows, the views) and the journal, in that order. Without the
 // game, so the unit tests read and write one (plan save-load-safety).
 struct SaveParts {

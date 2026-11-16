@@ -1232,7 +1232,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .boss = {MonsterHippo, 1, 1, 7000, 4, 0, Summon::DigOut}},
 	// The baboons of the Lake of Fire (plan baboon), Thoth's, at the gate of the Duat: the first kiter (plan
 	// monster-kiting). It keeps the player at the range of its throw, backs off when they come at it and bites only
-	// when cornered. The coal sets the player burning; water puts it out. Quick, a climber, mid HP.
+	// when cornered. The coal sets the player burning; water puts it out. Quick, a climber; 220 HP, a few bow hits
+	// (plan baboon-double-health).
 	{.id = MonsterBaboon,
 	 .glyph = 'z',
 	 .name = "Baboon of the Lake of Fire",
@@ -1244,7 +1245,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .texture = "monsters/baboon",
 	 .scale = 24, // under half the player's height on all fours; KIND_SCALE in tools/blender/models/baboon.py
 	 .speed = 22, // a bit faster than the player's walk: it comes up to its band
-	 .maxHealth = 110,
+	 .maxHealth = 220,
 	 .damage = 22,
 	 .attackMs = 900,
 	 .xp = 3200,

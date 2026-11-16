@@ -138,3 +138,7 @@ TEST_CASE("the player sprints at a baboon: they catch it") {
 	}
 	CHECK(ms < 4000);
 }
+
+TEST_CASE("the baboon takes a few bow hits: max health at least 200 (plan baboon-double-health)") {
+	CHECK(monsterKind(MonsterBaboon)->maxHealth >= 200);
+}

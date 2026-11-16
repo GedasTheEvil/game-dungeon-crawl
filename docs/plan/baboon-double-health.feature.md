@@ -1,6 +1,6 @@
 # Baboon rebalance: double its health
 
-Status: draft 2026-11-16, size S, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
 
 ## Idea
 

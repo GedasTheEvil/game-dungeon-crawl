@@ -4,8 +4,10 @@
 #include "../level/settings_ini.h"
 
 // The player's choices from Options, kept between runs in saves/settings.ini (docs/settings.md). Scenarios neither
-// read nor write it: they run with the defaults.
+// read nor write it: they run with the defaults (SetEnabled(false)).
 namespace SettingsFile {
+// Off: Load and Save do nothing (a scenario run; plan game-code-without-scenario).
+void SetEnabled(bool on);
 // A missing file keeps the defaults; a bad line logs a warning. An old saves/settings.txt is read once and replaced.
 void Load(Settings& settings);
 // Rewrites the file when the settings differ from what it holds.

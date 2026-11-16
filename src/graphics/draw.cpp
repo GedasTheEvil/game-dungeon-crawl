@@ -1,5 +1,4 @@
 #include "draw.h"
-#include "../test/scenario.h"
 #include <GL/gl.h>
 #include "../state/game_state.h"
 #include "../ui/screen_state.h"
@@ -27,6 +26,7 @@
 #include <string>
 
 namespace {
+void (*gFrameHook)() = nullptr; // setFrameHook
 constexpr float SCENE_NEAR = 10.f;
 constexpr float SCENE_FAR = 300.f;
 // The burning player's flames and their light, a little in front of the body (plan fire-damage).
@@ -167,7 +167,9 @@ namespace {
 void drawGameplay();
 } // namespace
 
-// Whatever the screen, the frame ends here: the scenario runner takes its screenshot, then the buffers swap.
+void setFrameHook(void (*hook)()) { gFrameHook = hook; }
+
+// Whatever the screen, the frame ends here: the frame hook (a scenario's screenshot) runs, then the buffers swap.
 void Draw() {
 	if (!Game().cacheLoaded)
 		return;
@@ -202,7 +204,8 @@ void Draw() {
 	drawTooltip();
 	Brightness::apply(Game().render.resX, Game().render.resY); // plan settings-extras
 	glFlush();
-	Scenario::onFrameRendered();
+	if (gFrameHook != nullptr)
+		gFrameHook();
 	glutSwapBuffers();
 }
 

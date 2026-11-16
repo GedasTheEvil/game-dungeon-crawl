@@ -1,6 +1,5 @@
 #include "settings.h"
 #include "../core/logger.h"
-#include "../test/scenario.h"
 #include <cstdio>
 #include <fstream>
 #include <string>
@@ -9,6 +8,7 @@ namespace {
 constexpr const char* PATH = "saves/settings.ini";
 constexpr const char* OLD_PATH = "saves/settings.txt"; // "name value" lines, before the ini
 
+bool gEnabled = true; // SetEnabled
 std::string gWritten; // the file's text as last read or written, so an unchanged Save does not write
 
 // The old file only had the motion effects switch.
@@ -25,8 +25,10 @@ bool loadOld(Settings& settings) {
 }
 } // namespace
 
+void SettingsFile::SetEnabled(bool on) { gEnabled = on; }
+
 void SettingsFile::Load(Settings& settings) {
-	if (Scenario::active())
+	if (!gEnabled)
 		return;
 	std::ifstream f(PATH);
 	if (!f) {
@@ -48,7 +50,7 @@ void SettingsFile::Load(Settings& settings) {
 }
 
 void SettingsFile::Save(const Settings& settings) {
-	if (Scenario::active())
+	if (!gEnabled)
 		return;
 	std::string text = writeSettings(settings);
 	if (text == gWritten)

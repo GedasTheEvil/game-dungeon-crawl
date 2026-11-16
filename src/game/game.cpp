@@ -139,6 +139,11 @@ int main(int argc, char* argv[]) {
 		if (const std::string out = Scenario::outputDir(); !out.empty()) // never the real board in saves/
 			Game().leaderboard.SetPath(out + "/leaderboard.txt");
 		if (isScenario) {
+			// The runner's hooks (plan game-code-without-scenario): saves in its tests/out/<name>/, no settings
+			// file, the screenshot after each frame.
+			Game().saveDir = Scenario::outputDir();
+			SettingsFile::SetEnabled(false);
+			setFrameHook(&Scenario::onFrameRendered);
 			Game().render.resX = Scenario::resolutionX();
 			Game().render.resY = Scenario::resolutionY();
 			Game().settings.graphics.cutScenes = false; // timings stay as they were; `cutscenes on` turns them on

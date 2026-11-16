@@ -1157,6 +1157,7 @@ void step() {
 	Game().render.resX = gRunner.script.resX;
 	Game().render.resY = gRunner.script.resY;
 	Game().leaderboard.SetPath(gRunner.outDir + "/leaderboard.txt"); // as main() sets it for a lone run
+	Game().saveDir = gRunner.outDir;
 	Game().leaderboard.Load();
 	for (;;)
 		step();

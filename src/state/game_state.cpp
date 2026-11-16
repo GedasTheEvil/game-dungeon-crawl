@@ -22,7 +22,6 @@
 #include "../render/lighting.h"
 #include "../graphics/particles_draw.h"
 #include "../core/paths.h"
-#include "../test/scenario.h"
 #include <sstream>
 #include <utility>
 
@@ -294,9 +293,9 @@ void GameState::NewGame() {
 	}
 }
 //==============================================================
-// Scenarios never touch saves/: theirs lands in tests/out/<name>/.
+// Scenarios never touch saves/: the runner points saveDir at tests/out/<name>/.
 std::string GameState::AutosavePath() const {
-	return Scenario::active() ? Scenario::outputDir() + "/autosave.sav" : SaveSlots::AUTOSAVE;
+	return saveDir.empty() ? SaveSlots::AUTOSAVE : saveDir + "/autosave.sav";
 }
 
 bool GameState::HasAutosave() const { return SaveSlots::DescribeFile(AutosavePath()).used; }
@@ -322,7 +321,7 @@ bool GameState::UnsavedProgress() const {
 }
 
 std::string GameState::QuicksavePath() const {
-	return Scenario::active() ? Scenario::outputDir() + "/quicksave.sav" : SaveSlots::QUICKSAVE;
+	return saveDir.empty() ? SaveSlots::QUICKSAVE : saveDir + "/quicksave.sav";
 }
 
 bool GameState::HasQuicksave() const { return SaveSlots::DescribeFile(QuicksavePath()).used; }
@@ -345,8 +344,7 @@ void GameState::LoadQuicksave() {
 }
 
 std::string GameState::SlotPath(int slot) const {
-	return Scenario::active() ? Scenario::outputDir() + "/save" + std::to_string(slot) + ".sav"
-							  : SaveSlots::FileName(slot);
+	return saveDir.empty() ? SaveSlots::FileName(slot) : saveDir + "/save" + std::to_string(slot) + ".sav";
 }
 
 std::optional<SaveSlots::Latest> GameState::LatestSave() const {

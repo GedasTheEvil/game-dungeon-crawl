@@ -17,5 +17,5 @@ jump rules sit half in each, and nothing owns their invariants.
   monster as well.
 * Mechanical first (move the fields, keep the behaviour; unit tests and the archived scenarios give the same results
   as before), then the queries.
-* Do it before [dungeon-subsystems](dungeon-subsystems.tooling.draft.opus.md): it takes the player out of Dungeon's
+* Do it before [dungeon-subsystems](solved/dungeon-subsystems.tooling.md): it takes the player out of Dungeon's
   members.

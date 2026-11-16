@@ -41,7 +41,7 @@ Starting points; tune in the play-test.
 | Breath of Shu | max stamina +25% | +50% | 100% |
 | Speed of Mafdet | walk, sprint +20% | +35% | 75% (movement and collision feel; the jump reach stays) |
 | Dodge | 10% | 20% | 100% |
-| Sharp eye | ranged reach 130% | 160% | 100% |
+| Sharp eye | ranged reach 130% | "Eye of Horus": 160%, and no minimum range (`weaponMinRange` is 0, no TooClose refusal) | 100% + the minimum range |
 | Stun | 25% of the blunt share | 50% | 100% (boss still half, not again within 5 s) |
 | Bleed | 20% of the cut share | 40% | 100% (tier-up halves follow it) |
 | Flaming arrows | +40% fire, 10% stamina | +80% fire, same cost | 100% |
@@ -49,6 +49,10 @@ Starting points; tune in the play-test.
 | Quiver of Neith | +40% shots, 25% faster | +70% shots, 44% faster | 75% |
 | Serket's favour | 10% resist, half as long | 20% resist, a third as long | 100% resist |
 | Blessing of Isis | 10% resist, half as long | 20% resist, a third as long | 100% resist |
+
+Sharp eye rank II (the user, 2026-11-16): the card is named "Eye of Horus" (the only rank II with its own name; the
+others keep the skill name with "II"). Name clash: the trap-ward amulet is already called Eye of Horus
+(`AmuletType::TrapWard`, journal); the implementer renames one of them (e.g. the amulet to "Wedjat") or asks the user.
 
 No rank II (the user, 2026-11-16): Words of Thoth, Wisdom of Seshat, Favour of Hapi, Disarm trap.
 

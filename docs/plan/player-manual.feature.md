@@ -1,6 +1,6 @@
 # Player manual (HTML): the game, controls, monsters, items
 
-Status: draft 2026-11-16, size L, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size L, needs nothing first.
 
 ## Idea
 
@@ -37,8 +37,29 @@ The rest:
   the manual uses still exist in the game, and that every image link resolves.
 * No JavaScript needed; `<details>` folds are fine where they help.
 
+## Implementation
+
+* `docs/manual/index.html` (one page, a tab row of anchors to its sections) and `docs/manual/manual.css` (the
+  colours of `src/render/ui_draw.h`: backdrop with vignette, title with rules and diamonds, panels with bronze frame,
+  gold line and studs, lapis / stone tiles, key caps, papyrus cards with the ink rule, icon wells). No JavaScript; the
+  curses sit in a `<details>` fold.
+* Font: the game has only the Parchment MF sheet (`media/textures/fonts/parchment.png`); its TTF says "all rights
+  reserved", so the repo does not carry it (the user, 2026-11-16). The CSS takes Parchment MF where it is installed
+  (`local()`), else Palatino / Georgia.
+* Pictures (`docs/manual/images/`, made by `tools/manual/images.py`): monster renders from `bin/model-viewer`
+  (backdrop keyed out), the HUD, inventory and Heka screens from `tools/manual/shots.txt` run through `bin/game`,
+  skill icons from `skill_icons.png`, weapon, amulet, potion (tinted) and ring (gem recoloured) icons from
+  `hud_icons.png`, conditions, curses and blessings on their `status_cards.png` card, the backdrop and papyrus. The
+  script removes pictures no page uses.
+* Monsters: rat / giant rat, scarab / giant scarab, cobra / giant cobra, the Chest of Seth (mimic), Khepri as the
+  boss example. Items: all eleven potions, eight weapons, eight amulets, the six ring gems and the metals.
+* Drift check: `tools/docs_check.py` (`make check`): every `class="name"` text must be in a string of `src/` or a
+  line of `content/texts/`, every local `src` / `href` must exist. `class="term"` is the same look, unchecked (Daze).
+* Rows: glossary (player manual), where-is-x, readme (Play).
+* No play command: the manual is not in the game (`move --force`).
+
 ## Play-test
 
-* Open `docs/manual/index.html` in a browser.
+* `xdg-open docs/manual/index.html` (any browser, offline).
 * It looks like the game's menus; sections for the game, controls, monsters (2-3 normal and giant examples, one boss), items; no numbers, only vague
   words.

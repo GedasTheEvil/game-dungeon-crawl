@@ -9,7 +9,12 @@
 
 Default files: docs/*.md, readme.md, AGENTS.md, tools/editor/readme.md. Plans are not checked (solved ones are
 history), nor glossary.md (tests/unit/docs_test.cpp checks its Code column) or remodeling.md (history). The zone
-table of docs/levels.md is checked by docs_test.cpp. Prints one line per problem and exits 1 if there is any.
+table of docs/levels.md is checked by docs_test.cpp.
+* The player manual (docs/manual/*.html, plan player-manual): every `class="name"` text must still be in one of the
+  game's strings (src/) or texts (content/texts/), so a renamed monster, item or skill does not live on in it; every local `src` and `href`
+  must resolve.
+
+Prints one line per problem and exits 1 if there is any.
 """
 
 import os
@@ -115,6 +120,47 @@ def check_identifiers(path, words):
     return problems
 
 
+MANUAL = "docs/manual"
+MANUAL_NAME = re.compile(r'class="name">([^<]+)<')
+MANUAL_LINK = re.compile(r'(?:src|href)="([^"#:]+)(?:#[^"]*)?"')
+STRING = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
+
+
+def game_strings():
+    """The string literals of src/ and the lines of content/texts/: every name the player can read."""
+    files = subprocess.run(
+        ["git", "ls-files", "--", "src", "content/texts"], cwd=ROOT, capture_output=True, text=True, check=True
+    ).stdout.split()
+    strings = []
+    for f in files:
+        with open(os.path.join(ROOT, f), encoding="utf-8", errors="replace") as text:
+            if f.endswith((".cpp", ".h")):
+                strings += STRING.findall(text.read())
+            elif f.endswith(".txt"):
+                strings += text.read().splitlines()
+    return strings
+
+
+def check_manual():
+    if not os.path.isdir(MANUAL):
+        return []
+    strings = game_strings()
+    problems = []
+    for page in sorted(f for f in os.listdir(MANUAL) if f.endswith(".html")):
+        path = os.path.join(MANUAL, page)
+        with open(path, encoding="utf-8") as f:
+            lines = f.readlines()
+        for n, line in enumerate(lines, 1):
+            for name in MANUAL_NAME.findall(line):
+                word = re.compile(r"(?<![A-Za-z])" + re.escape(name.strip()) + r"(?![A-Za-z])")
+                if not any(word.search(s) for s in strings):
+                    problems.append(f"{path}:{n}: \"{name.strip()}\" is not in the game's strings (src/, content/texts/)")
+            for target in MANUAL_LINK.findall(line):
+                if not os.path.exists(os.path.join(MANUAL, target)):
+                    problems.append(f"{path}:{n}: {target} does not exist")
+    return problems
+
+
 def main(argv):
     os.chdir(ROOT)
     docs = argv or default_docs()
@@ -122,6 +168,8 @@ def main(argv):
     problems = []
     for doc in docs:
         problems += check_anchors(doc) + check_identifiers(doc, words)
+    if not argv:
+        problems += check_manual()
     for p in problems:
         print(p)
     if problems:

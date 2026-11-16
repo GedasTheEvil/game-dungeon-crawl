@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dungeon Crawl: the player's manual</title>
+<link rel="stylesheet" href="manual.css">
+<!-- Plan player-manual. The names in class="name" are the game's own: tools/docs_check.py checks that they are still
+     in the game (src/), and that every picture and link here resolves. -->
+</head>
+<body>
+<div class="page" id="top">
+
+<header>
+	<div class="title">
+		<span class="diamond"></span><span class="rule"></span><span class="diamond small"></span>
+		<h1>Dungeon Crawl</h1>
+		<span class="diamond small"></span><span class="rule"></span><span class="diamond"></span>
+	</div>
+	<p class="subtitle">The player's manual: the twelve hours of the Duat, and how to come out of them alive</p>
+</header>
+
+<nav class="tabs">
+	<a class="tile lapis" href="#game">The game</a>
+	<a class="tile" href="#controls">Controls</a>
+	<a class="tile" href="#survival">Staying alive</a>
+	<a class="tile" href="#monsters">Monsters</a>
+	<a class="tile" href="#items">Items</a>
+	<a class="tile" href="#conditions">Conditions</a>
+	<a class="tile" href="#skills">Heka</a>
+	<a class="tile" href="#shrines">Shrines</a>
+</nav>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="game">
+	<h2>The game</h2>
+	<p>You are an archaeologist who touched the wrong statue. The tomb closed behind you, and the only way left is
+	down: through the twelve hours of the Duat, the underworld that the sun god Ra sails through every night. Each
+	hour is a zone of its own, with its own stone, its own creatures and its own tricks: tombs with teeth in the
+	floor, bat galleries, halls hung with webs, the priests' quarter, a scorpion nest, a serpent temple, flooded
+	cisterns, desert sand, quicksand, a lake of fire, the necropolis, and at the very end the Hall of Judgment, where
+	your heart is weighed.</p>
+	<p>The world is drawn in 3D, but you walk it like a side-scroller: left and right along the halls, up and down
+	ladders, over pits and across gaps. Find the key or the lever that opens the gate of its colour, beat what
+	stands in the way, and take the exit down to the next level.</p>
+	<p>Light comes only from fire: torches on the walls, braziers and oil lamps. Some creatures hate it, and the
+	dark halls are where they wait.</p>
+
+	<h3>What you see</h3>
+	<figure>
+		<div class="frame"><img src="images/screen_hud.png" alt="The player's panel: health, stamina and the quick slots"></div>
+		<figcaption>Your panel, bottom left: health (red), stamina (gold), the weapon in hand and the quick
+		potions with their keys. A pulsing tile beside it means something new waits in the journal.</figcaption>
+	</figure>
+	<p><span class="name">Health</span> drops with every bite, blow and trap. When it runs out, the run ends, and
+	you may try again from your latest save. <span class="name">Stamina</span> pays for jumps, sprints and the
+	stronger skills; it comes back by itself while you walk or stand.</p>
+	<p>Every creature you kill and every riddle you answer gives experience. A new level brings more health and
+	stamina, both filled up at once, and clears any poison. Now and then a level also makes your skin tougher or
+	your arm stronger.</p>
+
+	<h3>Saving</h3>
+	<p>The game saves by itself at the start of every level, after a solved riddle and after a slain guardian. <kbd>F5</kbd> makes a quick save and <kbd>F9</kbd>
+	loads it; the menu (<kbd>Esc</kbd>) has save slots as well. After a death you can retry from the newest save.</p>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="controls">
+	<h2>Controls</h2>
+	<p>These are the default keys. Every one of them can be changed in the menu: <span class="dim">Options,
+	Controls</span>. The menu's <span class="dim">How to Play</span> page always shows the keys you use now.</p>
+	<div class="columns">
+		<div>
+			<h3>Move</h3>
+			<table>
+				<tbody>
+					<tr><td>Move left / right</td><td><kbd>A</kbd> <kbd>D</kbd> or <kbd>Left</kbd> <kbd>Right</kbd></td></tr>
+					<tr><td>Climb up a ladder</td><td><kbd>W</kbd> / <kbd>Up</kbd></td></tr>
+					<tr><td>Climb down, crouch</td><td><kbd>S</kbd> / <kbd>Down</kbd></td></tr>
+					<tr><td>Jump</td><td><kbd>Space</kbd> / <kbd>RMB</kbd></td></tr>
+					<tr><td>Sprint (hold)</td><td><kbd>Shift</kbd></td></tr>
+					<tr><td>Look left / right</td><td><kbd>Home</kbd> / <kbd>End</kbd></td></tr>
+					<tr><td>Look up / down</td><td><kbd>PgUp</kbd> / <kbd>PgDn</kbd></td></tr>
+					<tr><td>Look around</td><td>the mouse</td></tr>
+				</tbody>
+			</table>
+			<h3>Fight</h3>
+			<table>
+				<tbody>
+					<tr><td>Attack</td><td><kbd>V</kbd> / <kbd>Enter</kbd> / <kbd>LMB</kbd></td></tr>
+					<tr><td>Power hit: hold, then let go</td><td><kbd>V</kbd></td></tr>
+					<tr><td>Next melee weapon</td><td><kbd>1</kbd></td></tr>
+					<tr><td>Next ranged weapon</td><td><kbd>2</kbd></td></tr>
+					<tr><td>Stamina skills on / off</td><td><kbd>Q</kbd></td></tr>
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<h3>Items</h3>
+			<table>
+				<tbody>
+					<tr><td>Open, pull, read, pray</td><td><kbd>E</kbd> / <kbd>F12</kbd> / <kbd>MMB</kbd></td></tr>
+					<tr><td>Drag a mirror, let go</td><td><kbd>R</kbd></td></tr>
+					<tr><td>Drink healing</td><td><kbd>3</kbd> / <kbd>H</kbd></td></tr>
+					<tr><td>Drink stamina</td><td><kbd>4</kbd> / <kbd>0</kbd></td></tr>
+					<tr><td>Drink antidote</td><td><kbd>5</kbd> / <kbd>=</kbd></td></tr>
+				</tbody>
+			</table>
+			<h3>Screens</h3>
+			<table>
+				<tbody>
+					<tr><td>Inventory</td><td><kbd>I</kbd></td></tr>
+					<tr><td>Draft map</td><td><kbd>M</kbd></td></tr>
+					<tr><td>Journal</td><td><kbd>J</kbd></td></tr>
+					<tr><td>Heka (skills)</td><td><kbd>K</kbd></td></tr>
+					<tr><td>Menu, back</td><td><kbd>Esc</kbd></td></tr>
+					<tr><td>Comic look with ink lines</td><td><kbd>F1</kbd></td></tr>
+				</tbody>
+			</table>
+			<h3>Saves</h3>
+			<table>
+				<tbody>
+					<tr><td>Quick save</td><td><kbd>F5</kbd></td></tr>
+					<tr><td>Quick load</td><td><kbd>F9</kbd></td></tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<p class="dim">The quick drinks pick the potion that fits best. The antidote key works only while you are
+	poisoned.</p>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="survival">
+	<h2>Staying alive</h2>
+
+	<h3>Keys, levers and gates</h3>
+	<p>A gate opens with the key of its colour, and that key opens every gate of the colour on the level. Some gates
+	answer to a lever of their colour instead. A boss's gate stays shut until the boss is dead. Riddle gates ask a
+	question; the journal keeps the riddles you have met. A name gate wants the royal name of the level, and the
+	walls may tell it to those who can read them.</p>
+
+	<h3>Chests, jars and coffins</h3>
+	<p>Chests, baskets, jars, coffins and canopic jars hold potions, weapons, amulets and rings. Not all of them are
+	friendly: a chest may be a monster, or hold a trap of darts, gas or a curse. A trapped chest looks a little
+	darker up close. Knock before you open: a hit shows a monster for what it is.</p>
+
+	<h3>Traps</h3>
+	<p>Spikes in the floor, pits, rocks that drop from a loose ceiling (grit trickles first), slabs that shoot darts,
+	walls that stab in a rhythm, puddles of venom. Look before you step, and jump over what you can. Most creatures
+	stop at the edge of a trap, so a trap between you and them is a friend. The dead and most bosses walk straight
+	through the spikes.</p>
+
+	<h3>Water, sand and fire</h3>
+	<p>You wade slowly through water, and some things swim much faster than you. Sand slows your step and stops your
+	sprint. Quicksand is worse: the longer you stand in it, the deeper you sink, so jump out while you can. Fire burns
+	on after the hit; water puts it out.</p>
+
+	<h3>Fighting</h3>
+	<p>Every weapon deals <span class="name">Smash</span>, <span class="name">Cut</span> or <span class="name">Stab</span>
+	damage, or a mix of them, and every creature takes each kind of blow differently. A blade skids off a beetle's shell, a point
+	slips between its plates. When a fight goes badly, change the weapon. The journal notes down what you learn about
+	each creature.</p>
+	<p>Bows, slings, javelins and throwing sticks hit softer than a hand weapon and have only a few shots ready; the
+	shots come back once you stop shooting for a while, and a foe right in front of you is too close to shoot. Open
+	with them and finish up close.</p>
+	<p>A small creature bites low: jump as it opens its jaws, and the bite goes under you.</p>
+	<p>A brazier lights your next few arrows (<kbd>E</kbd> by it). Some creatures shrug off arrows but burn very well.</p>
+
+	<h3>The journal and the map</h3>
+	<p>The <span class="name">Journal</span> (<kbd>J</kbd>) keeps field notes on every new thing you meet: creatures,
+	potions, traps, curses, the riddles and the carved words on the walls. The <span class="name">Draft map</span>
+	(<kbd>M</kbd>) shows the halls you have seen.</p>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="monsters">
+	<h2>Monsters</h2>
+	<p>Each hour has its own creatures. Many come in two sizes: the common kind, and a giant one that is tougher,
+	stronger and has a trick or two of its own. A few examples from the first hours:</p>
+
+	<div class="cards">
+		<div class="card">
+			<div class="frame"><img src="images/monster_rat.png" alt="A rat"></div>
+			<div class="papyrus">
+				<h4 class="name">Rat</h4>
+				<div class="kind">common</div>
+				<div class="rule"></div>
+				<p>Quick, hungry and not afraid of you. Its bite hardly hurts, but it may make you sick.</p>
+				<p class="tip">It bites low: jump over the bite, strike as it lands.</p>
+			</div>
+		</div>
+		<div class="card">
+			<div class="frame"><img src="images/monster_giant_rat.png" alt="A giant rat"></div>
+			<div class="papyrus">
+				<h4 class="name">Giant rat</h4>
+				<div class="kind">giant</div>
+				<div class="rule"></div>
+				<p>As big as a dog and faster than you walk. It leaps at you, its bite opens wounds, and when it is
+				hurt it calls the pack.</p>
+				<p class="tip">You cannot outrun it: fight it up close and finish it fast.</p>
+			</div>
+		</div>
+		<div class="card">
+			<div class="frame"><img src="images/monster_scarab.png" alt="A scarab"></div>
+			<div class="papyrus">
+				<h4 class="name">Scarab</h4>
+				<div class="kind">common</div>
+				<div class="rule"></div>
+				<p>A beetle the size of a fist, in a hard shell. Scarabs dig out of the sand.</p>
+				<p class="tip">A blade skids off the shell; a point or a club does not.</p>
+			</div>
+		</div>
+		<div class="card">
+			<div class="frame"><img src="images/monster_giant_scarab.png" alt="A giant scarab"></div>
+			<div class="papyrus">
+				<h4 class="name">Giant scarab</h4>
+				<div class="kind">giant</div>
+				<div class="rule"></div>
+				<p>A beetle bigger than any beetle should be. It leaps over pits and traps and at you, and rolls
+				balls of dung your way.</p>
+				<p class="tip">Jump the dung balls. Stab between the plates.</p>
+			</div>
+		</div>
+		<div class="card">
+			<div class="frame"><img src="images/monster_cobra.png" alt="A cobra"></div>
+			<div class="papyrus">
+				<h4 class="name">Cobra</h4>
+				<div class="kind">common</div>
+				<div class="rule"></div>
+				<p>Lies coiled until you come near. Its bite poisons, and it spits venom from afar.</p>
+				<p class="tip">Carry an antidote into its halls.</p>
+			</div>
+		</div>
+		<div class="card">
+			<div class="frame"><img src="images/monster_giant_cobra.png" alt="A giant cobra"></div>
+			<div class="papyrus">
+				<h4 class="name">Giant cobra</h4>
+				<div class="kind">giant</div>
+				<div class="rule"></div>
+				<p>Black and as long as a boat. Its poison is worse, and its spit in your eyes leaves you half
+				blind for a moment.</p>
+				<p class="tip">Do not trade spit with it: close in or keep out of its line.</p>
+			</div>
+		</div>
+	</div>
+
+	<h3>Not everything is what it seems</h3>
+	<div class="cards">
+		<div class="card">
+			<div class="frame"><img src="images/monster_mimic.png" alt="A chest of Seth, open, with teeth"></div>
+			<div class="papyrus">
+				<h4 class="name">Chest of Seth</h4>
+				<div class="kind">mimic</div>
+				<div class="rule"></div>
+				<p>A treasure chest, until you reach for the lid and the lid reaches for you. Some chests are its
+				darker kin, and their bite clouds the mind.</p>
+				<p class="tip">Knock first: a hit wakes it before your hand is in its mouth.</p>
+			</div>
+		</div>
+	</div>
+	<p>Bats hang asleep from the ceiling, crocodiles and hippos lie under the water, a lotus floats like a flower and
+	a servant figure stands still among its kind until you come close. Mummies wait in their coffins.</p>
+
+	<h3>Bosses</h3>
+	<div class="cards">
+		<div class="card">
+			<div class="frame"><img src="images/monster_khepri.png" alt="Khepri, the boss scarab"></div>
+			<div class="papyrus">
+				<h4 class="name">Khepri</h4>
+				<div class="kind">guardian of the first hour</div>
+				<div class="rule"></div>
+				<p>The scarab who rolls the sun across the sky. Every beetle in the room comes when he calls, and his
+				dung balls burn.</p>
+				<p class="tip">Thin out his scarabs, keep moving, and stay out of the line of the burning balls.</p>
+			</div>
+		</div>
+	</div>
+	<p>Most hours have a guardian: a god or a god's beast, bigger and far stronger than its kin, with its kin's tricks
+	and worse ones. A guardian's room is closed by a boss gate that opens only when the guardian dies, and each one
+	you slay gives you a <span class="name">heka</span>, the magic of the gods, to spend on a skill. Their health
+	shows in a bar while you fight them.</p>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="items">
+	<h2>Items</h2>
+	<p>Open the inventory with <kbd>I</kbd>. It has a tab for weapons, potions, amulets and rings; a click on an item
+	shows its card, and the card's button uses it.</p>
+	<figure>
+		<div class="frame"><img src="images/screen_inventory_potions.png" alt="The inventory's potion tab with a potion's card"></div>
+	</figure>
+
+	<h3>Potions</h3>
+	<div class="icons">
+		<div class="icon-row"><div class="well"><img src="images/potion_small_health.png" alt=""></div>
+			<div class="text"><span class="name">Lesser Potion of Sekhmet</span>
+			Heals medium wounds. Stops bleeding.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_large_health.png" alt=""></div>
+			<div class="text"><span class="name">Greater Potion of Sekhmet</span>
+			Heals large wounds. Stops bleeding.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_small_stamina.png" alt=""></div>
+			<div class="text"><span class="name">Date Wine</span>
+			Gives back a good part of your stamina.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_large_stamina.png" alt=""></div>
+			<div class="text"><span class="name">Beer of Hathor</span>
+			Gives back all your stamina.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_antidote.png" alt=""></div>
+			<div class="text"><span class="name">Milk of Renenutet</span>
+			Cures every poison in you.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_lesser_resistance.png" alt=""></div>
+			<div class="text"><span class="name">Lesser Ward of Wadjet</span>
+			For a while, a poisoned bite often does nothing.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_greater_resistance.png" alt=""></div>
+			<div class="text"><span class="name">Greater Ward of Wadjet</span>
+			Cures poison, and for a while almost no poison lands.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_water_blessing.png" alt=""></div>
+			<div class="text"><span class="name">Blessing of Hapi</span>
+			For a while you wade, sprint and jump in water as on dry stone.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_might.png" alt=""></div>
+			<div class="text"><span class="name">Blood of Montu</span>
+			Your arm hits a little harder, for good.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_armor.png" alt=""></div>
+			<div class="text"><span class="name">Granite of Ptah</span>
+			Every blow hurts you a little less, for good.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/potion_life.png" alt=""></div>
+			<div class="text"><span class="name">Breath of Amun</span>
+			A little more health for good, and all your wounds close.</div></div>
+	</div>
+	<p class="dim">Antidotes, wards and the Blessing of Hapi turn up where they are needed: near the poisoners and
+	the water.</p>
+
+	<h3>Weapons</h3>
+	<p>You start with a club. Copies of your weapons lie in chests and now and then drop from a creature; with
+	enough copies you upgrade a weapon in the inventory (<kbd>U</kbd>), and the weaker it starts, the more it gains.
+	A few of them:</p>
+	<div class="icons">
+		<div class="icon-row"><div class="well"><img src="images/weapon_club.png" alt=""></div>
+			<div class="text"><span class="name">Acacia Club</span> Slow and heavy; smashes. Grows the most from
+			an upgrade.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/weapon_knife.png" alt=""></div>
+			<div class="text"><span class="name">Flint Knife</span> Quick and close; stabs.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/weapon_sword.png" alt=""></div>
+			<div class="text"><span class="name">Bronze Sword</span> Quick cuts, one after another.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/weapon_mace.png" alt=""></div>
+			<div class="text"><span class="name">Pear Mace</span> A stone on a stick; smashes, and dents bronze.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/weapon_spear.png" alt=""></div>
+			<div class="text"><span class="name">Medjay Spear</span> Long reach; the point finds the gaps.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/weapon_bow.png" alt=""></div>
+			<div class="text"><span class="name">Nubian Bow</span> Arrows from afar, for slow monsters.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/weapon_sling.png" alt=""></div>
+			<div class="text"><span class="name">Nubian Sling</span> Stones that smash; stones are everywhere.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/weapon_javelin.png" alt=""></div>
+			<div class="text"><span class="name">Medjay Javelin</span> Light enough to throw, heavy enough to
+			stay.</div></div>
+	</div>
+
+	<h3>Amulets</h3>
+	<p>You wear one amulet at a time. Each kind comes in stronger and weaker tiers (lesser, minor, plain and
+	grand), and the card says what yours does. A few of them:</p>
+	<div class="icons">
+		<div class="icon-row"><div class="well"><img src="images/amulet_strength.png" alt=""></div>
+			<div class="text"><span class="name">Jackal Tooth</span> Your blows hit harder.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/amulet_armor.png" alt=""></div>
+			<div class="text"><span class="name">Bronze Scarab</span> Blows hurt you less.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/amulet_health.png" alt=""></div>
+			<div class="text"><span class="name">Carnelian Heart</span> More health while you wear it.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/amulet_poison_guard.png" alt=""></div>
+			<div class="text"><span class="name">Serket's Scorpion</span> Some poisons never take hold.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/amulet_trap_guard.png" alt=""></div>
+			<div class="text"><span class="name">Wedjat</span> Traps hurt less, and chest traps often fail.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/amulet_fire_guard.png" alt=""></div>
+			<div class="text"><span class="name">Sun Disc</span> Fire burns you less. Armour does not stop fire;
+			this does.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/amulet_regeneration.png" alt=""></div>
+			<div class="text"><span class="name">Faience Lotus</span> Heals you slowly while nothing hunts
+			you.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/amulet_venom.png" alt=""></div>
+			<div class="text"><span class="name">Wadjet's Cobra</span> Some of your hits poison the foe.</div></div>
+	</div>
+
+	<h3>Rings</h3>
+	<p>You wear a ring on each hand. The gem says what a ring does, the metal how much: copper, silver, gold, and
+	the rare sky-iron, fallen from the sky.</p>
+	<div class="icons">
+		<div class="icon-row"><div class="well"><img src="images/ring_garnet.png" alt=""></div>
+			<div class="text"><span class="name">Garnet</span> Heals you slowly.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/ring_lapis.png" alt=""></div>
+			<div class="text"><span class="name">Lapis</span> Stamina comes back faster.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/ring_feldspar.png" alt=""></div>
+			<div class="text"><span class="name">Feldspar</span> Poison wears off faster.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/ring_jasper.png" alt=""></div>
+			<div class="text"><span class="name">Jasper</span> You walk and sprint faster.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/ring_crystal.png" alt=""></div>
+			<div class="text"><span class="name">Crystal</span> Your weapon reaches farther.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/ring_amethyst.png" alt=""></div>
+			<div class="text"><span class="name">Amethyst</span> Your blows go through what a hide or a shell holds
+			back.</div></div>
+	</div>
+	<p class="dim">While you bleed, your amulet and your rings give you nothing.</p>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="conditions">
+	<h2>Conditions</h2>
+	<p>What is on you shows as cards above your panel: gold for a blessing, grey for a condition that is easy to
+	end, purple for a curse.</p>
+	<div class="icons">
+		<div class="icon-row"><div class="well"><img src="images/status_poison.png" alt=""></div>
+			<div class="text"><span class="name">Poison</span> Your health bar turns green and keeps draining after
+			the fight, through any armour. An antidote cures it; so does a new level.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/status_bleeding.png" alt=""></div>
+			<div class="text"><span class="name">Bleeding</span> A blade, a claw or a spike opens a wound that bleeds
+			on for a while. Any healing closes it.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/status_burning.png" alt=""></div>
+			<div class="text"><span class="name">Fire</span> Fire keeps burning for a moment after the hit.
+			Water puts it out.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/status_daze.png" alt=""></div>
+			<div class="text"><span class="term">Daze</span> A screech, a hot coal or a hard knock on the head:
+			your ears ring and you cannot act for a moment.</div></div>
+	</div>
+	<p>A spit in the eyes leaves you half blind for a moment; standing in water clears it sooner.</p>
+
+	<h3>Curses</h3>
+	<p>Some creatures, cursed lids and old servant figures lay a curse on you. No potion cures one: it fades after a
+	while, a new one of the same kind starts it over, and a prayer at a Shrine of Isis lifts them all.</p>
+	<details>
+		<summary>The eight curses</summary>
+		<div class="icons">
+			<div class="icon-row"><div class="well"><img src="images/status_curse_weakness.png" alt=""></div>
+				<div class="text"><span class="name">Weakness</span> Your arm loses its might.</div></div>
+			<div class="icon-row"><div class="well"><img src="images/status_curse_clumsiness.png" alt=""></div>
+				<div class="text"><span class="name">Clumsiness</span> Every blow, shot and throw does less.</div></div>
+			<div class="icon-row"><div class="well"><img src="images/status_curse_vulnerability.png" alt=""></div>
+				<div class="text"><span class="name">Vulnerability</span> Your armour feels like papyrus.</div></div>
+			<div class="icon-row"><div class="well"><img src="images/status_curse_fatigue.png" alt=""></div>
+				<div class="text"><span class="name">Fatigue</span> Your stamina drops and does not come back by
+				itself. A stamina potion still works.</div></div>
+			<div class="icon-row"><div class="well"><img src="images/status_curse_disease.png" alt=""></div>
+				<div class="text"><span class="name">Disease</span> Your body holds less health until it
+				passes.</div></div>
+			<div class="icon-row"><div class="well"><img src="images/status_curse_slowness.png" alt=""></div>
+				<div class="text"><span class="name">Slowness</span> You walk and climb at half speed.</div></div>
+			<div class="icon-row"><div class="well"><img src="images/status_curse_palsy.png" alt=""></div>
+				<div class="text"><span class="name">Palsy</span> Your hands shake: no shot finds its mark. Melee
+				still works.</div></div>
+			<div class="icon-row"><div class="well"><img src="images/status_curse_insanity.png" alt=""></div>
+				<div class="text"><span class="name">Insanity</span> Your mind clouds: no map, journal, pack or
+				potions, and the weapon in hand stays there.</div></div>
+		</div>
+	</details>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="skills">
+	<h2>Heka: skills</h2>
+	<p>Each guardian you slay gives a heka. On the Heka screen (<kbd>K</kbd>) you spend it on a skill, for good, and
+	a second heka raises some skills to rank II. There are more skills than guardians, so you never learn them all:
+	choose with care.</p>
+	<figure>
+		<div class="frame"><img src="images/screen_heka.png" alt="The Heka screen"></div>
+	</figure>
+	<div class="icons">
+		<div class="icon-row"><div class="well"><img src="images/skill_stun.png" alt=""></div>
+			<div class="text"><span class="name">Stun</span> A good knock on the head stops a foe for a
+			moment.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_words_of_thoth.png" alt=""></div>
+			<div class="text"><span class="name">Words of Thoth</span> Read the carved words on the walls, and what
+			they give.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_dodge.png" alt=""></div>
+			<div class="text"><span class="name">Dodge</span> Now and then a bite or a sting finds only
+			air.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_power_hit.png" alt=""></div>
+			<div class="text"><span class="name">Power hit</span> Hold the blow: the longer, the harder it lands.
+			Paid in stamina.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_eye_of_horus.png" alt=""></div>
+			<div class="text"><span class="name">Eye of Horus</span> Your shots carry farther, and a foe up close no
+			longer spoils your aim.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_favour_of_hapi.png" alt=""></div>
+			<div class="text"><span class="name">Favour of Hapi</span> Wade faster, and jump out of the
+			water.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_serkets_favour.png" alt=""></div>
+			<div class="text"><span class="name">Serket's favour</span> Poisons on you are shorter, and some never
+			land.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_blessing_of_isis.png" alt=""></div>
+			<div class="text"><span class="name">Blessing of Isis</span> Curses on you are shorter, and some never
+			land.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_flaming_arrows.png" alt=""></div>
+			<div class="text"><span class="name">Flaming arrows</span> Your arrows fly on fire. Paid in
+			stamina.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_ka_of_osiris.png" alt=""></div>
+			<div class="text"><span class="name">Ka of Osiris</span> A lot more health.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_strength_of_montu.png" alt=""></div>
+			<div class="text"><span class="name">Strength of Montu</span> Every blow hits harder.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_djed_of_ptah.png" alt=""></div>
+			<div class="text"><span class="name">Djed of Ptah</span> Tougher skin: every blow hurts less.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_breath_of_shu.png" alt=""></div>
+			<div class="text"><span class="name">Breath of Shu</span> A lot more stamina.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_speed_of_mafdet.png" alt=""></div>
+			<div class="text"><span class="name">Speed of Mafdet</span> Walk and sprint faster, out of water and
+			sand.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_wisdom_of_seshat.png" alt=""></div>
+			<div class="text"><span class="name">Wisdom of Seshat</span> Riddle hints, the royal names, sealed
+			rooms on the map.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_disarm_trap.png" alt=""></div>
+			<div class="text"><span class="name">Disarm trap</span> Chest traps mostly fail, and trapped chests and
+			mimics glow up close.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_quiver_of_neith.png" alt=""></div>
+			<div class="text"><span class="name">Quiver of Neith</span> More shots ready, and they come back
+			sooner.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/skill_bleed.png" alt=""></div>
+			<div class="text"><span class="name">Bleed</span> A clean cut may leave a foe bleeding.</div></div>
+	</div>
+	<p class="dim"><kbd>Q</kbd> turns the skills that cost stamina on and off.</p>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<!-- ======================================================================================================== -->
+<section class="panel" id="shrines">
+	<h2>Shrines</h2>
+	<p>Here and there a god sits in a shrine. Pray (<kbd>E</kbd>) for the god's blessing; it lasts a while, as often
+	as you like, and the blessings of different gods add up.</p>
+	<div class="icons">
+		<div class="icon-row"><div class="well"><img src="images/status_isis.png" alt=""></div>
+			<div class="text"><span class="name">Protection of Isis</span> Lifts every curse, and no new one
+			lands for a while.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/status_montu.png" alt=""></div>
+			<div class="text"><span class="name">Fury of Montu</span> Your blows hit harder.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/status_ptah.png" alt=""></div>
+			<div class="text"><span class="name">Shield of Ptah</span> Blows hurt you less.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/status_amun.png" alt=""></div>
+			<div class="text"><span class="name">Grace of Amun</span> Heals you fully and gives you more health for a
+			while.</div></div>
+		<div class="icon-row"><div class="well"><img src="images/status_serket.png" alt=""></div>
+			<div class="text"><span class="name">Shelter of Serket</span> Cures poison, and the venom turns away
+			for a while.</div></div>
+	</div>
+	<p>A shrine also takes offerings: a spare ring, an amulet you do not wear, a spare potion or weapon copy, for
+	experience. Now and then the god sends a gift back.</p>
+	<a class="back-to-top" href="#top">Back to the top</a>
+</section>
+
+<footer>
+	<p>Dungeon Crawl. Press <kbd>Esc</kbd> in the game for the menu, and <span class="dim">How to Play</span> for the
+	keys you use now.</p>
+</footer>
+
+</div>
+</body>
+</html>

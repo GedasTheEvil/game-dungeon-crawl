@@ -1,0 +1,454 @@
+/* The player manual (plan player-manual) in the look of the game's menus (docs/ui.md): the carved wall backdrop,
+   dark panels with bronze and gold frames, lapis and stone tiles, papyrus cards. The colours are ui_draw.h's. */
+
+/* The game's Parchment MF where it is installed (the repo holds only its bitmap sheet: the font is not free to
+   share), else a book face. */
+@font-face {
+	font-family: "Parchment";
+	src: local("Parchment MF"), local("ParchmentMF");
+}
+
+:root {
+	--gold: #f2c261;
+	--gold-dim: #947038;
+	--gold-bright: #ffe08c;
+	--bronze: #6b4d26;
+	--lapis: #1f4594;
+	--lapis-dark: #0d1f4d;
+	--stone-top: #33281c;
+	--stone-bottom: #1f1711;
+	--panel-top: #241c14;
+	--panel-bottom: #140f0b;
+	--ink: #3d2412;
+	--ink-red: #9e2b14;
+	--ink-green: #297320;
+	--ink-faded: #856642;
+	--label: #dbb878;
+	--label-dim: #8c734d;
+	--well: #120e0a;
+	--text-hover: #ffeba6;
+	--studs: radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) top -5px left -5px / 14px 14px no-repeat,
+		radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) top -5px right -5px / 14px 14px no-repeat,
+		radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) bottom -5px left -5px / 14px 14px no-repeat,
+		radial-gradient(circle, var(--gold) 0 3px, transparent 3.5px) bottom -5px right -5px / 14px 14px no-repeat;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	background: #000 url("images/backdrop.png") repeat fixed;
+	background-size: 640px auto;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	color: var(--label);
+	font-family: "Parchment", "Palatino Linotype", Palatino, Georgia, serif;
+	font-size: 22px;
+	line-height: 1.4;
+	/* The backdrop's black vignette. */
+	box-shadow: inset 0 0 160px 60px rgba(0, 0, 0, 0.85);
+}
+
+a {
+	color: var(--gold);
+}
+
+a:hover {
+	color: var(--text-hover);
+}
+
+.page {
+	max-width: 1060px;
+	margin: 0 auto;
+	padding: 28px 28px 60px;
+}
+
+/* ---- title: the caption in gold between two rules with diamonds ---- */
+
+.title {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	margin: 10px 0 6px;
+}
+
+.title h1 {
+	margin: 0;
+	color: var(--gold);
+	font-size: 64px;
+	font-weight: normal;
+	white-space: nowrap;
+	text-shadow: 0 2px 4px #000;
+}
+
+/* the rule either side, a big diamond at its outer end and a small one by the text */
+.title .rule {
+	flex: 1;
+	height: 2px;
+	background: var(--gold-dim);
+}
+
+.diamond {
+	width: 12px;
+	height: 12px;
+	background: var(--gold-dim);
+	transform: rotate(45deg);
+	flex: none;
+}
+
+.diamond.small {
+	width: 8px;
+	height: 8px;
+}
+
+.subtitle {
+	text-align: center;
+	color: var(--label-dim);
+	font-size: 24px;
+	margin: 0 0 24px;
+}
+
+/* ---- tiles: lapis (the active one) and stone ---- */
+
+nav.tabs {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin: 0 0 28px;
+}
+
+.tile {
+	display: inline-block;
+	padding: 6px 16px 4px;
+	color: var(--label);
+	text-decoration: none;
+	background: linear-gradient(var(--stone-top), var(--stone-bottom));
+	border: 2px solid var(--bronze);
+	box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.4), inset 0 4px 0 rgba(255, 255, 255, 0.08);
+	font-size: 22px;
+}
+
+.tile:hover {
+	color: var(--text-hover);
+	border: 2px solid var(--gold-bright);
+	background: linear-gradient(#544026, #2b2114);
+	box-shadow: 0 0 10px 2px rgba(242, 194, 97, 0.4), inset 0 4px 0 rgba(255, 255, 255, 0.16);
+}
+
+.tile.lapis {
+	color: var(--gold);
+	background: linear-gradient(var(--lapis), var(--lapis-dark));
+	border: 3px solid var(--gold);
+	outline: 1px solid var(--gold-dim);
+	outline-offset: -5px;
+}
+
+.tile.lapis:hover {
+	background: linear-gradient(#3366c7, #173375);
+}
+
+/* ---- panel: brown gradient, 3 px bronze frame, gold inner line, gold corner studs ---- */
+
+.panel {
+	position: relative;
+	margin: 0 0 30px;
+	padding: 22px 30px 24px;
+	background: var(--studs), linear-gradient(var(--panel-top), var(--panel-bottom));
+	background-color: var(--panel-bottom);
+	border: 3px solid var(--bronze);
+	outline: 1px solid var(--gold-dim);
+	outline-offset: -6px;
+	box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.6);
+}
+
+.panel > :first-child {
+	margin-top: 0;
+}
+
+/* ---- section heading: gold, a bronze rule after it to the panel's edge ---- */
+
+h2,
+h3 {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	color: var(--gold);
+	font-weight: normal;
+	margin: 26px 0 10px;
+}
+
+h2 {
+	font-size: 38px;
+}
+
+h3 {
+	font-size: 28px;
+}
+
+h2::after,
+h3::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: var(--bronze);
+}
+
+p {
+	margin: 0 0 12px;
+}
+
+.dim {
+	color: var(--label-dim);
+}
+
+/* .name: a name the game uses (tools/docs_check.py checks it); .term: the same look for a plain word */
+.name,
+.term {
+	color: var(--gold-bright);
+}
+
+/* ---- tables (Options): small header in LABEL, a rule under it, striped rows ---- */
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 6px 0 14px;
+}
+
+th {
+	text-align: left;
+	color: var(--label);
+	font-weight: normal;
+	font-size: 19px;
+	border-bottom: 1px solid var(--bronze);
+	padding: 4px 8px;
+}
+
+td {
+	padding: 5px 8px;
+	vertical-align: middle;
+}
+
+tbody tr:nth-child(odd) {
+	background: rgba(255, 255, 255, 0.035);
+}
+
+/* ---- key cells: a dark cap, gold-dim frame, the cap's name in gold ---- */
+
+kbd {
+	display: inline-block;
+	min-width: 1.8em;
+	padding: 1px 7px 0;
+	margin: 1px 2px;
+	color: var(--gold);
+	font-family: inherit;
+	font-size: 18px;
+	text-align: center;
+	background: linear-gradient(#2a2118, #0f0b08);
+	border: 1px solid var(--gold-dim);
+	box-shadow: 2px 2px 0 #000;
+}
+
+/* ---- columns of controls ---- */
+
+.columns {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+	gap: 0 30px;
+}
+
+/* ---- picture frame: bronze frame, gold inner line, studs, a drop shadow ---- */
+
+.frame {
+	display: block;
+	position: relative;
+	padding: 10px;
+	background: var(--studs), radial-gradient(#2d2318, var(--well));
+	border: 3px solid var(--bronze);
+	outline: 1px solid var(--gold-dim);
+	outline-offset: -6px;
+	box-shadow: 4px 6px 0 rgba(0, 0, 0, 0.45);
+}
+
+.frame img {
+	display: block;
+	max-width: 100%;
+	margin: 0 auto;
+}
+
+figure {
+	margin: 10px 0 18px;
+}
+
+figcaption {
+	color: var(--label-dim);
+	font-size: 18px;
+	text-align: center;
+	margin-top: 8px;
+}
+
+/* ---- creature cards: a picture and its papyrus ---- */
+
+.cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 22px;
+	margin: 10px 0 20px;
+}
+
+.card .frame {
+	height: 190px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.card .frame img {
+	max-height: 165px;
+}
+
+.papyrus {
+	position: relative;
+	padding: 14px 18px 12px;
+	color: var(--ink);
+	background: var(--studs), url("images/papyrus.png") center / cover;
+	border: 3px solid var(--bronze);
+	box-shadow: 4px 6px 0 rgba(0, 0, 0, 0.45);
+}
+
+.card .papyrus {
+	border-top: none;
+	box-shadow: 4px 6px 0 rgba(0, 0, 0, 0.45);
+}
+
+.papyrus h4 {
+	margin: 0;
+	font-size: 26px;
+	font-weight: normal;
+	color: var(--ink);
+	text-align: center;
+}
+
+.papyrus .kind {
+	color: var(--ink-red);
+	font-size: 18px;
+	text-align: center;
+}
+
+/* the ink rule with a red diamond in its middle */
+.papyrus .rule {
+	position: relative;
+	height: 1px;
+	margin: 8px 0 10px;
+	background: var(--ink-faded);
+}
+
+.papyrus .rule::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: -4px;
+	width: 8px;
+	height: 8px;
+	background: var(--ink-red);
+	transform: translateX(-50%) rotate(45deg);
+}
+
+.papyrus p {
+	font-size: 20px;
+}
+
+.papyrus .lore {
+	color: var(--ink-faded);
+	font-style: italic;
+}
+
+.papyrus .tip {
+	color: var(--ink-green);
+}
+
+/* ---- icon rows: an icon well on the left, the name and a line ---- */
+
+.icons {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+	gap: 12px 22px;
+	margin: 8px 0 18px;
+}
+
+.icon-row {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 8px 10px;
+	background: linear-gradient(var(--stone-top), var(--stone-bottom));
+	border: 2px solid var(--bronze);
+	box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+.icon-row .well {
+	flex: none;
+	width: 70px;
+	height: 70px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--well);
+	border: 1px solid var(--gold-dim);
+}
+
+.icon-row .well img {
+	width: 60px;
+	height: 60px;
+}
+
+.icon-row .text {
+	font-size: 19px;
+	line-height: 1.3;
+}
+
+.icon-row .text .name,
+.icon-row .text .term {
+	display: block;
+	font-size: 23px;
+}
+
+/* ---- folds ---- */
+
+details {
+	margin: 10px 0;
+}
+
+summary {
+	cursor: pointer;
+	color: var(--gold);
+	font-size: 24px;
+}
+
+summary:hover {
+	color: var(--text-hover);
+}
+
+/* ---- footer: the key hint line ---- */
+
+footer {
+	text-align: center;
+	color: var(--label-dim);
+	font-size: 18px;
+}
+
+.back-to-top {
+	display: block;
+	text-align: right;
+	font-size: 18px;
+	margin-top: 8px;
+}
+
+.papyrus .name {
+	color: var(--ink);
+}

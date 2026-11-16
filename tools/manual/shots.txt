@@ -1,0 +1,28 @@
+# The player manual's screenshots (plan player-manual): the HUD in play, the inventory (potions), the Heka
+# screen. Run: tools/manual/images.py screens (crops them into docs/manual/images/).
+resolution 1280 800
+god
+level 1
+give melee 1
+give melee 2
+give ranged 0
+give potion 0 3
+give potion 1
+give potion 5 2
+give potion 7
+give amulet 10
+wear amulet_of_health
+wait 9s
+screenshot hud
+key i
+select small_health
+wait 30
+screenshot inventory_potions
+key esc
+heka 3
+learn power_hit
+learn dodge
+key k
+mouse 21.6 68.5
+wait 10
+screenshot heka

@@ -353,6 +353,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 
 | Term | In game | Meaning | Code |
 |---|---|---|---|
+| player manual | | ([player-manual](plan/player-manual.feature.md)) the HTML manual for players in the menus' look, `docs/manual/index.html`: the game, controls, monster examples, items, conditions, skills, shrines; vague words, no numbers. Its pictures come from `tools/manual/images.py`; `tools/docs_check.py` checks its names and links | `docs/manual`, `tools/manual/images.py` |
 | checker | | `bin/levelcheck`: can a level be finished, how big and hard is it; campaign levels pass with no warnings | `src/level/level_check.h` |
 | draft plan | | an idea for later, `docs/plan/<slug>.<kind>.draft.<model>.md` (`sonet` simple, `opus` complex) ([plans.md](plans.md)) | `docs/plan`, `tools/plan.py` |
 | plan find | | `tools/plan.py find TERM...`: every plan (open, solved, won't do) that has all the terms, with its first matching line; instead of `ls docs/plan \| grep` | `tools/plan.py` |

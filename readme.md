@@ -72,6 +72,9 @@ the Hall of Records.
 
 The game runs on Linux. Build it (see [docs/development.md](docs/development.md)), then start `./Play`.
 
+New to the game? The player's manual, [docs/manual/index.html](docs/manual/index.html), opens in any browser: the
+game, its controls, monsters, items, conditions and skills.
+
 | Action                           | Keyboard                  | Mouse  |
 |----------------------------------|---------------------------|--------|
 | Move left / right                | `A` `D`, `Left` `Right`   |        |

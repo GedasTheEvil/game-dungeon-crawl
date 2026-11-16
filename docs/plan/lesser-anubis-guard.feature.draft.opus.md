@@ -31,14 +31,15 @@ Hall of Judgment lvl51-54) (`src/level/campaign.h`, the seed table).
   (`tools/level/lvledit.py`), never regenerate. Every campaign level passes `bin/levelcheck` with no warnings after
   the threat change; lvl46-54 likely need fixes (fewer guards, more cover).
 * **The Anubis boss** (`MonsterAnubisBoss`, kin `MonsterAnubis`): today 2400 HP, damage 190, so the new guard would
-  outclass the final boss. Raise the boss above its kin (e.g. 3x / 2x as well, 7200 HP, 380), tuned to the finale.
+  outclass the final boss. From the user: the boss gets strong as well, 3x HP and 2x damage (7200 HP, 380), its bolt
+  2x too; it stays above its kin.
 * Journal: a field note for the lesser statue (or the guard's note covers both), the manual's monster list.
 
 ### Open points (implementer's choice; warn the user)
 
 * "2x attack": melee only, or the bolt too? Default: both.
-* Damage 280 per swing (380 for the boss) against the player's late HP and armour: one-shot risk; check it against
-  [monster-balance](solved/monster-balance.md) numbers before taking 2x as is.
+* No one-shot risk (the user, play-testing 2026-11-16): the player reaches the necropolis with about 3500 HP, Might 31,
+  Armor 78 and a mace of level 4. Take 3x / 2x as given; balance against that player.
 * Lesser melee damage: the user gave HP only. Default: 0.75x as well (105), it is half the size.
 * Late zones 5-10 have no guard today; the lesser one could appear there too. Default: no, only where guards are now.
 

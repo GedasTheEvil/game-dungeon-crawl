@@ -14,7 +14,6 @@ int Dungeon::cutSceneLengthMs() const {
 	const auto stops = static_cast<int>(cutScene.stops.size());
 	return (stops + 1) * CUTSCENE_PAN_MS + stops * CUTSCENE_HOLD_MS;
 }
-//======================================================================================
 void Dungeon::startCutScene(const std::vector<int>& opened) {
 	if (!cutScenesOn || CutScenePlaying() || Travelling())
 		return;
@@ -45,7 +44,6 @@ void Dungeon::startCutScene(const std::vector<int>& opened) {
 	}
 	updateCutScene();
 }
-//======================================================================================
 void Dungeon::updateCutScene() {
 	finishOpenedGates();
 	const int t = GameClock::now() - cutScene.startMs;
@@ -87,7 +85,6 @@ void Dungeon::updateCutScene() {
 		smooth(std::clamp(static_cast<float>(edge) / static_cast<float>(CUTSCENE_BARS_MS), 0.f, 1.f))
 	};
 }
-//======================================================================================
 void Dungeon::SkipCutScene() {
 	const int now = GameClock::now();
 	for (Motion& m : openingGates) // a gate the camera had not come to yet opens now

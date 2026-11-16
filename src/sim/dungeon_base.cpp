@@ -31,20 +31,15 @@ constexpr float FOOT_INSET = 0.01f;
 } // namespace
 
 bool Dungeon::IsInBounds(int col, int row) const { return col >= 0 && col < MAP_WIDTH && row >= 0 && row < MAP_HEIGHT; }
-//======================================================================================
 int Dungeon::MapIndex(int col, int row) const {
 	if (!IsInBounds(col, row))
 		return 0;
 
 	return MAP_WIDTH * row + col;
 }
-//======================================================================================
 Tile Dungeon::MapAt(int col, int row) const { return map[MapIndex(col, row)]; }
-//======================================================================================
 Tile Dungeon::Map(float x, float y) const { return MapAt(static_cast<int>(x), static_cast<int>(y)); }
-//======================================================================================
 void Dungeon::SetMapBAtPlayer(int value) { map[MapIndex(static_cast<int>(mapX), static_cast<int>(mapY))].attr = value; }
-//======================================================================================
 bool Dungeon::PlacePlayer(int col, int row) {
 	if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)) ||
 		(MapAt(col, row).type != Ladder && !isFloor(MapAt(col, row - 1))))
@@ -55,7 +50,6 @@ bool Dungeon::PlacePlayer(int col, int row) {
 	exploreAroundPlayer();
 	return true;
 }
-//======================================================================================
 void Dungeon::resetPlayerMotion() {
 	JumpState& jump = sim.player->jump;
 	jump.jumping = false;
@@ -71,7 +65,6 @@ void Dungeon::resetPlayerMotion() {
 	sunkMs = 0;
 	sandSlowUntilMs = 0;
 }
-//======================================================================================
 void Dungeon::exploreAroundPlayer() {
 	int col = static_cast<int>(mapX);
 	int row = static_cast<int>(mapY);
@@ -81,12 +74,10 @@ void Dungeon::exploreAroundPlayer() {
 				explored[MapIndex(i, j)] = true;
 	revealSecretRooms(); // the Wisdom of Seshat (plan heka-surplus)
 }
-//======================================================================================
 Dungeon::Dungeon() {
 	mapX = 0;
 	mapY = 0;
 }
-//======================================================================================
 void Dungeon::updateCrouch() {
 	Player& player = *sim.player;
 	if (!player.Alive()) {
@@ -100,7 +91,6 @@ void Dungeon::updateCrouch() {
 	else if (!down && player.crouched)
 		player.crouched = !roomToStand();
 }
-//======================================================================================
 void Dungeon::UpdateMovementState() {
 	updateDrag();
 	updateCrouch();
@@ -175,7 +165,6 @@ void Dungeon::UpdateMovementState() {
 		}
 	}
 }
-//======================================================================================
 void Dungeon::Update() {
 	if (CutScenePlaying()) {
 		updateCutScene();
@@ -209,7 +198,6 @@ void Dungeon::Update() {
 	updateEffects();
 	spawnInView();
 }
-//======================================================================================
 void Dungeon::updateEffects() {
 	const int now = GameClock::now();
 	const auto expire = [now](auto& list, int ms) {
@@ -227,7 +215,6 @@ void Dungeon::updateEffects() {
 			pours.push_back({static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, pourMs});
 	}
 }
-//======================================================================================
 void Dungeon::spawnInView() {
 	const ViewWindow v = view();
 	for (int j = v.originRow; j < v.originRow + ViewWindow::HEIGHT; j++)
@@ -235,7 +222,6 @@ void Dungeon::spawnInView() {
 			if (IsInBounds(i, j) && MapAt(i, j).type == MonsterSpawn)
 				SpawnMonster(i, j);
 }
-//======================================================================================
 std::optional<Dungeon::TrapContact> Dungeon::inTrap(float x, float y, float half) const {
 	const float body = half * (1.f - TRAP_BOX_FORGIVE);
 	const auto col = static_cast<int>(std::floor(x));
@@ -255,7 +241,6 @@ std::optional<Dungeon::TrapContact> Dungeon::inTrap(float x, float y, float half
 		}
 	return std::nullopt;
 }
-//======================================================================================
 int Dungeon::TrapWalkHundredths(
 	TrapHurt& hurt,
 	float x,
@@ -278,7 +263,6 @@ int Dungeon::TrapWalkHundredths(
 						TrapBell::speedFactor(speed);
 	return hundredths + static_cast<int>(std::lround(bell));
 }
-//======================================================================================
 bool Dungeon::TrapVenomDue(TrapHurt& hurt, const std::optional<TrapContact>& here, int hundredths) {
 	if (!here || here->type != Death) {
 		hurt.venomed = false;
@@ -289,7 +273,6 @@ bool Dungeon::TrapVenomDue(TrapHurt& hurt, const std::optional<TrapContact>& her
 	hurt.venomed = true;
 	return true;
 }
-//======================================================================================
 std::optional<BleedRoll> Dungeon::TrapBleedDue(TrapHurt& hurt, const std::optional<TrapContact>& here, int hundredths) {
 	if (!here) {
 		hurt.bleedRolled = false;
@@ -300,7 +283,6 @@ std::optional<BleedRoll> Dungeon::TrapBleedDue(TrapHurt& hurt, const std::option
 	hurt.bleedRolled = true;
 	return here->type == Death ? DEATH_TRAP_BLEED : SPIKES_BLEED;
 }
-//======================================================================================
 // Every trap hurts the player and the monsters by one rule (plan same-hazards-for-all); a kind differs only by its
 // numbers (trap share, resistances, poison ward). Only walkers on the ground stand in a spike trap: flyers pass over, a
 // leaper is in the air. The player and a reckless walker touch it with their box; the others keep out of its cell and
@@ -365,7 +347,6 @@ void Dungeon::updateTraps() {
 			mon.StandInFire(fireJetHundredthsPerSecond(mon.MaxHealth()));
 	}
 }
-//======================================================================================
 void Dungeon::updateMonsterPoison() {
 	for (Monster& mon : monsters)
 		if (mon.Active() && mon.UpdatePoison())
@@ -374,7 +355,6 @@ void Dungeon::updateMonsterPoison() {
 		if (mon.Active() && mon.UpdateBleeding())
 			rewardKill(mon);
 }
-//======================================================================================
 void Dungeon::updateBurning() {
 	sim.player->UpdateBurning(PlayerSink() > 0.f, *sim.events);
 	sim.player->UpdateSenses();
@@ -382,7 +362,6 @@ void Dungeon::updateBurning() {
 		if (mon.Active() && mon.UpdateBurning())
 			rewardKill(mon);
 }
-//======================================================================================
 bool Dungeon::Move(float dirX, float dirY) {
 	if (PlayerHeldBy() != nullptr) // plans crocodile-hold-bite, giant-scorpion-grab
 		return false;
@@ -440,7 +419,6 @@ bool Dungeon::Move(float dirX, float dirY) {
 	}
 	return moved;
 }
-//======================================================================================
 void Dungeon::playerLanded(float rows) {
 	if (rows < static_cast<float>(LANDING_FEEDBACK_ROWS) - SUBCELL_SIZE) // float drift: 1.99 rows is two
 		return;
@@ -458,7 +436,6 @@ void Dungeon::playerLanded(float rows) {
 	const int now = GameClock::now();
 	landings.push_back({mapX, row, now, heap});
 }
-//======================================================================================
 bool Dungeon::catchRungs() {
 	JumpState& jump = sim.player->jump;
 	if (jump.velocity > 0.f || Map(mapX, mapY).type != Ladder) // rising: a jump off the rungs with up held goes on
@@ -473,16 +450,13 @@ bool Dungeon::catchRungs() {
 	mapX = std::clamp(mapX, grip - LADDER_REACH, grip + LADDER_REACH);
 	return true;
 }
-//======================================================================================
 bool Dungeon::PlayerWading() const {
 	const JumpState& jump = sim.player->jump;
 	return !jump.jumping && !jump.falling && inHalfWater(Map(mapX, mapY)) && !playerOnStep();
 }
-//======================================================================================
 bool Dungeon::dryOpen(int col, int row) const {
 	return IsInBounds(col, row) && !isSolidTile(MapAt(col, row)) && !inHalfWater(MapAt(col, row));
 }
-//======================================================================================
 float Dungeon::WaterSink(float x, int row) const {
 	const auto col = static_cast<int>(std::floor(x));
 	if (!IsInBounds(col, row) || !inHalfWater(MapAt(col, row)))
@@ -495,14 +469,12 @@ float Dungeon::WaterSink(float x, int row) const {
 	in = std::clamp(in, 0.f, 1.f);
 	return RenderConfig::WATER_BASIN_DEPTH * in * in * (3.f - 2.f * in);
 }
-//======================================================================================
 float Dungeon::PlayerSink() const {
 	const auto row = static_cast<int>(std::floor(mapY));
 	const float above = heightOverFloor(); // in the air over the floor: sinks as it comes down
 	const float water = playerOnStep() ? 0.f : WaterSink(mapX, row); // a step stands up out of the basin
 	return water * std::clamp(1.f - above, 0.f, 1.f) + QuicksandSink() + SwallowSink();
 }
-//======================================================================================
 bool Dungeon::subcellAt(float x, float y) const {
 	const auto col = static_cast<int>(std::floor(x)), row = static_cast<int>(std::floor(y));
 	if (!IsInBounds(col, row))
@@ -510,7 +482,6 @@ bool Dungeon::subcellAt(float x, float y) const {
 	const Tile& t = map[MapIndex(col, row)];
 	return hasShape(t) && solidAt(t, x - static_cast<float>(col), y - static_cast<float>(row));
 }
-//======================================================================================
 // From the sub-cell row whose top is at y (or the first under it) down to the bottom row of the cell under y's.
 std::optional<float> Dungeon::floorBelow(float x, float y) const {
 	const auto row = static_cast<int>(std::floor(y));
@@ -524,15 +495,10 @@ std::optional<float> Dungeon::floorBelow(float x, float y) const {
 	}
 	return std::nullopt;
 }
-//======================================================================================
 float Dungeon::floorUnder(float x, float y) const { return floorBelow(x, y).value_or(std::floor(y)); }
-//======================================================================================
 float Dungeon::heightOverFloor() const { return mapY - floorUnder(mapX, mapY); }
-//======================================================================================
 bool Dungeon::playerOnStep() const { return floorUnder(mapX, mapY) > std::floor(mapY) + SUBCELL_TOUCH; }
-//======================================================================================
 float Dungeon::subcellReach() const { return sim.player->HalfWidth() - FOOT_INSET; }
-//======================================================================================
 bool Dungeon::bodyBlocked(float toX, int dir, float y) const {
 	const float edge = toX + static_cast<float>(dir) * sim.player->HalfWidth();
 	if (isSolidTile(Map(mapX, y)) || isSolidTile(Map(edge, y)))
@@ -544,11 +510,9 @@ bool Dungeon::bodyBlocked(float toX, int dir, float y) const {
 				return true;
 	return false;
 }
-//======================================================================================
 float Dungeon::playerBodyHeight() const {
 	return sim.player->crouched ? CROUCH_HEIGHT_FACTOR * PLAYER_BODY_HEIGHT : PLAYER_BODY_HEIGHT;
 }
-//======================================================================================
 bool Dungeon::roomToStand() const {
 	const float low = mapY + CROUCH_HEIGHT_FACTOR * PLAYER_BODY_HEIGHT,
 				head = mapY + PLAYER_BODY_HEIGHT - SUBCELL_TOUCH;
@@ -558,7 +522,6 @@ bool Dungeon::roomToStand() const {
 			return false;
 	return true;
 }
-//======================================================================================
 std::optional<float> Dungeon::ceilingAt(float y) const {
 	const float head = y + playerBodyHeight();
 	if (isSolidTile(Map(mapX, head)) || subcellAt(mapX, head) || subcellAt(mapX - subcellReach(), head) ||
@@ -566,7 +529,6 @@ std::optional<float> Dungeon::ceilingAt(float y) const {
 		return std::floor(head * SUBCELLS) / SUBCELLS;
 	return std::nullopt;
 }
-//======================================================================================
 int Dungeon::ceilingTrapAt(float y) const {
 	const float head = y + playerBodyHeight();
 	for (const float x : {mapX, mapX - subcellReach(), mapX + subcellReach()}) {
@@ -576,7 +538,6 @@ int Dungeon::ceilingTrapAt(float y) const {
 	}
 	return NoObject;
 }
-//======================================================================================
 void Dungeon::ceilingSpikesHit(int trap) {
 	Player& player = *sim.player;
 	sim.events->Play(WorldSound::SpikeThunk); // the stab, not the knock
@@ -598,7 +559,6 @@ void Dungeon::ceilingSpikesHit(int trap) {
 	const BleedRoll bleed = death ? DEATH_TRAP_BLEED : SPIKES_BLEED; // plan bleeding
 	player.Bleed(bleed.tier, bleed.percent, stats.TrapPermille(), *sim.events, sim.random->gameplay);
 }
-//======================================================================================
 void Dungeon::StartJump(int dir) {
 	Player& player = *sim.player;
 	if (player.jump.jumping || player.jump.falling || !player.Alive() || won || PlayerHeldBy() != nullptr ||
@@ -622,7 +582,6 @@ void Dungeon::StartJump(int dir) {
 	player.jump.jump_up_timer.Reset();
 	sim.events->PlayCharacter(PLAYER_CHARACTER, CharacterSound::Jump);
 }
-//======================================================================================
 bool Dungeon::AttackAllowed(bool tell) {
 	if (const Monster* holder = PlayerHeldBy(); holder != nullptr && holder->Hold().breakMs <= 0) {
 		if (tell)
@@ -640,32 +599,26 @@ bool Dungeon::AttackAllowed(bool tell) {
 		sim.events->Status("%s", "Hands on the rungs");
 	return false;
 }
-//======================================================================================
 bool Dungeon::PlayerHasHapi() const {
 	return sim.player != nullptr && sim.player->stats.heka.Has(SkillId::FavourOfHapi); // plan skill-blessing-of-hapi
 }
-//======================================================================================
 bool Dungeon::PlayerWaterBlessed() const {
 	return sim.player != nullptr && sim.player->stats.WaterBlessed(); // plan water-blessing-potion
 }
-//======================================================================================
 float Dungeon::PlayerWalkFactor() const {
 	const float daze = sim.player->Dazed() ? DAZE_WALK_FACTOR : 1.f;
 	const float crouch = sim.player->crouched ? CROUCH_WALK_FACTOR : 1.f;
 	const float drag = Dragging() ? DRAG_WALK_FACTOR : 1.f; // plan mirror-drag
 	return daze * crouch * drag * groundWalkFactor();
 }
-//======================================================================================
 float Dungeon::PlayerStepFactor() const {
 	const JumpState& jump = sim.player->jump;
 	const bool firmGround = !PlayerWading() && !PlayerInSand(); // plan heka-surplus
 	return PlayerWalkFactor() * sim.player->stats.WalkFactor(jump.jumping || jump.falling, firmGround);
 }
-//======================================================================================
 bool Dungeon::PlayerCanSprint() const {
 	return (!PlayerWading() || PlayerWadesFree()) && !PlayerInSand() && !sim.player->Dazed() && !sim.player->crouched;
 }
-//======================================================================================
 float Dungeon::groundWalkFactor() const {
 	const float slow = (GameClock::now() < sandSlowUntilMs ? SAND_SLOW_FACTOR : 1.f) * // a sand fall's
 					   PlayerTerrainFactors()
@@ -683,7 +636,6 @@ float Dungeon::groundWalkFactor() const {
 		return WADE_SPEED_FACTOR_BLESSED;
 	return PlayerHasHapi() ? WADE_SPEED_FACTOR_HAPI : WADE_SPEED_FACTOR;
 }
-//======================================================================================
 float Dungeon::PlayerSprintMultiplier(float sprint) const {
 	if (PlayerInSand() || sim.player->Dazed() || sim.player->crouched)
 		return 1.f;
@@ -698,7 +650,6 @@ float Dungeon::PlayerSprintMultiplier(float sprint) const {
 		return sprint * WADE_SPRINT_FACTOR_BLESSED / WADE_SPEED_FACTOR_BLESSED;
 	return sprint * WADE_SPRINT_FACTOR_HAPI / WADE_SPEED_FACTOR_HAPI; // times the wade factor: sprint x 0.5
 }
-//======================================================================================
 bool Dungeon::JumpAllowed() {
 	if (!PlayerWading())
 		return true;
@@ -711,20 +662,17 @@ bool Dungeon::JumpAllowed() {
 	}
 	return false;
 }
-//======================================================================================
 bool Dungeon::PlayerOnLadder() const {
 	if (lostGrip || Map(mapX, mapY).type != Ladder || std::fabs(mapX - std::floor(mapX) - LADDER_GRIP_X) > LADDER_REACH)
 		return false;
 	return !floorBelow(mapX, mapY) || heightOverFloor() >= STANDING_EPSILON;
 }
-//======================================================================================
 bool Dungeon::PlayerAtLadder() const {
 	const auto col = static_cast<int>(mapX);
 	const auto row = static_cast<int>(mapY);
 	return (IsInBounds(col, row) && MapAt(col, row).type == Ladder) ||
 		   (IsInBounds(col, row - 1) && MapAt(col, row - 1).type == Ladder);
 }
-//======================================================================================
 bool Dungeon::PlayerFacesJump(int dir) const {
 	constexpr float REACH = 0.9f; // tiles from the player's centre to the cell's edge
 	const auto col = static_cast<int>(mapX);
@@ -750,16 +698,12 @@ bool Dungeon::PlayerFacesJump(int dir) const {
 	}
 	return false;
 }
-//======================================================================================
 float Dungeon::ClimbPhase() const { return mapY + CLIMB_SIDE_RATE * mapX; }
-//======================================================================================
 int Dungeon::Type(float x, float y) { return Map(x, y).type; }
-//======================================================================================
 void Dungeon::getC(float& outX, float& outY) {
 	outX = mapX;
 	outY = mapY;
 }
-//======================================================================================
 Dungeon::~Dungeon() {
 	void* selfPtr = this;
 	LOG_DEBUGF("world", "Deleting Dungeon %p", selfPtr);

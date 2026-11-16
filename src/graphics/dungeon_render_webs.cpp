@@ -20,7 +20,6 @@ constexpr float RX = 0.5f * T, RZ = 0.46f * T; // to the cell's edges along the 
 constexpr float SAG = 0.82f; // a ring's thread between two spokes sags in towards the middle
 } // namespace
 
-//======================================================================================
 // Same window and frame as drawSummonEffects.
 void DungeonView::drawWebs() {
 	if (d.webs.empty())

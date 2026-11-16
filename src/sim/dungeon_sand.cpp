@@ -14,7 +14,6 @@ bool Dungeon::PlayerInSand() const {
 	const JumpState& jump = sim.player->jump;
 	return !jump.jumping && !jump.falling && inSand(Map(mapX, mapY)) && !playerOnStep(); // a step stands on the sand
 }
-//======================================================================================
 // Sinking: the longer the player stands in quicksand, the slower the walk (PlayerWalkFactor), stuck at
 // QUICKSAND_STUCK_MS, hurt from QUICKSAND_HURT_MS. Out of it (a jump, a step onto firm ground) it starts over.
 void Dungeon::updateQuicksand() {
@@ -35,12 +34,10 @@ void Dungeon::updateQuicksand() {
 	sim.player->TakeHit(dmg, ROCK_ATTACK_MIX, *sim.events, true);
 	sim.events->Status("%s", "The sand squeezes you! Jump!");
 }
-//======================================================================================
 float Dungeon::QuicksandSink() const {
 	const float p = std::min(static_cast<float>(sunkMs) / static_cast<float>(QUICKSAND_STUCK_MS), 1.f);
 	return QUICKSAND_SINK_DEPTH * RenderConfig::TILE_SIZE * p;
 }
-//======================================================================================
 float Dungeon::SwallowSink() const {
 	const Monster* holder = PlayerHeldBy();
 	if (holder == nullptr || !holder->Hold().swallow)
@@ -48,7 +45,6 @@ float Dungeon::SwallowSink() const {
 	const float p = std::min(static_cast<float>(holder->HoldAgeMs()) / static_cast<float>(REREK_SWALLOW_SINK_MS), 1.f);
 	return REREK_SWALLOW_DEPTH * RenderConfig::TILE_SIZE * p * (2.f - p);
 }
-//======================================================================================
 void Dungeon::landSandFall(int cell) {
 	const int col = cell % MAP_WIDTH;
 	const int row = cell / MAP_WIDTH;

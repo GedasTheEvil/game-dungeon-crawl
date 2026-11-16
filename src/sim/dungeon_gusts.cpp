@@ -19,7 +19,6 @@ int Dungeon::gustAt(float x, int row) const {
 	const Fixture& f = MapAt(col, row).fixture;
 	return gustBlowing(f) ? gustDir(f) : 0;
 }
-//======================================================================================
 namespace {
 // A light monster a gust takes along: the small walkers and the flyers (MonsterKind::weight), awake and in the open; no
 // boss, nothing rooted, lying in wait, burrowed or in a leap.
@@ -31,7 +30,6 @@ bool blownAway(const Monster& mon) {
 	return moves && kind.weight <= GUST_LIGHT_WEIGHT && !isBossMonster(kind.id) && !ambushes(kind.locomotion);
 }
 } // namespace
-//======================================================================================
 void Dungeon::stormTarget(float& haze, float& blow) const {
 	haze = 0.f;
 	blow = 0.f;
@@ -50,7 +48,6 @@ void Dungeon::stormTarget(float& haze, float& blow) const {
 			blow = std::max(blow, near);
 	}
 }
-//======================================================================================
 void Dungeon::updateGusts() {
 	float haze = 0.f, blow = 0.f;
 	stormTarget(haze, blow);

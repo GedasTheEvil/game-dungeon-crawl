@@ -43,9 +43,7 @@ std::vector<std::vector<int>> secretRooms(const Tile* cells) {
 	}
 	return rooms;
 }
-//======================================================================================
 void Dungeon::findSecretRooms() { secrets = secretRooms(map); }
-//======================================================================================
 // With the Wisdom of Seshat, a room within SESHAT_ROOM_RADIUS cells of the player goes on the draft map whole, its
 // walls round it too.
 void Dungeon::revealSecretRooms() {
@@ -66,14 +64,12 @@ void Dungeon::revealSecretRooms() {
 						explored[MapIndex(cell % MAP_WIDTH + dc, cell / MAP_WIDTH + dr)] = true;
 	}
 }
-//======================================================================================
 float Dungeon::outlineNear(float col, float row, float far) const {
 	const float dx = mapX - col;
 	const float dy = mapY - row;
 	const float d = std::sqrt(dx * dx + dy * dy);
 	return std::clamp((far - d) / OUTLINE_FADE, 0.f, 1.f);
 }
-//======================================================================================
 float Dungeon::containerOutlineAt(int cell) const {
 	if (sim.player == nullptr || !sim.player->stats.heka.Has(SkillId::DisarmTrap) ||
 		map[cell].type != TrappedTreasure || containers[cell].opened)
@@ -81,7 +77,6 @@ float Dungeon::containerOutlineAt(int cell) const {
 	const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
 	return outlineNear(static_cast<float>(col) + 0.5f, static_cast<float>(row), DISARM_SEEN_FAR);
 }
-//======================================================================================
 float Dungeon::mimicOutline(const Monster& mon) const {
 	if (sim.player == nullptr || !sim.player->stats.heka.Has(SkillId::DisarmTrap) || !mon.Active() || !mon.Alive() ||
 		!ambushes(mon.Type()->locomotion) || mon.Alerted())

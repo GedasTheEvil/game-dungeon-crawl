@@ -76,7 +76,6 @@ void Dungeon::updateRhythmTraps() {
 	if (gust)
 		sim.events->Play(WorldSound::GustBlow);
 }
-//======================================================================================
 bool Dungeon::overlapsFixture(float left, float right, int row, bool (*on)(const Fixture&)) const {
 	for (auto col = static_cast<int>(std::floor(left)); static_cast<float>(col) < right; col++)
 		if (IsInBounds(col, row) && on(MapAt(col, row).fixture))
@@ -92,7 +91,6 @@ bool Dungeon::inPuddle(float x, int row) const {
 	return IsInBounds(col, row) && MapAt(col, row).fixture.type == PoisonDrip &&
 		   std::fabs(x - static_cast<float>(col) - 0.5f) <= DRIP_PUDDLE_HALF_WIDTH;
 }
-//======================================================================================
 // The puddle poisons whoever walks into it, not in a jump (nor a flyer); the falling venom whoever is in the cell, a
 // jump and a flyer too. The trap ward cuts the drop's hit, not its poison.
 void Dungeon::updateDrips() {
@@ -123,7 +121,6 @@ void Dungeon::updateDrips() {
 		);
 	}
 }
-//======================================================================================
 // Map x just out of the cell (col, row) for a body of half width half at centre, on the near side if it is open,
 // else the far side; nullopt when both are blocked.
 std::optional<float> Dungeon::outOfSpikes(int col, int row, float centre, float half) const {
@@ -137,7 +134,6 @@ std::optional<float> Dungeon::outOfSpikes(int col, int row, float centre, float 
 	constexpr float CLEAR = 0.01f;
 	return left ? static_cast<float>(col) - half - CLEAR : static_cast<float>(col + 1) + half + CLEAR;
 }
-//======================================================================================
 void Dungeon::stabWallSpikes(int col, int row) {
 	const float left = static_cast<float>(col), right = static_cast<float>(col + 1);
 	const float half = sim.player->HalfWidth();

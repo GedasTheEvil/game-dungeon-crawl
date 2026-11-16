@@ -33,13 +33,11 @@ bool Dungeon::updateRoller(Monster& mon) {
 	mon.StartRoll(mapX);
 	return true;
 }
-//======================================================================================
 void Dungeon::breakBall(DungBall& ball, bool inWater) {
 	ball.breakMs = GameClock::now();
 	ball.sank = inWater;
 	sim.events->Play(inWater ? WorldSound::Splash : WorldSound::DungThud);
 }
-//======================================================================================
 void Dungeon::updateBalls() {
 	const int now = GameClock::now();
 	Player& player = *sim.player;

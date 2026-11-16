@@ -34,7 +34,6 @@ bool Dungeon::dragGround(int col, int row, bool thing) const {
 	const int8_t prop = decoration.decor[MapIndex(col, row)].type;
 	return prop != DECOR_STARGATE && prop != DECOR_DIAL && prop != DECOR_BRAZIER && !shrineGod(prop);
 }
-//======================================================================================
 Dungeon::Drag Dungeon::thingIn(int col, int row) const {
 	if (!IsInBounds(col, row))
 		return {};
@@ -50,7 +49,6 @@ Dungeon::Drag Dungeon::thingIn(int col, int row) const {
 	}
 	return {};
 }
-//======================================================================================
 Dungeon::Drag Dungeon::findDraggable(int facing) const {
 	const auto col = static_cast<int>(std::floor(mapX)), row = static_cast<int>(std::floor(mapY));
 	if (const Drag here = thingIn(col, row); here.cell >= 0)
@@ -61,13 +59,11 @@ Dungeon::Drag Dungeon::findDraggable(int facing) const {
 	const float centre = next.kind == DragKind::Body ? monsters[next.slot].CentreX() : cellCentre(colOf(next.cell));
 	return std::fabs(centre - mapX) <= DRAG_REACH ? next : Drag{};
 }
-//======================================================================================
 float Dungeon::heldCentre() const {
 	if (drag.kind == DragKind::Body)
 		return monsters[drag.slot].CentreX();
 	return cellCentre(colOf(drag.cell));
 }
-//======================================================================================
 bool Dungeon::stillHeld() const {
 	switch (drag.kind) {
 	case DragKind::Object:
@@ -81,7 +77,6 @@ bool Dungeon::stillHeld() const {
 	}
 	return false;
 }
-//======================================================================================
 bool Dungeon::ToggleDrag(int facing) {
 	if (Dragging()) {
 		LetGo();
@@ -111,7 +106,6 @@ bool Dungeon::ToggleDrag(int facing) {
 	sim.events->Status("You take hold of %s", what);
 	return true;
 }
-//======================================================================================
 void Dungeon::LetGo() {
 	if (!Dragging())
 		return;
@@ -119,13 +113,11 @@ void Dungeon::LetGo() {
 		dragSettle = {drag.cell, dragShift(drag.cell), GameClock::now()};
 	drag = {};
 }
-//======================================================================================
 int Dungeon::DragFacing() const {
 	if (!Dragging())
 		return 0;
 	return drag.offset < 0.f ? -1 : 1;
 }
-//======================================================================================
 bool Dungeon::dragTo(float x) {
 	const auto row = static_cast<int>(std::floor(mapY));
 	if (!dragGround(static_cast<int>(std::floor(x)), row, false))
@@ -163,7 +155,6 @@ bool Dungeon::dragTo(float x) {
 	sim.events->Play(WorldSound::MirrorTurn); // the thing scrapes over the stone
 	return true;
 }
-//======================================================================================
 void Dungeon::updateDrag() {
 	if (!Dragging())
 		return;
@@ -177,7 +168,6 @@ void Dungeon::updateDrag() {
 		!inReach)
 		LetGo();
 }
-//======================================================================================
 float Dungeon::dragShift(int cell) const {
 	if (Dragging() && cell == drag.cell && drag.kind != DragKind::Body)
 		return mapX + drag.offset - cellCentre(colOf(cell));

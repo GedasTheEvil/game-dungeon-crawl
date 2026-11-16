@@ -21,7 +21,6 @@ bool Dungeon::plateLoaded(int col, int row) const {
 			return true;
 	return false;
 }
-//======================================================================================
 // The click, then the volley from the holes above the plate.
 void Dungeon::pressPlate(int col, int row, bool byPlayer) {
 	setPlatePressed(map[MapIndex(col, row)], true);
@@ -31,7 +30,6 @@ void Dungeon::pressPlate(int col, int row, bool byPlayer) {
 		sim.events->Note(FieldNote::DartTraps);
 	dartTraps.volleys.push_back({GameClock::now(), col, row, 0});
 }
-//======================================================================================
 void Dungeon::updateDartTraps() {
 	const int now = GameClock::now();
 	for (auto it = dartTraps.pressed.begin(); it != dartTraps.pressed.end();) {
@@ -68,7 +66,6 @@ void Dungeon::updateDartTraps() {
 		it = v.fired >= DART_COUNT ? dartTraps.volleys.erase(it) : it + 1;
 	}
 }
-//======================================================================================
 // Out of the wall towards the camera; at the walking line it takes the body in front of its hole, else it flies on out
 // of the corridor and is gone.
 void Dungeon::updateDarts() {

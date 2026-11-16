@@ -45,7 +45,6 @@ bool Dungeon::PickUp() {
 	sim.events->Status("%s", found.c_str());
 	return true;
 }
-//======================================================================================
 // One thing a press, the one the prompt shows (plan interact-prompt).
 void Dungeon::Interact() {
 	switch (InteractVerb()) {
@@ -97,7 +96,6 @@ void Dungeon::Interact() {
 		break;
 	}
 }
-//======================================================================================
 // The scales (plan weighing-of-the-heart): the run weighed once, the verdict a field note; the epilogue answers it.
 void Dungeon::weighHeart() {
 	const Verdict verdict = ::weighHeart(sim.player->stats.run);
@@ -108,14 +106,12 @@ void Dungeon::weighHeart() {
 	else
 		sim.events->Status("The pan with your heart sinks, a little. Thoth writes for a long time.");
 }
-//======================================================================================
 std::optional<God> Dungeon::ShrineHere() const {
 	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
 	if (!IsInBounds(col, row))
 		return std::nullopt;
 	return shrineGod(decoration.decor[MapIndex(col, row)].type);
 }
-//======================================================================================
 Interaction Dungeon::InteractVerb() const {
 	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
 	if (!IsInBounds(col, row))
@@ -171,7 +167,6 @@ Interaction Dungeon::InteractVerb() const {
 		return Interaction::None;
 	}
 }
-//======================================================================================
 // The clip plays, the item shows at its end (containerShows). A trapped chest's trap goes off as it starts.
 void Dungeon::openContainer() {
 	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
@@ -206,26 +201,21 @@ void Dungeon::openContainer() {
 	else if (cursedCoffin(cell)) // a trapped coffin's trap is its curse (RollChestTrap): no second roll
 		coffinCurse();
 }
-//======================================================================================
 void Dungeon::placeDroppedChest(int cell, ItemFileId item, Container kind, bool cursed) {
 	setObject(map[cell], Tile{Treasure, item.type, item.id});
 	containers[cell] = {true, false, true, kind, GameClock::now() - containerDef(kind).openMs, cursed};
 }
-//======================================================================================
 float Dungeon::containerOpening(int cell) const {
 	const ContainerCell& c = containers[cell];
 	if (!c.opened)
 		return 0.f;
 	return motionProgress(c.openedMs, containerDef(treasureLook(cell).kind).openMs);
 }
-//======================================================================================
 bool Dungeon::containerShows(int cell) const { return containerOpening(cell) >= 1.f; }
-//======================================================================================
 TreasureLook Dungeon::treasureLook(int cell) const {
 	const ContainerCell& c = containers[cell];
 	return c.dropped ? droppedLook(c.droppedKind, c.cursed) : decoration.treasure[cell];
 }
-//======================================================================================
 bool Dungeon::PlaceContainer(int col, int row, int kind, int stance, bool inscribed) {
 	if (!IsInBounds(col, row) || kind < 0 || kind >= CONTAINER_COUNT || stance < 0 || stance >= STANCE_COUNT)
 		return false;
@@ -235,7 +225,6 @@ bool Dungeon::PlaceContainer(int col, int row, int kind, int stance, bool inscri
 		.treasure[MapIndex(col, row)] = {container, st.yaw, st.x, st.z, inscribed && container == Container::Coffin};
 	return true;
 }
-//======================================================================================
 int Dungeon::ambushHere() const {
 	const auto col = static_cast<int>(mapX), row = static_cast<int>(mapY);
 	for (int slot = 0; slot < MAX_MONSTERS; slot++) {
@@ -246,7 +235,6 @@ int Dungeon::ambushHere() const {
 	}
 	return -1;
 }
-//======================================================================================
 float Dungeon::InscriptionGlint(int col, int row) const {
 	constexpr float COPY_GLINT = 0.4f; // a copy keeps a dimmer glint until the skill is learnt (plan skill-hieroglyphs)
 	if (!IsInBounds(col, row) || MapAt(col, row).fixture.type != Inscription)
@@ -258,16 +246,13 @@ float Dungeon::InscriptionGlint(int col, int row) const {
 		return read->translated ? 0.f : COPY_GLINT;
 	return 1.f;
 }
-//======================================================================================
 void Dungeon::lightArrows() {
 	sim.player->fireArrows = FIRE_ARROW_SHOTS;
 	sim.events->Status("Dipped %d arrows in the brazier's fire", FIRE_ARROW_SHOTS);
 }
-//======================================================================================
 const RoyalName* Dungeon::LevelName() const {
 	return sim.names != nullptr ? sim.names->ForLevel(sim.player->stats.run.nameSeed, levelNumber) : nullptr;
 }
-//======================================================================================
 std::optional<JournalInscription> Dungeon::inscriptionPage(const Fixture& f) const {
 	const bool reads = sim.player->stats.heka.Has(SkillId::Hieroglyphs);
 	if (f.attr == NAME_CARTOUCHE_ID) // plan secret-name-gates
@@ -277,7 +262,6 @@ std::optional<JournalInscription> Dungeon::inscriptionPage(const Fixture& f) con
 		return std::nullopt;
 	return JournalInscription{text->id, text->title, text->text, text->note, levelNumber, reads, text->boon};
 }
-//======================================================================================
 std::optional<JournalInscription> Dungeon::nameCartouchePage(bool translated) const {
 	const RoyalName* name = LevelName();
 	if (name == nullptr)
@@ -298,7 +282,6 @@ std::optional<JournalInscription> Dungeon::nameCartouchePage(bool translated) co
 	page.frame = name->frame;
 	return page;
 }
-//======================================================================================
 // The status line only says what happened; the title and the comment go into the journal (plans
 // hieroglyph-cartouches, inscription-messages, skill-hieroglyphs).
 bool Dungeon::readInscription() {
@@ -331,7 +314,6 @@ bool Dungeon::readInscription() {
 		sim.events->Status("Cannot understand this. Copied the hieroglyphs to the journal.");
 	return true;
 }
-//======================================================================================
 void Dungeon::useGate() {
 	const Tile here = Map(mapX, mapY);
 	if (here.type == Ankh) {
@@ -366,7 +348,6 @@ void Dungeon::useGate() {
 		break;
 	}
 }
-//======================================================================================
 bool Dungeon::SpeakName() {
 	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
 	if (!isNameGate(map[cell]))
@@ -379,7 +360,6 @@ bool Dungeon::SpeakName() {
 	sim.events->Status("The name is spoken. The way opens.");
 	return true;
 }
-//======================================================================================
 void Dungeon::startTravel(bool exitGate, bool rings) {
 	if (rings) {
 		travel = {GateTravel::Phase::RingsDown, GameClock::now(), false, true};
@@ -391,7 +371,6 @@ void Dungeon::startTravel(bool exitGate, bool rings) {
 	travel = {GateTravel::Phase::Out, GameClock::now(), exitGate};
 	sim.events->Play(WorldSound::Teleport);
 }
-//======================================================================================
 int Dungeon::travelPhaseMs() const {
 	switch (travel.phase) {
 	case GateTravel::Phase::RingsDown:
@@ -406,7 +385,6 @@ int Dungeon::travelPhaseMs() const {
 	}
 	return 0;
 }
-//======================================================================================
 void Dungeon::updateTravel() {
 	if (GameClock::now() - travel.startMs < travelPhaseMs())
 		return;
@@ -437,14 +415,12 @@ void Dungeon::updateTravel() {
 	}
 	travel.startMs = now;
 }
-//======================================================================================
 float Dungeon::TravelFade() const {
 	if (travel.phase != GateTravel::Phase::Out && travel.phase != GateTravel::Phase::In)
 		return 0.f;
 	const float t = motionProgress(travel.startMs, travelPhaseMs());
 	return travel.phase == GateTravel::Phase::Out ? t : 1.f - t;
 }
-//======================================================================================
 float Dungeon::RingDrop(int ring) const {
 	if (!travel.rings)
 		return 0.f;
@@ -466,7 +442,6 @@ float Dungeon::RingDrop(int ring) const {
 	}
 	return 0.f;
 }
-//======================================================================================
 // The player steps out in the middle of the partner gate, in the plasma.
 void Dungeon::Teleport() {
 	const JumpState& jump = sim.player->jump;

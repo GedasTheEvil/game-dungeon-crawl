@@ -36,7 +36,6 @@ void Dungeon::updateSpinner(const Monster& mon) {
 	nextWebMs = now + type.webs->everyMs;
 	sim.journal->SeeMove(type.id, levelNumber, CreatureMove::SpinWeb);
 }
-//======================================================================================
 bool Dungeon::webFloor(int col, int row) const {
 	if (!IsInBounds(col, row) || !IsInBounds(col, row - 1))
 		return false;
@@ -44,27 +43,23 @@ bool Dungeon::webFloor(int col, int row) const {
 	return (t.type == NoObject || t.type == MonsterSpawn) && !isSolidTile(t) && !inHalfWater(t) &&
 		   isFloor(MapAt(col, row - 1));
 }
-//======================================================================================
 int Dungeon::webAt(int cell) const {
 	for (size_t k = 0; k < webs.size(); k++)
 		if (webs[k].cell == cell && webs[k].goneMs < 0)
 			return static_cast<int>(k);
 	return -1;
 }
-//======================================================================================
 bool Dungeon::PlaceWeb(int col, int row) {
 	if (!webFloor(col, row) || webAt(MapIndex(col, row)) >= 0)
 		return false;
 	webs.push_back({MapIndex(col, row), GameClock::now()});
 	return true;
 }
-//======================================================================================
 bool Dungeon::PlayerInWeb() const {
 	const JumpState& jump = sim.player->jump;
 	const auto col = static_cast<int>(std::floor(mapX)), row = static_cast<int>(std::floor(mapY));
 	return !jump.jumping && !jump.falling && WebAt(col, row);
 }
-//======================================================================================
 Terrains Dungeon::PlayerTerrains() const {
 	const JumpState& jump = sim.player->jump;
 	return TerrainsAt(
@@ -74,24 +69,20 @@ Terrains Dungeon::PlayerTerrains() const {
 		false
 	);
 }
-//======================================================================================
 TerrainMood Dungeon::PlayerTerrainMood() const {
 	const PlayerStats& stats = sim.player->stats;
 	return terrainMood(PlayerTerrains(), stats.TerrainNative(), stats.TerrainHostile());
 }
-//======================================================================================
 TerrainFactors Dungeon::PlayerTerrainFactors() const {
 	const PlayerStats& stats = sim.player->stats;
 	return terrainFactors(PlayerTerrains(), stats.TerrainNative(), stats.TerrainHostile(), PLAYER_TERRAIN_ROWS);
 }
-//======================================================================================
 void Dungeon::burnWeb(int cell) {
 	if (const int k = webAt(cell); k >= 0) {
 		webs[static_cast<size_t>(k)].goneMs = GameClock::now();
 		webs[static_cast<size_t>(k)].burnt = true;
 	}
 }
-//======================================================================================
 int Dungeon::cutWebs(float fromX, float toX, int row) {
 	const auto c0 = static_cast<int>(std::floor(std::min(fromX, toX)));
 	const auto c1 = static_cast<int>(std::floor(std::max(fromX, toX)));
@@ -103,7 +94,6 @@ int Dungeon::cutWebs(float fromX, float toX, int row) {
 		}
 	return cut;
 }
-//======================================================================================
 void Dungeon::updateWebs() {
 	const int now = GameClock::now();
 	webs.erase(

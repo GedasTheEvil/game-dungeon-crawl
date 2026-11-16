@@ -27,7 +27,6 @@ void Dungeon::UpdateMonsters() {
 		updateWalker(mon);
 	}
 }
-//======================================================================================
 void Dungeon::noteMonsterEvents(Monster& mon) {
 	if (mon.TakeCall())
 		callPack(mon);
@@ -36,7 +35,6 @@ void Dungeon::noteMonsterEvents(Monster& mon) {
 	if (std::optional<ItemKind> drop = mon.TakeDrop())
 		dropChest(mon, *drop);
 }
-//======================================================================================
 void Dungeon::updateMonsterTerrain(Monster& mon) {
 	// On a step (plan subcell-monsters): up out of the water basin, as the player.
 	const float stepFloor = mon.flies() ? 0.f : monsterFloor(mon);
@@ -68,7 +66,6 @@ void Dungeon::updateMonsterTerrain(Monster& mon) {
 						   !isFloor(MapAt(monCol, mon.Row() - 1)))
 	);
 }
-//======================================================================================
 bool Dungeon::updateMonsterAirborne(Monster& mon) {
 	if (!mon.Alive() && mon.OnRungs()) { // killed on the rungs: down the shaft to the floor
 		if (!mon.Falling()) {
@@ -100,7 +97,6 @@ bool Dungeon::updateMonsterAirborne(Monster& mon) {
 	}
 	return true;
 }
-//======================================================================================
 bool Dungeon::updateMimicChest(Monster& mon) {
 	if (!mon.LeavesChest()) // a treasure tile never spawns a monster again
 		return false;
@@ -124,7 +120,6 @@ bool Dungeon::updateMimicChest(Monster& mon) {
 	mon.Clear();
 	return true;
 }
-//======================================================================================
 bool Dungeon::updateMonsterAttack(Monster& mon) {
 	if (mon.Alive() && !monstersStandDown() && (mon.Lurk(mapX, mapY) || mon.Rising()))
 		return true;
@@ -141,7 +136,6 @@ bool Dungeon::updateMonsterAttack(Monster& mon) {
 		return true;
 	return updateMonsterRanged(mon);
 }
-//======================================================================================
 bool Dungeon::updateMonsterBite(Monster& mon) {
 	if (mon.Biting()) { // the wind-up, then the bite or the miss (plan monster-attack-reach)
 		if (monstersStandDown())
@@ -162,7 +156,6 @@ bool Dungeon::updateMonsterBite(Monster& mon) {
 	}
 	return false;
 }
-//======================================================================================
 bool Dungeon::updateMonsterRanged(Monster& mon) {
 	if (float sx = 0.f, sy = 0.f; mon.TakeShot(mapX, sx, sy))
 		shootAtPlayer(mon, sx, sy);
@@ -180,7 +173,6 @@ bool Dungeon::updateMonsterRanged(Monster& mon) {
 	}
 	return false;
 }
-//======================================================================================
 void Dungeon::callPack(const Monster& caller) {
 	sim.events->PlayCharacter(caller.Type()->id, CharacterSound::Roar);
 	sim.journal->SeeMove(caller.Type()->id, levelNumber, CreatureMove::CallPack);
@@ -194,20 +186,17 @@ void Dungeon::callPack(const Monster& caller) {
 			other.Answer();
 	}
 }
-//======================================================================================
 bool Dungeon::PlayerSafe() const {
 	for (const Monster& mon : monsters)
 		if (mon.Threatens(mapX, mapY) && (mon.rooted() || clearRow(mon.CentreX(), mapX, mon.Row())))
 			return false;
 	return true;
 }
-//======================================================================================
 bool Dungeon::PlayerInDanger() const {
 	const Player& player = *sim.player;
 	return player.stats.vitals.poison.Any() || player.stats.vitals.burning.Any() || PlayerHeldBy() != nullptr ||
 		   PlayerOnLadder() || player.jump.jumping || player.jump.falling || Travelling() || PlayerInQuicksand();
 }
-//======================================================================================
 // A killed monster's weapon chest: on the floor under where it died (a flyer's falls down to it), else on the nearest
 // free floor cell beside it; lost if there is none (a kill over a pit or a trap).
 void Dungeon::dropChest(const Monster& mon, ItemKind weapon, bool cursed) {
@@ -234,14 +223,12 @@ void Dungeon::dropChest(const Monster& mon, ItemKind weapon, bool cursed) {
 			return;
 		}
 }
-//======================================================================================
 int Dungeon::ChestCount() const {
 	int n = 0;
 	for (const Tile& t : map)
 		n += isTreasure(t) ? 1 : 0;
 	return n;
 }
-//======================================================================================
 int Dungeon::MonsterBarsShown() const {
 	int n = 0;
 	for (const Monster& mon : monsters)
@@ -249,7 +236,6 @@ int Dungeon::MonsterBarsShown() const {
 			n++;
 	return n;
 }
-//======================================================================================
 void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
@@ -273,24 +259,20 @@ void Dungeon::clearMonsters() {
 	savedBossFight.reset();
 	powerHit = PowerHitMark{};
 }
-//======================================================================================
 float Dungeon::PowerHitShake() const {
 	const int age = GameClock::now() - powerHit.atMs;
 	if (powerHit.atMs < 0 || age >= POWER_SHAKE_MS)
 		return 0.f;
 	return powerHit.power * (1.f - static_cast<float>(age) / static_cast<float>(POWER_SHAKE_MS));
 }
-//======================================================================================
 // A monster walks away from its spawn tile, so it is culled by where it is now.
 bool Dungeon::inView(const Monster& mon) const { return mon.Active() && view().contains(mon.CentreX(), mon.Row()); }
-//======================================================================================
 // A monster on screen goes in the journal; a lurker only once it gives itself away (the mimic looks like a chest).
 void Dungeon::noteSeenMonsters() {
 	for (const Monster& mon : monsters)
 		if (inView(mon) && mon.Alive() && !mon.lurking())
 			sim.journal->SeeCreature(mon.Type()->id, levelNumber);
 }
-//======================================================================================
 // Every active monster, seen or not: a dead one finishes its death clip (a killed mimic leaves its chest) off screen
 // too. The blood has its own random stream, so this does not change the game's rolls.
 void Dungeon::AnimateMonsters() {
@@ -298,7 +280,6 @@ void Dungeon::AnimateMonsters() {
 		if (mon.Active())
 			mon.Animate(mapX, mapY);
 }
-//======================================================================================
 bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int dir, float power, bool exact) {
 	Monster* nearest = nullptr;
 	for (Monster& mon : monsters)
@@ -318,7 +299,6 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 	touchPoison(*nearest);
 	return true;
 }
-//======================================================================================
 // A monster tile came into view: its monster appears, unless it is already there. Uses a free slot, else the slot
 // of a dead monster.
 bool Dungeon::SpawnMonster(int i, int j) {
@@ -346,7 +326,6 @@ bool Dungeon::SpawnMonster(int i, int j) {
 		startBossFight(static_cast<int>(slot - monsters));
 	return true;
 }
-//======================================================================================
 // Never the boss's slot: its death is handled on the next update (updateBoss).
 Monster* Dungeon::freeMonsterSlot() {
 	for (Monster& mon : monsters)
@@ -375,7 +354,6 @@ Monster* Dungeon::freeMonsterSlot() {
 		farthest->Clear();
 	return farthest;
 }
-//======================================================================================
 void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit) {
 	const bool exact = exactHit && mix != nullptr; // a typed hit only
 	const MonsterType& type = *mon.Type();
@@ -414,7 +392,6 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactH
 	}
 	mon.Struggle(); // a scorpion that holds the player lets go sooner
 }
-//======================================================================================
 // Stun (plan skill-stun): with the skill, the hit's blunt share decides the chance, rolled on the gameplay stream.
 void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 	const int rank = sim.player->stats.heka.Rank(SkillId::Stun);
@@ -430,7 +407,6 @@ void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 		sim.events->Status("%s is stunned", mon.Type()->name);
 	sim.events->Note(FieldNote::Stun);
 }
-//======================================================================================
 // Bleed (plan skill-bleed): with the skill, the hit's cut share decides the weak chance (a boss half of it); each tier
 // up rolls at half the one below and only on a monster that bled the tier below before this hit, so a hit climbs at
 // most one tier. Rolled through Monster::TakeBleed, whose cut rate scales it once more and which never bleeds a
@@ -449,14 +425,12 @@ void Dungeon::bleedRoll(Monster& mon, const DamageMix& mix) {
 		if (tier == 0 || (before & (1 << (tier - 1))) != 0)
 			mon.TakeBleed(static_cast<BleedTier>(tier), chance, true, sim.random->gameplay);
 }
-//======================================================================================
 const Monster* Dungeon::PlayerHeldBy() const {
 	for (const Monster& mon : monsters)
 		if (mon.Active() && mon.Holding())
 			return &mon;
 	return nullptr;
 }
-//======================================================================================
 float Dungeon::HeldViewRoll() const {
 	const Monster* holder = PlayerHeldBy();
 	if (holder == nullptr)
@@ -467,7 +441,6 @@ float Dungeon::HeldViewRoll() const {
 		return HELD_SHAKE_DEG * std::sin(age * 0.06f);
 	return HELD_ROLL_DEG * std::sin(age / static_cast<float>(rules.tickMs) * 2.f * static_cast<float>(M_PI));
 }
-//======================================================================================
 // Thorns and sap: a melee hit on the plant may poison the player (plan plant-poison).
 void Dungeon::touchPoison(const Monster& mon) {
 	const MonsterType& type = *mon.Type();
@@ -477,7 +450,6 @@ void Dungeon::touchPoison(const Monster& mon) {
 	sim.player->Poison(type.touch->tier, *sim.events, sim.random->gameplay);
 	sim.journal->SeeMove(type.id, levelNumber, CreatureMove::Poison);
 }
-//======================================================================================
 // The venom amulet: a weapon hit that did not kill may poison (plan venom-amulet).
 void Dungeon::venomHit(Monster& mon) {
 	const PlayerStats& stats = sim.player->stats;
@@ -496,7 +468,6 @@ void Dungeon::venomHit(Monster& mon) {
 	else if (took)
 		sim.events->Status("%s is poisoned", type.name);
 }
-//======================================================================================
 // A minion's XP depends on its boss (MinionXP). A mimic leaves its own chest, a minion none.
 void Dungeon::markSlain(const Monster& mon) {
 	if (mon.Minion() || mon.Type()->locomotion == Locomotion::Ambush)
@@ -505,7 +476,6 @@ void Dungeon::markSlain(const Monster& mon) {
 	if (spawn.type == MonsterSpawn)
 		setObject(spawn, slainObject(spawn.attr));
 }
-//======================================================================================
 void Dungeon::rewardKill(Monster& mon) {
 	markSlain(mon);
 	const MonsterType& type = *mon.Type();

@@ -47,7 +47,6 @@ void Dungeon::resetMechanisms() {
 			setPlatePressed(t, false);
 	traceSunBeams();
 }
-//======================================================================================
 void Dungeon::updateMechanisms() {
 	int col = static_cast<int>(mapX);
 	int row = static_cast<int>(mapY);
@@ -99,7 +98,6 @@ void Dungeon::updateMechanisms() {
 	updateDartTraps();
 	updateRhythmTraps();
 }
-//======================================================================================
 void Dungeon::startRockFall(int cell, bool byPlayer) {
 	if (map[cell].type != RockFall || rockState(map[cell]) != RockState::Armed)
 		return;
@@ -109,7 +107,6 @@ void Dungeon::startRockFall(int cell, bool byPlayer) {
 	fallingRocks.push_back({cell, GameClock::now()});
 	sim.events->Play(isSandFall(map[cell]) ? WorldSound::SandHiss : WorldSound::RockRumble);
 }
-//======================================================================================
 void Dungeon::updateRocks() {
 	for (auto it = fallingRocks.begin(); it != fallingRocks.end();) {
 		if (GameClock::now() - it->startMs < ROCK_WARN_MS + ROCK_FALL_MS) {
@@ -145,7 +142,6 @@ void Dungeon::updateRocks() {
 		it = fallingRocks.erase(it);
 	}
 }
-//======================================================================================
 // A landed rock is a loose stone (plan fallen-rock-draggable): dragged, saved and drawn as one; the spent crack goes.
 // A sand fall stays a fallen RockFall over its drift.
 void Dungeon::landRock(Tile& t) {
@@ -154,14 +150,12 @@ void Dungeon::landRock(Tile& t) {
 	else
 		setObject(t, Tile{Stone, 0, 0});
 }
-//======================================================================================
 void Dungeon::startOpeningGate(int cell, int startMs) {
 	if (map[cell].type != Gate || gateState(map[cell]) != GateState::Closed)
 		return;
 	setGateState(map[cell], GateState::Opening);
 	openingGates.push_back({cell, startMs});
 }
-//======================================================================================
 void Dungeon::finishOpenedGates() {
 	for (auto it = openingGates.begin(); it != openingGates.end();) {
 		if (motionProgress(it->startMs, GATE_OPEN_MS) >= 1.f) {
@@ -171,7 +165,6 @@ void Dungeon::finishOpenedGates() {
 			++it;
 	}
 }
-//======================================================================================
 void Dungeon::openGates(int colour) {
 	std::vector<int> opened;
 	for (int cell = 0; cell < MAP_WIDTH * MAP_HEIGHT; cell++)
@@ -184,7 +177,6 @@ void Dungeon::openGates(int colour) {
 	sim.events->Play(WorldSound::GateOpen);
 	startCutScene(opened);
 }
-//======================================================================================
 void Dungeon::bumpGate(int col, int row) {
 	Tile gate = MapAt(col, row);
 	if (gate.type != Gate || gateState(gate) != GateState::Closed || !isGateColour(gate.attr))
@@ -217,7 +209,6 @@ void Dungeon::bumpGate(int col, int row) {
 	sim.events->Status("%s", text);
 	sim.events->Play(WorldSound::GateLocked);
 }
-//======================================================================================
 bool Dungeon::PullLever() {
 	int col = static_cast<int>(mapX);
 	int row = static_cast<int>(mapY);

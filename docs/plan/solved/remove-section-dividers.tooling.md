@@ -1,6 +1,6 @@
 # Remove the bare section divider comments
 
-Status: draft 2026-11-16, size S, prio low, needs nothing first.
+Status: solved 2026-11-16. Was: draft 2026-11-16, size S, prio low, needs nothing first.
 
 ## Problem
 

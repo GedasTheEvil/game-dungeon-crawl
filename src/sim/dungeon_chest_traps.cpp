@@ -17,7 +17,6 @@
 bool Dungeon::disarmed() {
 	return sim.player->stats.heka.Has(SkillId::DisarmTrap) && sim.random->gameplay.percent(DISARM_TRAP_PERCENT);
 }
-//======================================================================================
 void Dungeon::springChestTrap(int cell) {
 	Rng& rng = sim.random->gameplay;
 	const bool full = rng.percent(TRAPPED_CHEST_FULL_PERCENT);
@@ -39,7 +38,6 @@ void Dungeon::springChestTrap(int cell) {
 	if (!line.empty()) // a tomb curse told its own lines
 		sim.events->Status("%s", line.c_str());
 }
-//======================================================================================
 std::string Dungeon::fireChestTrap(int cell) {
 	Rng& rng = sim.random->gameplay;
 	const Container kind = treasureLook(cell).kind;
@@ -65,13 +63,11 @@ std::string Dungeon::fireChestTrap(int cell) {
 	}
 	std::unreachable();
 }
-//======================================================================================
 void Dungeon::tombCurse(Curse c, const char* execration) {
 	sim.events->Status("%s", execration); // stacked over the curse's own line (plan message-log)
 	sim.player->stats.LayCurse(c, CurseGrade::Lesser, *sim.events, sim.random->gameplay);
 	sim.events->Note(FieldNote::TombCurses);
 }
-//======================================================================================
 // On the chest's row, nearest first, either side: the cells a walker can stand in and no one holds.
 void Dungeon::chestSwarm(int cell) {
 	const MonsterType& scarab = (*sim.monsterTypes)[MonsterScarab];
@@ -97,7 +93,6 @@ void Dungeon::chestSwarm(int cell) {
 	if (dug > 0)
 		sim.events->Play(WorldSound::SummonDig);
 }
-//======================================================================================
 void Dungeon::updateChestGas() {
 	const int now = GameClock::now();
 	std::erase_if(chestGas, [now](const ChestGas& g) { return now - g.startMs >= CHEST_GAS_MS; });
@@ -111,7 +106,6 @@ void Dungeon::updateChestGas() {
 		g.nextPoisonMs = now + CHEST_GAS_POISON_MS;
 	}
 }
-//======================================================================================
 float Dungeon::tellNear(int cell) const {
 	const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
 	const float dx = mapX - (static_cast<float>(col) + 0.5f);
@@ -119,22 +113,18 @@ float Dungeon::tellNear(int cell) const {
 	const float d = std::sqrt(dx * dx + dy * dy);
 	return std::clamp((CHEST_TELL_FAR - d) / (CHEST_TELL_FAR - CHEST_TELL_NEAR), 0.f, 1.f);
 }
-//======================================================================================
 float Dungeon::chestTell(int cell) const {
 	if (map[cell].type != TrappedTreasure || containers[cell].opened || cursedCoffin(cell))
 		return 0.f; // a coffin's tell is its text (coffinTell)
 	return tellNear(cell);
 }
-//======================================================================================
 // Tomb-curse coffins (plan tomb-curse-containers): the text on the lid is the tell, the same for an inscribed coffin
 // and a trapped one. Once open, the lid lies behind it, its text still on it.
 bool Dungeon::cursedCoffin(int cell) const {
 	const TreasureLook look = treasureLook(cell);
 	return look.kind == Container::Coffin && (look.inscribed || map[cell].type == TrappedTreasure);
 }
-//======================================================================================
 float Dungeon::coffinTell(int cell) const { return cursedCoffin(cell) ? tellNear(cell) : 0.f; }
-//======================================================================================
 // One roll on the gameplay stream, as a chest trap's: the trap ward's chance, then the curse.
 void Dungeon::coffinCurse() {
 	Rng& rng = sim.random->gameplay;

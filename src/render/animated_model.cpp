@@ -42,7 +42,6 @@ struct FrameArrays {
 int gAnimationRate = AnimatedModel::DEFAULT_ANIMATION_RATE;
 } // namespace
 
-//============================================================
 AnimatedModel::AnimatedModel() {
 	speed = 1;
 	compiled = false;
@@ -50,20 +49,15 @@ AnimatedModel::AnimatedModel() {
 	loop = true;
 	playback.stepStart = GameClock::now();
 }
-////============================================================
 AnimatedModel::~AnimatedModel() {
 	if (glContextCurrent() && compiled) {
 		glDeleteBuffers(1, &vbo);
 		glDeleteBuffers(1, &ibo);
 	}
 }
-//============================================================
 int AnimatedModel::Load(const char fileName[]) { return mesh.Load(fileName) ? 1 : 0; }
-//============================================================
 void AnimatedModel::Show() const { Show(playback); }
-//============================================================
 void AnimatedModel::Show(const AnimPlayback& p) const { Show(p, texture); }
-//============================================================
 void AnimatedModel::Show(const AnimPlayback& p, int textureId) const {
 	const FrameBlend f = BlendOf(p, mesh.frameCount, loop, GameClock::now(), gAnimationRate);
 	glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textureId));
@@ -110,21 +104,15 @@ void AnimatedModel::Show(const AnimPlayback& p, int textureId) const {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }
-//============================================================
 void AnimatedModel::SetAnimationRate(int perSecond) { gAnimationRate = perSecond; }
-//============================================================
-//============================================================
 void AnimatedModel::Advance() { Advance(playback); }
-//============================================================
 void AnimatedModel::Advance(AnimPlayback& p) const { AdvancePlayback(p, mesh.frameCount, loop, speed); }
-//============================================================
 void AnimatedModel::setSpeed(int nSpeed) {
 	if (nSpeed < 1)
 		speed = 1;
 	else
 		speed = nSpeed;
 }
-//============================================================
 void AnimatedModel::Compile(bool keepFrames) {
 	if (compiled)
 		return; // avoid too many compilations
@@ -158,8 +146,5 @@ void AnimatedModel::Compile(bool keepFrames) {
 		mesh.frames.shrink_to_fit();
 	}
 }
-//============================================================
 void AnimatedModel::BindTexture(int t) { texture = t; }
-//============================================================
 void AnimatedModel::Reset() { playback.frame = 0.0; }
-//============================================================

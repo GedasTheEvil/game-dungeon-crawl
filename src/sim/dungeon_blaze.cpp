@@ -16,7 +16,6 @@ bool Dungeon::blazeFloor(int col, int row) const {
 	const Tile t = MapAt(col, row);
 	return !isSolidTile(t) && !inHalfWater(t) && isFloor(MapAt(col, row - 1));
 }
-//======================================================================================
 void Dungeon::blazeAt(float x, float y, int ms) {
 	const auto col = static_cast<int>(std::floor(x));
 	auto row = static_cast<int>(std::floor(y));
@@ -35,27 +34,23 @@ void Dungeon::blazeAt(float x, float y, int ms) {
 	blazes.push_back({cell, now, now + ms});
 	sim.events->Play(WorldSound::FireRoar);
 }
-//======================================================================================
 bool Dungeon::BlazeAt(int col, int row) const {
 	if (!IsInBounds(col, row))
 		return false;
 	const int cell = MapIndex(col, row);
 	return std::any_of(blazes.begin(), blazes.end(), [cell](const Blaze& b) { return b.cell == cell; });
 }
-//======================================================================================
 bool Dungeon::PlaceBlaze(int col, int row, int ms) {
 	if (!blazeFloor(col, row))
 		return false;
 	blazeAt(static_cast<float>(col) + 0.5f, static_cast<float>(row), ms);
 	return true;
 }
-//======================================================================================
 bool Dungeon::PlayerInBlaze() const {
 	const JumpState& jump = sim.player->jump;
 	return !jump.jumping && !jump.falling &&
 		   BlazeAt(static_cast<int>(std::floor(mapX)), static_cast<int>(std::floor(mapY + STANDING_EPSILON)));
 }
-//======================================================================================
 void Dungeon::updateBlazes() {
 	const int now = GameClock::now();
 	blazes.erase(

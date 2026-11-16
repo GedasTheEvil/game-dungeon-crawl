@@ -11,17 +11,14 @@
 #include "render_config.h"
 
 bool Dungeon::walkerBlocked(int col, int row, bool reckless) const { return walkerBlockedAt(map, col, row, reckless); }
-//======================================================================================
 bool Dungeon::walkerStops(const Monster& mon, int col) const {
 	if (walkerBlocked(col, mon.Row(), mon.reckless()))
 		return true;
 	return mon.ShunsLight() && col != static_cast<int>(std::floor(mon.CentreX())) && shunned(mon, col);
 }
-//======================================================================================
 bool Dungeon::walkerStopsAhead(const Monster& mon, int col, int dir) const {
 	return walkerStops(mon, col) || !shapePasses(map, col, mon.Row(), dir, mon.Body());
 }
-//======================================================================================
 float Dungeon::monsterFloor(const Monster& mon) const {
 	constexpr float INSET = 0.01f;
 	const auto from = static_cast<int>(std::floor((mon.Left() + INSET) * SUBCELLS));
@@ -37,7 +34,6 @@ float Dungeon::monsterFloor(const Monster& mon) const {
 	}
 	return floor;
 }
-//======================================================================================
 // The lowest solid sub-cell of a shaped cell over its body, above its head at rest. A whole wall tile over it does
 // not count (plan monster-head-bump): the halls' own ceilings are no low ceiling, or Babi (3 quarters tall) would bump
 // in every one-tile room.
@@ -67,7 +63,6 @@ float Dungeon::leapRoom(const Monster& mon) const {
 	const std::optional<LeapCeiling> ceiling = leapCeiling(mon);
 	return ceiling ? ceiling->room : NO_CEILING;
 }
-//======================================================================================
 int Dungeon::leapCeilingTrap(const Monster& mon) const {
 	const std::optional<LeapCeiling> ceiling = leapCeiling(mon);
 	if (!ceiling)
@@ -76,7 +71,6 @@ int Dungeon::leapCeilingTrap(const Monster& mon) const {
 	return spikedSubcell(t, ceiling->x - std::floor(ceiling->x), ceiling->y - std::floor(ceiling->y)) ? t.fixture.type
 																									  : NoObject;
 }
-//======================================================================================
 // Each sub-cell column the body sweeps from here to toX, up to the first solid sub-cell in a leap's reach over the
 // head at the take-off.
 bool Dungeon::leapUnderSpikes(const Monster& mon, float toX) const {
@@ -98,7 +92,6 @@ bool Dungeon::leapUnderSpikes(const Monster& mon, float toX) const {
 	}
 	return false;
 }
-//======================================================================================
 Dungeon::StepAhead Dungeon::stepAt(const Monster& mon, float x) const {
 	const auto col = static_cast<int>(std::floor(x));
 	if (!IsInBounds(col, mon.Row()) || !hasShape(MapAt(col, mon.Row())))
@@ -110,11 +103,9 @@ Dungeon::StepAhead Dungeon::stepAt(const Monster& mon, float x) const {
 		return StepAhead::Stop;
 	return columnRise(t, column, h) > SUBCELL_SIZE / 2.f ? StepAhead::Hop : StepAhead::Walk;
 }
-//======================================================================================
 Dungeon::StepAhead Dungeon::stepAhead(const Monster& mon, int dir) const {
 	return stepAt(mon, mon.seekProbeX(dir) + static_cast<float>(dir) * mon.WalkStep());
 }
-//======================================================================================
 bool Dungeon::hopOnto(Monster& mon, int dir) {
 	if (dir == 0 || stepAhead(mon, dir) != StepAhead::Hop || !mon.canJump())
 		return false;
@@ -127,11 +118,9 @@ bool Dungeon::hopOnto(Monster& mon, int dir) {
 	mon.Jump(toX);
 	return true;
 }
-//======================================================================================
 bool Dungeon::shunned(const Monster& mon, int col) const {
 	return mon.ShunsLight() && Lit(col, mon.Row(), mon.Type()->douseCells == 0);
 }
-//======================================================================================
 // The nearer dark cell either way, short of a cell it can't walk on; on a tie, away from the player.
 int Dungeon::wayOutOfLight(const Monster& mon) const {
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
@@ -149,7 +138,6 @@ int Dungeon::wayOutOfLight(const Monster& mon) const {
 		}
 	return 0;
 }
-//======================================================================================
 bool Dungeon::litBetween(const Monster& mon) const {
 	const auto from = static_cast<int>(std::floor(mon.CentreX()));
 	const auto to = static_cast<int>(std::floor(mapX));
@@ -158,7 +146,6 @@ bool Dungeon::litBetween(const Monster& mon) const {
 			return true;
 	return false;
 }
-//======================================================================================
 Terrains Dungeon::TerrainsAt(int col, int row, bool ground, bool anyVent) const {
 	Terrains here;
 	if (!IsInBounds(col, row))
@@ -180,16 +167,13 @@ Terrains Dungeon::TerrainsAt(int col, int row, bool ground, bool anyVent) const 
 		here.add(Terrain::Fire);
 	return here;
 }
-//======================================================================================
 TerrainMood Dungeon::moodAt(const Monster& mon, int col) const {
 	return mon.MoodIn(TerrainsAt(col, mon.Row(), !mon.flies(), true));
 }
-//======================================================================================
 bool Dungeon::terrainShuns(const Monster& mon, int col) const {
 	const auto own = static_cast<int>(std::floor(mon.CentreX()));
 	return col != own && moodAt(mon, col) == TerrainMood::Hostile && moodAt(mon, own) != TerrainMood::Hostile;
 }
-//======================================================================================
 // The nearer cell either way, short of a cell it can't walk on; on a tie, the one tried first (away from the player).
 int Dungeon::wayOutOfTerrain(const Monster& mon, int dir, float& to) const {
 	const MonsterType& kind = *mon.Type();
@@ -222,11 +206,9 @@ int Dungeon::wayOutOfTerrain(const Monster& mon, int dir, float& to) const {
 		}
 	return 0;
 }
-//======================================================================================
 int Dungeon::leapLanding(int col, int row, int dir, BodyFit body) const {
 	return leapLandingAt(map, col, row, dir, body);
 }
-//======================================================================================
 // The centre of the landing cell. On the player's cell: in reach of them, never past them, or the monster would turn
 // and leap back over the gap.
 float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
@@ -238,7 +220,6 @@ float Dungeon::leapTarget(const Monster& mon, int land, int dir) const {
 	return dir > 0 ? std::clamp(bite, static_cast<float>(land), centre)
 				   : std::clamp(bite, centre, static_cast<float>(land + 1));
 }
-//======================================================================================
 bool Dungeon::pounce(Monster& mon, int dir) {
 	const std::optional<PounceRules>& rules = mon.Type()->pounce;
 	if (!rules || dir == 0 || !mon.canPounce() || mon.OnRungs() || !mon.sameRow(mapY))
@@ -259,7 +240,6 @@ bool Dungeon::pounce(Monster& mon, int dir) {
 	mon.Pounce(mapX - static_cast<float>(dir) * stop - static_cast<float>(mon.Col()) - 0.5f, dir);
 	return true;
 }
-//======================================================================================
 bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 	const auto to = static_cast<int>(std::floor(mapX));
 	const bool leaps = ::leaps(mon.Type()->locomotion);
@@ -277,7 +257,6 @@ bool Dungeon::walkerReaches(const Monster& mon, int dir) const {
 	}
 	return !mon.ShunsLight() || !shunned(mon, to); // nor into the light around them
 }
-//======================================================================================
 // No way off the row for a walker yet, so out of the player's fire means behind a wall or far enough along the row.
 void Dungeon::fleeFrom(Monster& mon, int dir) {
 	const float gap = dir > 0 ? (mapX - sim.player->HalfWidth()) - mon.Right()
@@ -290,7 +269,6 @@ void Dungeon::fleeFrom(Monster& mon, int dir) {
 	// Not chasing, it does not run into a hostile cell (plan terrain-affinity).
 	mon.Flee(walkerStops(mon, col) || terrainShuns(mon, col) || stepAhead(mon, -dir) != StepAhead::Walk, -dir);
 }
-//======================================================================================
 // Threatened: the player nearer than near and coming at it. Once it backs off, it goes on while they keep coming, so
 // it has the time for a shot at far, else KITE_HYSTERESIS past near. Never past far, and never off its floor: cornered
 // (no kiteRoom for a step), it stays.
@@ -305,7 +283,6 @@ bool Dungeon::kiteThreatened(const Monster& mon, int dir) const {
 	return gap + room <= kite->far &&
 		   (backing ? closing || gap < kite->near + KITE_HYSTERESIS : gap < kite->near && closing);
 }
-//======================================================================================
 int Dungeon::kiteAway(const Monster& mon, int dir) const {
 	const std::optional<KiteRules>& kite = mon.Type()->kite;
 	if (!kite || !kiteThreatened(mon, dir))
@@ -313,7 +290,6 @@ int Dungeon::kiteAway(const Monster& mon, int dir) const {
 	const float room = MONSTER_SEEK_STEP * kite->backOffSpeed; // one step back
 	return kiteRoom(mon, dir, room) < room ? 0 : -dir; // cornered: no step back
 }
-//======================================================================================
 // Its whole body on the far side of the gap, its front at the gap's edge where the ledge is long enough.
 std::optional<float> Dungeon::leapAwayTarget(const Monster& mon, int dir, bool threatened) const {
 	const std::optional<KiteRules>& kite = mon.Type()->kite;
@@ -335,7 +311,6 @@ std::optional<float> Dungeon::leapAwayTarget(const Monster& mon, int dir, bool t
 		return std::nullopt;
 	return to;
 }
-//======================================================================================
 bool Dungeon::leapAway(Monster& mon, int dir, bool threatened) {
 	const std::optional<float> to = leapAwayTarget(mon, dir, threatened);
 	if (!to || shunsLeap(mon, *to - static_cast<float>(mon.Col()) - 0.5f))
@@ -344,7 +319,6 @@ bool Dungeon::leapAway(Monster& mon, int dir, bool threatened) {
 	sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::LeapAway);
 	return true;
 }
-//======================================================================================
 // The free run behind it, away from the player (dir), up to upTo tiles: to a wall, a drop, a trap (also for a reckless
 // one), a lit cell for a light shunner, a hostile cell (terrainShuns), or another monster on its row (not a boss's
 // minion for the boss, nor the boss for its minion).
@@ -369,8 +343,6 @@ float Dungeon::kiteRoom(const Monster& mon, int dir, float upTo) const {
 	}
 	return room;
 }
-//======================================================================================
-//======================================================================================
 // In its band it stands and shoots. Cornered nearer than near (no room behind to get back to it), it fights: the
 // walker's seek and bite; a leaper with a gap behind it leaps that first.
 bool Dungeon::kite(Monster& mon, int dir) {
@@ -392,7 +364,6 @@ bool Dungeon::kite(Monster& mon, int dir) {
 	mon.Stand();
 	return true;
 }
-//======================================================================================
 // A shooter under a step (plan anubis-stuck-under-step). Not a kiter (it keeps its own band), and only a walker that
 // cannot get to the player: in open ground it chases and swings.
 int Dungeon::lineUpSide(const Monster& mon, int dir) const {
@@ -411,7 +382,6 @@ int Dungeon::lineUpSide(const Monster& mon, int dir) const {
 	const float at = biteFront - static_cast<float>(dir) * mon.HalfWidth();
 	return mon.ReachesFrom(at, mapX, mapY, dir) ? 0 : dir; // there, its swing misses the player up on a step
 }
-//======================================================================================
 Dungeon::LineUp Dungeon::lineUpMove(const Monster& mon, int to) const {
 	const int dir = lineUpSide(mon, to);
 	const MonsterKind& kind = *mon.Type();
@@ -435,7 +405,6 @@ Dungeon::LineUp Dungeon::lineUpMove(const Monster& mon, int to) const {
 		return LineUp::Back;
 	return room < inRange ? LineUp::None : LineUp::Hold;
 }
-//======================================================================================
 // walkerReaches looks at the cells up to the player's, not at a step in it: here each sub-cell column on the way to
 // where it would bite from.
 bool Dungeon::walksToBite(const Monster& mon, int dir) const {
@@ -449,7 +418,6 @@ bool Dungeon::walksToBite(const Monster& mon, int dir) const {
 			return false;
 	return true;
 }
-//======================================================================================
 bool Dungeon::lineUp(Monster& mon, int dir) {
 	switch (lineUpMove(mon, dir)) {
 	case LineUp::Back:
@@ -463,7 +431,6 @@ bool Dungeon::lineUp(Monster& mon, int dir) {
 	}
 	return false;
 }
-//======================================================================================
 bool Dungeon::shotLineClear(const Monster& mon, float at, int dir) const {
 	const Monster::ShotPoint from = mon.ShotRelease(mapX, at, dir);
 	const float toY = mapY + SHOT_CHEST * sim.player->Height();
@@ -482,7 +449,6 @@ bool Dungeon::shotLineClear(const Monster& mon, float at, int dir) const {
 	}
 	return true;
 }
-//======================================================================================
 // The ladder the climber heads for: the run of rungs along the path from (col, row), up or down, to where the path
 // leaves the ladder.
 int Dungeon::climbEnd(int col, int row) const {
@@ -491,7 +457,6 @@ int Dungeon::climbEnd(int col, int row) const {
 		r = nr;
 	return r;
 }
-//======================================================================================
 // No bite from the rungs (plan climber-off-the-rungs): the side it steps off to, where it stands on a floor; the
 // player's side first, so standing next to a ladder is no safe spot. 0: not on the rungs, or no floor either side.
 int Dungeon::rungsExit(const Monster& mon) const {
@@ -504,7 +469,6 @@ int Dungeon::rungsExit(const Monster& mon) const {
 			return side;
 	return 0;
 }
-//======================================================================================
 // A climber with no way on that hangs on the rungs over the shaft (it came up after the player, who then went on
 // into the light, plan spider-climbers) climbs down to the first floor below. False: it stands on a floor.
 bool Dungeon::climbDown(Monster& mon) {
@@ -517,7 +481,6 @@ bool Dungeon::climbDown(Monster& mon) {
 	mon.StartClimb(col, row);
 	return true;
 }
-//======================================================================================
 bool Dungeon::followPath(Monster& mon, int dir) {
 	if (!mon.climbs() || !mon.Alerted())
 		return false;
@@ -585,7 +548,6 @@ bool Dungeon::followPath(Monster& mon, int dir) {
 	);
 	return true;
 }
-//======================================================================================
 // One step of a walker that is due: a climber's path, a kiter's back-off, a coward's flight, a leap over a gap, the
 // chase and the bite.
 void Dungeon::updateWalker(Monster& mon) {

@@ -168,7 +168,6 @@ void DungeonView::drawDecorTile(int i, int j) {
 		drawStargate(i, j);
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawDecalTile(int i, int j) {
 	const DecalCell& cell = d.decoration.decal[d.MapIndex(i, j)];
 	if (cell.type < 0)
@@ -176,7 +175,6 @@ void DungeonView::drawDecalTile(int i, int j) {
 	assets.decor.decalTex.Bind();
 	wallQuad(cell.x, cell.y, DECAL_DEFS[cell.type].size, atlasCell(cell.type, DECAL_ATLAS_GRID), cell.mirror);
 }
-//======================================================================================
 // Composed from its plate and signs (plan composed-inscriptions); without a text it shows the scattered cartouche.
 void DungeonView::drawInscriptionTile(int i, int j) {
 	const int id = d.MapAt(i, j).fixture.attr;
@@ -213,7 +211,6 @@ void DungeonView::drawInscriptionTile(int i, int j) {
 		glintQuad(0.5f, INSCRIPTION_Y, INSCRIPTION_SIZE, plateCell(style), glint, d.MapIndex(i, j));
 	}
 }
-//======================================================================================
 void DungeonView::drawTorchTile(int i, int j) {
 	AnimatedModel* model = assets.decor.torch.get();
 	if (!d.decoration.torch[d.MapIndex(i, j)] || model == nullptr)
@@ -226,7 +223,6 @@ void DungeonView::drawTorchTile(int i, int j) {
 	model->Show();
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawLadderTile(int i, int j) {
 	const LadderCell& cell = d.decoration.ladder[d.MapIndex(i, j)];
 	if (cell.style < 0)
@@ -246,7 +242,6 @@ void DungeonView::drawLadderTile(int i, int j) {
 	model->Show(); // textured only, like the props
 	glPopMatrix();
 }
-//======================================================================================
 namespace {
 // A flame's spot in the frame drawDecorTile starts from (world units), its light and its fire sprite.
 struct FlameSource {
@@ -270,7 +265,6 @@ FlameSource flameSource(const Flame& f) {
 }
 } // namespace
 
-//======================================================================================
 // Lights from flames a little beyond the drawn window too, so light spills in before its source is visible.
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
 void DungeonView::addLights(const CellRect& drawn) {
@@ -299,7 +293,6 @@ void DungeonView::addLights(const CellRect& drawn) {
 				);
 		}
 }
-//======================================================================================
 // After all opaque tiles: the sprites do not write depth, so later tiles would paint over them.
 void DungeonView::drawFires(const CellRect& drawn) {
 	const int col0 = d.view().originCol;
@@ -336,7 +329,6 @@ void DungeonView::drawFires(const CellRect& drawn) {
 			}
 	}
 }
-//======================================================================================
 // In the prop's frame (drawDecorTile): the track turned round the ring's centre, then each lit chevron over its dark
 // one, added on in its glow.
 void DungeonView::drawStargate(int i, int j) {
@@ -370,7 +362,6 @@ void DungeonView::drawStargate(int i, int j) {
 	}
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::addStargateLights(const CellRect& drawn) {
 	if (!d.Dialling())
 		return;

@@ -23,7 +23,6 @@ bool Dungeon::updateCharger(Monster& mon) {
 	mon.StartCharge(mapX);
 	return true;
 }
-//======================================================================================
 void Dungeon::sandBurst(const Monster& mon, const RoarRules& roar) {
 	if (!sim.player->Alive() || static_cast<int>(mapY) != mon.Row())
 		return;
@@ -38,13 +37,11 @@ void Dungeon::sandBurst(const Monster& mon, const RoarRules& roar) {
 	sim.player->TakeHit(roar.damage, ROAR_MIX, *sim.events);
 	sim.journal->HitByCreature(mon.Type()->id, levelNumber);
 }
-//======================================================================================
 void Dungeon::ShovePlayer(int dir, float tiles) {
 	if (PlayerHeldBy() != nullptr)
 		return;
 	shove = {tiles, dir};
 }
-//======================================================================================
 void Dungeon::updateShove() {
 	if (shove.left <= 0.f)
 		return;
@@ -57,7 +54,6 @@ void Dungeon::updateShove() {
 	mapX = to;
 	shove.left -= step;
 }
-//======================================================================================
 float Dungeon::SandHaze() const {
 	if (hazeMs <= 0)
 		return 0.f;

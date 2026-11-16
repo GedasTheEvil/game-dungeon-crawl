@@ -29,7 +29,6 @@ char Dungeon::containerChar(const ContainerCell& c) {
 		return c.emptied ? DROPPED_EMPTIED : DROPPED;
 	return c.emptied ? EMPTIED : OPENED;
 }
-//======================================================================================
 Dungeon::ContainerCell Dungeon::containerFromChar(char c) {
 	ContainerCell cell;
 	const bool jar = c == DROPPED_JAR || c == DROPPED_JAR_EMPTIED;
@@ -42,7 +41,6 @@ Dungeon::ContainerCell Dungeon::containerFromChar(char c) {
 	cell.openedMs = GameClock::now() - CONTAINER_OPENED_LONG_AGO_MS;
 	return cell;
 }
-//======================================================================================
 bool Dungeon::Load(const char* filename, int depth) {
 	LevelGrid grid;
 	std::string error = loadLevelFile(filename, grid);
@@ -53,7 +51,6 @@ bool Dungeon::Load(const char* filename, int depth) {
 	LoadGrid(grid, filename, depth);
 	return true;
 }
-//======================================================================================
 void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) {
 	travel = {};
 	dial = {};
@@ -84,7 +81,6 @@ void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) 
 	resetMechanisms();
 	scatterDecorations(levelName, depth);
 }
-//======================================================================================
 bool Dungeon::LoadCampaignLevel(int number) {
 	levelNumber = number;
 	if (!Load(campaignLevelFile(number).c_str(), number))
@@ -93,7 +89,6 @@ bool Dungeon::LoadCampaignLevel(int number) {
 		sim.events->Note(hourNote(meta.zone));
 	return true;
 }
-//======================================================================================
 bool Dungeon::LoadDump(std::istream& f) {
 	f >> mapX >> mapY;
 	if (!f)
@@ -136,7 +131,6 @@ bool Dungeon::LoadDump(std::istream& f) {
 	}
 	return loadMonsters(f);
 }
-//======================================================================================
 // Only the living, unslain monsters below their max health: the others come out of their tiles as new, as before.
 // A minion has no tile: it is counted for the boss fight.
 void Dungeon::dumpMonsters(std::ostream& f) const {
@@ -152,7 +146,6 @@ void Dungeon::dumpMonsters(std::ostream& f) const {
 		f << BOSS_TAG << ' ' << bossFight.summoned << ' ' << bossFight.hatched << ' ' << bossFight.firstLeft << ' '
 		  << LivingMinions() << ' ';
 }
-//======================================================================================
 bool Dungeon::loadMonsters(std::istream& f) {
 	savedMonsters.clear();
 	savedBossFight.reset();
@@ -182,7 +175,6 @@ bool Dungeon::loadMonsters(std::istream& f) {
 	}
 	return true;
 }
-//======================================================================================
 void Dungeon::Dump(std::ostream& f) {
 	f << mapX << " " << mapY << " ";
 

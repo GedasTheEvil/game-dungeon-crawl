@@ -17,7 +17,6 @@ void Dungeon::traceSunBeams() {
 	for (const BeamStep& s : sunBeams)
 		sunlit[static_cast<size_t>(s.cell)] = 1;
 }
-//======================================================================================
 void Dungeon::updateSunBeams() {
 	const int now = GameClock::now();
 	mirrorSwings.erase(
@@ -54,7 +53,6 @@ void Dungeon::updateSunBeams() {
 			mon.Kindle(SUN_BURN_FIRE);
 	}
 }
-//======================================================================================
 bool Dungeon::TurnMirror() {
 	const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY));
 	if (!IsInBounds(static_cast<int>(mapX), static_cast<int>(mapY)) || map[cell].type != Mirror)
@@ -75,7 +73,6 @@ bool Dungeon::TurnMirror() {
 	sim.events->Note(FieldNote::SunMirrors);
 	return true;
 }
-//======================================================================================
 bool Dungeon::SetMirror(int col, int row, int dir) {
 	if (!IsInBounds(col, row) || MapAt(col, row).type != Mirror)
 		return false;
@@ -83,7 +80,6 @@ bool Dungeon::SetMirror(int col, int row, int dir) {
 	traceSunBeams();
 	return true;
 }
-//======================================================================================
 // The face's normal halves the angle between the beam coming in (reversed) and going out: edge-on to a beam it lets
 // by, facing one it catches.
 float Dungeon::mirrorFaceDeg(int cell) const {
@@ -97,7 +93,6 @@ float Dungeon::mirrorFaceDeg(int cell) const {
 		return vectorDeg(-iy, ix);
 	return vectorDeg(static_cast<float>(beamDx(out)) - ix, static_cast<float>(beamDy(out)) - iy);
 }
-//======================================================================================
 float Dungeon::mirrorAngle(int cell) const {
 	const float to = mirrorFaceDeg(cell);
 	for (const MirrorSwing& m : mirrorSwings)

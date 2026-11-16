@@ -73,7 +73,6 @@ const float* Md3DecodeNormal(int16_t packed) {
 	return &TABLE[3 * static_cast<size_t>(static_cast<uint16_t>(packed))];
 }
 
-//============================================================
 bool Md3Mesh::Load(const char fileName[]) {
 	// One read of the whole file (an istreambuf_iterator copy goes char by char: most of a model's load time).
 	ifstream in(fileName, ios::binary | ios::ate);
@@ -176,7 +175,6 @@ bool Md3Mesh::Load(const char fileName[]) {
 
 	return true;
 }
-//============================================================
 // Largest extent of frame 0, cached.
 float Md3Mesh::getScale() {
 	if (fabs(scale) > 0.00000000001)
@@ -206,7 +204,6 @@ float Md3Mesh::getScale() {
 		scale = scZ;
 	return scale;
 }
-//============================================================
 ModelNormalization Md3Mesh::Centrify() {
 	float scale = 1 / getScale();
 	Scale(scale);
@@ -237,18 +234,15 @@ ModelNormalization Md3Mesh::Centrify() {
 	Translate(applied.x, applied.y, applied.z); // apacia bus 0, x centruojam, z 0
 	return applied;
 }
-//============================================================
 void Md3Mesh::Normalize(const ModelNormalization& n) {
 	Scale(n.scale);
 	Translate(n.x, n.y, n.z);
 }
-//============================================================
 std::array<float, 3> Md3Mesh::Vertex(int f, int i) const {
 	const std::vector<float>& v = frames[f].v;
 	const size_t at = 3 * static_cast<size_t>(i);
 	return {v[at], v[at + 1], v[at + 2]};
 }
-//============================================================
 std::pair<float, float> Md3Mesh::YRange(int f) const {
 	std::pair<float, float> range{1000.0f, -1000.0f};
 	for (int i = 1; i < vertexCount * 3; i += 3) {
@@ -257,7 +251,6 @@ std::pair<float, float> Md3Mesh::YRange(int f) const {
 	}
 	return range;
 }
-//============================================================
 std::pair<float, float> Md3Mesh::HalfXZ(int f) const {
 	std::pair<float, float> half{0.0f, 0.0f};
 	for (int i = 0; i < vertexCount * 3; i += 3) {
@@ -266,7 +259,6 @@ std::pair<float, float> Md3Mesh::HalfXZ(int f) const {
 	}
 	return half;
 }
-//============================================================
 void Md3Mesh::Translate(float x, float y, float z) {
 	for (VF& frame : frames) {
 		for (int i = 0; i < vertexCount * 3; i += 3) {
@@ -276,10 +268,8 @@ void Md3Mesh::Translate(float x, float y, float z) {
 		}
 	}
 }
-//============================================================
 void Md3Mesh::Scale(float sc) {
 	for (VF& frame : frames)
 		for (int i = 0; i < vertexCount * 3; i++)
 			frame.v[i] *= sc;
 }
-//============================================================

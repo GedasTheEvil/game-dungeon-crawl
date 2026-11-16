@@ -79,9 +79,7 @@ std::shared_ptr<const FontSheet> loadSheet(const char* filename, TexFilter filte
 }
 } // namespace
 
-//=================================================================================================================
 Font::Font() {}
-//=================================================================================================================
 void Font::print(float x, float y, const char* fmt, ...) // Where The Printing Happens
 {
 	if (fmt == nullptr) // If There's No Text
@@ -101,7 +99,6 @@ void Font::print(float x, float y, const char* fmt, ...) // Where The Printing H
 	glCallLists(static_cast<GLsizei>(strlen(text)), GL_UNSIGNED_BYTE, text); // Draws The Display List Text
 	glPopMatrix(); // Restore The Old Projection Matrix
 }
-//=================================================================================================================
 float Font::TextWidth(const char* text) const {
 	float width = 0.f;
 	for (const char* c = text; *c != '\0'; c++) {
@@ -111,11 +108,9 @@ float Font::TextWidth(const char* text) const {
 	}
 	return width;
 }
-//=================================================================================================================
 void Font::Load(const char filename[], float size, float spacing, bool proportional) {
 	Load(filename, size, spacing, proportional, TexFilter::Flat);
 }
-//=================================================================================================================
 void Font::Load(const char filename[], float size, float spacing, bool proportional, TexFilter filter) {
 	static_assert(GLYPHS == SHEET_GLYPHS);
 	base = static_cast<int>(glGenLists(GLYPHS)); // Creating 95 Display Lists
@@ -161,7 +156,6 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 		glEndList(); // Done Building The Display List
 	} // Loop Until All Are Built
 }
-//=================================================================================================================
 Font::~Font() {
 	if (glContextCurrent())
 		glDeleteLists(base, GLYPHS); // Delete All 95 Font Display Lists

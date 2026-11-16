@@ -19,7 +19,6 @@ constexpr float ARROW_STEP_S = 0.005f; // hit test interval along the flight
 } // namespace
 
 float Dungeon::Missile::Y() const { return y0 + vy * t - ARROW_GRAVITY * t * t / 2.f; }
-//======================================================================================
 bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const {
 	const auto row = static_cast<int>(std::floor(y));
 	float nearest = range;
@@ -48,7 +47,6 @@ bool Dungeon::aimTarget(float x, float y, int dir, float range, float& outX, flo
 	}
 	return found;
 }
-//======================================================================================
 Dungeon::ShotRefusal Dungeon::ShotRefused(ItemKind weapon, int dir) const {
 	if (!isRanged(weapon))
 		return ShotRefusal::None;
@@ -82,7 +80,6 @@ Dungeon::ShotRefusal Dungeon::ShotRefused(ItemKind weapon, int dir) const {
 	}
 	return ShotRefusal::None;
 }
-//======================================================================================
 void Dungeon::RefuseShot(ShotRefusal why) {
 	Player& player = *sim.player;
 	const int now = GameClock::now();
@@ -98,7 +95,6 @@ void Dungeon::RefuseShot(ShotRefusal why) {
 		sim.events->Play(WorldSound::ShotDry);
 	}
 }
-//======================================================================================
 bool Dungeon::ShootWeapon(ItemKind weapon, int damage, int dir, float height, float aimRange) {
 	if (const ShotRefusal why = ShotRefused(weapon, dir); why != ShotRefusal::None) {
 		RefuseShot(why);
@@ -110,7 +106,6 @@ bool Dungeon::ShootWeapon(ItemKind weapon, int damage, int dir, float height, fl
 	Shoot(missileOf(weapon), damage, weaponMix(weapon), dir, height, aimRange, exact);
 	return true;
 }
-//======================================================================================
 void Dungeon::Shoot(
 	MissileKind kind,
 	int damage,
@@ -200,7 +195,6 @@ void Dungeon::Shoot(
 		{kind, x0, y0, static_cast<float>(dir) * vx, vy, shotDamage, dealt, GameClock::now(), fire || flaming, exact}
 	);
 }
-//======================================================================================
 void Dungeon::updateMissiles() {
 	const int now = GameClock::now();
 	for (auto it = missiles.begin(); it != missiles.end();) {
@@ -257,7 +251,6 @@ void Dungeon::updateMissiles() {
 		it = gone ? missiles.erase(it) : it + 1;
 	}
 }
-//======================================================================================
 std::vector<float> Dungeon::StuckMissileXs() const {
 	std::vector<float> xs;
 	for (const Missile& a : missiles)
@@ -265,7 +258,6 @@ std::vector<float> Dungeon::StuckMissileXs() const {
 			xs.push_back(a.endX);
 	return xs;
 }
-//======================================================================================
 bool Dungeon::clearRow(float fromX, float toX, int row) const {
 	const int dir = toX > fromX ? 1 : -1;
 	for (auto col = static_cast<int>(std::floor(fromX)); col != static_cast<int>(std::floor(toX)) + dir; col += dir)
@@ -273,7 +265,6 @@ bool Dungeon::clearRow(float fromX, float toX, int row) const {
 			return false;
 	return true;
 }
-//======================================================================================
 // At the player's chest as they stand at the release: a jump takes them out of its line. A volley's later shots wait
 // at the release point, each aimed as it leaves; a big coal goes alone, at the feet (plan babi-boss).
 void Dungeon::shootAtPlayer(const Monster& mon, float x, float y) {
@@ -300,7 +291,6 @@ void Dungeon::shootAtPlayer(const Monster& mon, float x, float y) {
 	if (big)
 		sim.journal->SeeMove(mon.Type()->id, levelNumber, CreatureMove::Blaze);
 }
-//======================================================================================
 void Dungeon::aimShot(MonsterShot& v) const {
 	const float dx = mapX - v.x;
 	const float dy = mapY + (v.big ? 0.f : SHOT_CHEST * sim.player->Height()) - v.y;
@@ -309,13 +299,11 @@ void Dungeon::aimShot(MonsterShot& v) const {
 	v.vx = SHOT_SPEED * (c * dx - s * dy) / len;
 	v.vy = SHOT_SPEED * (s * dx + c * dy) / len;
 }
-//======================================================================================
 int Dungeon::ShotCount(bool big) const {
 	return static_cast<int>(std::count_if(shots.begin(), shots.end(), [big](const MonsterShot& v) {
 		return v.splatMs < 0 && (!big || v.big);
 	}));
 }
-//======================================================================================
 void Dungeon::updateShots() {
 	const int now = GameClock::now();
 	for (auto it = shots.begin(); it != shots.end();) {

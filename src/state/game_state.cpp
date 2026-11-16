@@ -122,7 +122,6 @@ void GameState::Load() {
 	messages.Clear();
 	cacheLoaded = true;
 }
-//==============================================================
 void GameState::ShowStatus(const char* format, ...) {
 	char buf[256];
 	va_list args;
@@ -135,7 +134,6 @@ void GameState::ShowStatus(const char* format, ...) {
 void GameState::PushStatus(const std::string& text, StatusTone tone) {
 	messages.Push(text, tone, GameClock::now(), dungeon.LevelNumber());
 }
-//==============================================================
 namespace {
 bool isGustSound(WorldSound sound) { return sound == WorldSound::GustRise || sound == WorldSound::GustBlow; }
 } // namespace
@@ -173,7 +171,6 @@ void GameState::ApplyWorldEvents() {
 			break;
 		}
 }
-//==============================================================
 void GameState::NewGame() {
 	PlayerHud::reset();
 	messages.Clear();
@@ -194,7 +191,6 @@ void GameState::NewGame() {
 		ui.screen = Screen::Journal;
 	}
 }
-//==============================================================
 void GameState::ApplySettings(bool save) {
 	Ink::setToon(settings.graphics.toon);
 	Particles::shown = settings.graphics.blood;
@@ -211,7 +207,6 @@ void GameState::ApplySettings(bool save) {
 	if (save)
 		SettingsFile::Save(settings);
 }
-//==============================================================
 // The settings a save keeps (plan save-remembers-ui-state): the player's look and the two screens' pages.
 UiViewState GameState::ViewState() const {
 	UiViewState view;

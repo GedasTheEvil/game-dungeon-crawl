@@ -69,7 +69,6 @@ void DungeonView::drawMirrorTile(int i, int j) {
 		set.mirrorPointer->Show();
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawSunDiscTile(int i, int j) {
 	const MechanismSet& set = assets.mechanisms;
 	const Fixture disc = d.MapAt(i, j).fixture;
@@ -80,7 +79,6 @@ void DungeonView::drawSunDiscTile(int i, int j) {
 	set.sunDisc->Show(AnimPlayback{}, set.sunDiscTex[disc.attr - 1].ID());
 	glPopMatrix();
 }
-//======================================================================================
 // Same window and frame as drawSummonEffects.
 void DungeonView::drawSunBeams() {
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
@@ -157,7 +155,6 @@ void DungeonView::drawSunBeams() {
 			SunBeam::glow(x, y, -T + 1.5f, 26.f + 40.f * flare, 0.45f + pulse + 1.2f * flare);
 		}
 }
-//======================================================================================
 // Same frame as addLights: along the beams every other cell and each corner, the lit sun discs.
 void DungeonView::addSunLights(const CellRect& drawn) {
 	const CellRect near = drawn.grown(2);

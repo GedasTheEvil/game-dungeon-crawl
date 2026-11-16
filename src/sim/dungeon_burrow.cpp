@@ -8,7 +8,6 @@
 bool Dungeon::solidFloorAt(float x, int row) const {
 	return subcellAt(x, static_cast<float>(row) + SUBCELL_SIZE / 2.f);
 }
-//======================================================================================
 bool Dungeon::burrowTarget(const Monster& mon, float& outX) const {
 	const int side = mon.CentreX() < mapX ? 1 : -1;
 	for (int s : {side, -side}) {
@@ -20,7 +19,6 @@ bool Dungeon::burrowTarget(const Monster& mon, float& outX) const {
 	}
 	return false;
 }
-//======================================================================================
 bool Dungeon::sandTarget(const Monster& mon, float range, bool edge, float past, float& outX) const {
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
 	if (static_cast<int>(mapY) != mon.Row() || std::fabs(mapX - mon.CentreX()) > range ||
@@ -45,7 +43,6 @@ bool Dungeon::sandTarget(const Monster& mon, float range, bool edge, float past,
 	outX = static_cast<float>(c) + 0.5f;
 	return !solidFloorAt(outX, mon.Row());
 }
-//======================================================================================
 bool Dungeon::updateBurrower(Monster& mon) {
 	const std::optional<SandBurrowRules>& sand = mon.Type()->sandBurrow;
 	if (sand && mon.UnderSand()) { // lying in wait under the sand since its spawn

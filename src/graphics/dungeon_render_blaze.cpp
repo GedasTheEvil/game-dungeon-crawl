@@ -22,7 +22,6 @@ float strength(int startMs, int endMs, int now) {
 }
 } // namespace
 
-//======================================================================================
 // Same window and frame as drawSummonEffects.
 void DungeonView::drawBlazes() {
 	const int now = GameClock::now();
@@ -43,7 +42,6 @@ void DungeonView::drawBlazes() {
 			);
 	}
 }
-//======================================================================================
 // Same frame as addLights.
 void DungeonView::addBlazeLights() {
 	const int now = GameClock::now();

@@ -111,7 +111,6 @@ void smallDrop(float x, float floor, float ceiling, int ageMs) {
 }
 } // namespace
 
-//======================================================================================
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
 void DungeonView::drawPoisonDrips(const CellRect& drawn) {
 	const int now = GameClock::now();
@@ -198,7 +197,6 @@ void DungeonView::drawPoisonDrips(const CellRect& drawn) {
 	glPopAttrib();
 	glColor4f(1, 1, 1, 1);
 }
-//======================================================================================
 // Same frame as addLights.
 void DungeonView::addPoisonDripLights(const CellRect& drawn) {
 	const CellRect lit = drawn.grown(1);

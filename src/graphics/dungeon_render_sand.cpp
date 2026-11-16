@@ -32,7 +32,6 @@ float smooth(float e0, float e1, float x) {
 }
 } // namespace
 
-//======================================================================================
 // The drift's height (world units) at (u, v) of cell (i, j): u 0..1 left to right, v 0..1 back wall to front. Ripples
 // run in level coordinates, so drifts side by side meet; towards an open neighbour without sand the drift runs out,
 // against rock it piles up, and it piles against the back wall too. Quicksand sags in the middle.
@@ -53,7 +52,6 @@ float DungeonView::driftHeight(int i, int j, float u, float v) const {
 	}
 	return std::max(h, 0.f);
 }
-//======================================================================================
 // The drift as a grid over the cell's floor, its front edge closed by a strip of sand down to the floor. Quicksand is
 // darker, and up close its sand twists slowly round the middle (the tell).
 void DungeonView::drawSandDrift(int i, int j) {
@@ -108,7 +106,6 @@ void DungeonView::drawSandDrift(int i, int j) {
 	glEnd();
 	glColor3f(1, 1, 1);
 }
-//======================================================================================
 // Same window and frame as drawSummonEffects: the dust of the steps in sand, a sand worm's ripple under the sand, the
 // sand falls pouring down.
 void DungeonView::drawSandEffects() {
@@ -166,7 +163,6 @@ void DungeonView::drawSandEffects() {
 			static_cast<uint32_t>(p.startMs)
 		);
 }
-//======================================================================================
 // Same frame as drawSandEffects: the sand blown through each cell of a sandstorm hall (plan sandstorm-halls), after the
 // opaque scene.
 void DungeonView::drawGusts() {
@@ -191,7 +187,6 @@ void DungeonView::drawGusts() {
 			);
 		}
 }
-//======================================================================================
 int DungeonView::windbreakSide(int i, int j) const {
 	if (!d.IsInBounds(i, j) || d.isRock(i, j) || d.MapAt(i, j).fixture.type == SandGust)
 		return 0;
@@ -207,7 +202,6 @@ int DungeonView::windbreakSide(int i, int j) const {
 			return side;
 	return 0;
 }
-//======================================================================================
 void DungeonView::drawWindbreak(int side, bool floor, bool ceiling) {
 	constexpr float WIDTH = 0.26f * T, DEPTH = 0.34f * T; // the shaft
 	constexpr float LIP = 0.05f * T, SLAB = 0.07f * T; // the base and the capital stand out this far, this high
@@ -258,12 +252,10 @@ void DungeonView::drawWindbreak(int side, bool floor, bool ceiling) {
 	if (ceiling)
 		box(b0, b1, T - SLAB, T, -T + DEPTH + LIP);
 }
-//======================================================================================
 bool DungeonView::lightShaft(int i, int j) const {
 	return d.IsInBounds(i, j) && !d.isRock(i, j) && d.isRock(i, j + 1) &&
 		   d.decoration.surface[d.MapIndex(i, j)].ceiling == CEILING_SANDSTONE_CRACKED;
 }
-//======================================================================================
 // A worm under the sand: a low mound of sand that heaves, dark grains rolling off it.
 void DungeonView::drawRipple(float x, float y, float z, float size, int now) const {
 	const float rx = 13.f * size, rz = 8.f * size, h = 6.f * size; // world units

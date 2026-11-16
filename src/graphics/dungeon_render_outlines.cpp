@@ -31,7 +31,6 @@ void DungeonView::queueContour(float strength, std::function<void(int texture)> 
 	glGetFloatv(GL_MODELVIEW_MATRIX, c.modelview.data());
 	contours.push_back(std::move(c));
 }
-//======================================================================================
 void DungeonView::drawContours() {
 	if (contours.empty())
 		return;

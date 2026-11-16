@@ -40,7 +40,6 @@ int Dungeon::WeightOn(int col, int row) const {
 		weight += CHEST_WEIGHT;
 	return weight;
 }
-//======================================================================================
 bool Dungeon::gateCellFree(int cell) const {
 	const int col = cell % MAP_WIDTH, row = cell / MAP_WIDTH;
 	const float centre = static_cast<float>(col) + 0.5f;
@@ -51,7 +50,6 @@ bool Dungeon::gateCellFree(int cell) const {
 			return false;
 	return true;
 }
-//======================================================================================
 void Dungeon::openPlateGate(int cell, int now) {
 	Tile& gate = map[cell];
 	if (gateState(gate) == GateState::Closed) {
@@ -70,7 +68,6 @@ void Dungeon::openPlateGate(int cell, int now) {
 			return;
 		}
 }
-//======================================================================================
 void Dungeon::closePlateGate(int cell, int now) {
 	Tile& gate = map[cell];
 	if (gateState(gate) == GateState::Open) {
@@ -89,7 +86,6 @@ void Dungeon::closePlateGate(int cell, int now) {
 			return;
 		}
 }
-//======================================================================================
 void Dungeon::finishClosedGates() {
 	for (auto it = closingGates.begin(); it != closingGates.end();) {
 		if (motionProgress(it->startMs, GATE_OPEN_MS) >= 1.f) {
@@ -99,7 +95,6 @@ void Dungeon::finishClosedGates() {
 			++it;
 	}
 }
-//======================================================================================
 void Dungeon::updatePlates() {
 	std::array<bool, LOCK_COLOUR_COUNT + 1> plates{}, held{};
 	held.fill(true);

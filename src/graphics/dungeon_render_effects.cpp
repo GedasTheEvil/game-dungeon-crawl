@@ -206,7 +206,6 @@ void DungeonView::DrawMonsters(const CellRect& drawn) {
 	}
 	drawDecoys(drawn);
 }
-//======================================================================================
 // The decoys (plan placed-decor): a mummy asleep in every DECOR_COFFIN_MUMMY, drawn as a mummy on its spawn tile.
 void DungeonView::drawDecoys(const CellRect& drawn) {
 	const MonsterType& mummy = (*d.sim.monsterTypes)[MonsterMummy];
@@ -226,7 +225,6 @@ void DungeonView::drawDecoys(const CellRect& drawn) {
 			glPopMatrix();
 		}
 }
-//======================================================================================
 void DungeonView::drawMissiles() {
 	const auto firstCol = static_cast<float>(d.view().firstCol()); // DrawMonsters' frame
 	const auto firstRow = static_cast<float>(d.view().originRow);
@@ -269,7 +267,6 @@ void DungeonView::drawMissiles() {
 			);
 	}
 }
-//======================================================================================
 // The dung balls (plan scarab-dung-ball): the rolling ones turning as they go, and the one each roller shapes in its
 // windup, growing at the edge of its box. Broken, a ball is gone (its crumbs: drawBallEffects).
 void DungeonView::drawBalls() {
@@ -306,7 +303,6 @@ void DungeonView::drawBalls() {
 		draw(mon.BallX(), static_cast<float>(mon.Row()), r, static_cast<float>(mon.BallDir()) * 200.f * shaped);
 	}
 }
-//======================================================================================
 // Khepri's burning sun on its way, and the crumbs where a ball broke. Same window and frame as drawSummonEffects.
 void DungeonView::drawBallEffects() {
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
@@ -364,7 +360,6 @@ void DungeonView::addBallLights() {
 				static_cast<uint32_t>(b.startMs)
 			);
 }
-//======================================================================================
 // The bow's arrow, smaller, pointing at the camera, from the back wall (-TILE_SIZE) out to the front (0).
 void DungeonView::drawDarts() {
 	AnimatedModel* model = assets.items.missiles[std::to_underlying(MissileKind::Arrow)].get();
@@ -389,7 +384,6 @@ void DungeonView::drawDarts() {
 		glPopMatrix();
 	}
 }
-//======================================================================================
 // A glob of venom (a bolt of light): with poison a cloud of green flames trailing smaller ones; with fire a fireball;
 // else a small ball in its shooter's colour, stretched along its flight, flattening into a splat on a wall or the
 // floor.
@@ -468,7 +462,6 @@ void DungeonView::addFireLights() {
 				static_cast<uint32_t>(mon.Col())
 			);
 }
-//======================================================================================
 // Flames over each burning monster's box. Same window and frame as drawSummonEffects.
 void DungeonView::drawBurning() {
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
@@ -483,7 +476,6 @@ void DungeonView::drawBurning() {
 				static_cast<uint32_t>(mon.Col() * 131 + mon.SpawnRow())
 			);
 }
-//======================================================================================
 void DungeonView::drawPowerSpark() {
 	const int age = GameClock::now() - d.powerHit.atMs;
 	if (d.powerHit.atMs < 0 || age >= POWER_SPARK_MS)
@@ -513,7 +505,6 @@ void DungeonView::drawPowerSpark() {
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
 }
-//======================================================================================
 void DungeonView::drawStunStars() {
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
 	const int now = GameClock::now();
@@ -555,7 +546,6 @@ void DungeonView::drawStunStars() {
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
 }
-//======================================================================================
 // Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.
 // Same window and frame as drawMechanismEffects.
 void DungeonView::drawSummonEffects() {
@@ -610,7 +600,6 @@ void DungeonView::drawSummonEffects() {
 			);
 		}
 }
-//======================================================================================
 // A dark pit in the floor, fading out (fade 1..0): a flat disc round (x, y, z), wider along the row.
 void DungeonView::drawHole(float x, float y, float z, float fade) const {
 	constexpr float RX = 16.f, RZ = 7.f; // world units

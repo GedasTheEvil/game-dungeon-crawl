@@ -84,7 +84,6 @@ void Texture::free() {
 		glDeleteTextures(1, &texture.texID);
 	loaded = false;
 }
-//================================================================================================================================
 DecodedImage Texture::Decode(const char* filename, PixelFilter change) {
 	DecodedImage image;
 	int channels = 0;
@@ -107,7 +106,6 @@ DecodedImage Texture::Decode(const char* filename, PixelFilter change) {
 		change(image.pixels.get(), image.width * image.height, image.components);
 	return image;
 }
-//================================================================================================================================
 int Texture::LoadPNG(const char* filename, TexFilter filter, PixelFilter change) {
 	if (TextureBatch* batch = TextureBatch::Open()) {
 		free();

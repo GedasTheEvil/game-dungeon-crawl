@@ -120,7 +120,6 @@ void DungeonView::drawKeyTile(int i, int j) {
 	showColour(assets.mechanisms.key, assets.mechanisms.keyTex, tile.attr);
 	glPopMatrix();
 }
-//======================================================================================
 // Like a key: floating over its cell, turning, so it reads as something to pick up. Nothing once taken (the skeleton
 // under it is decor).
 void DungeonView::drawPageTile(int i, int j) {
@@ -154,7 +153,6 @@ void DungeonView::drawPageTile(int i, int j) {
 	glPopAttrib();
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawGateTile(int i, int j) {
 	Tile tile = d.MapAt(i, j);
 	float lift = 0.f;
@@ -186,7 +184,6 @@ void DungeonView::drawGateTile(int i, int j) {
 		showColour(set.gate, set.gateTex, tile.attr);
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawLeverTile(int i, int j) {
 	const Fixture lever = d.MapAt(i, j).fixture;
 	glPushMatrix();
@@ -197,7 +194,6 @@ void DungeonView::drawLeverTile(int i, int j) {
 	showModel(assets.mechanisms.leverHandle.get());
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawRockFallTile(int i, int j) {
 	Tile tile = d.MapAt(i, j);
 	int cell = d.MapIndex(i, j);
@@ -231,7 +227,6 @@ void DungeonView::drawRockFallTile(int i, int j) {
 	}
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawDartPlateTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
@@ -241,7 +236,6 @@ void DungeonView::drawDartPlateTile(int i, int j) {
 	showModel(assets.mechanisms.plate.get());
 	glPopMatrix();
 }
-//======================================================================================
 // Plan pressure-plate: the slab with its gem, sunk while it carries its weight.
 void DungeonView::drawPressurePlateTile(int i, int j) {
 	const Fixture plate = d.MapAt(i, j).fixture;
@@ -252,7 +246,6 @@ void DungeonView::drawPressurePlateTile(int i, int j) {
 	showColour(assets.mechanisms.weightPlate, assets.mechanisms.weightPlateTex, plate.attr);
 	glPopMatrix();
 }
-//======================================================================================
 // A loose stone (plan pressure-plate): the rock fall's boulder, its own turn per cell.
 void DungeonView::drawStoneTile(int i, int j) {
 	const int cell = d.MapIndex(i, j);
@@ -264,7 +257,6 @@ void DungeonView::drawStoneTile(int i, int j) {
 	showModel(assets.mechanisms.rock.get());
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawWallSpikesTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();
@@ -276,14 +268,12 @@ void DungeonView::drawWallSpikesTile(int i, int j) {
 	}
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawFireVentTile() {
 	glPushMatrix();
 	enterPropSpace();
 	showModel(assets.mechanisms.fireVent.get());
 	glPopMatrix();
 }
-//======================================================================================
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
 void DungeonView::drawFireJets(const CellRect& drawn) {
 	const int now = GameClock::now();
@@ -312,7 +302,6 @@ void DungeonView::drawFireJets(const CellRect& drawn) {
 			}
 		}
 }
-//======================================================================================
 // Same frame as addLights.
 void DungeonView::addFireVentLights(const CellRect& drawn) {
 	const int now = GameClock::now();
@@ -332,7 +321,6 @@ void DungeonView::addFireVentLights(const CellRect& drawn) {
 				Lighting::add(x, y + VENT_MOUTH_Y, VENT_MOUTH_Z + 6.f, VENT_GLOW, seed);
 		}
 }
-//======================================================================================
 // Same window and frame as the tile loop in Draw(): cell (col0, row0) sits at the origin.
 void DungeonView::drawMechanismEffects() {
 	const int col0 = d.view().originCol;
@@ -353,7 +341,6 @@ void DungeonView::drawMechanismEffects() {
 		);
 	}
 }
-//======================================================================================
 void DungeonView::drawRingPlatformTile(int i, int j) {
 	glPushMatrix();
 	enterPropSpace();

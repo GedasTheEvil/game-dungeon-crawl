@@ -27,14 +27,12 @@ int stepMs(int step) {
 // The track's turn for chevron k: back and forth, a little further each time.
 float turnDeg(int chevron) { return (chevron % 2 == 0 ? 1.f : -1.f) * (90.f + 23.f * static_cast<float>(chevron)); }
 } // namespace
-//======================================================================================
 void Dungeon::startDial() {
 	if (Dialling())
 		return;
 	dial = {MapIndex(static_cast<int>(mapX), static_cast<int>(mapY)), GameClock::now(), 0};
 	updateDial(); // the first chevron's turn starts now
 }
-//======================================================================================
 void Dungeon::pressDialDevice() {
 	sim.events->Play(WorldSound::DialPress);
 	const auto& notes = sim.journal->Notes();
@@ -46,7 +44,6 @@ void Dungeon::pressDialDevice() {
 		sim.events->Status("The red dome sinks with a dull clunk. Nothing happens.");
 	sim.events->Note(FieldNote::DialDevice);
 }
-//======================================================================================
 void Dungeon::updateDial() {
 	if (!Dialling())
 		return;
@@ -73,7 +70,6 @@ void Dungeon::updateDial() {
 		}
 	}
 }
-//======================================================================================
 float Dungeon::dialTrackDeg(int elapsedMs) const {
 	float deg = 0.f;
 	for (int k = 0; k < STARGATE_CHEVRONS; k++) {
@@ -86,13 +82,11 @@ float Dungeon::dialTrackDeg(int elapsedMs) const {
 	}
 	return deg;
 }
-//======================================================================================
 float Dungeon::StargateTrackDeg(int col, int row) const {
 	if (dial.cell != MapIndex(col, row))
 		return stargateRestDeg;
 	return stargateRestDeg + dialTrackDeg(GameClock::now() - dial.startMs);
 }
-//======================================================================================
 float Dungeon::ChevronGlow(int col, int row, int chevron) const {
 	if (dial.cell != MapIndex(col, row) || chevron < 0 || chevron >= STARGATE_CHEVRONS)
 		return 0.f;

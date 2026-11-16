@@ -42,7 +42,6 @@ void quad(const float n[3], const float v[4][3], const float st[4][2]) {
 bool DungeonView::deepAt(int col, int row) const {
 	return d.IsInBounds(col, row) && d.MapAt(col, row).structure == Structure::DeepWater;
 }
-//======================================================================================
 // Deep water cannot hang in the air: where it meets a cell that is neither rock nor deep water, below it or beside it,
 // a rock slab holds it, inside the water cell.
 DungeonView::WaterBox DungeonView::deepWaterBox(int col, int row) const {
@@ -51,7 +50,6 @@ DungeonView::WaterBox DungeonView::deepWaterBox(int col, int row) const {
 	auto bare = [&](int c, int r) { return !d.isRock(c, r) && !deepAt(c, r); };
 	return {bare(col - 1, row) ? S : 0.f, bare(col + 1, row) ? T - S : T, bare(col, row - 1) ? S : 0.f};
 }
-//======================================================================================
 // The rock face over part of a cell, at its front, matching a solid cell's texture (one over 2 x 2 cells).
 void DungeonView::drawRockStrip(int i, int j, float x0, float x1, float y0, float y1) const {
 	constexpr float T = RenderConfig::TILE_SIZE;
@@ -69,7 +67,6 @@ void DungeonView::drawRockStrip(int i, int j, float x0, float x1, float y0, floa
 	assets.decor.rockTex.Bind();
 	quad(n, v, st);
 }
-//======================================================================================
 // Solid cells show the rock face, one texture over 2 x 2 cells. An open cell is a box: its back wall, the side walls
 // against solid neighbours, the floor over a solid cell and the ceiling under one. On the side walls u runs from the
 // back to the front, so they meet the back wall's edge seamlessly; on the floor and ceiling t = 1 is the back edge.
@@ -176,7 +173,6 @@ void DungeonView::drawCellSurfaces(int i, int j) {
 	}
 	glColor3f(1, 1, 1);
 }
-//======================================================================================
 // A shaped cell's solid sub-cells (plan subcell-physics): blocks of the cell's wall stone through the cell's depth, the
 // front one face per run along a sub-cell row. Only the faces next to an open sub-cell (of this cell or a neighbour)
 // are drawn: the tops as floor, the undersides as ceiling, the sides as wall; the back wall is behind them. In a basin
@@ -247,7 +243,6 @@ void DungeonView::drawShapeBlocks(int i, int j, float basinFloor) {
 		}
 	}
 }
-//======================================================================================
 // The container (containers.h) in its stance, at its frame of the opening clip; once open, the item turns over it
 // (treasureSpin()). An emptied container stays, open. The item prototype is shared: its angle and size are only
 // borrowed.
@@ -311,7 +306,6 @@ void DungeonView::DrawTreasureTile(int i, int j) {
 
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawItemParts() {
 	glPushMatrix();
 	for (const ItemPartDraw& draw : itemParts) {
@@ -328,7 +322,6 @@ void DungeonView::drawItemParts() {
 	glPopMatrix();
 	itemParts.clear();
 }
-//======================================================================================
 // A jar breaking open: a puff of dust out of its shards (Grit::burst), and a trapped chest's gas. In the tile loop's
 // frame, like drawSummonEffects.
 void DungeonView::drawContainerEffects() {
@@ -357,7 +350,6 @@ void DungeonView::drawContainerEffects() {
 			);
 		}
 }
-//======================================================================================
 // Green, thinning out over its last second.
 void DungeonView::drawChestGas() {
 	constexpr int FADE_MS = 1000;
@@ -374,7 +366,6 @@ void DungeonView::drawChestGas() {
 		Fire::draw(Fire::GAS, x, y, z, static_cast<uint32_t>(g.cell) + static_cast<uint32_t>(g.startMs), fade);
 	}
 }
-//======================================================================================
 void DungeonView::DrawTrapTile(bool isDeathTrap) {
 	glPushMatrix();
 	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
@@ -384,7 +375,6 @@ void DungeonView::DrawTrapTile(bool isDeathTrap) {
 
 	glPopMatrix();
 }
-//======================================================================================
 // A ceiling trap (plan ceiling-spikes): the floor trap's model upside down on each underside (ceilingUndersides), a
 // row of them along the cell's depth, a quarter tile wide; the death trap's tips longer.
 void DungeonView::drawCeilingTrap(int i, int j) {
@@ -414,7 +404,6 @@ void DungeonView::drawCeilingTrap(int i, int j) {
 			}
 		}
 }
-//======================================================================================
 void DungeonView::drawPortal(const float normal[3], const float v[4][3], bool red, float alpha) const {
 	float px = static_cast<float>((static_cast<int>(portalScroll() * 100) % 100)) / 200.0f;
 	const float st[4][2] = {{px, 0}, {px, 1}, {px + 1, 1}, {px + 1, 0}};
@@ -441,7 +430,6 @@ void DungeonView::drawPortal(const float normal[3], const float v[4][3], bool re
 	}
 	Lighting::setEmissive(false);
 }
-//======================================================================================
 // Plan secret-name-gates: sealed, the plasma breathes into transparency and back with a flicker; spoken, it shimmers
 // a moment, then holds steady.
 float DungeonView::nameGateAlpha(int cell) const {
@@ -457,7 +445,6 @@ float DungeonView::nameGateAlpha(int cell) const {
 	const float t = since / NAME_GATE_SHIMMER_MS; // the flicker dies down to full
 	return 1.f - (1.f - t) * 0.5f * (1.f + std::sin(since * 0.06f));
 }
-//======================================================================================
 // The plasma fills the gap between the columns, in their centre plane (props.py, build_columns).
 void DungeonView::drawTeleporterTile(int i, int j) {
 	glPushMatrix();
@@ -471,7 +458,6 @@ void DungeonView::drawTeleporterTile(int i, int j) {
 	const float v[4][3] = {{10, 0, -30}, {10, 36, -30}, {30, 36, -30}, {30, 0, -30}};
 	drawPortal(normal, v, false, nameGateAlpha(d.MapIndex(i, j)));
 }
-//======================================================================================
 void DungeonView::drawAnkhTile() {
 	glPushMatrix();
 	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
@@ -480,7 +466,6 @@ void DungeonView::drawAnkhTile() {
 	assets.models.ankh->Show();
 	glPopMatrix();
 }
-//======================================================================================
 // The doorway stands against the side wall, plasma inside it; with no side wall it turns to the back wall and faces
 // the camera. Unturned it is on the left.
 void DungeonView::drawDoorTile(int i, int j) {
@@ -519,7 +504,6 @@ void DungeonView::drawDoorTile(int i, int j) {
 	}
 	glPopMatrix();
 }
-//======================================================================================
 void DungeonView::drawFixture(int i, int j) {
 	switch (d.MapAt(i, j).fixture.type) {
 	case Lever:
@@ -548,7 +532,6 @@ void DungeonView::drawFixture(int i, int j) {
 		break;
 	}
 }
-//======================================================================================
 void DungeonView::drawTileContent(int i, int j) {
 	drawFixture(i, j); // on the back wall plane, behind the object
 	const Tile tile = d.MapAt(i, j);
@@ -620,7 +603,6 @@ void DungeonView::drawTileContent(int i, int j) {
 		break;
 	}
 }
-//======================================================================================
 void DungeonView::pushLevelFrame() const {
 	glPushMatrix();
 	const float x = d.mapX + d.cutShot.dx, y = d.mapY + d.cutShot.dy; // the camera's place, as view()
@@ -631,7 +613,6 @@ void DungeonView::pushLevelFrame() const {
 	);
 	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 }
-//======================================================================================
 void DungeonView::Draw(const HitboxView* hitboxes) {
 	pushLevelFrame();
 
@@ -727,7 +708,6 @@ void DungeonView::Draw(const HitboxView* hitboxes) {
 	drawStunStars();
 	glPopMatrix();
 }
-//======================================================================================
 // Debug view (RenderSettings::Hitboxes), in DrawMonsters' frame: the monster boxes red, the player's green, the reach
 // of the equipped weapon yellow.
 void DungeonView::drawHitboxes(const HitboxView& weapon) {
@@ -766,7 +746,6 @@ void DungeonView::drawHitboxes(const HitboxView& weapon) {
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
 }
-//======================================================================================
 namespace {
 struct Rgba {
 	float r, g, b, a;
@@ -841,7 +820,6 @@ void DungeonView::drawWaterCell(int i, int j, float x, float y) {
 	}
 	glEnd();
 }
-//======================================================================================
 void DungeonView::DrawWater() {
 	pushLevelFrame();
 	const ViewWindow v = d.view();

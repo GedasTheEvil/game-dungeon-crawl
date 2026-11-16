@@ -47,7 +47,6 @@ int Dungeon::flightShaft(int col, int row, int toCol, int toRow, bool boxed) con
 		c += open(c - 1, row) && dist[MapIndex(c - 1, row)] == d - 1 ? -1 : 1;
 	}
 }
-//======================================================================================
 FlightGoal Dungeon::flightGoal(const Monster& mon) const {
 	FlightGoal goal;
 	const auto col = static_cast<int>(std::floor(mon.CentreX()));
@@ -85,7 +84,6 @@ FlightGoal Dungeon::flightGoal(const Monster& mon) const {
 	}
 	return goal;
 }
-//======================================================================================
 bool Dungeon::InScreechCone(const Monster& mon, const ScreechRules& rules) const {
 	constexpr float STEP = 0.1f; // tiles between the wall tests along the line
 	const float fromX = mon.CentreX(), fromY = (mon.BottomY() + mon.TopY()) / 2.f;
@@ -105,7 +103,6 @@ bool Dungeon::InScreechCone(const Monster& mon, const ScreechRules& rules) const
 	}
 	return true;
 }
-//======================================================================================
 // Plan subcell-monsters: the floor and the ceiling of the shaped sub-cell columns under its body, and on to the probe
 // ahead of it; an opening ahead lower than the flyer is a wall.
 bool Dungeon::flightBand(const Monster& mon, float probe, FlightGoal& goal) const {
@@ -141,7 +138,6 @@ bool Dungeon::flightBand(const Monster& mon, float probe, FlightGoal& goal) cons
 	goal.bodyTop = lift(bodyTop);
 	return wall;
 }
-//======================================================================================
 void Dungeon::updateFlyer(Monster& mon) {
 	if (monstersStandDown())
 		return;

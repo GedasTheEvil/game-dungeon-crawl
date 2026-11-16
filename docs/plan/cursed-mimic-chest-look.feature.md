@@ -24,7 +24,8 @@ chest's.
 * `bin/game --play tests/play/cursed-mimic-chest-look.txt`: the cursed mimic 4 cells to the right, a death trap
   between (keep off it). Shoot it awake with the bow, then the mace (key) when it comes over.
 * The chest it leaves is dark like the mimic (near-black wood, purple panels), not the normal chest. Take the item: it
-  stays dark. Save, load: still dark.
+  stays dark. (Save and load: a test level's save loads campaign level 1, so `tests/unit/cursed_mimic_test.cpp`
+  checks it.)
 
 ## Done
 

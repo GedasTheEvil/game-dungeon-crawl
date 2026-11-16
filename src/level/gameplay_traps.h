@@ -7,6 +7,9 @@
 // ROCK_FALL_MS later. Walking on without stopping, sprinting, jumping on or stepping back gets the player clear.
 constexpr int ROCK_WARN_MS = 900;
 constexpr int ROCK_FALL_MS = 300;
+constexpr int SAND_POUR_MS = ROCK_FALL_MS + 600; // a sand fall's stream, from the end of its warning
+// A pour stays drawn this long past SAND_POUR_MS: the last sand settles.
+constexpr int SAND_POUR_TAIL_MS = 400;
 // Armor does not help against a boulder: a hit on the head crushes, the edge of it still breaks a leg.
 constexpr int ROCK_CRUSH_DAMAGE = 1000;
 constexpr int ROCK_GRAZE_DAMAGE = 50;

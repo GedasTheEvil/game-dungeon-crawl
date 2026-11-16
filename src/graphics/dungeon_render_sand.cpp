@@ -22,7 +22,6 @@ constexpr float RIPPLE = 0.12f * DRIFT_HEIGHT;
 constexpr float QUICKSAND_DIP = 0.55f; // of the height: its middle sags
 constexpr float SWIRL_NEAR = 2.5f; // tiles: the quicksand swirls for a player this near
 constexpr float SWIRL_TWIST = 0.9f; // radians at the middle, to and fro
-constexpr int SAND_POUR_MS = ROCK_FALL_MS + 600; // a sand fall's stream, from the end of its warning
 constexpr float POUR_DEPTH = 0.5f; // of the cell's depth: in the middle of the corridor, as the rock's
 constexpr float SHAFT_DEPTH = 0.45f; // of the cell's depth: the crack runs along the middle of the ceiling
 constexpr float RIPPLE_SCALE = 18.f; // the worm's: a bigger burrower (Rerek) heaves a bigger mound
@@ -115,43 +114,30 @@ void DungeonView::drawSandDrift(int i, int j) {
 void DungeonView::drawSandEffects() {
 	const int now = GameClock::now();
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
-	d.puffs.erase(
-		std::remove_if(
-			d.puffs.begin(),
-			d.puffs.end(),
-			[now](const Dungeon::Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }
-		),
-		d.puffs.end()
-	);
+	// Each list holds what the last tick kept (Dungeon::updateEffects); one that ran out since is skipped.
 	for (const Dungeon::Hole& p : d.puffs)
-		Grit::puff(
-			(p.x - col0) * T,
-			(static_cast<float>(p.row) - row0) * T + DRIFT_HEIGHT,
-			RenderConfig::MONSTER_DEPTH,
-			now - p.startMs,
-			SAND_PUFF_MS,
-			static_cast<uint32_t>(p.startMs)
-		);
+		if (now - p.startMs < SAND_PUFF_MS)
+			Grit::puff(
+				(p.x - col0) * T,
+				(static_cast<float>(p.row) - row0) * T + DRIFT_HEIGHT,
+				RenderConfig::MONSTER_DEPTH,
+				now - p.startMs,
+				SAND_PUFF_MS,
+				static_cast<uint32_t>(p.startMs)
+			);
 
 	// A fall's puff of the landing heap's matter (plan soft-landing).
-	d.landings.erase(
-		std::remove_if(
-			d.landings.begin(),
-			d.landings.end(),
-			[now](const Dungeon::Landing& l) { return now - l.startMs >= LANDING_PUFF_MS; }
-		),
-		d.landings.end()
-	);
 	for (const Dungeon::Landing& l : d.landings)
-		Grit::landing(
-			(l.x - col0) * T,
-			(static_cast<float>(l.row) - row0) * T,
-			RenderConfig::MONSTER_DEPTH,
-			now - l.startMs,
-			LANDING_PUFF_MS,
-			l.heap,
-			static_cast<uint32_t>(l.startMs)
-		);
+		if (now - l.startMs < LANDING_PUFF_MS)
+			Grit::landing(
+				(l.x - col0) * T,
+				(static_cast<float>(l.row) - row0) * T,
+				RenderConfig::MONSTER_DEPTH,
+				now - l.startMs,
+				LANDING_PUFF_MS,
+				l.heap,
+				static_cast<uint32_t>(l.startMs)
+			);
 
 	for (const Monster& mon : d.monsters) {
 		const std::optional<float> x = mon.Active() && mon.Type()->sandBurrow ? mon.BurrowRipple() : std::nullopt;
@@ -161,24 +147,6 @@ void DungeonView::drawSandEffects() {
 		drawRipple(cx, cy, RenderConfig::MONSTER_DEPTH, std::sqrt(mon.Type()->scale / RIPPLE_SCALE), now);
 	}
 
-	d.pours.erase(
-		std::remove_if(
-			d.pours.begin(),
-			d.pours.end(),
-			[now](const Dungeon::Hole& h) { return now - h.startMs >= SAND_POUR_MS + 400; }
-		),
-		d.pours.end()
-	);
-	for (const Dungeon::Motion& m : d.fallingRocks) // the stream starts as the warning ends
-		if (isSandFall(d.map[m.cell]) && now - m.startMs >= ROCK_WARN_MS &&
-			std::none_of(d.pours.begin(), d.pours.end(), [&](const Dungeon::Hole& h) {
-				return h.startMs == m.startMs + ROCK_WARN_MS;
-			}))
-			d.pours.push_back(
-				{static_cast<float>(m.cell % Dungeon::MAP_WIDTH) + 0.5f,
-				 m.cell / Dungeon::MAP_WIDTH,
-				 m.startMs + ROCK_WARN_MS}
-			);
 	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++) // after the opaque scene
 		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++)
 			if (lightShaft(i, j))
@@ -188,7 +156,7 @@ void DungeonView::drawSandEffects() {
 					-T * SHAFT_DEPTH,
 					static_cast<uint32_t>(d.MapIndex(i, j))
 				);
-	for (const Dungeon::Hole& p : d.pours)
+	for (const Dungeon::Hole& p : d.pours) // started by the tick as the sand fall's warning ends
 		Grit::pour(
 			(p.x - col0) * T,
 			(static_cast<float>(p.row + 1) - row0) * T,

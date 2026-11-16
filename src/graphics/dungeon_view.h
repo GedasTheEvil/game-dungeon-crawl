@@ -14,13 +14,13 @@ struct Assets;
 
 class DungeonView {
   public:
-	DungeonView(Dungeon& dungeon, Assets& assets) : d(dungeon), assets(assets) {}
+	DungeonView(const Dungeon& dungeon, Assets& assets) : d(dungeon), assets(assets) {}
 	void Draw(const HitboxView* hitboxes = nullptr); // hitboxes: the debug view, nullptr when off
 	// The water over everything in it (the player too), see-through: after the player, in Draw's frame.
 	void DrawWater();
 
   private:
-	Dungeon& d;
+	const Dungeon& d;
 	Assets& assets; // the models and textures
 	// The red contours (plan heka-surplus): queueContour keeps one with the modelview matrix of now, for drawContours
 	// after the opaque scene (dungeon_render_outlines.cpp): the rim round what `draw` shows with the given texture

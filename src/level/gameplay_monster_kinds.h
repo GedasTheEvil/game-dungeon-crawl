@@ -53,6 +53,7 @@ constexpr int BURROW_SURFACE_MS = 700;
 constexpr int BURROW_RETRY_MS = 1000;
 constexpr float BURROW_BEHIND = 1.6f;
 constexpr int BURROW_HOLE_MS = 3000;
+constexpr int BURROW_SPRAY_MS = 1100; // a sand burrower's spray as it comes up (plan worm-boss); Grit::BURST_MS
 // Sand burrowers (the worm in sand, plan desert-chapter, Dungeon::sandTarget): lying under the sand since its spawn it
 // comes up within SAND_WORM_WAKE_RANGE tiles of the player on its row; awake, it dives to come up under a player in
 // its sand from SAND_WORM_DIVE_MIN to SAND_WORM_DIVE_RANGE tiles away. A lurking one stirs the sand SAND_RIPPLE_SWAY

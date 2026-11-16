@@ -185,7 +185,7 @@ void drawGlobWithFlames(
 void DungeonView::DrawMonsters(const CellRect& drawn) {
 	const int firstCol = d.view().firstCol();
 	const int firstRow = d.view().originRow;
-	for (Monster& mon : d.monsters) {
+	for (const Monster& mon : d.monsters) {
 		if (!mon.Active() || !drawn.contains(mon.CentreX(), mon.Row()))
 			continue;
 
@@ -572,15 +572,9 @@ void DungeonView::drawSummonEffects() {
 		const float y = static_cast<float>(mon.Row() - d.view().originRow + (drop ? 1 : 0)) * RenderConfig::TILE_SIZE;
 		Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, drop, static_cast<uint32_t>(mon.SummonedMs() + mon.Col()));
 	}
-	d.holes.erase(
-		std::remove_if(
-			d.holes.begin(),
-			d.holes.end(),
-			[now](const Dungeon::Hole& h) { return now - h.startMs >= BURROW_HOLE_MS; }
-		),
-		d.holes.end()
-	);
 	for (const Dungeon::Hole& h : d.holes) {
+		if (now - h.startMs >= BURROW_HOLE_MS) // ran out since the tick (Dungeon::updateEffects drops it)
+			continue;
 		const float x = (h.x - static_cast<float>(d.view().originCol)) * RenderConfig::TILE_SIZE;
 		const float y = static_cast<float>(h.row - d.view().originRow) * RenderConfig::TILE_SIZE;
 		const int age = now - h.startMs;
@@ -601,16 +595,8 @@ void DungeonView::drawSummonEffects() {
 		);
 	}
 	// Rerek's spray as he comes up (plan worm-boss): sand thrown up all round him.
-	d.sprays.erase(
-		std::remove_if(
-			d.sprays.begin(),
-			d.sprays.end(),
-			[now](const Dungeon::Hole& h) { return now - h.startMs >= Grit::BURST_MS; }
-		),
-		d.sprays.end()
-	);
 	for (const Dungeon::Hole& h : d.sprays)
-		for (int k = -2; k <= 2; k++) {
+		for (int k = -2; k <= 2 && now - h.startMs < Grit::BURST_MS; k++) {
 			const float x = (h.x + SPRAY_SPREAD * static_cast<float>(k) - static_cast<float>(d.view().originCol)) *
 							RenderConfig::TILE_SIZE;
 			const float y = static_cast<float>(h.row - d.view().originRow) * RenderConfig::TILE_SIZE;

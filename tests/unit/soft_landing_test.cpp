@@ -45,7 +45,7 @@ TEST_CASE("soft landing: a soft thud and a puff on the heap, a plain thud on the
 	fallTo(world, 1);
 	CHECK(played(world, WorldSound::LandHard) == 1);
 	CHECK(played(world, WorldSound::LandSoft) == 1);
-	CHECK(world.dungeon.LastLandingHeap() == DECOR_HEAP_SAND); // no new puff on the bare floor
+	CHECK(world.dungeon.LandingPuffs() == 0); // the first ran out (the tick drops it), no new one on the bare floor
 }
 
 TEST_CASE("soft landing: a walk or a short step makes no thud") {

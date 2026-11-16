@@ -13,6 +13,7 @@
 #include "../level/gameplay_shared.h"
 #include "../level/gameplay_skills.h"
 #include "../level/gameplay_trap_damage.h"
+#include "../level/gameplay_traps.h"
 #include "render_config.h"
 #include "../core/logger.h"
 #include <algorithm>
@@ -205,7 +206,26 @@ void Dungeon::Update() {
 	updateTraps();
 	updateMonsterPoison();
 	updateBurning();
+	updateEffects();
 	spawnInView();
+}
+//======================================================================================
+void Dungeon::updateEffects() {
+	const int now = GameClock::now();
+	const auto expire = [now](auto& list, int ms) {
+		std::erase_if(list, [now, ms](const auto& e) { return now - e.startMs >= ms; });
+	};
+	expire(holes, BURROW_HOLE_MS);
+	expire(sprays, BURROW_SPRAY_MS);
+	expire(puffs, SAND_PUFF_MS);
+	expire(landings, LANDING_PUFF_MS);
+	expire(pours, SAND_POUR_MS + SAND_POUR_TAIL_MS);
+	for (const Motion& m : fallingRocks) { // the stream starts as the warning ends
+		const int pourMs = m.startMs + ROCK_WARN_MS;
+		if (isSandFall(map[m.cell]) && now >= pourMs &&
+			std::none_of(pours.begin(), pours.end(), [&](const Hole& h) { return h.startMs == pourMs; }))
+			pours.push_back({static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, pourMs});
+	}
 }
 //======================================================================================
 void Dungeon::spawnInView() {
@@ -410,14 +430,6 @@ bool Dungeon::Move(float dirX, float dirY) {
 		GameClock::now() - sprintPuffMs >= SPRINT_PUFF_MS) { // plan sprint-toon-blur-and-extras
 		sprintPuffMs = GameClock::now();
 		const int now = sprintPuffMs;
-		puffs.erase(
-			std::remove_if(
-				puffs.begin(),
-				puffs.end(),
-				[now](const Hole& h) { return now - h.startMs >= SAND_PUFF_MS; }
-			),
-			puffs.end()
-		); // the draw prunes too, but a headless run never draws
 		puffs.push_back({mapX, static_cast<int>(mapY), now});
 	}
 	if (moved && PlayerWading())
@@ -444,14 +456,6 @@ void Dungeon::playerLanded(float rows) {
 	if (heap < 0)
 		return;
 	const int now = GameClock::now();
-	landings.erase(
-		std::remove_if(
-			landings.begin(),
-			landings.end(),
-			[now](const Landing& l) { return now - l.startMs >= LANDING_PUFF_MS; }
-		),
-		landings.end()
-	); // the draw prunes too, but a headless run never draws
 	landings.push_back({mapX, row, now, heap});
 }
 //======================================================================================

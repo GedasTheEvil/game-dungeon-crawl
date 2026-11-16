@@ -571,12 +571,13 @@ class Dungeon {
 		int startMs;
 	};
 	std::vector<Hole> holes;
-	// A sand burrower's spray of sand as it came up (RoarRules spray, plan worm-boss), for Grit::BURST_MS: drawn with
-	// the holes.
+	// A sand burrower's spray of sand as it came up (RoarRules spray, plan worm-boss), for BURROW_SPRAY_MS: drawn
+	// with the holes.
 	std::vector<Hole> sprays;
 	// Dust kicked up by a step in sand (plan desert-chapter), for SAND_PUFF_MS: drawn with the holes.
 	std::vector<Hole> puffs;
-	std::vector<Hole> pours; // sand falls pouring down, from the end of the warning (startMs)
+	// Sand falls pouring down, from the end of the warning (startMs), for SAND_POUR_MS + SAND_POUR_TAIL_MS.
+	std::vector<Hole> pours;
 	// A fall onto a landing heap or sand (plan soft-landing): a puff of its matter (heap: DECOR_HEAP_*), for
 	// LANDING_PUFF_MS.
 	struct Landing {
@@ -725,6 +726,9 @@ class Dungeon {
 	[[nodiscard]] int cutSceneLengthMs() const;
 	// The monster tiles in the gameplay window (ViewWindow, 10 x 6 cells round the player) spawn their monsters.
 	void spawnInView();
+	// Each tick: drops the holes, sprays, puffs, landings and pours that ran out, starts the pour of a sand fall
+	// whose warning ended. The draw only reads them (plan render-reads-sim).
+	void updateEffects();
 
   public:
 	// Feet at (x, y) in map units, half wide (a box; 0 a point), touch a spike or death trap's hitbox:

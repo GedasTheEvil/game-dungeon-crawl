@@ -7,6 +7,11 @@ else
 MARCH=-march=native
 endif
 RM=rm -f
+# ccache in front of the compiler (plan check-build-header-rebuild): a rebuild after a branch switch, a merge or a
+# reverted header edit hits the cache. Silent fallback when ccache is absent; NO_CCACHE=1 opts out.
+ifndef NO_CCACHE
+CCACHE:=$(shell command -v ccache 2>/dev/null)
+endif
 # -Wno-missing-field-initializers: a table row in designated initializers leaves out what it does not need.
 CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
 TIDY_CPPFLAGS=-std=c++23 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
@@ -132,16 +137,16 @@ $(RENDER_LIB): $(RENDER_LIB_OBJECTS) makefile
 
 $(BUILD)/%.o: %.cpp
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $(CXXFLAGS) -c $< -o $@
+	$(GATE) $(CCACHE) $(CXX) $(CXXFLAGS) -c $< -o $@
 
 # The doctest runner: doctest's own code, without our warnings.
 $(BUILD)/tests/unit/main.o: tests/unit/main.cpp
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $(CXXFLAGS) -w -c $< -o $@
+	$(GATE) $(CCACHE) $(CXX) $(CXXFLAGS) -w -c $< -o $@
 
 $(BUILD)/external/%.o: external/%.cpp
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $(CXXFLAGS) -w -c $< -o $@
+	$(GATE) $(CCACHE) $(CXX) $(CXXFLAGS) -w -c $< -o $@
 
 # The build's version on the leaderboard (plan leaderboard): the git hash, "-dirty" with uncommitted changes. The stamp
 # is rewritten only when it changes, so a new commit rebuilds the one file that records a win.

@@ -22,6 +22,9 @@ read their file arguments from the current directory.
 
 * `make` builds the game and every tool, in parallel (as many jobs as the load gate's cap; `make -j1` builds
   serially). Game: `./Play` (or `bin/game` from the repo root).
+* ccache is used in front of the compiler when installed (`apt install ccache`; plan
+  [check-build-header-rebuild](plan/solved/check-build-header-rebuild.tooling.md)): a rebuild after a branch
+  switch, a merge or a reverted header edit hits the cache. `make NO_CCACHE=1` opts out; no ccache, no error. `ccache -s` shows the hit rate.
 * `make release` (plan [release-zip](plan/solved/release-zip.tooling.md)): `release-<version>.zip` in the repo
   root (version: `git describe --always --dirty`; a dirty tree is refused unless `make release ARGS=--allow-dirty`).
   Holds `Play`, `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the

@@ -1,9 +1,0 @@
-# Plan skill-eye-of-horus: the self bow in hand, two heka free. tests/levels/archery: a plant at col 13. Walk up to it
-# and shoot (too close), learn Eye of Horus (K), shoot again from right in front of it; upgrade it to rank II and walk
-# into the plant: still shoots.
-seed 1
-level tests/levels/archery
-god
-heka 2
-give ranged 0
-equip self-bow

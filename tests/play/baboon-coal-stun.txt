@@ -1,0 +1,5 @@
+# Plan baboon-coal-stun: three baboons (cols 8-12) in range, you in god mode (the coal's daze lands anyway).
+# Babi: replace the level by tests/levels/babi_hall.
+seed 1
+level tests/levels/baboon_coal
+god

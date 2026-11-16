@@ -111,6 +111,12 @@ constexpr int POISONER_RESIST = 50; // scorpions and cobras: half used to venom
 constexpr int GIANT_COBRA_BLIND_MS = 2000;
 constexpr int GIANT_COBRA_BLIND_PERCENT = 50;
 constexpr int APEP_BLIND_MS = 3000;
+// The coal's ring in the ears (plan baboon-coal-stun, RangedRules::dazeMs): the baboon's dazes one hit in five for 3 s,
+// Babi's (boss: stronger) three in ten for 4 s.
+constexpr int BABOON_DAZE_MS = 3000;
+constexpr int BABOON_DAZE_PERCENT = 20;
+constexpr int BABI_DAZE_MS = 4000;
+constexpr int BABI_DAZE_PERCENT = 30;
 // The screech (plan giant-bat-screech): the giant bat's; Shezmu's wider, farther, longer, sooner, and he drinks the
 // dazed player's blood whole. The blast hurts a little (plan screech-bite): the giant bat's bite is 28, Shezmu's 25.
 constexpr ScreechRules GIANT_BAT_SCREECH = {4.f, 60.f, 600, 1500, 6000, 0, 8};
@@ -1231,8 +1237,8 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = 'z',
 	 .name = "Baboon of the Lake of Fire",
 	 .label = "baboon",
-	 .description = "Baboon, keeps its distance and hurls burning coals (a screech before each); backs off when the "
-					"player comes at it, bites when cornered; climbs; strong by fire, hates the water",
+	 .description = "Baboon, keeps its distance and hurls burning coals (a screech before each; a hit may daze); backs "
+					"off when the player comes at it, bites when cornered; climbs; strong by fire, hates the water",
 	 .threat = 5.5f, // the giant cobra's, its coal burns from afar; the kiter's factor on top (KITER_THREAT_FACTOR)
 	 .model = "monsters/baboon",
 	 .texture = "monsters/baboon",
@@ -1257,7 +1263,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 			 .colour = BOLT_FIRE,
 			 .releaseAhead = BABOON_RELEASE_AHEAD,
 			 .mix = BABOON_COAL_MIX,
-			 .ownClip = true
+			 .ownClip = true,
+			 .dazeMs = BABOON_DAZE_MS,
+			 .dazePercent = BABOON_DAZE_PERCENT
 		 },
 	 .kite = KiteRules{.near = 0.55f, .far = 1.1f, .backOffSpeed = 28.f},
 	 .walkStride = BABOON_STRIDE,
@@ -1353,10 +1361,10 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .glyph = ']',
 	 .name = "Babi",
 	 .label = "babi",
-	 .description =
-		 "Babi, the baboons' boss: keeps his distance and throws volleys of burning coals, every third throw a "
-		 "big one that sets the floor burning; backs off fast and leaps over gaps; baboons climb out round "
-		 "him; his death opens the boss gates. One boss per level",
+	 .description = "Babi, the baboons' boss: keeps his distance and throws volleys of burning coals (a hit may daze, "
+					"longer than a baboon's), every third throw a big one that sets the floor burning; backs off fast "
+					"and leaps over gaps; baboons climb out round "
+					"him; his death opens the boss gates. One boss per level",
 	 .threat = 16.f, // between Seth and the Anubis boss: his volleys from afar, the burning floor, and baboons
 	 .model = "monsters/babi",
 	 .texture = "monsters/babi",
@@ -1389,7 +1397,9 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 			 .releaseAhead = BABI_RELEASE_AHEAD,
 			 .mix = BABOON_COAL_MIX,
 			 .ownClip = true,
-			 .volley = VolleyRules{2, 3, 250, 3, 90, 4000}
+			 .volley = VolleyRules{2, 3, 250, 3, 90, 4000},
+			 .dazeMs = BABI_DAZE_MS,
+			 .dazePercent = BABI_DAZE_PERCENT
 		 },
 	 .kite = KiteRules{.near = 0.6f, .far = 1.25f, .backOffSpeed = 40.f},
 	 .walkStride = BABI_STRIDE,

@@ -1,6 +1,6 @@
 # Baboon coal: a chance to daze the player for 3 s
 
-Status: draft 2026-11-16, size S, needs nothing first.
+Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-16, size S, needs nothing first.
 
 ## Idea
 
@@ -23,6 +23,7 @@ Reuse it, no new state.
 
 ## Play-test
 
-* `tests/play/baboon-coal-stun.txt`: a few baboons in range, high HP.
-* Some coal hits daze you ("Your ears ring!", stars, slow walk) for about 3 s.
-* Babi's coal dazes more often and longer.
+* `bin/game --play tests/play/baboon-coal-stun.txt`: three baboons in range, god mode (the daze lands anyway). Babi:
+  `level tests/levels/babi_hall` in its place.
+* Some coal hits (20%) daze you ("Your ears ring!", stars, slow walk) for about 3 s.
+* Babi's coal dazes more often (30%) and longer (4 s).

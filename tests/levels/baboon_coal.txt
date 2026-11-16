@@ -1,0 +1,4 @@
+; Three baboons (cols 8, 10, 12) in front of the player (col 2), a long row behind them (plan baboon-coal-stun, play-test).
+##############################
+#.S.....z.z.z...............E#
+##############################

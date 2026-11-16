@@ -371,6 +371,7 @@ void Dungeon::updateShots() {
 						sim.player->Blind(ranged.blindMs, *sim.events);
 						sim.journal->SeeMove(v.from->id, levelNumber, CreatureMove::Blind);
 					}
+					sim.player->DazeByHit(ranged.dazeMs, ranged.dazePercent, *sim.events, sim.random->gameplay);
 				}
 				if (ranged.poison && !dodged) {
 					sim.player->Poison(*ranged.poison, *sim.events, sim.random->gameplay);

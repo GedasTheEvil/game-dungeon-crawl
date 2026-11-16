@@ -141,6 +141,10 @@ struct RangedRules {
 	// A hit blinds the player for blindMs (plan giant-cobra-blinding-spit), blindPercent of the hits. 0: never.
 	int blindMs = 0;
 	int blindPercent = 0;
+	// A hit dazes the player for dazeMs (Player::Daze; plan baboon-coal-stun), dazePercent of the hits, none while they
+	// are dazed already. 0: never.
+	int dazeMs = 0;
+	int dazePercent = 0;
 
 	[[nodiscard]] constexpr bool burns() const { return mix.has_value() && (*mix)[FIRE] > 0; }
 };

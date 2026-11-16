@@ -246,6 +246,13 @@ void Player::Daze(int ms, WorldEvents& events) {
 	stats.vitals.KnockOut(ms);
 }
 
+bool Player::DazeByHit(int ms, int percent, WorldEvents& events, Rng& rng) {
+	if (percent <= 0 || !Alive() || Dazed() || !rng.percent(percent))
+		return false;
+	Daze(ms, events);
+	return true;
+}
+
 int Player::HeadBump(WorldEvents& events, Rng& rng) {
 	if (!Alive())
 		return 0;

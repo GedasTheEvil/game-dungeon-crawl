@@ -9,6 +9,8 @@
 #include "spike_cycle.h"
 #include "sun_beam.h"
 #include "tile_defs.h"
+#include "gameplay_environment.h"
+#include "gameplay_monsters.h"
 #include <algorithm>
 #include <cstdio>
 #include <map>

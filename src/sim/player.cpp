@@ -2,7 +2,10 @@
 #include <algorithm>
 #include <cmath>
 #include "figures.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_player.h"
+#include "../level/gameplay_shared.h"
+#include "../level/gameplay_skills.h"
 #include "../level/head_bump.h"
 #include "render_config.h"
 

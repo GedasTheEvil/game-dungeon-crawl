@@ -7,7 +7,6 @@
 // container looks.
 // Exit code: 0 all valid, 1 at least one level cannot be finished, 2 usage / unreadable file.
 
-#include "../../src/level/gameplay_config.h"
 #include "../../src/level/containers.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/inscriptions.h"

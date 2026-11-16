@@ -2,6 +2,8 @@
 // with each; the blind clears over its last BLIND_CLEAR_MS, twice as fast in water.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monster_kinds.h"
+#include "../../src/level/gameplay_shared.h"
 
 TEST_CASE("the giant cobra's spit blinds half the time, Apep's fan of three always and longer; the cobra's never") {
 	const MonsterKind& cobra = *monsterKind(MonsterCobra);

@@ -2,6 +2,7 @@
 // back to straight ahead.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/camera_look.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 using Dir = CameraLook::Dir;

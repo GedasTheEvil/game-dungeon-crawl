@@ -5,6 +5,8 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/status_list.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_trap_damage.h"
 #include <algorithm>
 #include <cmath>
 

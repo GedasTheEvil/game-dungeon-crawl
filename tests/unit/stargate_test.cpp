@@ -4,6 +4,8 @@
 #include "../../src/level/decor.h"
 #include "../../src/level/level_check.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_world.h"
 #include <algorithm>
 #include <string>
 

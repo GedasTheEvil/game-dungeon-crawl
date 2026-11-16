@@ -11,7 +11,7 @@
 #include <cstdio>
 #include "../core/logger.h"
 #include <memory>
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_player.h"
 #include "../level/campaign.h"
 #include "../level/texts.h"
 #include "../sim/dungeon_save.h"

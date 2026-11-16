@@ -5,7 +5,8 @@
 #include "player.h"
 #include "dungeon_rules.h"
 #include "../level/containers.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_traps.h"
+#include "../level/gameplay_world.h"
 #include "../level/world_events.h"
 #include <algorithm>
 #include <array>

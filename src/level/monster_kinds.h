@@ -5,7 +5,7 @@
 // model and texture paths, resistances, how it moves, poisons, spits and summons. The game loads the model of each
 // row into a MonsterType (sim/monster.h); levelgen picks from the rows.
 
-#include "gameplay_config.h"
+#include "gameplay_shared.h"
 #include "containers.h"
 #include "curses.h"
 #include "damage.h"

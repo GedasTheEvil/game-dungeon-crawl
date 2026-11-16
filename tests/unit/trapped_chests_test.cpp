@@ -5,6 +5,8 @@
 #include "../../src/level/level_check.h"
 #include "../../src/level/loot.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_traps.h"
 #include <algorithm>
 #include <string>
 #include <vector>

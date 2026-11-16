@@ -7,6 +7,8 @@
 #include "../../src/level/level_check.h"
 #include "../../src/level/movement.h"
 #include "../../src/level/tile_defs.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_trap_damage.h"
 #include <algorithm>
 #include <sstream>
 

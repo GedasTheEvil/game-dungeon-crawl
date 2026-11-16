@@ -8,6 +8,7 @@
 #include "../../src/level/level_gen.h"
 #include "../../src/level/loot.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
 #include <algorithm>
 #include <cstdlib>
 #include <memory>

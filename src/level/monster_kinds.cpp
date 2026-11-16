@@ -1,5 +1,7 @@
 #include "monster_kinds.h"
 #include "world_events.h"
+#include "gameplay_bleeding.h"
+#include "gameplay_monster_kinds.h"
 #include <array>
 
 namespace {

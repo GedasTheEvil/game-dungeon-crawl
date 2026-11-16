@@ -1,7 +1,9 @@
 #ifndef SIM_WORLD_H
 #define SIM_WORLD_H
 
-#include "../../src/level/gameplay_config.h"
+#include "../../src/level/gameplay_player.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_world.h"
 #include "../../src/core/timer.h"
 #include "../../src/sim/model_info.h"
 #include "../../src/sim/monster.h"

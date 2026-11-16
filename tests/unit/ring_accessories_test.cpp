@@ -8,6 +8,7 @@
 #include "../../src/level/loot.h"
 #include "../../src/level/movement.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
 #include <sstream>
 #include <string>
 #include <utility>

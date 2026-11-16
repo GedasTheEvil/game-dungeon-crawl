@@ -3,7 +3,7 @@
 
 #include "model_info.h"
 #include "particles.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_shared.h"
 #include "../core/timer.h"
 #include "../level/trap_hurt.h"
 #include "../level/climb_path.h"

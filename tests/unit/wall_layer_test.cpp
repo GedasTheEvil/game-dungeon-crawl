@@ -7,6 +7,7 @@
 #include "../../src/level/spike_cycle.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
+#include "../../src/core/paths.h"
 #include <sstream>
 #include <string>
 

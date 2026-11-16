@@ -6,7 +6,8 @@
 #include "../level/journal.h"
 #include "../level/rng.h"
 #include "../level/world_events.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monsters.h"
+#include "../level/gameplay_skills.h"
 #include <algorithm>
 #include <cmath>
 #include <vector>

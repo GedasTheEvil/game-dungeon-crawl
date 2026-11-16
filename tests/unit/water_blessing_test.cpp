@@ -3,6 +3,9 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/skills.h"
+#include "../../src/level/gameplay_environment.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_skills.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>

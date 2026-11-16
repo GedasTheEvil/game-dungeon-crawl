@@ -1,5 +1,5 @@
 #include "scenario_script.h"
-#include "gameplay_config.h"
+#include "gameplay_shared.h"
 #include "bindings.h"
 #include "input.h"
 #include "curses.h"

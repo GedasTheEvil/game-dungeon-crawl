@@ -3,6 +3,7 @@
 // and the royal name are in ui/riddle.cpp and dungeon_interact.cpp.
 #include "dungeon.h"
 #include "player.h"
+#include "../level/gameplay_traps.h"
 #include <algorithm>
 #include <cmath>
 

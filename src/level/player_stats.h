@@ -1,7 +1,7 @@
 #ifndef PLAYER_STATS_H
 #define PLAYER_STATS_H
 
-#include "gameplay_config.h"
+#include "gameplay_shared.h"
 #include "../core/timer.h"
 #include "curses.h"
 #include "damage.h"

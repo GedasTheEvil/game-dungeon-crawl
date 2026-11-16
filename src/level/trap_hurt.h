@@ -1,6 +1,7 @@
 #ifndef TRAP_HURT_H
 #define TRAP_HURT_H
-#include "gameplay_config.h"
+#include "gameplay_shared.h"
+#include "gameplay_trap_damage.h"
 #include "../core/timer.h"
 #include <algorithm>
 #include <cmath>
@@ -36,7 +37,8 @@ struct TrapHurt {
 };
 
 // Crossing a spike or death trap on foot (the player and a reckless monster, plan same-hazards-for-all): a bell curve
-// of damage over its hitbox, the offset from its middle in half widths, -1 to 1 (gameplay_config.h, SPIKES_CROSS_HP).
+// of damage over its hitbox, the offset from its middle in half widths, -1 to 1 (gameplay_trap_damage.h,
+// SPIKES_CROSS_HP).
 namespace TrapBell {
 // The share of a whole crossing's damage between the offsets from and to (either way), 0 to 1.
 [[nodiscard]] inline double share(float from, float to) {

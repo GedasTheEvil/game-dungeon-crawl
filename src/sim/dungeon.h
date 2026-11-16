@@ -3,7 +3,7 @@
 #include "monster.h"
 #include <fstream>
 #include "../core/timer.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_shared.h"
 #include "../level/decor_scatter.h"
 #include "dungeon_darts.h"
 #include "../level/interaction.h"

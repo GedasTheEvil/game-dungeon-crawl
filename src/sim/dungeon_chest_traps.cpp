@@ -6,6 +6,8 @@
 #include "../level/journal.h"
 #include "../level/loot.h"
 #include "../level/world_events.h"
+#include "../level/gameplay_monsters.h"
+#include "../level/gameplay_traps.h"
 #include <algorithm>
 #include <cmath>
 #include <string>

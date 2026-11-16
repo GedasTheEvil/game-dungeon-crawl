@@ -5,7 +5,8 @@
 #include "player.h"
 #include "monster.h"
 #include "../level/world_events.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_monsters.h"
 #include <algorithm>
 #include <cmath>
 

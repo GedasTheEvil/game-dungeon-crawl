@@ -5,6 +5,7 @@
 #include "sim_world.h"
 #include "../../src/level/level_gen.h"
 #include "../../src/level/loot.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 const Monster* find(const SimWorld& world) {

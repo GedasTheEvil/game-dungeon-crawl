@@ -5,6 +5,8 @@
 #include "../../src/level/level_check.h"
 #include "../../src/level/spike_cycle.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_rhythm_traps.h"
+#include "../../src/level/gameplay_shared.h"
 #include <algorithm>
 #include <string>
 

@@ -5,7 +5,7 @@
 #include <cmath>
 #include "player.h"
 #include "../level/journal.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
 #include "render_config.h"
 
 float Monster::flightProbeX() const {

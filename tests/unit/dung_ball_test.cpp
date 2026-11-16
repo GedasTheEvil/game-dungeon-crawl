@@ -5,6 +5,8 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monster_kinds.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 const Monster* roller(const SimWorld& world) {

@@ -12,6 +12,8 @@
 #include "../level/camera_look.h"
 #include "../ui/screen_state.h"
 #include "../render/ui_draw.h"
+#include "../level/gameplay_player.h"
+#include "../level/gameplay_shared.h"
 
 namespace {
 MouseLook mouseLook;

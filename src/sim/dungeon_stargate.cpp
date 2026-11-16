@@ -6,6 +6,7 @@
 #include "dungeon_rules.h"
 #include "../level/journal.h"
 #include "../level/world_events.h"
+#include "../level/gameplay_world.h"
 #include <algorithm>
 #include <cmath>
 

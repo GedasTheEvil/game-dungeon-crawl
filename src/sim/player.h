@@ -6,7 +6,7 @@
 #include "particles.h"
 #include "../level/player_stats.h"
 #include "../core/timer.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_shared.h"
 #include "../level/world_events.h"
 #include "../level/rng.h"
 

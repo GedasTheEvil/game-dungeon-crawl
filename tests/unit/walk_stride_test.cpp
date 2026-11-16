@@ -1,6 +1,9 @@
 // The walk clip keeps pace with the walk (plan walk-clip-stride): one stride of the model per round of the clip.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_environment.h"
+#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/gameplay_shared.h"
 #include <algorithm>
 
 TEST_CASE("every walker has a stride; a flyer has none") {

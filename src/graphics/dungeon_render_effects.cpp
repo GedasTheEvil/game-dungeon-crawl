@@ -9,6 +9,8 @@
 #include "../render/ink.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"
+#include "../level/gameplay_combat.h"
+#include "../level/gameplay_monster_kinds.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

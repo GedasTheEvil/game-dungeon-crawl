@@ -3,6 +3,8 @@
 // reach until it turns; a boss reaches farther than its kin.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/gameplay_shared.h"
 #include <algorithm>
 
 namespace {

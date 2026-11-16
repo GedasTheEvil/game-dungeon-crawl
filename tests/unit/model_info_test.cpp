@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/gameplay_config.h"
+#include "../../src/level/gameplay_shared.h"
 #include "../../src/core/timer.h"
 #include "../../src/sim/model_info.h"
 #include "../../src/level/level.h"

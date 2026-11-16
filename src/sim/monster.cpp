@@ -6,7 +6,13 @@
 #include "player.h"
 #include "figures.h"
 #include "render_config.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_combat.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_monsters.h"
+#include "../level/gameplay_shared.h"
+#include "../level/gameplay_skills.h"
+#include "../level/gameplay_trap_damage.h"
+#include "../level/gameplay_traps.h"
 
 void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const MonsterLinks& world, Rng& effects) {
 	links = world;

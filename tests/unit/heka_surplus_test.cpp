@@ -4,6 +4,8 @@
 #include "sim_world.h"
 #include "../../src/level/skills_layout.h"
 #include "../../src/level/skills.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/core/paths.h"
 #include <algorithm>
 #include <sstream>
 #include <string>

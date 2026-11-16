@@ -10,7 +10,10 @@
 #include "spike_cycle.h"
 #include "sun_beam.h"
 #include "tile_defs.h"
-#include "gameplay_config.h"
+#include "gameplay_environment.h"
+#include "gameplay_rhythm_traps.h"
+#include "gameplay_shared.h"
+#include "gameplay_traps.h"
 #include <algorithm>
 #include <cstdio>
 #include <map>

@@ -8,6 +8,7 @@
 #include "../render/lighting.h"
 #include "../sim/render_config.h"
 #include "../level/spike_cycle.h"
+#include "../level/gameplay_rhythm_traps.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

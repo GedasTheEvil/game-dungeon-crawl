@@ -3,7 +3,7 @@
 // still meanwhile, only the gates move. The look (bars, tint) is drawn by the game from CutSceneShot.
 #include "dungeon.h"
 #include "dungeon_rules.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_world.h"
 #include <algorithm>
 
 namespace {

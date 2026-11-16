@@ -7,6 +7,8 @@
 #include "../../src/level/climb_path.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/level_gen.h"
+#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/gameplay_shared.h"
 #include <cmath>
 
 namespace {

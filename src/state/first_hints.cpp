@@ -3,6 +3,7 @@
 #include "../level/controls_help.h"
 #include "../ui/inventory.h"
 #include "../core/timer.h"
+#include "../level/gameplay_shared.h"
 #include <cmath>
 
 namespace {

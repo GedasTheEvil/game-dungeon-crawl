@@ -20,6 +20,8 @@
 #include "fire.h"
 #include "gl_includes.h"
 #include "../sim/render_config.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_skills.h"
 #include <algorithm>
 #include <optional>
 #include <string>

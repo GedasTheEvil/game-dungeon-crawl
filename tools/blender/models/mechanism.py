@@ -400,7 +400,7 @@ def build_weight_plate(b, M):
     b.add(ellipsoid(c + V((-0.025, 0.02, 0.03)), (0.016, 0.02, 0.006), n=6, rings=3), M["glint"], "root", "gem")
 
 
-DART_HEIGHT = 0.3  # the engine's DART_HEIGHT and DART_HOLE_X (src/level/gameplay_config.h): where the darts leave
+DART_HEIGHT = 0.3  # the engine's DART_HEIGHT and DART_HOLE_X (src/level/gameplay_traps.h): where the darts leave
 DART_HOLE_X = (-0.22, 0.0, 0.22)
 
 

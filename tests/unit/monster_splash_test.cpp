@@ -2,6 +2,7 @@
 // one that already stands in it, or spawns in it, makes none.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 int count(const SimWorld& world, WorldSound sound) {

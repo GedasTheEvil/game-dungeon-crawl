@@ -8,6 +8,7 @@
 #include "../../src/level/level_check.h"
 #include "../../src/level/level_gen.h"
 #include "../../src/level/zone_look.h"
+#include "../../src/level/gameplay_environment.h"
 #include <algorithm>
 #include <string>
 

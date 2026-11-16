@@ -3,7 +3,8 @@
 #include <cmath>
 #include <cstdio>
 #include <utility>
-#include "gameplay_config.h"
+#include "gameplay_skills.h"
+#include "gameplay_world.h"
 #include "progression.h"
 
 namespace {

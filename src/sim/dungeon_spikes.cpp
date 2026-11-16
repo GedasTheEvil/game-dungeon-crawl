@@ -9,7 +9,8 @@
 #include "../level/rng.h"
 #include "../level/spike_cycle.h"
 #include "../level/world_events.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_rhythm_traps.h"
+#include "../level/gameplay_traps.h"
 #include <cmath>
 
 void Dungeon::updateRhythmTraps() {

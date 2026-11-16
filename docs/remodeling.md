@@ -41,7 +41,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. The jump clip (`rat_jump.md3`, 10 frames, plays once: crouch, push-off,
   stretched in the air, paws reaching down, landing crouch) stays on the floor; the engine moves it along the arc
-  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/level/gameplay_config.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
+  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/level/gameplay_monsters.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
   (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
   Climb (`rat_climb.md3`, 16 frames, loops, back to the camera): a bound, the hind feet push together, then the forepaws reach and
   pull (a rung is about a hind leg's reach); body pitched 82 deg nose up, belly to the ladder (+Y); gripping paw tips on IK targets
@@ -55,7 +55,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   `BAT_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only `bat_vampire.png` (the vampire bat
   boss: blue-black fur, blood-red veins, crimson eyes). Sounds: `tools/audio/bat_sounds.py` (`media/sounds/monsters/bat_{att,die}.wav`).
   Engine: `Monster::Fly` (`Locomotion::Fly` in `KINDS`, `src/level/monster_kinds.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
-  (`BAT_*` in `src/level/gameplay_config.h`), falls to the floor on death.
+  (`BAT_*` in `src/level/gameplay_monster_kinds.h`), falls to the floor on death.
 * `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
   `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
   their own into the right half), so the rest pose is the item vertex for vertex: frame 0 of `mimic_idle.md3`, the mimic's normalization reference

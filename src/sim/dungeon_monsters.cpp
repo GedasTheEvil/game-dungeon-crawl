@@ -8,7 +8,9 @@
 #include <cmath>
 #include <memory>
 #include <utility>
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_skills.h"
+#include "../level/gameplay_traps.h"
 #include "../level/loot.h"
 #include "render_config.h"
 

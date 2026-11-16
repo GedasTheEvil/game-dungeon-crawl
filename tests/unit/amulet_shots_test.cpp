@@ -3,6 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/player_stats.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_skills.h"
 #include <string>
 
 namespace {

@@ -3,6 +3,7 @@
 // stays in the scenarios (mummy, cobra, bats, ...).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
 #include <vector>
 
 namespace {

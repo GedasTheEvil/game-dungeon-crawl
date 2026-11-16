@@ -2,6 +2,7 @@
 // near, then steps off its place and walks; glazed faience, broken by blows.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monster_kinds.h"
 
 namespace {
 const Monster* ushabti(const SimWorld& world) {

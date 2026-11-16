@@ -4,6 +4,11 @@
 #include "sim_world.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/level_check.h"
+#include "../../src/level/gameplay_environment.h"
+#include "../../src/level/gameplay_monster_kinds.h"
+#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_traps.h"
 #include <algorithm>
 #include <cmath>
 #include <sstream>

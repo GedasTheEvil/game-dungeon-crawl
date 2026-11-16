@@ -5,7 +5,8 @@
 #include "../level/journal.h"
 #include "../level/rng.h"
 #include "../level/world_events.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_traps.h"
+#include "../level/gameplay_world.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>

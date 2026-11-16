@@ -5,7 +5,10 @@
 #include "../level/journal.h"
 #include "../level/rng.h"
 #include "../level/world_events.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_combat.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_rhythm_traps.h"
+#include "../level/gameplay_skills.h"
 #include "render_config.h"
 #include <algorithm>
 #include <cmath>

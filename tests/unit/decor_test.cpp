@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/gameplay_config.h"
+#include "../../src/level/gameplay_monsters.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/decor_scatter.h"

@@ -2,7 +2,10 @@
 #include "monster_kinds.h"
 #include "movement.h"
 #include "tile_defs.h"
-#include "gameplay_config.h"
+#include "gameplay_environment.h"
+#include "gameplay_player.h"
+#include "gameplay_shared.h"
+#include "gameplay_world.h"
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>

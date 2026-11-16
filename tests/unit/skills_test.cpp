@@ -3,6 +3,10 @@
 #include "sim_world.h"
 #include "../../src/level/skills_layout.h"
 #include "../../src/level/skills.h"
+#include "../../src/level/gameplay_environment.h"
+#include "../../src/level/gameplay_monster_kinds.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_skills.h"
 #include <algorithm>
 #include <sstream>
 

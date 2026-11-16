@@ -5,6 +5,7 @@
 #include "../../src/level/leaderboard.h"
 #include "../../src/level/run_stats.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
 #include <algorithm>
 #include <array>
 #include <chrono>

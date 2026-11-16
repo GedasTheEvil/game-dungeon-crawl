@@ -3,6 +3,8 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/trap_hurt.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_trap_damage.h"
 
 namespace {
 // The HP a player of maxHp loses walking (or sprinting) from col 3 to col 6 over the trap of the level, at col 4 or 5.

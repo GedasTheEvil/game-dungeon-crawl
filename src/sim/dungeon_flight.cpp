@@ -1,7 +1,8 @@
 // Flyers on the level (monster_flight.cpp, plan bats-high-ceiling): the way to another row and what a flyer sees.
 #include "dungeon.h"
 #include "player.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_monsters.h"
 #include "render_config.h"
 #include <algorithm>
 #include <cmath>

@@ -5,7 +5,7 @@
 // hostile) and what the terrains of the cell it stands in make of its speed, bite rate and damage (TERRAIN_ROWS).
 // The cell tests are the dungeon's (Dungeon::TerrainsAt); here only the sets and the rules that combine them.
 
-#include "gameplay_config.h"
+#include "gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>

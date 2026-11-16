@@ -18,6 +18,7 @@
 #include "../../tests/unit/sim_world.h"
 #include "../../src/level/level_gen.h"
 #include "../../src/level/progression.h"
+#include "../../src/level/gameplay_shared.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

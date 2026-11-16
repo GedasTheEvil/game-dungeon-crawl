@@ -2,7 +2,7 @@
 // ball's roll is the dungeon's (sim/dungeon_balls.cpp).
 #include "monster.h"
 #include <algorithm>
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
 #include "../level/journal.h"
 
 bool Monster::canRoll(float px, float py) const {

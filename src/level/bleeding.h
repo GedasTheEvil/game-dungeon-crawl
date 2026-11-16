@@ -12,7 +12,7 @@
 #include <utility>
 
 #include "damage.h"
-#include "gameplay_config.h"
+#include "gameplay_shared.h"
 #include "tier_drain.h"
 
 enum class BleedTier : std::uint8_t { Weak, Medium, Strong };

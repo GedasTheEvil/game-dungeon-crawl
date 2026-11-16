@@ -13,6 +13,9 @@
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../level/tile_defs.h"
+#include "../level/gameplay_trap_damage.h"
+#include "../level/gameplay_traps.h"
+#include "../level/gameplay_world.h"
 
 namespace {
 constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the container

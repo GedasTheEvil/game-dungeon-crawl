@@ -3,6 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/level_check.h"
 #include "../../src/level/monster_kinds.h"
+#include "../../src/level/gameplay_monsters.h"
 #include <string>
 #include <vector>
 

@@ -7,7 +7,7 @@
 #include "particles_draw.h"
 #include "../ui/player_hud.h"
 #include "../sim/render_config.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
 
 namespace {
 // Health bar in world units (a tile is 40), the same for every monster.

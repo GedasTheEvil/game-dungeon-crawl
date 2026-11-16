@@ -99,7 +99,7 @@ CLANG_TIDY?=clang-tidy
 # the gate's summary line (peaks, wall time). The build's stats start fresh with every make.
 GATE=./tools/load_gate.sh run
 # Parallel by default (plan check-speed): as many jobs as the gate's cap, which holds them back anyway. A serial build
-# after a change to a widely included header (level/gameplay_config.h) took 5 minutes. `make -j1` builds serially.
+# after a change to a widely included header (the old level/gameplay_config.h) took 5 minutes. `make -j1` builds serially.
 # Lines of parallel jobs do not interleave (--output-sync=line), and a long run (make test) still prints as it goes.
 ifeq ($(filter -j% j%,$(MAKEFLAGS)),)
 MAKEFLAGS+=-j$(shell ./tools/load_gate.sh jobs) --output-sync=line

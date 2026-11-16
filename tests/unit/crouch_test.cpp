@@ -4,6 +4,9 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monster_kinds.h"
+#include "../../src/level/gameplay_player.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 // tests/levels/subcells, row 2: the exit at col 24, a crawl space a quarter high at cols 25-26, open floor at col 27.

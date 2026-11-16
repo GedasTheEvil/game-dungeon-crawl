@@ -3,6 +3,9 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/climb_path.h"
+#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/gameplay_player.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 // tests/levels/climb_up: a ladder (col 6) from the lower floor up two rows to the upper one.

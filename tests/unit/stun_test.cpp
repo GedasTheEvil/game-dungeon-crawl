@@ -2,6 +2,8 @@
 // moving and attacking; a flyer drops to the floor. A boss for half the time, and not again within 5 s.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gameplay_skills.h"
 
 namespace {
 // tests/levels/fire, the mummy woken and come up to the player, who has the Stun skill (skill).

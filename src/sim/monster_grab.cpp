@@ -4,7 +4,7 @@
 #include <cmath>
 #include "player.h"
 #include "../level/journal.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
 
 bool Monster::StartGrab() {
 	if (!type->hold || Grabbing())

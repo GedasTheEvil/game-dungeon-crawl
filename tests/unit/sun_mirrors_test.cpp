@@ -4,6 +4,7 @@
 #include "../../src/level/level_check.h"
 #include "../../src/level/sun_beam.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_world.h"
 #include <algorithm>
 #include <string>
 #include <vector>

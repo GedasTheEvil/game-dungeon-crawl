@@ -2,6 +2,8 @@
 // each side (plan trap-player-box); a reckless walker's box too.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_player.h"
+#include "../../src/level/gameplay_trap_damage.h"
 
 namespace {
 constexpr float SPIKES_LEFT = 4.5f - TRAP_HITBOX_X_SCALE * SPIKES_SCALE; // tests/levels/spikes_one: col 4

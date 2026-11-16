@@ -1,6 +1,7 @@
 #include "level_builder.h"
 #include "inscriptions.h"
 #include "level_check.h"
+#include "gameplay_monsters.h"
 #include <algorithm>
 #include <vector>
 

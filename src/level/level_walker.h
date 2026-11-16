@@ -13,6 +13,7 @@
 #include "spike_cycle.h"
 #include "sun_beam.h"
 #include "tile_defs.h"
+#include "gameplay_player.h"
 #include <algorithm>
 #include <cstdio>
 #include <map>

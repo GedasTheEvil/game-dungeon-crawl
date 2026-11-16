@@ -10,6 +10,8 @@
 #include "../level/names.h"
 #include "dungeon_rules.h"
 #include "../level/world_events.h"
+#include "../level/gameplay_skills.h"
+#include "../level/gameplay_world.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>

@@ -36,6 +36,9 @@
 #include <unistd.h>
 
 #include "../../external/stb/stb_image_write.h"
+#include "../level/gameplay_environment.h"
+#include "../level/gameplay_player.h"
+#include "../level/gameplay_shared.h"
 
 using namespace Scenario;
 

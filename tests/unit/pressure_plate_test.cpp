@@ -8,6 +8,9 @@
 #include "../../src/level/map_marks.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_player.h"
+#include "../../src/level/gameplay_traps.h"
+#include "../../src/level/gameplay_world.h"
 #include <cmath>
 #include <string>
 

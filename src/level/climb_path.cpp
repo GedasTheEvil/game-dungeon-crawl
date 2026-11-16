@@ -1,5 +1,5 @@
 #include "climb_path.h"
-#include "gameplay_config.h"
+#include "gameplay_shared.h"
 #include <algorithm>
 #include <deque>
 

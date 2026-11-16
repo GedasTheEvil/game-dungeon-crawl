@@ -4,6 +4,9 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/level_gen.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/gameplay_player.h"
+#include "../../src/level/gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 #include <iterator>

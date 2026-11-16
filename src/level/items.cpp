@@ -1,7 +1,7 @@
 #include "items.h"
 #include "journal.h"
 #include "texts.h"
-#include "gameplay_config.h"
+#include "gameplay_combat.h"
 #include <algorithm>
 #include <array>
 #include <cstdio>

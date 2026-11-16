@@ -3,6 +3,8 @@
 // heals him by all its damage while the player is dazed.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monster_kinds.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 // The level loaded, its giant bat spawned on the ceiling (col 6, the player's row) and placed by one tick, the player

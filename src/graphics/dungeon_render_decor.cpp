@@ -1,7 +1,8 @@
 // Drawing the decorations scatterDecor placed (decor_scatter.h): props, decals, torches, ladders, and the flames and
 // lights of the fires among them. Also the inscriptions, decals the level places.
 #include "dungeon_view.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_world.h"
 #include "../level/names.h"
 #include "../state/assets.h"
 #include "../sim/render_config.h"

@@ -8,13 +8,19 @@
 #include <string>
 #include <utility>
 #include "../core/logger.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_trap_damage.h"
 #include "../core/paths.h"
 #include "../core/worker_pool.h"
 #include "loading_text.h"
 #include "../level/world_events.h"
 
 namespace {
+// Sand spilling from a FLOOR_SAND cell onto the stone floor beside it (SurfaceCell::sandLeft, sandRight): floor_sand,
+// opaque at its left edge and thinning out by about half the cell; mirrored for the right.
+constexpr const char* FLOOR_SAND_EDGE_TEXTURE = MEDIA_DIR "textures/dungeon/floor_sand_edge.png";
+// The face of a solid cell: one image over 2 x 2 cells.
+constexpr const char* ROCK_TEXTURE = MEDIA_DIR "textures/dungeon/rock.png";
+
 // Static tile-unit model like the props: no Centrify, textured only. Null if the file is missing.
 std::unique_ptr<AnimatedModel> loadStaticModel(const char* path, Texture& tex) {
 	auto model = std::make_unique<AnimatedModel>();

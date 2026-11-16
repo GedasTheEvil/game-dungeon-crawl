@@ -2,6 +2,7 @@
 // standing still meanwhile; a skip ends it at once; with the option off, nothing changes.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_world.h"
 
 namespace {
 constexpr int ROW = 1; // tests/levels/cutscene: the corridor's row

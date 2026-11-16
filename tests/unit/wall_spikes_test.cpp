@@ -4,6 +4,8 @@
 #include "../../src/level/spike_cycle.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_rhythm_traps.h"
+#include "../../src/level/gameplay_shared.h"
 #include <string>
 #include <vector>
 

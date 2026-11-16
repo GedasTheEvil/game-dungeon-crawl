@@ -6,7 +6,8 @@
 #include <utility>
 #include "figures.h"
 #include "../level/journal.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monster_kinds.h"
+#include "../level/gameplay_shared.h"
 
 int Monster::underMs() const { return type->sandBurrow ? type->sandBurrow->underMs : BURROW_UNDER_MS; }
 

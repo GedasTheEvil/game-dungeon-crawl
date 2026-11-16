@@ -1,6 +1,6 @@
 #include "death_screen.h"
 #include "../render/ui_draw.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_world.h"
 #include "../level/input.h"
 #include "../state/game_state.h"
 #include <GL/gl.h>

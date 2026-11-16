@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 #include "../level/input.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_shared.h"
 #include "../graphics/draw.h"
 #include "../state/game_loop.h"
 #include "../render/textures.h"

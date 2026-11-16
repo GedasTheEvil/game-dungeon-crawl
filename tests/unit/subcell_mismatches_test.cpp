@@ -6,6 +6,7 @@
 #include "../../src/level/level_check.h"
 #include "../../src/level/path_script.h"
 #include "../../src/level/tile_defs.h"
+#include "../../src/level/gameplay_shared.h"
 #include <cmath>
 #include <sstream>
 #include <string>

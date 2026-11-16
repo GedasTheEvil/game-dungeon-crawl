@@ -2,7 +2,7 @@
 #include "dungeon.h"
 #include "player.h"
 #include "../core/timer.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_shared.h"
 #include "../level/items.h"
 
 BagUser bagUser(const Player& player) {

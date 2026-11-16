@@ -3,6 +3,7 @@
 // attack, no jump; the key again lets go. Dragged under a light shaft and turned, the mirror lights a sun disc.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_player.h"
 
 namespace {
 // tests/levels/mirror_drag, row 2: the mirror at col 5 (pointing left), the light shaft over col 8 shining down, the

@@ -3,6 +3,8 @@
 // scarab in its dung ball's band. Khepri (the boss rule) from farther, more often.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/gameplay_shared.h"
 
 namespace {
 const Monster* firstMonster(const SimWorld& world) {

@@ -6,7 +6,8 @@
 #include <utility>
 #include "figures.h"
 #include "../level/journal.h"
-#include "../level/gameplay_config.h"
+#include "../level/gameplay_monsters.h"
+#include "../level/gameplay_player.h"
 #include "render_config.h"
 
 void Monster::WalkPath(int dir, bool blocked) {

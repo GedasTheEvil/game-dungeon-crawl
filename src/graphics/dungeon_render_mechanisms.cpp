@@ -7,6 +7,9 @@
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../level/spike_cycle.h"
+#include "../level/gameplay_rhythm_traps.h"
+#include "../level/gameplay_traps.h"
+#include "../level/gameplay_world.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

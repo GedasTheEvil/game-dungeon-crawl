@@ -26,10 +26,13 @@ read their file arguments from the current directory.
   [check-build-header-rebuild](plan/solved/check-build-header-rebuild.tooling.md)): a rebuild after a branch
   switch, a merge or a reverted header edit hits the cache. `make NO_CCACHE=1` opts out; no ccache, no error. `ccache -s` shows the hit rate.
 * `make release` (plan [release-zip](plan/solved/release-zip.tooling.md)): `release-<version>.zip` in the repo
-  root (version: `git describe --always --dirty`; a dirty tree is refused unless `make release ARGS=--allow-dirty`).
+  root (version: `.version`, `-dirty` appended for a dirty tree, which is refused unless `make release ARGS=--allow-dirty`).
   Holds `Play`, `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the
   dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL, GL and GLUT
   installed (no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
+* Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)
+  `PROUD.DEFAULT.SHAME`: PROUD for a release we are proud of, DEFAULT for a normal one, SHAME for fixing something
+  embarrassing; bump it by hand, a lower part resets to 0.
 * `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
   scenario's setup (level, gear) by hand. `--no-sound` mutes either. See [testing.md](testing.md#play-by-hand).
 * Level editor: `make editor`, `make run-editor [LEVEL=content/levels/lvl3]` (opens that file). See [tools/editor/readme.md](../tools/editor/readme.md).

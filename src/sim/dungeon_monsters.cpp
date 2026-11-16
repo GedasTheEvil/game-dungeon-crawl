@@ -422,16 +422,20 @@ void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 	sim.events->Note(FieldNote::Stun);
 }
 //======================================================================================
-// Bleed (plan skill-bleed): with the skill, the hit's cut share decides the chance (a boss half of it), rolled through
-// Monster::TakeBleed, whose cut rate scales it once more and which never bleeds a bloodless kind.
+// Bleed (plan skill-bleed): with the skill, the hit's cut share decides the weak chance (a boss half of it); each tier
+// up rolls at half the one below and only on a monster that bled the tier below before this hit, so a hit climbs at
+// most one tier. Rolled through Monster::TakeBleed, whose cut rate scales it once more and which never bleeds a
+// bloodless kind.
 void Dungeon::bleedRoll(Monster& mon, const DamageMix& mix) {
 	if (!sim.player->stats.heka.Has(SkillId::Bleed))
 		return;
 	int chance = BLEED_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Slash)] / 100;
 	if (mon.Type()->isBoss())
 		chance = chance * BOSS_BLEED_PERCENT / 100;
-	if (chance > 0)
-		mon.TakeBleed(BleedTier::Weak, chance, true, sim.random->gameplay);
+	const int before = mon.BleedMask();
+	for (int tier = 0; tier < DRAIN_TIER_COUNT && chance > 0; tier++, chance = chance * BLEED_TIER_UP_PERCENT / 100)
+		if (tier == 0 || (before & (1 << (tier - 1))) != 0)
+			mon.TakeBleed(static_cast<BleedTier>(tier), chance, true, sim.random->gameplay);
 }
 //======================================================================================
 const Monster* Dungeon::PlayerHeldBy() const {

@@ -1,6 +1,7 @@
 // Skill Bleed (plan skill-bleed): with the skill, a weapon hit that does not kill makes the monster bleed (a weak
 // bleed) at 20% of the hit's cut share (a boss half), scaled once more by the monster's cut rate; a bloodless kind
-// never bleeds; a bleed kill is the player's.
+// never bleeds; a bleed kill is the player's. Each tier up at half the chance of the one below, only on a monster that
+// already bleeds that one.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 
@@ -43,6 +44,27 @@ int bleedsIn(SimWorld& world, Monster& mon, const DamageMix& mix, int hits) {
 			world.Wait(2 * UPDATE_TICK_MS);
 	}
 	return bleeds;
+}
+
+// Pure cuts on mon, which bleeds `held` before each hit (-1: nothing) and no tier above it: how many each tier starts.
+std::array<int, DRAIN_TIER_COUNT> tierStartsIn(SimWorld& world, Monster& mon, int held, int hits) {
+	std::array<int, DRAIN_TIER_COUNT> starts{};
+	for (int i = 0; i < hits; i++) {
+		while ((mon.BleedMask() >> (held + 1)) != 0) { // the tiers above held run out
+			mon.RestoreHealth(mon.MaxHealth());
+			world.Wait(500);
+		}
+		while (held >= 0 && (mon.BleedMask() & (1 << held)) == 0)
+			mon.TakeBleed(static_cast<BleedTier>(held), 100, true, world.random.gameplay);
+		mon.RestoreHealth(mon.MaxHealth());
+		const int before = mon.BleedMask();
+		REQUIRE(world.dungeon.AttackNearest(0, {0, 100, 0}, 3.f, mon.CentreX() > world.X() ? 1 : -1));
+		const int started = mon.BleedMask() & ~before;
+		for (int tier = 0; tier < DRAIN_TIER_COUNT; tier++)
+			starts[static_cast<size_t>(tier)] += (started >> tier) & 1;
+		world.Wait(2 * UPDATE_TICK_MS);
+	}
+	return starts;
 }
 
 // The chance a hit of mix makes mon bleed, in percent: the skill's own, then its cut rate, as the rules say.
@@ -105,4 +127,31 @@ TEST_CASE("skill-bleed: a monster that bleeds out from the player's cut gives th
 	world.Wait(2500);
 	CHECK_FALSE(mon->Alive());
 	CHECK(world.player.stats.CurrentXP() > xp);
+}
+
+TEST_CASE("skill-bleed: medium at half the weak chance on a weak bleeder, strong at half that on a medium one") {
+	SimWorld world;
+	Monster* mon = readyMonster(world, "tests/levels/giant_scorpion", true, false);
+	const int weak = BLEED_CHANCE_PERCENT;
+	const int medium = bleedChancePercent(weak * BLEED_TIER_UP_PERCENT / 100, mon->Type()->resist);
+	const int strong = bleedChancePercent(
+		weak * BLEED_TIER_UP_PERCENT / 100 * BLEED_TIER_UP_PERCENT / 100,
+		mon->Type()->resist
+	);
+	REQUIRE(strong > 0);
+	const int hits = 600;
+
+	const auto fresh = tierStartsIn(world, *mon, -1, hits / 3); // a hit climbs one tier at most
+	CHECK(fresh[0] > 0);
+	CHECK(fresh[1] == 0);
+	CHECK(fresh[2] == 0);
+
+	const auto onWeak = tierStartsIn(world, *mon, 0, hits);
+	CHECK(onWeak[1] >= hits * medium / 100 / 2);
+	CHECK(onWeak[1] <= hits * medium / 100 * 2);
+	CHECK(onWeak[2] == 0);
+
+	const auto onMedium = tierStartsIn(world, *mon, 1, hits);
+	CHECK(onMedium[2] >= hits * strong / 100 / 2);
+	CHECK(onMedium[2] <= hits * strong / 100 * 2);
 }

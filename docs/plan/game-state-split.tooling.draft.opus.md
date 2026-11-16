@@ -22,5 +22,6 @@ loop).
   * the gameplay actions still in the inventory screen (quick drink, equip, wear, add item; plan
     [bag-out-of-inventory](solved/bag-out-of-inventory.tooling.md)).
 * Screens take explicit references (as `Inventory::Actor()` does) instead of `Game()`.
-* Forward-declare `UIContext` so `game_state.h` no longer includes `ui/`.
+* Done 2026-11-16: `UIContext` in `state/ui_context.h`, forward-declared, so `game_state.h` includes no `ui/` header
+  (34 project includes before, 25 now).
 * Each step: no behaviour change; unit tests and the archived UI scenarios give the same results as before.

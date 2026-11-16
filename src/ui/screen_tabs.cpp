@@ -2,6 +2,7 @@
 #include "../render/gl_includes.h"
 #include "../level/input.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../render/ui_draw.h"
 #include <GL/gl.h>
 

@@ -8,6 +8,7 @@
 #include "../state/game_loop.h"
 #include "../input/input_actions.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../render/ink.h"
 #include "../render/motion_fx.h"
 #include "../core/timer.h"

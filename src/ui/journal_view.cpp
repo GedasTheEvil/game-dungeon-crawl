@@ -5,6 +5,7 @@
 #include "../level/input.h"
 #include "../input/input_actions.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../level/decor.h"
 #include "../level/inscriptions.h"
 #include "../level/names.h"

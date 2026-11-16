@@ -1,4 +1,5 @@
 #include "game_state.h"
+#include "ui_context.h"
 #include "../graphics/loading_text.h"
 #include "settings.h"
 #include "../ui/player_hud.h"
@@ -38,7 +39,7 @@ GameState& Game() {
 	return *gGame;
 }
 
-GameState::GameState() = default;
+GameState::GameState() : uiOwned(std::make_unique<UIContext>()), ui(*uiOwned) {}
 
 GameState::~GameState() {
 	void* selfPtr = this;

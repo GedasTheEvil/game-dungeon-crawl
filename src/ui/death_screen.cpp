@@ -3,6 +3,7 @@
 #include "../level/gameplay_world.h"
 #include "../level/input.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include <GL/gl.h>
 #include <array>
 #include "../render/gl_includes.h"

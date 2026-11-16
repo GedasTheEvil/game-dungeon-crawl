@@ -1,4 +1,5 @@
 #include "map_view.h"
+#include "screen_tabs.h"
 #include "../level/map_marks.h"
 #include "../render/ui_draw.h"
 #include "../render/gl_includes.h"

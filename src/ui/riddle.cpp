@@ -1,5 +1,6 @@
 #include "riddle.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include "../level/input.h"

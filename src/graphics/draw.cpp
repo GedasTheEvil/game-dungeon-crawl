@@ -1,6 +1,7 @@
 #include "draw.h"
 #include <GL/gl.h>
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../ui/player_hud.h"
 #include "../ui/player_hud_view.h"
 #include "../ui/inventory.h"

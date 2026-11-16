@@ -3,6 +3,7 @@
 #include "../level/bindings.h"
 #include "../core/timer.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include <optional>
 #include <utility>
 

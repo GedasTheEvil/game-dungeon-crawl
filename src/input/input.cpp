@@ -4,6 +4,7 @@
 #include <utility>
 #include "../render/gl_includes.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../render/ink.h"
 #include "../graphics/frame_rate.h"
 #include "../level/input.h"

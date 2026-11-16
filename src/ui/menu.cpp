@@ -7,6 +7,7 @@
 #include <GL/gl.h>
 #include "../render/gl_includes.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../level/input.h"
 #include "../core/paths.h"
 #include "menu_internal.h"

@@ -1,5 +1,6 @@
 #include "scenario_fields.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include "../ui/inventory.h"
 #include <algorithm>
 #include <cmath>

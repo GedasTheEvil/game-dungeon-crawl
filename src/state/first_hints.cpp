@@ -1,5 +1,6 @@
 #include "first_hints.h"
 #include "game_state.h"
+#include "ui_context.h"
 #include "../level/controls_help.h"
 #include "../ui/inventory.h"
 #include "../core/timer.h"

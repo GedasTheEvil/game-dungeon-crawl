@@ -1,5 +1,6 @@
 #include "gameplay_commands.h"
 #include "game_state.h"
+#include "ui_context.h"
 #include "../level/camera_look.h"
 #include "../level/gameplay_player.h"
 #include "../level/gameplay_shared.h"

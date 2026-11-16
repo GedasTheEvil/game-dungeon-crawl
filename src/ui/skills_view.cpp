@@ -5,6 +5,7 @@
 #include "../level/input.h"
 #include "../level/player_actions.h"
 #include "../state/game_state.h"
+#include "../state/ui_context.h"
 #include <GL/gl.h>
 #include <algorithm>
 #include <cmath>

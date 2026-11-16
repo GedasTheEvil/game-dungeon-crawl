@@ -7,29 +7,18 @@
 #include "../graphics/texture_registry.h"
 #include "../render/animated_model.h"
 #include "../sim/dungeon.h"
+#include "../sim/dungeon_save.h"
 #include "../graphics/dungeon_view.h"
 #include "../render/font.h"
 #include "../graphics/item.h"
 #include "../level/item_bag.h"
-#include "../ui/inventory.h"
-#include "../ui/ui_screen.h"
-#include "../ui/screen.h"
 #include "../level/rng.h"
 #include "../audio/sound.h"
 #include "../level/player_stats.h"
 #include "../core/timer.h"
 #include "../graphics/trap.h"
-#include "../ui/riddle.h"
-#include "../ui/menu.h"
-#include "../ui/win_entry.h"
-#include "../ui/death_screen.h"
 #include "../level/ui_layout.h"
-#include "../ui/map_view.h"
-#include "../ui/journal_view.h"
 #include "../level/message_log.h"
-#include "../ui/zone_banner.h"
-#include "../ui/skills_view.h"
-#include "../ui/screen_tabs.h"
 #include "../level/inscriptions.h"
 #include "../level/names.h"
 #include "../level/journal.h"
@@ -60,24 +49,7 @@ struct GameTimers {
 	Timer idleModel{300}; // back to the idle clip after walking
 };
 
-struct UIContext {
-	Screen screen = Screen::Menu; // the game starts in the main menu
-	std::unique_ptr<Inventory> inventory;
-	std::unique_ptr<Riddle> riddle;
-	MainMenu menu;
-	WinEntry winEntry; // the won run: its name for the leaderboard, the epilogue, then the Hall of Records
-	DraftMap map;
-	JournalScreen journal;
-	SkillsScreen skills;
-	ScreenTabsState tabs;
-	DeathScreen death; // after the death clip: Retry from Autosave or Main Menu (plan autosave)
-	ui::Toast autosaved; // "Autosaved" over the game
-	int bannerLevel = 0; // the campaign level whose banner shows (plan zone-looks, ZoneBanner), since bannerStartMs
-	int bannerStartMs = 0;
-	float bannerTop = ZoneBanner::TOP; // under the status lines; it only moves down while it shows (plan message-log)
-	// The open tab screen (inventory, map, journal, skills; plan screen-interface), nullptr on any other.
-	[[nodiscard]] UiScreen* TabScreen();
-};
+struct UIContext; // state/ui_context.h: the screens
 
 class GameState {
   public:
@@ -94,7 +66,9 @@ class GameState {
 	PlayerView playerView; // the player's model, drawn
 	GameTimers timers;
 	GameRandom random;
-	UIContext ui;
+	// The screens, apart so this header includes no ui/ (plan game-state-split): bound to uiOwned.
+	std::unique_ptr<UIContext> uiOwned;
+	UIContext& ui;
 	Dungeon dungeon;
 	DungeonView dungeonView{dungeon, assets}; // the dungeon drawn (plan dungeon-view-split)
 	Journal journal; // what the archaeologist wrote down, kept per save game

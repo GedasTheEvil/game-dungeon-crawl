@@ -1,6 +1,7 @@
 #include "scenario.h"
 #include "scenario_fields.h"
 #include "../level/scenario_script.h"
+#include "../sim/dungeon_cheats.h"
 #include "../level/player_actions.h"
 #include "../render/gl_includes.h"
 #include "../level/input.h"
@@ -499,41 +500,41 @@ void runMonsterCommand(const Command& cmd) {
 	switch (cmd.type) {
 	case CommandType::KillBoss:
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
-		Game().dungeon.HurtBoss(Game().dungeon.BossHealth());
+		DungeonCheats(Game().dungeon).HurtBoss(Game().dungeon.BossHealth());
 		return;
 	case CommandType::KillMonster: { // the nearest, or `all`, nearest first: through the player's killing hit
-		bool killed = Game().dungeon.KillNearestMonster();
+		bool killed = DungeonCheats(Game().dungeon).KillNearestMonster();
 		report(cmd, killed, killed ? "" : "no monster lives");
 		while (cmd.a > 0.5f && killed)
-			killed = Game().dungeon.KillNearestMonster();
+			killed = DungeonCheats(Game().dungeon).KillNearestMonster();
 		return;
 	}
 	case CommandType::HurtBoss:
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
-		Game().dungeon.HurtBoss(static_cast<int>(cmd.a));
+		DungeonCheats(Game().dungeon).HurtBoss(static_cast<int>(cmd.a));
 		return;
 	case CommandType::MonsterHp: // no hit: no reaction, no XP, no note, no aggro (plan monster-hp-command)
-		report(cmd, Game().dungeon.SetNearestMonsterHealth(static_cast<int>(cmd.a)), "");
+		report(cmd, DungeonCheats(Game().dungeon).SetNearestMonsterHealth(static_cast<int>(cmd.a)), "");
 		return;
 	case CommandType::BossHp:
-		report(cmd, Game().dungeon.SetBossHealth(static_cast<int>(cmd.a)), "");
+		report(cmd, DungeonCheats(Game().dungeon).SetBossHealth(static_cast<int>(cmd.a)), "");
 		return;
 	case CommandType::PoisonBoss:
 		report(cmd, Game().dungeon.BossHealth() > 0, "");
-		Game().dungeon.PoisonBoss(static_cast<PoisonTier>(cmd.ticks));
+		DungeonCheats(Game().dungeon).PoisonBoss(static_cast<PoisonTier>(cmd.ticks));
 		return;
 	case CommandType::Grab: // the nearest monster starts a grab's tell; whether it holds: expect held
-		report(cmd, Game().dungeon.GrabNearest(), stateLine());
+		report(cmd, DungeonCheats(Game().dungeon).GrabNearest(), stateLine());
 		return;
 	case CommandType::Stun: // the nearest monster is stunned, as by a blunt hit with the Stun skill (plan skill-stun)
-		report(cmd, Game().dungeon.StunNearest(), stateLine());
+		report(cmd, DungeonCheats(Game().dungeon).StunNearest(), stateLine());
 		return;
 	case CommandType::BleedMonster: // as a sure cut by the player; whether it took: expect nearest_bleed
-		Game().dungeon.BleedNearestMonster(static_cast<BleedTier>(cmd.ticks));
+		DungeonCheats(Game().dungeon).BleedNearestMonster(static_cast<BleedTier>(cmd.ticks));
 		report(cmd, true, stateLine());
 		return;
 	case CommandType::PoisonMonster: // as by the player; whether it took: expect nearest_poison
-		Game().dungeon.PoisonNearestMonster(static_cast<PoisonTier>(cmd.ticks));
+		DungeonCheats(Game().dungeon).PoisonNearestMonster(static_cast<PoisonTier>(cmd.ticks));
 		report(cmd, true, stateLine());
 		return;
 	default:
@@ -690,7 +691,8 @@ void runWorldCommand(const Command& cmd) {
 		return;
 	}
 	case CommandType::Mirror: {
-		const bool set = Game().dungeon.SetMirror(static_cast<int>(cmd.a), static_cast<int>(cmd.b), cmd.ticks);
+		const bool set = DungeonCheats(Game().dungeon)
+							 .SetMirror(static_cast<int>(cmd.a), static_cast<int>(cmd.b), cmd.ticks);
 		report(cmd, set, set ? "" : "no mirror there");
 		return;
 	}

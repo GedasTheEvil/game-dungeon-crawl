@@ -41,10 +41,3 @@ bool Dungeon::TurnMirror() {
 	sim.events->Note(FieldNote::SunMirrors);
 	return true;
 }
-bool Dungeon::SetMirror(int col, int row, int dir) {
-	if (!IsInBounds(col, row) || MapAt(col, row).type != Mirror)
-		return false;
-	map[MapIndex(col, row)].value = static_cast<int>(beamDir(dir));
-	sun.Trace(map);
-	return true;
-}

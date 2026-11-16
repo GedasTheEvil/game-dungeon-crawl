@@ -2,6 +2,7 @@
 // standing still meanwhile; a skip ends it at once; with the option off, nothing changes.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_world.h"
 
 namespace {
@@ -101,7 +102,7 @@ TEST_CASE("a gate on the screen shows no cut-scene; a boss's death shows its far
 	world.dungeon.SetCutScenes(true);
 	world.WaitTicks(30);
 	REQUIRE(world.dungeon.BossHealth() > 0);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(2);
 	REQUIRE(world.dungeon.CutScenePlaying());
 	world.Wait(CUTSCENE_PAN_MS + CUTSCENE_HOLD_MS / 2);

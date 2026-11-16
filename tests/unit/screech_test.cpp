@@ -3,6 +3,7 @@
 // heals him by all its damage while the player is dazed.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_monster_kinds.h"
 #include "../../src/level/gameplay_shared.h"
 
@@ -192,7 +193,7 @@ TEST_CASE("Shezmu's bite heals him by all its damage while the player is dazed, 
 		const auto row = static_cast<int>(std::floor(world.Y()));
 		REQUIRE(world.dungeon.SpawnMonster(8, row));
 		world.Tick();
-		world.dungeon.HurtBoss(300);
+		DungeonCheats(world.dungeon).HurtBoss(300);
 		REQUIRE(world.WalkTo(7.f));
 		for (int t = 0; t < 1500; t++) {
 			if (dazed)

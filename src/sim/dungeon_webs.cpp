@@ -44,12 +44,6 @@ bool Dungeon::webFloor(int col, int row) const {
 	return (t.type == NoObject || t.type == MonsterSpawn) && !isSolidTile(t) && !inHalfWater(t) &&
 		   isFloor(MapAt(col, row - 1));
 }
-bool Dungeon::PlaceWeb(int col, int row) {
-	if (!webFloor(col, row) || hazards.WebAt(MapIndex(col, row)) >= 0)
-		return false;
-	hazards.webs.push_back({MapIndex(col, row), GameClock::now()});
-	return true;
-}
 bool Dungeon::PlayerInWeb() const {
 	const JumpState& jump = sim.player->jump;
 	const auto col = static_cast<int>(std::floor(mapX)), row = static_cast<int>(std::floor(mapY));

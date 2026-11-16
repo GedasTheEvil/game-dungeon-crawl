@@ -2,6 +2,7 @@
 // moving and attacking; a flyer drops to the floor. A boss for half the time, and not again within 5 s.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_shared.h"
 #include "../../src/level/gameplay_skills.h"
 
@@ -61,7 +62,7 @@ TEST_CASE("stun: a blunt hit stuns at 25% of its blunt share; a slash never; no 
 TEST_CASE("stun: the monster stands and does not attack while stunned, then goes on") {
 	SimWorld world;
 	const Monster* mummy = readyMummy(world, true);
-	REQUIRE(world.dungeon.StunNearest());
+	REQUIRE(DungeonCheats(world.dungeon).StunNearest());
 	const float x = mummy->CentreX();
 	bool bit = false;
 	for (int t = 0; t < STUN_MS - UPDATE_TICK_MS; t += UPDATE_TICK_MS) {
@@ -90,7 +91,7 @@ TEST_CASE("stun: a flyer drops to the floor, then takes off again") {
 	REQUIRE(bat->Roosting());
 	const float roost = bat->DrawnLift();
 	REQUIRE(roost > 10.f);
-	REQUIRE(world.dungeon.StunNearest());
+	REQUIRE(DungeonCheats(world.dungeon).StunNearest());
 	world.Wait(1000);
 	CHECK(bat->Reeling());
 	CHECK(bat->DrawnLift() == doctest::Approx(0.f)); // on the floor: a sword reaches it
@@ -108,16 +109,16 @@ TEST_CASE("stun: a boss for half the time, and not again within 5 s") {
 	const Monster* boss = world.dungeon.NearestMonster();
 	REQUIRE(boss != nullptr);
 	REQUIRE(boss->Type()->isBoss());
-	REQUIRE(world.dungeon.StunNearest());
+	REQUIRE(DungeonCheats(world.dungeon).StunNearest());
 	world.Wait(STUN_MS * BOSS_STUN_PERCENT / 100 - 2 * UPDATE_TICK_MS);
 	CHECK(boss->Reeling());
 	world.Wait(4 * UPDATE_TICK_MS);
 	CHECK_FALSE(boss->Reeling()); // half the time
 	world.Wait(1000);
-	CHECK_FALSE(world.dungeon.StunNearest()); // the cooldown
+	CHECK_FALSE(DungeonCheats(world.dungeon).StunNearest()); // the cooldown
 	CHECK_FALSE(boss->Reeling());
 	world.Wait(BOSS_STUN_COOLDOWN_MS);
-	CHECK(world.dungeon.StunNearest());
+	CHECK(DungeonCheats(world.dungeon).StunNearest());
 }
 
 TEST_CASE("stun: a lurker cannot be stunned until awake") {
@@ -129,7 +130,7 @@ TEST_CASE("stun: a lurker cannot be stunned until awake") {
 	const Monster* mummy = world.dungeon.NearestMonster();
 	REQUIRE(mummy != nullptr);
 	REQUIRE(mummy->lurking());
-	CHECK_FALSE(world.dungeon.StunNearest());
+	CHECK_FALSE(DungeonCheats(world.dungeon).StunNearest());
 	CHECK_FALSE(mummy->Reeling());
 }
 

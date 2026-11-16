@@ -5,6 +5,7 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/gameplay_monster_kinds.h"
 #include "../../src/level/gameplay_monsters.h"
@@ -138,9 +139,9 @@ TEST_CASE("she spins webs over the floor as she goes, up to her limit") {
 TEST_CASE("a web slows the player standing in it; a jump is not slowed") {
 	SimWorld world;
 	const int row = loadHall(world);
-	REQUIRE(world.dungeon.PlaceWeb(3, row));
-	REQUIRE_FALSE(world.dungeon.PlaceWeb(3, row)); // one lies there
-	REQUIRE_FALSE(world.dungeon.PlaceWeb(3, row + 1)); // rock
+	REQUIRE(DungeonCheats(world.dungeon).PlaceWeb(3, row));
+	REQUIRE_FALSE(DungeonCheats(world.dungeon).PlaceWeb(3, row)); // one lies there
+	REQUIRE_FALSE(DungeonCheats(world.dungeon).PlaceWeb(3, row + 1)); // rock
 	CHECK(world.dungeon.PlayerWalkFactor() == doctest::Approx(1.f));
 	REQUIRE(world.WalkTo(3.5f));
 	CHECK(world.dungeon.PlayerInWeb());
@@ -154,7 +155,7 @@ TEST_CASE("a web slows the player standing in it; a jump is not slowed") {
 TEST_CASE("a blade's swing cuts the web in its reach, a club's does not") {
 	SimWorld world;
 	const int row = loadHall(world);
-	REQUIRE(world.dungeon.PlaceWeb(3, row));
+	REQUIRE(DungeonCheats(world.dungeon).PlaceWeb(3, row));
 	REQUIRE(world.WalkTo(2.8f)); // facing it, its edge in reach
 	world.Equip(ItemKind::Club);
 	swing(world);
@@ -168,7 +169,7 @@ TEST_CASE("a fire arrow burns the webs it flies low over, a plain one does not")
 	SimWorld world;
 	const int row = loadHall(world);
 	for (int col = 3; col <= 8; col++)
-		REQUIRE(world.dungeon.PlaceWeb(col, row));
+		REQUIRE(DungeonCheats(world.dungeon).PlaceWeb(col, row));
 	auto whole = [&] {
 		int n = 0;
 		for (int col = 3; col <= 8; col++)
@@ -192,7 +193,7 @@ TEST_CASE("a load lights the torches again and takes the webs away") {
 	world.player.god = true;
 	world.Wait(3000);
 	REQUIRE(world.dungeon.Doused(9, row));
-	REQUIRE(world.dungeon.PlaceWeb(3, row));
+	REQUIRE(DungeonCheats(world.dungeon).PlaceWeb(3, row));
 	REQUIRE(world.Load("tests/levels/mother"));
 	CHECK_FALSE(world.dungeon.Doused(9, row));
 	CHECK_FALSE(world.dungeon.WebAt(3, row));

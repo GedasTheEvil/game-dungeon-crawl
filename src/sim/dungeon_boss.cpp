@@ -19,35 +19,6 @@ const Monster* Dungeon::Boss() const {
 	return boss.Alive() && boss.Alerted() ? &boss : nullptr;
 }
 int Dungeon::BossHealth() const { return bossFight.slot >= 0 ? monsters[bossFight.slot].Health() : 0; }
-void Dungeon::HurtBoss(int dmg) {
-	if (bossFight.slot >= 0)
-		playerHit(monsters[bossFight.slot], dmg, nullptr);
-}
-bool Dungeon::KillNearestMonster() {
-	const Monster* nearest = nearestMonster();
-	if (nearest == nullptr)
-		return false;
-	Monster& mon = monsters[nearest - monsters];
-	playerHit(mon, mon.Health(), nullptr);
-	return true;
-}
-bool Dungeon::SetNearestMonsterHealth(int hp) {
-	const Monster* nearest = nearestMonster();
-	if (nearest == nullptr)
-		return false;
-	monsters[nearest - monsters].SetHealth(hp);
-	return true;
-}
-bool Dungeon::SetBossHealth(int hp) {
-	if (bossFight.slot < 0 || !monsters[bossFight.slot].Alive())
-		return false;
-	monsters[bossFight.slot].SetHealth(hp);
-	return true;
-}
-void Dungeon::PoisonBoss(PoisonTier tier) {
-	if (bossFight.slot >= 0)
-		monsters[bossFight.slot].TakePoison(tier, true, sim.random->gameplay);
-}
 int Dungeon::LivingMinions() const {
 	int n = 0;
 	for (const Monster& mon : monsters)
@@ -77,27 +48,9 @@ bool Dungeon::NearestMonsterBurns() const {
 	const Monster* nearest = nearestMonster();
 	return nearest != nullptr && nearest->Burns();
 }
-bool Dungeon::GrabNearest() {
-	const Monster* nearest = nearestMonster();
-	return nearest != nullptr && monsters[nearest - monsters].StartGrab();
-}
 int Dungeon::NearestMonsterBleed() const {
 	const Monster* nearest = nearestMonster();
 	return nearest ? nearest->BleedMask() : 0;
-}
-void Dungeon::BleedNearestMonster(BleedTier tier) {
-	if (const Monster* nearest = nearestMonster())
-		monsters[nearest - monsters].TakeBleed(tier, 100, true, sim.random->gameplay);
-}
-void Dungeon::PoisonNearestMonster(PoisonTier tier) {
-	if (const Monster* nearest = nearestMonster())
-		monsters[nearest - monsters].TakePoison(tier, true, sim.random->gameplay);
-}
-bool Dungeon::StunNearest() {
-	const Monster* target = nearestMonster();
-	if (bossFight.slot >= 0 && monsters[bossFight.slot].Alive())
-		target = &monsters[bossFight.slot];
-	return target != nullptr && monsters[target - monsters].StunHit(STUN_MS, target->lurking());
 }
 // A saved fight (plan save-live-monsters) keeps its counters; its first minions are those that lived at the save,
 // up to minAlive, so a load neither brings back the slain ones nor saves the summons to come.

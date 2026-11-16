@@ -3,6 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 
 namespace {
 SimWorld& at(SimWorld& world, int level, int col, int row) {
@@ -65,7 +66,7 @@ TEST_CASE("lvl18: the High Priest's body dragged onto the blue plate opens the a
 	at(world, 18, 31, 2);
 	world.WaitTicks(20);
 	REQUIRE(world.dungeon.BossHealth() > 0);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.Wait(1000);
 	drag(world, 29.3f, -1, 25.75f);
 	world.Wait(1500);

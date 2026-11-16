@@ -40,12 +40,6 @@ bool Dungeon::BlazeAt(int col, int row) const {
 	const int cell = MapIndex(col, row);
 	return hazards.Blazing(cell);
 }
-bool Dungeon::PlaceBlaze(int col, int row, int ms) {
-	if (!blazeFloor(col, row))
-		return false;
-	blazeAt(static_cast<float>(col) + 0.5f, static_cast<float>(row), ms);
-	return true;
-}
 bool Dungeon::PlayerInBlaze() const {
 	const JumpState& jump = sim.player->jump;
 	return !jump.jumping && !jump.falling &&

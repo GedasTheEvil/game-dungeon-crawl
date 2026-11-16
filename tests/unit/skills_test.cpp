@@ -1,6 +1,7 @@
 // Heka and the skills (plan skills): a boss gives one heka, once; learning spends it; saves keep both.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/skills_layout.h"
 #include "../../src/level/skills.h"
 #include "../../src/level/gameplay_environment.h"
@@ -14,7 +15,7 @@ namespace {
 // The boss in play slain; the next update sees it dead.
 void killBoss(SimWorld& world) {
 	REQUIRE(world.dungeon.Boss() != nullptr);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.Tick();
 }
 

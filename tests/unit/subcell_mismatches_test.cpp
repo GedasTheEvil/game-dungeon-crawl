@@ -3,6 +3,7 @@
 // game. Levels drawn in the levelcheck --map legend, rows top first, shapes set per cell (bit = column + 4 * row).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/level_check.h"
 #include "../../src/level/path_script.h"
 #include "../../src/level/tile_defs.h"
@@ -74,7 +75,7 @@ std::string playScript(const LevelGrid& grid, const LevelReport& r) {
 		else if (cmd == "mirror") { // the mirror at col a, row b points the way of the next number
 			std::string way;
 			words >> way;
-			ok = world.dungeon.SetMirror(std::stoi(a), std::stoi(b), std::stoi(way));
+			ok = DungeonCheats(world.dungeon).SetMirror(std::stoi(a), std::stoi(b), std::stoi(way));
 		} else if (cmd == "key" && a == "r") // the drag key: take hold of the thing faced, or let go
 			ok = world.dungeon.ToggleDrag(world.facing) || !world.dungeon.Dragging();
 		else

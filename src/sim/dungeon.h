@@ -55,6 +55,7 @@ struct HitboxView {
 
 class Dungeon {
 	friend class DungeonView; // its drawing (src/graphics/dungeon_view.h, plan dungeon-view-split)
+	friend class DungeonCheats; // what only the tests do (dungeon_cheats.h)
 
   private:
 	static constexpr int MAP_WIDTH = LEVEL_WIDTH;
@@ -896,8 +897,6 @@ class Dungeon {
 	[[nodiscard]] bool WebAt(int col, int row) const {
 		return IsInBounds(col, row) && hazards.WebAt(MapIndex(col, row)) >= 0;
 	}
-	// Scenario tests: a web over the floor of (col, row). False: no floor for one there (webFloor), or one lies there.
-	bool PlaceWeb(int col, int row);
 	// The player stands in a web (not in the air): hostile terrain, the walk slows to WEB_SLOW_FACTOR
 	// (PlayerWalkFactor).
 	[[nodiscard]] bool PlayerInWeb() const;
@@ -909,8 +908,6 @@ class Dungeon {
 	[[nodiscard]] TerrainFactors PlayerTerrainFactors() const;
 	// The floor of (col, row) burns (Babi's big coal, plan babi-boss).
 	[[nodiscard]] bool BlazeAt(int col, int row) const;
-	// Scenario tests: the floor of (col, row) burns for ms. False: no dry floor there (blazeFloor).
-	bool PlaceBlaze(int col, int row, int ms);
 	[[nodiscard]] bool PlayerInBlaze() const; // the player stands in a burning floor cell, not in the air
 	// Monster shots in flight or waiting in a volley (plan babi-boss); big: only the big coals.
 	[[nodiscard]] int ShotCount(bool big = false) const { return projectiles.ShotCount(big); }
@@ -918,25 +915,6 @@ class Dungeon {
 	[[nodiscard]] std::vector<float> StuckMissileXs() const { return projectiles.StuckMissileXs(); }
 	// A beam of sunlight runs through (col, row) now (plan sunlight-mirrors); it counts as light for Lit too.
 	[[nodiscard]] bool Sunlit(int col, int row) const { return IsInBounds(col, row) && sun.Sunlit(MapIndex(col, row)); }
-	// Scenario `mirror`: the mirror in (col, row) points dir (BeamDir), at once. False: no mirror there.
-	bool SetMirror(int col, int row, int dir);
-	bool KillNearestMonster(); // scenario tests (plan kill-monster-command): as if the player killed it (XP, note,
-							   // drop); false if none lives
-	bool SetNearestMonsterHealth(int hp); // scenario tests (plan monster-hp-command): no hit, no reward; false if none
-	bool SetBossHealth(int hp); // ... the boss in play's; false if none
-	void HurtBoss(int dmg); // scenario tests: the boss in play takes a hit, as from the player
-	// Scenario tests: the living monster nearest the player, or the boss in play, is poisoned, as by the player (it
-	// may shrug it off).
-	void PoisonNearestMonster(PoisonTier tier);
-	void BleedNearestMonster(BleedTier tier); // a sure cut by the player (plan bleeding): bloodless, none
-	// Scenario `stun`: the boss of the level while it lives, else the living monster nearest the player, is stunned for
-	// STUN_MS, as by a blunt hit with the Stun skill (Monster::StunHit; a boss for less). False: it cannot be (lurking,
-	// hidden, ...), or there is none.
-	bool StunNearest();
-	// Scenario `grab`: the living monster nearest the player starts a grab's tell now (Monster::StartGrab). False: it
-	// does not grab, or is grabbing already.
-	bool GrabNearest();
-	void PoisonBoss(PoisonTier tier);
 	// A minion's kill: 1 XP while its boss lives (no farming), half its type's xp after the boss died.
 	[[nodiscard]] int MinionXP(int xp) const { return bossFight.slot >= 0 ? 1 : xp / 2; }
 	// Draft map: the cells within EXPLORE_RADIUS of every tile the player stood on.

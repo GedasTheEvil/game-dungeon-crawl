@@ -4,6 +4,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/level_gen.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_monsters.h"
 #include "../../src/level/gameplay_player.h"
 #include "../../src/level/gameplay_shared.h"
@@ -198,7 +199,7 @@ TEST_CASE("the boss fight: summons, the sealed gate, its chest, and it stays dea
 	CHECK(world.X() < 12.f);
 
 	CHECK(world.dungeon.ChestCount() == 2);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);
 	CHECK(world.Xp() >= 6000);
@@ -277,7 +278,7 @@ TEST_CASE("level 4 from its entrance to its exit: Khepri's room, the key behind 
 	REQUIRE(world.WalkTo(12.45f));
 	world.Wait(500);
 	CHECK(world.dungeon.BossHealth() > 0);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.Wait(1000);
 	REQUIRE(world.WalkTo(16.582f)); // through the boss gate
 	world.Wait(1400);
@@ -339,7 +340,7 @@ TEST_CASE("the Anubis boss: his guards step out of the wall, his blow past a lev
 	world.Wait(4000);
 	CHECK(world.dungeon.LivingMinions() >= 2);
 
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);
 	world.Wait(2000);
@@ -361,7 +362,7 @@ TEST_CASE("the Anubis boss has no coffins, also in a game saved after his death 
 	REQUIRE(world.WalkTo(9.f));
 	world.WaitTicks(10);
 	CHECK(world.dungeon.BossHealth() == 2400);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);
 	world.SaveAndLoad();

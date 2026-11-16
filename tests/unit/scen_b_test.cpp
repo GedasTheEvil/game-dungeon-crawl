@@ -1,5 +1,6 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 
 // Monster, water and mechanism checks that were scenarios (apep, cobra, crocodile, mimic, mummy, scorpion_queen,
 // vampire, water, mechanisms), now on the sim.
@@ -141,7 +142,7 @@ TEST_CASE("the vampire bat's roost: two bats drop, wounded it heals on bites, su
 	const int hp = monsterKind(MonsterVampireBat)->maxHealth;
 	CHECK(world.dungeon.BossHealth() == hp);
 	CHECK(world.dungeon.LivingMinions() == 2);
-	world.dungeon.HurtBoss(100);
+	DungeonCheats(world.dungeon).HurtBoss(100);
 	CHECK(world.dungeon.BossHealth() == hp - 100);
 	world.Walk(5.f);
 	world.Wait(4000);
@@ -150,7 +151,7 @@ TEST_CASE("the vampire bat's roost: two bats drop, wounded it heals on bites, su
 	world.player.god = true;
 	world.Wait(4000);
 	CHECK(world.dungeon.LivingMinions() >= 3);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);
 	world.Wait(2000);

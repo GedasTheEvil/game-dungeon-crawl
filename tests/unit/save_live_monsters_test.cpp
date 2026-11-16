@@ -5,6 +5,7 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 
 TEST_CASE("a hurt monster keeps its health through a save and load") {
 	SimWorld world; // tests/levels/hitbox_rat: a rat walks up to the player
@@ -36,7 +37,7 @@ TEST_CASE("a boss keeps its health and its fight through a save and load") {
 	const int full = world.dungeon.BossHealth();
 	REQUIRE(full > 0);
 	REQUIRE(world.dungeon.LivingMinions() > 0);
-	world.dungeon.HurtBoss(full * 9 / 10);
+	DungeonCheats(world.dungeon).HurtBoss(full * 9 / 10);
 	world.Tick();
 	const int left = world.dungeon.BossHealth();
 	REQUIRE(left < full);

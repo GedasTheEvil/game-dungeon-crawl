@@ -5,6 +5,7 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_monsters.h"
 #include "../../src/level/gameplay_shared.h"
 
@@ -121,8 +122,8 @@ TEST_CASE("a burning floor hurts the player standing in it and sets them burning
 	REQUIRE(world.Load("tests/levels/babi_hall"));
 	world.player.stats.AddXP(1000000, world.events);
 	const auto row = static_cast<int>(std::floor(world.Y()));
-	REQUIRE_FALSE(world.dungeon.PlaceBlaze(3, row + 1, 4000)); // rock
-	REQUIRE(world.dungeon.PlaceBlaze(2, row, 4000));
+	REQUIRE_FALSE(DungeonCheats(world.dungeon).PlaceBlaze(3, row + 1, 4000)); // rock
+	REQUIRE(DungeonCheats(world.dungeon).PlaceBlaze(2, row, 4000));
 	const int hp = world.Hp();
 	world.Tick();
 	CHECK(world.dungeon.PlayerInBlaze());
@@ -135,7 +136,9 @@ TEST_CASE("a burning floor hurts the player standing in it and sets them burning
 	CHECK_FALSE(world.dungeon.PlayerInBlaze());
 
 	REQUIRE(world.Load("tests/levels/baboon_water"));
-	CHECK_FALSE(world.dungeon.PlaceBlaze(2, static_cast<int>(std::floor(world.Y())), 4000)); // half water
+	CHECK_FALSE(
+		DungeonCheats(world.dungeon).PlaceBlaze(2, static_cast<int>(std::floor(world.Y())), 4000)
+	); // half water
 }
 
 TEST_CASE("walked at, he backs off to the edge of his ledge and leaps the gap behind him, staying on his row") {
@@ -170,7 +173,7 @@ TEST_CASE("in his arena: the teleporter in, his death opens the boss gate") {
 	REQUIRE(world.dungeon.SpawnMonster(20, row));
 	world.Wait(2000);
 	CHECK(world.dungeon.BossHealth() == monsterKind(MonsterBabi)->maxHealth);
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);
 	CHECK(world.Told("The guardian is slain!\nThe boss gate grinds open"));

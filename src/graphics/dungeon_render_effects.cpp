@@ -562,7 +562,7 @@ void DungeonView::drawSummonEffects() {
 		const float y = static_cast<float>(mon.Row() - d.view().originRow + (drop ? 1 : 0)) * RenderConfig::TILE_SIZE;
 		Grit::burst(x, y, RenderConfig::MONSTER_DEPTH, age, drop, static_cast<uint32_t>(mon.SummonedMs() + mon.Col()));
 	}
-	for (const Dungeon::Hole& h : d.hazards.holes) {
+	for (const Hazards::Hole& h : d.hazards.holes) {
 		if (now - h.startMs >= BURROW_HOLE_MS) // ran out since the tick (Dungeon::updateEffects drops it)
 			continue;
 		const float x = (h.x - static_cast<float>(d.view().originCol)) * RenderConfig::TILE_SIZE;
@@ -585,7 +585,7 @@ void DungeonView::drawSummonEffects() {
 		);
 	}
 	// Rerek's spray as he comes up (plan worm-boss): sand thrown up all round him.
-	for (const Dungeon::Hole& h : d.hazards.sprays)
+	for (const Hazards::Hole& h : d.hazards.sprays)
 		for (int k = -2; k <= 2 && now - h.startMs < Grit::BURST_MS; k++) {
 			const float x = (h.x + SPRAY_SPREAD * static_cast<float>(k) - static_cast<float>(d.view().originCol)) *
 							RenderConfig::TILE_SIZE;

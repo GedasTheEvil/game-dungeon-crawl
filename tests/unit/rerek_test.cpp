@@ -5,6 +5,7 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_monster_kinds.h"
 #include "../../src/level/gameplay_shared.h"
 
@@ -139,7 +140,7 @@ TEST_CASE("Rerek's swallow pulls the player into the sand; hits on him break it 
 	world.player.god = false;
 	world.Give(ItemKind::Khopesh);
 	world.Equip(ItemKind::Khopesh);
-	REQUIRE(world.dungeon.GrabNearest());
+	REQUIRE(DungeonCheats(world.dungeon).GrabNearest());
 	REQUIRE(waitFor(world, GRAB_TELL_MS + 100, [&] { return r->Holding(); }));
 	CHECK(world.Saw(MonsterRerek, CreatureMove::Grab));
 	CHECK(world.Told("Swallowed"));

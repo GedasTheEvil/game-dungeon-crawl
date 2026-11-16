@@ -1,5 +1,6 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/climb_path.h"
 #include "../../src/level/gameplay_monsters.h"
 #include "../../src/level/gameplay_shared.h"
@@ -216,7 +217,7 @@ TEST_CASE("a climber killed on the rungs drops down the shaft to the floor") {
 	for (int t = 0; t < 1000 && !(rat->Climbing() && rat->DrawnLift() > 10.f); t++)
 		world.Tick();
 	REQUIRE(rat->Climbing());
-	world.dungeon.PoisonNearestMonster(PoisonTier::Strong);
+	DungeonCheats(world.dungeon).PoisonNearestMonster(PoisonTier::Strong);
 	for (int t = 0; t < 1000 && rat->Alive(); t++)
 		world.Tick();
 	REQUIRE(!rat->Alive());

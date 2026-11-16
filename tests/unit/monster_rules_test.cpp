@@ -3,6 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/level_check.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_shared.h"
 #include "../../src/level/gameplay_skills.h"
 #include <set>
@@ -116,7 +117,7 @@ TEST_CASE("poison runs on a monster as on the player and can kill it; the player
 	REQUIRE(world.Walk(1.f));
 	world.Wait(8000);
 	CHECK(world.Nearest() == 12);
-	world.dungeon.PoisonNearestMonster(PoisonTier::Weak);
+	DungeonCheats(world.dungeon).PoisonNearestMonster(PoisonTier::Weak);
 	CHECK(world.dungeon.NearestMonsterPoison() == 1);
 	world.Wait(2000);
 	CHECK(world.Nearest() == 10);
@@ -132,7 +133,7 @@ TEST_CASE("poison runs on a monster as on the player and can kill it; the player
 	REQUIRE(world.WalkTo(9.1f));
 	world.Wait(2000);
 	CHECK(world.Nearest() > 0);
-	world.dungeon.PoisonNearestMonster(PoisonTier::Strong);
+	DungeonCheats(world.dungeon).PoisonNearestMonster(PoisonTier::Strong);
 	CHECK(world.dungeon.NearestMonsterPoison() == 0);
 
 	// a boss (Sobek, no resistance): strong poison, 5% of his HP a second
@@ -141,7 +142,7 @@ TEST_CASE("poison runs on a monster as on the player and can kill it; the player
 	world.Wait(300);
 	const int sobek = monsterKind(MonsterSobek)->maxHealth;
 	CHECK(world.dungeon.BossHealth() == sobek);
-	world.dungeon.PoisonBoss(PoisonTier::Strong);
+	DungeonCheats(world.dungeon).PoisonBoss(PoisonTier::Strong);
 	world.Wait(2000);
 	CHECK(world.dungeon.BossHealth() == sobek - 2 * sobek * 5 / 100);
 }

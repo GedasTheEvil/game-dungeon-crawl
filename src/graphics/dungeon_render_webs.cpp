@@ -31,7 +31,7 @@ void DungeonView::drawWebs() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
-	for (const Dungeon::Web& w : d.hazards.webs) {
+	for (const Hazards::Web& w : d.hazards.webs) {
 		const int col = w.cell % Dungeon::MAP_WIDTH, row = w.cell / Dungeon::MAP_WIDTH;
 		if (!drawnCells.contains(static_cast<float>(col) + 0.5f, row))
 			continue;
@@ -83,7 +83,7 @@ void DungeonView::drawWebs() {
 	glDisable(GL_BLEND);
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
-	for (const Dungeon::Web& w : d.hazards.webs) // after the threads: the sprites blend over them
+	for (const Hazards::Web& w : d.hazards.webs) // after the threads: the sprites blend over them
 		if (w.burnt && w.goneMs >= 0) {
 			const int col = w.cell % Dungeon::MAP_WIDTH, row = w.cell / Dungeon::MAP_WIDTH;
 			const float fade = 1.f - static_cast<float>(now - w.goneMs) / static_cast<float>(WEB_BURN_MS);

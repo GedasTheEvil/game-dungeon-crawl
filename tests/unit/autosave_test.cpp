@@ -5,6 +5,7 @@
 #include "../../src/level/leaderboard.h"
 #include "../../src/level/run_stats.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/gameplay_shared.h"
 #include <algorithm>
 #include <array>
@@ -85,7 +86,7 @@ TEST_CASE("the exit's next level and a slain boss ask for an autosave") {
 		world.Tick();
 	REQUIRE(world.dungeon.Boss() != nullptr);
 	CHECK(autosaves(world).empty());
-	world.dungeon.HurtBoss(world.dungeon.BossHealth());
+	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.Tick();
 	CHECK(autosaves(world) == std::vector<AutosaveMoment>{AutosaveMoment::Boss});
 }

@@ -92,7 +92,7 @@ constexpr Rgb BOLT_PURPLE = {0.7f, 0.2f, 0.95f}; // the mummy priest's curse
 
 // A volley (plan babi-boss, Babi): a throw lets minCount..maxCount shots go, gapMs apart, each aimed at the player as
 // it leaves. Every bigEvery-th throw is one big coal instead, aimed at their feet: where it lands (on the floor or on
-// them) the floor of that cell burns for blazeMs (Dungeon::Blaze).
+// them) the floor of that cell burns for blazeMs (Hazards::Blaze).
 struct VolleyRules {
 	int minCount = 1;
 	int maxCount = 1;

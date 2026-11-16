@@ -12,7 +12,7 @@ constexpr int MOTHER_DOUSE_CELLS = 2;
 constexpr int WEB_BURN_MS = 700;
 constexpr int WEB_CUT_MS = 250;
 constexpr int SNUFF_MS = 900;
-// Babi (plan babi-boss, VolleyRules): his big coal sets the floor of a cell burning (Dungeon::Blaze). Whoever stands
+// Babi (plan babi-boss, VolleyRules): his big coal sets the floor of a cell burning (Hazards::Blaze). Whoever stands
 // in it, not in a jump, takes BLAZE_DAMAGE (all fire, armour counts) every BLAZE_TICK_MS and burns on: the player and
 // the monsters alike (plan same-hazards-for-all), but a monster native to fire (Babi) is unharmed; no XP for its kill.
 constexpr int BLAZE_DAMAGE = 30;

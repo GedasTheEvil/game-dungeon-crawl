@@ -4,6 +4,7 @@
 // terrain affinity: hostile to webs.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
+#include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/status_list.h"
 #include "../../src/level/gameplay_shared.h"
 #include "../../src/level/gameplay_trap_damage.h"
@@ -31,7 +32,7 @@ const Monster* find(const SimWorld& world, int type) {
 void blazeRow(SimWorld& world, int ms) {
 	const auto row = static_cast<int>(std::floor(world.Y()));
 	for (int col = 0; col < LEVEL_WIDTH; col++)
-		(void)world.dungeon.PlaceBlaze(col, row, ms);
+		(void)DungeonCheats(world.dungeon).PlaceBlaze(col, row, ms);
 }
 } // namespace
 
@@ -131,7 +132,7 @@ TEST_CASE("the player's terrain: a web is hostile (its slow, a condition card), 
 	CHECK_FALSE(
 		has(statusList(world.player.stats, world.dungeon.PlayerTerrainMood()), PlayerHud::Icon::TerrainHostile)
 	);
-	REQUIRE(world.dungeon.PlaceWeb(3, row));
+	REQUIRE(DungeonCheats(world.dungeon).PlaceWeb(3, row));
 	REQUIRE(world.WalkTo(3.5f));
 	CHECK(world.dungeon.PlayerTerrainMood() == TerrainMood::Hostile);
 	CHECK(world.dungeon.PlayerTerrainFactors().speed == doctest::Approx(WEB_SLOW_FACTOR));

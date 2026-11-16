@@ -38,6 +38,7 @@ bool SaveService::Read(const std::string& path) {
 	}
 	UiViewState view = game.ViewState(); // a broken save puts these back too
 	const bool loaded = loadSaveGame(text, SaveParts{game.dungeon, *game.player, game.bag, game.journal, view});
+	game.itemCommands.BagLoaded();
 	game.ui.inventory->BagLoaded();
 	game.ApplyViewState(view);
 	if (!loaded) {

@@ -68,18 +68,18 @@ class PlayerActionController {
 			break;
 		case GameplayAction::QuickHeal: // allowed during a swing: drinking does not change it
 			if (!insane())
-				Game().ui.inventory->QuickDrink(QuickKind::Health);
+				Game().itemCommands.QuickDrink(QuickKind::Health);
 			break;
 		case GameplayAction::QuickStamina:
 			if (!insane())
-				Game().ui.inventory->QuickDrink(QuickKind::Stamina);
+				Game().itemCommands.QuickDrink(QuickKind::Stamina);
 			break;
 		case GameplayAction::StaminaSkills:
 			toggleStaminaSkills();
 			break;
 		case GameplayAction::QuickAntidote:
 			if (!insane())
-				Game().ui.inventory->QuickAntidote();
+				Game().itemCommands.QuickAntidote();
 			break;
 		case GameplayAction::EquipMelee:
 			if (!insane())
@@ -157,7 +157,7 @@ class PlayerActionController {
 	// No switch while a swing, a bow draw or a power hit's charge is under way: it would hit with the other weapon.
 	static void equipNext(bool ranged) {
 		if (Game().player->attackStartMs < 0 && !Game().player->Charging())
-			Game().ui.inventory->EquipNext(ranged);
+			Game().itemCommands.EquipNext(ranged);
 	}
 
   public:
@@ -183,7 +183,7 @@ class PlayerActionController {
 			Game().assets.sounds.powerSwing.Play();
 			return;
 		case PlayerControl::Began::Swing:
-			Game().ui.inventory->Equipped()->swingSound.Play();
+			Game().assets.items.Of(Game().bag.Equipped())->swingSound.Play();
 			return;
 		}
 	}

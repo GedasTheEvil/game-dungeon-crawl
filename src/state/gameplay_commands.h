@@ -17,11 +17,11 @@ enum class GameplayAction : unsigned char {
 	Attack,
 	Interact,
 	Drag, // take hold of a mirror or let go (Dungeon::ToggleDrag, plan mirror-drag)
-	QuickHeal, // drink the best fitting healing potion (Inventory::QuickDrink)
+	QuickHeal, // drink the best fitting healing potion (ItemCommands::QuickDrink)
 	QuickStamina, // the same for stamina
 	StaminaSkills, // switch the learned stamina skills on or off (Player::staminaSkills)
-	QuickAntidote, // drink an antidote while poisoned (Inventory::QuickAntidote)
-	EquipMelee, // the next melee weapon held (Inventory::EquipNext)
+	QuickAntidote, // drink an antidote while poisoned (ItemCommands::QuickAntidote)
+	EquipMelee, // the next melee weapon held (ItemCommands::EquipNext)
 	EquipRanged, // the next ranged one
 };
 

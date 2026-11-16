@@ -21,9 +21,12 @@ loop).
   * done 2026-11-16: saves to a `SaveService` (`state/saves.*`, `Game().saves`): write, read, load into the game,
     autosave, quick save, latest save, the death count; the files' paths and the newest save in `SaveFolder`
     (`level/save_slots.*`, unit-tested), the autosave's death rewrite in `SaveSlots::SetFileDeaths`;
-  * the gameplay actions still in the inventory screen (quick drink, equip, wear, add item; plan
-    [bag-out-of-inventory](solved/bag-out-of-inventory.tooling.md)).
-* Screens take explicit references (as `Inventory::Actor()` does) instead of `Game()`.
+  * done 2026-11-16: the gameplay actions out of the inventory screen to `ItemCommands` (`state/item_commands.*`,
+    `Game().itemCommands`): quick drink and antidote, the weapon keys, insanity's club, the scenario's equip, wear and
+    add item; the screen's buttons use its `Use` and `Actor` (plan
+    [bag-out-of-inventory](solved/bag-out-of-inventory.tooling.md)). A weapon key no longer leaves its line in the
+    closed inventory's toast.
+* Screens take explicit references (as `Inventory` takes the bag and `ItemCommands`) instead of `Game()`.
 * Done 2026-11-16: `UIContext` in `state/ui_context.h`, forward-declared, so `game_state.h` includes no `ui/` header
   (34 project includes before, 25 now).
 * Each step: no behaviour change; unit tests and the archived UI scenarios give the same results as before.

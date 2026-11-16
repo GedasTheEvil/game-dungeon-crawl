@@ -116,7 +116,7 @@ void toCanvas(int mouseX, int mouseY, float& x, float& y) {
 
 } // namespace
 
-Inventory::Inventory(ItemBag& bag) : bag(bag) {
+Inventory::Inventory(ItemBag& bag, ItemCommands& commands) : bag(bag), commands(commands) {
 	loadScreenFonts(title, heading, body, small, 7.f);
 
 	Reset();
@@ -125,16 +125,12 @@ Inventory::Inventory(ItemBag& bag) : bag(bag) {
 }
 
 void Inventory::Reset() {
-	bag.Reset();
 	for (int group = 0; group < ITEM_GROUP_COUNT; group++) {
 		tabSlot[group] = groupItems(groupAt(group)).first;
 		sortOrder[group] = SortOrder::Found;
 	}
 	Select(itemIndex(ItemKind::Club));
 	toast = ui::Toast{};
-	quickDrinkMs.reset();
-	antidoteMs.reset();
-	saneWeapon.reset();
 }
 
 void Inventory::ViewTo(UiViewState& view) const {
@@ -155,23 +151,7 @@ void Inventory::ViewFrom(const UiViewState& view) {
 		Select(selectedSlot);
 }
 
-void Inventory::FollowInsanity(bool insane) {
-	if (insane && !saneWeapon) {
-		saneWeapon = bag.Equipped();
-		Equip(ItemKind::Club);
-	} else if (!insane && saneWeapon.has_value()) {
-		const ItemKind weapon = *saneWeapon;
-		saneWeapon.reset();
-		Equip(weapon);
-	}
-}
-
 Inventory::~Inventory() {}
-
-void Inventory::AddItem(ItemKind kind) {
-	PlayerActor actor = Actor();
-	addItem(actor, kind);
-}
 
 Item* Inventory::Model(ItemKind kind) { return Game().assets.items.Of(kind); }
 
@@ -241,7 +221,7 @@ void Inventory::Offer(ItemKind kind) {
 	if (!god)
 		return;
 	const HeldItems before = Held();
-	PlayerActor actor = Actor();
+	PlayerActor actor = commands.Actor();
 	const ActionResult offered = offerItem(actor, kind, *god, Game().dungeon.LevelNumber(), Game().alwaysGift);
 	if (!offered.done)
 		return;
@@ -254,7 +234,7 @@ void Inventory::Merge(ItemKind ring) {
 	if (!god)
 		return;
 	const HeldItems before = Held();
-	PlayerActor actor = Actor();
+	PlayerActor actor = commands.Actor();
 	const ActionResult merged = mergeRings(actor, ring, *god);
 	if (!merged.done)
 		return;
@@ -264,12 +244,8 @@ void Inventory::Merge(ItemKind ring) {
 	ShowToast(merged.text);
 }
 
-PlayerActor Inventory::Actor() {
-	return {Game().player->stats, bag, Game().journal, Game().events, bagUser(*Game().player)};
-}
-
 void Inventory::WearOnHand(int slot, Hand hand) {
-	PlayerActor actor = Actor();
+	PlayerActor actor = commands.Actor();
 	if (const ActionResult worn = wearRingOn(actor, kindOf(slot), hand); worn.done)
 		ShowToast(worn.text);
 }
@@ -281,7 +257,7 @@ void Inventory::Upgrade(int slot) {
 		return;
 	}
 	const HeldItems before = Held();
-	PlayerActor actor = Actor();
+	PlayerActor actor = commands.Actor();
 	const ActionResult upgraded = upgradeItem(actor, kind, AtOne());
 	if (!upgraded.done)
 		return;
@@ -293,65 +269,13 @@ void Inventory::Upgrade(int slot) {
 
 void Inventory::Use(int slot) {
 	const HeldItems before = Held();
-	PlayerActor actor = Actor();
-	const ActionResult used = useItem(actor, kindOf(slot));
+	const ActionResult used = commands.Use(kindOf(slot));
 	if (!used.done)
 		return;
 	if (::isPotion(kindOf(slot)))
 		KeepPlaces(before);
 	if (!used.text.empty())
 		ShowToast(used.text);
-}
-
-std::string Inventory::DrinkPotion(ItemKind potion) {
-	PlayerActor actor = Actor();
-	return drinkPotion(actor, potion);
-}
-
-std::optional<ItemKind> Inventory::QuickChoice(QuickKind kind) const {
-	const PlayerStats& s = Game().player->stats;
-	bool health = kind == QuickKind::Health;
-	int current = health ? s.CurrentHP() : s.Stamina();
-	int max = health ? s.CurrentMaxHP() : s.MaxStamina();
-	// At full, still show what a hit would make it drink: the pick for one point missing.
-	return bag.QuickChoice(kind, std::min(current, max - 1), max);
-}
-
-void Inventory::QuickDrink(QuickKind kind) {
-	int now = GameClock::now();
-	if (quickDrinkMs && now - *quickDrinkMs < QUICK_DRINK_COOLDOWN_MS)
-		return;
-	const PlayerStats& s = Game().player->stats;
-	bool health = kind == QuickKind::Health;
-	bool full = health ? s.CurrentHP() >= s.CurrentMaxHP() : s.Stamina() >= s.MaxStamina();
-	std::optional<ItemKind> potion = QuickChoice(kind);
-	if (full) {
-		Game().ShowStatus(health ? "You are at full health" : "You are at full energy");
-		return;
-	}
-	if (!potion) {
-		Game().ShowStatus(health ? "No healing potion left" : "No stamina potion left");
-		return;
-	}
-	quickDrinkMs = now;
-	quickDrinkKind = kind;
-	Game().ShowStatus("%s", DrinkPotion(*potion).c_str());
-}
-
-void Inventory::QuickAntidote() {
-	const UseBlock block = bag.Block(ItemKind::Antidote, bagUser(*Game().player));
-	if (block == UseBlock::Dead)
-		return;
-	if (block != UseBlock::None) {
-		Game().ShowStatus("%s", block == UseBlock::NotPoisoned ? "You are not poisoned" : "No antidote left");
-		return;
-	}
-	antidoteMs = GameClock::now();
-	Game().ShowStatus("%s", DrinkPotion(ItemKind::Antidote).c_str());
-}
-
-std::optional<int> Inventory::QuickDrinkMs(QuickKind kind) const {
-	return quickDrinkKind == kind ? quickDrinkMs : std::nullopt;
 }
 
 Color Inventory::PotionColor(ItemKind potion) { return potionColor(potion); }
@@ -582,50 +506,6 @@ void Inventory::Navigate(NavKey key) {
 		return;
 	case NavKey::None:
 		return;
-	}
-}
-
-bool Inventory::Wear(std::optional<ItemKind> amulet) {
-	if (!amulet) {
-		if (std::optional<ItemKind> worn = bag.Worn())
-			Use(itemIndex(*worn));
-		return !bag.Worn();
-	}
-	if (!::isAmulet(*amulet) || bag.Count(*amulet) <= 0)
-		return false;
-	if (bag.Worn() != amulet)
-		Use(itemIndex(*amulet));
-	return bag.Worn() == amulet;
-}
-
-bool Inventory::WearRing(ItemKind ring, Hand hand) {
-	if (!::isRing(ring) || bag.Count(ring) <= 0)
-		return false;
-	if (bag.RingOn(hand) != ring)
-		WearOnHand(itemIndex(ring), hand);
-	return bag.RingOn(hand) == ring;
-}
-
-bool Inventory::Equip(ItemKind weapon) {
-	if (!::isWeapon(weapon))
-		return false;
-	Use(itemIndex(weapon));
-	return bag.Equipped() == weapon;
-}
-
-void Inventory::EquipNext(bool ranged) {
-	const ItemKind held = bag.Equipped();
-	const int from = isRanged(held) == ranged ? itemIndex(held) : -1;
-	for (int step = 1; step < WEAPON_KIND_COUNT + 1; step++) {
-		const ItemKind kind = itemAt((from + step) % WEAPON_KIND_COUNT);
-		if (isRanged(kind) != ranged)
-			continue;
-		if (kind == held) // round to it again: no other one of its class
-			return;
-		if (bag.Count(kind) > 0) {
-			Use(itemIndex(kind));
-			return;
-		}
 	}
 }
 
@@ -1291,7 +1171,4 @@ void Inventory::DrawFooter() {
 
 // ---- saves -----------------------------------------------------------------
 
-void Inventory::BagLoaded() {
-	selectedSlot = itemIndex(bag.Equipped());
-	saneWeapon.reset();
-}
+void Inventory::BagLoaded() { selectedSlot = itemIndex(bag.Equipped()); }

@@ -10,15 +10,15 @@
 namespace {
 // A quick slot: the potion its key would drink now, empty when none of that kind is left.
 PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
-	const Inventory& inventory = *Game().ui.inventory;
+	const ItemCommands& items = Game().itemCommands;
 	PlayerHud::Slot slot;
 	slot.key = key;
-	if (std::optional<ItemKind> potion = inventory.QuickChoice(kind)) {
+	if (std::optional<ItemKind> potion = items.QuickChoice(kind)) {
 		slot.icon = PlayerHud::Icon::Potion;
 		slot.tint = Inventory::PotionColor(*potion);
-		slot.count = inventory.Count(*potion);
+		slot.count = Game().bag.Count(*potion);
 	}
-	if (std::optional<int> drunk = inventory.QuickDrinkMs(kind))
+	if (std::optional<int> drunk = items.QuickDrinkMs(kind))
 		slot.flashAgeMs = GameClock::now() - *drunk;
 	return slot;
 }
@@ -26,15 +26,15 @@ PlayerHud::Slot quickSlot(QuickKind kind, const std::string& key) {
 // The antidote's slot (plan hud-antidote-and-level): its count, empty when none is left; the HUD blinks it while the
 // player is poisoned and has one.
 PlayerHud::Slot antidoteSlot() {
-	const Inventory& inventory = *Game().ui.inventory;
+	const ItemCommands& items = Game().itemCommands;
 	PlayerHud::Slot slot;
 	slot.key = keyCapOf(Game().settings.controls, BindAction::QuickAntidote);
-	if (const int count = inventory.Count(ItemKind::Antidote); count > 0) {
+	if (const int count = Game().bag.Count(ItemKind::Antidote); count > 0) {
 		slot.icon = PlayerHud::Icon::Potion;
 		slot.tint = Inventory::PotionColor(ItemKind::Antidote);
 		slot.count = count;
 	}
-	if (std::optional<int> drunk = inventory.AntidoteMs())
+	if (std::optional<int> drunk = items.AntidoteMs())
 		slot.flashAgeMs = GameClock::now() - *drunk;
 	return slot;
 }

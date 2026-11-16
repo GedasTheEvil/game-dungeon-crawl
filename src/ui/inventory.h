@@ -6,6 +6,7 @@
 #include "../graphics/item.h"
 #include "../level/item_bag.h"
 #include "../level/player_actions.h"
+#include "../state/item_commands.h"
 #include "../sim/dungeon_save.h"
 #include "../level/bindings.h"
 #include "../level/pointer.h"
@@ -37,6 +38,7 @@ class Inventory final : public UiScreen {
 	static constexpr int NO_SORT = -1;
 
 	ItemBag& bag; // the player's items, GameState::bag (plan bag-out-of-inventory)
+	ItemCommands& commands; // the actions on them (plan game-state-split)
 	int selectedSlot = 0; // a slot is an ItemKind index; the grid shows them in tabOrder
 	ItemGroup tab = ItemGroup::Weapons; // the selected slot's group
 	int tabSlot[ITEM_GROUP_COUNT] = {}; // the slot each tab selected last, for switching back to it
@@ -59,13 +61,6 @@ class Inventory final : public UiScreen {
 
 	ui::Toast toast; // feedback line after an action
 	ConfirmBox confirm; // "Offer the ... to Ptah?" over the screen (plan shrine-offerings)
-
-	// Last quick drink (H / 0 in game), for the cooldown and the HUD slot flash.
-	std::optional<int> quickDrinkMs;
-	QuickKind quickDrinkKind = QuickKind::Health;
-	std::optional<int> antidoteMs; // the last antidote drunk with its key, for the HUD slot flash
-	// The weapon in hand when insanity put the club there (FollowInsanity); a load forgets it.
-	std::optional<ItemKind> saneWeapon;
 
 	Font title, heading, body, small;
 
@@ -95,8 +90,6 @@ class Inventory final : public UiScreen {
 	void Upgrade(int slot);
 	// The ring card's hand buttons (the Use and Upgrade buttons' places): on that hand, or off it.
 	void WearOnHand(int slot, Hand hand);
-	PlayerActor Actor(); // the player, this bag, the journal and the events, for the actions (player_actions.h)
-	std::string DrinkPotion(ItemKind potion); // applies it to the player; returns the feedback line
 	void Select(int slot);
 	[[nodiscard]] bool TabEnabled(ItemGroup group) const { return bag.AnyFound(group); }
 	void SwitchTab(ItemGroup group); // to the slot it selected last
@@ -142,14 +135,13 @@ class Inventory final : public UiScreen {
 	void DrawShrineButtons();
 
   public:
-	explicit Inventory(ItemBag& bag);
+	Inventory(ItemBag& bag, ItemCommands& commands);
 	~Inventory();
-	void Reset(); // a new game: only the club
+	void Reset(); // a new game: the first tabs, found first (ItemCommands::Reset empties the bag)
 	// The open tab and the sort orders into / out of a save (plan save-remembers-ui-state). Setting opens the tab at
 	// its first item, each tab sorted as saved; a tab with nothing found stays as it is.
 	void ViewTo(UiViewState& view) const;
 	void ViewFrom(const UiViewState& view);
-	void AddItem(ItemKind kind); // found: its journal notes (ItemBag::Find)
 	void Draw() override;
 	// Once a tick while the screen is not open: the items it used up sort as empty again.
 	void ForgetUsedUp() {
@@ -167,37 +159,8 @@ class Inventory final : public UiScreen {
 	// The selected item's place in its tab's grid, in the open order (scenario `expect selected`).
 	[[nodiscard]] int SelectedPosition() const;
 	void SpecialKeyPressed(int key) override;
-	// In game, the class keys (1 melee, 2 ranged): equips the next weapon of that class held, in ItemKind order and
-	// wrapping round, with the toast; the first one if the other class is in hand. None held: nothing.
-	void EquipNext(bool ranged);
-	// Equips the weapon like a click on its slot (scenario `equip`). False if it is not in hand afterwards (not
-	// held, a potion).
-	bool Equip(ItemKind weapon);
-	// Puts the amulet on like a click on its slot, or takes the worn one off (nullopt) (scenario `wear`). False if
-	// it is not held or not worn afterwards.
-	bool Wear(std::optional<ItemKind> amulet);
-	// Puts the ring on that hand like its card's hand button (scenario `wear <ring> left|right`). False if it is not
-	// held or not on that hand afterwards.
-	bool WearRing(ItemKind ring, Hand hand);
-	// In game, H drinks a healing and 0 a stamina potion, the best fit (quickPotion). Full health / stamina or none
-	// left: nothing is drunk, the status box says why.
-	void QuickDrink(QuickKind kind);
-	// In game, = drinks an antidote. Not poisoned or none left: nothing is drunk, the status box says why.
-	void QuickAntidote();
-	// Once a tick: insanity's start puts the club in hand and remembers the weapon, its end gives the weapon back (plan
-	// curses).
-	void FollowInsanity(bool insane);
-	// The potion QuickDrink would drink now, ignoring whether anything is missing (the HUD slot); nullopt if none
-	// left.
-	[[nodiscard]] std::optional<ItemKind> QuickChoice(QuickKind kind) const;
-	// Game clock time of the last quick drink of that kind, for the HUD flash.
-	[[nodiscard]] std::optional<int> QuickDrinkMs(QuickKind kind) const;
-	[[nodiscard]] std::optional<int> AntidoteMs() const { return antidoteMs; }
-	Item* Equipped() { return Model(bag.Equipped()); }
 	[[nodiscard]] static ui::Color PotionColor(ItemKind potion); // the potion icons' tint (HUD quick slot)
-	[[nodiscard]] int Count(ItemKind kind) const { return bag.Count(kind); }
-	// Weapon damage with its level bonus.
-	[[nodiscard]] int EquippedDamage() const;
+	[[nodiscard]] int EquippedDamage() const; // weapon damage with its level bonus
 	void BagLoaded(); // a save game was read into the bag (dungeon_save.h): the selection follows it
 	// The confirm box is open: it takes every key, Esc too (input.cpp).
 	[[nodiscard]] bool Asking() const { return confirm.Open(); }

@@ -25,6 +25,7 @@
 #include "../level/leaderboard.h"
 #include "../level/world_events.h"
 #include "saves.h"
+#include "item_commands.h"
 #include "../level/settings_ini.h"
 #include <array>
 #include <memory>
@@ -75,7 +76,9 @@ class GameState {
 	NameList names; // the royal names of the name gates, content/names/*.txt (plan secret-name-gates)
 	WorldEvents events; // what the world and the player told the app since the last ApplyWorldEvents
 	Leaderboard leaderboard; // the won runs, saves/leaderboard.txt (plan leaderboard)
-	SaveService saves{*this}; // the save files, the autosave and the quick save (plan game-state-split)
+	SaveService saves{*this};
+	ItemCommands itemCommands{*this}; // the quick drinks, the weapon keys, insanity's club (plan game-state-split) //
+									  // the save files, the autosave and the quick save (plan game-state-split)
 	// The first hints show in a campaign run (plan controls-help); scenario `hints on` shows them in any run.
 	bool hintsAnyRun = false;
 	// Every offering brings a gift (plan offering-gift), for the play scripts: scenario `gifts on`.

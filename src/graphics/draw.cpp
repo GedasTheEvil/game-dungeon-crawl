@@ -64,7 +64,7 @@ std::optional<float> beamProgress(std::optional<int> at) {
 void drawWeapon() { // in the fist nearer the camera
 	const int facing = Game().camera.Facing();
 	const auto dir = static_cast<float>(facing);
-	Item* weapon = Game().ui.inventory->Equipped();
+	Item* weapon = Game().assets.items.Of(Game().bag.Equipped());
 	const Player& player = *Game().player;
 	if (isThrown(Game().bag.Equipped()) && player.attackStartMs >= 0 && player.attackLanded)
 		return; // in the air: the hand is empty until the swing ends

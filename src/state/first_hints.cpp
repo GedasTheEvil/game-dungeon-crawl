@@ -2,7 +2,6 @@
 #include "game_state.h"
 #include "ui_context.h"
 #include "../level/controls_help.h"
-#include "../ui/inventory.h"
 #include "../core/timer.h"
 #include "../level/gameplay_shared.h"
 #include <cmath>
@@ -45,7 +44,7 @@ void updateFirstHints() {
 	if (moved)
 		watch.walkedMs += UPDATE_TICK_MS;
 
-	const Inventory& inventory = *Game().ui.inventory;
+	const ItemCommands& items = Game().itemCommands;
 	const Dungeon& dungeon = Game().dungeon;
 	if (pending(FirstHint::Attack, player.attackStartMs >= 0) && offer(FirstHint::Attack, !dungeon.PlayerSafe(), now))
 		return;
@@ -58,13 +57,13 @@ void updateFirstHints() {
 		offer(FirstHint::PowerHit, player.stats.heka.Has(SkillId::PowerHit), now))
 		return;
 	if (pending(FirstHint::QuickHeal, false) &&
-		offer(FirstHint::QuickHeal, inventory.QuickChoice(QuickKind::Health).has_value(), now))
+		offer(FirstHint::QuickHeal, items.QuickChoice(QuickKind::Health).has_value(), now))
 		return;
 	if (pending(FirstHint::QuickStamina, false) &&
-		offer(FirstHint::QuickStamina, inventory.QuickChoice(QuickKind::Stamina).has_value(), now))
+		offer(FirstHint::QuickStamina, items.QuickChoice(QuickKind::Stamina).has_value(), now))
 		return;
 	if (pending(FirstHint::QuickAntidote, false) &&
-		offer(FirstHint::QuickAntidote, inventory.Count(ItemKind::Antidote) > 0, now))
+		offer(FirstHint::QuickAntidote, Game().bag.Count(ItemKind::Antidote) > 0, now))
 		return;
 	if (pending(FirstHint::Drag, dungeon.Dragging()) &&
 		offer(FirstHint::Drag, dungeon.PlayerCanDrag(Game().camera.Facing()), now))

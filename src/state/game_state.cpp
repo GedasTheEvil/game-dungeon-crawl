@@ -67,7 +67,7 @@ void GameState::Load() {
 		assets.DrawLoadingScreen(percent, step, detail);
 	});
 	ui.riddle = std::make_unique<Riddle>();
-	ui.inventory = std::make_unique<Inventory>(bag);
+	ui.inventory = std::make_unique<Inventory>(bag, itemCommands);
 
 	Texture playerTexture;
 	playerTexture.LoadPNG(MEDIA_DIR "textures/characters/archeologist.png");
@@ -159,6 +159,7 @@ void GameState::NewGame() {
 	player->stats = PlayerStats{};
 	player->stats.run.campaign = true; // from New Game on level 1: the win goes on the leaderboard
 	player->stats.run.nameSeed = random.gameplay.next(); // each level's royal name (plan secret-name-gates)
+	itemCommands.Reset();
 	ui.inventory->Reset();
 	journal.Begin();
 	ApplyViewState(UiViewState{}); // facing right, the first tabs and pages

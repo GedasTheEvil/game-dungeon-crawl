@@ -443,7 +443,7 @@ void runItemCommand(const Command& cmd) {
 	switch (cmd.type) {
 	case CommandType::Give:
 		for (int i = 0; i < cmd.ticks; i++)
-			Game().ui.inventory->AddItem(cmd.item);
+			Game().itemCommands.AddItem(cmd.item);
 		report(cmd, true, "");
 		return;
 	case CommandType::Select: // like a click on its slot, also when it is on another tab
@@ -463,16 +463,15 @@ void runItemCommand(const Command& cmd) {
 		report(cmd, true, "");
 		return;
 	case CommandType::Wear: // like a click on its slot in the inventory, or a ring card's hand button
-		if (isRing(cmd.item)
-				? !Game().ui.inventory->WearRing(cmd.item, static_cast<Hand>(cmd.ticks))
-				: !Game().ui.inventory->Wear(isAmulet(cmd.item) ? std::optional(cmd.item) : std::nullopt)) {
+		if (isRing(cmd.item) ? !Game().itemCommands.WearRing(cmd.item, static_cast<Hand>(cmd.ticks))
+							 : !Game().itemCommands.Wear(isAmulet(cmd.item) ? std::optional(cmd.item) : std::nullopt)) {
 			report(cmd, false, "not held");
 			return;
 		}
 		report(cmd, true, stateLine());
 		return;
 	case CommandType::Equip: // like a click on its slot in the inventory
-		if (!Game().ui.inventory->Equip(cmd.item)) {
+		if (!Game().itemCommands.Equip(cmd.item)) {
 			report(cmd, false, "not held");
 			return;
 		}
@@ -485,7 +484,7 @@ void runItemCommand(const Command& cmd) {
 				RollChestLoot(cmd.item, Game().bag.Owned(), Game().dungeon.LevelNumber(), Game().random.gameplay);
 			bonus += static_cast<int>(loot.size()) - 1;
 			for (ItemKind entry : loot)
-				Game().ui.inventory->AddItem(entry);
+				Game().itemCommands.AddItem(entry);
 		}
 		report(cmd, true, std::to_string(bonus) + " bonus items");
 		return;

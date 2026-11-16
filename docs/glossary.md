@@ -298,7 +298,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | potion | | drunk from the inventory or a quick key | `PotionDef` |
 | glass shell | | a glass potion vessel's see-through glass (flask, lotus jar, cobra vial), its own model drawn over the opaque bits and the liquid inside ([potion-glass-vessels](plan/solved/potion-glass-vessels.md)) | `PotionModelDef::glass`, `PartStyle::Glass`, `Item::loadPart` |
 | antidote | Antidote | the potion that cures poison; the checker wants one where something poisons | `ItemKind::Antidote` |
-| quick-drink | | the quick keys: drink the best fitting health or stamina potion | `Inventory::QuickDrink`, `quickPotion` |
+| quick-drink | | the quick keys: drink the best fitting health or stamina potion | `ItemCommands::QuickDrink`, `quickPotion` |
 | sealed | Sealed | a skill shown on the Heka screen whose rules are not in the game yet: not learnable | `SkillDef::sealed` |
 | dodge | Dodged | the Dodge skill: 1 monster attack in 10 (`DODGE_PERCENT`) misses the player: no damage, no poison | `Player::Dodges` |
 | stance | | how a container stands in its cell: facing the camera, angled, side-on, against the back wall or a side wall | `STANCES`, `TreasureLook` |

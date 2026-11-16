@@ -28,7 +28,7 @@ void updateAttack() {
 		return;
 	const int facing = Game().camera.Facing();
 	if (playerControl().UpdateAttack(facing, Game().playerView.Fist(player, facing)[1] / RenderConfig::TILE_SIZE))
-		Game().ui.inventory->Equipped()->strikeSound.Play();
+		Game().assets.items.Of(Game().bag.Equipped())->strikeSound.Play();
 }
 
 // The menu's track on the start menu, the death and the win screen (the in-game menu keeps the zone's), else the
@@ -116,7 +116,7 @@ void tick() {
 	if (Game().player->Alive() && !Game().dungeon.Won()) // play time: paused, menus and the UI screens do not count
 		Game().player->stats.run.AddPlayMs(UPDATE_TICK_MS, Game().dungeon.LevelNumber());
 	playerControl().AfterUpdate();
-	Game().ui.inventory->FollowInsanity(Game().player->stats.curses.Has(Curse::Insanity));
+	Game().itemCommands.FollowInsanity(Game().player->stats.curses.Has(Curse::Insanity));
 	updateFirstHints();
 	PlayerHud::tick(Game().player->stats.CurrentHP(), Game().player->stats.CurrentMaxHP());
 	glutPostRedisplay();

@@ -362,85 +362,31 @@ bool Dungeon::SpeakName() {
 }
 void Dungeon::startTravel(bool exitGate, bool rings) {
 	if (rings) {
-		travel = {GateTravel::Phase::RingsDown, GameClock::now(), false, true};
+		travel.StartRings();
 		mapX = std::floor(mapX) + TELEPORT_ARRIVAL_X; // in the middle, where the rings come down
 		resetPlayerMotion();
 		sim.events->Play(WorldSound::RingsDown);
 		return;
 	}
-	travel = {GateTravel::Phase::Out, GameClock::now(), exitGate};
+	travel.Start(exitGate);
 	sim.events->Play(WorldSound::Teleport);
 }
-int Dungeon::travelPhaseMs() const {
-	switch (travel.phase) {
-	case GateTravel::Phase::RingsDown:
-		return RINGS_DOWN_MS;
-	case GateTravel::Phase::RingsUp:
-		return RINGS_UP_MS;
-	case GateTravel::Phase::Out:
-	case GateTravel::Phase::In:
-		return travel.rings ? RING_FLASH_MS : GATE_TRAVEL_FADE_MS;
-	case GateTravel::Phase::None:
-		break;
-	}
-	return 0;
-}
 void Dungeon::updateTravel() {
-	if (GameClock::now() - travel.startMs < travelPhaseMs())
+	const GateTravel::Phase ended = travel.Ended();
+	if (ended == GateTravel::Phase::None)
 		return;
-	const int now = GameClock::now();
-	switch (travel.phase) {
-	case GateTravel::Phase::RingsDown:
-		travel.phase = GateTravel::Phase::Out;
-		break;
-	case GateTravel::Phase::Out:
-		if (travel.exit) {
+	if (ended == GateTravel::Phase::Out) {
+		if (travel.ToExit()) {
 			if (LoadCampaignLevel(levelNumber + 1))
 				sim.events->Autosave(AutosaveMoment::LevelStart); // plan autosave
 		} else
 			Teleport();
-		travel.phase = GateTravel::Phase::In;
-		break;
-	case GateTravel::Phase::In:
-		travel.phase = travel.rings ? GateTravel::Phase::RingsUp : GateTravel::Phase::None;
-		if (travel.rings) {
-			sim.events->Play(WorldSound::RingsUp);
-			sim.events->Note(FieldNote::Rings); // the joke about the Rings pocket, the first time
-		}
-		break;
-	case GateTravel::Phase::RingsUp:
-	case GateTravel::Phase::None:
-		travel.phase = GateTravel::Phase::None;
-		break;
 	}
-	travel.startMs = now;
-}
-float Dungeon::TravelFade() const {
-	if (travel.phase != GateTravel::Phase::Out && travel.phase != GateTravel::Phase::In)
-		return 0.f;
-	const float t = motionProgress(travel.startMs, travelPhaseMs());
-	return travel.phase == GateTravel::Phase::Out ? t : 1.f - t;
-}
-float Dungeon::RingDrop(int ring) const {
-	if (!travel.rings)
-		return 0.f;
-	const int since = GameClock::now() - travel.startMs;
-	auto way = [](int ms) { // eased: they drop fast and settle
-		const float t = std::clamp(static_cast<float>(ms) / RING_FALL_MS, 0.f, 1.f);
-		return 1.f - (1.f - t) * (1.f - t);
-	};
-	switch (travel.phase) {
-	case GateTravel::Phase::RingsDown:
-		return way(since - ring * RING_STAGGER_MS);
-	case GateTravel::Phase::RingsUp:
-		return 1.f - way(since - (RING_COUNT - 1 - ring) * RING_STAGGER_MS);
-	case GateTravel::Phase::Out:
-	case GateTravel::Phase::In:
-		return 1.f;
-	case GateTravel::Phase::None:
-		break;
+	travel.Next(ended);
+	if (ended == GateTravel::Phase::In && travel.ByRings()) {
+		sim.events->Play(WorldSound::RingsUp);
+		sim.events->Note(FieldNote::Rings); // the joke about the Rings pocket, the first time
 	}
-	return 0.f;
 }
 // The player steps out in the middle of the partner gate, in the plasma.
 void Dungeon::Teleport() {

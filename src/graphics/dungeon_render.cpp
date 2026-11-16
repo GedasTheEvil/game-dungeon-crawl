@@ -605,7 +605,8 @@ void DungeonView::drawTileContent(int i, int j) {
 }
 void DungeonView::pushLevelFrame() const {
 	glPushMatrix();
-	const float x = d.mapX + d.cutShot.dx, y = d.mapY + d.cutShot.dy; // the camera's place, as view()
+	const CutShot shot = d.cutScene.Shot();
+	const float x = d.mapX + shot.dx, y = d.mapY + shot.dy; // the camera's place, as view()
 	glTranslatef(
 		-RenderConfig::TILE_SIZE * (x - static_cast<float>(static_cast<int>(x))),
 		-RenderConfig::TILE_SIZE * (y - static_cast<float>(static_cast<int>(y))),

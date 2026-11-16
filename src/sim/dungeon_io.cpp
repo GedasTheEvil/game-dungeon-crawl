@@ -54,7 +54,6 @@ bool Dungeon::Load(const char* filename, int depth) {
 void Dungeon::LoadGrid(const LevelGrid& grid, const char* levelName, int depth) {
 	travel = {};
 	dial = {};
-	stargateRestDeg = 0.f;
 	std::copy(std::begin(grid.cells), std::end(grid.cells), map);
 	meta = grid.meta;
 	for (Tile& t : map) // plan old-save-fallen-rock-invisible: a rock landed before it became a Stone is one now

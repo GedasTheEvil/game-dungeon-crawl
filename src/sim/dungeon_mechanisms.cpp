@@ -26,8 +26,7 @@ void Dungeon::resetMechanisms() {
 	std::fill(plateDown.begin(), plateDown.end(), 0);
 	platesSettled = false;
 	platesOpened = 0;
-	cutScene = {};
-	cutShot = {};
+	cutScene.End();
 	fallingRocks.clear();
 	dartTraps = {};
 	chestGas.clear();

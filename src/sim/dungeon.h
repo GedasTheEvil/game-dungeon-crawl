@@ -15,6 +15,9 @@
 #include "../level/shrines.h"
 #include "../level/view_window.h"
 #include "sim_links.h"
+#include "cut_scene.h"
+#include "gate_travel.h"
+#include "stargate_dial.h"
 #include "../level/sun_beam.h"
 #include "../level/zone_look.h"
 #include <array>
@@ -38,14 +41,6 @@ struct RoyalName;
 
 // Live monster slots; the campaign's busiest level has 15. No design limit: raise it at will.
 constexpr int MAX_MONSTERS = 32;
-
-// A cut-scene's camera this tick (plan cinematic-effects): how far it is from the player in tiles (x right, y up), and
-// how far the cut-scene look (letterbox bars, tint, vignette) is in, 0..1.
-struct CutShot {
-	float dx = 0.f;
-	float dy = 0.f;
-	float look = 0.f;
-};
 
 // What the hitbox debug view (F3, scenario 'hitboxes on') shows of the weapon: its reach in tiles, measured from the
 // player's box edge (melee) or the centre (the bow).
@@ -76,9 +71,10 @@ class Dungeon {
 	[[nodiscard]] bool monstersStandDown() const { return won || peace; }
 	// Solid rock for the drawing: a wall, or outside the level.
 	[[nodiscard]] bool isRock(int col, int row) const { return !IsInBounds(col, row) || isWall(MapAt(col, row)); }
-	// Round the camera: the player, or where a cut-scene's camera is (cutShot).
+	// Round the camera: the player, or where a cut-scene's camera is (cutScene.Shot()).
 	[[nodiscard]] ViewWindow view() const {
-		return {static_cast<int>(mapX + cutShot.dx) - 3, static_cast<int>(mapY + cutShot.dy) - 3};
+		const CutShot shot = cutScene.Shot();
+		return {static_cast<int>(mapX + shot.dx) - 3, static_cast<int>(mapY + shot.dy) - 3};
 	}
 	bool IsInBounds(int col, int row) const;
 	int MapIndex(int col, int row) const;
@@ -683,47 +679,20 @@ class Dungeon {
 	// The near edge (at mid height) of the nearest living monster ahead (dir -1 / +1) within range tiles of (x, y) the
 	// bow can reach, or false.
 	bool aimTarget(float x, float y, int dir, float range, float& outX, float& outY) const;
-	// Gate travel: the view fades out (Out), the jump happens under the faded frame, the view fades in (In). A ring
-	// platform (plan ring-transporter) drops its rings first (RingsDown), fades in a white flash and raises them at
-	// the partner (RingsUp). The world stands still meanwhile.
-	struct GateTravel {
-		enum class Phase : unsigned char { None, Out, In, RingsDown, RingsUp };
-		Phase phase = Phase::None;
-		int startMs = 0;
-		bool exit = false; // the exit gate (red), else a teleporter (blue)
-		bool rings = false; // a ring platform (white)
-	} travel;
+	GateTravel travel; // through a gate (gate_travel.h); the world stands still meanwhile
 	void startTravel(bool exitGate, bool rings = false);
-	// The Stargate dialled (plan stargate-chamber, dungeon_stargate.cpp): its cell while the chevrons lock, -1 when
-	// still; the dial's start, the next of its steps (a chevron's turn, the failing seventh, its message, the end);
-	// the track's turn kept from the dials before.
-	struct StargateDial {
-		int cell = -1;
-		int startMs = 0;
-		int step = 0;
-	} dial;
-	float stargateRestDeg = 0.f;
+	void updateTravel(); // the jump under the faded frame, the next phase
+	StargateDial dial; // the Stargate dialled (stargate_dial.h, dungeon_stargate.cpp)
 	void startDial();
 	void pressDialDevice();
 	void weighHeart(); // the scales of the judgment (plan weighing-of-the-heart)
-	void updateDial();
-	[[nodiscard]] float dialTrackDeg(int elapsedMs) const; // the track's turn so far in a dial
-	void updateTravel();
-	[[nodiscard]] int travelPhaseMs() const; // how long the phase lasts
-	// Cut-scenes (dungeon_cutscene.cpp, plan cinematic-effects): the camera goes to the gates a lever or a boss's death
-	// opened off the screen, holds on each while it opens, and comes back. The world stands still meanwhile, but for
-	// the gates.
-	struct CutScene {
-		std::vector<int> stops; // gate cells (map index), in the order shown; empty: none playing
-		int startMs = 0;
-	} cutScene;
-	bool cutScenesOn = false; // Options > Display > Cut-scenes (SetCutScenes)
-	CutShot cutShot; // this tick's camera, set by updateCutScene
-	// The cut-scene for the gates just opened (cells): the nearest CUTSCENE_MAX_STOPS off the screen. Each starts to
-	// open as the camera comes to it.
+	void updateDial(); // the chevrons' sounds, the failing seventh's message and reward
+	// Cut-scenes (cut_scene.h, dungeon_cutscene.cpp): the camera goes to the gates a lever or a boss's death opened off
+	// the screen. The world stands still meanwhile, but for the gates.
+	CutScene cutScene;
+	// The cut-scene for the gates just opened (cells): each starts to open as the camera comes to it.
 	void startCutScene(const std::vector<int>& opened);
 	void updateCutScene();
-	[[nodiscard]] int cutSceneLengthMs() const;
 	// The monster tiles in the gameplay window (ViewWindow, 10 x 6 cells round the player) spawn their monsters.
 	void spawnInView();
 	// Each tick: drops the holes, sprays, puffs, landings and pours that ran out, starts the pour of a sand fall
@@ -969,18 +938,22 @@ class Dungeon {
 	void StartJump(int dir);
 	bool SpawnMonster(int i, int j);
 	void Teleport(); // on a teleporter: jump to its partner (useGate starts it under a fade)
-	[[nodiscard]] bool Travelling() const { return travel.phase != GateTravel::Phase::None; }
-	[[nodiscard]] float TravelFade() const; // 0..1: how far the view is faded into the gate colour
-	[[nodiscard]] bool TravelToExit() const { return travel.exit; }
-	[[nodiscard]] bool TravelByRings() const { return travel.rings; }
+	[[nodiscard]] bool Travelling() const { return travel.Active(); }
+	[[nodiscard]] float TravelFade() const {
+		return travel.Fade();
+	} // 0..1: how far the view is faded into the gate colour
+	[[nodiscard]] bool TravelToExit() const { return travel.ToExit(); }
+	[[nodiscard]] bool TravelByRings() const { return travel.ByRings(); }
 	// The Stargate in (col, row) (plan stargate-chamber): how bright its chevron k (0 to STARGATE_CHEVRONS - 1, the
 	// seventh at the top) glows, 0..1, and the turn of its inner track in degrees (counter-clockwise as seen).
-	[[nodiscard]] float ChevronGlow(int col, int row, int chevron) const;
-	[[nodiscard]] float StargateTrackDeg(int col, int row) const;
-	[[nodiscard]] bool Dialling() const { return dial.cell >= 0; }
+	[[nodiscard]] float ChevronGlow(int col, int row, int chevron) const {
+		return dial.ChevronGlow(MapIndex(col, row), chevron);
+	}
+	[[nodiscard]] float StargateTrackDeg(int col, int row) const { return dial.TrackDeg(MapIndex(col, row)); }
+	[[nodiscard]] bool Dialling() const { return dial.Dialling(); }
 	// Ring k's way down out of the ceiling while a ring platform carries the player (plan ring-transporter), 0 up in
 	// its housing to 1 at rest round the player; 0 when not travelling by rings. Ring 0 drops first, to the bottom.
-	[[nodiscard]] float RingDrop(int ring) const;
+	[[nodiscard]] float RingDrop(int ring) const { return travel.RingDrop(ring); }
 	// Pushes the player tiles along the row, dir -1 / +1, sliding (a storm roar). Not while held.
 	void ShovePlayer(int dir, float tiles);
 	// 0..1: how thick the sand over the screen is (a storm roar), fading out.
@@ -994,9 +967,9 @@ class Dungeon {
 	[[nodiscard]] int LandingPuffs() const { return static_cast<int>(landings.size()); }
 	[[nodiscard]] int LastLandingHeap() const { return landings.empty() ? -1 : landings.back().heap; }
 	void SetMotionEffects(bool on) { motionEffectsOn = on; }
-	void SetCutScenes(bool on) { cutScenesOn = on; } // off: remote gates open unseen
-	[[nodiscard]] bool CutScenePlaying() const { return !cutScene.stops.empty(); }
-	[[nodiscard]] CutShot CutSceneShot() const { return cutShot; }
+	void SetCutScenes(bool on) { cutScene.SetEnabled(on); } // off: remote gates open unseen
+	[[nodiscard]] bool CutScenePlaying() const { return cutScene.Playing(); }
+	[[nodiscard]] CutShot CutSceneShot() const { return cutScene.Shot(); }
 	void SkipCutScene(); // back to the player at once; the gates go on opening
 	[[nodiscard]] int KeysHeld() const { return keysHeld; }
 	[[nodiscard]] int LevelKeys() const { return levelKeys; } // the HUD's key sockets

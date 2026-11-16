@@ -365,7 +365,7 @@ void DungeonView::drawStargate(int i, int j) {
 void DungeonView::addStargateLights(const CellRect& drawn) {
 	if (!d.Dialling())
 		return;
-	const int col = d.dial.cell % Dungeon::MAP_WIDTH, row = d.dial.cell / Dungeon::MAP_WIDTH;
+	const int col = d.dial.Cell() % Dungeon::MAP_WIDTH, row = d.dial.Cell() / Dungeon::MAP_WIDTH;
 	if (!drawn.grown(2).contains(static_cast<float>(col) + 0.5f, row))
 		return;
 	float glow = 0.f;
@@ -381,6 +381,6 @@ void DungeonView::addStargateLights(const CellRect& drawn) {
 			GATE_CENTRE_Y * RenderConfig::TILE_SIZE,
 		-RenderConfig::TILE_SIZE + GATE_CENTRE_Z * RenderConfig::TILE_SIZE + 6.f,
 		light,
-		static_cast<uint32_t>(d.dial.cell)
+		static_cast<uint32_t>(d.dial.Cell())
 	);
 }

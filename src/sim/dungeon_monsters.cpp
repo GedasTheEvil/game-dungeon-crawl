@@ -240,16 +240,9 @@ void Dungeon::clearMonsters() {
 	for (Monster& mon : monsters)
 		mon.Clear();
 	projectiles.Clear();
-	holes.clear();
-	sprays.clear();
-	puffs.clear();
-	landings.clear();
-	pours.clear();
-	webs.clear();
-	snuffs.clear();
+	hazards.Clear(); // the chest gas too
 	nextWebMs = 0;
 	playerWebbed = false;
-	blazes.clear();
 	sim.player->stats.vitals.blazeReadyMs = 0;
 	playerBlazed = false;
 	bossFight = BossFight{};

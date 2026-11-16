@@ -20,6 +20,7 @@
 #include "stargate_dial.h"
 #include "mechanisms.h"
 #include "projectiles.h"
+#include "hazards.h"
 #include "../level/sun_beam.h"
 #include "../level/zone_look.h"
 #include <array>
@@ -120,13 +121,6 @@ class Dungeon {
 	// A curse from an object (a chest's execration text, a smashed ushabti): the execration's status line, then the
 	// curse laid (its own line) and its field note.
 	void tombCurse(Curse c, const char* execration);
-	// A puff of poison gas over a chest (ChestTrap::Gas), for CHEST_GAS_MS: not saved, as the darts in flight.
-	struct ChestGas {
-		int cell; // map index
-		int startMs; // GameClock
-		int nextPoisonMs; // the next weak poison for a player in it
-	};
-	std::vector<ChestGas> chestGas;
 	void updateChestGas();
 	// 0 .. 1: how much a closed trapped container in cell shows its tell (darker), by the player's distance.
 	[[nodiscard]] float chestTell(int cell) const;
@@ -481,20 +475,9 @@ class Dungeon {
 	// A hurt monster's pack call (CallRules, plan giant-rat-pack-call): the squeal, the journal, every monster that
 	// answers within the radius is alerted.
 	void callPack(const Monster& caller);
-	// A web over the floor of cell (map index), spun at laidMs; cut or burnt at goneMs (< 0: whole), gone WEB_CUT_MS
-	// or WEB_BURN_MS later. Not saved: a load starts the boss fight over.
-	struct Web {
-		int cell;
-		int laidMs;
-		int goneMs = -1;
-		bool burnt = false;
-	};
-	std::vector<Web> webs;
 	int nextWebMs = 0; // GameClock: the spinner's next web (one boss per level)
 	bool playerWebbed = false; // the player stood in a web on the last tick: the status line was told
-	std::vector<Motion> snuffs; // the torches and lamps just put out, their flames dying down (SNUFF_MS)
 	void updateWebs(); // the player caught in one, the fire vents' jets burn them, the cut and burnt ones go
-	[[nodiscard]] int webAt(int cell) const; // the whole web over the floor of cell (map index): its index, -1 none
 	void burnWeb(int cell); // fire on the floor of cell (map index): its web burns
 	// A blade's swing over the floor of row from fromX to toX (map x): the webs there are cut. How many.
 	int cutWebs(float fromX, float toX, int row);
@@ -536,29 +519,6 @@ class Dungeon {
 	bool wallSummonCell(int& outWall, int& outCell, int& outRow) const;
 	int playerFacing = -1; // the way the player last walked or turned (Move): -1 left (as the game starts), +1 right
 	int walkDir = -1; // the way the player last stepped (Move), turned or not: dragging, pulling or pushing
-	// Where a burrower went down or came up (Monster::Dive): sand thrown up and a dark hole, for BURROW_HOLE_MS.
-	struct Hole {
-		float x; // map x
-		int row;
-		int startMs;
-	};
-	std::vector<Hole> holes;
-	// A sand burrower's spray of sand as it came up (RoarRules spray, plan worm-boss), for BURROW_SPRAY_MS: drawn
-	// with the holes.
-	std::vector<Hole> sprays;
-	// Dust kicked up by a step in sand (plan desert-chapter), for SAND_PUFF_MS: drawn with the holes.
-	std::vector<Hole> puffs;
-	// Sand falls pouring down, from the end of the warning (startMs), for SAND_POUR_MS + SAND_POUR_TAIL_MS.
-	std::vector<Hole> pours;
-	// A fall onto a landing heap or sand (plan soft-landing): a puff of its matter (heap: DECOR_HEAP_*), for
-	// LANDING_PUFF_MS.
-	struct Landing {
-		float x; // map x
-		int row;
-		int startMs;
-		int heap;
-	};
-	std::vector<Landing> landings;
 	// The player's fall of `rows` ended in their cell: the thud, and a puff on a heap or sand (plan soft-landing).
 	void playerLanded(float rows);
 	// Map x a burrower comes up at: BURROW_BEHIND past the player, away from where it is; else as far in front of
@@ -569,19 +529,16 @@ class Dungeon {
 	// its sand nearest a player off the sand too. False: none.
 	[[nodiscard]] bool sandTarget(const Monster& mon, float range, bool edge, float past, float& outX) const;
 	Projectiles projectiles; // missiles, monster shots, dung balls (projectiles.h)
+	Hazards hazards; // webs, blazes, chest gas, holes, puffs, landings, snuffs (hazards.h)
+	using ChestGas = Hazards::ChestGas;
+	using Web = Hazards::Web;
+	using Blaze = Hazards::Blaze;
+	using Hole = Hazards::Hole;
+	using Landing = Hazards::Landing;
 	void updateMissiles();
 	void shootAtPlayer(const Monster& mon, float x, float y);
 	void aimShot(MonsterShot& v) const; // at the player as they stand: the chest, a big coal the feet
 	void updateShots();
-	// A floor burning where Babi's big coal landed (plan babi-boss, dungeon_blaze.cpp): the cell (map index) from
-	// startMs to endMs. Whoever stands in it, not in a jump, takes BLAZE_DAMAGE every BLAZE_TICK_MS and burns on.
-	// Not saved.
-	struct Blaze {
-		int cell;
-		int startMs;
-		int endMs;
-	};
-	std::vector<Blaze> blazes;
 	bool playerBlazed = false; // the player stood in a blaze on the last tick: the status line was told
 	void blazeAt(float x, float y, int ms); // the floor of the cell under (x, y) burns, unless it is wet or no floor
 	void updateBlazes();
@@ -889,10 +846,12 @@ class Dungeon {
 	[[nodiscard]] float StormHaze() const { return storm; }
 	// 0..1: the share of the other sounds' volume the wind of a gust near the player takes now.
 	[[nodiscard]] float SoundMuffle() const { return muffle; }
-	[[nodiscard]] int DustPuffs() const { return static_cast<int>(puffs.size()); } // steps' dust still in the air
+	[[nodiscard]] int DustPuffs() const {
+		return static_cast<int>(hazards.puffs.size());
+	} // steps' dust still in the air
 	// The landing puffs still in the air (plan soft-landing), the newest one's heap (-1 for none).
-	[[nodiscard]] int LandingPuffs() const { return static_cast<int>(landings.size()); }
-	[[nodiscard]] int LastLandingHeap() const { return landings.empty() ? -1 : landings.back().heap; }
+	[[nodiscard]] int LandingPuffs() const { return static_cast<int>(hazards.landings.size()); }
+	[[nodiscard]] int LastLandingHeap() const { return hazards.landings.empty() ? -1 : hazards.landings.back().heap; }
 	void SetMotionEffects(bool on) { motionEffectsOn = on; }
 	void SetCutScenes(bool on) { cutScene.SetEnabled(on); } // off: remote gates open unseen
 	[[nodiscard]] bool CutScenePlaying() const { return cutScene.Playing(); }
@@ -934,7 +893,9 @@ class Dungeon {
 		return IsInBounds(col, row) && decoration.doused[MapIndex(col, row)];
 	}
 	// A whole web lies over the floor of (col, row) (plan camel-spider-boss).
-	[[nodiscard]] bool WebAt(int col, int row) const { return IsInBounds(col, row) && webAt(MapIndex(col, row)) >= 0; }
+	[[nodiscard]] bool WebAt(int col, int row) const {
+		return IsInBounds(col, row) && hazards.WebAt(MapIndex(col, row)) >= 0;
+	}
 	// Scenario tests: a web over the floor of (col, row). False: no floor for one there (webFloor), or one lies there.
 	bool PlaceWeb(int col, int row);
 	// The player stands in a web (not in the air): hostile terrain, the walk slows to WEB_SLOW_FACTOR

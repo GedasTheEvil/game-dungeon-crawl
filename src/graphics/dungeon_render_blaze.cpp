@@ -26,7 +26,7 @@ float strength(int startMs, int endMs, int now) {
 void DungeonView::drawBlazes() {
 	const int now = GameClock::now();
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
-	for (const Dungeon::Blaze& b : d.blazes) {
+	for (const Dungeon::Blaze& b : d.hazards.blazes) {
 		const int col = b.cell % Dungeon::MAP_WIDTH, row = b.cell / Dungeon::MAP_WIDTH;
 		if (!drawnCells.contains(static_cast<float>(col) + 0.5f, row))
 			continue;
@@ -46,7 +46,7 @@ void DungeonView::drawBlazes() {
 void DungeonView::addBlazeLights() {
 	const int now = GameClock::now();
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
-	for (const Dungeon::Blaze& b : d.blazes) {
+	for (const Dungeon::Blaze& b : d.hazards.blazes) {
 		const int col = b.cell % Dungeon::MAP_WIDTH, row = b.cell / Dungeon::MAP_WIDTH;
 		Lighting::LightDef light = BLAZE_LIGHT;
 		light.radius *= strength(b.startMs, b.endMs, now);

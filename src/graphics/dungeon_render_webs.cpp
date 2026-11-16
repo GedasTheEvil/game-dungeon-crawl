@@ -22,7 +22,7 @@ constexpr float SAG = 0.82f; // a ring's thread between two spokes sags in towar
 
 // Same window and frame as drawSummonEffects.
 void DungeonView::drawWebs() {
-	if (d.webs.empty())
+	if (d.hazards.webs.empty())
 		return;
 	const int now = GameClock::now();
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
@@ -31,7 +31,7 @@ void DungeonView::drawWebs() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
-	for (const Dungeon::Web& w : d.webs) {
+	for (const Dungeon::Web& w : d.hazards.webs) {
 		const int col = w.cell % Dungeon::MAP_WIDTH, row = w.cell / Dungeon::MAP_WIDTH;
 		if (!drawnCells.contains(static_cast<float>(col) + 0.5f, row))
 			continue;
@@ -83,7 +83,7 @@ void DungeonView::drawWebs() {
 	glDisable(GL_BLEND);
 	Lighting::setEmissive(false);
 	glColor3f(1, 1, 1);
-	for (const Dungeon::Web& w : d.webs) // after the threads: the sprites blend over them
+	for (const Dungeon::Web& w : d.hazards.webs) // after the threads: the sprites blend over them
 		if (w.burnt && w.goneMs >= 0) {
 			const int col = w.cell % Dungeon::MAP_WIDTH, row = w.cell / Dungeon::MAP_WIDTH;
 			const float fade = 1.f - static_cast<float>(now - w.goneMs) / static_cast<float>(WEB_BURN_MS);

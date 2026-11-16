@@ -312,7 +312,7 @@ void DungeonView::drawFires(const CellRect& drawn) {
 		}
 	// A torch or a lamp the Mother of Webs put out (plan camel-spider-boss): its flame dies down.
 	const int now = GameClock::now();
-	for (const Dungeon::Motion& m : d.snuffs) {
+	for (const Dungeon::Motion& m : d.hazards.snuffs) {
 		const int age = now - m.startMs;
 		const int i = m.cell % Dungeon::MAP_WIDTH, j = m.cell / Dungeon::MAP_WIDTH;
 		if (age < 0 || age >= SNUFF_MS || !drawn.contains(static_cast<float>(i) + 0.5f, j))

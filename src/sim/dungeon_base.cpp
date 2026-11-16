@@ -200,19 +200,14 @@ void Dungeon::Update() {
 }
 void Dungeon::updateEffects() {
 	const int now = GameClock::now();
-	const auto expire = [now](auto& list, int ms) {
-		std::erase_if(list, [now, ms](const auto& e) { return now - e.startMs >= ms; });
-	};
-	expire(holes, BURROW_HOLE_MS);
-	expire(sprays, BURROW_SPRAY_MS);
-	expire(puffs, SAND_PUFF_MS);
-	expire(landings, LANDING_PUFF_MS);
-	expire(pours, SAND_POUR_MS + SAND_POUR_TAIL_MS);
+	hazards.ExpireMarks(now);
 	for (const Motion& m : fallingRocks) { // the stream starts as the warning ends
 		const int pourMs = m.startMs + ROCK_WARN_MS;
 		if (isSandFall(map[m.cell]) && now >= pourMs &&
-			std::none_of(pours.begin(), pours.end(), [&](const Hole& h) { return h.startMs == pourMs; }))
-			pours.push_back({static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, pourMs});
+			std::none_of(hazards.pours.begin(), hazards.pours.end(), [&](const Hole& h) {
+				return h.startMs == pourMs;
+			}))
+			hazards.pours.push_back({static_cast<float>(m.cell % MAP_WIDTH) + 0.5f, m.cell / MAP_WIDTH, pourMs});
 	}
 }
 void Dungeon::spawnInView() {
@@ -400,7 +395,7 @@ bool Dungeon::Move(float dirX, float dirY) {
 		if (GameClock::now() - wadeSoundMs >= SAND_STEP_MS) {
 			wadeSoundMs = GameClock::now();
 			sim.events->Play(WorldSound::SandStep);
-			puffs.push_back({mapX, static_cast<int>(mapY), GameClock::now()});
+			hazards.puffs.push_back({mapX, static_cast<int>(mapY), GameClock::now()});
 		}
 	}
 	if (moved && motionEffectsOn && sim.player->stats.IsSprinting() && !PlayerInSand() && !PlayerWading() &&
@@ -409,7 +404,7 @@ bool Dungeon::Move(float dirX, float dirY) {
 		GameClock::now() - sprintPuffMs >= SPRINT_PUFF_MS) { // plan sprint-toon-blur-and-extras
 		sprintPuffMs = GameClock::now();
 		const int now = sprintPuffMs;
-		puffs.push_back({mapX, static_cast<int>(mapY), now});
+		hazards.puffs.push_back({mapX, static_cast<int>(mapY), now});
 	}
 	if (moved && PlayerWading())
 		sim.events->Note(FieldNote::Wading); // plan field-notes-gates-and-water
@@ -434,7 +429,7 @@ void Dungeon::playerLanded(float rows) {
 	if (heap < 0)
 		return;
 	const int now = GameClock::now();
-	landings.push_back({mapX, row, now, heap});
+	hazards.landings.push_back({mapX, row, now, heap});
 }
 bool Dungeon::catchRungs() {
 	JumpState& jump = sim.player->jump;

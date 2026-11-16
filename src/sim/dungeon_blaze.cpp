@@ -26,19 +26,19 @@ void Dungeon::blazeAt(float x, float y, int ms) {
 	if (!blazeFloor(col, row))
 		return;
 	const int now = GameClock::now(), cell = MapIndex(col, row);
-	for (Blaze& b : blazes)
+	for (Blaze& b : hazards.blazes)
 		if (b.cell == cell) { // burns on, from now
 			b.endMs = std::max(b.endMs, now + ms);
 			return;
 		}
-	blazes.push_back({cell, now, now + ms});
+	hazards.blazes.push_back({cell, now, now + ms});
 	sim.events->Play(WorldSound::FireRoar);
 }
 bool Dungeon::BlazeAt(int col, int row) const {
 	if (!IsInBounds(col, row))
 		return false;
 	const int cell = MapIndex(col, row);
-	return std::any_of(blazes.begin(), blazes.end(), [cell](const Blaze& b) { return b.cell == cell; });
+	return hazards.Blazing(cell);
 }
 bool Dungeon::PlaceBlaze(int col, int row, int ms) {
 	if (!blazeFloor(col, row))
@@ -53,9 +53,9 @@ bool Dungeon::PlayerInBlaze() const {
 }
 void Dungeon::updateBlazes() {
 	const int now = GameClock::now();
-	blazes.erase(
-		std::remove_if(blazes.begin(), blazes.end(), [now](const Blaze& b) { return now >= b.endMs; }),
-		blazes.end()
+	hazards.blazes.erase(
+		std::remove_if(hazards.blazes.begin(), hazards.blazes.end(), [now](const Blaze& b) { return now >= b.endMs; }),
+		hazards.blazes.end()
 	);
 	// One rule for every body: a hit every BLAZE_TICK_MS while it stands in it, the first on stepping in.
 	const auto due = [now](Vitals& vitals, bool in) {
@@ -70,7 +70,7 @@ void Dungeon::updateBlazes() {
 	playerBlazed = in;
 	if (due(sim.player->stats.vitals, in))
 		sim.player->TakeHit(BLAZE_DAMAGE, BLAZE_MIX, *sim.events);
-	if (blazes.empty())
+	if (hazards.blazes.empty())
 		return;
 	for (Monster& mon : monsters) {
 		if (!mon.Active() || !mon.Alive() || mon.flies() || mon.jumping() || mon.Hidden() ||

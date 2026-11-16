@@ -52,9 +52,9 @@ bool Dungeon::updateBurrower(Monster& mon) {
 	}
 	if (mon.Burrowing()) {
 		if (mon.UpdateBurrow()) {
-			holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
+			hazards.holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
 			if (mon.Type()->spray) {
-				sprays.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
+				hazards.sprays.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
 				sandBurst(mon, *mon.Type()->spray);
 			}
 		}
@@ -69,12 +69,12 @@ bool Dungeon::updateBurrower(Monster& mon) {
 			mon.DelayDive();
 			return false;
 		}
-		holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
+		hazards.holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
 		mon.Dive(to - static_cast<float>(mon.Col()) - 0.5f);
 		return true;
 	}
 	if (float to = 0.f; burrowTarget(mon, to)) {
-		holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
+		hazards.holes.push_back({mon.CentreX(), mon.Row(), GameClock::now()});
 		mon.Dive(to - static_cast<float>(mon.Col()) - 0.5f);
 	} else
 		mon.DelayDive();

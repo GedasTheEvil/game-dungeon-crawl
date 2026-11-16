@@ -112,7 +112,7 @@ void DungeonView::drawSandEffects() {
 	const int now = GameClock::now();
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
 	// Each list holds what the last tick kept (Dungeon::updateEffects); one that ran out since is skipped.
-	for (const Dungeon::Hole& p : d.puffs)
+	for (const Dungeon::Hole& p : d.hazards.puffs)
 		if (now - p.startMs < SAND_PUFF_MS)
 			Grit::puff(
 				(p.x - col0) * T,
@@ -124,7 +124,7 @@ void DungeonView::drawSandEffects() {
 			);
 
 	// A fall's puff of the landing heap's matter (plan soft-landing).
-	for (const Dungeon::Landing& l : d.landings)
+	for (const Dungeon::Landing& l : d.hazards.landings)
 		if (now - l.startMs < LANDING_PUFF_MS)
 			Grit::landing(
 				(l.x - col0) * T,
@@ -153,7 +153,7 @@ void DungeonView::drawSandEffects() {
 					-T * SHAFT_DEPTH,
 					static_cast<uint32_t>(d.MapIndex(i, j))
 				);
-	for (const Dungeon::Hole& p : d.pours) // started by the tick as the sand fall's warning ends
+	for (const Dungeon::Hole& p : d.hazards.pours) // started by the tick as the sand fall's warning ends
 		Grit::pour(
 			(p.x - col0) * T,
 			(static_cast<float>(p.row + 1) - row0) * T,

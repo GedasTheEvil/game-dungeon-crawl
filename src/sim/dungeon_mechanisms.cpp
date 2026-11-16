@@ -26,7 +26,6 @@ void Dungeon::resetMechanisms() {
 	cutScene.End();
 	fallingRocks.clear();
 	dartTraps = {};
-	chestGas.clear();
 	sun.Clear();
 	drag = {};
 	dragSettle = {};

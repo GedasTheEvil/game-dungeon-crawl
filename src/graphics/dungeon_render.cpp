@@ -354,7 +354,7 @@ void DungeonView::drawContainerEffects() {
 void DungeonView::drawChestGas() {
 	constexpr int FADE_MS = 1000;
 	const int now = GameClock::now();
-	for (const Dungeon::ChestGas& g : d.chestGas) {
+	for (const Dungeon::ChestGas& g : d.hazards.chestGas) {
 		const int i = g.cell % Dungeon::MAP_WIDTH, j = g.cell / Dungeon::MAP_WIDTH;
 		const TreasureLook look = d.treasureLook(g.cell);
 		const float x = static_cast<float>(i - d.view().originCol) * RenderConfig::TILE_SIZE +

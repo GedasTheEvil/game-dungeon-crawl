@@ -52,7 +52,7 @@ std::string Dungeon::fireChestTrap(int cell) {
 	case ChestTrap::Gas:
 		sim.events->Play(WorldSound::SandHiss);
 		sim.player->Poison(PoisonTier::Weak, *sim.events, rng); // the first breath, before the trap's line
-		chestGas.push_back({cell, GameClock::now(), GameClock::now() + CHEST_GAS_POISON_MS});
+		hazards.chestGas.push_back({cell, GameClock::now(), GameClock::now() + CHEST_GAS_POISON_MS});
 		return "A puff of green gas. Do not breathe it.";
 	case ChestTrap::Curse:
 		tombCurse(RollChestCurse(kind, rng), "An execration text on the lid: cursed be he who opens this.");
@@ -95,8 +95,8 @@ void Dungeon::chestSwarm(int cell) {
 }
 void Dungeon::updateChestGas() {
 	const int now = GameClock::now();
-	std::erase_if(chestGas, [now](const ChestGas& g) { return now - g.startMs >= CHEST_GAS_MS; });
-	for (ChestGas& g : chestGas) {
+	std::erase_if(hazards.chestGas, [now](const ChestGas& g) { return now - g.startMs >= CHEST_GAS_MS; });
+	for (ChestGas& g : hazards.chestGas) {
 		const int col = g.cell % MAP_WIDTH, row = g.cell / MAP_WIDTH;
 		const bool inside = std::fabs(mapX - (static_cast<float>(col) + 0.5f)) <= CHEST_GAS_HALF_WIDTH &&
 							static_cast<int>(std::floor(mapY + STANDING_EPSILON)) == row;

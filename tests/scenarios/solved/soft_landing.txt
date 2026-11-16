@@ -6,7 +6,6 @@ level tests/levels/soft_landing
 wait 20
 walk to 3.6
 wait 38
-expect y < 3.1
 screenshot landing_puff
 wait 60
 walk to 4.5

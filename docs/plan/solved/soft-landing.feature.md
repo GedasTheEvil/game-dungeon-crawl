@@ -1,6 +1,6 @@
 # Soft landing at the bottom of drop shafts
 
-Status: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
+Status: solved 2026-11-16 (play-tested by the user). Was: implemented 2026-11-16, waiting for the user's play-test. Was: draft 2026-11-15, size M, needs nothing first.
 
 ## Idea
 
@@ -30,7 +30,7 @@ tells the player "this drop is safe", which a death pit never shows.
   checker warns on a drop of 3+ rows onto a bare floor (the fall length from the path model, `level_walker.*`). Then
   fix every campaign level by hand to pass the checker (AGENTS.md: no warnings); do not regenerate levels.
 * Monsters that fall (pushed, a jumper's leap) land on it the same way; no rule change for them.
-* Models or textures: small, one per zone, built per [modeling.md](../modeling.md) or as a floor overlay texture like
+* Models or textures: small, one per zone, built per [modeling.md](../../modeling.md) or as a floor overlay texture like
   the sand edge (`tools/textures/`). Implementer's choice.
 * Glossary rows: landing heap, (the thud and puff if named).
 

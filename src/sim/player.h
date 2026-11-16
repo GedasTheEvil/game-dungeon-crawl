@@ -158,6 +158,9 @@ class Player {
 	void Blind(int ms, WorldEvents& events);
 	// A screech (plan giant-bat-screech): dazed for ms, at least what is left of an earlier one.
 	void Daze(int ms, WorldEvents& events);
+	// A hit's chance to daze (plan baboon-coal-stun): rolls only when percent > 0 and the player is not dazed already,
+	// and never extends a daze. True: dazed now.
+	bool DazeByHit(int ms, int percent, WorldEvents& events, Rng& rng);
 	// A knock on the head (plan head-bump; a jump into a low ceiling, shared with monster-head-bump and
 	// ceiling-spikes): the larger of HEAD_BUMP_MIN_HP and HEAD_BUMP_MAX_HP_PCT % of the max HP straight off the HP (no
 	// armour, no resistance; none in god mode), a grunt, and HEAD_BUMP_DAZE_PCT % of the time (rolled on rng) a daze of

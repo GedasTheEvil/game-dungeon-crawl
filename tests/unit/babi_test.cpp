@@ -145,6 +145,7 @@ TEST_CASE("walked at, he backs off to the edge of his ledge and leaps the gap be
 	const int row = babi->Row();
 	bool leapt = false;
 	for (int t = 0; t < 8000 && !leapt; t += UPDATE_TICK_MS) {
+		world.player.stats.vitals.ComeTo(); // a coal's daze (plan baboon-coal-stun) would slow the walk at him
 		world.Step(1);
 		world.Tick();
 		leapt = babi->jumping();

@@ -45,7 +45,7 @@ TEST_CASE("a reckless kind's walk through spikes costs within a quarter of what 
 	} KINDS_BEFORE[] = {
 		{MonsterAnubis, 5.5},
 		{MonsterMummy, 713.0},
-		{MonsterAnubisBoss, 2.2},
+		{MonsterAnubisBoss, 1.5}, // 3x its HP since (plan lesser-anubis-guard): share 1, about 2.2 was out of reach
 		{MonsterScorpionQueen, 92.5},
 		{MonsterApep, 95.0},
 		{MonsterSobek, 145.7},
@@ -53,6 +53,7 @@ TEST_CASE("a reckless kind's walk through spikes costs within a quarter of what 
 		{MonsterSeth, 175.1},
 		{MonsterRerek, 238.0},
 		{MonsterBabi, 4.0},
+		{MonsterLesserAnubis, 5.6}, // new (plan lesser-anubis-guard): about the guard's
 	};
 	SimWorld world;
 	REQUIRE(world.Load("tests/levels/empty_row"));

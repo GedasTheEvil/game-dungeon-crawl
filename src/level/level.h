@@ -157,8 +157,10 @@ enum MonsterTypeId : unsigned char {
 	MonsterMimicJar = 35,
 	// the camel spider's small kin, in groups: climbs, keeps out of the light, fits through crawl spaces
 	MonsterTinySpider = 36,
+	// the Anubis living statue at half size, no bolt: the guard before the necropolis (plan lesser-anubis-guard)
+	MonsterLesserAnubis = 37,
 };
-constexpr int MONSTER_TYPE_MAX = MonsterTinySpider; // names, glyphs, threat, boss: monster_kinds.h
+constexpr int MONSTER_TYPE_MAX = MonsterLesserAnubis; // names, glyphs, threat, boss: monster_kinds.h
 
 // Keys, gates and levers of one colour belong together. Colour ids run from 1 to LOCK_COLOUR_COUNT.
 constexpr int LOCK_COLOUR_COUNT = 4;

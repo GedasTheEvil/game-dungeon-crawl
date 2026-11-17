@@ -248,6 +248,8 @@ constexpr float GIANT_SCARAB_STRIDE = 0.29f; // the giant scarab and Khepri
 // Picked by eye in the model viewer: a round in that many seconds at the base kind's walk on land. Calmer than the
 // measured stride (Anubis 0.78, the scorpion 0.26: short steps for a fast walk, a frantic pace), the feet slide a bit.
 constexpr float ANUBIS_STRIDE = 1.37f; // 0.54 s
+// The lesser Anubis statue's blow (plan lesser-anubis-guard): the guard's swing from half its height, at the body.
+constexpr MeleeReach LESSER_ANUBIS_BLOW = {MELEE_REACH_SLACK, 50.f, 0.75f, AttackHeight::Body};
 constexpr float BABOON_STRIDE = 3.95f; // 2.05 s
 constexpr float CAMEL_SPIDER_STRIDE = 2.21f; // 1.05 s
 // The camel spider's climb clip (tools/blender/models/camel_spider.py prints both), shared by the tiny spider and the
@@ -339,28 +341,30 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .poisonResistPercent = POISON_IMMUNE,
 	 .bloodless = true,
 	 .generated = {3, 10, 2}},
-	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%). Tuned for the
-	// necropolis, not its first zone: the late zones' own monster; in the priests' quarter, rare, the zone's terror.
+	// Reckless like the Anubis boss; its trap share is between the boss (10%) and the mummy (50%). The necropolis's own
+	// monster (plan lesser-anubis-guard): 3x the HP and 2x the blow and bolt it had, for a player with ~3500 HP there;
+	// the levels before it have the lesser statue.
 	{.id = MonsterAnubis,
 	 .glyph = 'n',
 	 .name = "Anubis living statue",
 	 .label = "anubis",
 	 .description = "Anubis living statue",
-	 .threat = 10.f, // walks faster than the player (plan anubis-speed): only a sprint gets away; +1 for the bolt
+	 // Walks faster than the player (plan anubis-speed): only a sprint gets away; the bolt; 3x HP, 2x damage.
+	 .threat = 20.f,
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis",
 	 .scale = 19,
 	 .blood = {0.55f, 0.52f, 0.46f}, // stone chips
 	 .speed = 23, // 1.21 tiles a second, 120% of the player's walk (one point: MONSTER_SEEK_STEP each 80 ms step)
-	 .maxHealth = 1300,
-	 .damage = 140,
+	 .maxHealth = 3900,
+	 .damage = 280,
 	 .attackMs = 1100,
-	 .xp = 10000,
+	 .xp = 25000,
 	 .attackMix = ANUBIS_MIX,
 	 .melee = HIGH_BLOW,
 	 .resist = ANUBIS_RESIST,
 	 .courage = Courage::Reckless,
-	 .trapPermille = 19,
+	 .trapPermille = 7, // 3x the HP: a third of its old share, the same HP a walk through spikes
 	 .weight = 3,
 	 .wading = Wading::Unaffected,
 	 .poisonResistPercent = POISON_IMMUNE,
@@ -370,7 +374,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 // ranged clip.
 	 .ranged =
 		 RangedRules{
-			 70,
+			 140,
 			 std::nullopt,
 			 1.4f,
 			 3000,
@@ -644,20 +648,21 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .label = "anubis boss",
 	 .description = "Anubis, the god himself, his living statues step out of the walls; his death opens the boss "
 					"gates. One boss per level",
-	 .threat = 16.f, // the finale, plus its guards and its bolt
+	 .threat = 30.f, // the finale, plus its guards and its bolt; above its guard (plan lesser-anubis-guard)
 	 .model = "monsters/anubis",
 	 .texture = "monsters/anubis_boss",
 	 .scale = 26,
 	 .speed = 25, // 1.31 tiles a second, a little faster than its guard
-	 .maxHealth = 2400,
-	 .damage = 190,
+	 // 3x HP, 2x the blow and bolt (plan lesser-anubis-guard): it stays above its guard.
+	 .maxHealth = 7200,
+	 .damage = 380,
 	 .attackMs = 1300,
-	 .xp = 30000,
+	 .xp = 60000,
 	 .attackMix = ANUBIS_MIX,
 	 .melee = HIGH_BLOW,
 	 .resist = ANUBIS_BOSS_RESIST,
 	 .courage = Courage::Reckless,
-	 .trapPermille = 4,
+	 .trapPermille = 1, // 3x the HP: the same HP a walk through spikes (plan lesser-anubis-guard)
 	 .weight = 4,
 	 .heightQuarters = 3,
 	 .wading = Wading::Unaffected,
@@ -666,7 +671,7 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .bloodless = true,
 	 .ranged =
 		 RangedRules{
-			 125,
+			 250,
 			 std::nullopt,
 			 2.0f,
 			 2500,
@@ -1469,6 +1474,41 @@ constexpr std::array<MonsterKind, MONSTER_TYPE_MAX> KINDS = {{
 	 .climbGrip = CAMEL_SPIDER_CLIMB_GRIP,
 	 .generated = {1, 6, 3},
 	 .group = 4},
+	// The lesser Anubis statue (plan lesser-anubis-guard): the guard at half size on its model, clips and texture, for
+	// the levels before the necropolis (the priests' quarter). No bolt; 0.75x the guard's old HP and blow. Its blow
+	// comes from half the height: a body blow, a crouch does not duck it. Small enough for a crawl space.
+	{.id = MonsterLesserAnubis,
+	 .glyph = '9',
+	 .name = "Lesser Anubis statue",
+	 .label = "lesser anubis",
+	 .description = "Lesser Anubis statue, the living statue at half size: no bolt, fits through crawl spaces",
+	 .threat = 7.f, // walks faster than the player like the guard, but no bolt and a softer blow
+	 .model = "monsters/anubis",
+	 .texture = "monsters/anubis",
+	 .scale = 9.5f,
+	 .blood = {0.55f, 0.52f, 0.46f}, // stone chips
+	 .speed = 23,
+	 .maxHealth = 975,
+	 .damage = 105,
+	 .attackMs = 1100,
+	 .xp = 6000,
+	 .attackMix = ANUBIS_MIX,
+	 .melee = LESSER_ANUBIS_BLOW,
+	 .resist = ANUBIS_RESIST,
+	 .courage = Courage::Reckless,
+	 .trapPermille = 25,
+	 .weight = 2,
+	 .heightQuarters = 1,
+	 .wading = Wading::Unaffected,
+	 .poisonResistPercent = POISON_IMMUNE,
+	 .bloodless = true,
+	 .ringDropPercent = 4,
+	 .meleeCurses = {CurseEntry{Curse::Vulnerability, CurseGrade::Lesser, 10}},
+	 .walkStride = ANUBIS_STRIDE,
+	 .climbs = true,
+	 .climbRise = 0.351f, // tools/blender/models/anubis.py
+	 .climbGrip = 0.119f,
+	 .generated = {7, 8, 1}},
 }};
 
 constexpr bool validKinds() {

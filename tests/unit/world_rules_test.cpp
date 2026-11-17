@@ -322,7 +322,7 @@ TEST_CASE("the Anubis boss: his guards step out of the wall, his blow past a lev
 	CHECK(world.Y() > 3);
 	REQUIRE(world.WalkTo(9.f));
 	world.WaitTicks(10);
-	CHECK(world.dungeon.BossHealth() == 2400);
+	CHECK(world.dungeon.BossHealth() == monsterKind(MonsterAnubisBoss)->maxHealth);
 	CHECK(world.dungeon.LivingMinions() >= 1);
 	// He walks up and strikes: a blow takes its damage less armour 11's share, 50 / 61 (his guards' blows less).
 	const MonsterKind& anubis = *monsterKind(MonsterAnubisBoss);
@@ -361,7 +361,7 @@ TEST_CASE("the Anubis boss has no coffins, also in a game saved after his death 
 	world.WaitTicks(5);
 	REQUIRE(world.WalkTo(9.f));
 	world.WaitTicks(10);
-	CHECK(world.dungeon.BossHealth() == 2400);
+	CHECK(world.dungeon.BossHealth() == monsterKind(MonsterAnubisBoss)->maxHealth);
 	DungeonCheats(world.dungeon).HurtBoss(world.dungeon.BossHealth());
 	world.WaitTicks(5);
 	CHECK(world.dungeon.BossHealth() == 0);

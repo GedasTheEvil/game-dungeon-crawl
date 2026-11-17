@@ -1,6 +1,6 @@
 # Lesser Anubis guard before the necropolis, a stronger one in it
 
-Status: draft 2026-11-16, size M, needs nothing first.
+Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
 
 ## Idea
 
@@ -48,3 +48,16 @@ Hall of Judgment lvl51-54) (`src/level/campaign.h`, the seed table).
 * `bin/game --level 14`: the lesser statue, half height, walks and swings, never shoots.
 * `bin/game --level 46`: the full guard takes about three times the hits and hurts twice as much.
 * The Anubis boss (lvl54) still outclasses its guards.
+
+## Done
+
+* `MonsterLesserAnubis` (37, glyph `9`), "Lesser Anubis statue", label `lesser anubis`: the guard's model, texture and
+  clips at scale 9.5 (0.5x), 975 HP, blow 105 (0.75x, the default), no bolt, no ranged curses, Vulnerability 10%. Its
+  blow is a body blow (`LESSER_ANUBIS_BLOW`, a crouch does not duck it), `heightQuarters` 1 (fits a crawl space). Same
+  speed as the guard. Threat 7, XP 6000, trap share 25, weight 2, ring drop 4%. Strides and climb clip numbers are in
+  model units: unchanged. Generated at difficulty 7-8; the priests' quarter's zone row.
+* Guard: 3900 HP, blow 280, bolt 140 (both doubled, the default), XP 25000, threat 20.
+* Anubis boss: 7200 HP, blow 380, bolt 250, XP 60000, threat 30.
+* lvl14-18: the 11 guards are lesser statues now (lvledit). Zones 5-10 untouched (the default). lvl46-54 unchanged.
+* Field note `monster.lesser-anubis`, glossary row, `docs/levels.md`. The manual shows no Anubis: unchanged.
+* Tests: `tests/unit/lesser_anubis_test.cpp`; the crouch test covers the lesser statue.

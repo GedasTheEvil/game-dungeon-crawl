@@ -588,7 +588,8 @@ Target targetOf(const MonsterKind& kind) {
 	case MonsterHippo:
 	case MonsterCursedMimic:
 		return {30, 8};
-	case MonsterAnubis:
+	case MonsterAnubis: // the necropolis's terror (plan lesser-anubis-guard)
+	case MonsterLesserAnubis: // the priests' quarter's
 		return {45, 10};
 	default:
 		return {20, 6};

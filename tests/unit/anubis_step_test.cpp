@@ -22,10 +22,12 @@ const Monster* spawn(SimWorld& world) {
 }
 
 // The player up on the step at x, sturdy, the Anubis spawned and given the time to come up (its bolt on the way may
-// hit). crouch: down, under the boss's high swing.
+// hit). crouch: down, under the boss's high swing; the boss's doubled bolt (plan lesser-anubis-guard) would kill them,
+// so god mode then (a bolt still sets them burning).
 const Monster* setUp(SimWorld& world, const char* level, float x, bool crouch = false) {
 	REQUIRE(world.Load(level));
 	world.player.stats.AddXP(1000000, world.events);
+	world.player.god = crouch;
 	REQUIRE(world.dungeon.PlacePlayer(STEP_COL, ROW));
 	world.Tick();
 	REQUIRE(world.WalkTo(x));

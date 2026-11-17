@@ -50,7 +50,7 @@ The campaign's zones (decided 2026-10-21; `ZONES`, `ZONE_FAUNA`, `ZONE_TERRAIN`,
 | 2 | Bat galleries | 5-9 | bats, giant bats, worms, giant rats, a crocodile | levers, rock falls, a short first wade (the crocodile's) | Bat of Shezmu |
 | 3 | Web halls | 10-13 | camel spiders, tiny spiders, giant scarabs, giant rats, mimics | darkness and light (spiders shun torches), trapped chests | Mother of Webs ([camel-spider-boss](plan/solved/camel-spider-boss.md)) |
 | **Act II: the temple** (painted plaster) |||||
-| 4 | Priests' quarter | 14-18 | mummies, living ushabti, giant scarabs, the first Anubis guards | name gates, many inscriptions, fire jets (braziers), ring transporter | High Priest |
+| 4 | Priests' quarter | 14-18 | mummies, living ushabti, giant scarabs, lesser Anubis statues (half size, no bolt) | name gates, many inscriptions, fire jets (braziers), ring transporter | High Priest |
 | 5 | Scorpion nest | 19-22 | scorpions, giant scorpions, giant scarabs | poison drips, antidotes | scorpion queen |
 | 6 | Serpent temple | 23-27 | cobras, giant cobras, crocodiles, giant bats | dart plates, rhythm traps | Apep |
 | **Act III: the river and the sands** |||||
@@ -84,11 +84,11 @@ openers, the riddle and name gates, the expedition pages and the inscriptions (a
 | 11 | The Dark Gallery: Mimic 2, giant scarab 7, camel spider 18, tiny spider 7. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The chest and its guard; The sleeper at the door; The djed pillar (a armor boon). |
 | 12 | The Two Shafts: The first route fork. Giant rat 3, mimic 6, giant scarab 5, camel spider 20, tiny spider 6. 1 key, 1 lever, 1 riddle gate. Expedition page 8. Inscriptions: The weaver's complaint; The riddle of the house. |
 | 13 | The Lair of the Mother of Webs: The Mother of Webs, the third boss. Giant rat 2, mimic 5, giant scarab 6, camel spider 15, mother of webs 1. 2 keys, 1 lever, 1 riddle gate. Expedition page 9. Inscriptions: Hymn to the evening sun; The weaver of the third hour (by the boss teleporter). |
-| 14 | The Gate of the Priests: Anubis 1, mimic 1, giant scarab 1, mummy 16, ushabti 10. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The vault of the strong arm (a might boon); A name is a door; The purification of the priest; The offering formula; The fourth hour (by the entrance). |
-| 15 | The House of Life: Anubis 2, mimic 1, giant scarab 2, mummy 14, ushabti 4, mimic jar 1. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 10. Inscriptions: The ushabti spell (a stamina boon); Anubis upon his mountain; The flame of the brazier; The hidden pharmacy. |
-| 16 | The Scribes' Hall: Anubis 2, mimic 1, giant scarab 5, mummy 8, ushabti 10, mimic jar 1. 2 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The instruction of Ptahhotep; The scribe's wish; The song of the harper. A plain coffin in the burial chamber by Ptahhotep. |
-| 17 | The Hall of Purification: Anubis 3, mimic 1, giant scarab 2, mummy 14, ushabti 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The temple cat; Not dying a second time (a life boon); The negative confession, a cursed coffin beside it. |
-| 18 | The Tomb of the High Priest: The High Priest, the fourth boss. Anubis 3, giant scarab 2, mummy 17, mummy priest 1, ushabti 9, mimic jar 1. 1 key, 2 levers, 1 riddle gate. Expedition page 11. Inscriptions: The might of the king (a might boon); The chief lector of Anubis (by the boss teleporter). A cursed coffin among the sleepers and canopic jars of the upper burial chamber. |
+| 14 | The Gate of the Priests: lesser Anubis 1, mimic 1, giant scarab 1, mummy 16, ushabti 10. 2 keys, 1 riddle gate, a name gate to a secret room. Inscriptions: The vault of the strong arm (a might boon); A name is a door; The purification of the priest; The offering formula; The fourth hour (by the entrance). |
+| 15 | The House of Life: lesser Anubis 2, mimic 1, giant scarab 2, mummy 14, ushabti 4, mimic jar 1. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Expedition page 10. Inscriptions: The ushabti spell (a stamina boon); Anubis upon his mountain; The flame of the brazier; The hidden pharmacy. |
+| 16 | The Scribes' Hall: lesser Anubis 2, mimic 1, giant scarab 5, mummy 8, ushabti 10, mimic jar 1. 2 levers, 1 riddle gate, a name gate to a secret room. Inscriptions: The instruction of Ptahhotep; The scribe's wish; The song of the harper. A plain coffin in the burial chamber by Ptahhotep. |
+| 17 | The Hall of Purification: lesser Anubis 3, mimic 1, giant scarab 2, mummy 14, ushabti 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: The temple cat; Not dying a second time (a life boon); The negative confession, a cursed coffin beside it. |
+| 18 | The Tomb of the High Priest: The High Priest, the fourth boss. lesser Anubis 3, giant scarab 2, mummy 17, mummy priest 1, ushabti 9, mimic jar 1. 1 key, 2 levers, 1 riddle gate. Expedition page 11. Inscriptions: The might of the king (a might boon); The chief lector of Anubis (by the boss teleporter). A cursed coffin among the sleepers and canopic jars of the upper burial chamber. |
 | 19 | The Gate of Serket: Mimic 3, giant scarab 4, scorpion 22, giant scorpion 8. 1 key, 1 lever, 1 riddle gate, a name gate to a secret room. Inscriptions: A spell against stings; The drip from the ceiling; Serket who makes the throat breathe; Aker at the cavern of Sokar (by the entrance). |
 | 20 | The Weeping Roof: Mimic 2, giant scarab 6, scorpion 11, giant scorpion 18, egg cluster 3 (a nest, no queen to hatch it). 2 keys, 1 riddle gate, a name gate to a secret room. Expedition page 12. Inscriptions: The nest of eggs; The breath of life (a life boon); Serket. |
 | 21 | The Hall of Antidotes: Mimic 3, giant scarab 3, scorpion 23, giant scorpion 8, egg cluster 2. 1 key, 1 lever, 1 riddle gate. Inscriptions: The healer's rule; The scorpion charm. |
@@ -262,9 +262,9 @@ Difficulty score (`difficultyScore` in `level_check.cpp`): 0.04 per path move, 1
 turn, 0.2 per quarter step and 0.1 per crawled sub-cell, 1 per sand fall, 1.5 per quicksand cell, 0.02 per sand cell,
 0.3 per sand gust, and 1 more for a jump over a death pit.
 Monsters add their threat (`monsterThreat`: rat 0.7, scarab 0.8, bat 1.2, plant 1.5, worm 2.3, giant rat 3,
-giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 10, boss scarab 10, vampire bat 12, anubis boss 16, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, mimic jar 1.5, Seth 16, baboon 5.5, Rerek 16.5, Mother of Webs 12, Babi 16, tiny spider 0.6; a kiter's threat x1.15, a swimmer in half water x1.1):
+giant bat 3.5, giant scarab 4, crocodile 4.5, mimic 2, mummy 5, Anubis 20, lesser Anubis 7, boss scarab 10, vampire bat 12, anubis boss 30, scorpion 1, cobra 3, giant cobra 5, giant scorpion 3.5, egg cluster 0.5, scorpion queen 13, Apep 14, Sobek 14.5, lotus 2, mummy priest 15, camel spider 2.5, hippo 6, ushabti 1.5, cursed mimic 4, mimic jar 1.5, Seth 16, baboon 5.5, Rerek 16.5, Mother of Webs 12, Babi 16, tiny spider 0.6; a kiter's threat x1.15, a swimmer in half water x1.1):
 the full value within 3 cells of the path, a quarter elsewhere; a climber (it follows the player up and down ladders:
-rats, scorpions, mummies, Anubis, baboons, camel and tiny spiders and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
+rats, scorpions, mummies, Anubis and the lesser one, baboons, camel and tiny spiders and their giants and bosses) 5% more. Each reachable treasure takes 0.2 off.
 
 The ranking keeps the finale (a level with the ankh) last.
 
@@ -297,7 +297,7 @@ The generator (`src/level/level_gen.cpp`; `LevelBuilder` in `level_builder.h`, i
    falls (only under a one-cell ceiling), monsters and treasure. The mix grows with the difficulty. Monster types
    unlock with the difficulty and the weak ones give way to their giant kin: rat and scarab 1-5, bat 2-6,
    worm 3-7, plant from 3, tiny spider 1-6 (in groups of 2 to 4 side by side), camel spider 3-8, giant rat from 4, giant scarab from 5, giant bat and living ushabti from 6,
-   mummy from 7, Anubis and baboon from 9.
+   mummy from 7, lesser Anubis 7-8, Anubis and baboon from 9.
    At most 4 + 2 × difficulty monsters. Weapon chests come in by depth like in the campaign: club and dagger, the
    short sword and spear from difficulty 3, the khopesh from 5, the axes and the mace from 7; self-bow and sling, the
    throwing stick and javelin from 4, the composite bow from 7.

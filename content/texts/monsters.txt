@@ -45,6 +45,10 @@ note: The bat of Shezmu, the god of the wine press and of blood. It drank from m
 [monster.mummy]
 note: Wrapped in bandages and patient. It waited three thousand years for me. I wish it had waited a little longer.
 
+[monster.lesser-anubis]
+note: A little Anubis, knee high, the kind a priest keeps on his shelf. It walked off the shelf. Small, but stone
+	hits like stone.
+
 [monster.anubis-boss]
 note: Anubis himself, the one who weighs the hearts. His statues stepped out of the walls to help him. My heart was
 	beating too fast to weigh.

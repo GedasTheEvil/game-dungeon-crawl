@@ -106,7 +106,14 @@ TEST_CASE("crouched, a high swing misses, a low bite and a body blow hit") {
 	const MonsterLinks links{&world.player, &world.journal, &world.events, 1, &world.random.gameplay};
 	const auto row = static_cast<float>(1); // tests/levels/empty_row: the player's row
 	for (int kind :
-		 {MonsterMummy, MonsterAnubis, MonsterAnubisBoss, MonsterUshabti, MonsterRat, MonsterCrocodile, MonsterHippo}) {
+		 {MonsterMummy,
+		  MonsterAnubis,
+		  MonsterAnubisBoss,
+		  MonsterUshabti,
+		  MonsterRat,
+		  MonsterCrocodile,
+		  MonsterHippo,
+		  MonsterLesserAnubis}) {
 		const MonsterType& type = SimWorld::monsterTypes()[static_cast<size_t>(kind)];
 		CAPTURE(type.label);
 		Monster mon;

@@ -45,7 +45,7 @@ Hall of Judgment lvl51-54) (`src/level/campaign.h`, the seed table).
 
 ## Play-test
 
-* `bin/game --level 14`: the lesser statue, half height, walks and swings, never shoots.
+* `bin/game --play tests/play/lesser-anubis-guard.txt` (lvl14 beside the statue, a level-15 player with 840 HP): the lesser statue, half height, walks and swings, never shoots.
 * `bin/game --level 46`: the full guard takes about three times the hits and hurts twice as much.
 * The Anubis boss (lvl54) still outclasses its guards.
 

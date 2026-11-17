@@ -1,0 +1,10 @@
+# Plan lesser-anubis-guard: lvl14 next to its lesser Anubis statue (col 24, row 5, below the step to the right).
+# A mid-game player (level 15, about 840 HP, armour 33, might 11), a khopesh and three large health potions.
+# An ushabti stands behind the start (col 20). Walk right, drop off the step: the statue is there.
+seed 1
+level 14 at 21 5
+xp 40000
+gear 30 10 300
+give melee 4
+give potion 1 3
+equip khopesh

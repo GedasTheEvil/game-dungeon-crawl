@@ -8,6 +8,7 @@
 #include "../ui/menu.h"
 #include "../ui/win_entry.h"
 #include "../ui/death_screen.h"
+#include "../ui/ending_screen.h"
 #include "../ui/map_view.h"
 #include "../ui/journal_view.h"
 #include "../ui/zone_banner.h"
@@ -21,7 +22,8 @@
 struct UIContext {
 	explicit UIContext(const ScreenWorld& world)
 		: world(world), menu(this->world, *this), winEntry(this->world, *this), map(this->world, *this),
-		  journal(this->world, *this), skills(this->world, *this), death(this->world, *this) {}
+		  journal(this->world, *this), skills(this->world, *this), death(this->world, *this),
+		  ending(this->world, *this) {}
 
 	ScreenWorld world; // the game the screens show and change
 	Screen screen = Screen::Menu; // the game starts in the main menu
@@ -34,6 +36,7 @@ struct UIContext {
 	SkillsScreen skills;
 	ScreenTabsState tabs;
 	DeathScreen death; // after the death clip: Retry from Autosave or Main Menu (plan autosave)
+	EndingScreen ending; // the ankh's choice: life without end or the gods renounced (plan ending-choice)
 	ui::Toast autosaved; // "Autosaved" over the game
 	int bannerLevel = 0; // the campaign level whose banner shows (plan zone-looks, ZoneBanner), since bannerStartMs
 	int bannerStartMs = 0;

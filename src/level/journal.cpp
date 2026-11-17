@@ -231,8 +231,8 @@ void Journal::WriteDiary(DiaryPage page) {
 	markNew(JournalPart::Diary, static_cast<int>(page));
 }
 
-void Journal::WriteEpilogue() {
-	WriteDiary(DiaryPage::Dawn);
+void Journal::WriteEpilogue(RunEnding ending) {
+	WriteDiary(ending == RunEnding::Renounced ? DiaryPage::DawnRenounced : DiaryPage::Dawn);
 	if (HasNote(FieldNote::HeartLight)) // plan weighing-of-the-heart
 		WriteDiary(DiaryPage::ScalesLight);
 	else if (HasNote(FieldNote::HeartHeavy))

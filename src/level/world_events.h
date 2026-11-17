@@ -96,7 +96,7 @@ enum class AutosaveMoment : unsigned char { LevelStart, Riddle, Boss };
 // riddle (or a name gate's scroll), or writes the autosave. The world does not reach into the sound bank or the
 // screens.
 struct WorldEvent {
-	enum class Kind : unsigned char { Sound, Status, Note, AskRiddle, AskName, CharacterSound, Autosave };
+	enum class Kind : unsigned char { Sound, Status, Note, AskRiddle, AskName, AskEnding, CharacterSound, Autosave };
 	Kind kind;
 	WorldSound sound = WorldSound::ArrowHit;
 	FieldNote note = FieldNote::Health;
@@ -120,6 +120,8 @@ class WorldEvents {
 	void AskRiddle() { list.push_back({WorldEvent::Kind::AskRiddle, {}, {}, {}}); }
 	// A name gate (plan secret-name-gates): the scroll asks for the level's name.
 	void AskName() { list.push_back({WorldEvent::Kind::AskName, {}, {}, {}}); }
+	// The ankh (plan ending-choice): the app asks how the run ends, then calls Dungeon::Win.
+	void AskEnding() { list.push_back({WorldEvent::Kind::AskEnding, {}, {}, {}}); }
 	void Autosave(AutosaveMoment moment) {
 		list.push_back({WorldEvent::Kind::Autosave, {}, {}, {}, {}, PLAYER_CHARACTER, moment});
 	}

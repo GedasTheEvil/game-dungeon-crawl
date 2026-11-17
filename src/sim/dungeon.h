@@ -10,6 +10,7 @@
 #include "../level/items.h"
 #include "../level/journal.h"
 #include "../level/level.h"
+#include "../level/run_stats.h"
 #include "../level/climb_path.h"
 #include "../level/curses.h"
 #include "../level/shrines.h"
@@ -648,6 +649,8 @@ class Dungeon {
 	[[nodiscard]] bool Won() const { return won; }
 	// The dung balls rolling, falling or broken (plan scarab-dung-ball), for the tests.
 	[[nodiscard]] const std::vector<DungBall>& Balls() const { return projectiles.balls; }
+	// The ankh's choice made (plan ending-choice): the run is won, with that ending; Renounced breaks the ankh. Once.
+	void Win(RunEnding ending);
 	void ClearWin() { won = false; } // a new game or a scenario level
 	// Scenario `peace` (make paths): the monsters stand down as after the win, so their holds, dazes and curses
 	// do not stop a script that plays the checker's path (the checker does not model them). Kept over level loads.

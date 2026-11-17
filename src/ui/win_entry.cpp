@@ -22,6 +22,7 @@ constexpr Rect FIELD = {PANEL.x + 8, PANEL.y + 7.5f, PANEL.w - 16, 7.f};
 constexpr float TITLE_DOWN = 10.f; // the title's baseline below the panel's top
 constexpr float SUMMARY_DOWN = 18.f;
 constexpr float DIM = 0.55f; // the won game behind the panel
+constexpr int ANKH_BREAK_MS = 1500; // plan ending-choice: the broken ankh before the win flow
 
 std::string today() {
 	const time_t t = time(nullptr);
@@ -34,12 +35,19 @@ std::string today() {
 void WinEntry::Follow() {
 	if (!world.dungeon.Won()) {
 		state = State::Hidden;
+		wonMs = -1;
 		confirm.Cancel();
 		return;
 	}
 	if (state == State::Epilogue && ui.screen == Screen::Gameplay) // the journal was closed
 		finish();
 	if (state != State::Hidden)
+		return;
+	const int now = GameClock::now();
+	if (wonMs < 0)
+		wonMs = now;
+	// The gods renounced (plan ending-choice): the ankh's break is seen and heard a moment first.
+	if (world.player.stats.run.ending == RunEnding::Renounced && now - wonMs < ANKH_BREAK_MS)
 		return;
 	if (!world.player.stats.run.campaign) {
 		openEpilogue(RecordsView::NONE);
@@ -52,7 +60,7 @@ void WinEntry::Follow() {
 void WinEntry::openEpilogue(int row) {
 	marked = row;
 	state = State::Epilogue;
-	world.journal.WriteEpilogue();
+	world.journal.WriteEpilogue(world.player.stats.run.ending);
 	ui.journal.OpenDiary(world.player.stats.run.campaign ? "goes to the Hall of Records" : "goes to the main menu");
 	ui.screen = Screen::Journal;
 }

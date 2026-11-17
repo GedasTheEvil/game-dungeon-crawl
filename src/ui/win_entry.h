@@ -8,10 +8,11 @@
 #include <string>
 
 /// @file win_entry.h
-/// The won run's end (plans leaderboard, win-ending-flow). A campaign run (New Game on level 1) first gets the name
-/// entry over the dimmed game: a run summary and a name field. Enter records the run; Esc asks before it leaves the
-/// run out of the Hall of Records. Then the epilogue opens in the journal; closing it opens the Hall of Records with
-/// the new row marked (a run off the campaign: the main menu). No saves and no way back into the game meanwhile.
+/// The won run's end (plans leaderboard, win-ending-flow; the choice before it: EndingScreen, plan ending-choice). A
+/// campaign run (New Game on level 1) first gets the name entry over the dimmed game: a run summary and a name field.
+/// Enter records the run; Esc asks before it leaves the run out of the Hall of Records. Then the epilogue opens in the
+/// journal; closing it opens the Hall of Records with the new row marked (a run off the campaign: the main menu). No
+/// saves and no way back into the game meanwhile.
 
 struct UIContext;
 
@@ -34,6 +35,7 @@ class WinEntry {
 	UIContext& ui; // the journal for the epilogue, the menu for the Hall of Records
 	enum class State : std::uint8_t { Hidden, Typing, Epilogue, Done };
 	State state = State::Hidden;
+	int wonMs = -1; // GameClock when the win was first seen
 	std::string name;
 	int marked = -1; // the recorded run's row in the Hall of Records (RecordsView::NONE: none)
 	ConfirmBox confirm; // "Leave without entering the Hall of Records?"

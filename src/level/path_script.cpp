@@ -132,6 +132,10 @@ class PathScript {
 		flushWalk();
 		line("dump");
 		line("interact");
+		if (r.finale) { // the ankh asks how the run ends (plan ending-choice): Enter takes it
+			line("wait 1");
+			line("key enter");
+		}
 		line(r.finale ? "wait 5" : TRAVEL_WAIT);
 		line(r.finale ? "expect won == 1" : "expect level == 2");
 		return out;

@@ -1,6 +1,6 @@
 # Ending choice: immortality or renounce the gods and destroy the ankh
 
-Status: draft 2026-11-17, size M, needs nothing first.
+Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size M, needs nothing first.
 
 ## Idea
 
@@ -36,6 +36,17 @@ The scales verdict pages follow Dawn ([weighing-of-the-heart](solved/weighing-of
   Renounced and checks the record and the epilogue page.
 
 Open: the exact wording of the two options and the page (the implementer's choice, in the journal's voice).
+
+## Done
+
+* `Screen::Ending` (`EndingScreen`), a panel over the dimmed, paused game: "Take the ankh: life without end" (focused
+  first) / "Renounce the gods, break the ankh". Esc: back, nothing chosen. A pick calls `Dungeon::Win(RunEnding)`.
+* Renounced: the ankh's cell emptied, the jar smash sound, a status line; the win flow follows 1.5 s later.
+* `[diary.dawn-renounced]` replaces Dawn; the scales and D. J. pages still follow. D. J.'s back-cover answer said "I
+  carried it out": now "I walked it to its end", true for both endings.
+* `RunRecord::ending` (`ending=immortal|renounced`; missing: Immortal). An "Ending" column on the board, an "Ending"
+  heading in the details (third column, above Explored: the Run column was full).
+* The make-paths finale presses Enter at the choice. Scenario fields `ending_screen`, `ending`.
 
 ## Play-test
 

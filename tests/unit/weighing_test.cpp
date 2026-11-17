@@ -79,7 +79,7 @@ TEST_CASE("weighing-of-the-heart: the epilogue answers the verdict after Dawn, b
 		journal.Begin();
 		journal.LearnNote(verdictNote(v));
 		journal.FindPage(EXPEDITION_LAST_PAGE, 50);
-		journal.WriteEpilogue();
+		journal.WriteEpilogue(RunEnding::Immortal);
 		const std::vector<DiaryPage>& diary = journal.Diary();
 		const auto dawn = std::ranges::find(diary, DiaryPage::Dawn);
 		REQUIRE(dawn != diary.end());
@@ -92,7 +92,7 @@ TEST_CASE("weighing-of-the-heart: the epilogue answers the verdict after Dawn, b
 	}
 	Journal unweighed; // the scales skipped: today's epilogue
 	unweighed.Begin();
-	unweighed.WriteEpilogue();
+	unweighed.WriteEpilogue(RunEnding::Immortal);
 	CHECK(std::ranges::none_of(unweighed.Diary(), [](DiaryPage p) {
 		return p == DiaryPage::ScalesLight || p == DiaryPage::ScalesHeavy;
 	}));
@@ -110,7 +110,7 @@ TEST_CASE("weighing-of-the-heart: the scales stand on lvl54 between the boss gat
 
 TEST_CASE("weighing-of-the-heart: the verdict notes and pages are saved by number, at the end") {
 	CHECK(static_cast<int>(FieldNote::HeartHeavy) + 1 < FIELD_NOTE_COUNT); // the later notes after them (bleeding)
-	CHECK(static_cast<int>(DiaryPage::ScalesHeavy) + 1 == DIARY_PAGE_COUNT);
+	CHECK(static_cast<int>(DiaryPage::ScalesHeavy) + 1 < DIARY_PAGE_COUNT); // a later page after them (ending-choice)
 }
 
 TEST_CASE("weighing-of-the-heart: on lvl54 the scales weigh once on the way, then the ankh wins") {
@@ -131,5 +131,6 @@ TEST_CASE("weighing-of-the-heart: on lvl54 the scales weigh once on the way, the
 	REQUIRE(world.WalkTo(26.5f));
 	world.Interact();
 	world.WaitTicks(1);
+	world.dungeon.Win(RunEnding::Immortal); // the ending screen's pick (plan ending-choice)
 	CHECK(world.dungeon.Won());
 }

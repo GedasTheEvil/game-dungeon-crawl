@@ -668,6 +668,18 @@ p2: I went in after him. Stone, then sand, then air that moves. I came up out of
 p3: Life without end, the signs said. I do not know yet what that means. Someone should know what happened down
 	there. Now someone does.
 
+# The other epilogue (plan ending-choice), written when the gods are renounced at the ankh: the archaeologist names
+# them demons, breaks the ankh and comes up mortal; the twelfth hour's rebirth refused.
+[diary.dawn-renounced]
+title: The twelfth hour, refused
+p1: The ankh is warm in my hand, warmer than my hand. The last wall tells the twelfth hour: the sun goes into the
+	great serpent, Life of the Gods, and comes out young again. Whoever rides with him never dies. Then I thought of
+	everything down here that tried to kill me.
+p2: Gods do not need a maze, or traps, or a stranger to carry their life out. I called them what they are, out loud,
+	in their own hall: demons. Then I broke the ankh on the floor. It cracked like a cheap jar.
+p3: A plain stair took me up. I came out of the east trench as the sky went grey; the statue is gone. An ordinary sun
+	came up over Saqqara, and I will grow old under it like everyone else. Good.
+
 # The epilogue answers the scales (plan weighing-of-the-heart): written after Dawn when the heart was weighed on
 # lvl54, by the verdict (judgment.h). Before D. J.'s answer.
 [diary.scales-light]
@@ -699,7 +711,7 @@ title: For D. J.
 p1: In my pocket, two pieces of another man's notebook: his last page and his back cover. D. J., a linguist, not a
 	soldier. I found him at the end of the right gate, beside the one who came before him.
 p2: The jackal does not want the ankh kept, he wrote; he wants it carried. Nobody built that road to hold it. It is
-	the sun's road through the night, and it was built to be walked. I walked it, and I carried it out.
+	the sun's road through the night, and it was built to be walked. I walked it to its end.
 p3: So, for the page, as I promised a wall I would: you were right.
 
 # The ring notes (plan ring-accessories): one per RingGem in order, [note.ring-<gem>], the numbers of the copper,

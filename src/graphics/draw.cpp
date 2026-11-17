@@ -194,6 +194,10 @@ void Draw() {
 		drawGameplay();
 		Game().ui.death.Draw(Game().render.resX, Game().render.resY);
 		break;
+	case Screen::Ending: // plan ending-choice
+		drawGameplay();
+		Game().ui.ending.Draw(Game().render.resX, Game().render.resY);
+		break;
 	}
 	drawTooltip();
 	Brightness::apply(Game().render.resX, Game().render.resY); // plan settings-extras

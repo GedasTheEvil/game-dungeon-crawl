@@ -5,6 +5,7 @@
 // game. The file is append only, one block per record ("[run]", then key=value lines), so old records stay readable
 // when new statistics arrive. GL-free: the Hall of Records screen (ui/records_view.cpp) draws it.
 
+#include "run_stats.h"
 #include <array>
 #include <cstdint>
 #include <istream>
@@ -41,6 +42,7 @@ struct RunRecord {
 	int cursed = 0;
 	int secrets = 0; // name gates opened (plan leaderboard-secrets); 0 in a record from before it
 	int deaths = 0; // plan autosave; 0 in a record from before it
+	RunEnding ending = RunEnding::Immortal; // plan ending-choice; Immortal in a record from before it
 	bool placeholder = false; // the empty board's "Spirit of Exploration", never written
 
 	[[nodiscard]] int SlainTotal() const;

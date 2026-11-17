@@ -143,6 +143,8 @@ enum class Field : unsigned char {
 	Records,
 	Deaths,
 	DeathScreen,
+	EndingScreen, // plan ending-choice
+	Ending,
 	Quicksave,
 	LatestSave,
 	SkillCardLines, // the most lines a skill effect takes on its Heka card (plan heka-card-effect-two-lines)

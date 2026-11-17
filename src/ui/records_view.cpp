@@ -27,6 +27,7 @@ constexpr float HEADER_RULE = HEADER_Y - 1.1f;
 constexpr float ROW_H = 4.3f;
 constexpr float RANK_X = 3.f; // from the row's left edge
 constexpr float NAME_X = 16.f;
+constexpr float ENDING_X = 70.f; // plan ending-choice: past a 20-letter name
 constexpr float SCORE_RIGHT = 4.f; // from the row's right edge
 
 // Detail: four columns of headings and their rows; the last one the time per level, in two halves.
@@ -256,6 +257,7 @@ void RecordsView::drawList(Font& heading, Font& body, Font& small, int hovered, 
 	beginText();
 	text(small, header.x + RANK_X, HEADER_Y, "Rank", LABEL);
 	text(small, header.x + NAME_X, HEADER_Y, "Name", LABEL);
+	text(small, header.x + ENDING_X, HEADER_Y, "Ending", LABEL);
 	text(small, header.x + header.w - SCORE_RIGHT - small.TextWidth(scoreName), HEADER_Y, scoreName, LABEL);
 	beginShapes();
 
@@ -283,6 +285,15 @@ void RecordsView::drawList(Font& heading, Font& body, Font& small, int hovered, 
 		beginText();
 		text(body, band.x + RANK_X, band.y + 0.9f, r.placeholder ? "-" : number(rank + 1).c_str(), c);
 		text(body, band.x + NAME_X, band.y + 0.9f, r.name.c_str(), c);
+		text(
+			body,
+			band.x + ENDING_X,
+			band.y + 0.9f,
+			r.placeholder					   ? "-"
+			: r.ending == RunEnding::Renounced ? "Renounced"
+											   : "Immortal",
+			isHovered ? TEXT_HOVER : LABEL_DIM
+		);
 		text(
 			body,
 			band.x + band.w - SCORE_RIGHT - body.TextWidth(score.c_str()),
@@ -335,6 +346,8 @@ void RecordsView::drawDetail(Font& heading, Font& small) const {
 		{false, "Deaths", value(r.deaths)},
 	};
 	std::vector<DetailLine> found = {
+		{true, "Ending", ""}, // plan ending-choice
+		{false, real ? endingName(r.ending) : "-", ""},
 		{true, "Explored (" + value(explorationScore(r)) + ")", ""},
 		{false, "Inscriptions", value(r.inscriptions)},
 		{false, "Treasures", value(r.treasures)},

@@ -15,6 +15,7 @@
 #include <numeric>
 #include <ranges>
 #include <sstream>
+#include <string_view>
 
 namespace {
 int sumCounts(const std::vector<std::pair<std::string, int>>& counts) {
@@ -24,6 +25,8 @@ int sumCounts(const std::vector<std::pair<std::string, int>>& counts) {
 constexpr const char* RECORD_START = "[run]";
 constexpr const char* SLAIN_KEY = "slain.";
 constexpr const char* POTION_KEY = "potion.";
+constexpr std::string_view ENDING_IMMORTAL = "immortal";
+constexpr std::string_view ENDING_RENOUNCED = "renounced";
 
 bool parseInt(const std::string& text, int& out) {
 	std::istringstream in(text);
@@ -56,6 +59,12 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 	}
 	if (key == "version") {
 		r.version = value;
+		return true;
+	}
+	if (key == "ending") { // plan ending-choice
+		if (value != ENDING_IMMORTAL && value != ENDING_RENOUNCED)
+			return false;
+		r.ending = value == ENDING_RENOUNCED ? RunEnding::Renounced : RunEnding::Immortal;
 		return true;
 	}
 	if (key == "skills") {
@@ -143,6 +152,7 @@ RunRecord recordOf(const PlayerStats& stats, std::string name, std::string date,
 	r.cursed = run.cursed;
 	r.secrets = run.secrets;
 	r.deaths = run.deaths;
+	r.ending = run.ending; // plan ending-choice
 	return r;
 }
 
@@ -269,6 +279,7 @@ void writeRecord(std::ostream& out, const RunRecord& r) {
 		<< "cursed=" << r.cursed << '\n'
 		<< "secrets=" << r.secrets << '\n'
 		<< "deaths=" << r.deaths << '\n'
+		<< "ending=" << (r.ending == RunEnding::Renounced ? ENDING_RENOUNCED : ENDING_IMMORTAL) << '\n'
 		<< "level_ms=" << list(r.levelMs, [](int ms) { return std::to_string(ms); }) << '\n';
 	for (const auto& [kind, count] : r.slain)
 		out << SLAIN_KEY << kind << '=' << count << '\n';

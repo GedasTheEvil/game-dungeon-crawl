@@ -76,6 +76,7 @@ UiScreen* UIContext::TabScreen() {
 	case Screen::Menu:
 	case Screen::Riddle:
 	case Screen::Death:
+	case Screen::Ending:
 	case Screen::Gameplay:
 		return nullptr;
 	}
@@ -158,6 +159,10 @@ void GameState::ApplyWorldEvents() {
 		case WorldEvent::Kind::AskRiddle:
 			ui.riddle->Ask();
 			ui.screen = Screen::Riddle;
+			break;
+		case WorldEvent::Kind::AskEnding: // plan ending-choice
+			ui.ending.Open();
+			ui.screen = Screen::Ending;
 			break;
 		case WorldEvent::Kind::Autosave:
 			saves.Autosave(event.moment);

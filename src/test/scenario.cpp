@@ -140,6 +140,8 @@ const char* screenName() {
 		return "gameplay";
 	case Screen::Death:
 		return "death";
+	case Screen::Ending:
+		return "ending";
 	}
 	std::unreachable();
 }

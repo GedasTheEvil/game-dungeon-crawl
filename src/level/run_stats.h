@@ -11,6 +11,13 @@
 #include <vector>
 #include <utility>
 
+// How the run ended (plan ending-choice): the ankh taken, life without end; or the gods renounced as demons and the
+// ankh broken. Both win the campaign. Chosen at the ankh (Dungeon::Win), recorded in the Hall of Records.
+enum class RunEnding : std::uint8_t { Immortal, Renounced };
+[[nodiscard]] constexpr const char* endingName(RunEnding e) {
+	return e == RunEnding::Renounced ? "Renounced the gods" : "Immortal";
+}
+
 // What the run did from New Game on (plan leaderboard): the leaderboard records it at the win. Kept in PlayerStats, so
 // it rides in the save game: a load puts the counters back, a fight replayed after a load counts once.
 class RunStats {
@@ -34,6 +41,8 @@ class RunStats {
 	// Offerings made at the shrines this run, merges not counted (plan offering-gift): with nameSeed, the seed of the
 	// next offering's gift roll, so a quick load gives the same gift again.
 	int offerings = 0;
+	// Set at the win (plan ending-choice). Not in the save: a won game is never saved.
+	RunEnding ending = RunEnding::Immortal;
 
 	void Slay(int monsterType);
 	void Drink(ItemKind potion);

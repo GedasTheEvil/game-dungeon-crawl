@@ -312,10 +312,24 @@ bool Dungeon::readInscription() {
 		sim.events->Status("Cannot understand this. Copied the hieroglyphs to the journal.");
 	return true;
 }
+void Dungeon::Win(RunEnding ending) {
+	if (won)
+		return;
+	won = true;
+	sim.player->stats.run.ending = ending;
+	if (ending != RunEnding::Renounced)
+		return;
+	// The gods renounced: the ankh breaks in the archaeologist's hands, its statue is gone from the cell.
+	if (const int cell = MapIndex(static_cast<int>(mapX), static_cast<int>(mapY)); map[cell].type == Ankh)
+		clearObject(map[cell]);
+	sim.events->Play(WorldSound::JarSmash);
+	sim.events->Status("The ankh cracks and falls apart. Life without end, refused.");
+}
 void Dungeon::useGate() {
 	const Tile here = Map(mapX, mapY);
-	if (here.type == Ankh) {
-		won = true;
+	if (here.type == Ankh) { // plan ending-choice: asked first, Win once chosen
+		if (!won)
+			sim.events->AskEnding();
 		return;
 	}
 	if (here.type != Door)

@@ -127,18 +127,18 @@ TEST_CASE(
 	"expedition-ending)"
 ) {
 	Journal none;
-	none.WriteEpilogue();
+	none.WriteEpilogue(RunEnding::Immortal);
 	CHECK(none.Diary() == std::vector<DiaryPage>{DiaryPage::Dawn});
 
 	Journal last;
 	REQUIRE(last.FindPage(EXPEDITION_LAST_PAGE, 49));
-	last.WriteEpilogue();
+	last.WriteEpilogue(RunEnding::Immortal);
 	CHECK(last.Diary() == std::vector<DiaryPage>{DiaryPage::Dawn, DiaryPage::Answer});
 
 	Journal both;
 	REQUIRE(both.FindPage(EXPEDITION_LAST_PAGE, 49));
 	REQUIRE(both.FindPage(EXPEDITION_BACK_COVER, 49));
-	both.WriteEpilogue();
+	both.WriteEpilogue(RunEnding::Immortal);
 	CHECK(both.Diary() == std::vector<DiaryPage>{DiaryPage::Dawn, DiaryPage::AnswerBackCover});
 	CHECK(std::string(diaryText(DiaryPage::AnswerBackCover).title) == "For D. J.");
 	CHECK(diaryText(DiaryPage::Answer).paragraphs[2] != nullptr);
@@ -162,5 +162,6 @@ TEST_CASE("lvl54: with the last page and the back cover, taking the ankh wins (p
 	CHECK_FALSE(world.dungeon.Won());
 	world.Interact();
 	world.WaitTicks(1);
+	world.dungeon.Win(RunEnding::Immortal); // the ending screen's pick (plan ending-choice)
 	CHECK(world.dungeon.Won());
 }

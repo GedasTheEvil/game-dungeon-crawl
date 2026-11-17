@@ -13,6 +13,7 @@ enum class Screen : std::uint8_t {
 	Journal,
 	Skills, // Heka: the skills bought with the bosses' heka
 	Death, // after the death clip, over the dimmed game (plan autosave, DeathScreen)
+	Ending, // the ankh's choice, over the dimmed game (plan ending-choice, EndingScreen)
 	Gameplay,
 };
 

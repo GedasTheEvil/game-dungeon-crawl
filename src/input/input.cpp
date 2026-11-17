@@ -189,6 +189,10 @@ void keyPressed(unsigned char key, int x, int y) {
 		Game().ui.death.KeyPressed(key);
 		return;
 	}
+	if (Game().ui.screen == Screen::Ending) { // plan ending-choice
+		Game().ui.ending.KeyPressed(key);
+		return;
+	}
 	if (Game().ui.screen == Screen::Gameplay && Game().ui.winEntry.Typing()) {
 		Game().ui.winEntry.KeyPressed(key);
 		return;
@@ -255,6 +259,10 @@ void specialKeyPressed(int key, int x, int y) {
 			Game().saves.LoadQuicksave();
 		else
 			Game().ui.death.SpecialKeyPressed(key);
+		return;
+	}
+	if (Game().ui.screen == Screen::Ending) { // no quick save or load either
+		Game().ui.ending.SpecialKeyPressed(key);
 		return;
 	}
 	if (Game().ui.screen == Screen::Gameplay && Game().ui.winEntry.Typing()) { // no quick save or load either
@@ -326,6 +334,10 @@ void processMouse(int button, int state, int x, int y) {
 		Game().ui.death.MouseFunction(button, state, x, y);
 		return;
 	}
+	if (Game().ui.screen == Screen::Ending) {
+		Game().ui.ending.MouseFunction(button, state, x, y);
+		return;
+	}
 
 	// A bound button comes up on every screen, like its key: a walk or the sprint lets go, a power hit's charge swings.
 	std::optional<BindAction> action = bound(InputKey::Mouse(button));
@@ -371,6 +383,10 @@ void processMousePassiveMotion(int a, int b) {
 		Game().ui.death.MouseMotion(a, b);
 		return;
 	}
+	if (Game().ui.screen == Screen::Ending) {
+		Game().ui.ending.MouseMotion(a, b);
+		return;
+	}
 	if (ScreenTabs::Has(Game().ui.screen))
 		ScreenTabs::Motion(Game().ui, a, b);
 	if (UiScreen* tab = Game().ui.TabScreen())
@@ -386,6 +402,10 @@ void processMouseActiveMotion(int a, int b) {
 	}
 	if (Game().ui.screen == Screen::Death) {
 		Game().ui.death.MouseMotion(a, b);
+		return;
+	}
+	if (Game().ui.screen == Screen::Ending) {
+		Game().ui.ending.MouseMotion(a, b);
 		return;
 	}
 	if (ScreenTabs::Has(Game().ui.screen))

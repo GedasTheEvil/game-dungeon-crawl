@@ -2,6 +2,7 @@
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include "../ui/inventory.h"
+#include <utility>
 #include <algorithm>
 #include <cmath>
 #include <optional>
@@ -113,6 +114,12 @@ float Scenario::fieldValue(const Command& cmd) {
 		return static_cast<float>(Game().player->stats.run.deaths);
 	case Field::DeathScreen:
 		return Game().ui.screen == Screen::Death ? 1.f : 0.f;
+	case Field::EndingScreen: // plan ending-choice
+		return Game().ui.screen == Screen::Ending ? 1.f : 0.f;
+	case Field::Ending: // the newest record's: 0 Immortal, 1 Renounced; -1 no record
+		return Game().leaderboard.Records().empty()
+				   ? -1.f
+				   : static_cast<float>(std::to_underlying(Game().leaderboard.Records().back().ending));
 	case Field::Quicksave:
 		return Game().saves.folder.HasQuicksave() ? 1.f : 0.f;
 	case Field::LatestSave: { // plan retry-latest-save: 0 none, -1 autosave, -2 quick save, else the slot's number

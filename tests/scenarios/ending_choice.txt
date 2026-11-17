@@ -1,0 +1,61 @@
+# Plan ending-choice: the ankh asks first (Esc: back, nothing chosen); Renounce breaks the ankh, writes its own
+# epilogue and records the run as Renounced; Take the ankh records it as Immortal.
+seed 1
+god
+level 54 at 24 2
+campaign
+wait 30
+walk to 26.5
+interact
+wait 100ms
+expect ending_screen == 1
+expect won == 0
+screenshot choice
+key esc
+wait 100ms
+expect ending_screen == 0
+expect won == 0
+interact
+wait 100ms
+expect ending_screen == 1
+key down
+screenshot choice_renounce
+key enter
+wait 300ms
+expect won == 1
+screenshot ankh_broken
+wait 2s
+key backspace
+key R
+key enter
+wait 100ms
+expect records == 1
+expect ending == 1
+screenshot epilogue_renounced
+key esc
+wait 100ms
+screenshot hall_renounced
+key enter
+wait 100ms
+screenshot details_renounced
+# Take the ankh: Immortal.
+level 54 at 24 2
+campaign
+wait 30
+walk to 26.5
+interact
+wait 100ms
+key enter
+wait 300ms
+expect won == 1
+key backspace
+key I
+key enter
+wait 100ms
+expect records == 2
+expect ending == 0
+screenshot epilogue_immortal
+key esc
+wait 100ms
+screenshot hall_immortal
+quit

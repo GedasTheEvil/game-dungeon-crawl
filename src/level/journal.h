@@ -7,6 +7,7 @@
 #include "inscriptions.h"
 #include "items.h"
 #include "level.h"
+#include "run_stats.h"
 #include "skills.h"
 #include "shrines.h"
 #include <istream>
@@ -90,8 +91,11 @@ enum class DiaryPage : unsigned char {
 	// weighed: the verdict's page (judgment.h, verdictPage).
 	ScalesLight,
 	ScalesHeavy,
+	// The other epilogue (plan ending-choice): the gods renounced as demons, the ankh broken, up into an ordinary
+	// sunrise. Written at the win instead of Dawn.
+	DawnRenounced,
 };
-constexpr int DIARY_PAGE_COUNT = 7;
+constexpr int DIARY_PAGE_COUNT = 8;
 
 // The earlier expedition's notebook (plan expedition-notes): torn pages found over the campaign, numbered in order of
 // depth (Page tiles, level.h). Its own section of the journal, someone else's hand.
@@ -145,9 +149,9 @@ class Journal {
 
 	// Written once; the pages keep the order they were written in.
 	void WriteDiary(DiaryPage page);
-	// At the win: Dawn, then the scales' page if the heart was weighed, then the answer to D. J. if his last page was
-	// found.
-	void WriteEpilogue();
+	// At the win: Dawn (DawnRenounced for that ending, plan ending-choice), then the scales' page if the heart was
+	// weighed, then the answer to D. J. if his last page was found.
+	void WriteEpilogue(RunEnding ending);
 	[[nodiscard]] bool HasNote(FieldNote note) const;
 	[[nodiscard]] bool HasPage(int number) const;
 	[[nodiscard]] const std::vector<DiaryPage>& Diary() const { return diary; }

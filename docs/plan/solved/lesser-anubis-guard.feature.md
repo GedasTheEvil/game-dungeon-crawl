@@ -1,6 +1,6 @@
 # Lesser Anubis guard before the necropolis, a stronger one in it
 
-Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
+Status: solved 2026-11-17 (play-tested by the user). Was: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
 
 ## Idea
 
@@ -16,13 +16,13 @@ Hall of Judgment lvl51-54) (`src/level/campaign.h`, the seed table).
 
 * **New kind** `MonsterLesserAnubis` (append to the monster enum in `src/level/level.h`, never reorder), a free glyph
   (pick one, `bin/levelcheck --legend`). Name like "Lesser Anubis statue" (or "Small Anubis statue"; implementer's
-  choice, same family as the Anubis living statue, [egyptian-names](solved/egyptian-names.md)). Shares the guard's
-  model, texture and clips ([shared-assets](solved/shared-assets.md): the rat and giant rat pattern).
+  choice, same family as the Anubis living statue, [egyptian-names](egyptian-names.md)). Shares the guard's
+  model, texture and clips ([shared-assets](shared-assets.md): the rat and giant rat pattern).
 * **Lesser:** scale 0.5x of the guard's, 975 HP (0.75x), no `ranged` (no bolt, so no `rangedCurses`), melee damage:
   keep 140 or lower (open point, below). Everything that is a length scales with it: `climbRise`, `climbGrip`,
   `walkStride` (or the feet slide), melee reach and height (`HIGH_BLOW` likely becomes a mid blow at half height:
-  [crouch](solved/crouch.md), [monster-attack-reach](solved/monster-attack-reach.md)), its sub-cell size class
-  ([subcell-monsters](solved/subcell-monsters.md): at half height it may fit crawl spaces). Threat, XP, trap share,
+  [crouch](crouch.md), [monster-attack-reach](monster-attack-reach.md)), its sub-cell size class
+  ([subcell-monsters](subcell-monsters.md): at half height it may fit crawl spaces). Threat, XP, trap share,
   ring drop: lower, tuned. Still bloodless, poison immune, reckless, a climber.
 * **Necropolis guard:** `MonsterAnubis` gets 3900 HP (3x) and damage 280 (2x). Its bolt: 2x as well (open point). XP
   up to match. Threat in the checker (`monsterThreat`) up.

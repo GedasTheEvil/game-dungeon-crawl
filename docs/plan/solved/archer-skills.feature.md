@@ -1,6 +1,6 @@
 # Archer skills: sharp arrows, poison arrows, poison blade
 
-Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
+Status: solved 2026-11-17 (play-tested by the user). Was: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-16, size M, needs nothing first.
 
 ## Idea
 
@@ -16,7 +16,7 @@ From the user: three Heka skills (names may change):
 * Three `SkillId`s appended (`src/level/skills.h`, saved by place: never reorder), `SKILL_COUNT` 18 -> 21, rows in
   `SKILLS` (`src/level/skills.cpp`), lore and `rank2` lore in `content/texts/skills.txt`, three icon cells in
   `tools/textures/skill_icons.py`, field notes (`skillNote`), the manual's skill list. Follow Bleed and Stun
-  ([skill-bleed](solved/skill-bleed.feature.md), [skill-stun](solved/skill-stun.md)).
+  ([skill-bleed](skill-bleed.feature.md), [skill-stun](skill-stun.md)).
 * Names, Egyptian like the others (proposal): Sharp arrows = **Arrows of Satet** (Satet, "she who shoots"; Neith is
   taken by the Quiver). Poison arrows = **Sting of Serket**. Poison blade = **Fang of Wadjet**.
 * **Sharp arrows:** bows only (Nubian bow, Chariot bow; not the sling, stick, javelin). Cut added to the shot's
@@ -24,7 +24,7 @@ From the user: three Heka skills (names may change):
   kill (same chance at both ranks), then the monster's own cut resistance / bloodless rule (`bleedChancePercent`, as
   Bleed does). Tier: rank I `BleedTier::Weak`, rank II `BleedTier::Medium`.
 * **Poison arrows / poison blade:** a hit that does not kill rolls, then the monster's `poisonResistPercent` (as the
-  venom amulet, [venom-amulet](solved/venom-amulet.md)). Rank I medium, rank II strong (`skill-upgrades` rank II).
+  venom amulet, [venom-amulet](venom-amulet.md)). Rank I medium, rank II strong (`skill-upgrades` rank II).
   Chance: 20% (open point). Poison arrows: every ranged weapon (bows, sling, stick, javelin) or bows only (open point);
   poison blade: melee hits only.
 * Stacking with the venom amulet (which poisons melee and missile hits), from the user: the chances add, one roll

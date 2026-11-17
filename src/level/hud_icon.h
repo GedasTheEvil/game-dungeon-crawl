@@ -9,8 +9,9 @@ namespace PlayerHud {
 constexpr int ICON_COLUMNS = 8; // the atlas grid
 constexpr int ICON_ROWS = 7;
 // Cells of the icon atlas media/textures/ui/hud_icons.png (tools/textures/hud_icons.py), in order. Amulet and Ring: the
-// inventory's tabs. Daze: the stars circling a dazed head (plan screech-bite). The weapons follow from FirstWeapon on,
-// in ItemKind order (weaponIcon); the curses from FirstCurse on, in Curse order.
+// inventory's tabs. Daze: the stars circling a dazed head (plan screech-bite). The real weapons follow from FirstWeapon
+// on (club .. spear, the ranged ones; weaponIcon maps a kind to its cell, the test weapons to a real weapon's); the
+// curses from FirstCurse on, in Curse order.
 enum class Icon : std::uint8_t {
 	Potion,
 	Amulet,
@@ -34,8 +35,59 @@ enum class Icon : std::uint8_t {
 	TerrainHostile,
 	None = 0xff
 };
+// The cells hold the real weapons only (no cell per test weapon: plan hud-ranged-weapon-icons), so a kind maps by a
+// switch, not by its ItemKind offset. A test weapon shows the weapon it stands for.
 constexpr Icon weaponIcon(ItemKind weapon) {
-	return static_cast<Icon>(static_cast<int>(Icon::FirstWeapon) + itemIndex(weapon));
+	int cell = 0;
+	switch (weapon) {
+	case ItemKind::Club:
+	case ItemKind::SmashTest:
+		cell = 0;
+		break;
+	case ItemKind::Dagger:
+		cell = 1;
+		break;
+	case ItemKind::ShortSword:
+	case ItemKind::CutTest:
+		cell = 2;
+		break;
+	case ItemKind::Khopesh:
+	case ItemKind::FireTest:
+		cell = 3;
+		break;
+	case ItemKind::EpsilonAxe:
+		cell = 4;
+		break;
+	case ItemKind::DuckbillAxe:
+		cell = 5;
+		break;
+	case ItemKind::Mace:
+		cell = 6;
+		break;
+	case ItemKind::Spear:
+	case ItemKind::StabTest:
+		cell = 7;
+		break;
+	case ItemKind::SelfBow:
+	case ItemKind::BowTest:
+		cell = 8;
+		break;
+	case ItemKind::CompositeBow:
+		cell = 9;
+		break;
+	case ItemKind::Sling:
+		cell = 10;
+		break;
+	case ItemKind::ThrowingStick:
+		cell = 11;
+		break;
+	case ItemKind::Javelin:
+		cell = 12;
+		break;
+	default:
+		break;
+	}
+	return static_cast<Icon>(static_cast<int>(Icon::FirstWeapon) + cell);
 }
 constexpr Icon amuletIcon(AmuletType type) {
 	return static_cast<Icon>(static_cast<int>(Icon::FirstAmulet) + static_cast<int>(type));

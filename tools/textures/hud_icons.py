@@ -3,7 +3,7 @@
     python3 tools/textures/hud_icons.py [out.png]
 
 Flat glyphs with an ink outline, drawn at 4x and downsampled. Cell order must match PlayerHud::Icon in
-src/level/hud_icon.h: the potion, amulet, ring, daze, the Isis ward, the status drop, the flame and Montu's blessing, then from cell 8 on the weapons in ItemKind order, then from cell
+src/level/hud_icon.h: the potion, amulet, ring, daze, the Isis ward, the status drop, the flame and Montu's blessing, then from cell 8 on the real weapons only (club .. spear, the ranged ones; the test weapons borrow a cell, weaponIcon), then from cell
 21 on the amulets by AmuletType, from cell 37 on the curses by Curse (src/level/curses.h), then the blessings of
 Ptah, Amun and Serket, then a monster's terrain moods (an arrow up, an arrow down). The weapons lie diagonally, the grip bottom left. The flask is white: the HUD tints it with the
 potion colour.

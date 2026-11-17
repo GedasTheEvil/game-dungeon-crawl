@@ -1,0 +1,10 @@
+# Plan hud-ranged-weapon-icons: a self-bow, a composite bow, a sling, a throwing stick and a javelin; the HUD's first slot shows each one's own icon. Equip them with the keys.
+seed 1
+level 1
+god
+give ranged 0
+give ranged 1
+give ranged 2
+give ranged 3
+give ranged 4
+equip self-bow

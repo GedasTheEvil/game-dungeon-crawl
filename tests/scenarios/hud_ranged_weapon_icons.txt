@@ -1,0 +1,24 @@
+# Plan hud-ranged-weapon-icons: the HUD's weapon slot shows each ranged weapon's own icon (screenshots, one per weapon).
+seed 1
+level 1
+god
+give ranged 0
+give ranged 1
+give ranged 2
+give ranged 3
+give ranged 4
+equip self-bow
+wait 10
+screenshot self_bow
+equip composite_bow
+wait 10
+screenshot composite_bow
+equip sling
+wait 10
+screenshot sling
+equip throwing_stick
+wait 10
+screenshot throwing_stick
+equip javelin
+wait 10
+screenshot javelin

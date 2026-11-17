@@ -236,15 +236,13 @@ int Dungeon::ambushHere() const {
 	return -1;
 }
 float Dungeon::InscriptionGlint(int col, int row) const {
-	constexpr float COPY_GLINT = 0.4f; // a copy keeps a dimmer glint until the skill is learnt (plan skill-hieroglyphs)
 	if (!IsInBounds(col, row) || MapAt(col, row).fixture.type != Inscription)
 		return 0.f;
 	const std::optional<JournalInscription> page = inscriptionPage(MapAt(col, row).fixture);
 	if (!page) // too worn to read: nothing to learn there
 		return 0.f;
-	if (const JournalInscription* read = sim.journal->FindInscription(*page))
-		return read->translated ? 0.f : COPY_GLINT;
-	return 1.f;
+	// In the journal, copy or translated: nothing new to read (plan read-inscription-no-glint).
+	return sim.journal->FindInscription(*page) != nullptr ? 0.f : 1.f;
 }
 void Dungeon::lightArrows() {
 	sim.player->fireArrows = FIRE_ARROW_SHOTS;

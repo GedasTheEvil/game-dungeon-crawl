@@ -1,6 +1,6 @@
 # Read inscriptions lose their glint
 
-Status: draft 2026-11-17, size S, needs nothing first.
+Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size S, needs nothing first.
 
 ## Idea
 
@@ -25,6 +25,6 @@ inscription still shines, dimmer: that is what the user sees.
 
 ## Play-test
 
-* `bin/game --level N` on a level with an inscription, without the hieroglyph skill: the inscription shines; read it
+* `bin/game --level 1` (inscriptions at col 19 / 20 / 25, row 35 to 42, near the start),  without the hieroglyph skill: the inscription shines; read it
   (Copy); the shine stops at once and stays off after leaving and coming back.
 * The same with the skill (Read): the shine stops.

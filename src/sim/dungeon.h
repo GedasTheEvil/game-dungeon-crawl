@@ -817,8 +817,8 @@ class Dungeon {
 	// The god whose shrine stands in the player's cell (Pray's reach): offerings and the magic items' upgrades there
 	// (plan shrine-offerings). None elsewhere.
 	[[nodiscard]] std::optional<God> ShrineHere() const;
-	// The glint over an unread inscription in (col, row) (plan interact-prompt), 0..1: 1 not read yet, dimmer once
-	// copied without the skill, 0 translated, too worn to read, or no inscription.
+	// The glint over an unread inscription in (col, row) (plan interact-prompt), 0 or 1: 1 not in the journal yet; 0
+	// once read (copied or translated; plan read-inscription-no-glint), too worn to read, or no inscription.
 	[[nodiscard]] float InscriptionGlint(int col, int row) const;
 	// The level's royal name in this run (plan secret-name-gates, names.h): the name gate asks for it, the name
 	// cartouche shows it. Null: no names loaded.

@@ -137,7 +137,7 @@ TEST_CASE("a hit wakes a mimic lying in wait") {
 	CHECK(world.dungeon.MonsterBarsShown() == 1);
 }
 
-TEST_CASE("an inscription glints until it is read; a copy glints dimmer until translated, a worn one never") {
+TEST_CASE("an inscription glints until it is read; a copy or a translation stops it, a worn one never") {
 	SimWorld world;
 	load(world);
 	CHECK(world.dungeon.InscriptionGlint(3, ROW) == 1.f);
@@ -148,9 +148,7 @@ TEST_CASE("an inscription glints until it is read; a copy glints dimmer until tr
 	world.WaitTicks(1);
 	CHECK(world.dungeon.InscriptionGlint(3, ROW) == 1.f);
 	press(world); // copied
-	const float copy = world.dungeon.InscriptionGlint(3, ROW);
-	CHECK(copy > 0.f);
-	CHECK(copy < 1.f);
+	CHECK(world.dungeon.InscriptionGlint(3, ROW) == 0.f); // a copy shines no more (plan read-inscription-no-glint)
 	world.player.stats.heka.Earn(1);
 	REQUIRE(world.player.stats.heka.Learn(SkillId::Hieroglyphs, true));
 	press(world); // read now

@@ -18,7 +18,7 @@ The scales verdict pages follow Dawn ([weighing-of-the-heart](solved/weighing-of
 
 * **The choice.** Using the ankh asks first, before `won`: two options in the shared UI look ([ui.md](../ui.md)),
   e.g. "Take the ankh: life without end" / "Renounce the gods as demons and break the ankh". Esc: back to the game,
-  nothing chosen. The `ConfirmBox` (`src/ui/confirm_box.h`) may fit with two labelled buttons, else a small panel.
+  nothing chosen. Once picked, the choice is final (the user, 2026-11-17): no second ask, no undo. The `ConfirmBox` (`src/ui/confirm_box.h`) may fit with two labelled buttons, else a small panel.
 * **Store it.** A `RunEnding` enum (`Immortal`, `Renounced`) on the run stats, set by the choice. Both still win the
   campaign (same score, same flow).
 * **Destroy.** On Renounced: a short break of the ankh (a crack sound and the ankh model gone, or a flash), then the
@@ -35,8 +35,7 @@ The scales verdict pages follow Dawn ([weighing-of-the-heart](solved/weighing-of
 * Tests: unit test for the record round-trip (with and without `ending`); a scenario that uses the ankh, picks
   Renounced and checks the record and the epilogue page.
 
-Open: the exact wording of the two options and the page (the implementer's choice, in the journal's voice); whether
-the choice is final once picked (suggested: yes, no second ask).
+Open: the exact wording of the two options and the page (the implementer's choice, in the journal's voice).
 
 ## Play-test
 

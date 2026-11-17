@@ -1,6 +1,6 @@
 # Ranged weapons show the wrong HUD icon
 
-Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size S, needs nothing first.
+Status: solved 2026-11-17 (play-tested by the user). Was: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size S, needs nothing first.
 
 ## Idea
 

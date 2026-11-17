@@ -1,13 +1,13 @@
 # Read inscriptions lose their glint
 
-Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size S, needs nothing first.
+Status: solved 2026-11-17 (play-tested by the user). Was: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size S, needs nothing first.
 
 ## Idea
 
 From the user: an inscription already read loses its shine (the gold glint sweeping over it). The glint should mark
 only walls with something new to read.
 
-Today (plan [interact-prompt](solved/interact-prompt.md), part 2): `Dungeon::InscriptionGlint`
+Today (plan [interact-prompt](interact-prompt.md), part 2): `Dungeon::InscriptionGlint`
 (`src/sim/dungeon_interact.cpp`) gives 1 to an unread inscription, 0 to a translated one (read with the hieroglyph
 skill) and 0.4 (`COPY_GLINT`) to a copy (read without the skill, plan skill-hieroglyphs). So a read-but-copied
 inscription still shines, dimmer: that is what the user sees.

@@ -87,6 +87,7 @@ constexpr Icon weaponIcon(ItemKind weapon) {
 	default:
 		break;
 	}
+	// NOLINTNEXTLINE(clang-analyzer-optin.core.EnumCastOutOfRange): the cells from FirstWeapon on are the weapons'
 	return static_cast<Icon>(static_cast<int>(Icon::FirstWeapon) + cell);
 }
 constexpr Icon amuletIcon(AmuletType type) {

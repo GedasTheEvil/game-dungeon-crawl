@@ -53,8 +53,8 @@ Hall of Judgment lvl51-54) (`src/level/campaign.h`, the seed table).
 
 * `MonsterLesserAnubis` (37, glyph `9`), "Lesser Anubis statue", label `lesser anubis`: the guard's model, texture and
   clips at scale 9.5 (0.5x), 975 HP, blow 105 (0.75x, the default), no bolt, no ranged curses, Vulnerability 10%. Its
-  blow is a body blow (`LESSER_ANUBIS_BLOW`, a crouch does not duck it), `heightQuarters` 1 (fits a crawl space). Same
-  speed as the guard. Threat 7, XP 6000, trap share 25, weight 2, ring drop 4%. Strides and climb clip numbers are in
+  blow is a body blow (`LESSER_ANUBIS_BLOW`, a crouch does not duck it), `heightQuarters` 1 (fits a crawl space). Half the guard's
+  speed (11.5, the user after the play-test: half the guard's 23). Threat 7, XP 6000, trap share 25, weight 2, ring drop 4%. Strides and climb clip numbers are in
   model units: unchanged. Generated at difficulty 7-8; the priests' quarter's zone row.
 * Guard: 3900 HP, blow 280, bolt 140 (both doubled, the default), XP 25000, threat 20.
 * Anubis boss: 7200 HP, blow 380, bolt 250, XP 60000, threat 30.

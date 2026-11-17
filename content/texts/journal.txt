@@ -507,6 +507,25 @@ text: A good cut does not stop at the cut. Now and then the beast I strike with 
 	club never. Thick hides let less of it through, the gods' great beasts only half as often, and mummies, statues
 	and clay have no blood to lose. It stacks with the rest of my tricks, each rolled on its own.
 
+[note.arrows-of-satet]
+title: Arrows of Satet
+text: Satet, she who shoots, has sharpened my heads. A bow shot cuts five deeper, and now and then the beast that
+	survives it keeps bleeding, as from a blade. Thick hides, the gods' great beasts and mummies let less of it
+	through. Only bows: not the sling, the stick or the javelin. With the Bleed skill it is one roll, the better
+	chance wins.
+
+[note.sting-of-serket]
+title: Sting of Serket
+text: A drop from Serket's tail on every arrowhead. Now and then a bow shot that does not kill poisons the beast, a
+	medium poison. Mummies, statues, plants and the Anubis guard are proof against it. With the venom amulet the
+	chances add, and the stronger poison counts.
+
+[note.fang-of-wadjet]
+title: Fang of Wadjet
+text: Wadjet's fang is on my blade. Now and then a blow that does not kill poisons the beast, a medium poison. Mummies,
+	statues, plants and the Anubis guard are proof against it. With the venom amulet the chances add, and the stronger
+	poison counts.
+
 [note.shrine-of-montu]
 title: The Shrine of Montu
 text: Another little naos, this one painted red. Montu stands in it with a falcon's head and the sun on it, his

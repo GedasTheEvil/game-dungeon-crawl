@@ -8,6 +8,7 @@
 #include <cmath>
 #include <memory>
 #include <utility>
+#include "../level/archer_skills.h"
 #include "../level/gameplay_monster_kinds.h"
 #include "../level/gameplay_skills.h"
 #include "../level/gameplay_traps.h"
@@ -286,7 +287,7 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 		powerHit = {nearest->NearEdge(dir), (nearest->BottomY() + nearest->TopY()) / 2.f, GameClock::now(), power};
 		sim.events->Play(WorldSound::PowerHit);
 	}
-	playerHit(*nearest, damage, &mix, exact);
+	playerHit(*nearest, damage, &mix, exact, HitBy::Melee);
 	touchPoison(*nearest);
 	return true;
 }
@@ -345,7 +346,7 @@ Monster* Dungeon::freeMonsterSlot() {
 		farthest->Clear();
 	return farthest;
 }
-void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit) {
+void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit, HitBy by) {
 	const bool exact = exactHit && mix != nullptr; // a typed hit only
 	const MonsterType& type = *mon.Type();
 	if (mix && sim.journal->TryDamage(type.id, levelNumber, mainType(*mix))) {
@@ -377,9 +378,9 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactH
 	if (killed)
 		rewardKill(mon);
 	else if (mix) {
-		venomHit(mon);
+		venomHit(mon, by);
 		stunRoll(mon, *mix, wasLurking);
-		bleedRoll(mon, *mix);
+		bleedRoll(mon, *mix, by);
 	}
 	mon.Struggle(); // a scorpion that holds the player lets go sooner
 }
@@ -402,19 +403,26 @@ void Dungeon::stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking) {
 // up rolls at half the one below and only on a monster that bled the tier below before this hit, so a hit climbs at
 // most one tier. Rolled through Monster::TakeBleed, whose cut rate scales it once more and which never bleeds a
 // bloodless kind.
-void Dungeon::bleedRoll(Monster& mon, const DamageMix& mix) {
-	const int rank = sim.player->stats.heka.Rank(SkillId::Bleed);
-	if (rank == 0)
+void Dungeon::bleedRoll(Monster& mon, const DamageMix& mix, HitBy by) {
+	const Heka& heka = sim.player->stats.heka;
+	const int rank = heka.Rank(SkillId::Bleed);
+	const int sharpRank = by == HitBy::Bow ? heka.Rank(SkillId::SharpArrows) : 0; // plan archer-skills
+	if (rank == 0 && sharpRank == 0)
 		return;
-	int chance = BLEED_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Slash)] / 100;
+	int chance = rank == 0 ? 0 : BLEED_CHANCE_PERCENT * mix[std::to_underlying(DamageType::Slash)] / 100;
 	if (rank == 2) // plan skill-upgrades
 		chance = rankTwoChance(chance);
-	if (mon.Type()->isBoss())
+	const bool boss = mon.Type()->isBoss();
+	if (boss)
 		chance = chance * BOSS_BLEED_PERCENT / 100;
 	const int before = mon.BleedMask();
-	for (int tier = 0; tier < DRAIN_TIER_COUNT && chance > 0; tier++, chance = chance * BLEED_TIER_UP_PERCENT / 100)
-		if (tier == 0 || (before & (1 << (tier - 1))) != 0)
-			mon.TakeBleed(static_cast<BleedTier>(tier), chance, true, sim.random->gameplay);
+	for (int tier = 0; tier < DRAIN_TIER_COUNT; tier++, chance = chance * BLEED_TIER_UP_PERCENT / 100) {
+		const bool below = tier == 0 || (before & (1 << (tier - 1))) != 0;
+		const int sharp = below || tier == sharpBleedStart(sharpRank) ? sharpBleedPercent(sharpRank, tier, boss) : 0;
+		const int rolled = std::max(below ? chance : 0, sharp);
+		if (rolled > 0)
+			mon.TakeBleed(static_cast<BleedTier>(tier), rolled, true, sim.random->gameplay);
+	}
 }
 const Monster* Dungeon::PlayerHeldBy() const {
 	for (const Monster& mon : monsters)
@@ -441,13 +449,20 @@ void Dungeon::touchPoison(const Monster& mon) {
 	sim.player->Poison(type.touch->tier, *sim.events, sim.random->gameplay);
 	sim.journal->SeeMove(type.id, levelNumber, CreatureMove::Poison);
 }
-// The venom amulet: a weapon hit that did not kill may poison (plan venom-amulet).
-void Dungeon::venomHit(Monster& mon) {
+// The venom amulet: a weapon hit that did not kill may poison (plan venom-amulet). With Sting of Serket (a bow's hit)
+// or Fang of Wadjet (a blade's) it is one roll: the chances add, the stronger tier counts (plan archer-skills).
+void Dungeon::venomHit(Monster& mon, HitBy by) {
 	const PlayerStats& stats = sim.player->stats;
-	if (stats.VenomPercent() <= 0 || !mon.Alive() || !sim.random->gameplay.percent(stats.VenomPercent()))
+	const SkillId skill = by == HitBy::Bow ? SkillId::PoisonArrows : SkillId::PoisonBlade;
+	const PoisonRoll roll = combinedPoison(
+		stats.VenomPercent(),
+		stats.VenomTier(),
+		by == HitBy::Other ? 0 : stats.heka.Rank(skill)
+	);
+	if (roll.percent <= 0 || !mon.Alive() || !sim.random->gameplay.percent(roll.percent))
 		return;
 	const MonsterType& type = *mon.Type();
-	const bool took = mon.TakePoison(stats.VenomTier(), true, sim.random->gameplay);
+	const bool took = mon.TakePoison(roll.tier, true, sim.random->gameplay);
 	if (sim.journal->TryPoison(type.id, levelNumber))
 		sim.events->Status(
 			"Journal: %s, %s",

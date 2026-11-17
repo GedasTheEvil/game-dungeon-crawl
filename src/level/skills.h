@@ -32,8 +32,12 @@ enum class SkillId : std::uint8_t {
 	DisarmTrap, // a trapped container's trap may fail, trapped ones and mimics red-rimmed, never empty
 	QuiverOfNeith, // ranged weapons hold QUIVER_SHOTS_PERCENT more shots, they come back QUIVER_RECOVERY_PERCENT faster
 	Bleed, // plan skill-bleed: a cutting hit may make a foe bleed (Dungeon::bleedRoll)
+	// Plan archer-skills: bow shots cut deeper and may bleed; bow shots and melee hits may poison.
+	SharpArrows, // Arrows of Satet (Dungeon::Shoot, Dungeon::bleedRoll)
+	PoisonArrows, // Sting of Serket (Dungeon::venomHit)
+	PoisonBlade, // Fang of Wadjet (Dungeon::venomHit)
 };
-constexpr int SKILL_COUNT = 18;
+constexpr int SKILL_COUNT = 21;
 
 // The stat skills' gains (plan heka-surplus), applied where the stat is computed (PlayerStats).
 constexpr int SKILL_HEALTH_PERCENT = 25;

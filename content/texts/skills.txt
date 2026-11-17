@@ -69,3 +69,17 @@ rank2: Rank II: she hunts with you. 70% more shots, back 44% faster.
 [skill.bleed]
 lore: A clean cut keeps opening after the blade is gone. Blood and bone, not linen or stone.
 rank2: Rank II: the cut finds the vein. Foes bleed nearly twice as often.
+
+[skill.arrows-of-satet]
+lore: Satet, she who shoots, whets the head: bow shots cut 5 deeper, and a hit that lives may keep bleeding.
+	Not the sling, the stick or the javelin.
+rank2: Rank II: her own arrowheads. Bow shots cut 10 deeper, and the wound opens at medium.
+
+[skill.sting-of-serket]
+lore: Serket lends her sting: now and then a bow shot that does not kill leaves medium poison in the wound.
+rank2: Rank II: the sting goes deep. The poison is strong.
+
+[skill.fang-of-wadjet]
+lore: Wadjet, the spitting cobra on the brow, wets your blade: now and then a blow that does not kill leaves medium
+	poison.
+rank2: Rank II: the fang bites. The poison is strong.

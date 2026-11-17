@@ -153,6 +153,12 @@ std::optional<FieldNote> skillNote(SkillId skill) {
 		return FieldNote::QuiverOfNeith;
 	case SkillId::Bleed:
 		return FieldNote::Bleed;
+	case SkillId::SharpArrows:
+		return FieldNote::SharpArrows;
+	case SkillId::PoisonArrows:
+		return FieldNote::PoisonArrows;
+	case SkillId::PoisonBlade:
+		return FieldNote::PoisonBlade;
 	case SkillId::Stun: // its note comes with the first stunned monster
 		return std::nullopt;
 	}

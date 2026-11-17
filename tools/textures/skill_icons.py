@@ -305,10 +305,47 @@ def bleed_skill():
     return img
 
 
+def sharp_arrows():
+    """An arrow flying right with a big keen head and a slash mark across it."""
+    img, d = canvas()
+    stroke(d, [(40, 300), (340, 300)], WOOD, 22)
+    d.polygon([(480, 300), (330, 215), (360, 300), (330, 385)], fill=METAL, outline=INK, width=LINE)
+    d.polygon([(40, 300), (10, 260), (85, 275), (85, 325), (10, 340)], fill=BONE, outline=INK, width=LINE)
+    stroke(d, [(180, 120), (300, 200)], CARNELIAN, 20)
+    stroke(d, [(220, 90), (340, 170)], CARNELIAN, 14)
+    return img
+
+
+def poison_arrows():
+    """An arrow flying right with a green tip and a drop of venom falling from it."""
+    img, d = canvas()
+    stroke(d, [(40, 250), (340, 250)], WOOD, 22)
+    d.polygon([(480, 250), (330, 175), (360, 250), (330, 325)], fill=VENOM, outline=INK, width=LINE)
+    d.polygon([(40, 250), (10, 210), (85, 225), (85, 275), (10, 290)], fill=BONE, outline=INK, width=LINE)
+    for x, y, r in ((400, 360, 34), (350, 450, 22)):
+        d.polygon([(x, y - r * 1.8), (x - r, y), (x + r, y)], fill=VENOM, outline=INK, width=LINE)
+        d.ellipse([x - r, y - r, x + r, y + r], fill=VENOM, outline=INK, width=LINE)
+        d.polygon([(x - r + 3, y - 2), (x + r - 3, y - 2), (x, y - r * 1.7)], fill=VENOM)
+    return img
+
+
+def poison_blade():
+    """A curved blade with three drops of venom on its edge."""
+    img, d = canvas()
+    d.polygon([(110, 60), (330, 150), (400, 300), (330, 290), (250, 180), (110, 110)], fill=METAL, outline=INK, width=LINE)
+    d.rectangle([330, 280, 440, 330], fill=GOLD, outline=INK, width=LINE)
+    d.rounded_rectangle([385, 320, 425, 470], radius=14, fill=WOOD, outline=INK, width=LINE)
+    for x, y, r in ((170, 260, 34), (250, 360, 26), (130, 400, 20)):
+        d.polygon([(x, y - r * 1.8), (x - r, y), (x + r, y)], fill=VENOM, outline=INK, width=LINE)
+        d.ellipse([x - r, y - r, x + r, y + r], fill=VENOM, outline=INK, width=LINE)
+        d.polygon([(x - r + 3, y - 2), (x + r - 3, y - 2), (x, y - r * 1.7)], fill=VENOM)
+    return img
+
+
 # Order = atlas cell: the heka mark, then SkillId order.
 ICONS = [heka, stun, thoth, dodge, power_hit, eye_of_horus, hapi, serket, isis, flaming_arrows, ka_of_osiris,
          strength_of_montu, djed_of_ptah, breath_of_shu, speed_of_mafdet, wisdom_of_seshat, disarm_trap,
-         quiver_of_neith, bleed_skill]
+         quiver_of_neith, bleed_skill, sharp_arrows, poison_arrows, poison_blade]
 ROWS = (len(ICONS) + GRID - 1) // GRID
 
 

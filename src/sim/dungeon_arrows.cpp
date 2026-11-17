@@ -1,6 +1,7 @@
 #include "dungeon.h"
 #include "dungeon_rules.h"
 #include "player.h"
+#include "../level/archer_skills.h"
 #include "../level/item_bag.h"
 #include "../level/journal.h"
 #include "../level/rng.h"
@@ -107,13 +108,18 @@ bool Dungeon::ShootWeapon(ItemKind weapon, int damage, int dir, float height, fl
 }
 void Dungeon::Shoot(
 	MissileKind kind,
-	int damage,
-	const DamageMix& mix,
+	int baseDamage,
+	const DamageMix& baseMix,
 	int dir,
 	float height,
 	float aimRange,
 	bool exact
 ) {
+	// Arrows of Satet (plan archer-skills): a bow shot carries cut on top, all of it cut.
+	DamageMix mix = baseMix;
+	int damage = baseDamage;
+	if (kind == MissileKind::Arrow)
+		damage = addCut(damage, mix, sharpArrowCut(sim.player->stats.heka.Rank(SkillId::SharpArrows)));
 	const float x0 = mapX + static_cast<float>(dir) * ARROW_LAUNCH_AHEAD;
 	const float y0 = mapY + height - PlayerSink() / RenderConfig::TILE_SIZE; // wading, the bow is down in the water
 	float targetX = x0 + static_cast<float>(dir) * std::min(ARROW_FREE_RANGE, aimRange);
@@ -235,7 +241,13 @@ void Dungeon::updateMissiles() {
 				if (mon.Active() && mon.Alive() && !mon.Hidden() && x >= mon.Left() - ARROW_HIT_TOLERANCE &&
 					x <= mon.Right() + ARROW_HIT_TOLERANCE && y >= mon.BottomY() && y <= mon.TopY()) {
 					// The water takes the arrow's force: a monster in it is hit for a share.
-					playerHit(mon, mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage, &a.mix, a.exact);
+					playerHit(
+						mon,
+						mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage,
+						&a.mix,
+						a.exact,
+						a.kind == MissileKind::Arrow ? HitBy::Bow : HitBy::Other
+					);
 					sim.events->Play(rules.hit);
 					if (rules.returns)
 						a.stuckMs = now;

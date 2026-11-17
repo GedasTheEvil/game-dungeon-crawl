@@ -57,6 +57,18 @@ constexpr int BOSS_STUN_COOLDOWN_MS = 5000;
 constexpr int BLEED_CHANCE_PERCENT = 20;
 constexpr int BOSS_BLEED_PERCENT = 50;
 constexpr int BLEED_TIER_UP_PERCENT = 50;
+// Archer skills (plan archer-skills). Arrows of Satet: a bow shot carries SHARP_ARROW_CUT (rank I) or SHARP_ARROW_CUT_2
+// (rank II, in total) more damage, all of it cut, so the monster's cut resistance scales it. A bow hit that does not
+// kill may make it bleed at SHARP_ARROW_BLEED_PERCENT (both ranks; a boss half, then the cut rate as Bleed does), the
+// tier it starts at: weak at rank I, medium at rank II (the tier above that at half, on a monster already bleeding
+// medium). It is one roll with the Bleed skill's: the higher chance counts.
+constexpr int SHARP_ARROW_CUT = 5;
+constexpr int SHARP_ARROW_CUT_2 = 10;
+constexpr int SHARP_ARROW_BLEED_PERCENT = 20;
+// Sting of Serket (bow hits) and Fang of Wadjet (melee hits): a hit that does not kill poisons at POISON_SKILL_PERCENT
+// (both ranks), medium at rank I and strong at rank II, then the monster's poison resistance (Monster::TakePoison).
+// With the venom amulet the chances add (one roll) and the stronger tier counts.
+constexpr int POISON_SKILL_PERCENT = 20;
 constexpr int WADE_SPLASH_MS = 450; // a splashing step while the player wades
 constexpr int WATER_JUMP_HINT_MS = 3000; // "too deep to jump" shows at most this often
 

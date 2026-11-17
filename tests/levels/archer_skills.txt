@@ -1,0 +1,5 @@
+; Plan archer-skills (tests/play/archer-skills.txt): the player (col 2), a giant bat (col 12) and a mummy (col 24,
+; poison immune and bloodless: never poisoned, never bleeds).
+##############################
+#.S.$$......F..........u...E#
+##############################

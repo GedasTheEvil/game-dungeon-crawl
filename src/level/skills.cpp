@@ -34,6 +34,10 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	 false},
 	// Plan skill-bleed: a cutting hit may make a foe bleed.
 	{"Bleed", "Cutting hits may make a foe bleed", "Bleeds nearly twice as often", false},
+	// Plan archer-skills: the archer's and the blade's tricks.
+	{"Arrows of Satet", "Bow shots cut 5 deeper, may bleed", "Bow shots cut 10 deeper, bleed medium", false},
+	{"Sting of Serket", "Bow shots may poison (medium)", "Bow shots may poison (strong)", false},
+	{"Fang of Wadjet", "Melee hits may poison (medium)", "Melee hits may poison (strong)", false},
 }};
 
 const char* skillLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".lore").c_str(); }

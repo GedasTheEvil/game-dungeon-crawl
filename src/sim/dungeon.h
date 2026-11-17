@@ -53,6 +53,10 @@ struct HitboxView {
 	int facing = 1; // the player looks -1 left, +1 right
 };
 
+// What struck a monster, for the archer skills (plan archer-skills): a blade, a bow's arrow, another missile (sling,
+// stick, javelin).
+enum class HitBy : std::uint8_t { Melee, Bow, Other };
+
 class Dungeon {
 	friend class DungeonView; // its drawing (src/graphics/dungeon_view.h, plan dungeon-view-split)
 	friend class DungeonCheats; // what only the tests do (dungeon_cheats.h)
@@ -343,14 +347,17 @@ class Dungeon {
 	// (mix; nullptr: untyped), and a kill is rewarded (rewardKill). exactHit (a test weapon, plan test-weapons; a typed
 	// hit): the hit takes exactly 1 HP, not what the amulets, resistances, a stun or the weapon's damage make of dmg;
 	// the fire still sets it burning and the type's side effects still roll.
-	void playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit = false);
+	// by: what struck, for the archer skills (plan archer-skills): a bow's arrow, a blade, or another missile.
+	void playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit = false, HitBy by = HitBy::Melee);
 	void touchPoison(const Monster& mon); // the plant's sap, after a melee hit
-	void venomHit(Monster& mon); // the venom amulet's roll after a weapon hit
+	// The venom amulet's roll after a weapon hit, one with Sting of Serket (a bow's) or Fang of Wadjet (a blade's).
+	void venomHit(Monster& mon, HitBy by);
 	// The Stun skill's roll after a weapon hit that did not kill (plan skill-stun, Monster::StunHit); the first stun
 	// says so and writes its field note.
 	void stunRoll(Monster& mon, const DamageMix& mix, bool wasLurking);
-	// The Bleed skill's roll after a weapon hit that did not kill (plan skill-bleed), the same way.
-	void bleedRoll(Monster& mon, const DamageMix& mix);
+	// The Bleed skill's roll after a weapon hit that did not kill (plan skill-bleed), the same way; with Arrows of
+	// Satet a bow's hit rolls its bleed in the same pass, the higher chance of each tier counts.
+	void bleedRoll(Monster& mon, const DamageMix& mix, HitBy by);
 	void rewardKill(Monster& mon); // the player killed it: journal, XP, maybe a weapon chest
 	// A killed monster's spawn tile turns into its slain marker (slainObject): it does not come back, not after a load
 	// nor when its slot is reused. Not a minion's (it has no tile), not a mimic's (its tile turns into its chest; the

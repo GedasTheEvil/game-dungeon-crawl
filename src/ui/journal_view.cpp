@@ -416,7 +416,7 @@ void JournalScreen::MouseMotion(int x, int y) {
 void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 	MouseMotion(x, y);
 	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
-		if (state == GLUT_DOWN)
+		if (state == MOUSE_DOWN)
 			Turn(button == MOUSE_WHEEL_UP ? -1 : 1);
 		return;
 	}
@@ -425,7 +425,7 @@ void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
-	if (state == GLUT_DOWN) {
+	if (state == MOUSE_DOWN) {
 		const Hit at = pointer.hovered;
 		bool corner = at.target == Target::PrevPage || at.target == Target::NextPage;
 		if (corner && !pagesFailed) { // grab the page by its corner: the turn follows the drag

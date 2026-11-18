@@ -1,6 +1,6 @@
 # Window, input and main loop on SDL3: drop GLUT
 
-Status: draft 2026-11-18, size L, needs [sdl3-audio](sdl3-audio.feature.md) first.
+Status: implemented 2026-11-18, waiting for the user's play-test. Was: draft 2026-11-18, size L, needs [sdl3-audio](sdl3-audio.feature.md) first.
 
 ## Problem
 
@@ -38,9 +38,37 @@ Wayland, and keys come as characters plus "special" codes.
 * Docs: [development.md](../development.md) (dependencies, `game/game.cpp` row), [where-is-x.md](../where-is-x.md)
   rows that name GLUT.
 
+## Done
+
+* `src/game/window.*`: one `SDL_Window` with a GL 2.1 compatibility context (RGBA 8, depth 24, double buffer),
+  high-DPI (draws at `SDL_GetWindowSizeInPixels`, mouse positions scaled by the pixel density), fullscreen as SDL's
+  borderless desktop one, resize by `SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED`. Own main loop `Window::run`: events, the
+  update at `UPDATE_TICK_MS` as a fixed step on `SDL_GetTicksNS` (at most 5 to catch up, then afresh: the loading),
+  a draw after each update or when `FrameRate::due` wants one (vsync by `SDL_GL_SetSwapInterval`, the GLX code went).
+  The `glutPostRedisplay` calls went: a draw follows every update, as before. `Window::runScenario`: only the
+  window's events and `Scenario::tick`. Close button or Quit: the loop ends, the same cleanup (settings saved). SDL
+  also turns SIGTERM into that quit.
+* Input: `handleInputEvent` (`src/input/input.cpp`) feeds the old seam (`keyPressed`, `specialKeyPressed`, their
+  releases, `processMouse`, the motion functions), which the scenarios call as before. Keys go by place
+  (`Keymap::physical`, `src/input/keymap.*`, scancodes read as on a US layout), so the bindings and the `[controls]`
+  names stay; the text fields (riddle, Hall of Records name) take the layout's typed character. The game's key codes
+  kept GLUT's numbers, now named `SpecialKey` (`level/bindings.h`); `MOUSE_DOWN` / `MOUSE_UP` replace `GLUT_DOWN` /
+  `GLUT_UP`. Repeat from `event.key.repeat`, dropped in a cut-scene (`ignoreKeyRepeat`). The wheel: buttons 3 / 4 per
+  notch, as freeglut sent them. Window enter / leave: `processMouseEntry`.
+* The held pointer (plan mouse-leaves-window) is SDL's relative mode (`Window::holdPointer`): hidden, cannot leave the
+  window, its motions only turn the look; let go, it shows at the window's centre (`SDL_WarpMouseInWindow`). The warp
+  hold in `MouseLook` and its tests went.
+* `-lglut` and `freeglut_ext.h` are out of the game (the editor and the model viewer link `GLUT_LIBS`);
+  `gl_includes.h` includes `GL/gl.h` and `GL/glu.h`.
+* `--no-sound` and scenarios set `SDL_VIDEO_DRIVER=x11` (unless set): SDL3 prefers Wayland and `WAYLAND_DISPLAY`
+  outlives `xvfb-run`, so background runs and the snapshots would open on the desktop, on the GPU.
+* Gamepad: draft [sdl3-gamepad](sdl3-gamepad.feature.draft.opus.md). Unit test `tests/unit/keymap_test.cpp`.
+  `make test` and `make snapshots` pass unchanged (79 images, 0 changed).
+
 ## Play-test
 
-* `bin/game --level 1`: walk, turn, jump, crouch, sprint; mouse look and clicks in the inventory work as before.
+* `bin/game --level 1`: walk, turn, jump, crouch, sprint; mouse look (now raw motion: its speed may feel a little
+  different) and clicks in the inventory work as before; the pointer never leaves the window while looking.
 * Hold a movement key: smooth walk, no stutter from key repeat; in a cut scene keys do not repeat.
 * Toggle fullscreen and back, resize the window: the picture and the UI scale right.
 * Close the window with its close button: the game quits cleanly (settings saved).

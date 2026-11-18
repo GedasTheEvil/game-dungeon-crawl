@@ -8,8 +8,7 @@ const unsigned char KEY_TAB = 9;
 const unsigned char KEY_DELETE = 127;
 const unsigned char KEY_BACKSPACE = 8;
 
-// Key codes the screens read directly and the fixed keys; the gameplay keys are bindings (bindings.h, with GLUT's
-// special key codes).
+// Key codes the screens read directly and the fixed keys; the gameplay keys are bindings (bindings.h, SpecialKey).
 const int SPECIAL_TOGGLE_CARTOON = 1;
 const int SPECIAL_TOGGLE_HITBOXES = 3;
 const int SPECIAL_QUICK_SAVE = 5; // F5 (plan quick-save)
@@ -30,13 +29,14 @@ const int SPECIAL_KEYPAD_DELETE = 111;
 const int MOUSE_LEFT_BUTTON = 0;
 const int MOUSE_MIDDLE_BUTTON = 1;
 const int MOUSE_RIGHT_BUTTON = 2;
-const int MOUSE_WHEEL_UP = 3; // freeglut reports the wheel as buttons 3 and 4
+const int MOUSE_WHEEL_UP = 3; // the wheel comes as buttons 3 and 4, a down and an up per notch
 const int MOUSE_WHEEL_DOWN = 4;
+// A button's state in processMouse and the screens' MouseFunction.
+const int MOUSE_DOWN = 0;
+const int MOUSE_UP = 1;
 const float CAMERA_ROTATE_LIMIT_X = 30.0f;
 const float CAMERA_ROTATE_LIMIT_Y = 10.0f;
 const float MOUSE_LOOK_SENSITIVITY = 0.08f;
-
-void Idle();
 
 void keyPressed(unsigned char a, int x, int y);
 void keyReleased(unsigned char a, int x, int y);
@@ -51,11 +51,7 @@ void processMouseActiveMotion(int a, int b);
 
 void processMousePassiveMotion(int a, int b);
 
-void processMouseEntry(int state);
-
-// The GLUT motion callbacks of a played game: the motion, then the pointer held in the window (plan
-// mouse-leaves-window). A scenario calls the process functions, no warp.
-void windowPassiveMotion(int x, int y);
-void windowActiveMotion(int x, int y);
+// The pointer entered or left the window.
+void processMouseEntry();
 
 #endif

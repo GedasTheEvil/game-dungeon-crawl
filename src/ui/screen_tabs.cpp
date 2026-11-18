@@ -64,7 +64,7 @@ bool Mouse(UIContext& screens, int button, int state, int x, int y) {
 	if (button != MOUSE_LEFT_BUTTON)
 		return false;
 	tabs.Move(tabAt(screens.world.render, x, y));
-	if (state == GLUT_DOWN) {
+	if (state == MOUSE_DOWN) {
 		tabs.Down(tabs.hovered, button);
 		return tabs.Pressing();
 	}

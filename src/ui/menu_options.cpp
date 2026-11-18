@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "../render/gl_includes.h"
+#include "../game/window.h"
 #include "../state/game_state.h"
 #include "../state/settings.h"
 #include "../level/input.h"
@@ -367,7 +368,8 @@ void MainMenu::ActivateOption(int row, int step) {
 		}
 		// The next larger size, after the largest the smallest; stepping back the other way round. The sizes go up
 		// to the desktop's (plan settings-extras).
-		const std::vector<WindowSize> sizes = windowSizes(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT));
+		const Window::Size desktop = Window::desktopSize();
+		const std::vector<WindowSize> sizes = windowSizes(desktop.w, desktop.h);
 		auto larger = [&](const WindowSize& size) {
 			return size.w > display.width || (size.w == display.width && size.h > display.height);
 		};
@@ -382,7 +384,7 @@ void MainMenu::ActivateOption(int row, int step) {
 			next = *it;
 		display.width = next.w;
 		display.height = next.h;
-		glutReshapeWindow(next.w, next.h);
+		Window::resize(next.w, next.h);
 	} else if (option.id == OptionId::AnimationRate) {
 		// The next higher rate, after the highest the key frames; stepping back the other way round.
 		if (step > 0) {
@@ -404,12 +406,8 @@ void MainMenu::ActivateOption(int row, int step) {
 	} else if (option.kind == OptionKind::Switch) {
 		bool& on = switchOf(world, option.id);
 		on = !on;
-		if (option.id == OptionId::Fullscreen) {
-			if (on)
-				glutFullScreen();
-			else
-				glutLeaveFullScreen();
-		}
+		if (option.id == OptionId::Fullscreen)
+			Window::setFullscreen(on);
 	}
 	world.applySettings(true);
 }

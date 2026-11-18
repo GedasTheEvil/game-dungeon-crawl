@@ -4,20 +4,6 @@
 #include <utility>
 
 namespace {
-// GLUT special key codes (GLUT_KEY_*; Shift, Ctrl and Alt are freeglut's). input.h names the ones the game uses.
-constexpr int F1 = 1;
-constexpr int F11 = 11;
-constexpr int F12 = 12;
-constexpr int LEFT = 100;
-constexpr int UP = 101;
-constexpr int RIGHT = 102;
-constexpr int DOWN = 103;
-constexpr int PAGE_UP = 104;
-constexpr int PAGE_DOWN = 105;
-constexpr int HOME = 106;
-constexpr int END = 107;
-constexpr int SHIFT_LEFT = 112;
-constexpr int SHIFT_RIGHT = 113;
 constexpr unsigned char ESCAPE = 27;
 constexpr unsigned char ENTER = 13;
 
@@ -39,24 +25,24 @@ const NamedKey NAMED[] = {
 	{"semicolon", ";", {InputKey::Kind::Char, ';'}},
 	{"hash", "#", {InputKey::Kind::Char, '#'}},
 	{"equals", "=", {InputKey::Kind::Char, '='}},
-	{"left", "Left", {InputKey::Kind::Special, LEFT}},
-	{"right", "Right", {InputKey::Kind::Special, RIGHT}},
-	{"up", "Up", {InputKey::Kind::Special, UP}},
-	{"down", "Down", {InputKey::Kind::Special, DOWN}},
-	{"page_up", "PgUp", {InputKey::Kind::Special, PAGE_UP}},
-	{"page_down", "PgDn", {InputKey::Kind::Special, PAGE_DOWN}},
-	{"home", "Home", {InputKey::Kind::Special, HOME}},
-	{"end", "End", {InputKey::Kind::Special, END}},
-	{"insert", "Ins", {InputKey::Kind::Special, 108}},
-	{"num_lock", "NumLk", {InputKey::Kind::Special, 109}},
-	{"begin", "Begin", {InputKey::Kind::Special, 110}},
-	{"keypad_delete", "Del", {InputKey::Kind::Special, 111}},
-	{"shift", "Shift", {InputKey::Kind::Special, SHIFT_LEFT}},
-	{"right_shift", "RShift", {InputKey::Kind::Special, SHIFT_RIGHT}},
-	{"ctrl", "Ctrl", {InputKey::Kind::Special, 114}},
-	{"right_ctrl", "RCtrl", {InputKey::Kind::Special, 115}},
-	{"alt", "Alt", {InputKey::Kind::Special, 116}},
-	{"right_alt", "RAlt", {InputKey::Kind::Special, 117}},
+	{"left", "Left", {InputKey::Kind::Special, SpecialKey::LEFT}},
+	{"right", "Right", {InputKey::Kind::Special, SpecialKey::RIGHT}},
+	{"up", "Up", {InputKey::Kind::Special, SpecialKey::UP}},
+	{"down", "Down", {InputKey::Kind::Special, SpecialKey::DOWN}},
+	{"page_up", "PgUp", {InputKey::Kind::Special, SpecialKey::PAGE_UP}},
+	{"page_down", "PgDn", {InputKey::Kind::Special, SpecialKey::PAGE_DOWN}},
+	{"home", "Home", {InputKey::Kind::Special, SpecialKey::HOME}},
+	{"end", "End", {InputKey::Kind::Special, SpecialKey::END}},
+	{"insert", "Ins", {InputKey::Kind::Special, SpecialKey::INSERT}},
+	{"num_lock", "NumLk", {InputKey::Kind::Special, SpecialKey::NUM_LOCK}},
+	{"begin", "Begin", {InputKey::Kind::Special, SpecialKey::BEGIN}},
+	{"keypad_delete", "Del", {InputKey::Kind::Special, SpecialKey::KEYPAD_DELETE}},
+	{"shift", "Shift", {InputKey::Kind::Special, SpecialKey::SHIFT_LEFT}},
+	{"right_shift", "RShift", {InputKey::Kind::Special, SpecialKey::SHIFT_RIGHT}},
+	{"ctrl", "Ctrl", {InputKey::Kind::Special, SpecialKey::CTRL_LEFT}},
+	{"right_ctrl", "RCtrl", {InputKey::Kind::Special, SpecialKey::CTRL_RIGHT}},
+	{"alt", "Alt", {InputKey::Kind::Special, SpecialKey::ALT_LEFT}},
+	{"right_alt", "RAlt", {InputKey::Kind::Special, SpecialKey::ALT_RIGHT}},
 	{"mouse_left", "LMB", {InputKey::Kind::Mouse, 0}},
 	{"mouse_middle", "MMB", {InputKey::Kind::Mouse, 1}},
 	{"mouse_right", "RMB", {InputKey::Kind::Mouse, 2}},
@@ -126,19 +112,19 @@ Bindings::Bindings() {
 	auto set = [this](BindAction action, InputKey a, InputKey b, InputKey mouse) {
 		table[std::to_underlying(action)] = {{a, b}, mouse};
 	};
-	set(BindAction::MoveLeft, ch('a'), sp(LEFT), none());
-	set(BindAction::MoveRight, ch('d'), sp(RIGHT), none());
-	set(BindAction::ClimbUp, ch('w'), sp(UP), none());
-	set(BindAction::ClimbDown, ch('s'), sp(DOWN), none());
+	set(BindAction::MoveLeft, ch('a'), sp(SpecialKey::LEFT), none());
+	set(BindAction::MoveRight, ch('d'), sp(SpecialKey::RIGHT), none());
+	set(BindAction::ClimbUp, ch('w'), sp(SpecialKey::UP), none());
+	set(BindAction::ClimbDown, ch('s'), sp(SpecialKey::DOWN), none());
 	set(BindAction::Jump, ch(' '), none(), InputKey::Mouse(2));
-	set(BindAction::Sprint, sp(SHIFT_LEFT), sp(SHIFT_RIGHT), none());
+	set(BindAction::Sprint, sp(SpecialKey::SHIFT_LEFT), sp(SpecialKey::SHIFT_RIGHT), none());
 	set(BindAction::Attack, ch('v'), ch(13), InputKey::Mouse(0));
-	set(BindAction::Interact, ch('e'), sp(F12), InputKey::Mouse(1));
+	set(BindAction::Interact, ch('e'), sp(SpecialKey::F12), InputKey::Mouse(1));
 	set(BindAction::Drag, ch('r'), none(), none());
-	set(BindAction::LookLeft, sp(HOME), none(), none());
-	set(BindAction::LookRight, sp(END), none(), none());
-	set(BindAction::LookUp, sp(PAGE_UP), none(), none());
-	set(BindAction::LookDown, sp(PAGE_DOWN), none(), none());
+	set(BindAction::LookLeft, sp(SpecialKey::HOME), none(), none());
+	set(BindAction::LookRight, sp(SpecialKey::END), none(), none());
+	set(BindAction::LookUp, sp(SpecialKey::PAGE_UP), none(), none());
+	set(BindAction::LookDown, sp(SpecialKey::PAGE_DOWN), none(), none());
 	set(BindAction::EquipMelee, ch('1'), none(), none());
 	set(BindAction::EquipRanged, ch('2'), none(), none());
 	// 1-5 read as one hotbar under the left hand: melee, ranged, heal, stamina, antidote (plan controls-smoothing).
@@ -162,13 +148,13 @@ std::optional<BindAction> Bindings::ActionFor(const InputKey& key) const {
 }
 
 NavKey navKeyOf(const InputKey& key, const Bindings& bindings) {
-	if (key == InputKey::Special(UP))
+	if (key == InputKey::Special(SpecialKey::UP))
 		return NavKey::Up;
-	if (key == InputKey::Special(DOWN))
+	if (key == InputKey::Special(SpecialKey::DOWN))
 		return NavKey::Down;
-	if (key == InputKey::Special(LEFT))
+	if (key == InputKey::Special(SpecialKey::LEFT))
 		return NavKey::Left;
-	if (key == InputKey::Special(RIGHT))
+	if (key == InputKey::Special(SpecialKey::RIGHT))
 		return NavKey::Right;
 	if (key == InputKey::Char(ENTER) || key == InputKey::Char(' '))
 		return NavKey::Activate;
@@ -235,7 +221,7 @@ const char* bindActionLabel(BindAction action) { return ACTIONS[std::to_underlyi
 bool isReservedKey(const InputKey& key) {
 	if (key.kind == InputKey::Kind::Char)
 		return key.code == ESCAPE;
-	return key.kind == InputKey::Kind::Special && key.code >= F1 && key.code <= F11;
+	return key.kind == InputKey::Kind::Special && key.code >= SpecialKey::F1 && key.code <= SpecialKey::F11;
 }
 
 std::string keyName(const InputKey& key) {
@@ -243,7 +229,7 @@ std::string keyName(const InputKey& key) {
 		return entry->name;
 	if (key.kind == InputKey::Kind::Char && key.code > ' ' && key.code < 127)
 		return std::string(1, static_cast<char>(key.code));
-	if (key.kind == InputKey::Kind::Special && key.code >= F1 && key.code <= F12)
+	if (key.kind == InputKey::Kind::Special && key.code >= SpecialKey::F1 && key.code <= SpecialKey::F12)
 		return "f" + std::to_string(key.code);
 	return "";
 }
@@ -259,8 +245,8 @@ std::optional<InputKey> parseKeyName(const std::string& name) {
 		return InputKey::Char(static_cast<unsigned char>(lower[0]));
 	int f = 0;
 	char rest = 0;
-	if (lower.size() > 1 && lower[0] == 'f' && std::sscanf(lower.c_str() + 1, "%d%c", &f, &rest) == 1 && f >= F1 &&
-		f <= F12)
+	if (lower.size() > 1 && lower[0] == 'f' && std::sscanf(lower.c_str() + 1, "%d%c", &f, &rest) == 1 &&
+		f >= SpecialKey::F1 && f <= SpecialKey::F12)
 		return InputKey::Special(f);
 	return std::nullopt;
 }
@@ -284,7 +270,7 @@ std::string keyCap(const InputKey& key) {
 		return entry->cap;
 	if (key.kind == InputKey::Kind::Char && key.code > ' ' && key.code < 127)
 		return std::string(1, static_cast<char>(std::toupper(key.code)));
-	if (key.kind == InputKey::Kind::Special && key.code >= F1 && key.code <= F12)
+	if (key.kind == InputKey::Kind::Special && key.code >= SpecialKey::F1 && key.code <= SpecialKey::F12)
 		return "F" + std::to_string(key.code);
 	return "?";
 }

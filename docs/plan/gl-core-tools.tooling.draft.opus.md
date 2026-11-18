@@ -1,12 +1,12 @@
 # Port the editor and model viewer to SDL3 and the GL core path
 
-Status: draft 2026-11-18, size M, needs [gl-core-foundation](gl-core-foundation.feature.draft.opus.md), [sdl3-window-input](sdl3-window-input.feature.draft.opus.md) first.
+Status: draft 2026-11-18, size M, needs [gl-core-foundation](gl-core-foundation.feature.draft.opus.md), [sdl3-window-input](sdl3-window-input.feature.md) first.
 
 ## Problem
 
 `bin/editor` (`tools/editor/`) and `bin/model-viewer` (`tools/model-viewer/`) still use GLUT, GLU
 (`gluPerspective` in `viewer.cpp`) and immediate mode. After
-[sdl3-window-input](sdl3-window-input.feature.draft.opus.md) and
+[sdl3-window-input](sdl3-window-input.feature.md) and
 [gl-core-foundation](gl-core-foundation.feature.draft.opus.md) they are the last GLUT and GLU users.
 
 ## Plan

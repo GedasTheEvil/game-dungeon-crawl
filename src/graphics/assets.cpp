@@ -1,5 +1,6 @@
 #include "assets.h"
 #include "../render/gl_includes.h"
+#include "../game/window.h"
 #include "../level/monster_kinds.h"
 #include <cstdio>
 #include <algorithm>
@@ -669,5 +670,5 @@ void Assets::DrawLoadingScreen(float percent, const char step[], const char deta
 
 	glFlush();
 
-	glutSwapBuffers();
+	Window::swap();
 }

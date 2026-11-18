@@ -1,12 +1,14 @@
-#include <GL/gl.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_keyboard.h>
 #include <array>
 #include <optional>
-#include <utility>
-#include "../render/gl_includes.h"
+#include <cstdlib>
+#include "../game/window.h"
+#include "input_events.h"
+#include "keymap.h"
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include "../render/ink.h"
-#include "../graphics/frame_rate.h"
 #include "../level/input.h"
 #include "input_actions.h"
 #include "../state/gameplay_commands.h"
@@ -19,20 +21,17 @@
 
 namespace {
 MouseLook mouseLook;
-bool pointerInside = true; // the pointer is over the window (GLUT entry): the pointer hold may warp it
+bool keyRepeatIgnored = false;
 
-// The game is played, no screen over it: the cursor hidden and held in the window (plan mouse-leaves-window).
+// The game is played, no screen over it: the pointer hidden and held in the window (plan mouse-leaves-window).
 bool pointerHidden() {
 	return Game().ui.screen == Screen::Gameplay && ScreenState::IsGameplayInteractionAllowed(Game());
 }
 } // namespace
 
-void followCursor() {
-	static int shown = -1;
-	const int cursor = pointerHidden() ? GLUT_CURSOR_NONE : GLUT_CURSOR_LEFT_ARROW;
-	if (cursor != std::exchange(shown, cursor))
-		glutSetCursor(cursor);
-}
+void followCursor() { Window::holdPointer(pointerHidden()); }
+
+void ignoreKeyRepeat(bool ignore) { keyRepeatIgnored = ignore; }
 
 GameplayAction gameplayActionOf(BindAction action) {
 	switch (action) {
@@ -175,8 +174,6 @@ bool skipCutScene() {
 }
 } // namespace
 
-void Idle() { FrameRate::idle(); }
-
 void keyPressed(unsigned char key, int x, int y) {
 	ui::hideTooltip();
 	if (skipCutScene())
@@ -315,14 +312,14 @@ void specialKeyReleased(int key, int x, int y) {
 }
 
 void processMouse(int button, int state, int x, int y) {
-	if (state == GLUT_DOWN)
+	if (state == MOUSE_DOWN)
 		ui::hideTooltip();
 	static int skipButton = -1; // the click that skipped a cut-scene: its release does nothing either
-	if (state == GLUT_DOWN && skipCutScene()) {
+	if (state == MOUSE_DOWN && skipCutScene()) {
 		skipButton = button;
 		return;
 	}
-	if (state == GLUT_UP && button == skipButton) {
+	if (state == MOUSE_UP && button == skipButton) {
 		skipButton = -1;
 		return;
 	}
@@ -341,7 +338,7 @@ void processMouse(int button, int state, int x, int y) {
 
 	// A bound button comes up on every screen, like its key: a walk or the sprint lets go, a power hit's charge swings.
 	std::optional<BindAction> action = bound(InputKey::Mouse(button));
-	if (action && state == GLUT_UP)
+	if (action && state == MOUSE_UP)
 		releaseBinding(*action);
 
 	if (ScreenTabs::Has(Game().ui.screen) && ScreenTabs::Mouse(Game().ui, button, state, x, y))
@@ -355,7 +352,7 @@ void processMouse(int button, int state, int x, int y) {
 	// A bound button acts when it goes down, like its key (plan controls-smoothing): the jump, the interact, the
 	// attack (with a power hit: the charge starts, the release above swings it). A down on a screen went to it above,
 	// and the up only lets go: a click that closes a screen runs nothing in the game.
-	if (action && state == GLUT_DOWN && Game().ui.screen == Screen::Gameplay) {
+	if (action && state == MOUSE_DOWN && Game().ui.screen == Screen::Gameplay) {
 		if (*action == BindAction::Attack)
 			newAttackPress();
 		pressBinding(*action);
@@ -415,29 +412,105 @@ void processMouseActiveMotion(int a, int b) {
 }
 
 // The cursor left or entered the window: the first motion back does not turn the camera by the way it went outside.
-// Gone (another window over it, Alt+Tab): no warp until it is back.
-void processMouseEntry(int state) {
-	pointerInside = state == GLUT_ENTERED;
-	mouseLook.Forget();
-}
+void processMouseEntry() { mouseLook.Forget(); }
 
 namespace {
-// Plan mouse-leaves-window: while the game looks, the hidden pointer goes back to the window's centre before it
-// reaches an edge, so the look keeps turning and a click never lands outside. Not in a scenario (no GLUT callbacks).
-void holdPointer() {
-	if (!pointerInside || !pointerHidden())
+// A motion of the held pointer (relative mode, Window::holdPointer), in pixels: it only turns the look. The next free
+// motion starts afresh.
+void lookBy(float dx, float dy) {
+	mouseLook.Forget();
+	if (Game().ui.screen != Screen::Gameplay)
 		return;
-	if (const std::optional<MouseLook::Point> to = mouseLook.Hold(Game().render.resX, Game().render.resY))
-		glutWarpPointer(to->x, to->y);
+	const MouseTurn perPixel = mouseTurnPerPixel(Game().settings.mouse); // plan settings-extras
+	turnCamera(perPixel.x * dx, perPixel.y * dy);
 }
+
+// The text fields take the characters the layout types: the riddle's answer, the Hall of Records name.
+bool typing() {
+	const Screen screen = Game().ui.screen;
+	return screen == Screen::Riddle || (screen == Screen::Gameplay && Game().ui.winEntry.Typing());
+}
+
+bool controlChar(int c) { return c < ' ' || c == KEY_DELETE; }
+
+// A key by where it is (Keymap::physical), so the bindings and the menus do not depend on the layout; in a text field
+// a character key types what the layout prints. Releases go by place too, so a key let go after Shift still lets go.
+void keyEvent(const SDL_KeyboardEvent& event) {
+	const std::optional<InputKey> key = Keymap::physical(event.scancode, (event.mod & SDL_KMOD_NUM) != 0);
+	if (!event.down) {
+		if (key && key->kind == InputKey::Kind::Special)
+			specialKeyReleased(key->code, 0, 0);
+		else if (key)
+			keyReleased(static_cast<unsigned char>(key->code), 0, 0);
+		return;
+	}
+	if (event.repeat && keyRepeatIgnored)
+		return;
+	if (key && key->kind == InputKey::Kind::Special) {
+		specialKeyPressed(key->code, 0, 0);
+		return;
+	}
+	unsigned char c = key ? static_cast<unsigned char>(key->code) : 0;
+	if (typing() && !controlChar(c))
+		c = Keymap::typed(SDL_GetKeyFromScancode(event.scancode, event.mod, false));
+	if (c != 0)
+		keyPressed(c, 0, 0);
+}
+
+int buttonOf(Uint8 button) {
+	switch (button) {
+	case SDL_BUTTON_LEFT:
+		return MOUSE_LEFT_BUTTON;
+	case SDL_BUTTON_MIDDLE:
+		return MOUSE_MIDDLE_BUTTON;
+	case SDL_BUTTON_RIGHT:
+		return MOUSE_RIGHT_BUTTON;
+	default:
+		return -1;
+	}
+}
+
+int pixel(float at, float density) { return static_cast<int>(at * density); }
 } // namespace
 
-void windowPassiveMotion(int x, int y) {
-	processMousePassiveMotion(x, y);
-	holdPointer();
-}
-
-void windowActiveMotion(int x, int y) {
-	processMouseActiveMotion(x, y);
-	holdPointer();
+void handleInputEvent(const SDL_Event& event, float density) {
+	switch (event.type) {
+	case SDL_EVENT_KEY_DOWN:
+	case SDL_EVENT_KEY_UP:
+		keyEvent(event.key);
+		break;
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
+	case SDL_EVENT_MOUSE_BUTTON_UP:
+		if (const int button = buttonOf(event.button.button); button >= 0)
+			processMouse(
+				button,
+				event.button.down ? MOUSE_DOWN : MOUSE_UP,
+				pixel(event.button.x, density),
+				pixel(event.button.y, density)
+			);
+		break;
+	case SDL_EVENT_MOUSE_WHEEL: { // a down and an up of button 3 (up) or 4 (down) per notch
+		int notches = event.wheel.integer_y;
+		if (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
+			notches = -notches;
+		const int button = notches > 0 ? MOUSE_WHEEL_UP : MOUSE_WHEEL_DOWN;
+		const int x = pixel(event.wheel.mouse_x, density);
+		const int y = pixel(event.wheel.mouse_y, density);
+		for (int i = 0; i < std::abs(notches); i++) {
+			processMouse(button, MOUSE_DOWN, x, y);
+			processMouse(button, MOUSE_UP, x, y);
+		}
+		break;
+	}
+	case SDL_EVENT_MOUSE_MOTION:
+		if (SDL_GetWindowRelativeMouseMode(SDL_GetWindowFromID(event.motion.windowID)))
+			lookBy(event.motion.xrel * density, event.motion.yrel * density);
+		else if (event.motion.state != 0) // a button held (the attack's power hit charge)
+			processMouseActiveMotion(pixel(event.motion.x, density), pixel(event.motion.y, density));
+		else
+			processMousePassiveMotion(pixel(event.motion.x, density), pixel(event.motion.y, density));
+		break;
+	default:
+		break;
+	}
 }

@@ -138,7 +138,7 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 	float cy = 0.f;
 	toCanvas(world.render, x, y, cx, cy);
 	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
-		if (state == GLUT_DOWN)
+		if (state == MOUSE_DOWN)
 			scroll = std::clamp(scroll + (button == MOUSE_WHEEL_UP ? -1 : 1), 0, MAX_SCROLL);
 		UpdateHover(cx, cy);
 		return;
@@ -147,7 +147,7 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 		return;
 	UpdateHover(cx, cy);
 	const Pick at = pointer.hovered;
-	if (state == GLUT_DOWN) {
+	if (state == MOUSE_DOWN) {
 		pointer.Down(at, button);
 		if (at.target == Target::Card)
 			Select(at.card);

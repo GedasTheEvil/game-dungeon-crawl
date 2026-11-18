@@ -430,9 +430,9 @@ void runInputCommand(const Command& cmd) {
 		toPixels(cmd, x, y);
 		processMousePassiveMotion(x, y);
 		if (cmd.type == CommandType::Press || cmd.type == CommandType::Click)
-			processMouse(MOUSE_LEFT_BUTTON, GLUT_DOWN, x, y);
+			processMouse(MOUSE_LEFT_BUTTON, MOUSE_DOWN, x, y);
 		if (cmd.type == CommandType::Release || cmd.type == CommandType::Click)
-			processMouse(MOUSE_LEFT_BUTTON, GLUT_UP, x, y);
+			processMouse(MOUSE_LEFT_BUTTON, MOUSE_UP, x, y);
 		report(cmd, true, "");
 		return;
 	}

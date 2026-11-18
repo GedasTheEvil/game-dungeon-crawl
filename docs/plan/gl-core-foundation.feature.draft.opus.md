@@ -1,6 +1,6 @@
 # GL core foundation: loader, math, matrix stack, vertex batcher, GLSL 330
 
-Status: draft 2026-11-18, size L, needs [sdl3-window-input](sdl3-window-input.feature.draft.opus.md), [render-snapshots](solved/render-snapshots.tooling.md) first.
+Status: draft 2026-11-18, size L, needs [sdl3-window-input](sdl3-window-input.feature.md), [render-snapshots](solved/render-snapshots.tooling.md) first.
 
 ## Problem
 

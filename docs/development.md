@@ -7,8 +7,10 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git w
 * Make
 * GCC
 * OpenGL
-* GLUT
-* SDL3 (`libsdl3-dev`, found by `pkg-config sdl3`; the game's audio, the tools do not need it). No SDL3_mixer: the
+* GLUT (freeglut; the level editor and the model viewer only, until plan
+  [gl-core-tools](plan/gl-core-tools.tooling.draft.opus.md))
+* SDL3 (`libsdl3-dev`, found by `pkg-config sdl3`; the game's window, input and audio, the tools do not need it;
+  plan [sdl3-window-input](plan/sdl3-window-input.feature.md)). No SDL3_mixer: the
   game mixes its own sounds on SDL3 audio streams (`src/audio/mixer.*`, plan
   [sdl3-audio](plan/sdl3-audio.feature.md))
 * Python 3 (`tools/plan.py`, run by `make check`; the asset scripts)
@@ -33,13 +35,14 @@ read their file arguments from the current directory.
   root (version: `.version`, `-dirty` appended for a dirty tree, which is refused unless `make release ARGS=--allow-dirty`).
   Holds `Play`, `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the
   dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL3 (`libsdl3-0`; SDL 1.2 and SDL_mixer
-  are no longer needed), GL and GLUT installed (no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
+  are no longer needed) and GL installed (no GLUT, no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
 * Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)
   `PROUD.DEFAULT.SHAME`: PROUD for a release we are proud of, DEFAULT for a normal one, SHAME for fixing something
   embarrassing; a lower part resets to 0. Who bumps what: [AGENTS.md](../AGENTS.md#version) (agents bump DEFAULT
   for a feature, SHAME for a bug fix; PROUD only the user).
 * `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
-  scenario's setup (level, gear) by hand. `--no-sound` mutes either. See [testing.md](testing.md#play-by-hand).
+  scenario's setup (level, gear) by hand. `--no-sound` mutes either, and opens the window on X11 (a background run
+  under `xvfb-run` then stays off a Wayland desktop; scenarios do the same). See [testing.md](testing.md#play-by-hand).
 * Level editor: `make editor`, `make run-editor [LEVEL=content/levels/lvl3]` (opens that file). See [tools/editor/readme.md](../tools/editor/readme.md).
 * Model viewer: `make model-viewer`, `make run-model-viewer ARGS="media/models/monsters/anubis.md3"`.
 * Level tools: `make level-tools`, then `bin/levelcheck content/levels/lvl*` (validate, rank by difficulty) and
@@ -162,8 +165,9 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 
 ## Code structure
 
-* `game/game.cpp` - `main`: SDL (audio only), the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
-  `GameState`, created before the window.
+* `game/game.cpp` - `main`: SDL (video and audio), the window (`game/window.*`: the SDL window, its GL context, the
+  main loop with the fixed-step update tick and the draws). `Game()` (`state/game_state.h`) is the one `GameState`,
+  created before the window. SDL's key and mouse events reach the game in `input/input.cpp` (`handleInputEvent`).
 * `graphics/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
   monster types). The rows come from the level library: `KINDS` (`level/monster_kinds.cpp`), `ITEMS` (`level/items.cpp`).
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status lines

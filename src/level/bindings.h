@@ -10,8 +10,35 @@
 // The player's key bindings (Options > Controls, [controls] in saves/settings.ini): each action has up to two keys
 // and one mouse button. GL-free, so the unit tests and the settings parser use it too.
 
-// One input: an ASCII key (stored lower case, so both cases match), a GLUT special key (GLUT_KEY_*: arrows, F-keys,
-// PgUp, Shift) or a mouse button (0 left, 1 middle, 2 right).
+// The special keys' codes (InputKey::Kind::Special): F1-F12 are 1-12, the others from 100 on. They are GLUT's numbers
+// (the game ran on GLUT before plan sdl3-window-input); src/input/keymap.cpp maps SDL's keys to them. input.h names the
+// ones the screens read.
+namespace SpecialKey {
+constexpr int F1 = 1;
+constexpr int F11 = 11;
+constexpr int F12 = 12;
+constexpr int LEFT = 100;
+constexpr int UP = 101;
+constexpr int RIGHT = 102;
+constexpr int DOWN = 103;
+constexpr int PAGE_UP = 104;
+constexpr int PAGE_DOWN = 105;
+constexpr int HOME = 106;
+constexpr int END = 107;
+constexpr int INSERT = 108;
+constexpr int NUM_LOCK = 109;
+constexpr int BEGIN = 110; // the keypad's 5 without Num Lock
+constexpr int KEYPAD_DELETE = 111;
+constexpr int SHIFT_LEFT = 112;
+constexpr int SHIFT_RIGHT = 113;
+constexpr int CTRL_LEFT = 114;
+constexpr int CTRL_RIGHT = 115;
+constexpr int ALT_LEFT = 116;
+constexpr int ALT_RIGHT = 117;
+} // namespace SpecialKey
+
+// One input: an ASCII key (stored lower case, so both cases match), a special key (SpecialKey: arrows, F-keys, PgUp,
+// Shift) or a mouse button (0 left, 1 middle, 2 right).
 struct InputKey {
 	enum class Kind : std::uint8_t { None, Char, Special, Mouse };
 	Kind kind = Kind::None;

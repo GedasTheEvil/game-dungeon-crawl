@@ -12,14 +12,16 @@ RM=rm -f
 ifndef NO_CCACHE
 CCACHE:=$(shell command -v ccache 2>/dev/null)
 endif
-# SDL3 (the game's audio, plan sdl3-audio): its flags from pkg-config.
+# SDL3 (the game's window, input and audio, plans sdl3-window-input and sdl3-audio): its flags from pkg-config.
 SDL_CFLAGS:=$(shell pkg-config --cflags sdl3)
 SDL_LIBS:=$(shell pkg-config --libs sdl3)
 # -Wno-missing-field-initializers: a table row in designated initializers leaves out what it does not need.
 CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) $(SDL_CFLAGS) -D_GNU_SOURCE=1 -MMD -MP
 TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) -D_GNU_SOURCE=1
-# Game and tools link only what they use: GL for every window, SDL (audio) for the game alone.
-GL_LIBS=-lX11 -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib
+# Game and tools link only what they use: GL for every window, SDL for the game's, GLUT for the editor's and the model
+# viewer's (until plan gl-core-tools).
+GL_LIBS=-lGL -lGLU -lm -ldl
+GLUT_LIBS=-lX11 -lglut $(GL_LIBS) -L/usr/X11R6/lib
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
 ifdef RELEASE
@@ -90,9 +92,10 @@ SNAPDIFF_SOURCES=tools/snapdiff/snapdiff.cpp
 SNAPDIFF=$(BIN)/snapdiff
 
 # Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.
-# stb (no GL) reads PNGs for the font sheet test. The audio mixer (SDL3, on the dummy driver) for its own test.
+# stb (no GL) reads PNGs for the font sheet test. The audio mixer (SDL3, on the dummy driver) and the key map (SDL's
+# scancodes) for their own tests.
 UNIT_SOURCES=$(wildcard tests/unit/*.cpp)
-UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o) $(BUILD)/src/audio/mixer.o
+UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o) $(BUILD)/src/audio/mixer.o $(BUILD)/src/input/keymap.o
 UNIT=$(BIN)/unit
 
 TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES) $(BALANCE_SOURCES) $(SNAPDIFF_SOURCES)
@@ -247,7 +250,7 @@ editor: $(EDITOR)
 
 $(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(GLUT_LIBS)
 
 run-editor: $(EDITOR)
 	$(EDITOR) $(LEVEL)
@@ -256,7 +259,7 @@ model-viewer: $(VIEWER)
 
 $(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(GLUT_LIBS)
 
 run-model-viewer: $(VIEWER)
 	$(VIEWER) $(ARGS)

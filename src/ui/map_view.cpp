@@ -632,7 +632,7 @@ void DraftMap::MouseFunction(int button, int state, int x, int y) {
 	float cx, cy;
 	toCanvas(x, y, cx, cy);
 	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
-		if (state != GLUT_DOWN)
+		if (state != MOUSE_DOWN)
 			return;
 		if (!fit.area.contains(cx, cy)) { // off the sketch: round its centre
 			cx = fit.area.cx();
@@ -640,7 +640,7 @@ void DraftMap::MouseFunction(int button, int state, int x, int y) {
 		}
 		zoom.ZoomAt(fit, button == MOUSE_WHEEL_UP ? MapZoom::STEP : 1.f / MapZoom::STEP, cx, cy);
 	} else if (button == MOUSE_LEFT_BUTTON) {
-		dragging = state == GLUT_DOWN;
+		dragging = state == MOUSE_DOWN;
 		dragX = cx;
 		dragY = cy;
 	}

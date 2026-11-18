@@ -7,7 +7,7 @@ Status: implemented 2026-11-18, waiting for the user's play-test. Was: draft 202
 The game's audio (`src/audio/sound.cpp`, `src/game/game.cpp`) runs on SDL 1.2 and SDL_mixer 1.2, unmaintained since
 about 2012. It is also the blocker for the window move: SDL 1.2 and SDL3 cannot be linked into one binary (same
 symbol names), so audio moves first, while the window is still GLUT
-([sdl3-window-input](sdl3-window-input.feature.draft.opus.md) comes next).
+([sdl3-window-input](sdl3-window-input.feature.md) comes next).
 
 Ubuntu 26.04 packages SDL3 (`libsdl3-dev` 3.4) but not SDL3_mixer. The game uses little of SDL_mixer: `LoadWAV`,
 `LoadMUS` (14 `.ogg` tracks), play and fade-in on a channel, halt, volume per channel, reserved channels, music

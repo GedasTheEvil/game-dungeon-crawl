@@ -18,6 +18,7 @@
 #include "../render/motion_fx.h"
 #include "fire.h"
 #include "../render/gl_includes.h"
+#include "../game/window.h"
 #include "../sim/render_config.h"
 #include "../level/gameplay_monster_kinds.h"
 #include "../level/gameplay_skills.h"
@@ -204,7 +205,7 @@ void Draw() {
 	glFlush();
 	if (gFrameHook != nullptr)
 		gFrameHook();
-	glutSwapBuffers();
+	Window::swap();
 }
 
 namespace {

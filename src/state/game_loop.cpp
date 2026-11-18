@@ -1,7 +1,6 @@
 #include "game_loop.h"
 #include "game_state.h"
 #include "ui_context.h"
-#include "../render/gl_includes.h"
 #include "../sim/render_config.h"
 #include "../input/input_actions.h"
 #include "../ui/inventory.h"
@@ -53,15 +52,12 @@ void playMusic() {
 void tick() {
 	if (!Game().cacheLoaded) {
 		Game().Load();
-		glutPostRedisplay();
 		return;
 	}
 
 	playMusic();
-	if (Game().ui.screen != Screen::Gameplay) {
-		glutPostRedisplay();
+	if (Game().ui.screen != Screen::Gameplay)
 		return;
-	}
 	Game().ui.journal.EndDiary(); // the journal opened on the diary was closed: no close hint any more
 	Game().ui.journal.SeeShown(); // and the new entries it showed were seen
 
@@ -70,11 +66,10 @@ void tick() {
 	static bool cutScene = false;
 	if (Game().dungeon.CutScenePlaying() != cutScene) {
 		cutScene = !cutScene;
-		glutIgnoreKeyRepeat(cutScene ? 1 : 0);
+		ignoreKeyRepeat(cutScene);
 	}
 	if (cutScene) {
 		Game().dungeon.Update();
-		glutPostRedisplay();
 		return;
 	}
 
@@ -119,7 +114,6 @@ void tick() {
 	Game().itemCommands.FollowInsanity(Game().player->stats.curses.Has(Curse::Insanity));
 	updateFirstHints();
 	PlayerHud::tick(Game().player->stats.CurrentHP(), Game().player->stats.CurrentMaxHP());
-	glutPostRedisplay();
 }
 
 } // namespace

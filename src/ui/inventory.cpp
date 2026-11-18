@@ -400,7 +400,7 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	float cy = 0.f;
 	toCanvas(world.render, x, y, cx, cy);
 	if (confirm.Open()) {
-		confirm.Button(button, state == GLUT_DOWN, cx, cy);
+		confirm.Button(button, state == MOUSE_DOWN, cx, cy);
 		if (!confirm.Open())
 			pointer.Clear();
 		return;
@@ -408,14 +408,14 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	UpdateHover(cx, cy);
 
 	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
-		if (state == GLUT_DOWN)
+		if (state == MOUSE_DOWN)
 			ScrollBy(button == MOUSE_WHEEL_UP ? -1 : 1);
 		UpdateHover(cx, cy);
 		return;
 	}
 
 	const Pick at = pointer.hovered;
-	if (state == GLUT_DOWN) {
+	if (state == MOUSE_DOWN) {
 		// Any button on a slot; only the left one on the rest, a dimmed tab takes none.
 		const bool takes = at.target == Target::Slot || (button == MOUSE_LEFT_BUTTON && at.target != Target::Guard &&
 														 (at.target != Target::Tab || TabEnabled(groupAt(at.index))));
@@ -424,7 +424,7 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 			Select(at.index);
 		return;
 	}
-	if (state != GLUT_UP)
+	if (state != MOUSE_UP)
 		return;
 
 	const Pick fired = pointer.Up(at, button);

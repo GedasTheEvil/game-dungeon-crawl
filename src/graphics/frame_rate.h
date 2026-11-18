@@ -6,10 +6,10 @@
 namespace FrameRate {
 
 // The Settings::Display frameRate (FRAME_RATE_MONITOR, FRAME_RATE_UNLIMITED or a cap). Safe before the window is
-// made: the swap interval changes on the next idle call.
+// made: the swap interval changes on the next due call.
 void set(int frameRate);
-// The GLUT idle callback's work: applies the swap interval, posts a redraw when one is due, else sleeps a little.
-void idle();
+// Asked by the main loop (Window::run) on each pass: applies the swap interval; true when a frame is due.
+bool due();
 
 } // namespace FrameRate
 

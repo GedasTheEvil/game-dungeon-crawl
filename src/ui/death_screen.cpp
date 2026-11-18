@@ -97,7 +97,7 @@ void DeathScreen::MouseFunction(int button, int state, int x, int y) {
 	const int at = buttonAt(x, y);
 	if (at != NONE)
 		pointer.Move(at);
-	if (state != GLUT_UP) {
+	if (state != MOUSE_UP) {
 		pointer.Down(at, button);
 		return;
 	}

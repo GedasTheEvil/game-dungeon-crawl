@@ -6,6 +6,7 @@
 #include <vector>
 #include <GL/gl.h>
 #include "../render/gl_includes.h"
+#include "../game/window.h"
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include "../level/input.h"
@@ -497,8 +498,8 @@ void MainMenu::Activate(int target) {
 			inGame = false;
 		});
 		break;
-	case MenuAction::Quit: // glutMainLoop returns, main cleans up
-		glutLeaveMainLoop();
+	case MenuAction::Quit: // the main loop ends, main cleans up
+		Window::quit();
 	}
 }
 
@@ -520,7 +521,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		float cx = 0.f;
 		float cy = 0.f;
 		ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
-		ConfirmInput([&] { confirm.Button(button, state == GLUT_DOWN, cx, cy); });
+		ConfirmInput([&] { confirm.Button(button, state == MOUSE_DOWN, cx, cy); });
 		return;
 	}
 	int target = TargetAt(x, y);
@@ -530,7 +531,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	if (capturing != NONE) {
 		bool mouseCell = (capturing - BIND_BASE) % BINDING_SLOTS == MOUSE_SLOT;
 		bool isButton = button == MOUSE_LEFT_BUTTON || button == MOUSE_MIDDLE_BUTTON || button == MOUSE_RIGHT_BUTTON;
-		if (state == GLUT_DOWN && isButton) {
+		if (state == MOUSE_DOWN && isButton) {
 			if (mouseCell)
 				Bind(InputKey::Mouse(button));
 			else
@@ -542,7 +543,7 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 
 	// A slider follows the mouse while the button is down; the file is written when it comes up.
 	if (dragging != NONE) {
-		if (state == GLUT_UP) {
+		if (state == MOUSE_UP) {
 			const OptionRow option = optionRows(optionsTab)[dragging - OPTION_BASE];
 			dragging = NONE;
 			world.applySettings(true);
@@ -551,21 +552,21 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		}
 		return;
 	}
-	if (recordsD && state == GLUT_DOWN && (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN)) {
+	if (recordsD && state == MOUSE_DOWN && (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN)) {
 		records.Scroll(button == MOUSE_WHEEL_UP ? -1 : 1);
 		pointer.Move(TargetAt(x, y));
 		return;
 	}
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
-	if (state == GLUT_DOWN && optionsD && target >= OPTION_BASE && target < RESET_CONTROLS &&
+	if (state == MOUSE_DOWN && optionsD && target >= OPTION_BASE && target < RESET_CONTROLS &&
 		optionRows(optionsTab)[target - OPTION_BASE].kind == OptionKind::Slider) {
 		dragging = target;
 		SetSlider(target - OPTION_BASE, x);
 		return;
 	}
 
-	if (state != GLUT_UP) {
+	if (state != MOUSE_UP) {
 		pointer.Down(target, button);
 		return;
 	}

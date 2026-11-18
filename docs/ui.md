@@ -325,7 +325,7 @@ of section headings: four tiles 14.6 x 6 at y 77.6, from the grid's left edge. E
 (`PlayerHud::drawIcon`: short sword, flask tinted red, amulet, ring) and the group name in `small`. The open tab is lapis,
 the others stone. A group with nothing found yet (`ItemBag::AnyFound`) is `TileStyle::Disabled` with a dimmed icon,
 takes no clicks, and on hover shows "<name>: none yet" on a dark label under it. Tab opens the next enabled tab,
-wrapping round (freeglut drops Shift+Tab, so there is no previous-tab key).
+wrapping round (Shift+Tab too: there is no previous-tab key).
 
 Right of the tabs, ending with the grid, three sort buttons 6, 4.5 and 6 wide (`a-z`, a gold diamond for strength,
 `new`; [plan/solved/inventory-sort-orders.md](plan/solved/inventory-sort-orders.md)): stone tiles, the open tab's order lapis. A

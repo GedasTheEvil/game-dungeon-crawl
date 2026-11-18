@@ -15,7 +15,7 @@ fade in and out, music volume, `PlayingMusic`.
 
 ## Plan
 
-* The user installs `libsdl3-dev` (ask, AGENTS.md: give the `apt install` line).
+* `libsdl3-dev` (3.4.2) is installed.
 * No SDL3_mixer: a small mixer of our own on SDL3 audio streams, in `src/audio/` (the only module that touches it):
   * one `SDL_AudioStream` per channel, all bound to one opened playback device (`SDL_OpenAudioDevice`,
     `SDL_BindAudioStreams`); SDL3 mixes bound streams and converts formats itself;

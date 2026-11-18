@@ -22,7 +22,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
   4.1). No Vulkan or SDL_GPU here (see the last point).
 * Loader: glad 2 generated for GL 3.3 core (+ `KHR_debug`), committed under `external/glad/`, loaded with
   `SDL_GL_GetProcAddress`. Drop `GL_GLEXT_PROTOTYPES` and the `glext.h` include.
-* Math: glm (`libglm-dev`, header-only; ask the user to install it) or a small own `Mat4`/`Vec3` in `src/render/`
+* Math: glm (`libglm-dev`, header-only, 1.0.1, installed) or a small own `Mat4`/`Vec3` in `src/render/`
   if glm's compile cost hurts `make check` (measure). Replaces GLU: `perspective`, `project`
   (`draw.cpp` `gluProject`).
 * `MatrixStack` (`src/render/`): the CPU twin of the GL matrix stack, same verbs (`push`, `pop`, `translate`,

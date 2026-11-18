@@ -78,6 +78,7 @@ uniform float uToon; // 1 = cel bands (see toonLight)
 // 1 = the texture's alpha is the metal mask (plan metallic-shading): 1 matte, 0 all metal; the draw's alpha is
 // vColour's alone.
 uniform float uMetalMask;
+uniform float uAlphaRef; // a fragment at or below it is dropped (glAlphaFunc(GL_GREATER)); -1: none
 uniform float uOrtho; // 1 = an orthographic view (the inventory): the eye looks down -z at every fragment
 uniform int uLightCount;
 uniform vec4 uLightPos[MAX_LIGHTS]; // eye space xyz, radius in w
@@ -110,6 +111,8 @@ void main() {
 		base.a = vColour.a;
 	}
 	float haze = 1.0 - exp(-uFog.w * max(length(vPos) - uFogStart, 0.0));
+	if (base.a <= uAlphaRef)
+		discard;
 	if (uEmissive > 0.5) { // the fog by alpha: a premultiplied sprite's clear corners stay clear (sandstorm-halls)
 		fragColour = vec4(mix(base.rgb, uFog.rgb * base.a, haze), base.a);
 		return;
@@ -155,7 +158,7 @@ struct Light {
 struct Program {
 	GLuint id = 0;
 	GLint ambient = -1, fog = -1, fogStart = -1, emissive = -1, toon = -1, count = -1, pos = -1, colour = -1;
-	GLint blend = -1, metalMask = -1, ortho = -1;
+	GLint blend = -1, metalMask = -1, ortho = -1, alphaRef = -1;
 	GLint mvp = -1, modelView = -1, normalMatrix = -1, tint = -1; // the core one's
 };
 
@@ -199,12 +202,14 @@ Program build(const char* name, const char* vertexSrc, const char* version) {
 	p.blend = at("uBlend");
 	p.metalMask = at("uMetalMask");
 	p.ortho = at("uOrtho");
+	p.alphaRef = at("uAlphaRef");
 	p.mvp = at("uMvp");
 	p.modelView = at("uModelView");
 	p.normalMatrix = at("uNormalMatrix");
 	p.tint = at("uTint");
 	glUseProgram(p.id);
 	glUniform1i(at("uTex"), 0);
+	glUniform1f(p.alphaRef, -1.f);
 	glUseProgram(0);
 	return p;
 }
@@ -364,6 +369,7 @@ bool Lighting::use(const DefaultShader::Style& style, const Mat4& projection, co
 	glUniformMatrix4fv(gCore.modelView, 1, GL_FALSE, modelView.data());
 	glUniformMatrix3fv(gCore.normalMatrix, 1, GL_FALSE, normalMatrix(modelView).data());
 	glUniform4fv(gCore.tint, 1, style.tint);
+	glUniform1f(gCore.alphaRef, style.kind == DefaultShader::Kind::AlphaTest ? style.alphaRef : -1.f);
 	return true;
 }
 

@@ -3,6 +3,7 @@
 // with a splash, the venom pouring after it while the drop is out; small drops ring the puddle in between. All of it
 // from the cycle and the clock (spike_cycle.h), nothing kept.
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "assets.h"
 #include "fire.h"
 #include "../render/lighting.h"
@@ -43,20 +44,20 @@ constexpr Rgba VENOM_BRIGHT = {0.4f, 0.72f, 0.14f, 0.92f};
 constexpr Rgba SHEEN = {0.75f, 0.95f, 0.55f, 0.45f};
 constexpr Rgba STAIN = {0.04f, 0.09f, 0.02f, 0.85f};
 
-void colour(const Rgba& c, float fade = 1.f) { glColor4f(c.r, c.g, c.b, c.a * fade); }
+void colour(const Rgba& c, float fade = 1.f) { world().colour(c.r, c.g, c.b, c.a * fade); }
 
 // A flat ellipse at height y facing up (or down, the ceiling's), from `inner` at the middle to `outer` at the rim.
 void disc(float x, float y, float z, float rx, float rz, const Rgba& inner, const Rgba& outer) {
 	constexpr int SIDES = 24;
-	glBegin(GL_TRIANGLE_FAN);
+	world().begin(Primitive::TriangleFan);
 	colour(inner);
-	glVertex3f(x, y, z);
+	world().vertex(x, y, z);
 	colour(outer);
 	for (int k = 0; k <= SIDES; k++) {
 		const float a = 2.f * PI * static_cast<float>(k) / SIDES;
-		glVertex3f(x + rx * std::cos(a), y, z + rz * std::sin(a));
+		world().vertex(x + rx * std::cos(a), y, z + rz * std::sin(a));
 	}
-	glEnd();
+	world().end();
 }
 
 // A ripple: a thin ring on the puddle, `p` 0..1 over its life, spreading and fading.
@@ -64,14 +65,14 @@ void ripple(float x, float y, float z, float p) {
 	constexpr int SIDES = 24;
 	constexpr float WIDTH = 0.7f;
 	const float r = 1.f + p * (PUDDLE_RX * 0.85f - 1.f), k = PUDDLE_RZ / PUDDLE_RX;
-	glBegin(GL_TRIANGLE_STRIP);
+	world().begin(Primitive::TriangleStrip);
 	colour(SHEEN, 1.f - p);
 	for (int s = 0; s <= SIDES; s++) {
 		const float a = 2.f * PI * static_cast<float>(s) / SIDES;
-		glVertex3f(x + r * std::cos(a), y, z + r * k * std::sin(a));
-		glVertex3f(x + (r + WIDTH) * std::cos(a), y, z + (r + WIDTH) * k * std::sin(a));
+		world().vertex(x + r * std::cos(a), y, z + r * k * std::sin(a));
+		world().vertex(x + (r + WIDTH) * std::cos(a), y, z + (r + WIDTH) * k * std::sin(a));
 	}
-	glEnd();
+	world().end();
 }
 
 // A blob of venom, radii (rx, ry) round (x, y, z), with a glint up on its left: wet, glossy.
@@ -84,17 +85,17 @@ void blob(float x, float y, float z, float rx, float ry, float fade = 1.f) {
 		colour(pass == 0 ? VENOM_BRIGHT : SHEEN, fade);
 		for (int i = 0; i < STACKS; i++) {
 			const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
-			glBegin(GL_TRIANGLE_STRIP);
+			world().begin(Primitive::TriangleStrip);
 			for (int j = 0; j <= SLICES; j++) {
 				const float b = 2 * PI * static_cast<float>(j) / SLICES;
 				for (float a : {a0, a1})
-					glVertex3f(
+					world().vertex(
 						cx + s * rx * std::cos(a) * std::cos(b),
 						cy + s * ry * std::sin(a),
 						cz + s * rx * std::cos(a) * std::sin(b)
 					);
 			}
-			glEnd();
+			world().end();
 		}
 	}
 }
@@ -114,7 +115,7 @@ void smallDrop(float x, float floor, float ceiling, int ageMs) {
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
 void DungeonView::drawPoisonDrips(const CellRect& drawn) {
 	const int now = GameClock::now();
-	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT);
+	const GlState saved = GlState::read();
 	bool set = false;
 	for (int j = drawn.row0; j < drawn.row0 + drawn.rows; j++)
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
@@ -194,8 +195,8 @@ void DungeonView::drawPoisonDrips(const CellRect& drawn) {
 		}
 	if (set)
 		Lighting::setEmissive(false);
-	glPopAttrib();
-	glColor4f(1, 1, 1, 1);
+	saved.apply();
+	world().colour(1, 1, 1, 1);
 }
 // Same frame as addLights.
 void DungeonView::addPoisonDripLights(const CellRect& drawn) {

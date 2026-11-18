@@ -1,4 +1,5 @@
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "assets.h"
 #include "../sim/player.h"
 #include "../level/item_bag.h"
@@ -29,13 +30,13 @@ constexpr float SAND_EDGE_LIFT = 0.04f; // the spilled sand over the stone floor
 
 // One face of a cell, corners counter-clockwise from (s0, t0).
 void quad(const float n[3], const float v[4][3], const float st[4][2]) {
-	glBegin(GL_QUADS);
-	glNormal3fv(n);
+	world().begin(Primitive::Quads);
+	world().normal(n[0], n[1], n[2]);
 	for (int k = 0; k < 4; k++) {
-		glTexCoord2fv(st[k]);
-		glVertex3fv(v[k]);
+		world().texCoord(st[k][0], st[k][1]);
+		world().vertex(v[k][0], v[k][1], v[k][2]);
 	}
-	glEnd();
+	world().end();
 }
 } // namespace
 
@@ -171,7 +172,7 @@ void DungeonView::drawCellSurfaces(int i, int j) {
 		tex.wallTex[cell.wall].Bind();
 		drawWindbreak(side, d.isRock(i, j - 1), d.isRock(i, j + 1));
 	}
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 }
 // A shaped cell's solid sub-cells (plan subcell-physics): blocks of the cell's wall stone through the cell's depth, the
 // front one face per run along a sub-cell row. Only the faces next to an open sub-cell (of this cell or a neighbour)
@@ -251,8 +252,8 @@ void DungeonView::DrawTreasureTile(int i, int j) {
 	const TreasureLook look = d.treasureLook(cell);
 	const ContainerDef& def = containerDef(look.kind);
 
-	glPushMatrix();
-	glTranslatef(
+	gMv.push();
+	gMv.translate(
 		RenderConfig::ITEM_OFFSET_X +
 			(look.x + d.dragShift(cell)) * RenderConfig::TILE_SIZE, // dragged (plan pressure-plate)
 		0,
@@ -263,7 +264,7 @@ void DungeonView::DrawTreasureTile(int i, int j) {
 	// A trapped one's tell (plan trapped-chests): darker, a stained brown, only with the player close by.
 	if (const float tell = d.chestTell(cell); tell > 0.f) {
 		const float shade = 1.f - tell * (1.f - CHEST_TELL_SHADE);
-		glColor3f(shade, shade * 0.9f, shade * 0.85f);
+		world().colour(shade, shade * 0.9f, shade * 0.85f);
 	}
 	container.Draw(d.containerOpening(cell));
 	if (const float near = d.containerOutlineAt(cell); near > 0.f) // Disarm trap (plan heka-surplus)
@@ -277,11 +278,11 @@ void DungeonView::DrawTreasureTile(int i, int j) {
 		cursed.rotA = look.yaw;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(1, 1, 1, text);
+		world().colour(1, 1, 1, text);
 		cursed.Draw(d.containerOpening(cell)); // the same model and frame: the depth test (GL_LEQUAL) lets it on top
 		glDisable(GL_BLEND);
 	}
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 
 	const Tile tile = d.MapAt(i, j);
 	if (std::optional<ItemKind> kind = itemFromFile(tile.attr, tile.value);
@@ -293,33 +294,33 @@ void DungeonView::DrawTreasureTile(int i, int j) {
 		const bool potion = isPotion(*kind);
 		const bool ring = isRing(*kind);
 		item->scale = potion ? scale : ring ? RING_CHEST_SCALE : std::max(scale, CHEST_MIN_SCALE);
-		glTranslatef(0, def.itemLift + (potion ? POTION_CHEST_LIFT : ring ? RING_CHEST_LIFT : 0.f), 0);
+		gMv.translate(0, def.itemLift + (potion ? POTION_CHEST_LIFT : ring ? RING_CHEST_LIFT : 0.f), 0);
 		item->Draw();
 		if (item->HasPart()) {
 			ItemPartDraw draw{{}, item, item->rotA, item->scale};
-			glGetFloatv(GL_MODELVIEW_MATRIX, draw.modelview.data());
+			draw.modelview = gMv.top().m;
 			itemParts.push_back(draw);
 		}
 		item->rotA = angle;
 		item->scale = scale;
 	}
 
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawItemParts() {
-	glPushMatrix();
+	gMv.push();
 	for (const ItemPartDraw& draw : itemParts) {
-		glLoadMatrixf(draw.modelview.data());
+		gMv.load(Mat4::fromArray(draw.modelview.data()));
 		const float angle = draw.item->rotA;
 		const float scale = draw.item->scale;
 		draw.item->rotA = draw.rotA;
 		draw.item->scale = draw.scale;
-		glColor3f(1, 1, 1);
+		world().colour(1, 1, 1);
 		draw.item->DrawPart();
 		draw.item->rotA = angle;
 		draw.item->scale = scale;
 	}
-	glPopMatrix();
+	gMv.pop();
 	itemParts.clear();
 }
 // A jar breaking open: a puff of dust out of its shards (Grit::burst), and a trapped chest's gas. In the tile loop's
@@ -367,13 +368,13 @@ void DungeonView::drawChestGas() {
 	}
 }
 void DungeonView::DrawTrapTile(bool isDeathTrap) {
-	glPushMatrix();
-	glTranslatef(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
+	gMv.push();
+	gMv.translate(RenderConfig::ITEM_OFFSET_X, 0, RenderConfig::ITEM_OFFSET_Z);
 
 	Trap* tileTrap = isDeathTrap ? assets.traps.deathTrap.get() : assets.traps.spikes.get();
 	tileTrap->Show();
 
-	glPopMatrix();
+	gMv.pop();
 }
 // A ceiling trap (plan ceiling-spikes): the floor trap's model upside down on each underside (ceilingUndersides), a
 // row of them along the cell's depth, a quarter tile wide; the death trap's tips longer.
@@ -389,18 +390,18 @@ void DungeonView::drawCeilingTrap(int i, int j) {
 			if ((undersides & subcellBit(c, r)) == 0)
 				continue;
 			for (int k = 0; k < CEILING_TRAP_ROWS; k++) {
-				glPushMatrix();
+				gMv.push();
 				// Trap::Show sets the model 30 units back: these sit along the depth, a step apart, round its middle.
 				const float depth = RenderConfig::TILE_SIZE / CEILING_TRAP_ROWS;
-				glTranslatef(
+				gMv.translate(
 					(static_cast<float>(c) + 0.5f) * S,
 					static_cast<float>(r) * S,
 					30.f - (static_cast<float>(k) + 0.5f) * depth
 				);
-				glRotatef(180.f, 0, 0, 1); // upside down, the tips to the floor
-				glScalef(1.f, stretch, 1.f);
+				gMv.rotate(180.f, 0, 0, 1); // upside down, the tips to the floor
+				gMv.scale(1.f, stretch, 1.f);
 				trap.Show(S);
-				glPopMatrix();
+				gMv.pop();
 			}
 		}
 }
@@ -414,17 +415,17 @@ void DungeonView::drawPortal(const float normal[3], const float v[4][3], bool re
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthMask(GL_FALSE);
-		glColor4f(1, 1, 1, alpha);
+		world().colour(1, 1, 1, alpha);
 	}
-	glBegin(GL_QUADS);
-	glNormal3fv(normal);
+	world().begin(Primitive::Quads);
+	world().normal(normal[0], normal[1], normal[2]);
 	for (int k = 0; k < 4; k++) {
-		glTexCoord2fv(st[k]);
-		glVertex3fv(v[k]);
+		world().texCoord(st[k][0], st[k][1]);
+		world().vertex(v[k][0], v[k][1], v[k][2]);
 	}
-	glEnd();
+	world().end();
 	if (faded) {
-		glColor4f(1, 1, 1, 1);
+		world().colour(1, 1, 1, 1);
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
@@ -447,24 +448,24 @@ float DungeonView::nameGateAlpha(int cell) const {
 }
 // The plasma fills the gap between the columns, in their centre plane (props.py, build_columns).
 void DungeonView::drawTeleporterTile(int i, int j) {
-	glPushMatrix();
-	glTranslatef(20, 0, -30);
-	glScalef(40, 40, 40);
+	gMv.push();
+	gMv.translate(20, 0, -30);
+	gMv.scale(40, 40, 40);
 	assets.textures.columns.Bind();
 	assets.models.columns->Show();
-	glPopMatrix();
+	gMv.pop();
 
 	const float normal[3] = {0, 0, 1};
 	const float v[4][3] = {{10, 0, -30}, {10, 36, -30}, {30, 36, -30}, {30, 0, -30}};
 	drawPortal(normal, v, false, nameGateAlpha(d.MapIndex(i, j)));
 }
 void DungeonView::drawAnkhTile() {
-	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
-	glScalef(40, 40, 40);
+	gMv.push();
+	gMv.translate(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
+	gMv.scale(40, 40, 40);
 	assets.textures.ankh.Bind();
 	assets.models.ankh->Show();
-	glPopMatrix();
+	gMv.pop();
 }
 // The doorway stands against the side wall, plasma inside it; with no side wall it turns to the back wall and faces
 // the camera. Unturned it is on the left.
@@ -476,33 +477,33 @@ void DungeonView::drawDoorTile(int i, int j) {
 	else if (!d.isRock(i + 1, j) && !d.isRock(i - 1, j))
 		yaw = -90;
 
-	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
-	glPushMatrix();
-	glRotatef(yaw, 0, 1, 0);
-	glPushMatrix();
-	glScalef(40, 40, 40);
+	gMv.push();
+	gMv.translate(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_HALF); // the cell centre, halfway to the back wall
+	gMv.push();
+	gMv.rotate(yaw, 0, 1, 0);
+	gMv.push();
+	gMv.scale(40, 40, 40);
 	assets.textures.sphinx.Bind();
 	assets.models.sphinx->Show();
-	glPopMatrix();
+	gMv.pop();
 
 	if (tile.attr == GateEntrance || tile.attr == GateExit) {
 		const float normal[3] = {1, 0, 0};
 		const float v[4][3] = {{-19.6f, 0, -10}, {-19.6f, 35, -10}, {-19.6f, 35, 10}, {-19.6f, 0, 10}};
 		drawPortal(normal, v, tile.attr == GateEntrance);
 	}
-	glPopMatrix();
+	gMv.pop();
 
 	if (tile.attr == GateRiddle) {
-		glPushMatrix();
-		glTranslatef(0, 20, 0);
-		glScalef(10, 10, 10);
+		gMv.push();
+		gMv.translate(0, 20, 0);
+		gMv.scale(10, 10, 10);
 		assets.textures.questionMark.Bind();
-		glRotatef(riddleMarkYaw(), 0, 1, 0);
+		gMv.rotate(riddleMarkYaw(), 0, 1, 0);
 		assets.models.question->Show();
-		glPopMatrix();
+		gMv.pop();
 	}
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawFixture(int i, int j) {
 	switch (d.MapAt(i, j).fixture.type) {
@@ -604,24 +605,23 @@ void DungeonView::drawTileContent(int i, int j) {
 	}
 }
 void DungeonView::pushLevelFrame() const {
-	glPushMatrix();
+	gMv.push();
 	const CutShot shot = d.cutScene.Shot();
 	const float x = d.mapX + shot.dx, y = d.mapY + shot.dy; // the camera's place, as view()
-	glTranslatef(
+	gMv.translate(
 		-RenderConfig::TILE_SIZE * (x - static_cast<float>(static_cast<int>(x))),
 		-RenderConfig::TILE_SIZE * (y - static_cast<float>(static_cast<int>(y))),
 		0.f
 	);
-	glTranslatef(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
+	gMv.translate(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 }
 void DungeonView::Draw(const HitboxView* hitboxes) {
+	const GlLegacy::PortedScope ported;
 	pushLevelFrame();
 
 	const ViewWindow v = d.view();
-	float projection[16];
-	float modelview[16];
-	glGetFloatv(GL_PROJECTION_MATRIX, projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
+	const float* projection = gProj.top().data();
+	const float* modelview = gMv.top().data();
 	float clip[16];
 	for (int c = 0; c < 4; c++)
 		for (int r = 0; r < 4; r++) {
@@ -643,8 +643,8 @@ void DungeonView::Draw(const HitboxView* hitboxes) {
 	addStargateLights(drawn);
 	Lighting::commit();
 
-	glPushMatrix(); // the loop walks the frame from tile to tile, from the drawn window's first cell
-	glTranslatef(
+	gMv.push(); // the loop walks the frame from tile to tile, from the drawn window's first cell
+	gMv.translate(
 		RenderConfig::TILE_SIZE * static_cast<float>(drawn.col0 - v.originCol),
 		RenderConfig::TILE_SIZE * static_cast<float>(drawn.row0 - v.originRow),
 		0
@@ -657,30 +657,30 @@ void DungeonView::Draw(const HitboxView* hitboxes) {
 				// What stands in a shaped cell stands on the floor under its middle (plan subcell-physics).
 				const float raised = hasShape(tile) ? floorHeight(tile, 0.5f) * RenderConfig::TILE_SIZE : 0.f;
 				drawDecalTile(i, j);
-				glPushMatrix();
-				glTranslatef(0, raised, 0);
+				gMv.push();
+				gMv.translate(0, raised, 0);
 				drawDecorTile(i, j);
-				glPopMatrix();
+				gMv.pop();
 				drawTorchTile(i, j);
 				// What stands in half water stands on the basin floor; a ladder runs on up out of it.
 				const bool sunk = inHalfWater(tile) && tile.type != Ladder && raised == 0.f;
-				glPushMatrix();
-				glTranslatef(0, tile.type == Ladder ? 0.f : (sunk ? -RenderConfig::WATER_BASIN_DEPTH : raised), 0);
+				gMv.push();
+				gMv.translate(0, tile.type == Ladder ? 0.f : (sunk ? -RenderConfig::WATER_BASIN_DEPTH : raised), 0);
 				drawTileContent(i, j);
-				glPopMatrix();
+				gMv.pop();
 			}
-			glTranslatef(RenderConfig::TILE_SIZE, 0, 0);
+			gMv.translate(RenderConfig::TILE_SIZE, 0, 0);
 		}
-		glTranslatef(
+		gMv.translate(
 			-RenderConfig::TILE_SIZE * static_cast<float>(drawn.cols),
 			RenderConfig::TILE_SIZE,
 			0
 		); // the next row's start
 	}
-	glPopMatrix();
+	gMv.pop();
 
-	glPushMatrix();
-	glTranslatef(-RenderConfig::TILE_SIZE, 0, 0);
+	gMv.push();
+	gMv.translate(-RenderConfig::TILE_SIZE, 0, 0);
 	DrawMonsters(drawn);
 	drawMissiles();
 	drawShots();
@@ -688,7 +688,7 @@ void DungeonView::Draw(const HitboxView* hitboxes) {
 	drawDarts();
 	if (hitboxes != nullptr)
 		drawHitboxes(*hitboxes);
-	glPopMatrix();
+	gMv.pop();
 
 	drawFires(drawn);
 	drawFireJets(drawn);
@@ -707,7 +707,7 @@ void DungeonView::Draw(const HitboxView* hitboxes) {
 	drawBurning();
 	drawPowerSpark();
 	drawStunStars();
-	glPopMatrix();
+	gMv.pop();
 }
 // Debug view (RenderSettings::Hitboxes), in DrawMonsters' frame: the monster boxes red, the player's green, the reach
 // of the equipped weapon yellow.
@@ -716,18 +716,18 @@ void DungeonView::drawHitboxes(const HitboxView& weapon) {
 	const auto firstRow = static_cast<float>(d.view().originRow);
 	constexpr float DEPTH = RenderConfig::MONSTER_DEPTH;
 	auto box = [&](float left, float right, float bottom, float top) {
-		glBegin(GL_LINE_LOOP);
-		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
-		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
-		glVertex3f(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
-		glVertex3f(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
-		glEnd();
+		world().begin(Primitive::LineLoop);
+		world().vertex(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		world().vertex(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		world().vertex(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
+		world().vertex(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
+		world().end();
 	};
 	assets.textures.nullTex.Bind();
 	Lighting::setEmissive(true);
 	glDisable(GL_DEPTH_TEST);
 	glLineWidth(2.f);
-	glColor3f(1, 0.2f, 0.2f);
+	world().colour(1, 0.2f, 0.2f);
 	for (const Monster& mon : d.monsters)
 		if (mon.Active() && mon.Alive())
 			box(mon.Left(), mon.Right(), mon.BottomY(), mon.TopY());
@@ -736,16 +736,16 @@ void DungeonView::drawHitboxes(const HitboxView& weapon) {
 			box(b.x - b.rules.radius, b.x + b.rules.radius, b.y, b.y + 2.f * b.rules.radius);
 	const Player& player = *d.sim.player;
 	const float half = player.HalfWidth();
-	glColor3f(0.2f, 1, 0.2f);
+	world().colour(0.2f, 1, 0.2f);
 	box(d.mapX - half, d.mapX + half, d.mapY, d.mapY + player.Height());
 	const auto dir = static_cast<float>(weapon.facing);
 	const float from = weapon.fromEdge ? half : 0.f;
-	glColor3f(1, 1, 0.2f);
+	world().colour(1, 1, 0.2f);
 	box(d.mapX + dir * from, d.mapX + dir * (from + weapon.reach), d.mapY, d.mapY + player.Height() / 2.f);
 	glLineWidth(1.f);
 	glEnable(GL_DEPTH_TEST);
 	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 }
 namespace {
 struct Rgba {
@@ -760,7 +760,7 @@ constexpr int RIPPLE_STRIPS = 6; // across the surface, front to back
 constexpr float RIPPLE_SPEED = 1.3f;
 constexpr float WATERLINE_HEIGHT = 0.4f; // world units
 
-void colour(const Rgba& c, float alpha) { glColor4f(c.r, c.g, c.b, c.a * alpha); }
+void colour(const Rgba& c, float alpha) { world().colour(c.r, c.g, c.b, c.a * alpha); }
 } // namespace
 
 // Half water fills its basin (WATER_BASIN_DEPTH under the row's floor) up to WATER_SURFACE: a surface with drifting
@@ -770,40 +770,40 @@ void DungeonView::drawWaterCell(int i, int j, float x, float y) {
 	constexpr float T = RenderConfig::TILE_SIZE;
 	constexpr float B = RenderConfig::WATER_BASIN_DEPTH;
 	const Structure s = d.MapAt(i, j).structure;
-	glBegin(GL_QUADS);
+	world().begin(Primitive::Quads);
 	if (s == Structure::DeepWater) {
 		const float top = inHalfWater(d.MapAt(i, j + 1)) ? T - B : T;
 		const WaterBox box = deepWaterBox(i, j);
-		glNormal3f(0, 0, 1);
+		world().normal(0, 0, 1);
 		colour(DEEP_FRONT, 1.f);
-		glVertex3f(x + box.left, y + box.bottom, 0);
-		glVertex3f(x + box.right, y + box.bottom, 0);
-		glVertex3f(x + box.right, y + top, 0);
-		glVertex3f(x + box.left, y + top, 0);
-		glEnd();
+		world().vertex(x + box.left, y + box.bottom, 0);
+		world().vertex(x + box.right, y + box.bottom, 0);
+		world().vertex(x + box.right, y + top, 0);
+		world().vertex(x + box.left, y + top, 0);
+		world().end();
 		return;
 	}
 	constexpr float S = RenderConfig::WATER_SURFACE;
 	if (d.MapAt(i, j - 1).structure == Structure::DeepWater) {
-		glNormal3f(0, 0, 1);
+		world().normal(0, 0, 1);
 		colour(WATER_FRONT, 1.f);
-		glVertex3f(x, y - B, 0);
-		glVertex3f(x + T, y - B, 0);
-		glVertex3f(x + T, y + S, 0);
-		glVertex3f(x, y + S, 0);
+		world().vertex(x, y - B, 0);
+		world().vertex(x + T, y - B, 0);
+		world().vertex(x + T, y + S, 0);
+		world().vertex(x, y + S, 0);
 		colour(WATERLINE, 1.f);
-		glVertex3f(x, y + S - WATERLINE_HEIGHT, 0.01f);
-		glVertex3f(x + T, y + S - WATERLINE_HEIGHT, 0.01f);
-		glVertex3f(x + T, y + S, 0.01f);
-		glVertex3f(x, y + S, 0.01f);
+		world().vertex(x, y + S - WATERLINE_HEIGHT, 0.01f);
+		world().vertex(x + T, y + S - WATERLINE_HEIGHT, 0.01f);
+		world().vertex(x + T, y + S, 0.01f);
+		world().vertex(x, y + S, 0.01f);
 	}
 
-	glNormal3f(0, 1, 0);
+	world().normal(0, 1, 0);
 	colour(WATER_TOP, 1.f);
-	glVertex3f(x, y + S, 0);
-	glVertex3f(x, y + S, -T);
-	glVertex3f(x + T, y + S, -T);
-	glVertex3f(x + T, y + S, 0);
+	world().vertex(x, y + S, 0);
+	world().vertex(x, y + S, -T);
+	world().vertex(x + T, y + S, -T);
+	world().vertex(x + T, y + S, 0);
 	// Glints drifting along the row, a little above the surface so they do not fight it.
 	const float time = static_cast<float>(GameClock::now()) / 1000.f * RIPPLE_SPEED;
 	for (int k = 0; k < RIPPLE_STRIPS; k++) {
@@ -813,15 +813,16 @@ void DungeonView::drawWaterCell(int i, int j, float x, float y) {
 		const float left = 0.5f + 0.5f * std::sin(time + phase);
 		const float right = 0.5f + 0.5f * std::sin(time + phase + 1.9f);
 		colour(WATER_GLINT, left * left);
-		glVertex3f(x, y + S + 0.05f, z0);
-		glVertex3f(x, y + S + 0.05f, z1);
+		world().vertex(x, y + S + 0.05f, z0);
+		world().vertex(x, y + S + 0.05f, z1);
 		colour(WATER_GLINT, right * right);
-		glVertex3f(x + T, y + S + 0.05f, z1);
-		glVertex3f(x + T, y + S + 0.05f, z0);
+		world().vertex(x + T, y + S + 0.05f, z1);
+		world().vertex(x + T, y + S + 0.05f, z0);
 	}
-	glEnd();
+	world().end();
 }
 void DungeonView::DrawWater() {
+	const GlLegacy::PortedScope ported;
 	pushLevelFrame();
 	const ViewWindow v = d.view();
 	const CellRect& drawn = drawnCells;
@@ -842,6 +843,6 @@ void DungeonView::DrawWater() {
 			);
 		}
 	glDepthMask(GL_TRUE);
-	glColor4f(1, 1, 1, 1);
-	glPopMatrix();
+	world().colour(1, 1, 1, 1);
+	gMv.pop();
 }

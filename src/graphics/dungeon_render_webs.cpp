@@ -2,6 +2,7 @@
 // the middle of the cell out to its edges and rings round it, a faint sheet between them. A cut web fades, a burning
 // one goes up in flames.
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "assets.h"
 #include "fire.h"
 #include "../render/lighting.h"
@@ -52,37 +53,37 @@ void DungeonView::drawWebs() {
 			ez[s] = RZ * r * std::sin(a);
 		}
 		const float burn = w.burnt ? 0.45f : 1.f; // the threads blacken as they burn
-		glBegin(GL_TRIANGLE_FAN); // the sheet
-		glColor4f(0.6f * burn, 0.59f * burn, 0.55f * burn, 0.06f * fade);
-		glVertex3f(cx, y, cz);
+		world().begin(Primitive::TriangleFan); // the sheet
+		world().colour(0.6f * burn, 0.59f * burn, 0.55f * burn, 0.06f * fade);
+		world().vertex(cx, y, cz);
 		for (int s = 0; s <= SPOKES; s++)
-			glVertex3f(cx + ex[s % SPOKES], y, cz + ez[s % SPOKES]);
-		glEnd();
+			world().vertex(cx + ex[s % SPOKES], y, cz + ez[s % SPOKES]);
+		world().end();
 		glLineWidth(1.5f);
-		glColor4f(0.62f * burn, 0.61f * burn, 0.57f * burn, 0.32f * fade);
-		glBegin(GL_LINES);
+		world().colour(0.62f * burn, 0.61f * burn, 0.57f * burn, 0.32f * fade);
+		world().begin(Primitive::Lines);
 		for (int s = 0; s < SPOKES; s++) {
-			glVertex3f(cx, y, cz);
-			glVertex3f(cx + ex[s], y, cz + ez[s]);
+			world().vertex(cx, y, cz);
+			world().vertex(cx + ex[s], y, cz + ez[s]);
 		}
 		for (int k = 1; k <= RINGS; k++) {
 			const float r = static_cast<float>(k) / (RINGS + 0.4f);
 			for (int s = 0; s < SPOKES; s++) {
 				const int n = (s + 1) % SPOKES;
 				const float mx = (ex[s] + ex[n]) * 0.5f * SAG, mz = (ez[s] + ez[n]) * 0.5f * SAG;
-				glVertex3f(cx + ex[s] * r, y, cz + ez[s] * r);
-				glVertex3f(cx + mx * r, y, cz + mz * r);
-				glVertex3f(cx + mx * r, y, cz + mz * r);
-				glVertex3f(cx + ex[n] * r, y, cz + ez[n] * r);
+				world().vertex(cx + ex[s] * r, y, cz + ez[s] * r);
+				world().vertex(cx + mx * r, y, cz + mz * r);
+				world().vertex(cx + mx * r, y, cz + mz * r);
+				world().vertex(cx + ex[n] * r, y, cz + ez[n] * r);
 			}
 		}
-		glEnd();
+		world().end();
 		glLineWidth(1.f);
 	}
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 	for (const Hazards::Web& w : d.hazards.webs) // after the threads: the sprites blend over them
 		if (w.burnt && w.goneMs >= 0) {
 			const int col = w.cell % Dungeon::MAP_WIDTH, row = w.cell / Dungeon::MAP_WIDTH;

@@ -1,6 +1,7 @@
 // A floor set burning by Babi's big coal (plan babi-boss, the rules in dungeon_blaze.cpp): flames over the floor of
 // the cell, flaring up as it catches and dying down at the end, and their light.
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"

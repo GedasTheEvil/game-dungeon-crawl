@@ -1,6 +1,7 @@
 // Drawing the monsters, the missiles and venom in flight, and the boss fight's summon effects (the rules are in
 // dungeon_monsters.cpp, dungeon_arrows.cpp and dungeon_boss.cpp).
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "../sim/dungeon_rules.h"
 #include "assets.h"
 #include "monster_draw.h"
@@ -45,18 +46,18 @@ constexpr float STUN_RING_DEPTH = 6.f; // world units the ring reaches towards t
 
 // A flat star of rays round (x, y, z), additive: rays long, turned by angle (radians), thin at the tips.
 void glowStar(float x, float y, float z, float radius, int rays, float angle, float r, float g, float b, float alpha) {
-	glBegin(GL_TRIANGLES);
+	world().begin(Primitive::Triangles);
 	for (int i = 0; i < rays; i++) {
 		const float a = angle + 2.f * PI * static_cast<float>(i) / static_cast<float>(rays);
 		const float len = radius * (i % 2 == 0 ? 1.f : 0.6f);
 		const float side = radius * 0.12f;
-		glColor4f(r, g, b, alpha);
-		glVertex3f(x - side * std::sin(a), y + side * std::cos(a), z);
-		glVertex3f(x + side * std::sin(a), y - side * std::cos(a), z);
-		glColor4f(r, g * 0.8f, b * 0.5f, 0.f);
-		glVertex3f(x + len * std::cos(a), y + len * std::sin(a), z);
+		world().colour(r, g, b, alpha);
+		world().vertex(x - side * std::sin(a), y + side * std::cos(a), z);
+		world().vertex(x + side * std::sin(a), y - side * std::cos(a), z);
+		world().colour(r, g * 0.8f, b * 0.5f, 0.f);
+		world().vertex(x + len * std::cos(a), y + len * std::sin(a), z);
 	}
-	glEnd();
+	world().end();
 }
 
 // A fiery bolt's flickering light, an oil lamp's (plan anubis-fire-bolt).
@@ -86,28 +87,28 @@ void drawBall(
 	plain.Bind(); // texture x colour: plain colour
 	glEnable(GL_BLEND);
 	Lighting::setEmissive(true);
-	glPushMatrix();
-	glTranslatef(x, y, z);
-	glRotatef(std::atan2(vy, vx) * RAD_TO_DEG, 0, 0, 1);
-	glScalef(radius * stretch, radius * squash, radius);
-	glColor4f(colour.r, colour.g, colour.b, alpha);
+	gMv.push();
+	gMv.translate(x, y, z);
+	gMv.rotate(std::atan2(vy, vx) * RAD_TO_DEG, 0, 0, 1);
+	gMv.scale(radius * stretch, radius * squash, radius);
+	world().colour(colour.r, colour.g, colour.b, alpha);
 	for (int i = 0; i < STACKS; i++) {
 		const float a0 = PI * static_cast<float>(i) / STACKS - PI / 2, a1 = a0 + PI / STACKS;
-		glBegin(GL_TRIANGLE_STRIP);
+		world().begin(Primitive::TriangleStrip);
 		for (int j = 0; j <= SLICES; j++) {
 			const float b = 2 * PI * static_cast<float>(j) / SLICES;
 			for (float a : {a0, a1}) {
 				const float nx = std::cos(a) * std::cos(b), ny = std::cos(a) * std::sin(b), nz = std::sin(a);
-				glNormal3f(nz, ny, nx);
-				glVertex3f(nz, ny, nx); // the poles along x, the flight
+				world().normal(nz, ny, nx);
+				world().vertex(nz, ny, nx); // the poles along x, the flight
 			}
 		}
-		glEnd();
+		world().end();
 	}
-	glPopMatrix();
+	gMv.pop();
 	Lighting::setEmissive(false);
 	glDisable(GL_BLEND);
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 }
 
 // How a shot looks: a plain glob of light, or flames (the style carries the colours) with smaller clouds trailing in
@@ -189,20 +190,20 @@ void DungeonView::DrawMonsters(const CellRect& drawn) {
 		if (!mon.Active() || !drawn.contains(mon.CentreX(), mon.Row()))
 			continue;
 
-		glPushMatrix();
-		glTranslatef(
+		gMv.push();
+		gMv.translate(
 			RenderConfig::TILE_SIZE * static_cast<float>(mon.Col() - firstCol),
 			RenderConfig::TILE_SIZE * static_cast<float>(mon.Row() - firstRow),
 			0
 		);
-		glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
+		gMv.translate(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
 		const CharacterModel& model = assets.monsterModels[mon.Type()->id];
 		DrawMonster(mon, model, assets.textures);
 		if (const float near = d.mimicOutline(mon); near > 0.f) // Disarm trap (plan heka-surplus)
 			queueContour(near, [this, &mon, &model](int texture) {
 				DrawMonster(mon, model, assets.textures, texture);
 			});
-		glPopMatrix();
+		gMv.pop();
 	}
 	drawDecoys(drawn);
 }
@@ -214,15 +215,15 @@ void DungeonView::drawDecoys(const CellRect& drawn) {
 		for (int i = drawn.col0; i < drawn.col0 + drawn.cols; i++) {
 			if (!d.IsInBounds(i, j) || d.decoration.decor[d.MapIndex(i, j)].type != DECOR_COFFIN_MUMMY)
 				continue;
-			glPushMatrix();
-			glTranslatef(
+			gMv.push();
+			gMv.translate(
 				RenderConfig::TILE_SIZE * static_cast<float>(i - d.view().firstCol()),
 				RenderConfig::TILE_SIZE * static_cast<float>(j - d.view().originRow),
 				0
 			);
-			glTranslatef(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
+			gMv.translate(RenderConfig::MONSTER_OFFSET_X, 0, RenderConfig::MONSTER_OFFSET_Z);
 			DrawEntombed(mummy, model);
-			glPopMatrix();
+			gMv.pop();
 		}
 }
 void DungeonView::drawMissiles() {
@@ -243,20 +244,20 @@ void DungeonView::drawMissiles() {
 			x = a.endX + (d.mapX - a.endX) * k;
 			y = a.endY + (handY - a.endY) * k;
 		}
-		glPushMatrix();
-		glTranslatef(RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow), ARROW_DEPTH);
+		gMv.push();
+		gMv.translate(RenderConfig::TILE_SIZE * (x - firstCol), RenderConfig::TILE_SIZE * (y - firstRow), ARROW_DEPTH);
 		if (rules.spinDegPerS > 0.f) { // round its middle
 			const float turned = rules.spinDegPerS * static_cast<float>(now - a.startMs) / 1000.f;
-			glRotatef(a.vx > 0.f ? -turned : turned, 0, 0, 1);
-			glTranslatef(0, -(low + high) / 2.f * scale, 0);
+			gMv.rotate(a.vx > 0.f ? -turned : turned, 0, 0, 1);
+			gMv.translate(0, -(low + high) / 2.f * scale, 0);
 		} else { // the model points up (+y), the tip at the flight position
 			const float heading = std::atan2(a.vy - ARROW_GRAVITY * a.t, a.vx) * RAD_TO_DEG;
-			glRotatef(heading - 90.f, 0, 0, 1);
-			glTranslatef(0, -high * scale, 0);
+			gMv.rotate(heading - 90.f, 0, 0, 1);
+			gMv.translate(0, -high * scale, 0);
 		}
-		glScalef(scale, scale, scale);
+		gMv.scale(scale, scale, scale);
 		model->Show();
-		glPopMatrix();
+		gMv.pop();
 		if (a.fire && a.stuckMs < 0) // the tip burns
 			Fire::draw(
 				Fire::ARROW,
@@ -278,17 +279,17 @@ void DungeonView::drawBalls() {
 	const auto [low, high] = model->YRange(0);
 	auto draw = [&](float x, float y, float radius, float turnDeg) {
 		const float scale = 2.f * radius * RenderConfig::TILE_SIZE / std::max(high - low, 0.001f);
-		glPushMatrix();
-		glTranslatef(
+		gMv.push();
+		gMv.translate(
 			RenderConfig::TILE_SIZE * (x - firstCol),
 			RenderConfig::TILE_SIZE * (y - firstRow + radius),
 			RenderConfig::MONSTER_DEPTH
 		);
-		glRotatef(turnDeg, 0, 0, 1);
-		glScalef(scale, scale, scale);
-		glTranslatef(0, -(low + high) / 2.f, 0);
+		gMv.rotate(turnDeg, 0, 0, 1);
+		gMv.scale(scale, scale, scale);
+		gMv.translate(0, -(low + high) / 2.f, 0);
 		model->Show();
-		glPopMatrix();
+		gMv.pop();
 	};
 	for (const DungBall& b : d.projectiles.balls)
 		if (b.breakMs < 0) {
@@ -371,17 +372,17 @@ void DungeonView::drawDarts() {
 	const float scale = ARROW_WORLD_PER_METRE * Ink::figureScale() * DART_SCALE;
 	const float high = model->YRange(0).second;
 	for (const DartTraps::Dart& d : d.dartTraps.darts) {
-		glPushMatrix();
-		glTranslatef(
+		gMv.push();
+		gMv.translate(
 			RenderConfig::TILE_SIZE * (d.x - firstCol),
 			RenderConfig::TILE_SIZE * (d.y - firstRow),
 			-RenderConfig::TILE_SIZE * (1.f - d.depth)
 		);
-		glRotatef(90.f, 1, 0, 0); // the model points up (+y): now at the camera (+z), the tip at the position
-		glTranslatef(0, -high * scale, 0);
-		glScalef(scale, scale, scale);
+		gMv.rotate(90.f, 1, 0, 0); // the model points up (+y): now at the camera (+z), the tip at the position
+		gMv.translate(0, -high * scale, 0);
+		gMv.scale(scale, scale, scale);
 		model->Show();
-		glPopMatrix();
+		gMv.pop();
 	}
 }
 // A glob of venom (a bolt of light): with poison a cloud of green flames trailing smaller ones; with fire a fireball;
@@ -401,14 +402,14 @@ void DungeonView::drawShots() {
 			squash = 1.f - 0.7f * k;
 			alpha *= 1.f - k;
 		}
-		glPushMatrix(); // a big coal (plan babi-boss) at BIG_COAL_SCALE round its centre
-		glTranslatef(
+		gMv.push(); // a big coal (plan babi-boss) at BIG_COAL_SCALE round its centre
+		gMv.translate(
 			RenderConfig::TILE_SIZE * (v.x - firstCol),
 			RenderConfig::TILE_SIZE * (v.y - firstRow),
 			ARROW_DEPTH
 		);
 		if (v.big)
-			glScalef(BIG_COAL_SCALE, BIG_COAL_SCALE, BIG_COAL_SCALE);
+			gMv.scale(BIG_COAL_SCALE, BIG_COAL_SCALE, BIG_COAL_SCALE);
 		drawGlobWithFlames(
 			assets.textures.nullTex,
 			v.colour,
@@ -423,7 +424,7 @@ void DungeonView::drawShots() {
 			squash,
 			alpha
 		);
-		glPopMatrix();
+		gMv.pop();
 	}
 }
 // The light of each flying glob, venom or fire; same frame as addLights.
@@ -503,7 +504,7 @@ void DungeonView::drawPowerSpark() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
 	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 }
 void DungeonView::drawStunStars() {
 	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
@@ -544,7 +545,7 @@ void DungeonView::drawStunStars() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
 	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 }
 // Where a minion came out, while its summon lasts: sand thrown up from the floor or grit falling from the ceiling.
 // Same window and frame as drawMechanismEffects.
@@ -607,16 +608,16 @@ void DungeonView::drawHole(float x, float y, float z, float fade) const {
 	assets.textures.nullTex.Bind();
 	Lighting::setEmissive(true);
 	glEnable(GL_BLEND);
-	glBegin(GL_TRIANGLE_FAN);
-	glColor4f(0.02f, 0.01f, 0.f, 0.9f * fade);
-	glVertex3f(x, y, z);
-	glColor4f(0.1f, 0.07f, 0.03f, 0.f);
+	world().begin(Primitive::TriangleFan);
+	world().colour(0.02f, 0.01f, 0.f, 0.9f * fade);
+	world().vertex(x, y, z);
+	world().colour(0.1f, 0.07f, 0.03f, 0.f);
 	for (int i = 0; i <= SIDES; i++) {
 		const float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SIDES;
-		glVertex3f(x + RX * std::cos(a), y, z + RZ * std::sin(a));
+		world().vertex(x + RX * std::cos(a), y, z + RZ * std::sin(a));
 	}
-	glEnd();
+	world().end();
 	glDisable(GL_BLEND);
 	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 }

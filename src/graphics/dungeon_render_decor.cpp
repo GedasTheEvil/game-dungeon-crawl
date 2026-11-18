@@ -1,6 +1,7 @@
 // Drawing the decorations scatterDecor placed (decor_scatter.h): props, decals, torches, ladders, and the flames and
 // lights of the fires among them. Also the inscriptions, decals the level places.
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "../level/gameplay_monster_kinds.h"
 #include "../level/gameplay_world.h"
 #include "../level/names.h"
@@ -60,18 +61,18 @@ void wallQuad(float x, float y, float size, AtlasRect uv, bool mirror) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
-	glColor3f(1, 1, 1);
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(uv.u0, uv.v0);
-	glVertex3f(cx - half, cy - half, z);
-	glTexCoord2f(uv.u1, uv.v0);
-	glVertex3f(cx + half, cy - half, z);
-	glTexCoord2f(uv.u1, uv.v1);
-	glVertex3f(cx + half, cy + half, z);
-	glTexCoord2f(uv.u0, uv.v1);
-	glVertex3f(cx - half, cy + half, z);
-	glEnd();
+	world().colour(1, 1, 1);
+	world().begin(Primitive::Quads);
+	world().normal(0, 0, 1);
+	world().texCoord(uv.u0, uv.v0);
+	world().vertex(cx - half, cy - half, z);
+	world().texCoord(uv.u1, uv.v0);
+	world().vertex(cx + half, cy - half, z);
+	world().texCoord(uv.u1, uv.v1);
+	world().vertex(cx + half, cy + half, z);
+	world().texCoord(uv.u0, uv.v1);
+	world().vertex(cx - half, cy + half, z);
+	world().end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 }
@@ -97,25 +98,25 @@ void glintQuad(float x, float y, float size, AtlasRect uv, float strength, int c
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDepthMask(GL_FALSE);
 	for (int pass = 0; pass < GLINT_PASSES; pass++) {
-		glBegin(GL_QUAD_STRIP);
-		glNormal3f(0, 0, 1);
+		world().begin(Primitive::QuadStrip);
+		world().normal(0, 0, 1);
 		for (int i = 0; i <= GLINT_STRIPS; i++) {
 			const float u = static_cast<float>(i) / GLINT_STRIPS;
 			const float px = x * tile - half + u * 2 * half;
 			const float tu = uv.u0 + u * (uv.u1 - uv.u0);
-			glColor4f(GLINT_COLOUR[0], GLINT_COLOUR[1], GLINT_COLOUR[2], band(u, 0.f));
-			glTexCoord2f(tu, uv.v0);
-			glVertex3f(px, y * tile - half, z);
-			glColor4f(GLINT_COLOUR[0], GLINT_COLOUR[1], GLINT_COLOUR[2], band(u, 1.f));
-			glTexCoord2f(tu, uv.v1);
-			glVertex3f(px, y * tile + half, z);
+			world().colour(GLINT_COLOUR[0], GLINT_COLOUR[1], GLINT_COLOUR[2], band(u, 0.f));
+			world().texCoord(tu, uv.v0);
+			world().vertex(px, y * tile - half, z);
+			world().colour(GLINT_COLOUR[0], GLINT_COLOUR[1], GLINT_COLOUR[2], band(u, 1.f));
+			world().texCoord(tu, uv.v1);
+			world().vertex(px, y * tile + half, z);
 		}
-		glEnd();
+		world().end();
 	}
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
-	glColor3f(1, 1, 1);
+	world().colour(1, 1, 1);
 	Lighting::setEmissive(false);
 }
 } // namespace
@@ -131,9 +132,9 @@ void waterMotion(int type, int cell) {
 						std::sin(time * (reeds ? REED_SWAY_SPEED : WEED_SWAY_SPEED) + phase);
 		// x += k * (y - BASIN_FLOOR): the foot stays put, the tips move.
 		const float shear[16] = {1, 0, 0, 0, k, 1, 0, 0, 0, 0, 1, 0, -k * BASIN_FLOOR, 0, 0, 1};
-		glMultMatrixf(shear);
+		gMv.mult(Mat4::fromArray(shear));
 	} else
-		glTranslatef(
+		gMv.translate(
 			DRIFT_WIDTH * std::sin(time * DRIFT_SPEED + phase),
 			BOB_HEIGHT * std::sin(time * BOB_SPEED + phase),
 			0
@@ -151,9 +152,9 @@ void DungeonView::drawDecorTile(int i, int j) {
 	if (model == nullptr)
 		return;
 
-	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_HALF + cell.offsetX * RenderConfig::TILE_SIZE, 0, -RenderConfig::TILE_SIZE);
-	glScalef(
+	gMv.push();
+	gMv.translate(RenderConfig::TILE_HALF + cell.offsetX * RenderConfig::TILE_SIZE, 0, -RenderConfig::TILE_SIZE);
+	gMv.scale(
 		cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE,
 		RenderConfig::TILE_SIZE,
 		RenderConfig::TILE_SIZE
@@ -166,7 +167,7 @@ void DungeonView::drawDecorTile(int i, int j) {
 	model->Show(); // no face culling, so the mirrored winding does not matter
 	if (cell.type == DECOR_STARGATE)
 		drawStargate(i, j);
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawDecalTile(int i, int j) {
 	const DecalCell& cell = d.decoration.decal[d.MapIndex(i, j)];
@@ -216,12 +217,12 @@ void DungeonView::drawTorchTile(int i, int j) {
 	if (!d.decoration.torch[d.MapIndex(i, j)] || model == nullptr)
 		return;
 
-	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
-	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
+	gMv.push();
+	gMv.translate(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
+	gMv.scale(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
 	assets.decor.torchTex.Bind();
 	model->Show();
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawLadderTile(int i, int j) {
 	const LadderCell& cell = d.decoration.ladder[d.MapIndex(i, j)];
@@ -231,16 +232,16 @@ void DungeonView::drawLadderTile(int i, int j) {
 	if (model == nullptr)
 		return;
 
-	glPushMatrix();
-	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
-	glScalef(
+	gMv.push();
+	gMv.translate(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
+	gMv.scale(
 		cell.mirror ? -RenderConfig::TILE_SIZE : RenderConfig::TILE_SIZE,
 		RenderConfig::TILE_SIZE,
 		RenderConfig::TILE_SIZE
 	);
 	assets.decor.ladderTex[cell.style][cell.piece].Bind();
 	model->Show(); // textured only, like the props
-	glPopMatrix();
+	gMv.pop();
 }
 namespace {
 // A flame's spot in the frame drawDecorTile starts from (world units), its light and its fire sprite.
@@ -333,14 +334,14 @@ void DungeonView::drawFires(const CellRect& drawn) {
 // one, added on in its glow.
 void DungeonView::drawStargate(int i, int j) {
 	const DecorSet& decor = assets.decor;
-	glPushMatrix();
-	glTranslatef(0, GATE_CENTRE_Y, GATE_CENTRE_Z);
-	glPushMatrix();
-	glRotatef(d.StargateTrackDeg(i, j), 0, 0, 1);
-	glTranslatef(0, -GATE_CENTRE_Y, -GATE_CENTRE_Z);
+	gMv.push();
+	gMv.translate(0, GATE_CENTRE_Y, GATE_CENTRE_Z);
+	gMv.push();
+	gMv.rotate(d.StargateTrackDeg(i, j), 0, 0, 1);
+	gMv.translate(0, -GATE_CENTRE_Y, -GATE_CENTRE_Z);
 	if (decor.stargateTrack != nullptr)
 		decor.stargateTrack->Show();
-	glPopMatrix();
+	gMv.pop();
 	if (decor.stargateChevron != nullptr) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -349,18 +350,18 @@ void DungeonView::drawStargate(int i, int j) {
 			const float glow = d.ChevronGlow(i, j, k);
 			if (glow <= 0.f)
 				continue;
-			glPushMatrix();
-			glRotatef(-CHEVRON_STEP_DEG * static_cast<float>(k + 1), 0, 0, 1);
-			glTranslatef(0, -GATE_CENTRE_Y, -GATE_CENTRE_Z);
-			glColor4f(1, 1, 1, glow);
+			gMv.push();
+			gMv.rotate(-CHEVRON_STEP_DEG * static_cast<float>(k + 1), 0, 0, 1);
+			gMv.translate(0, -GATE_CENTRE_Y, -GATE_CENTRE_Z);
+			world().colour(1, 1, 1, glow);
 			decor.stargateChevron->Show();
-			glPopMatrix();
+			gMv.pop();
 		}
-		glColor4f(1, 1, 1, 1);
+		world().colour(1, 1, 1, 1);
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::addStargateLights(const CellRect& drawn) {
 	if (!d.Dialling())

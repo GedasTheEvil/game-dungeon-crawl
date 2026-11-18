@@ -1,6 +1,7 @@
 // Drawing the sunlight mirrors (plan sunlight-mirrors; dungeon_sun.cpp has their rules): the mirrors on their stands,
 // the sun discs, the beams and their light.
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "../sim/dungeon_rules.h"
 #include "assets.h"
 #include "fire.h"
@@ -40,16 +41,16 @@ void centrePoint(int cell, float& x, float& y) {
 }
 
 void enterPropSpace() {
-	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
-	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
+	gMv.translate(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
+	gMv.scale(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
 }
 } // namespace
 
 void DungeonView::drawMirrorTile(int i, int j) {
 	const MechanismSet& set = assets.mechanisms;
 	const int cell = d.MapIndex(i, j);
-	glPushMatrix();
-	glTranslatef(
+	gMv.push();
+	gMv.translate(
 		d.dragShift(cell) * RenderConfig::TILE_SIZE,
 		0,
 		0
@@ -57,27 +58,27 @@ void DungeonView::drawMirrorTile(int i, int j) {
 	enterPropSpace();
 	if (set.mirrorStand != nullptr)
 		set.mirrorStand->Show();
-	glTranslatef(0, BEAM_HEIGHT, BEAM_DEPTH);
-	glPushMatrix();
-	glRotatef(d.sun.Angle(d.map, cell), 0, 0, 1);
+	gMv.translate(0, BEAM_HEIGHT, BEAM_DEPTH);
+	gMv.push();
+	gMv.rotate(d.sun.Angle(d.map, cell), 0, 0, 1);
 	if (set.mirror != nullptr)
 		set.mirror->Show();
-	glPopMatrix();
-	glTranslatef(0, 0, POINTER_AHEAD);
-	glRotatef(dirDeg(mirrorDir(d.map[cell])), 0, 0, 1);
+	gMv.pop();
+	gMv.translate(0, 0, POINTER_AHEAD);
+	gMv.rotate(dirDeg(mirrorDir(d.map[cell])), 0, 0, 1);
 	if (set.mirrorPointer != nullptr)
 		set.mirrorPointer->Show();
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawSunDiscTile(int i, int j) {
 	const MechanismSet& set = assets.mechanisms;
 	const Fixture disc = d.MapAt(i, j).fixture;
 	if (set.sunDisc == nullptr || !isLockColour(disc.attr))
 		return;
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	set.sunDisc->Show(AnimPlayback{}, set.sunDiscTex[disc.attr - 1].ID());
-	glPopMatrix();
+	gMv.pop();
 }
 // Same window and frame as drawSummonEffects.
 void DungeonView::drawSunBeams() {

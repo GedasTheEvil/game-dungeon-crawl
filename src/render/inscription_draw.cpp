@@ -1,19 +1,21 @@
 #include "inscription_draw.h"
-#include "gl_includes.h"
+#include "gl_legacy.h"
+#include "lighting.h"
 
 namespace {
 void quad(float x0, float y0, float x1, float y1, float z, AtlasRect uv) {
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(uv.u0, uv.v0);
-	glVertex3f(x0, y0, z);
-	glTexCoord2f(uv.u1, uv.v0);
-	glVertex3f(x1, y0, z);
-	glTexCoord2f(uv.u1, uv.v1);
-	glVertex3f(x1, y1, z);
-	glTexCoord2f(uv.u0, uv.v1);
-	glVertex3f(x0, y1, z);
-	glEnd();
+	Batch& world = Lighting::batch();
+	world.begin(Primitive::Quads);
+	world.normal(0, 0, 1);
+	world.texCoord(uv.u0, uv.v0);
+	world.vertex(x0, y0, z);
+	world.texCoord(uv.u1, uv.v0);
+	world.vertex(x1, y0, z);
+	world.texCoord(uv.u1, uv.v1);
+	world.vertex(x1, y1, z);
+	world.texCoord(uv.u0, uv.v1);
+	world.vertex(x0, y1, z);
+	world.end();
 }
 } // namespace
 
@@ -29,14 +31,16 @@ void drawInscription(
 	const InscriptionArt& art,
 	const float tint[3]
 ) {
-	glColor3f(tint[0], tint[1], tint[2]);
+	const GlLegacy::PortedScope ported; // also the journal's page
+	Batch& world = Lighting::batch(); // lit on the wall; outside Lighting::begin..end texture times colour
+	world.colour(tint[0], tint[1], tint[2]);
 	art.plates.Bind();
 	quad(x, y, x + side, y + side, z, plateCell(style));
 	art.signs.Bind();
 	for (const SignQuad& s : inscriptionLayout(style, glyphs, art.sheet)) {
 		const float* paint = SIGN_PAINT[s.colour];
-		glColor3f(tint[0] * paint[0], tint[1] * paint[1], tint[2] * paint[2]);
+		world.colour(tint[0] * paint[0], tint[1] * paint[1], tint[2] * paint[2]);
 		quad(x + s.x0 * side, y + s.y0 * side, x + s.x1 * side, y + s.y1 * side, z, art.sheet.Uv(s.cell));
 	}
-	glColor3f(1, 1, 1);
+	world.colour(1, 1, 1);
 }

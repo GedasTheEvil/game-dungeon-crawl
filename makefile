@@ -170,6 +170,9 @@ VERSION_STAMP=$(BUILD)/version.txt
 $(shell mkdir -p $(BUILD); [ "$$(cat $(VERSION_STAMP) 2>/dev/null)" = "$(GAME_VERSION)" ] || echo "$(GAME_VERSION)" > $(VERSION_STAMP))
 $(BUILD)/src/ui/win_entry.o: $(VERSION_STAMP)
 $(BUILD)/src/ui/win_entry.o: CXXFLAGS += -DGAME_VERSION=\"$(GAME_VERSION)\"
+# The GL core path's matrices round as Mesa's: no fused multiply-add (-march=native has it, C++ contracts by default),
+# or a translation lands one ulp off and an edge pixel flips (plan gl-core-world).
+$(BUILD)/src/render/mat4.o: CXXFLAGS += -ffp-contract=off
 
 level-tools: $(LEVEL_TOOLS)
 

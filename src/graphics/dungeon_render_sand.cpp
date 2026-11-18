@@ -1,6 +1,7 @@
 // Sand on the floor (plan desert-chapter): the drifts, the quicksand's swirl, the dust of the steps, the sand worm's
 // ripple and the sand falls pouring down.
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "assets.h"
 #include "../sim/player.h"
 #include "../render/gl_includes.h"
@@ -75,10 +76,10 @@ void DungeonView::drawSandDrift(int i, int j) {
 
 	assets.decor.floorTex[FLOOR_SAND].Bind();
 	if (quick)
-		glColor3f(0.78f, 0.68f, 0.55f);
+		world().colour(0.78f, 0.68f, 0.55f);
 	constexpr float DX = T / DRIFT_NX, DZ = T / DRIFT_NZ;
 	for (int b = 0; b < DRIFT_NZ; b++) {
-		glBegin(GL_TRIANGLE_STRIP);
+		world().begin(Primitive::TriangleStrip);
 		for (int a = 0; a <= DRIFT_NX; a++)
 			for (int k : {b + 1, b}) { // front row first: the strip faces up
 				const int a0 = std::max(a - 1, 0), a1 = std::min(a + 1, DRIFT_NX);
@@ -86,25 +87,25 @@ void DungeonView::drawSandDrift(int i, int j) {
 				const float sx = (hs[a1][k] - hs[a0][k]) / (DX * static_cast<float>(a1 - a0));
 				const float sz = (hs[a][k1] - hs[a][k0]) / (DZ * static_cast<float>(k1 - k0)); // v grows to the front
 				const float n = std::sqrt(sx * sx + sz * sz + 1.f);
-				glNormal3f(-sx / n, 1.f / n, -sz / n);
+				world().normal(-sx / n, 1.f / n, -sz / n);
 				float st[2];
 				texAt(static_cast<float>(a) / DRIFT_NX, static_cast<float>(k) / DRIFT_NZ, st);
-				glTexCoord2f(st[0], 1.f - st[1]);
-				glVertex3f(static_cast<float>(a) * DX, hs[a][k], -T + static_cast<float>(k) * DZ);
+				world().texCoord(st[0], 1.f - st[1]);
+				world().vertex(static_cast<float>(a) * DX, hs[a][k], -T + static_cast<float>(k) * DZ);
 			}
-		glEnd();
+		world().end();
 	}
-	glBegin(GL_QUAD_STRIP); // the front edge
-	glNormal3f(0, 0, 1);
+	world().begin(Primitive::QuadStrip); // the front edge
+	world().normal(0, 0, 1);
 	for (int a = 0; a <= DRIFT_NX; a++) {
 		const float s = static_cast<float>(a) / DRIFT_NX;
-		glTexCoord2f(s, 0.f);
-		glVertex3f(static_cast<float>(a) * DX, 0.f, 0.f);
-		glTexCoord2f(s, hs[a][DRIFT_NZ] / T);
-		glVertex3f(static_cast<float>(a) * DX, hs[a][DRIFT_NZ], 0.f);
+		world().texCoord(s, 0.f);
+		world().vertex(static_cast<float>(a) * DX, 0.f, 0.f);
+		world().texCoord(s, hs[a][DRIFT_NZ] / T);
+		world().vertex(static_cast<float>(a) * DX, hs[a][DRIFT_NZ], 0.f);
 	}
-	glEnd();
-	glColor3f(1, 1, 1);
+	world().end();
+	world().colour(1, 1, 1);
 }
 // Same window and frame as drawSummonEffects: the dust of the steps in sand, a sand worm's ripple under the sand, the
 // sand falls pouring down.
@@ -209,37 +210,37 @@ void DungeonView::drawWindbreak(int side, bool floor, bool ceiling) {
 	auto box = [&](float x0, float x1, float y0, float y1, float zf) {
 		const float z0 = -T;
 		const float tu = (x1 - x0) / T, tz = (zf - z0) / T, t0 = y0 / T, t1 = y1 / T;
-		glBegin(GL_QUADS);
-		glNormal3f(0, 0, 1); // the front
-		glTexCoord2f(0, t0);
-		glVertex3f(x0, y0, zf);
-		glTexCoord2f(tu, t0);
-		glVertex3f(x1, y0, zf);
-		glTexCoord2f(tu, t1);
-		glVertex3f(x1, y1, zf);
-		glTexCoord2f(0, t1);
-		glVertex3f(x0, y1, zf);
+		world().begin(Primitive::Quads);
+		world().normal(0, 0, 1); // the front
+		world().texCoord(0, t0);
+		world().vertex(x0, y0, zf);
+		world().texCoord(tu, t0);
+		world().vertex(x1, y0, zf);
+		world().texCoord(tu, t1);
+		world().vertex(x1, y1, zf);
+		world().texCoord(0, t1);
+		world().vertex(x0, y1, zf);
 		for (const float x : {x0, x1}) { // the sides
-			glNormal3f(x == x0 ? -1.f : 1.f, 0, 0);
-			glTexCoord2f(0, t0);
-			glVertex3f(x, y0, z0);
-			glTexCoord2f(tz, t0);
-			glVertex3f(x, y0, zf);
-			glTexCoord2f(tz, t1);
-			glVertex3f(x, y1, zf);
-			glTexCoord2f(0, t1);
-			glVertex3f(x, y1, z0);
+			world().normal(x == x0 ? -1.f : 1.f, 0, 0);
+			world().texCoord(0, t0);
+			world().vertex(x, y0, z0);
+			world().texCoord(tz, t0);
+			world().vertex(x, y0, zf);
+			world().texCoord(tz, t1);
+			world().vertex(x, y1, zf);
+			world().texCoord(0, t1);
+			world().vertex(x, y1, z0);
 		}
-		glNormal3f(0, 1, 0); // the top: seen on the base, under the capital hidden
-		glTexCoord2f(0, 0);
-		glVertex3f(x0, y1, zf);
-		glTexCoord2f(tu, 0);
-		glVertex3f(x1, y1, zf);
-		glTexCoord2f(tu, tz);
-		glVertex3f(x1, y1, z0);
-		glTexCoord2f(0, tz);
-		glVertex3f(x0, y1, z0);
-		glEnd();
+		world().normal(0, 1, 0); // the top: seen on the base, under the capital hidden
+		world().texCoord(0, 0);
+		world().vertex(x0, y1, zf);
+		world().texCoord(tu, 0);
+		world().vertex(x1, y1, zf);
+		world().texCoord(tu, tz);
+		world().vertex(x1, y1, z0);
+		world().texCoord(0, tz);
+		world().vertex(x0, y1, z0);
+		world().end();
 	};
 	auto span = [&](float width) { // x0, x1 of a part this wide against the cell's windward side
 		return side > 0 ? std::pair{outer - width, outer} : std::pair{outer, outer + width};
@@ -263,19 +264,19 @@ void DungeonView::drawRipple(float x, float y, float z, float size, int now) con
 	constexpr int SIDES = 16;
 	const float heave = 0.7f + 0.3f * std::sin(static_cast<float>(now) * 0.012f);
 	assets.decor.floorTex[FLOOR_SAND].Bind();
-	glColor3f(0.8f, 0.68f, 0.52f); // stirred-up sand, a shade darker
-	glBegin(GL_TRIANGLE_FAN);
-	glNormal3f(0, 1, 0);
-	glTexCoord2f(0.5f, 0.5f);
-	glVertex3f(x, y + h * heave, z);
+	world().colour(0.8f, 0.68f, 0.52f); // stirred-up sand, a shade darker
+	world().begin(Primitive::TriangleFan);
+	world().normal(0, 1, 0);
+	world().texCoord(0.5f, 0.5f);
+	world().vertex(x, y + h * heave, z);
 	for (int k = 0; k <= SIDES; k++) {
 		const float a = 6.2832f * static_cast<float>(k) / SIDES;
-		glNormal3f(std::cos(a) * 0.5f, 0.85f, std::sin(a) * 0.5f);
-		glTexCoord2f(0.5f + 0.5f * std::cos(a), 0.5f + 0.5f * std::sin(a));
-		glVertex3f(x + rx * std::cos(a), y - 0.5f, z + rz * std::sin(a));
+		world().normal(std::cos(a) * 0.5f, 0.85f, std::sin(a) * 0.5f);
+		world().texCoord(0.5f + 0.5f * std::cos(a), 0.5f + 0.5f * std::sin(a));
+		world().vertex(x + rx * std::cos(a), y - 0.5f, z + rz * std::sin(a));
 	}
-	glEnd();
-	glColor3f(1, 1, 1);
+	world().end();
+	world().colour(1, 1, 1);
 	// Sand trickling off the heaving mound, puff after puff.
 	Grit::puff(x, y + h * heave, z, now % PUFF_MS, PUFF_MS, static_cast<uint32_t>(now / PUFF_MS));
 }

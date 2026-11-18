@@ -1,6 +1,7 @@
 // Drawing the keys, the expedition's pages, gates, levers, rock falls, dart traps, wall spikes, fire vents and ring
 // platforms (dungeon_mechanisms.cpp, dungeon_darts.cpp and dungeon_spikes.cpp have their rules).
 #include "dungeon_view.h"
+#include "world_draw.h"
 #include "../sim/dungeon_rules.h"
 #include "assets.h"
 #include "../sim/render_config.h"
@@ -94,8 +95,8 @@ float spikesOut(const Fixture& t, int nowMs) {
 
 // Prop frame of the current tile (see DungeonView::drawDecorTile).
 void enterPropSpace() {
-	glTranslatef(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
-	glScalef(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
+	gMv.translate(RenderConfig::TILE_HALF, 0, -RenderConfig::TILE_SIZE);
+	gMv.scale(RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE, RenderConfig::TILE_SIZE);
 }
 
 void showModel(AnimatedModel* model) {
@@ -113,12 +114,12 @@ void showColour(const std::unique_ptr<AnimatedModel>& model, const Texture (&tex
 void DungeonView::drawKeyTile(int i, int j) {
 	Tile tile = d.MapAt(i, j);
 	float t = static_cast<float>(GameClock::now());
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
-	glTranslatef(0, KEY_HOVER + KEY_BOB * std::sin(t * 0.004f + static_cast<float>(i)), 0.5f);
-	glRotatef(std::fmod(t * KEY_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
+	gMv.translate(0, KEY_HOVER + KEY_BOB * std::sin(t * 0.004f + static_cast<float>(i)), 0.5f);
+	gMv.rotate(std::fmod(t * KEY_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
 	showColour(assets.mechanisms.key, assets.mechanisms.keyTex, tile.attr);
-	glPopMatrix();
+	gMv.pop();
 }
 // Like a key: floating over its cell, turning, so it reads as something to pick up. Nothing once taken (the skeleton
 // under it is decor).
@@ -127,31 +128,35 @@ void DungeonView::drawPageTile(int i, int j) {
 		return;
 	const auto t = static_cast<float>(GameClock::now());
 	const auto phase = static_cast<float>(i * 7 + j);
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
-	glTranslatef(0, PAGE_HOVER + KEY_BOB * std::sin(t * 0.003f + phase), 0.5f);
-	glRotatef(std::fmod(t * PAGE_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
-	glRotatef(PAGE_SWAY_DEG * std::sin(t * 0.0021f + phase), 0, 0, 1);
-	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
+	gMv.translate(0, PAGE_HOVER + KEY_BOB * std::sin(t * 0.003f + phase), 0.5f);
+	gMv.rotate(std::fmod(t * PAGE_SPIN_DEG_PER_MS, 360.f), 0, 1, 0);
+	gMv.rotate(PAGE_SWAY_DEG * std::sin(t * 0.0021f + phase), 0, 0, 1);
+	const GlState saved = GlState::read();
+	const BatchVertex current = world().currentValues();
 	glDisable(GL_CULL_FACE);
-	glEnable(GL_ALPHA_TEST); // the torn edge
-	glAlphaFunc(GL_GREATER, 0.5f);
-	glEnable(GL_TEXTURE_2D);
+	world().style.kind = DefaultShader::Kind::AlphaTest; // the torn edge
+	world().style.alphaRef = 0.5f;
 	assets.textures.expeditionPage.Bind();
-	glColor3f(1, 1, 1);
-	glNormal3f(0, 0, 1);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 1);
-	glVertex3f(-PAGE_W / 2, -PAGE_H / 2, 0);
-	glTexCoord2f(1, 1);
-	glVertex3f(PAGE_W / 2, -PAGE_H / 2, 0);
-	glTexCoord2f(1, 0);
-	glVertex3f(PAGE_W / 2, PAGE_H / 2, 0);
-	glTexCoord2f(0, 0);
-	glVertex3f(-PAGE_W / 2, PAGE_H / 2, 0);
-	glEnd();
-	glPopAttrib();
-	glPopMatrix();
+	world().colour(1, 1, 1);
+	world().normal(0, 0, 1);
+	world().begin(Primitive::Quads);
+	world().texCoord(0, 1);
+	world().vertex(-PAGE_W / 2, -PAGE_H / 2, 0);
+	world().texCoord(1, 1);
+	world().vertex(PAGE_W / 2, -PAGE_H / 2, 0);
+	world().texCoord(1, 0);
+	world().vertex(PAGE_W / 2, PAGE_H / 2, 0);
+	world().texCoord(0, 0);
+	world().vertex(-PAGE_W / 2, PAGE_H / 2, 0);
+	world().end();
+	world().style.kind = DefaultShader::Kind::Texture;
+	saved.apply();
+	world().colour(current.r, current.g, current.b, current.a);
+	world().normal(current.nx, current.ny, current.nz);
+	world().texCoord(current.u, current.v);
+	gMv.pop();
 }
 void DungeonView::drawGateTile(int i, int j) {
 	Tile tile = d.MapAt(i, j);
@@ -159,9 +164,9 @@ void DungeonView::drawGateTile(int i, int j) {
 	if (lift >= 1.f)
 		return; // up inside the ceiling
 
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
-	glTranslatef(0, lift, 0);
+	gMv.translate(0, lift, 0);
 	const MechanismSet& set = assets.mechanisms;
 	if (tile.attr == BOSS_LOCK) {
 		if (set.gate != nullptr)
@@ -170,33 +175,33 @@ void DungeonView::drawGateTile(int i, int j) {
 		showColour(set.gate, set.plateGateTex, plateLockOf(tile.attr));
 	else
 		showColour(set.gate, set.gateTex, tile.attr);
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawLeverTile(int i, int j) {
 	const Fixture lever = d.MapAt(i, j).fixture;
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	showColour(assets.mechanisms.leverBase, assets.mechanisms.leverBaseTex, lever.attr);
-	glTranslatef(LEVER_PIVOT[0], LEVER_PIVOT[1], LEVER_PIVOT[2]);
-	glRotatef(leverPulled(lever) ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
+	gMv.translate(LEVER_PIVOT[0], LEVER_PIVOT[1], LEVER_PIVOT[2]);
+	gMv.rotate(leverPulled(lever) ? -LEVER_ANGLE : LEVER_ANGLE, 0, 0, 1); // pulled = handle turned to the right
 	showModel(assets.mechanisms.leverHandle.get());
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawRockFallTile(int i, int j) {
 	Tile tile = d.MapAt(i, j);
 	int cell = d.MapIndex(i, j);
 
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	if (rockState(tile) != RockState::Fallen) {
 		// Loose stones in the ceiling; they shake while the rumble lasts.
-		glPushMatrix();
+		gMv.push();
 		if (rockState(tile) == RockState::Falling) {
 			float t = static_cast<float>(GameClock::now());
-			glTranslatef(0.01f * std::sin(t * 0.09f), 0.f, 0.f);
+			gMv.translate(0.01f * std::sin(t * 0.09f), 0.f, 0.f);
 		}
 		showModel(assets.mechanisms.crack.get());
-		glPopMatrix();
+		gMv.pop();
 	}
 
 	// A sand fall has no stone: the sand pours (drawSandEffects) and the cell turns to a drift. A landed rock is a
@@ -209,58 +214,58 @@ void DungeonView::drawRockFallTile(int i, int j) {
 				rockY = ROCK_START_Y * (1.f - p * p); // accelerates down
 			}
 	if (rockY >= 0.f) {
-		glTranslatef(0, rockY, ROCK_DEPTH);
-		glRotatef(static_cast<float>(cell % 7) * 50.f, 0, 1, 0); // fallen rocks do not all look the same
+		gMv.translate(0, rockY, ROCK_DEPTH);
+		gMv.rotate(static_cast<float>(cell % 7) * 50.f, 0, 1, 0); // fallen rocks do not all look the same
 		showModel(assets.mechanisms.rock.get());
 	}
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawDartPlateTile(int i, int j) {
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	showModel(assets.mechanisms.dartHoles.get());
 	if (platePressed(d.MapAt(i, j)))
-		glTranslatef(0, -DART_PLATE_SINK, 0);
+		gMv.translate(0, -DART_PLATE_SINK, 0);
 	showModel(assets.mechanisms.plate.get());
-	glPopMatrix();
+	gMv.pop();
 }
 // Plan pressure-plate: the slab with its gem, sunk while it carries its weight.
 void DungeonView::drawPressurePlateTile(int i, int j) {
 	const Fixture plate = d.MapAt(i, j).fixture;
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	if (d.PlateDown(i, j))
-		glTranslatef(0, -DART_PLATE_SINK, 0);
+		gMv.translate(0, -DART_PLATE_SINK, 0);
 	showColour(assets.mechanisms.weightPlate, assets.mechanisms.weightPlateTex, plate.attr);
-	glPopMatrix();
+	gMv.pop();
 }
 // A loose stone (plan pressure-plate): the rock fall's boulder, its own turn per cell.
 void DungeonView::drawStoneTile(int i, int j) {
 	const int cell = d.MapIndex(i, j);
-	glPushMatrix();
-	glTranslatef(d.dragShift(cell) * RenderConfig::TILE_SIZE, 0, 0);
+	gMv.push();
+	gMv.translate(d.dragShift(cell) * RenderConfig::TILE_SIZE, 0, 0);
 	enterPropSpace();
-	glTranslatef(0, 0, ROCK_DEPTH);
-	glRotatef(static_cast<float>(cell % 5) * 70.f, 0, 1, 0);
+	gMv.translate(0, 0, ROCK_DEPTH);
+	gMv.rotate(static_cast<float>(cell % 5) * 70.f, 0, 1, 0);
 	showModel(assets.mechanisms.rock.get());
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawWallSpikesTile(int i, int j) {
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	showModel(assets.mechanisms.spikeSlots.get());
 	const float out = spikesOut(d.MapAt(i, j).fixture, GameClock::now());
 	if (out > 0.f) {
-		glTranslatef(0, 0, -SPIKES_HIDE_DEPTH * (1.f - out));
+		gMv.translate(0, 0, -SPIKES_HIDE_DEPTH * (1.f - out));
 		showModel(assets.mechanisms.wallSpikes.get());
 	}
-	glPopMatrix();
+	gMv.pop();
 }
 void DungeonView::drawFireVentTile() {
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	showModel(assets.mechanisms.fireVent.get());
-	glPopMatrix();
+	gMv.pop();
 }
 // Same frame as the tile loop in Draw(): cell (col0, row0) of the window sits at the origin.
 void DungeonView::drawFireJets(const CellRect& drawn) {
@@ -330,7 +335,7 @@ void DungeonView::drawMechanismEffects() {
 	}
 }
 void DungeonView::drawRingPlatformTile(int i, int j) {
-	glPushMatrix();
+	gMv.push();
 	enterPropSpace();
 	showModel(assets.mechanisms.ringPlatform.get());
 	showModel(assets.mechanisms.ringHousing.get());
@@ -343,10 +348,10 @@ void DungeonView::drawRingPlatformTile(int i, int j) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glDepthMask(GL_FALSE);
-		glColor4f(RING_SEAL_COLOUR[0], RING_SEAL_COLOUR[1], RING_SEAL_COLOUR[2], glow);
+		world().colour(RING_SEAL_COLOUR[0], RING_SEAL_COLOUR[1], RING_SEAL_COLOUR[2], glow);
 		for (int pass = 0; pass < RING_SEAL_PASSES; pass++) // one is too faint on the dark plate
 			assets.mechanisms.ringPlatform->Show();
-		glColor4f(1, 1, 1, 1);
+		world().colour(1, 1, 1, 1);
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
@@ -354,10 +359,10 @@ void DungeonView::drawRingPlatformTile(int i, int j) {
 	if (here && d.TravelByRings() && d.Travelling())
 		for (int k = 0; k < RING_COUNT; k++) {
 			const float rest = RING_BASE + static_cast<float>(k) * RING_GAP;
-			glPushMatrix();
-			glTranslatef(0, RING_HIDDEN + (rest - RING_HIDDEN) * d.RingDrop(k), RING_DEPTH);
+			gMv.push();
+			gMv.translate(0, RING_HIDDEN + (rest - RING_HIDDEN) * d.RingDrop(k), RING_DEPTH);
 			showModel(assets.mechanisms.ring.get());
-			glPopMatrix();
+			gMv.pop();
 		}
-	glPopMatrix();
+	gMv.pop();
 }

@@ -31,10 +31,12 @@ Mat4 Mat4::scaling(float x, float y, float z) {
 	return r;
 }
 
-// Mesa's _math_matrix_rotate, step for step.
+// Mesa's _math_matrix_rotate, step for step: sinf and cosf of the angle in radians as a float (cos 90 degrees is then
+// -4.4e-8, not 6e-17 as in double; a model turned by 90 degrees lands on other pixels otherwise).
 Mat4 Mat4::rotation(float degrees, float x, float y, float z) {
-	const auto s = static_cast<float>(std::sin(degrees * std::numbers::pi / 180.0));
-	const auto c = static_cast<float>(std::cos(degrees * std::numbers::pi / 180.0));
+	const auto radians = static_cast<float>(degrees * std::numbers::pi / 180.0);
+	const float s = std::sin(radians);
+	const float c = std::cos(radians);
 	Mat4 r;
 	if (x == 0.f && y == 0.f && z != 0.f) {
 		set(r, 0, 0) = c;

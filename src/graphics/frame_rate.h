@@ -10,6 +10,11 @@ namespace FrameRate {
 void set(int frameRate);
 // Asked by the main loop (Window::run) on each pass: applies the swap interval; true when a frame is due.
 bool due();
+// FRAME_TIME=N in the environment (plan gl-core-world): Draw times each frame, from its start to the buffer swap, and
+// every N frames the log ("graphics") gets their mean and the fastest. drawStarted before the frame's first GL call,
+// drawEnded after the swap.
+void drawStarted();
+void drawEnded();
 
 } // namespace FrameRate
 

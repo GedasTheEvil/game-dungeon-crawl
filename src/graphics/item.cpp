@@ -1,7 +1,9 @@
 #include "item.h"
 #include "../render/gl_includes.h"
+#include "../render/gl_legacy.h"
 #include "../render/ink.h"
 #include "../render/lighting.h"
+#include "../render/matrix_stack.h"
 #include "../core/timer.h"
 #include <cmath>
 #include <algorithm>
@@ -17,16 +19,16 @@ void Item::DrawHeld(float pose) { drawScaled(scale * Ink::heldWeaponScale(), pos
 void Item::drawScaled(float drawScale, float pose, int texture) {
 	if (!mdl)
 		return;
-
-	glPushMatrix();
-	glTranslatef(0, 0, -DRAW_DEPTH);
-	glScalef(drawScale, drawScale, drawScale);
+	const GlLegacy::PortedScope ported; // also the inventory's models
+	gMv.push();
+	gMv.translate(0, 0, -DRAW_DEPTH);
+	gMv.scale(drawScale, drawScale, drawScale);
 	tex.Bind();
-	glRotatef(rotA, 0, 1, 0);
+	gMv.rotate(rotA, 0, 1, 0);
 	AnimPlayback playback;
 	playback.frame = std::clamp(pose, 0.f, 1.f) * static_cast<float>(mdl->FrameCount() - 1);
 	mdl->Show(playback, texture >= 0 ? texture : tex.ID());
-	glPopMatrix();
+	gMv.pop();
 }
 
 bool Item::loadModel(const char* name, const char* texture) {
@@ -80,29 +82,30 @@ void Item::DrawPart() {
 }
 
 void Item::drawPartScaled(float drawScale) {
-	float colour[4];
-	glGetFloatv(GL_CURRENT_COLOR, colour);
-	const Rgb c = {colour[0] * part.tint.r, colour[1] * part.tint.g, colour[2] * part.tint.b};
+	const GlLegacy::PortedScope ported; // also the inventory's models
+	Batch& world = Lighting::batch();
+	const BatchVertex colour = world.currentValues(); // the caller's tint, as glColor was
+	const Rgb c = {colour.r * part.tint.r, colour.g * part.tint.g, colour.b * part.tint.b};
 	const bool gem = part.style == PartStyle::Gem;
 	glEnable(GL_BLEND);
 	glDepthMask(GL_FALSE);
 	Lighting::setEmissive(gem); // a gem shines in the dark, a lamp of its own; glass takes the scene's light
-	glPushMatrix();
-	glTranslatef(0, 0, -DRAW_DEPTH);
-	glScalef(drawScale, drawScale, drawScale);
-	glRotatef(rotA, 0, 1, 0);
+	gMv.push();
+	gMv.translate(0, 0, -DRAW_DEPTH);
+	gMv.scale(drawScale, drawScale, drawScale);
+	gMv.rotate(rotA, 0, 1, 0);
 	AnimPlayback playback;
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f(c.r, c.g, c.b, part.alpha);
+	world.colour(c.r, c.g, c.b, part.alpha);
 	part.mdl->Show(playback, part.tex->ID());
 	if (gem)
 		drawGlint(playback, c);
-	glPopMatrix();
+	gMv.pop();
 	Lighting::setEmissive(false);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	glColor4f(colour[0], colour[1], colour[2], colour[3]);
+	world.colour(colour.r, colour.g, colour.b, colour.a);
 }
 
 void Item::drawGlint(const AnimPlayback& playback, Rgb c) const {
@@ -110,9 +113,9 @@ void Item::drawGlint(const AnimPlayback& playback, Rgb c) const {
 	const float phase = static_cast<float>(GameClock::now() % static_cast<int>(GLINT_PERIOD_MS)) / GLINT_PERIOD_MS;
 	const float glint = GLINT_MIN + (GLINT_MAX - GLINT_MIN) * 0.5f * (1.f - std::cos(phase * 2.f * 3.14159265f));
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glColor4f(c.r, c.g, c.b, glint);
-	glTranslatef(0, part.centreY, 0);
-	glScalef(GLINT_GROW, GLINT_GROW, GLINT_GROW);
-	glTranslatef(0, -part.centreY, 0);
+	Lighting::batch().colour(c.r, c.g, c.b, glint);
+	gMv.translate(0, part.centreY, 0);
+	gMv.scale(GLINT_GROW, GLINT_GROW, GLINT_GROW);
+	gMv.translate(0, -part.centreY, 0);
 	part.mdl->Show(playback, part.tex->ID());
 }

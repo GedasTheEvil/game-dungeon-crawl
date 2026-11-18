@@ -1,6 +1,7 @@
 #include "monster_draw.h"
-#include "../render/gl_legacy.h"
 #include "../render/gl_includes.h"
+#include "../render/gl_legacy.h"
+#include "../render/matrix_stack.h"
 #include <algorithm>
 #include <cmath>
 #include "../render/ink.h"
@@ -30,7 +31,6 @@ void drawStatusRow(const Monster& mon, float w, const TextureRegistry& textures)
 	const StatusList statuses = mon.Statuses();
 	if (statuses.count == 0)
 		return;
-	GlLegacy::adoptMatrices(); // the cards draw under gProj and gMv (plan gl-core-ui)
 	for (int i = 0; i < statuses.count; i++)
 		PlayerHud::drawStatusCard(
 			statuses.items[static_cast<size_t>(i)],
@@ -43,7 +43,6 @@ void drawStatusRow(const Monster& mon, float w, const TextureRegistry& textures)
 			false
 		);
 	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D); // the cards leave it off; the model is drawn textured
 }
 
 void drawHealthBar(const Monster& mon, const TextureRegistry& textures) {
@@ -54,32 +53,32 @@ void drawHealthBar(const Monster& mon, const TextureRegistry& textures) {
 	float y = type.model.referenceTop * drawScale + HEALTH_BAR_GAP;
 	if (mon.Roosting())
 		y = type.model.idleBottom * drawScale - HEALTH_BAR_GAP - HEALTH_BAR_HEIGHT;
-	glPushMatrix();
-	glTranslatef(0, y, 0);
+	gMv.push();
+	gMv.translate(0, y, 0);
 	// Billboard: keep where the anchor is, drop the camera and model rotation, keep the scene's scale.
-	GLfloat mv[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, mv);
-	float s = std::sqrt(mv[0] * mv[0] + mv[1] * mv[1] + mv[2] * mv[2]);
-	for (int c = 0; c < 3; c++)
-		for (int r = 0; r < 3; r++)
-			mv[c * 4 + r] = c == r ? s : 0.f;
-	glLoadMatrixf(mv);
+	Mat4 mv = gMv.top();
+	float s = std::sqrt(mv.m[0] * mv.m[0] + mv.m[1] * mv.m[1] + mv.m[2] * mv.m[2]);
+	for (size_t c = 0; c < 3; c++)
+		for (size_t r = 0; r < 3; r++)
+			mv.m[c * 4 + r] = c == r ? s : 0.f;
+	gMv.load(mv);
 
+	Batch& world = Lighting::batch();
 	bar.Bind();
 	Lighting::setEmissive(true);
 	float w = HEALTH_BAR_WIDTH / 2;
 	float h = HEALTH_BAR_HEIGHT;
 	float o = 0.1f; // outline just outside the bar
 	if (mon.Poisoned())
-		glColor4f(POISON_BAR.r, POISON_BAR.g, POISON_BAR.b, 0.9);
+		world.colour(POISON_BAR.r, POISON_BAR.g, POISON_BAR.b, 0.9f);
 	else
-		glColor4f(1, 1, 1, 0.9);
-	glBegin(GL_LINE_LOOP);
-	glVertex3f(-w - o, -o, 0);
-	glVertex3f(w + o, -o, 0);
-	glVertex3f(w + o, h + o, 0);
-	glVertex3f(-w - o, h + o, 0);
-	glEnd();
+		world.colour(1, 1, 1, 0.9f);
+	world.begin(Primitive::LineLoop);
+	world.vertex(-w - o, -o, 0);
+	world.vertex(w + o, -o, 0);
+	world.vertex(w + o, h + o, 0);
+	world.vertex(-w - o, h + o, 0);
+	world.end();
 
 	glEnable(GL_BLEND);
 	float ratio = mon.MaxHealth() <= 0
@@ -92,29 +91,29 @@ void drawHealthBar(const Monster& mon, const TextureRegistry& textures) {
 										  static_cast<float>(POISON_PULSE_MS) * 2.f * static_cast<float>(M_PI)
 									  );
 		auto mix = [t](float dark, float lit) { return dark + (lit - dark) * t; };
-		glColor3f(
+		world.colour(
 			mix(POISON_BAR_DARK.r, POISON_BAR.r),
 			mix(POISON_BAR_DARK.g, POISON_BAR.g),
 			mix(POISON_BAR_DARK.b, POISON_BAR.b)
 		);
 	} else
-		glColor3f(3 * (1 - ratio), 3 * ratio, 0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex3f(-w, 0, 0);
-	glTexCoord2f(1, 0);
-	glVertex3f(right, 0, 0);
-	glTexCoord2f(1, 1);
-	glVertex3f(right, h, 0);
-	glTexCoord2f(0, 1);
-	glVertex3f(-w, h, 0);
-	glEnd();
+		world.colour(3 * (1 - ratio), 3 * ratio, 0);
+	world.begin(Primitive::Quads);
+	world.texCoord(0, 0);
+	world.vertex(-w, 0, 0);
+	world.texCoord(1, 0);
+	world.vertex(right, 0, 0);
+	world.texCoord(1, 1);
+	world.vertex(right, h, 0);
+	world.texCoord(0, 1);
+	world.vertex(-w, h, 0);
+	world.end();
 	glDisable(GL_BLEND);
 	drawStatusRow(mon, w, textures);
 
 	Lighting::setEmissive(false);
-	glColor3f(1, 1, 1);
-	glPopMatrix();
+	world.colour(1, 1, 1);
+	gMv.pop();
 }
 } // namespace
 
@@ -124,26 +123,27 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	const float scale = type.scale;
 	// A screech's tell shakes the body (plan giant-bat-screech).
 	const float shake = mon.Screeching() ? BAT_SHAKE * std::sin(static_cast<float>(GameClock::now()) * 0.11f) : 0.f;
-	glPushMatrix();
-	glTranslatef(
+	const GlLegacy::PortedScope ported;
+	gMv.push();
+	gMv.translate(
 		RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF + shake,
 		mon.DrawnLift() + shake * 0.5f,
 		-30.f - mon.Tomb() + mon.ClimbDepth()
 	);
-	glPushMatrix(); // will add rotation
+	gMv.push(); // will add rotation
 
 	// Idle monsters keep up the disguise, a hidden one (under the sand) shows none; the boss's bar is on the HUD.
 	if (!plain && mon.Alive() && mon.Alerted() && !mon.Hidden() && !type.isBoss())
 		drawHealthBar(mon, textures);
 
-	glScalef(scale, scale, scale);
+	gMv.scale(scale, scale, scale);
 
 	auto drawBlood = [&] {
-		glPushMatrix();
-		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
+		gMv.push();
+		gMv.scale(0.5f / scale, 0.5f / scale, 0.5f / scale);
 		textures.nullTex.Bind();
 		Particles::Draw(mon.Blood());
-		glPopMatrix();
+		gMv.pop();
 	};
 	if (!plain && mon.Alive())
 		drawBlood();
@@ -156,30 +156,31 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 
 	model.BindTexture();
 	// Climbing it faces the ladder, its back to the camera.
-	glRotatef(type.rotA + (mon.ShowsClimb() ? 180.f : 90.f * static_cast<float>(mon.Facing())), 0, 1, 0);
+	gMv.rotate(type.rotA + (mon.ShowsClimb() ? 180.f : 90.f * static_cast<float>(mon.Facing())), 0, 1, 0);
 
 	const float figure = Ink::figureScale();
-	glScalef(figure, figure, figure);
+	gMv.scale(figure, figure, figure);
 	if (const float roll = mon.HoldRoll(); roll != 0.f) { // the death roll: over along its body, round its middle
 		const float middle = type.model.referenceTop * 0.5f;
-		glTranslatef(0, middle, 0);
-		glRotatef(roll * static_cast<float>(mon.Facing()), 0, 0, 1);
-		glTranslatef(0, -middle, 0);
+		gMv.translate(0, middle, 0);
+		gMv.rotate(roll * static_cast<float>(mon.Facing()), 0, 0, 1);
+		gMv.translate(0, -middle, 0);
 	}
 	model.Show(mon.ShownState(), mon.Playback(), texture);
 
-	glPopMatrix();
-	glPopMatrix();
+	gMv.pop();
+	gMv.pop();
 }
 
 void DrawEntombed(const MonsterType& type, const CharacterModel& model) {
-	glPushMatrix();
-	glTranslatef(-RenderConfig::TILE_HALF, 0, -30.f - MUMMY_COFFIN_DEPTH);
-	glScalef(type.scale, type.scale, type.scale);
+	const GlLegacy::PortedScope ported;
+	gMv.push();
+	gMv.translate(-RenderConfig::TILE_HALF, 0, -30.f - MUMMY_COFFIN_DEPTH);
+	gMv.scale(type.scale, type.scale, type.scale);
 	model.BindTexture();
-	glRotatef(type.rotA, 0, 1, 0);
+	gMv.rotate(type.rotA, 0, 1, 0);
 	const float figure = Ink::figureScale();
-	glScalef(figure, figure, figure);
+	gMv.scale(figure, figure, figure);
 	model.Show(ModelState::Idle, ClipPlayback{});
-	glPopMatrix();
+	gMv.pop();
 }

@@ -4,42 +4,70 @@
 #include "gl_includes.h"
 #include <algorithm>
 #include <cmath>
+#include <string>
 #include "../core/logger.h"
 #include "../core/timer.h"
+#include "gl_legacy.h"
 #include "ink.h"
+#include "matrix_stack.h"
 
 namespace {
 constexpr int MAX_LIGHTS = 16;
 
-// GLSL 330 with the compatibility profile's built-ins (plan gl-core-foundation): the scene still sends its vertices,
-// colours and matrices the legacy way (glBegin, client arrays, glTranslatef), so gl_Vertex, gl_Color and the
-// matrices stay until plan gl-core-world draws the world with Batch, VBOs and gMv.
-const char* const VERTEX_SRC = R"(
+// GLSL 330 with the compatibility profile's built-ins (plan gl-core-foundation): the not yet ported scene still sends
+// its vertices, colours and matrices the legacy way (glBegin, glTranslatef), so gl_Vertex, gl_Color and the matrices
+// stay for it until plan gl-core-world has drawn the whole world with Batch, VBOs and gMv.
+const char* const LEGACY_VERTEX_SRC = R"(
 #version 330 compatibility
-uniform float uBlend; // toward the next key frame of a model (plan model-frame-interpolation); 0: gl_Vertex as is
-layout(location = 6) in vec3 aNextPos; // Lighting::NEXT_POSITION_ATTRIB
-layout(location = 7) in vec3 aNextNormal; // Lighting::NEXT_NORMAL_ATTRIB
 out vec3 vPos;
 out vec3 vNormal;
 out vec4 vColour;
 out vec2 vUv;
 void main() {
-	vec4 pos = gl_Vertex;
-	vec3 normal = gl_Normal;
-	if (uBlend > 0.0) {
-		pos = vec4(mix(gl_Vertex.xyz, aNextPos, uBlend), 1.0);
-		normal = normalize(mix(gl_Normal, aNextNormal, uBlend));
-	}
-	vPos = vec3(gl_ModelViewMatrix * pos);
-	vNormal = gl_NormalMatrix * normal;
+	vPos = vec3(gl_ModelViewMatrix * gl_Vertex);
+	vNormal = gl_NormalMatrix * gl_Normal;
 	vColour = clamp(gl_Color, 0.0, 1.0); // as gl_FrontColor was clamped
 	vUv = gl_MultiTexCoord0.st;
-	gl_Position = uBlend > 0.0 ? gl_ModelViewProjectionMatrix * pos : ftransform();
+	gl_Position = ftransform();
 }
 )";
 
+// The world shader (plan gl-core-world), GLSL 330 core: Batch's vertices (DefaultShader's attribute locations) or a
+// model's vertex array, the matrices as uniforms.
+const char* const VERTEX_SRC = R"(
+#version 330 core
+layout(location = 0) in vec4 aPos;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec3 aNextPos; // Lighting::NEXT_POSITION_ATTRIB
+layout(location = 3) in vec3 aNextNormal; // Lighting::NEXT_NORMAL_ATTRIB
+layout(location = 6) in vec4 aColour;
+layout(location = 7) in vec2 aUv;
+uniform mat4 uMvp;
+uniform mat4 uModelView;
+uniform mat3 uNormalMatrix;
+uniform vec4 uTint;
+uniform float uBlend; // toward the next key frame of a model (plan model-frame-interpolation); 0: aPos as is
+out vec3 vPos;
+out vec3 vNormal;
+out vec4 vColour;
+out vec2 vUv;
+void main() {
+	vec4 pos = aPos;
+	vec3 normal = aNormal;
+	if (uBlend > 0.0) {
+		pos = vec4(mix(aPos.xyz, aNextPos, uBlend), 1.0);
+		normal = normalize(mix(aNormal, aNextNormal, uBlend));
+	}
+	vPos = vec3(uModelView * pos);
+	vNormal = uNormalMatrix * normal;
+	vColour = clamp(aColour * uTint, 0.0, 1.0); // as the fixed pipeline clamped glColor
+	vUv = aUv;
+	gl_Position = uMvp * pos;
+}
+)";
+
+// After the version line.
 const char* const FRAGMENT_SRC = R"(
-#version 330 compatibility
 const int MAX_LIGHTS = 16;
 uniform sampler2D uTex;
 uniform vec3 uAmbient;
@@ -123,47 +151,127 @@ struct Light {
 	float r, g, b;
 };
 
-GLuint gProgram = 0;
+// A build of the lighting program and its uniforms' locations.
+struct Program {
+	GLuint id = 0;
+	GLint ambient = -1, fog = -1, fogStart = -1, emissive = -1, toon = -1, count = -1, pos = -1, colour = -1;
+	GLint blend = -1, metalMask = -1, ortho = -1;
+	GLint mvp = -1, modelView = -1, normalMatrix = -1, tint = -1; // the core one's
+};
+
+// What the next draws are lit with: set by begin, commit and the toggles, uploaded to the program that draws.
+struct State {
+	float ortho = 0.f;
+	float emissive = 0.f;
+	float metalMask = 0.f;
+	float blend = 0.f;
+	int lightCount = 0;
+	float pos[MAX_LIGHTS * 4] = {};
+	float colour[MAX_LIGHTS * 3] = {};
+};
+
+Program gLegacy; // bound from begin to end, for the not yet ported draws
+Program gCore; // Lighting::use
 bool gFailed = false;
 bool gActive = false;
-GLint gLocFog = -1, gLocFogStart = -1;
 Lighting::Atmosphere gAir;
-GLint gLocAmbient = -1, gLocEmissive = -1, gLocToon = -1, gLocCount = -1, gLocPos = -1, gLocColor = -1;
-GLint gLocBlend = -1, gLocMetalMask = -1, gLocOrtho = -1;
+State gState;
+bool gCoreFresh = false; // the core program has the frame's atmosphere and lights (begin and commit clear it)
 Light gLights[64];
 int gLightCount = 0;
 bool gFlicker = true;
 
-// Lazy, so it runs with a current GL context. On failure the scene stays unlit (fixed pipeline).
+Program build(const char* name, const char* vertexSrc, const char* version) {
+	Program p;
+	const std::string fragment = std::string(version) + FRAGMENT_SRC;
+	p.id = linkProgram(name, vertexSrc, fragment.c_str());
+	if (p.id == 0)
+		return p;
+	auto at = [&p](const char* uniform) { return glGetUniformLocation(p.id, uniform); };
+	p.ambient = at("uAmbient");
+	p.fog = at("uFog");
+	p.fogStart = at("uFogStart");
+	p.emissive = at("uEmissive");
+	p.toon = at("uToon");
+	p.count = at("uLightCount");
+	p.pos = at("uLightPos");
+	p.colour = at("uLightColor");
+	p.blend = at("uBlend");
+	p.metalMask = at("uMetalMask");
+	p.ortho = at("uOrtho");
+	p.mvp = at("uMvp");
+	p.modelView = at("uModelView");
+	p.normalMatrix = at("uNormalMatrix");
+	p.tint = at("uTint");
+	glUseProgram(p.id);
+	glUniform1i(at("uTex"), 0);
+	glUseProgram(0);
+	return p;
+}
+
+// Lazy, so it runs with a current GL context. On failure the scene stays unlit (the default programs).
 bool ensureProgram() {
-	if (gProgram != 0)
+	if (gCore.id != 0)
 		return true;
 	if (gFailed)
 		return false;
 	gFailed = true;
-
-	GLuint program = linkProgram("Lighting", VERTEX_SRC, FRAGMENT_SRC);
-	if (program == 0)
+	gLegacy = build("Lighting (legacy)", LEGACY_VERTEX_SRC, "#version 330 compatibility\n");
+	gCore = build("Lighting", VERTEX_SRC, "#version 330 core\n");
+	if (gCore.id == 0 || gLegacy.id == 0)
 		return false;
-
-	gProgram = program;
 	gFailed = false;
-	gLocAmbient = glGetUniformLocation(program, "uAmbient");
-	gLocFog = glGetUniformLocation(program, "uFog");
-	gLocFogStart = glGetUniformLocation(program, "uFogStart");
-	gLocEmissive = glGetUniformLocation(program, "uEmissive");
-	gLocToon = glGetUniformLocation(program, "uToon");
-	gLocCount = glGetUniformLocation(program, "uLightCount");
-	gLocPos = glGetUniformLocation(program, "uLightPos");
-	gLocColor = glGetUniformLocation(program, "uLightColor");
-	gLocBlend = glGetUniformLocation(program, "uBlend");
-	gLocMetalMask = glGetUniformLocation(program, "uMetalMask");
-	gLocOrtho = glGetUniformLocation(program, "uOrtho");
-	glUseProgram(program);
-	glUniform1i(glGetUniformLocation(program, "uTex"), 0);
-	glUseProgram(0);
 	LOG_INFO("graphics", "Lighting shader ready");
 	return true;
+}
+
+// The frame's atmosphere and lights into p (bound).
+void uploadFrame(const Program& p) {
+	glUniform3fv(p.ambient, 1, gAir.ambient);
+	glUniform4f(p.fog, gAir.fog[0], gAir.fog[1], gAir.fog[2], gAir.fogDensity);
+	glUniform1f(p.fogStart, gAir.fogStart);
+	glUniform1f(p.toon, Ink::toon() ? 1.f : 0.f);
+	glUniform1f(p.ortho, gState.ortho);
+	glUniform1i(p.count, gState.lightCount);
+	if (gState.lightCount > 0) {
+		glUniform4fv(p.pos, gState.lightCount, gState.pos);
+		glUniform3fv(p.colour, gState.lightCount, gState.colour);
+	}
+}
+
+// The draw's toggles into p (bound).
+void uploadDraw(const Program& p) {
+	glUniform1f(p.emissive, gState.emissive);
+	glUniform1f(p.metalMask, gState.metalMask);
+	glUniform1f(p.blend, gState.blend);
+}
+
+// A toggle: kept for the core program's next draw, set at once in the legacy one (bound from begin to end).
+void setLegacy(GLint location, float value) {
+	if (gActive)
+		glUniform1f(location, value);
+}
+
+// The inverse transpose of m's upper 3 x 3 (gl_NormalMatrix), column-major.
+std::array<float, 9> normalMatrix(const Mat4& m) {
+	const float a = m.at(0, 0), b = m.at(0, 1), c = m.at(0, 2);
+	const float d = m.at(1, 0), e = m.at(1, 1), f = m.at(1, 2);
+	const float g = m.at(2, 0), h = m.at(2, 1), k = m.at(2, 2);
+	const float A = e * k - f * h, B = f * g - d * k, C = d * h - e * g;
+	const float det = a * A + b * B + c * C;
+	const float s = det != 0.f ? 1.f / det : 0.f;
+	// (M^-1)^T = the cofactors over det; column-major, element (row r, column c) at [c * 3 + r].
+	return {
+		A * s,
+		(c * h - b * k) * s,
+		(b * f - c * e) * s,
+		B * s,
+		(a * k - c * g) * s,
+		(c * d - a * f) * s,
+		C * s,
+		(b * g - a * h) * s,
+		(a * e - b * d) * s
+	};
 }
 } // namespace
 
@@ -172,34 +280,22 @@ void Lighting::begin() {
 	gActive = ensureProgram();
 	if (!gActive)
 		return;
-	glUseProgram(gProgram);
-	glUniform3fv(gLocAmbient, 1, gAir.ambient);
-	glUniform4f(gLocFog, gAir.fog[0], gAir.fog[1], gAir.fog[2], gAir.fogDensity);
-	glUniform1f(gLocFogStart, gAir.fogStart);
-	glUniform1f(gLocEmissive, 0.f);
-	glUniform1f(gLocToon, Ink::toon() ? 1.f : 0.f);
-	glUniform1f(gLocBlend, 0.f);
-	glUniform1f(gLocMetalMask, 0.f);
-	float projection[16];
-	glGetFloatv(GL_PROJECTION_MATRIX, projection);
-	glUniform1f(gLocOrtho, projection[11] == 0.f ? 1.f : 0.f); // a perspective divides by -z: -1 there
+	const GlLegacy::PortedScope ported;
+	gState = {};
+	gState.ortho = gProj.top().m[11] == 0.f ? 1.f : 0.f; // a perspective divides by -z: -1 there
+	gCoreFresh = false;
+	glUseProgram(gLegacy.id);
+	uploadFrame(gLegacy);
+	uploadDraw(gLegacy);
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {
 	if (!gActive || gLightCount >= static_cast<int>(sizeof(gLights) / sizeof(gLights[0])))
 		return;
-	float m[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	const GlLegacy::PortedScope ported;
+	const Vec4 eye = gMv.top() * Vec4{x, y, z, 1.f};
 	float k = flicker(seed, def.flicker);
-	gLights[gLightCount++] = {
-		m[0] * x + m[4] * y + m[8] * z + m[12],
-		m[1] * x + m[5] * y + m[9] * z + m[13],
-		m[2] * x + m[6] * y + m[10] * z + m[14],
-		def.radius * (0.95f + 0.05f * k),
-		def.r * k,
-		def.g * k,
-		def.b * k
-	};
+	gLights[gLightCount++] = {eye.x, eye.y, eye.z, def.radius * (0.95f + 0.05f * k), def.r * k, def.g * k, def.b * k};
 }
 
 // Over MAX_LIGHTS, the ones nearest to the first light added (the player's) win.
@@ -217,10 +313,8 @@ void Lighting::commit() {
 		});
 		gLightCount = MAX_LIGHTS;
 	}
-	float pos[MAX_LIGHTS * 4];
-	float col[MAX_LIGHTS * 3];
-	float* p = pos;
-	float* c = col;
+	float* p = gState.pos;
+	float* c = gState.colour;
 	for (int i = 0; i < gLightCount; i++) {
 		const Light& l = gLights[i];
 		*p++ = l.x;
@@ -231,10 +325,12 @@ void Lighting::commit() {
 		*c++ = l.g;
 		*c++ = l.b;
 	}
-	glUniform1i(gLocCount, gLightCount);
+	gState.lightCount = gLightCount;
+	gCoreFresh = false;
+	glUniform1i(gLegacy.count, gLightCount);
 	if (gLightCount > 0) {
-		glUniform4fv(gLocPos, gLightCount, pos);
-		glUniform3fv(gLocColor, gLightCount, col);
+		glUniform4fv(gLegacy.pos, gLightCount, gState.pos);
+		glUniform3fv(gLegacy.colour, gLightCount, gState.colour);
 	}
 }
 
@@ -246,9 +342,34 @@ void Lighting::end() {
 	gActive = false;
 }
 
+bool Lighting::active() { return gActive; }
+
+Batch& Lighting::batch() {
+	static Batch world;
+	world.program = use;
+	return world;
+}
+
+bool Lighting::use(const DefaultShader::Style& style, const Mat4& projection, const Mat4& modelView) {
+	if (!gActive)
+		return DefaultShader::use(style, projection, modelView); // unlit: texture times colour
+	glUseProgram(gCore.id);
+	if (!gCoreFresh) {
+		uploadFrame(gCore);
+		gCoreFresh = true;
+	}
+	uploadDraw(gCore);
+	const Mat4 mvp = projection * modelView;
+	glUniformMatrix4fv(gCore.mvp, 1, GL_FALSE, mvp.data());
+	glUniformMatrix4fv(gCore.modelView, 1, GL_FALSE, modelView.data());
+	glUniformMatrix3fv(gCore.normalMatrix, 1, GL_FALSE, normalMatrix(modelView).data());
+	glUniform4fv(gCore.tint, 1, style.tint);
+	return true;
+}
+
 void Lighting::setEmissive(bool on) {
-	if (gActive)
-		glUniform1f(gLocEmissive, on ? 1.f : 0.f);
+	gState.emissive = on ? 1.f : 0.f;
+	setLegacy(gLegacy.emissive, gState.emissive);
 }
 
 DefaultShader::Fog Lighting::emissiveFog() {
@@ -257,15 +378,12 @@ DefaultShader::Fog Lighting::emissiveFog() {
 	return {gAir.fog[0], gAir.fog[1], gAir.fog[2], gAir.fogDensity, gAir.fogStart};
 }
 
-void Lighting::setMetalMask(bool on) {
-	if (gActive)
-		glUniform1f(gLocMetalMask, on ? 1.f : 0.f);
-}
+void Lighting::setMetalMask(bool on) { gState.metalMask = on ? 1.f : 0.f; }
 
 bool Lighting::setBlend(float t) {
-	if (!gActive || gLocBlend < 0)
+	if (!gActive)
 		return false;
-	glUniform1f(gLocBlend, t);
+	gState.blend = t;
 	return true;
 }
 

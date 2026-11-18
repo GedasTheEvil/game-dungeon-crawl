@@ -2,15 +2,17 @@
 #define LIGHTING_H
 
 #include <cstdint>
+#include "batch.h"
 #include "default_shaders.h"
 
-// Per-pixel point lights over a dark ambient for the gameplay scene (GLSL 1.20 program on top of the
-// fixed-function pipeline: texture x vertex colour x (ambient + lights)). Toon mode (F1) snaps the light to cel
+// Per-pixel point lights over a dark ambient for the gameplay scene (the world shader, GLSL 330 core: texture x vertex
+// colour x (ambient + lights); plan gl-core-world). Toon mode (F1) snaps the light to cel
 // bands; Ink draws the outlines.
 //
 // Per frame: begin() -> add() lights -> commit() -> draw the scene -> end(). add() takes positions in the
 // current modelview's local space, so callers can add lights from inside their own transforms.
-// begin() reads the projection: an orthographic one (the inventory's models) is lit with the eye along -z.
+// begin() reads the projection (gProj): an orthographic one (the inventory's models) is lit with the eye along -z.
+// A draw lit by it: Batch with `program = Lighting::use`, or a model's Show.
 namespace Lighting {
 
 struct LightDef {
@@ -42,6 +44,14 @@ void begin();
 void add(float x, float y, float z, const LightDef& def, uint32_t seed);
 void commit();
 void end();
+// Between begin and end.
+[[nodiscard]] bool active();
+// The world's batch (plan gl-core-world): its program is use(), its current colour, normal and texture coordinate are
+// the world's (as GL's current values were): a model's Show draws in its current colour too.
+Batch& batch();
+// Batch::Program for a lit draw (plan gl-core-world): binds the world shader with the frame's lights, the toggles
+// below, style.tint and the matrices; outside begin..end the default program of style (texture times colour).
+bool use(const DefaultShader::Style& style, const Mat4& projection, const Mat4& modelView);
 
 // Draws without lighting (texture x colour) while set: flames, portals, overlays.
 void setEmissive(bool on);
@@ -53,10 +63,11 @@ DefaultShader::Fog emissiveFog();
 // metal), not see-through; the draw's alpha is the colour's alone. The models set it (AnimatedModel::Show).
 void setMetalMask(bool on);
 
-// Model frame blending (plan model-frame-interpolation): the generic attributes a model draw puts its next key
-// frame's positions and normals in.
-constexpr unsigned NEXT_POSITION_ATTRIB = 6; // free of the built-ins' aliases (NVIDIA: 0, 2, 3, 8-15)
-constexpr unsigned NEXT_NORMAL_ATTRIB = 7;
+// Model frame blending (plan model-frame-interpolation): the vertex attributes a model draw puts its next key frame's
+// positions and normals in.
+// Beside DefaultShader's position 0, normal 1, colour 6 and texture coordinate 7.
+constexpr unsigned NEXT_POSITION_ATTRIB = 2;
+constexpr unsigned NEXT_NORMAL_ATTRIB = 3;
 // While the scene is drawn with the shader: the next draws blend their vertices toward the next key frame's by t (0:
 // none). False: no shader, a model draws one key frame.
 bool setBlend(float t);

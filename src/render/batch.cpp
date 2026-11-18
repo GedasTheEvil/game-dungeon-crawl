@@ -119,7 +119,7 @@ void Batch::end() {
 	if (expanded.empty())
 		return;
 	const Bindings saved;
-	if (!DefaultShader::use(style, gProj.top(), gMv.top()))
+	if (!(program != nullptr ? program : DefaultShader::use)(style, gProj.top(), gMv.top()))
 		return;
 	if (vao == 0) {
 		glGenVertexArrays(1, &vao);

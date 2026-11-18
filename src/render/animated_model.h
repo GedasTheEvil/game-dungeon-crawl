@@ -17,6 +17,7 @@ class AnimatedModel {
 	Md3Mesh mesh;
 	unsigned vbo = 0; // the frames' vertices, after Compile
 	unsigned ibo = 0; // the triangles' indices
+	unsigned vao = 0; // the vertex array over them (plan gl-core-world)
 
   public:
 	bool loop;
@@ -27,7 +28,9 @@ class AnimatedModel {
 	int Load(const char filename[]); // MD3 (see tools/blender/md3.py)
 	void Show() const;
 	void Show(const AnimPlayback& p) const; // a shared model: the caller keeps the playback
-	void Show(const AnimPlayback& p, int textureId) const; // with another texture on the same UVs
+	// With another texture on the same UVs. In the world batch's current colour (Lighting::batch, as glColor was),
+	// lit by Lighting; outside Lighting::begin..end the legacy pipeline's (the journal's sketches, plan gl-core-ui).
+	void Show(const AnimPlayback& p, int textureId) const;
 	// Options > Display > Animation rate: the poses a second Show blends between the key frames (BlendOf); 0: the
 	// key frames only.
 	static constexpr int DEFAULT_ANIMATION_RATE = 60;

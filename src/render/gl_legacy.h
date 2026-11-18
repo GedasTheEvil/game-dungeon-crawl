@@ -13,6 +13,8 @@ void syncMatrices();
 // Ported code called by legacy code: GL's current projection and model view into the tops of gProj and gMv, so a
 // Batch draws where the caller's glTranslatef and the rest put it.
 void adoptMatrices();
+// adoptMatrices(), unless inside a PortedScope: for ported code that only reads the matrices.
+void adoptUnlessPorted();
 // The legacy current colour back to white, as a ported draw used to leave it for its legacy callers.
 void resetColour();
 // The legacy current colour: the tint of a legacy draw that follows (the model viewer's potion glass, plan
@@ -30,6 +32,46 @@ void setLight(const DefaultShader::Light& light);
 // The fixed-function lighting of setLight on (GL_LIGHTING, GL_LIGHT0, GL_NORMALIZE, GL_COLOR_MATERIAL for ambient and
 // diffuse) or off.
 void lighting(bool on);
+
+// Ported code entered from anywhere (plan gl-core-world): while one is alive, gMv and gProj are the matrices and the
+// world batch's current values (Lighting::batch) the colour, normal and texture coordinate; GL's are stale. The first
+// one, entered from legacy code (the inventory's and the journal's models, the model viewer, the not yet ported
+// scene), adopts GL's and gives its current values back to GL at its end; one inside another changes nothing. Ported
+// code that calls legacy code holds a LegacyScope over the call (GL gets the matrices and current values, and back).
+class PortedScope {
+  public:
+	PortedScope();
+	~PortedScope();
+	PortedScope(const PortedScope&) = delete;
+	PortedScope& operator=(const PortedScope&) = delete;
+  private:
+	bool outer;
+};
+// Ported code calling legacy code: syncMatrices() and, while alive, the matrices are GL's again.
+class LegacyScope {
+  public:
+	LegacyScope();
+	~LegacyScope();
+	LegacyScope(const LegacyScope&) = delete;
+	LegacyScope& operator=(const LegacyScope&) = delete;
+
+  private:
+	bool outer;
+};
+// adoptMatrices(), unless inside a PortedScope: for ported code that only reads the matrices.
+void adoptUnlessPorted();
+// The legacy current colour back to white, as a ported draw used to leave it for its legacy callers.
+void resetColour();
+
+// While the ported world draws (plan gl-core-world, drawGameplay), gMv and gProj are the matrices and GL's are stale.
+// Code that the ported world and legacy callers share (a model's Show, an item's Draw, Lighting::begin and add: the
+// inventory's and the journal's models, the model viewer) adopts GL's matrices and colour only outside it.
+void setPortedScene(bool on);
+[[nodiscard]] bool portedScene();
+// adoptMatrices(), unless in the ported scene.
+void adoptUnlessPorted();
+// adoptMatrices(), unless inside a PortedScope: for ported code that only reads the matrices.
+void adoptUnlessPorted();
 } // namespace GlLegacy
 
 #endif

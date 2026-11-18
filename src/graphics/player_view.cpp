@@ -1,5 +1,6 @@
 #include "player_view.h"
-#include "../render/gl_includes.h"
+#include "../render/gl_legacy.h"
+#include "../render/matrix_stack.h"
 #include <cmath>
 #include "../render/ink.h"
 #include "particles_draw.h"
@@ -52,18 +53,19 @@ std::array<float, 3> PlayerView::Fist(const Player& player, int dir) const {
 }
 
 void PlayerView::Draw(const Player& player, const TextureRegistry& textures) const {
+	const GlLegacy::PortedScope ported;
 	const float scale = player.scale;
-	glPushMatrix();
-	glTranslatef(0, 0, -30 + player.depthOffset);
-	glPushMatrix(); // will add rotation
-	glScalef(scale, scale, scale);
+	gMv.push();
+	gMv.translate(0, 0, -30 + player.depthOffset);
+	gMv.push(); // will add rotation
+	gMv.scale(scale, scale, scale);
 
 	auto drawBlood = [&] {
-		glPushMatrix();
-		glScalef(0.5f / scale, 0.5f / scale, 0.5f / scale);
+		gMv.push();
+		gMv.scale(0.5f / scale, 0.5f / scale, 0.5f / scale);
 		textures.nullTex.Bind();
 		Particles::Draw(player.Blood());
-		glPopMatrix();
+		gMv.pop();
 	};
 	if (player.Alive())
 		drawBlood();
@@ -74,11 +76,11 @@ void PlayerView::Draw(const Player& player, const TextureRegistry& textures) con
 	}
 
 	model.BindTexture();
-	glRotatef(player.rotA, 0, 1, 0);
+	gMv.rotate(player.rotA, 0, 1, 0);
 	const float figure = Ink::figureScale();
-	glScalef(figure, figure, figure);
+	gMv.scale(figure, figure, figure);
 	model.Show(player.State(), player.Playback());
 
-	glPopMatrix();
-	glPopMatrix();
+	gMv.pop();
+	gMv.pop();
 }

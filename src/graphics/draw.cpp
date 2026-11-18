@@ -17,6 +17,7 @@
 #include "../render/ink.h"
 #include "../render/motion_fx.h"
 #include "fire.h"
+#include "frame_rate.h"
 #include "../render/gl_includes.h"
 #include "../render/mat4.h"
 #include "../game/window.h"
@@ -179,6 +180,7 @@ void setFrameHook(void (*hook)()) { gFrameHook = hook; }
 void Draw() {
 	if (!Game().cacheLoaded)
 		return;
+	FrameRate::drawStarted();
 
 	switch (Game().ui.screen) {
 	case Screen::Menu:
@@ -211,6 +213,7 @@ void Draw() {
 	if (gFrameHook != nullptr)
 		gFrameHook();
 	Window::swap();
+	FrameRate::drawEnded();
 }
 
 namespace {

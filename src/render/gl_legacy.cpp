@@ -1,5 +1,6 @@
 #include "gl_legacy.h"
 #include "gl_includes.h"
+#include "lighting.h"
 #include "matrix_stack.h"
 
 void GlLegacy::syncMatrices() {
@@ -58,3 +59,59 @@ void GlLegacy::lighting(bool on) {
 }
 
 void GlLegacy::texCoord(float u, float v) { glTexCoord2f(u, v); }
+namespace {
+bool gPorted = false; // inside a PortedScope (and no LegacyScope since)
+
+// GL's current colour, normal and texture coordinate into the world batch's (Lighting::batch), and back: one set of
+// current values for both kinds of code.
+void pullCurrent() {
+	Batch& world = Lighting::batch();
+	float c[4];
+	glGetFloatv(GL_CURRENT_COLOR, c);
+	world.colour(c[0], c[1], c[2], c[3]);
+	glGetFloatv(GL_CURRENT_NORMAL, c);
+	world.normal(c[0], c[1], c[2]);
+	glGetFloatv(GL_CURRENT_TEXTURE_COORDS, c);
+	world.texCoord(c[0], c[1]);
+}
+
+void pushCurrent() {
+	const BatchVertex& v = Lighting::batch().currentValues();
+	glColor4f(v.r, v.g, v.b, v.a);
+	glNormal3f(v.nx, v.ny, v.nz);
+	glTexCoord2f(v.u, v.v);
+}
+} // namespace
+
+GlLegacy::PortedScope::PortedScope() : outer(gPorted) {
+	if (!outer) {
+		adoptMatrices();
+		pullCurrent();
+	}
+	gPorted = true;
+}
+
+GlLegacy::PortedScope::~PortedScope() {
+	if (!outer)
+		pushCurrent();
+	gPorted = outer;
+}
+
+GlLegacy::LegacyScope::LegacyScope() : outer(gPorted) {
+	if (outer) {
+		syncMatrices();
+		pushCurrent();
+	}
+	gPorted = false;
+}
+
+GlLegacy::LegacyScope::~LegacyScope() {
+	if (outer)
+		pullCurrent();
+	gPorted = outer;
+}
+
+void GlLegacy::adoptUnlessPorted() {
+	if (!gPorted)
+		adoptMatrices();
+}

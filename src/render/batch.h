@@ -42,6 +42,10 @@ class Batch {
 	Batch& operator=(const Batch&) = delete;
 
 	DefaultShader::Style style;
+	// The program end() draws with: binds it and sets its uniforms for style and the matrices, false to skip the
+	// draw. None: the default program of style.kind. The world's lit draws use Lighting::use (plan gl-core-world).
+	using Program = bool (*)(const DefaultShader::Style& style, const Mat4& projection, const Mat4& modelView);
+	Program program = nullptr;
 
 	void begin(Primitive primitive);
 	void vertex(float x, float y, float z = 0.f);
@@ -51,6 +55,8 @@ class Batch {
 	void texCoord(float u, float v) { current.u = u, current.v = v; }
 	void normal(float x, float y, float z) { current.nx = x, current.ny = y, current.nz = z; }
 	void end();
+	// The current colour, normal and texture coordinate (GL's current values; plan gl-core-world).
+	[[nodiscard]] const BatchVertex& currentValues() const { return current; }
 	// The vertices since begin, not yet drawn (a test reads them).
 	[[nodiscard]] std::span<const BatchVertex> pending() const { return vertices; }
 

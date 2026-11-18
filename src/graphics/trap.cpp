@@ -1,18 +1,18 @@
 #include "trap.h"
-#include "../render/gl_includes.h"
+#include "../render/gl_legacy.h"
+#include "../render/matrix_stack.h"
 
 Trap::Trap() : mdl(std::make_shared<AnimatedModel>()) {}
 
 void Trap::Show(float size) {
-	glPushMatrix();
-	glTranslatef(0, 0, -30);
-	glPushMatrix();
-	glScalef(size, size, size);
+	const GlLegacy::PortedScope ported;
+	gMv.push();
+	gMv.translate(0, 0, -30);
+	gMv.scale(size, size, size);
 	if (tex != nullptr)
 		tex->Bind();
 	mdl->Show();
-	glPopMatrix();
-	glPopMatrix();
+	gMv.pop();
 }
 
 bool Trap::loadModel(const char filename[], const Texture& texture, bool compile) {

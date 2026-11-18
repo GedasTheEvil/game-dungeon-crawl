@@ -26,10 +26,10 @@ GLuint gSprite = 0;
 // shader is on, as its emissive draws had it.
 Batch gBatch;
 
-// Every draw starts here: called from the not yet ported scene, it takes the legacy matrices (GlLegacy) and the
+// Every draw starts here: called from the not yet ported scene, it takes the legacy matrices (GlLegacy), and the
 // lighting's haze. The model view, column-major: its first two rows are the camera's right and up in local space.
 const float* beginDraw() {
-	GlLegacy::adoptMatrices();
+	GlLegacy::adoptUnlessPorted();
 	gBatch.style.fog = Lighting::emissiveFog();
 	return gMv.top().data();
 }

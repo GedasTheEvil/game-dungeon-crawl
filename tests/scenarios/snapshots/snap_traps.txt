@@ -1,0 +1,26 @@
+# Render snapshots (plan render-snapshots): traps mid-cycle: wall spikes out, a fire vent's jet, ceiling spikes from
+# below. The rhythm traps run on the game clock: they come first, so the frames hit the same phase.
+resolution 640 360
+seed 1
+god
+level tests/levels/wall_spikes
+wait 30
+walk right 3.1
+wait 600ms
+screenshot wall_spikes
+level tests/levels/fire_vents
+wait 30
+walk right 3.1
+wait 600ms
+screenshot fire_vent
+level tests/levels/ceiling_spikes at 6 2
+wait 30
+screenshot ceiling_spikes
+level tests/levels/ceiling_spikes at 4 2
+gear 0 0 1900
+wait 30
+jump
+wait 20
+screenshot ceiling_spikes_hit
+expect alive == 1
+quit

@@ -1,0 +1,150 @@
+# Render snapshots (plan render-snapshots): the UI screens of docs/ui.md: the in-game and main menus, options' tabs,
+# credits, how to play, Hall of Records, load, inventory tabs with a tooltip, riddle, draft map, journal and its page
+# curl, Heka screen, HUD states, status lines stacked over the banner, the confirm box.
+resolution 640 360
+seed 1
+god
+level tests/levels/classic1
+wait 10
+key esc
+mouse 50 50
+wait 2
+screenshot menu
+click 50 45.9
+wait 2
+screenshot load
+key esc
+wait 2
+click 50 35.7
+wait 2
+screenshot options_controls
+click 37.5 76.5
+wait 2
+screenshot options_mouse
+click 55.5 76.5
+wait 2
+screenshot options_display
+click 73.4 76.5
+wait 2
+screenshot options_sound
+key esc
+wait 2
+click 50 25.8
+wait 2
+screenshot how_to_play
+key esc
+wait 2
+# The main menu, its credits and the (empty) Hall of Records.
+click 50 15.6
+wait 2
+mouse 50 48
+wait 2
+screenshot main_menu
+click 50 27.6
+wait 2
+screenshot credits
+key esc
+wait 2
+click 50 58.2
+wait 2
+screenshot hall_of_records
+key esc
+wait 2
+# Inventory: weapons, potions, amulets (the turntable), the tooltip of a hovered screen tab.
+level tests/levels/classic1
+wait 30
+give melee 1
+give ranged 0
+give potion 0 3
+give potion 2
+give amulet 4
+give ring 7
+key i
+wait 5
+select short_sword
+mouse 14.6 63.5
+wait 20
+screenshot inventory_weapons
+select small_health
+wait 5
+screenshot inventory_potions
+click 32 80.6
+wait 20
+screenshot inventory_amulets
+# The shared tooltip under a hovered screen tab.
+mouse 91.2 91.5
+wait 400ms
+screenshot tooltip
+mouse 50 50
+key esc
+wait 2
+# HUD: the weapon in hand, quick slots, the trailing lost health, low health.
+equip short_sword
+xp 600
+hurt 25
+wait 5
+screenshot hud_hit
+hurt 15
+wait 1s
+screenshot hud_low
+# Draft map after a walk.
+walk right 3
+walk right 1.6
+jump
+walk right 2
+wait 1s
+key m
+wait 5
+screenshot map
+key m
+wait 2
+# Journal: the level's first pages, then a page turning (the lit 3D page curl).
+key j
+wait 5
+screenshot journal
+key right
+wait 16
+screenshot journal_turn
+wait 30
+key j
+wait 2
+# Riddle gate (tests/levels/riddle, tests/riddles/test.txt): open, a wrong answer.
+level tests/levels/riddle
+riddles tests/riddles/test.txt
+wait 30
+walk right 3
+interact
+wait 5
+screenshot riddle
+key 7
+key enter
+wait 5
+screenshot riddle_wrong
+key esc
+wait 5
+# Heka screen with a heka free, one skill learnt.
+heka 2
+learn eye_of_horus
+key k
+mouse 21.6 68.5
+wait 5
+screenshot heka
+key k
+wait 2
+# Status lines stacked over the level banner (level 1).
+level 1
+wait 30
+xp 90
+curse weakness
+poison weak
+wait 1s
+screenshot status_over_banner
+# The confirm box: Main Menu with play since the last save (the autosave).
+autosave
+wait 6s
+key esc
+wait 2
+click 50 15.6
+wait 2
+screenshot confirm
+quit

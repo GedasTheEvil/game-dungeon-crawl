@@ -1,0 +1,133 @@
+# Render snapshots (plan render-snapshots): one campaign level per zone, its walls, floors, decor, light and fog, with
+# what the zone adds (webs, water, sand, fire, inscriptions); the first steps of levelcheck's path (levelcheck --script)
+# take the player out of the entrance. The zone banner on a zone's first level, the level banner on another.
+resolution 640 360
+seed 1
+god
+peace
+level 1
+wait 1500ms
+screenshot tomb_banner
+level 2
+wait 1500ms
+screenshot level_banner
+level 1
+wait 30
+walk to 26.125
+hold left 1
+jump
+walk to 24.875
+wait 500ms
+walk to 23.450
+wait 1s
+screenshot tomb
+level 6
+wait 30
+walk to 22.450
+walk down 1.97
+walk to 14
+wait 1s
+screenshot bats
+level 10
+wait 30
+walk to 32.450
+wait 4000ms
+hold left 1
+jump
+walk to 30.450
+wait 500ms
+walk to 27
+wait 1s
+screenshot webs
+level 14
+wait 30
+walk to 26.450
+wait 4000ms
+hold left 1
+jump
+walk to 24.450
+wait 1s
+screenshot priests
+level 19
+wait 30
+walk to 8.450
+wait 4000ms
+hold right 1
+jump
+walk to 10.450
+wait 1s
+screenshot scorpions
+level 23
+wait 30
+walk to 4.450
+wait 4000ms
+hold right 1
+jump
+walk to 6.450
+wait 1s
+screenshot serpent
+level 28
+wait 30
+walk to 33.450
+wait 4000ms
+hold left 1
+jump
+walk to 31.450
+wait 500ms
+walk to 29.450
+wait 1s
+screenshot cisterns
+level 33
+wait 30
+walk to 3.450
+wait 4000ms
+hold right 1
+jump
+walk to 5.450
+wait 500ms
+walk to 10
+wait 1s
+screenshot desert
+level 38
+wait 30
+walk to 9.450
+wait 4000ms
+hold right 1
+jump
+walk to 11.450
+wait 500ms
+walk to 14.450
+wait 1s
+screenshot sokar
+level 42
+wait 30
+walk to 13.450
+wait 4000ms
+walk to 13.875
+hold right 1
+jump
+walk to 15.125
+wait 1s
+screenshot lake_of_fire
+level 46
+wait 30
+walk to 30.450
+wait 4000ms
+hold left 1
+jump
+walk to 28.450
+wait 500ms
+walk to 27.450
+wait 1s
+screenshot necropolis
+level 51
+wait 30
+walk to 31.450
+wait 4000ms
+hold left 1
+jump
+walk to 29.450
+wait 1s
+screenshot judgment
+expect alive == 1
+quit

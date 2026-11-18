@@ -85,13 +85,17 @@ LEVEL_TOOL_SOURCES=$(LEVEL_TOOL_NAMES:%=tools/level/%.cpp)
 BALANCE_SOURCES=tools/balance/balance.cpp
 BALANCE=$(BIN)/balance
 
+# The render snapshots' pixel diff (plan render-snapshots): stb only, no GL. See docs/testing.md.
+SNAPDIFF_SOURCES=tools/snapdiff/snapdiff.cpp
+SNAPDIFF=$(BIN)/snapdiff
+
 # Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.
 # stb (no GL) reads PNGs for the font sheet test. The audio mixer (SDL3, on the dummy driver) for its own test.
 UNIT_SOURCES=$(wildcard tests/unit/*.cpp)
 UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o) $(BUILD)/src/audio/mixer.o
 UNIT=$(BIN)/unit
 
-TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES) $(BALANCE_SOURCES)
+TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES) $(BALANCE_SOURCES) $(SNAPDIFF_SOURCES)
 DEPS=$(patsubst %.cpp,$(BUILD)/%.d,$(TIDY_SOURCES) $(UNIT_SOURCES)) $(EXTERNAL_OBJECTS:.o=.d)
 
 CLANG_TIDY?=clang-tidy
@@ -110,10 +114,10 @@ export GATE_STATS:=$(BUILD)/.gate-build
 $(shell rm -f $(GATE_STATS))
 GATE_REPORT=@./tools/load_gate.sh report build
 
-.PHONY: all release check clean format format-check format-check-changed layers tidy tidy-push tidy-all complexity tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools
+.PHONY: all release check clean format format-check format-check-changed layers tidy tidy-push tidy-all complexity tidy-fix editor run-editor model-viewer run-model-viewer test unit unit-serial paths level-tools snapshots snapshots-ref
 
 # The game and every tool, so a change to shared code cannot break a tool unseen.
-all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE)
+all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE) $(SNAPDIFF)
 	$(GATE_REPORT)
 
 $(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
@@ -168,6 +172,10 @@ $(BALANCE): $(BALANCE_SOURCES:%.cpp=$(BUILD)/%.o) $(SIM_LIB) $(LEVEL_LIB) $(BASE
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
 
+$(SNAPDIFF): $(SNAPDIFF_SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS)
+	@mkdir -p $(@D)
+	$(GATE) $(CXX) $^ -o $@
+
 # The release zip (plan release-zip, tools/release.sh): the portable game build, bin, media, content and Play.
 release:
 	./tools/release.sh $(ARGS)
@@ -176,7 +184,7 @@ clean:
 	rm -rf $(BUILD) $(BIN)
 
 FORMAT_FILES=$(wildcard src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp \
-	tools/model-viewer/*.h tools/model-viewer/*.cpp tools/balance/*.cpp tests/unit/*.cpp)
+	tools/model-viewer/*.h tools/model-viewer/*.cpp tools/balance/*.cpp tools/snapdiff/*.cpp tests/unit/*.cpp)
 
 format:
 	@clang-format -i $(FORMAT_FILES)
@@ -279,5 +287,15 @@ paths: $(EXECUTABLE) $(BIN)/levelcheck
 # HEADLESS=0 shows the window.
 test: $(EXECUTABLE) unit
 	./tools/run_scenarios.sh $(SCENARIO)
+
+# `make snapshots`: the render snapshots (tests/scenarios/snapshots/, plan render-snapshots) into tests/out/snapshots/,
+# then bin/snapdiff's table against the references (tests/snapshots/ref/); fails above the tolerance.
+# `make snapshots-ref` takes them and writes them as the new references (review the diff, then commit).
+# SNAP_THRESHOLD, SNAP_TOLERANCE: snapdiff's --threshold and --tolerance. docs/testing.md, Render snapshots.
+snapshots: $(EXECUTABLE) $(SNAPDIFF)
+	./tools/snapshots.sh
+
+snapshots-ref: $(EXECUTABLE) $(SNAPDIFF)
+	./tools/snapshots.sh --ref
 
 -include $(DEPS)

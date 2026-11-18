@@ -1,0 +1,57 @@
+# Render snapshots (plan render-snapshots): monster models mid-clip (walk, attack, rise), hit blood and its particles,
+# a stunned monster's stars, bosses with their health bar and minions, the Mother of Webs' webs.
+resolution 640 360
+seed 1
+god
+# Walkers coming up the corridor, mid-stride (tests/levels/walk_stride_parade).
+level tests/levels/walk_stride_parade
+wait 30
+walk to 6
+wait 1500ms
+screenshot walkers
+walk to 16
+wait 500ms
+screenshot walkers_far
+# Worms side by side, one hit: blood on it, its particles (tests/levels/monsters).
+level tests/levels/monsters
+wait 30
+walk to 8.1
+walk down 5.9
+walk left 2
+screenshot monsters
+walk left 0.9
+attack
+wait 22
+screenshot hit_blood
+stun
+wait 10
+screenshot stunned
+# The High Priest of Anubis rising from his coffin, the boss bar, his mummies climbing out (tests/levels/mummy_priest).
+level tests/levels/mummy_priest
+walk right 3.3
+wait 300ms
+screenshot coffins
+walk to 15
+wait 400ms
+screenshot boss_rise
+wait 800ms
+walk left 0.4
+wait 600ms
+screenshot boss_swing
+# The Anubis boss's guard stepping out of the wall (tests/levels/anubis_wall).
+level tests/levels/anubis_wall
+wait 650ms
+screenshot wall_guard
+# The Mother of Webs running at the player, putting out the torches; her webs over the floor, seen from the side
+# (tests/levels/mother).
+level tests/levels/mother
+walk to 7.5
+wait 1100ms
+screenshot mother
+walk to 2.5
+wait 5500ms
+camera 30 10
+screenshot webs
+camera 0 0
+expect alive == 1
+quit

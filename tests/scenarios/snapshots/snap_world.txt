@@ -1,0 +1,84 @@
+# Render snapshots (plan render-snapshots): the world's draw paths on the test levels: water, sand, drips, sun shafts
+# and mirrors, gates and levers, props, containers, fire and lights, an inscription and the interact prompt,
+# Disarm trap's contour.
+resolution 640 360
+seed 1
+god
+# Half water over deep water, the wading player, spikes under the surface (tests/levels/water).
+level tests/levels/water
+wait 30
+walk to 6
+hold right 1s
+screenshot water
+# A drift of sand, the sand fall pouring, quicksand (tests/levels/sand).
+level tests/levels/sand
+torch 5 on
+torch 9 on
+torch 13 on
+torch 18 on
+walk to 8
+screenshot sand
+walk to 15.5
+wait 1200ms
+screenshot sand_fall
+walk to 19.2
+wait 30
+screenshot quicksand
+# A poison drip falling into its puddle (tests/levels/poison_drips).
+level tests/levels/poison_drips
+wait 30
+walk right 3.25
+wait 1200ms
+screenshot drip
+# The sun shaft on its mirror, then the mirror turned and the beam on the sun disc (tests/levels/mirrors).
+level tests/levels/mirrors
+wait 30
+walk to 3.5
+screenshot sun_shaft
+interact
+wait 600ms
+interact
+wait 300ms
+screenshot sun_beam
+# The red key, the gate rising, the lever (tests/levels/mechanisms).
+level tests/levels/mechanisms
+wait 30
+walk right 4.1
+walk right 2.55
+wait 20
+screenshot gate_rising
+wait 1200ms
+walk right 2.45
+interact
+wait 10
+screenshot lever
+# Props, chests and the potion on spikes (tests/levels/props).
+level tests/levels/props
+wait 30
+walk right 5
+wait 5
+screenshot props_chests
+walk right 4
+wait 5
+screenshot props_spikes
+# The interact prompt at a chest over an unread inscription with its gold glint (tests/levels/interact).
+level tests/levels/interact
+wait 30
+walk to 3.5
+wait 20
+screenshot inscription_prompt
+# Disarm trap's red contour on a trapped chest and a mimic (tests/levels/heka_surplus).
+level tests/levels/heka_surplus
+heka 1
+learn disarm_trap
+peace
+wait 10
+walk to 6.5
+wait 10
+walk to 12.5
+wait 10
+walk to 17
+wait 10
+screenshot trap_contour
+expect alive == 1
+quit

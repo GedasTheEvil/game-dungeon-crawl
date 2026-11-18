@@ -19,7 +19,7 @@ After [gl-core-foundation](gl-core-foundation.feature.draft.opus.md) the UI stil
   screens port by porting `ui_draw.cpp`.
 * Journal page: its 3D lit page with the default lit shader (same light direction and colours as now).
 * Page curl and map: `Batch`; the map's many small quads in one batch per frame.
-* Each screen checked with `make snapshots` ([render-snapshots](render-snapshots.tooling.draft.opus.md)).
+* Each screen checked with `make snapshots` ([render-snapshots](solved/render-snapshots.tooling.md)).
 * Update [ui.md](../ui.md) where it names GL calls.
 
 ## Play-test

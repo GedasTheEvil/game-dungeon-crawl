@@ -101,6 +101,7 @@ gets its row. A feature's numbers (speeds, ranges, timings) sit in `level/gamepl
 | Game loop, frame drawing | `state/game_loop.cpp`, `graphics/draw.cpp` |
 | Blood splashes | `sim/particles.*` (motion), `graphics/particles_draw.*` |
 | Scenario commands | `test/scenario*.cpp`; a command's run is in its group function (`runItemCommand`, `runMonsterCommand`, `runPlayerCommand`, ... via `runInstant`), docs/testing.md |
+| Render snapshots (reference screenshots of every draw path, the pixel diff) | the scenarios `tests/scenarios/snapshots/`, the references `tests/snapshots/ref/`, the runner `tools/snapshots.sh` (`make snapshots`, `make snapshots-ref`), the diff `tools/snapdiff/snapdiff.cpp` (`bin/snapdiff`) ([testing.md](testing.md#render-snapshots)) |
 | Plans: new, status, next, play-test, verdict, move, solve, reject, hold, lint, links, board | `tools/plan.py`, its tests `tools/plan_test.py` ([plans.md](plans.md)) |
 | Jobs (a long command detached, waited for with a deadline), reap of stray wait loops; the hook that blocks wait loops | `tools/job.sh`, its tests `tools/job_test.sh`; `tools/hooks/no_wait_loops.sh` (`.claude/settings.json`), tests `tools/hooks/test_no_wait_loops.sh` ([stuck-processes.md](stuck-processes.md)) |
 | Player manual (HTML for players), its pictures (monster renders, screenshots, icons), its drift check | `docs/manual/` (`index.html`, `manual.css`), `tools/manual/images.py` with `tools/manual/shots.txt`; names and links: `tools/docs_check.py` |

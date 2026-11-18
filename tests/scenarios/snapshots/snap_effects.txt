@@ -1,0 +1,77 @@
+# Render snapshots (plan render-snapshots): toon shading and its ink lines, the sprint's motion effects, the hurt,
+# blind, daze, poison and burning looks, the brightness setting, the death and the ending screens.
+resolution 640 360
+seed 1
+god
+level tests/levels/classic1
+wait 30
+walk right 3
+wait 5
+screenshot lit
+toon on
+wait 2
+screenshot toon
+toon off
+# The player's states on screen.
+hurt 5
+wait 3
+screenshot hurt
+wait 1s
+blind 3000
+wait 20
+screenshot blind
+wait 3s
+daze 3000
+wait 20
+screenshot daze
+wait 3s
+poison strong
+firehit 1
+wait 20
+screenshot poison_burning
+wait 6s
+# Sprint: FOV kick, radial blur, vignette; then the same in toon mode (the blur before the ink lines).
+level tests/levels/classic1
+wait 30
+sprint on
+hold right 400ms
+screenshot sprint
+toon on
+hold right 400ms
+screenshot sprint_toon
+toon off
+sprint off
+# The death screen.
+level tests/levels/classic1
+wait 5
+hurt 9999
+wait 90
+screenshot death
+expect alive == 0
+# The ankh's choice and the epilogue (level 54).
+level 54 at 24 2
+wait 30
+walk to 26.5
+interact
+wait 100ms
+screenshot ending_choice
+key enter
+wait 300ms
+screenshot epilogue
+# Brightness 150 (Options > Display), then the game brightened; last, as no level load resets it.
+level tests/levels/classic1
+wait 30
+walk right 3
+key esc
+click 50 35.7
+wait 2
+click 55.5 76.5
+wait 2
+click 82.3 59.1
+wait 2
+screenshot options_brightness
+key esc
+key esc
+wait 4
+screenshot bright
+quit

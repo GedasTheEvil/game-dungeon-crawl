@@ -377,6 +377,7 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | rework | | an implemented plan that failed a play-test: `plan.py reject` (or `verdict`) adds a `## Play-test feedback` round of `- [ ]` items; ticked `- [x]` when fixed | `tools/plan.py` |
 | verdict | | the user's play-test reply, `ok SLUG` / `no SLUG: note`, fed to `plan.py verdict`: solves or rejects | `tools/plan.py` |
 | scenario | | a script in `tests/scenarios/` that drives the game and takes screenshots | `Scenario`, `docs/testing.md` |
+| render snapshot | | (plan [render-snapshots](plan/solved/render-snapshots.tooling.md)) a reference screenshot of one draw path (`tests/snapshots/ref/<scenario>-<shot>.png`, taken by the scenarios in `tests/scenarios/snapshots/`); `make snapshots` takes them again and `bin/snapdiff` diffs them, `make snapshots-ref` accepts a change ([testing.md](testing.md#render-snapshots)) | `tools/snapshots.sh`, `tools/snapdiff/snapdiff.cpp`, `tests/snapshots/ref` |
 | play mode | | `--level` / `--play`: a normal hand-played game started on a level or a scenario's setup commands, menu skipped | `Scenario::loadPlay`, `docs/testing.md` |
 | setup commands | | the leading scenario commands that only set the game up (`level`, `give`, `god`, ...); `--play` runs them at once | `playSetup`, `docs/testing.md` |
 | sim | | the sim library: the dungeon, the monsters and the player without GL, unit tested | `SimLinks`, `tests/unit/sim_world.h` |

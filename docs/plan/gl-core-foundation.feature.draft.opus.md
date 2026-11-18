@@ -1,6 +1,6 @@
 # GL core foundation: loader, math, matrix stack, vertex batcher, GLSL 330
 
-Status: draft 2026-11-18, size L, needs [sdl3-window-input](sdl3-window-input.feature.draft.opus.md), [render-snapshots](render-snapshots.tooling.draft.opus.md) first.
+Status: draft 2026-11-18, size L, needs [sdl3-window-input](sdl3-window-input.feature.draft.opus.md), [render-snapshots](solved/render-snapshots.tooling.md) first.
 
 ## Problem
 
@@ -46,7 +46,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
   count grows; ported files drop to zero. [gl-core-profile](gl-core-profile.feature.draft.opus.md) turns it into a
   ban.
 * Port two small users as proof (e.g. `brightness.cpp` and `fire.cpp`, the largest `glBegin` user) and check them
-  against [render-snapshots](render-snapshots.tooling.draft.opus.md).
+  against [render-snapshots](solved/render-snapshots.tooling.md).
 * Unit tests: `MatrixStack` against known matrices, `project` against the old `gluProject` result, `Batch` quad
   splitting.
 * Docs: a "GL core path" section in [development.md](../development.md) (the matrix stack, `Batch`, shaders, how

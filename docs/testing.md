@@ -47,7 +47,8 @@ SCENARIO_DRAW_ALL=1 bin/game tests/scenarios/smoke.txt  # the same, watchable
 ```
 
 `tests/scenarios/solved/` parks the scenarios of solved plans that need a screenshot (the rest became unit tests).
-`make test` skips them; run one by name to look at its screenshots. They are kept for history: a parked scenario may
+`make test` skips them; run one by name to look at its screenshots. `make test` skips `tests/scenarios/snapshots/` too:
+`make snapshots` runs those ([Render snapshots](#render-snapshots)). They are kept for history: a parked scenario may
 fail once the rules have changed since, which is no bug and needs no fix.
 
 ### Kept scenarios
@@ -222,3 +223,44 @@ Stdout has the summary and one `FAIL line L: ...` line per failure.
 | 2 | Parse error, no `level` command, or the level could not be loaded. |
 | 3 | Crash (signal or exception). |
 
+## Render snapshots
+
+Reference screenshots of every draw path, and a pixel diff that says whether a change to the drawing changed the
+picture, and where ([plan](plan/solved/render-snapshots.tooling.md); made for the GL port). Run them after any
+change under `src/render/`, `src/graphics/` or `src/ui/`.
+
+```
+make snapshots                     # take them into tests/out/snapshots/, then the diff table; fails above the tolerance
+make snapshots-ref                 # take them and write them as the references, tests/snapshots/ref/
+tools/snapshots.sh tests/scenarios/snapshots/snap_ui.txt   # one scenario, its images only (--ref first: accept them)
+SNAP_TOLERANCE=0 make snapshots    # snapdiff's --tolerance (and SNAP_THRESHOLD, --threshold)
+bin/snapdiff [--threshold N] [--tolerance PCT] [--diff DIR] REF_DIR OUT_DIR
+```
+
+* The scenarios, `tests/scenarios/snapshots/snap_<topic>.txt` (`make test` skips them), each at 640x360: `zones` (a
+  campaign level per zone, the zone and level banners, the level gem's three stones), `world` (water, sand and the sand
+  fall, quicksand, a poison drip, the sun shaft and mirror beam, a gate and a lever, props and containers, an
+  inscription with the interact prompt), `traps` (wall spikes, a fire vent's jet, ceiling spikes; first, as the rhythm
+  traps run on the game clock), `monsters` (models mid-clip, hit blood, a stun's stars, a boss rising with its bar, its
+  bolt, the Anubis guard out of the wall), `effects` (toon ink, sprint blur and its toon order, hurt, blind, daze,
+  poison and burning, the death screen, the ankh's choice and the epilogue, brightness) and `ui` (the in-game and main
+  menus, load, options' four tabs, how to play, credits, Hall of Records, inventory tabs and the amulet turntable, HUD
+  states, draft map, journal and its page curl, riddle, Heka screen, the tooltip, status lines over the banner, the
+  confirm box). Not covered: the Hall of Records with a run in it (a record's date is the real day).
+* `tools/snapshots.sh` runs them through `tools/run_scenarios.sh` (Xvfb, llvmpipe, `--no-sound`) and copies each
+  `tests/out/snap_<topic>/NNN_<shot>.png` to `tests/out/snapshots/<topic>-<shot>.png` (shot numbers dropped, so a new
+  shot does not rename the others). `bin/snapdiff` then prints, per image, the share of pixels with a channel off by
+  more than the threshold (default 8 of 255), the largest channel error, and the path of its diff PNG
+  (`tests/out/snapshots/diff/`: the pixels off in red over a dimmed grey copy). An image fails above the tolerance
+  (default 0.1 % of its pixels), and so does one missing, new or of another size.
+* Two runs of one build give identical images (checked with one and with eight llvmpipe threads): the scenario clock,
+  the seeded random streams and the draw of every frame of a screenshot script leave no noise. A diff is a real
+  change; never widen the tolerance for noise, find its source (real time, an unseeded random, a frame-rate based
+  value) instead.
+* A wanted change: `make snapshots-ref` (its table first shows what changed against the old references), look at the
+  diff PNGs and the new images, commit `tests/snapshots/ref/` with the change. It packs the PNGs with `optipng` when
+  installed (the same pixels, about a third smaller). A change to a level, a test level or a model also moves them.
+* A new draw path: a `screenshot` in the scenario of its topic (or a new `snap_<topic>.txt`; no `-` in the name),
+  then `tools/snapshots.sh --ref` on that scenario. Keep the set small: one picture per path, not per case. A wait
+  added mid-script shifts the game clock of every later shot (a trap's phase, the HUD's pulse, a hover left on): add
+  at the end, or retake that scenario's references in the same commit.

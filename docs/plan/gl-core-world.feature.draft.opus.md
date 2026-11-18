@@ -21,7 +21,7 @@ the GL matrix stack. This plan moves it to `MatrixStack`, `Batch`, VAOs and the 
 * Lighting: the existing lighting shader becomes the world shader (GLSL 330); fog, if any, in the shader.
 * Render targets: check the FBO code against core (no `GL_DEPTH_STENCIL_EXT` style leftovers).
 * Port file by file; after each file the legacy counter drops and `make snapshots` stays within tolerance
-  ([render-snapshots](render-snapshots.tooling.draft.opus.md)). A diff is fixed, not accepted, unless it is a
+  ([render-snapshots](solved/render-snapshots.tooling.md)). A diff is fixed, not accepted, unless it is a
   plain precision change (say why in the commit).
 * Measure frame time before and after (a fixed scene, `frame_rate.cpp`); report it in the plan.
 

@@ -33,7 +33,7 @@ Wayland, and keys come as characters plus "special" codes.
   headers directly.
 * Gamepad: not in this plan; with SDL3 in place it is a small follow-up (save it as a draft when done).
 * Scenario tests: they inject input through the same functions the callbacks called; keep that seam so `scenario.cpp`
-  changes little. `make test` and the snapshots ([render-snapshots](render-snapshots.tooling.draft.opus.md)) pass
+  changes little. `make test` and the snapshots ([render-snapshots](solved/render-snapshots.tooling.md)) pass
   unchanged.
 * Docs: [development.md](../development.md) (dependencies, `game/game.cpp` row), [where-is-x.md](../where-is-x.md)
   rows that name GLUT.

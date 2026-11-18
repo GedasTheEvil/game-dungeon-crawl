@@ -1,6 +1,5 @@
 #include "particles_draw.h"
 #include "../render/gl_includes.h"
-#include "../render/gl_legacy.h"
 #include "../render/lighting.h"
 #include "../render/matrix_stack.h"
 #include "../core/timer.h"
@@ -12,7 +11,6 @@ void Particles::Draw(const ParticleSystem& system) {
 	if (!system.Live() || !shown)
 		return;
 
-	const GlLegacy::PortedScope ported;
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
@@ -40,7 +38,6 @@ void Particles::DrawBleedDrops(float height, int seed) {
 		return;
 	constexpr int DROPS = 4;
 	constexpr int FALL_MS = 900; // from the middle to the feet
-	const GlLegacy::PortedScope ported;
 	Batch& world = Lighting::batch();
 	glPointSize(5);
 	world.colour(0.6f, 0.03f, 0.03f, 1.f);

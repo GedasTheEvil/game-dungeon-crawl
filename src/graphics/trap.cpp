@@ -1,11 +1,9 @@
 #include "trap.h"
-#include "../render/gl_legacy.h"
 #include "../render/matrix_stack.h"
 
 Trap::Trap() : mdl(std::make_shared<AnimatedModel>()) {}
 
 void Trap::Show(float size) {
-	const GlLegacy::PortedScope ported;
 	gMv.push();
 	gMv.translate(0, 0, -30);
 	gMv.scale(size, size, size);

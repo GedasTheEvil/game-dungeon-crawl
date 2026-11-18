@@ -127,7 +127,7 @@ player by `PlayerView`; both only read the sim's state ([plan/solved/sim-library
 
 The drawing moves from OpenGL 1.x fixed function to OpenGL 3.3 core, file by file
 ([gl-core-foundation](plan/gl-core-foundation.feature.md), then
-[gl-core-world](plan/gl-core-world.feature.draft.opus.md), [gl-core-ui](plan/gl-core-ui.feature.md),
+[gl-core-world](plan/gl-core-world.feature.md), [gl-core-ui](plan/gl-core-ui.feature.md),
 [gl-core-tools](plan/solved/gl-core-tools.tooling.md), [gl-core-profile](plan/gl-core-profile.feature.draft.opus.md)).
 Until the last one the context is a 3.3 compatibility one (`Window::open`), so ported and legacy code draw side by
 side. The parts, all in `src/render/`:
@@ -160,8 +160,28 @@ side. The parts, all in `src/render/`:
   `GlLegacy::resetColour()` leaves the legacy current colour white where a ported draw used to.
 
 Shaders are GLSL 330 core with explicit attribute locations (`layout(location = N) in`), `in`/`out`, `texture()`
-and their matrices as uniforms. The lighting shader is `330 compatibility` until gl-core-world: the world still feeds
-it through `gl_Vertex`, `gl_Color` and the GL matrices.
+and their matrices as uniforms.
+
+The world (plan [gl-core-world](plan/gl-core-world.feature.md)) draws on the core path: `drawGameplay`
+holds a `GlLegacy::PortedScope` over it, sets `gProj` and `gMv` and gives GL the HUD's matrices after it.
+
+* The world shader (`Lighting::use`, `render/lighting.cpp`) is the lighting shader in GLSL 330 core: the frame's
+  lights and fog, the toggles (`setEmissive`, `setMetalMask`, `setBlend`), the alpha test of a `Style` of kind
+  `AlphaTest`, the matrices and the normal matrix as uniforms. A `Batch` draws with it when its `program` is
+  `Lighting::use` (added to `Batch`; outside `Lighting::begin`..`end` it falls back to the default program).
+* The world batch, `Lighting::batch()` (`world()` in `graphics/world_draw.h`): the world's immediate mode. Its current
+  colour, normal and texture coordinate are the world's as GL's current values were: a `glColor` before a model draw
+  is `world().colour(...)`, and `AnimatedModel::Show` draws in it.
+* A model (`AnimatedModel`) draws from one vertex array over its buffers; the key frame blend stays in the vertex
+  shader (next key frame at attributes 2 and 3). Outside `Lighting` (the journal's sketches, fixed-function light) it
+  still draws the legacy way until gl-core-ui ports them.
+* The border while UI and tools are legacy: code shared with legacy callers (`Show`, `Item::Draw`, `Lighting::begin`
+  and `add`, `drawInscription`) holds a `GlLegacy::PortedScope`: entered from legacy code it adopts GL's matrices and
+  current values and gives the current values back at its end; inside another one it does nothing. Ported code
+  calling legacy code (a monster's status cards) holds a `GlLegacy::LegacyScope`.
+* `mat4.o` is built with `-ffp-contract=off` and `Mat4::rotation` takes `sinf`/`cosf` of the float angle: with both,
+  every matrix the world builds has the bits GL's stack had (checked op by op), so no edge pixel moves.
+* Frame time: `FRAME_TIME=N` logs Draw's mean and fastest time every N frames to `game.log` (`graphics/frame_rate.*`).
 
 The legacy-GL counter, `tools/gl_legacy.py`: `make layers` (so every `make tidy`, `make check`, `make tidy-push`) fails
 when a file's count of fixed-function GL (immediate mode, the matrix stack and its readbacks, GLU, display lists,

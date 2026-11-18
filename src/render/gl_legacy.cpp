@@ -110,8 +110,3 @@ GlLegacy::LegacyScope::~LegacyScope() {
 		pullCurrent();
 	gPorted = outer;
 }
-
-void GlLegacy::adoptUnlessPorted() {
-	if (!gPorted)
-		adoptMatrices();
-}

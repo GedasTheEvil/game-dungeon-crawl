@@ -1,6 +1,8 @@
 #include "motion_fx.h"
 #include "render_target.h"
 #include "batch.h"
+#include "gl_state.h"
+#include "matrix_stack.h"
 #include "shader.h"
 
 #include "gl_includes.h"
@@ -124,35 +126,31 @@ void fullScreenQuad(const Program& p, float centreX, float centreY, float amount
 	glUseProgram(0);
 }
 
-// A cut-scene's letterbox bars, black from the top and bottom edges.
+// A cut-scene's letterbox bars, black from the top and bottom edges, in clip space.
 void bars(float share) {
 	if (share <= 0.f)
 		return;
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glDisable(GL_TEXTURE_2D);
+	static Batch batch;
+	batch.style.kind = DefaultShader::Kind::Colour;
+	gProj.push();
+	gProj.loadIdentity();
+	gMv.push();
+	gMv.loadIdentity();
 	glDisable(GL_BLEND);
-	glColor3f(0.f, 0.f, 0.f);
+	batch.colour(0.f, 0.f, 0.f);
 	const float h = 2.f * share;
-	glBegin(GL_QUADS);
-	glVertex2f(-1.f, -1.f);
-	glVertex2f(1.f, -1.f);
-	glVertex2f(1.f, -1.f + h);
-	glVertex2f(-1.f, -1.f + h);
-	glVertex2f(-1.f, 1.f - h);
-	glVertex2f(1.f, 1.f - h);
-	glVertex2f(1.f, 1.f);
-	glVertex2f(-1.f, 1.f);
-	glEnd();
-	glColor3f(1.f, 1.f, 1.f);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	batch.begin(Primitive::Quads);
+	batch.vertex(-1.f, -1.f);
+	batch.vertex(1.f, -1.f);
+	batch.vertex(1.f, -1.f + h);
+	batch.vertex(-1.f, -1.f + h);
+	batch.vertex(-1.f, 1.f - h);
+	batch.vertex(1.f, 1.f - h);
+	batch.vertex(1.f, 1.f);
+	batch.vertex(-1.f, 1.f);
+	batch.end();
+	gMv.pop();
+	gProj.pop();
 }
 // Any of the looks is on this frame: the sprint's, a cut-scene's, a blind.
 bool anyLook() { return MotionFx::strength() > 0.f || gCinema > 0.f || gBlind > 0.f; }
@@ -214,14 +212,12 @@ void MotionFx::end() {
 		return;
 	const bool blurred = gActive;
 	gActive = false;
-	// Back on the window before the attributes are saved: popped, GL_COLOR_BUFFER_BIT sets the draw buffer it saved,
-	// and the target's GL_COLOR_ATTACHMENT0 on the window is an error (the KHR_debug log, plan gl-core-foundation).
+	// Back on the window first: the passes below draw there.
 	if (blurred)
 		gTarget.End();
-	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+	const GlState saved = GlState::read();
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
-	glDisable(GL_LIGHTING);
 	if (blurred) {
 		glClear(GL_DEPTH_BUFFER_BIT); // the scene's depth went to the target: the HUD must not test against stale depth
 		glDisable(GL_BLEND);
@@ -242,5 +238,5 @@ void MotionFx::end() {
 		);
 	}
 	bars(CINEMA_BARS * gCinema);
-	glPopAttrib();
+	saved.apply();
 }

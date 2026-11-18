@@ -20,6 +20,8 @@
 #include "frame_rate.h"
 #include "../render/gl_includes.h"
 #include "../render/mat4.h"
+#include "../render/gl_legacy.h"
+#include "../render/matrix_stack.h"
 #include "../game/window.h"
 #include "../sim/render_config.h"
 #include "../level/gameplay_monster_kinds.h"
@@ -42,12 +44,9 @@ struct ScreenPoint {
 	float x, y;
 };
 ScreenPoint toScreen(float x, float y, float z) {
-	Mat4 model, projection;
 	std::array<GLint, 4> viewport{};
-	glGetFloatv(GL_MODELVIEW_MATRIX, model.m.data());
-	glGetFloatv(GL_PROJECTION_MATRIX, projection.m.data());
 	glGetIntegerv(GL_VIEWPORT, viewport.data());
-	const std::optional<WindowPoint> w = project({x, y, z}, model, projection, viewport);
+	const std::optional<WindowPoint> w = project({x, y, z}, gMv.top(), gProj.top(), viewport);
 	if (!w || viewport[2] <= 0 || viewport[3] <= 0)
 		return {0.5f, 0.5f};
 	return {
@@ -90,12 +89,12 @@ void drawWeapon() { // in the fist nearer the camera
 	// The pickups spin (rotA, shared model); held, the flat side faces the camera, the bow's back the enemy.
 	const float spin = weapon->rotA;
 	weapon->rotA = facing > 0 ? 0.f : 180.f;
-	glPushMatrix();
-	glTranslatef(fist[0], fist[1], fist[2] + Item::DRAW_DEPTH);
-	glRotatef(-dir * pose.tilt, 0, 0, 1);
-	glTranslatef(0, (pose.thrust - motion.grip) * length, 0);
+	gMv.push();
+	gMv.translate(fist[0], fist[1], fist[2] + Item::DRAW_DEPTH);
+	gMv.rotate(-dir * pose.tilt, 0, 0, 1);
+	gMv.translate(0, (pose.thrust - motion.grip) * length, 0);
 	weapon->DrawHeld(pose.draw);
-	glPopMatrix();
+	gMv.pop();
 	weapon->rotA = spin;
 }
 
@@ -111,7 +110,7 @@ void drawAutosaved() {
 	ui::text(font, 3.3f, 94.2f, Game().ui.autosaved.text.c_str(), ui::BLACK, 0.6f * alpha); // shadow
 	ui::text(font, 3.f, 94.5f, Game().ui.autosaved.text.c_str(), ui::GOLD, alpha);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	glColor3f(1, 1, 1);
+	GlLegacy::resetColour();
 }
 
 // The level's banner (plan zone-looks): when a campaign level starts, the zone's on its first level. Under the status
@@ -153,19 +152,17 @@ float drawStatusLine() {
 
 // The tooltip a screen asked for while drawing (plan ui-tooltip), over everything, in the 160 x 100 canvas.
 void drawTooltip() {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	const ui::Rect area = ui::visibleArea(ui::CANVAS_W, ui::CANVAS_H, Game().render.resX, Game().render.resY);
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	gProj.load(Mat4::ortho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200));
+	gMv.loadIdentity();
+	GlLegacy::syncMatrices(); // the tooltip is drawn the legacy way (plan gl-core-ui ports it)
 	glDisable(GL_DEPTH_TEST);
 	GlLegacy::adoptMatrices(); // the UI draws under gProj and gMv (plan gl-core-ui)
 	ui::drawTooltip(Game().assets.fonts.hudSmall, GameClock::now());
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	GlLegacy::resetColour();
 }
 
 } // namespace
@@ -231,39 +228,38 @@ void drawGameplay() {
 	MotionFx::begin(resX, resY, Ink::toon());
 	Ink::begin(SCENE_NEAR, SCENE_FAR, resX, resY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMultMatrixf(
+	// The world is drawn on the GL core path (plan gl-core-world): gMv, gProj and the world batch's current values,
+	// back to GL for the HUD after it.
+	std::optional<GlLegacy::PortedScope> ported{std::in_place};
+	gMv.loadIdentity();
+	gProj.load(
 		Mat4::perspective(
 			MotionFx::fov(45.0f),
 			static_cast<float>(resX) / static_cast<float>(resY),
 			SCENE_NEAR,
 			SCENE_FAR
 		)
-			.data()
 	);
-	glMatrixMode(GL_MODELVIEW);
+	Batch& world = Lighting::batch();
 
-	glTranslatef(0, -20, -70);
+	gMv.translate(0, -20, -70);
 	if (Game().settings.graphics.motionEffects) { // held in the jaws or the claws (plan crocodile-hold-bite)
-		glRotatef(Game().dungeon.HeldViewRoll(), 0, 0, 1);
+		gMv.rotate(Game().dungeon.HeldViewRoll(), 0, 0, 1);
 		// A power hit (plan skill-power-hit): a short shake, harder with the charge.
 		if (const float shake = Game().dungeon.PowerHitShake(); shake > 0.f) {
 			const auto t = static_cast<float>(GameClock::now());
-			glTranslatef(POWER_SHAKE * shake * std::sin(t * 0.09f), POWER_SHAKE * shake * std::sin(t * 0.13f), 0);
+			gMv.translate(POWER_SHAKE * shake * std::sin(t * 0.09f), POWER_SHAKE * shake * std::sin(t * 0.13f), 0);
 		}
 		// Dazed by a screech (plan giant-bat-screech): the view rolls and sways, slow and out of step.
 		if (const float daze = Game().player->Daziness(); daze > 0.f) {
 			const auto t = static_cast<float>(GameClock::now()) / 1000.f;
-			glTranslatef(DAZE_SWAY * daze * std::sin(t * 3.7f), 0, 0);
-			glRotatef(DAZE_ROLL * daze * std::sin(t * 5.3f), 0, 0, 1);
+			gMv.translate(DAZE_SWAY * daze * std::sin(t * 3.7f), 0, 0);
+			gMv.rotate(DAZE_ROLL * daze * std::sin(t * 5.3f), 0, 0, 1);
 		}
 	}
 
-	glRotatef(Game().camera.rotM, 0, 1, 0);
-	glRotatef(Game().camera.rotN, 1, 0, 0);
+	gMv.rotate(Game().camera.rotM, 0, 1, 0);
+	gMv.rotate(Game().camera.rotN, 1, 0, 0);
 	// The player stays sharp in the blur; the vignette of a cut-scene stays on the middle.
 	const ScreenPoint chest = cutScene ? ScreenPoint{0.5f, 0.5f} : toScreen(0, 16, -22);
 
@@ -295,8 +291,8 @@ void drawGameplay() {
 		Lighting::add(playerX, playerY + 45, -30, {c.r * k, c.g * k, c.b * k, 150.f, 0.f}, 0);
 	}
 
-	glPushMatrix();
-	glTranslatef(-200, 0.0, -10); // the player (drawn at x 0) at mapX
+	gMv.push();
+	gMv.translate(-200, 0.0, -10); // the player (drawn at x 0) at mapX
 
 	std::optional<HitboxView> hitboxes;
 	if (Game().render.Hitboxes) {
@@ -305,20 +301,20 @@ void drawGameplay() {
 	}
 	Game().dungeonView.Draw(hitboxes ? &*hitboxes : nullptr);
 
-	glPopMatrix();
+	gMv.pop();
 
 	const float sink = Game().dungeon.PlayerSink(); // wading: down in the water's basin, the weapon with them
-	glPushMatrix();
-	glTranslatef(playerX, playerY - sink, 0);
+	gMv.push();
+	gMv.translate(playerX, playerY - sink, 0);
 	Game().playerView.Draw(*Game().player, Game().assets.textures);
 
 	if (Game().player->Alive() && !Game().player->climbing()) // both hands on the ladder: no weapon
 		drawWeapon();
-	glPopMatrix();
-	glPushMatrix(); // the water over the player and the monsters in it, as the level is drawn
-	glTranslatef(-200, 0.0, -10);
+	gMv.pop();
+	gMv.push(); // the water over the player and the monsters in it, as the level is drawn
+	gMv.translate(-200, 0.0, -10);
 	Game().dungeonView.DrawWater();
-	glPopMatrix();
+	gMv.pop();
 
 	if (Game().player->stats.vitals.burning.Any()) // plan fire-damage
 		Fire::body(
@@ -345,49 +341,40 @@ void drawGameplay() {
 	Ink::end();
 	MotionFx::end();
 
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, 100, 0, 100, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	gMv.loadIdentity();
+	gProj.load(Mat4::ortho(0, 100, 0, 100, -21, 21));
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
 
 	Game().assets.textures.nullTex.Bind();
-	if (const float haze = Game().dungeon.SandHaze(); haze > 0.f) { // a storm roar's sand (plan hippo-boss)
+	// A full-screen veil (unlit: Lighting has ended, the world batch draws texture times colour).
+	auto veil = [&world](float r, float g, float b, float a) {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(0.78f, 0.62f, 0.38f, 0.8f * haze);
-		glBegin(GL_QUADS);
-		glVertex2f(0, 0);
-		glVertex2f(100, 0);
-		glVertex2f(100, 100);
-		glVertex2f(0, 100);
-		glEnd();
-		glColor3f(1, 1, 1);
+		world.colour(r, g, b, a);
+		world.begin(Primitive::Quads);
+		world.vertex(0, 0);
+		world.vertex(100, 0);
+		world.vertex(100, 100);
+		world.vertex(0, 100);
+		world.end();
+		world.colour(1, 1, 1);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	}
+	};
+	if (const float haze = Game().dungeon.SandHaze(); haze > 0.f) // a storm roar's sand (plan hippo-boss)
+		veil(0.78f, 0.62f, 0.38f, 0.8f * haze);
 	if (const float fade = Game().dungeon.TravelFade(); fade > 0.f) { // gate travel: the view fades into the plasma
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		if (Game().dungeon.TravelToExit())
-			glColor4f(1.f, 0.35f, 0.25f, fade);
+			veil(1.f, 0.35f, 0.25f, fade);
 		else if (Game().dungeon.TravelByRings()) // the rings' white flash (plan ring-transporter)
-			glColor4f(1.f, 1.f, 0.95f, fade);
+			veil(1.f, 1.f, 0.95f, fade);
 		else
-			glColor4f(0.35f, 0.65f, 1.f, fade);
-		glBegin(GL_QUADS);
-		glVertex2f(0, 0);
-		glVertex2f(100, 0);
-		glVertex2f(100, 100);
-		glVertex2f(0, 100);
-		glEnd();
-		glColor3f(1, 1, 1);
-		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+			veil(0.35f, 0.65f, 1.f, fade);
 	}
+	world.colour(1, 1, 1);
+	GlLegacy::syncMatrices(); // the HUD is drawn the legacy way (plan gl-core-ui ports it)
+	ported.reset(); // the world batch's current values (white) back to GL
 	if (cutScene) { // the HUD is hidden; the status line stays, a caption
-		glColor3f(1, 1, 1);
 		drawStatusLine();
 		return;
 	}
@@ -425,7 +412,7 @@ void drawGameplay() {
 			 Game().assets.textures.statusCards.ID()}
 		);
 
-	glColor3f(1, 1, 1);
+	GlLegacy::resetColour();
 
 	drawLevelBanner(drawStatusLine());
 	drawAutosaved();

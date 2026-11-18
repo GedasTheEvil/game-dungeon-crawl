@@ -616,7 +616,6 @@ void DungeonView::pushLevelFrame() const {
 	gMv.translate(RenderConfig::TILE_SIZE * 2, RenderConfig::TILE_RENDER_Y, 0);
 }
 void DungeonView::Draw(const HitboxView* hitboxes) {
-	const GlLegacy::PortedScope ported;
 	pushLevelFrame();
 
 	const ViewWindow v = d.view();
@@ -717,8 +716,10 @@ void DungeonView::drawHitboxes(const HitboxView& weapon) {
 	constexpr float DEPTH = RenderConfig::MONSTER_DEPTH;
 	auto box = [&](float left, float right, float bottom, float top) {
 		world().begin(Primitive::LineLoop);
-		world().vertex(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
-		world().vertex(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		world()
+			.vertex(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
+		world()
+			.vertex(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (bottom - firstRow), DEPTH);
 		world().vertex(RenderConfig::TILE_SIZE * (right - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
 		world().vertex(RenderConfig::TILE_SIZE * (left - firstCol), RenderConfig::TILE_SIZE * (top - firstRow), DEPTH);
 		world().end();
@@ -822,7 +823,6 @@ void DungeonView::drawWaterCell(int i, int j, float x, float y) {
 	world().end();
 }
 void DungeonView::DrawWater() {
-	const GlLegacy::PortedScope ported;
 	pushLevelFrame();
 	const ViewWindow v = d.view();
 	const CellRect& drawn = drawnCells;

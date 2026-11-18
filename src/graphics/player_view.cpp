@@ -1,5 +1,4 @@
 #include "player_view.h"
-#include "../render/gl_legacy.h"
 #include "../render/matrix_stack.h"
 #include <cmath>
 #include "../render/ink.h"
@@ -53,7 +52,6 @@ std::array<float, 3> PlayerView::Fist(const Player& player, int dir) const {
 }
 
 void PlayerView::Draw(const Player& player, const TextureRegistry& textures) const {
-	const GlLegacy::PortedScope ported;
 	const float scale = player.scale;
 	gMv.push();
 	gMv.translate(0, 0, -30 + player.depthOffset);

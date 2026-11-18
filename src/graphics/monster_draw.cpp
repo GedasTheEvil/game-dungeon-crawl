@@ -123,7 +123,6 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 	const float scale = type.scale;
 	// A screech's tell shakes the body (plan giant-bat-screech).
 	const float shake = mon.Screeching() ? BAT_SHAKE * std::sin(static_cast<float>(GameClock::now()) * 0.11f) : 0.f;
-	const GlLegacy::PortedScope ported;
 	gMv.push();
 	gMv.translate(
 		RenderConfig::TILE_SIZE * mon.LocalX() - RenderConfig::TILE_HALF + shake,
@@ -173,7 +172,6 @@ void DrawMonster(const Monster& mon, const CharacterModel& model, const TextureR
 }
 
 void DrawEntombed(const MonsterType& type, const CharacterModel& model) {
-	const GlLegacy::PortedScope ported;
 	gMv.push();
 	gMv.translate(-RenderConfig::TILE_HALF, 0, -30.f - MUMMY_COFFIN_DEPTH);
 	gMv.scale(type.scale, type.scale, type.scale);

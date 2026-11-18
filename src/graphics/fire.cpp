@@ -2,7 +2,6 @@
 
 #include "../render/batch.h"
 #include "../render/gl_includes.h"
-#include "../render/gl_legacy.h"
 #include "../render/matrix_stack.h"
 #include <algorithm>
 #include <cmath>
@@ -26,13 +25,15 @@ GLuint gSprite = 0;
 // shader is on, as its emissive draws had it.
 Batch gBatch;
 
-// Every draw starts here: called from the not yet ported scene, it takes the legacy matrices (GlLegacy), and the
-// lighting's haze. The model view, column-major: its first two rows are the camera's right and up in local space.
+// Every draw starts here: the lighting's haze. The model view, column-major: its first two rows are the camera's
+// right and up in local space.
 const float* beginDraw() {
-	GlLegacy::adoptUnlessPorted();
 	gBatch.style.fog = Lighting::emissiveFog();
 	return gMv.top().data();
 }
+
+// Every draw ends with the world's colour white (Lighting::batch), as its legacy draws left GL's.
+void whiteAfter() { Lighting::batch().colour(1.f, 1.f, 1.f, 1.f); }
 
 uint32_t mix(uint32_t h) { // lowbias32 integer hash
 	h ^= h >> 16;
@@ -173,7 +174,7 @@ void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed
 	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	GlLegacy::resetColour();
+	whiteAfter();
 }
 
 // Rows of flames up the box, one to a few across: the bigger the body, the more.
@@ -234,7 +235,7 @@ void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	GlLegacy::resetColour();
+	whiteAfter();
 }
 
 void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_t seed) {
@@ -304,7 +305,7 @@ void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_
 	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	GlLegacy::resetColour();
+	whiteAfter();
 }
 
 namespace {
@@ -341,7 +342,7 @@ struct Sprites {
 		gBatch.end();
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
-		GlLegacy::resetColour();
+		whiteAfter();
 	}
 };
 constexpr float SAND_R = 0.80f, SAND_G = 0.66f, SAND_B = 0.44f; // pale desert sand
@@ -628,7 +629,7 @@ void SunBeam::draw(float x, float y, float z, float progress, Tint tint) {
 	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	GlLegacy::resetColour();
+	whiteAfter();
 }
 
 void DazeStars::draw(float x, float y, float z, float strength) {
@@ -715,7 +716,7 @@ void DazeStars::draw(float x, float y, float z, float strength) {
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
-	GlLegacy::resetColour();
+	whiteAfter();
 }
 
 void SunBeam::shaft(float x, float y, float z, uint32_t seed) {

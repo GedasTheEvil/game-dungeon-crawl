@@ -64,7 +64,13 @@ void drawEnded() {
 	t.sumMs += ms;
 	if (++t.frames < t.every)
 		return;
-	LOG_INFOF("graphics", "Frame time over %d frames: mean %.2f ms, fastest %.2f ms", t.frames, t.sumMs / t.frames, t.minMs);
+	LOG_INFOF(
+		"graphics",
+		"Frame time over %d frames: mean %.2f ms, fastest %.2f ms",
+		t.frames,
+		t.sumMs / t.frames,
+		t.minMs
+	);
 	t.frames = 0;
 	t.sumMs = 0.0;
 }

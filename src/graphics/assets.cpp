@@ -1,5 +1,8 @@
 #include "assets.h"
+#include "../render/batch.h"
 #include "../render/gl_includes.h"
+#include "../render/gl_legacy.h"
+#include "../render/matrix_stack.h"
 #include "../game/window.h"
 #include "../level/monster_kinds.h"
 #include <cstdio>
@@ -620,44 +623,41 @@ void Assets::DrawLoadingScreen(float percent, const char step[], const char deta
 
 	percent *= 1.18;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear The Screen And The Depth Buffer
-	glLoadIdentity();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	gMv.loadIdentity();
+	gProj.load(Mat4::ortho(0, 140, 0, 140, -200, 200));
 
-	glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
-	glLoadIdentity(); // Reset The Projection Matrix
-	glOrtho(0, 140, 0, 140, -200, 200); // Set Up An Ortho Screen
-	glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
-
+	static Batch batch; // texture times colour
 	// Background image
 	textures.loadingBackground.Bind();
-
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	glTexCoord2f(0, 0);
-	glVertex3i(0, 0, -40);
-	glTexCoord2f(0, 1);
-	glVertex3i(0, 140, -40);
-	glTexCoord2f(1, 1);
-	glVertex3i(140, 140, -40);
-	glTexCoord2f(1, 0);
-	glVertex3i(140, 0, -40);
-	glEnd();
+	batch.colour(1, 1, 1);
+	batch.begin(Primitive::Quads);
+	batch.normal(0, 0, 1);
+	batch.texCoord(0, 0);
+	batch.vertex(0, 0, -40);
+	batch.texCoord(0, 1);
+	batch.vertex(0, 140, -40);
+	batch.texCoord(1, 1);
+	batch.vertex(140, 140, -40);
+	batch.texCoord(1, 0);
+	batch.vertex(140, 0, -40);
+	batch.end();
 
 	// progressbar
 	textures.loadingBar.Bind();
+	batch.colour(1.2f, 0.6f, 0);
+	batch.begin(Primitive::Quads);
+	batch.texCoord(0, 0);
+	batch.vertex(10, 28, 0);
+	batch.texCoord(1, 0);
+	batch.vertex(percent + 10, 28, 0);
+	batch.texCoord(1, 1);
+	batch.vertex(percent + 10, 38, 0);
+	batch.texCoord(0, 1);
+	batch.vertex(10, 38, 0);
+	batch.end();
 
-	glColor3f(1.2, 0.6, 0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex3f(10, 28, 0);
-	glTexCoord2f(1, 0);
-	glVertex3f(percent + 10, 28, 0);
-	glTexCoord2f(1, 1);
-	glVertex3f(percent + 10, 38, 0);
-	glTexCoord2f(0, 1);
-	glVertex3f(10, 38, 0);
-	glEnd();
-
+	GlLegacy::syncMatrices(); // the font's text (plan gl-core-ui ports it)
 	glColor3f(1, 1, 1);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);

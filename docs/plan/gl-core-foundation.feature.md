@@ -13,7 +13,7 @@ The drawing is OpenGL 1.x fixed function with a few GLSL 1.20 shaders on top: ab
 drivers keep it only for compatibility.
 
 This plan builds the parts every later port step uses, without changing a pixel. The port itself:
-[gl-core-world](gl-core-world.feature.draft.opus.md), [gl-core-ui](gl-core-ui.feature.md),
+[gl-core-world](gl-core-world.feature.md), [gl-core-ui](gl-core-ui.feature.md),
 [gl-core-tools](solved/gl-core-tools.tooling.md), then [gl-core-profile](gl-core-profile.feature.draft.opus.md).
 
 ## Plan
@@ -85,7 +85,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
   `#version 330 compatibility` with `in`/`out`, `texture()` and explicit locations for its own attributes, but keeps
   `gl_Vertex`, `gl_Color`, `gl_ModelViewMatrix` and `ftransform()`: the whole world feeds it through immediate mode,
   client arrays and the GL matrix stack, so its matrices can only become uniforms with
-  [gl-core-world](gl-core-world.feature.draft.opus.md) (left out here, on purpose).
+  [gl-core-world](gl-core-world.feature.md) (left out here, on purpose).
 * `GlState` (`src/render/gl_state.*`): blend and its function, depth test and write, culling; `read()` / `apply()`.
   Used by the brightness pass; the other 8 `glPushAttrib` sites are in the files of gl-core-world and gl-core-ui.
 * `KHR_debug` (dev builds, not `make release`: `GAME_RELEASE`): errors, undefined behaviour and high severity to the

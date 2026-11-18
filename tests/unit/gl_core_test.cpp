@@ -59,6 +59,17 @@ TEST_CASE("Mat4: rotations as glRotatef, axis-aligned and not") {
 	CHECK(Mat4::rotation(45, 0, 0, 0) == Mat4::identity());
 }
 
+// Plan gl-core-world: Mesa takes sinf and cosf of the angle as a float, so a quarter turn keeps a cos of -4.4e-8 (the
+// float pi / 2 is past the real one), not the double's 6e-17; a model turned by 90 degrees otherwise lands a pixel
+// off. The bits as glGetFloatv(GL_MODELVIEW_MATRIX) read them after glRotatef(90, 0, 1, 0) on llvmpipe.
+TEST_CASE("Mat4: a quarter turn has GL's bits") {
+	const Mat4 r = Mat4::rotation(90, 0, 1, 0);
+	CHECK(r.at(0, 0) == -0x1.777a5cp-25f);
+	CHECK(r.at(2, 2) == -0x1.777a5cp-25f);
+	CHECK(r.at(0, 2) == 1.f);
+	CHECK(r.at(2, 0) == -1.f);
+}
+
 TEST_CASE("MatrixStack: the GL stack's verbs, right-multiplied, push and pop") {
 	MatrixStack stack;
 	CHECK(stack.depth() == 1);

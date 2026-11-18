@@ -1,4 +1,5 @@
 #include "ink.h"
+#include "gl_state.h"
 #include "../sim/figures.h"
 #include "motion_fx.h"
 #include "batch.h"
@@ -192,7 +193,7 @@ void Ink::end() {
 	if (!gActive)
 		return;
 	gActive = false;
-	glPushAttrib(GL_ENABLE_BIT | GL_VIEWPORT_BIT);
+	const GlState saved = GlState::read();
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_CULL_FACE);
@@ -215,5 +216,5 @@ void Ink::end() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glPopAttrib();
+	saved.apply();
 }

@@ -3,7 +3,10 @@
 
 #include "gl_includes.h"
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <bit>
+#include <cstdint>
 #include <string>
 #include "../core/logger.h"
 #include "../core/timer.h"
@@ -13,24 +16,6 @@
 
 namespace {
 constexpr int MAX_LIGHTS = 16;
-
-// GLSL 330 with the compatibility profile's built-ins (plan gl-core-foundation): the not yet ported scene still sends
-// its vertices, colours and matrices the legacy way (glBegin, glTranslatef), so gl_Vertex, gl_Color and the matrices
-// stay for it until plan gl-core-world has drawn the whole world with Batch, VBOs and gMv.
-const char* const LEGACY_VERTEX_SRC = R"(
-#version 330 compatibility
-out vec3 vPos;
-out vec3 vNormal;
-out vec4 vColour;
-out vec2 vUv;
-void main() {
-	vPos = vec3(gl_ModelViewMatrix * gl_Vertex);
-	vNormal = gl_NormalMatrix * gl_Normal;
-	vColour = clamp(gl_Color, 0.0, 1.0); // as gl_FrontColor was clamped
-	vUv = gl_MultiTexCoord0.st;
-	gl_Position = ftransform();
-}
-)";
 
 // The world shader (plan gl-core-world), GLSL 330 core: Batch's vertices (DefaultShader's attribute locations) or a
 // model's vertex array, the matrices as uniforms.
@@ -173,13 +158,21 @@ struct State {
 	float colour[MAX_LIGHTS * 3] = {};
 };
 
-Program gLegacy; // bound from begin to end, for the not yet ported draws
 Program gCore; // Lighting::use
 bool gFailed = false;
 bool gActive = false;
 Lighting::Atmosphere gAir;
 State gState;
 bool gCoreFresh = false; // the core program has the frame's atmosphere and lights (begin and commit clear it)
+// What the core program's per-draw uniforms hold, so a draw sets only what changed: most draws in a row share the
+// matrices and the toggles (each upload costs the software renderer a copy of its constants).
+struct Uploaded {
+	bool valid = false;
+	Mat4 projection, modelView;
+	std::array<float, 4> tint{};
+	float emissive = 0.f, metalMask = 0.f, blend = 0.f, alphaRef = 0.f;
+};
+Uploaded gUploaded;
 Light gLights[64];
 int gLightCount = 0;
 bool gFlicker = true;
@@ -221,9 +214,8 @@ bool ensureProgram() {
 	if (gFailed)
 		return false;
 	gFailed = true;
-	gLegacy = build("Lighting (legacy)", LEGACY_VERTEX_SRC, "#version 330 compatibility\n");
 	gCore = build("Lighting", VERTEX_SRC, "#version 330 core\n");
-	if (gCore.id == 0 || gLegacy.id == 0)
+	if (gCore.id == 0)
 		return false;
 	gFailed = false;
 	LOG_INFO("graphics", "Lighting shader ready");
@@ -244,17 +236,12 @@ void uploadFrame(const Program& p) {
 	}
 }
 
-// The draw's toggles into p (bound).
-void uploadDraw(const Program& p) {
-	glUniform1f(p.emissive, gState.emissive);
-	glUniform1f(p.metalMask, gState.metalMask);
-	glUniform1f(p.blend, gState.blend);
-}
-
-// A toggle: kept for the core program's next draw, set at once in the legacy one (bound from begin to end).
-void setLegacy(GLint location, float value) {
-	if (gActive)
-		glUniform1f(location, value);
+// One uniform float into the bound program, unless it holds it already.
+void setFloat(GLint location, float& held, float value) {
+	if (gUploaded.valid && held == value)
+		return;
+	held = value;
+	glUniform1f(location, value);
 }
 
 // The inverse transpose of m's upper 3 x 3 (gl_NormalMatrix), column-major.
@@ -262,18 +249,18 @@ std::array<float, 9> normalMatrix(const Mat4& m) {
 	const float a = m.at(0, 0), b = m.at(0, 1), c = m.at(0, 2);
 	const float d = m.at(1, 0), e = m.at(1, 1), f = m.at(1, 2);
 	const float g = m.at(2, 0), h = m.at(2, 1), k = m.at(2, 2);
-	const float A = e * k - f * h, B = f * g - d * k, C = d * h - e * g;
-	const float det = a * A + b * B + c * C;
+	const float c00 = e * k - f * h, c01 = f * g - d * k, c02 = d * h - e * g;
+	const float det = a * c00 + b * c01 + c * c02;
 	const float s = det != 0.f ? 1.f / det : 0.f;
 	// (M^-1)^T = the cofactors over det; column-major, element (row r, column c) at [c * 3 + r].
 	return {
-		A * s,
+		c00 * s,
 		(c * h - b * k) * s,
 		(b * f - c * e) * s,
-		B * s,
+		c01 * s,
 		(a * k - c * g) * s,
 		(c * d - a * f) * s,
-		C * s,
+		c02 * s,
 		(b * g - a * h) * s,
 		(a * e - b * d) * s
 	};
@@ -289,9 +276,6 @@ void Lighting::begin() {
 	gState = {};
 	gState.ortho = gProj.top().m[11] == 0.f ? 1.f : 0.f; // a perspective divides by -z: -1 there
 	gCoreFresh = false;
-	glUseProgram(gLegacy.id);
-	uploadFrame(gLegacy);
-	uploadDraw(gLegacy);
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {
@@ -332,20 +316,11 @@ void Lighting::commit() {
 	}
 	gState.lightCount = gLightCount;
 	gCoreFresh = false;
-	glUniform1i(gLegacy.count, gLightCount);
-	if (gLightCount > 0) {
-		glUniform4fv(gLegacy.pos, gLightCount, gState.pos);
-		glUniform3fv(gLegacy.colour, gLightCount, gState.colour);
-	}
 }
 
 void Lighting::setAtmosphere(const Atmosphere& air) { gAir = air; }
 
-void Lighting::end() {
-	if (gActive)
-		glUseProgram(0);
-	gActive = false;
-}
+void Lighting::end() { gActive = false; }
 
 bool Lighting::active() { return gActive; }
 
@@ -363,20 +338,36 @@ bool Lighting::use(const DefaultShader::Style& style, const Mat4& projection, co
 		uploadFrame(gCore);
 		gCoreFresh = true;
 	}
-	uploadDraw(gCore);
-	const Mat4 mvp = projection * modelView;
-	glUniformMatrix4fv(gCore.mvp, 1, GL_FALSE, mvp.data());
-	glUniformMatrix4fv(gCore.modelView, 1, GL_FALSE, modelView.data());
-	glUniformMatrix3fv(gCore.normalMatrix, 1, GL_FALSE, normalMatrix(modelView).data());
-	glUniform4fv(gCore.tint, 1, style.tint);
-	glUniform1f(gCore.alphaRef, style.kind == DefaultShader::Kind::AlphaTest ? style.alphaRef : -1.f);
+	Uploaded& held = gUploaded;
+	setFloat(gCore.emissive, held.emissive, gState.emissive);
+	setFloat(gCore.metalMask, held.metalMask, gState.metalMask);
+	setFloat(gCore.blend, held.blend, gState.blend);
+	setFloat(gCore.alphaRef, held.alphaRef, style.kind == DefaultShader::Kind::AlphaTest ? style.alphaRef : -1.f);
+	const std::array<float, 4> tint{style.tint[0], style.tint[1], style.tint[2], style.tint[3]};
+	if (!held.valid || tint != held.tint) {
+		held.tint = tint;
+		glUniform4fv(gCore.tint, 1, tint.data());
+	}
+	// Bit for bit: a -0 is another matrix to the rasteriser's rounding.
+	auto same = [](const Mat4& a, const Mat4& b) {
+		for (size_t i = 0; i < 16; i++)
+			if (std::bit_cast<std::uint32_t>(a.m[i]) != std::bit_cast<std::uint32_t>(b.m[i]))
+				return false;
+		return true;
+	};
+	if (!held.valid || !same(projection, held.projection) || !same(modelView, held.modelView)) {
+		held.projection = projection;
+		held.modelView = modelView;
+		const Mat4 mvp = projection * modelView;
+		glUniformMatrix4fv(gCore.mvp, 1, GL_FALSE, mvp.data());
+		glUniformMatrix4fv(gCore.modelView, 1, GL_FALSE, modelView.data());
+		glUniformMatrix3fv(gCore.normalMatrix, 1, GL_FALSE, normalMatrix(modelView).data());
+	}
+	held.valid = true;
 	return true;
 }
 
-void Lighting::setEmissive(bool on) {
-	gState.emissive = on ? 1.f : 0.f;
-	setLegacy(gLegacy.emissive, gState.emissive);
-}
+void Lighting::setEmissive(bool on) { gState.emissive = on ? 1.f : 0.f; }
 
 DefaultShader::Fog Lighting::emissiveFog() {
 	if (!gActive)

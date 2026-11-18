@@ -16,8 +16,8 @@ constexpr int FADE_MS = 900;
 
 // ageMs since the level started: 0 .. 1, 0 once it is over.
 [[nodiscard]] float Alpha(int ageMs, bool zone);
-// Its top edge at top, at most TOP. Sets its own square-pixel ortho projection (100 high). Leaves texturing on and
-// the HUD blend function set.
+// Its top edge at top, at most TOP. Sets its own square-pixel ortho projection (100 high). Leaves the HUD blend
+// function set.
 void draw(const LevelBanner& banner, float alpha, float top, int resX, int resY, Font& title, Font& body);
 } // namespace ZoneBanner
 

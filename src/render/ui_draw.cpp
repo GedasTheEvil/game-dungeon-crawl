@@ -1,6 +1,9 @@
 #include "ui_draw.h"
+#include "batch.h"
 #include "font.h"
 #include "gl_includes.h"
+#include "gl_legacy.h"
+#include "matrix_stack.h"
 #include <algorithm>
 #include <cmath>
 #include <utility>
@@ -8,69 +11,86 @@
 
 namespace ui {
 
+namespace {
+// Every part here draws through this one batch (plan gl-core-ui): flat shapes untextured, pictures textured.
+Batch& batch(DefaultShader::Kind kind) {
+	static Batch b;
+	b.style.kind = kind;
+	return b;
+}
+
+Batch& shapes() { return batch(DefaultShader::Kind::Colour); }
+} // namespace
+
 void fillRect(const Rect& r, Color top, Color bottom, float alpha) {
-	glBegin(GL_QUADS);
-	glColor4f(bottom.r, bottom.g, bottom.b, alpha);
-	glVertex2f(r.x, r.y);
-	glVertex2f(r.x + r.w, r.y);
-	glColor4f(top.r, top.g, top.b, alpha);
-	glVertex2f(r.x + r.w, r.y + r.h);
-	glVertex2f(r.x, r.y + r.h);
-	glEnd();
+	Batch& b = shapes();
+	b.begin(Primitive::Quads);
+	b.colour(bottom.r, bottom.g, bottom.b, alpha);
+	b.vertex(r.x, r.y);
+	b.vertex(r.x + r.w, r.y);
+	b.colour(top.r, top.g, top.b, alpha);
+	b.vertex(r.x + r.w, r.y + r.h);
+	b.vertex(r.x, r.y + r.h);
+	b.end();
 }
 
 void strokeRect(const Rect& r, Color c, float alpha, float width) {
+	Batch& b = shapes();
 	glLineWidth(width);
-	glColor4f(c.r, c.g, c.b, alpha);
-	glBegin(GL_LINE_LOOP);
-	glVertex2f(r.x, r.y);
-	glVertex2f(r.x + r.w, r.y);
-	glVertex2f(r.x + r.w, r.y + r.h);
-	glVertex2f(r.x, r.y + r.h);
-	glEnd();
+	b.colour(c.r, c.g, c.b, alpha);
+	b.begin(Primitive::LineLoop);
+	b.vertex(r.x, r.y);
+	b.vertex(r.x + r.w, r.y);
+	b.vertex(r.x + r.w, r.y + r.h);
+	b.vertex(r.x, r.y + r.h);
+	b.end();
 	glLineWidth(1);
 }
 
 void line(float x0, float y0, float x1, float y1, Color c, float alpha, float width) {
+	Batch& b = shapes();
 	glLineWidth(width);
-	glColor4f(c.r, c.g, c.b, alpha);
-	glBegin(GL_LINES);
-	glVertex2f(x0, y0);
-	glVertex2f(x1, y1);
-	glEnd();
+	b.colour(c.r, c.g, c.b, alpha);
+	b.begin(Primitive::Lines);
+	b.vertex(x0, y0);
+	b.vertex(x1, y1);
+	b.end();
 	glLineWidth(1);
 }
 
 void diamond(float x, float y, float size, Color c, float alpha) {
-	glColor4f(c.r, c.g, c.b, alpha);
-	glBegin(GL_QUADS);
-	glVertex2f(x - size, y);
-	glVertex2f(x, y - size);
-	glVertex2f(x + size, y);
-	glVertex2f(x, y + size);
-	glEnd();
+	Batch& b = shapes();
+	b.colour(c.r, c.g, c.b, alpha);
+	b.begin(Primitive::Quads);
+	b.vertex(x - size, y);
+	b.vertex(x, y - size);
+	b.vertex(x + size, y);
+	b.vertex(x, y + size);
+	b.end();
 }
 
 void triangle(float x0, float y0, float x1, float y1, float x2, float y2, Color c, float alpha) {
-	glColor4f(c.r, c.g, c.b, alpha);
-	glBegin(GL_TRIANGLES);
-	glVertex2f(x0, y0);
-	glVertex2f(x1, y1);
-	glVertex2f(x2, y2);
-	glEnd();
+	Batch& b = shapes();
+	b.colour(c.r, c.g, c.b, alpha);
+	b.begin(Primitive::Triangles);
+	b.vertex(x0, y0);
+	b.vertex(x1, y1);
+	b.vertex(x2, y2);
+	b.end();
 }
 
 void ring(const Rect& inner, float grow, Color c, float alphaIn, float alphaOut) {
-	glBegin(GL_QUAD_STRIP);
+	Batch& b = shapes();
+	b.begin(Primitive::QuadStrip);
 	for (int corner = 0; corner <= 4; corner++) { // counter-clockwise from bottom left, back to the start
 		float sx = corner == 1 || corner == 2 ? 1.f : 0.f;
 		float sy = corner == 2 || corner == 3 ? 1.f : 0.f;
-		glColor4f(c.r, c.g, c.b, alphaIn);
-		glVertex2f(inner.x + sx * inner.w, inner.y + sy * inner.h);
-		glColor4f(c.r, c.g, c.b, alphaOut);
-		glVertex2f(inner.x + sx * inner.w + (2 * sx - 1) * grow, inner.y + sy * inner.h + (2 * sy - 1) * grow);
+		b.colour(c.r, c.g, c.b, alphaIn);
+		b.vertex(inner.x + sx * inner.w, inner.y + sy * inner.h);
+		b.colour(c.r, c.g, c.b, alphaOut);
+		b.vertex(inner.x + sx * inner.w + (2 * sx - 1) * grow, inner.y + sy * inner.h + (2 * sy - 1) * grow);
 	}
-	glEnd();
+	b.end();
 }
 
 void newMark(float x, float y, float radius) {
@@ -81,15 +101,16 @@ void newMark(float x, float y, float radius) {
 
 void ellipse(float x, float y, float rx, float ry, Color c, float alpha) {
 	constexpr int SEGMENTS = 32;
-	glBegin(GL_TRIANGLE_FAN);
-	glColor4f(c.r, c.g, c.b, alpha);
-	glVertex2f(x, y);
-	glColor4f(c.r, c.g, c.b, 0.f);
+	Batch& b = shapes();
+	b.begin(Primitive::TriangleFan);
+	b.colour(c.r, c.g, c.b, alpha);
+	b.vertex(x, y);
+	b.colour(c.r, c.g, c.b, 0.f);
 	for (int i = 0; i <= SEGMENTS; i++) {
 		float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SEGMENTS;
-		glVertex2f(x + rx * std::cos(a), y + ry * std::sin(a));
+		b.vertex(x + rx * std::cos(a), y + ry * std::sin(a));
 	}
-	glEnd();
+	b.end();
 }
 
 void cornerStuds(const Rect& r, float alpha) {
@@ -108,11 +129,23 @@ void panel(const Rect& r, float alpha, float frameAlpha) {
 
 float beginSquareCanvas(float height, int resX, int resY, float depth) {
 	const float width = height * static_cast<float>(resX) / static_cast<float>(resY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, width, 0, height, -depth, depth);
-	glMatrixMode(GL_MODELVIEW);
+	beginOrtho({0.f, 0.f, width, height}, depth);
 	return width;
+}
+
+void beginCanvas(const Rect& area) { beginOrtho(area, 200.f); }
+
+void beginOrtho(const Rect& area, float depth) {
+	gProj.load(Mat4::ortho(area.x, area.x + area.w, area.y, area.y + area.h, -depth, depth));
+	gMv.loadIdentity();
+	GlLegacy::syncMatrices(); // the not yet ported code drawn after a UI part finds the canvas set (plan gl-core-ui)
+}
+
+void endScreen() {
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	GlLegacy::texturing(true);
+	GlLegacy::resetColour();
 }
 
 void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize) {
@@ -304,29 +337,26 @@ void atlasIcon(const Rect& r, int textureId, int cell, int columns, int rows, Co
 }
 
 void texturedRect(const Rect& r, int textureId, Color tint, float u0, float v0, float u1, float v1) {
-	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textureId));
-	glColor4f(tint.r, tint.g, tint.b, 1.f);
-	glBegin(GL_QUADS);
-	glTexCoord2f(u0, v0);
-	glVertex2f(r.x, r.y);
-	glTexCoord2f(u1, v0);
-	glVertex2f(r.x + r.w, r.y);
-	glTexCoord2f(u1, v1);
-	glVertex2f(r.x + r.w, r.y + r.h);
-	glTexCoord2f(u0, v1);
-	glVertex2f(r.x, r.y + r.h);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+	Batch& b = batch(DefaultShader::Kind::Texture);
+	b.colour(tint.r, tint.g, tint.b, 1.f);
+	b.begin(Primitive::Quads);
+	b.texCoord(u0, v0);
+	b.vertex(r.x, r.y);
+	b.texCoord(u1, v0);
+	b.vertex(r.x + r.w, r.y);
+	b.texCoord(u1, v1);
+	b.vertex(r.x + r.w, r.y + r.h);
+	b.texCoord(u0, v1);
+	b.vertex(r.x, r.y + r.h);
+	b.end();
 }
 
 void text(Font& font, float x, float y, const char* str, Color c, float alpha) {
 	glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-	glColor3f(alpha, alpha, alpha);
-	font.print(x, y, "%s", str);
+	font.draw(x, y, str, {alpha, alpha, alpha, 1.f});
 	glBlendFunc(GL_ONE, GL_ONE);
-	glColor3f(c.r * alpha, c.g * alpha, c.b * alpha);
-	font.print(x, y, "%s", str);
+	font.draw(x, y, str, {c.r * alpha, c.g * alpha, c.b * alpha, 1.f});
 }
 
 void textCentered(Font& font, float cx, float y, const char* str, Color c, float alpha) {
@@ -372,14 +402,10 @@ std::vector<std::string> wrap(const Font& font, const std::string& text, float w
 }
 
 void beginShapes() {
-	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void beginText() {
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-}
+void beginText() { glEnable(GL_BLEND); }
 
 } // namespace ui

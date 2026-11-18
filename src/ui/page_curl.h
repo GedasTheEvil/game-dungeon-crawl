@@ -13,8 +13,8 @@ struct PageCurlPlacement {
 	float eyeX = 0, eyeY = 0; // the lifted part grows a little towards the viewer, away from this point
 };
 
-// The page and its shadow on the page under it. Draw the spread under it first; uses the depth buffer (clears it)
-// and leaves texturing off.
+// The page and its shadow on the page under it, under gProj and gMv. Draw the spread under it first; uses the depth
+// buffer (clears it).
 void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at);
 
 #endif

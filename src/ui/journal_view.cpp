@@ -529,12 +529,8 @@ void JournalScreen::Draw() {
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	Rect area = visibleArea(world.render);
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);
 
 	backdrop(area, world.assets.textures.loadingBackground.ID());
@@ -579,10 +575,7 @@ void JournalScreen::Draw() {
 	DrawFooter();
 	ScreenTabs::Draw(ui);
 
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	endScreen();
 }
 
 int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
@@ -600,11 +593,7 @@ int JournalScreen::RenderPage(PageSlot slot, Opening at, int side, bool live) {
 		pagesFailed = true;
 		return 0;
 	}
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(r.x, r.x + r.w, r.y, r.y + r.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	beginOrtho(r, 200.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	// The ribbons riding on a turning page: under the paper, only hanging out past its edge, or on it as they lie

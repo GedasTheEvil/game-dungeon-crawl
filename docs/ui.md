@@ -33,9 +33,15 @@ the level library: `tests/unit/ui_layout_test.cpp` checks them at 4:3, 16:9 and 
 * Layout is in canvas units on a **160 x 100 canvas, y up** (`ui::CANVAS_W`, `ui::CANVAS_H`). It keeps its aspect
   ratio and is centred;
   `ui::visibleArea()` returns the part the window shows, margins included. Set it up with
-  `glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200)`.
+  `ui::beginCanvas(area)` (an ortho projection in `gProj`, z -200..200, `gMv` the identity).
 * The HUD parts and the draft map use a canvas of fixed height and the window's aspect instead:
   `ui::beginSquareCanvas(height, resX, resY)` sets it up and returns its width.
+* Everything draws on the GL core path ([development.md](development.md#gl-core-path), plan
+  [gl-core-ui](plan/gl-core-ui.feature.md)): the parts and the fonts through a `Batch` under `gProj` and `gMv`,
+  never `glBegin`, `glOrtho` or the GL matrix stack. A move or turn of a part is `gMv.push()`, `gMv.translate(...)`,
+  `gMv.pop()`; text ignores `gMv` (its pen starts at x, y on the canvas). Code still on the legacy GL matrices calls
+  `GlLegacy::adoptMatrices()` before it draws a UI part; a screen that draws a legacy part (the item models)
+  calls `GlLegacy::syncMatrices()` first.
 * Fonts: `ui::loadScreenFonts()` loads a screen's title, heading, body and small fonts. The feedback line under a
   screen is a `ui::Toast` (`Show`, `Alpha`).
 * Mouse to canvas: `ui::toCanvas()`. Hit tests use `Rect::contains` on the same `constexpr Rect`s the drawing uses.
@@ -59,12 +65,13 @@ Vertical bands used by every 160 x 100 screen:
 
 A screen's `Draw()`:
 
-1. `glClear`, projection as above, `glDisable(GL_DEPTH_TEST)`.
+1. `glClear`, `ui::beginCanvas(area)`, `glDisable(GL_DEPTH_TEST)`.
 2. Backdrop, title, panels (`DrawBackground`).
 3. Contents: shapes and text, switching with `beginShapes()` / `beginText()`.
 4. 3D models, if any (inventory): `glClear(GL_DEPTH_BUFFER_BIT)` first, so models never cut into the flat UI.
 5. Footer (hint + toast).
-6. Restore state (`glDisable(GL_BLEND)`, `glEnable(GL_TEXTURE_2D)`, `glEnable(GL_DEPTH_TEST)`, white colour).
+6. `ui::endScreen()`: blend off, depth test on (and the legacy texturing and white colour for the not yet ported
+   world drawn after it).
 
 The screen does not end the frame: `Draw()` (`graphics/draw.cpp`) calls the screen that is open (`GameState::ui.screen`,
 one at a time) and then flushes, lets the scenario runner take its screenshot and swaps the buffers.
@@ -107,7 +114,7 @@ screens with tabs (inventory, journal, Heka).
 
 ### Picture frame
 
-For an image (credits sheet, riddle gate): `texturedRect()` (leaves texturing off, call `beginShapes()` after),
+For an image (credits sheet, riddle gate): `texturedRect()` (call `beginShapes()` after),
 then `strokeRect(r, BRONZE, 1, 3)`, `strokeRect(r.inset(1.1), GOLD_DIM, 0.8, 1)` and `cornerStuds()`.
 Optional drop shadow before it: black rect offset `(+0.6..0.8, -0.9..1)`, alpha 0.45–0.5. Keep the image aspect
 ratio; never stretch a picture over the window. Credits: the 512 x 512 sheet at 60 x 60 inside a panel 3 units bigger.

@@ -1,4 +1,5 @@
 #include "zone_banner.h"
+#include "../render/gl_legacy.h"
 #include "../render/ui_draw.h"
 #include "../render/font.h"
 #include "../render/gl_includes.h"
@@ -57,6 +58,6 @@ void draw(const LevelBanner& banner, float alpha, float top, int resX, int resY,
 		textCentered(body, box.cx(), y, banner.guardian.c_str(), GOLD_DIM, alpha);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	glColor3f(1, 1, 1);
+	GlLegacy::resetColour();
 }
 } // namespace ZoneBanner

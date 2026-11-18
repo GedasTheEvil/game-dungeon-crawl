@@ -217,12 +217,8 @@ int SkillsScreen::MostEffectLines() {
 void SkillsScreen::Draw() {
 	LoadFonts();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	const Rect area = visibleArea(world.render);
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);
 
 	backdrop(area, world.assets.textures.loadingBackground.ID());
@@ -237,10 +233,7 @@ void SkillsScreen::Draw() {
 	DrawFooter();
 	ScreenTabs::Draw(ui);
 
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	endScreen();
 }
 
 // The heka mark and the heka left to spend over the cards; the skills learnt on the right.

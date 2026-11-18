@@ -1,4 +1,5 @@
 #include "monster_draw.h"
+#include "../render/gl_legacy.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
@@ -29,6 +30,7 @@ void drawStatusRow(const Monster& mon, float w, const TextureRegistry& textures)
 	const StatusList statuses = mon.Statuses();
 	if (statuses.count == 0)
 		return;
+	GlLegacy::adoptMatrices(); // the cards draw under gProj and gMv (plan gl-core-ui)
 	for (int i = 0; i < statuses.count; i++)
 		PlayerHud::drawStatusCard(
 			statuses.items[static_cast<size_t>(i)],

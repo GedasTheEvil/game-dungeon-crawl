@@ -38,12 +38,8 @@ void Draw(UIContext& screens) {
 		return;
 	if (screens.screen != Screen::Journal) // switched away from the journal by its tabs: what it showed was seen
 		screens.journal.SeeShown();
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	ui::Rect area = visibleArea(screens.world.render);
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	ui::beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);
 	ui::screenTabs(
 		screens.world.assets.fonts.hudSmall,
@@ -52,10 +48,7 @@ void Draw(UIContext& screens) {
 		tabs.pressed,
 		screens.world.journal.AnyNew()
 	);
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	ui::endScreen();
 }
 
 bool Mouse(UIContext& screens, int button, int state, int x, int y) {

@@ -1,5 +1,6 @@
 #ifndef FONT_H
 #define FONT_H
+#include <array>
 #include <cstdint>
 #include <memory>
 
@@ -11,9 +12,13 @@ class Font {
   private:
 	static constexpr int GLYPHS = 95; // printable ASCII from ' '
 	std::shared_ptr<const FontSheet> sheet;
-	int base;
 	float quad = 0; // the glyph quad's side (Load)
 	float advance[GLYPHS] = {};
+	float shift[GLYPHS] = {}; // a proportional glyph's quad starts this far left of the pen, so its ink starts there
+	struct Cell {
+		float u0, u1, v0, v1; // the glyph's cell in the sheet: left, right, bottom, top texture coordinate
+	};
+	Cell cells[GLYPHS] = {};
 
   public:
 	// The sheet layout (tools/textures/font_sheet.py), in px of a glyph quad (a 51.2 px tenth of a 512 px sheet; a
@@ -25,7 +30,7 @@ class Font {
 
 	Font();
 	~Font();
-	Font(const Font&) = delete; // owns display lists: a copy would free them twice
+	Font(const Font&) = delete;
 	Font& operator=(const Font&) = delete;
 	// Monospaced: every glyph advances size / 2 + spacing.
 	// Proportional: each glyph advances its own inked width + spacing (measured from the texture).
@@ -34,6 +39,11 @@ class Font {
 	// its sheet cells (the level editor's small text).
 	void Load(const char filename[], float size = 12, float spacing = 0, bool proportional = false);
 	void Load(const char filename[], float size, float spacing, bool proportional, TexFilter filter);
+	// The text's glyph quads from the sheet in one Batch draw (plan gl-core-ui), the quad bottom of the first at x, y
+	// in gProj's canvas (the model view is not used), times `colour`; blend as the caller set it.
+	void draw(float x, float y, const char* text, const std::array<float, 4>& colour);
+	// draw() for legacy GL callers: printf formatting, the legacy projection and current colour (plan gl-core-profile
+	// drops it with the last such caller).
 	void print(float x, float y, const char* string, ...);
 	[[nodiscard]] float TextWidth(const char* text) const;
 	// print() puts the quad bottom at y: the baseline is Baseline() above it, the cap top CapHeight() above that.

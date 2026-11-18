@@ -1,4 +1,5 @@
 #include "map_view.h"
+#include "../render/batch.h"
 #include "screen_tabs.h"
 #include "../level/map_marks.h"
 #include "../render/ui_draw.h"
@@ -114,15 +115,18 @@ class Sketch {
 			}
 		}
 	}
+	// The strokes so far in one draw.
 	void flush(float widthPx) {
+		static Batch lines;
+		lines.style.kind = DefaultShader::Kind::Colour;
 		glLineWidth(widthPx);
-		glBegin(GL_LINES);
+		lines.begin(Primitive::Lines);
 		for (const Stroke& st : strokes) {
-			glColor4f(st.c.r, st.c.g, st.c.b, st.alpha);
-			glVertex2f(st.x0, st.y0);
-			glVertex2f(st.x1, st.y1);
+			lines.colour(st.c.r, st.c.g, st.c.b, st.alpha);
+			lines.vertex(st.x0, st.y0);
+			lines.vertex(st.x1, st.y1);
 		}
-		glEnd();
+		lines.end();
 		glLineWidth(1);
 		strokes.clear();
 	}
@@ -274,7 +278,13 @@ void outline(Sketch& sk, const Dungeon& d, int i, int j) {
 }
 
 // One symbol from the sheet (media/textures/ui/map_marks.png, plan map-legend-sprites) over the cell whose lower left
-// corner is (x, y), `cell` wide, in canvas units. Between beginMarks and endMarks.
+// corner is (x, y), `cell` wide, in canvas units. Between beginMarks and endMarks, which draw them in one batch.
+Batch& marks() {
+	static Batch b;
+	b.style.kind = DefaultShader::Kind::Texture;
+	return b;
+}
+
 void markQuad(float x, float y, float cell, const ShownMark& shown) {
 	const MarkSprite sprite = markSprite(shown);
 	const float w = 1.f / MAP_MARK_COLUMNS;
@@ -290,24 +300,21 @@ void markQuad(float x, float y, float cell, const ShownMark& shown) {
 	const float quad[4][2] =
 		{{left, bottom}, {left + size, bottom}, {left + size, bottom + size}, {left, bottom + size}};
 	const Color tint = markDef(shown.mark).tint == MarkTint::Lock ? lockPencil(sprite.lock) : Color{1.f, 1.f, 1.f};
-	glColor4f(tint.r, tint.g, tint.b, 1.f);
+	Batch& b = marks();
+	b.colour(tint.r, tint.g, tint.b, 1.f);
 	for (int k = 0; k < 4; k++) {
 		const float* uv = corners[(k + sprite.turns) % 4];
-		glTexCoord2f(uv[0], uv[1]);
-		glVertex2f(quad[k][0], quad[k][1]);
+		b.texCoord(uv[0], uv[1]);
+		b.vertex(quad[k][0], quad[k][1]);
 	}
 }
 
 void beginMarks(const ScreenWorld& world) {
-	glEnable(GL_TEXTURE_2D);
 	world.assets.textures.mapMarks.Bind();
-	glBegin(GL_QUADS);
+	marks().begin(Primitive::Quads);
 }
 
-void endMarks() {
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-}
+void endMarks() { marks().end(); }
 
 // What a cell shows on the map: its object, else its fixture, else a taken treasure's container, else its prop.
 ShownMark shownMark(const Dungeon& d, int i, int j) {
@@ -315,20 +322,8 @@ ShownMark shownMark(const Dungeon& d, int i, int j) {
 }
 
 void drawBackground(const ScreenWorld& world, float canvasW) {
-	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	world.assets.textures.loadingBackground.Bind();
-	glColor3f(0.30f, 0.24f, 0.18f);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex2f(0, 0);
-	glTexCoord2f(1, 0);
-	glVertex2f(canvasW, 0);
-	glTexCoord2f(1, 1);
-	glVertex2f(canvasW, CANVAS_H);
-	glTexCoord2f(0, 1);
-	glVertex2f(0, CANVAS_H);
-	glEnd();
+	texturedRect({0, 0, canvasW, CANVAS_H}, world.assets.textures.loadingBackground.ID(), {0.30f, 0.24f, 0.18f});
 	beginShapes();
 	constexpr float VIGNETTE = 20.f;
 	ring(Rect{0, 0, canvasW, CANVAS_H}.inset(VIGNETTE), VIGNETTE, BLACK, 0.f, 0.85f);
@@ -338,20 +333,20 @@ void drawBackground(const ScreenWorld& world, float canvasW) {
 void drawPaper(const ScreenWorld& world, const Rect& r) {
 	beginShapes();
 	fillRect({r.x + 1.2f, r.y - 1.2f, r.w, r.h}, BLACK, BLACK, 0.45f); // shadow
-	glEnable(GL_TEXTURE_2D);
 	world.assets.textures.papyrus.Bind();
-	glColor4f(1, 1, 1, 1);
-	glBegin(GL_QUADS);
-	glTexCoord2f(1, 0);
-	glVertex2f(r.x, r.y);
-	glTexCoord2f(1, 1);
-	glVertex2f(r.x + r.w, r.y);
-	glTexCoord2f(0, 1);
-	glVertex2f(r.x + r.w, r.y + r.h);
-	glTexCoord2f(0, 0);
-	glVertex2f(r.x, r.y + r.h);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+	static Batch b;
+	b.style.kind = DefaultShader::Kind::Texture;
+	b.colour(1, 1, 1, 1);
+	b.begin(Primitive::Quads);
+	b.texCoord(1, 0);
+	b.vertex(r.x, r.y);
+	b.texCoord(1, 1);
+	b.vertex(r.x + r.w, r.y);
+	b.texCoord(0, 1);
+	b.vertex(r.x + r.w, r.y + r.h);
+	b.texCoord(0, 0);
+	b.vertex(r.x, r.y + r.h);
+	b.end();
 }
 // ---- legend and zoom (plan map-symbols-and-zoom) ----
 constexpr float LEGEND_ROW_H = 4.f; // at the most; a long legend packs its rows closer
@@ -426,18 +421,41 @@ void drawLegend(
 		);
 }
 
-// Clips the sketch to `r` (canvas units, the modelview is the identity), so a zoomed one stays on the sheet.
-void clipTo(const Rect& r) {
-	const GLdouble planes[4][4] = {
-		{1, 0, 0, -r.x},
-		{-1, 0, 0, r.x + r.w},
-		{0, 1, 0, -r.y},
-		{0, -1, 0, r.y + r.h},
-	};
-	for (int k = 0; k < 4; k++) {
-		glClipPlane(static_cast<GLenum>(GL_CLIP_PLANE0 + k), planes[k]);
-		glEnable(static_cast<GLenum>(GL_CLIP_PLANE0 + k));
+// Clips the sketch to `r` (canvas units, 100 high, the model view the identity), so a zoomed one stays on the sheet:
+// the scissor box of the pixels whose centres lie in it, as the clip planes it replaces drew (plan gl-core-ui), within
+// a scissor box set before (a scenario's blind frame). unclip() puts the one before back.
+struct Clip {
+	bool scissor = false;
+	std::array<GLint, 4> box{};
+};
+
+Clip clipTo(const Rect& r) {
+	Clip before;
+	before.scissor = glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE;
+	glGetIntegerv(GL_SCISSOR_BOX, before.box.data());
+	std::array<GLint, 4> viewport{};
+	glGetIntegerv(GL_VIEWPORT, viewport.data());
+	const float px = static_cast<float>(viewport[3]) / CANVAS_H; // pixels a canvas unit
+	auto edge = [px](float canvas, GLint origin) { return origin + static_cast<GLint>(std::ceil(canvas * px - 0.5f)); };
+	GLint x0 = edge(r.x, viewport[0]);
+	GLint x1 = edge(r.x + r.w, viewport[0]);
+	GLint y0 = edge(r.y, viewport[1]);
+	GLint y1 = edge(r.y + r.h, viewport[1]);
+	if (before.scissor) {
+		x0 = std::max(x0, before.box[0]);
+		y0 = std::max(y0, before.box[1]);
+		x1 = std::min(x1, before.box[0] + before.box[2]);
+		y1 = std::min(y1, before.box[1] + before.box[3]);
 	}
+	glScissor(x0, y0, std::max(x1 - x0, 0), std::max(y1 - y0, 0));
+	glEnable(GL_SCISSOR_TEST);
+	return before;
+}
+
+void unclip(const Clip& before) {
+	glScissor(before.box[0], before.box[1], before.box[2], before.box[3]);
+	if (!before.scissor)
+		glDisable(GL_SCISSOR_TEST);
 }
 
 // The arrows and the bound move keys: the view goes that way, the sketch the other.
@@ -461,10 +479,6 @@ void pan(MapZoom& zoom, const MapFit& fit, NavKey key) {
 	}
 }
 
-void unclip() {
-	for (int k = 0; k < 4; k++)
-		glDisable(static_cast<GLenum>(GL_CLIP_PLANE0 + k));
-}
 } // namespace
 
 void DraftMap::Draw() {
@@ -478,7 +492,6 @@ void DraftMap::Draw() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	canvasW = beginSquareCanvas(CANVAS_H, world.render.resX, world.render.resY);
-	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
 
 	drawBackground(world, canvasW);
@@ -532,7 +545,9 @@ void DraftMap::Draw() {
 
 	float pxScale = resScale * std::sqrt(cell / REFERENCE_CELL);
 	beginShapes();
-	clipTo({paper.x + CLIP_SIDE, paper.y + CLIP_BOTTOM, paper.w - 2 * CLIP_SIDE, paper.h - CLIP_BOTTOM - CLIP_TOP});
+	const Clip clip = clipTo(
+		{paper.x + CLIP_SIDE, paper.y + CLIP_BOTTOM, paper.w - 2 * CLIP_SIDE, paper.h - CLIP_BOTTOM - CLIP_TOP}
+	);
 	glEnable(GL_LINE_SMOOTH);
 	Sketch sk(originX, originY, cell);
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
@@ -582,7 +597,7 @@ void DraftMap::Draw() {
 	sk.flush(2.f * pxScale);
 	diamond(originX + px * cell, originY + (py + 0.5f) * cell, cell * 0.22f, PENCIL_RED, 1.f);
 	glDisable(GL_LINE_SMOOTH);
-	unclip();
+	unclip(clip);
 	drawLegend(world, slip, rows, rowH, resScale); // over the sketch, where it lies over the sheet
 
 	std::string title = "Level " + std::to_string(world.dungeon.LevelNumber());
@@ -599,10 +614,7 @@ void DraftMap::Draw() {
 	);
 	ScreenTabs::Draw(ui);
 
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	endScreen();
 }
 
 void DraftMap::toCanvas(int x, int y, float& cx, float& cy) const {

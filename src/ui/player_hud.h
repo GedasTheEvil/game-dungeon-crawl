@@ -91,14 +91,14 @@ void reset();
 
 // Sets its own square-pixel ortho projection (100 / SCALE high) for a resX x resY window. numbers: health numbers;
 // small: key caps and counts; icons: the icon atlas texture; skillIcons: the skill atlas (the heka mark); statusCards:
-// the card backgrounds (one cell per StatusKind). Leaves
-// texturing on and the HUD blend function (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
+// the card backgrounds (one cell per StatusKind). Leaves the HUD blend function (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR)
+// set.
 void draw(const View& view, int resX, int resY, Font& numbers, Font& small, int icons, int skillIcons, int statusCards);
 // One status card (plan curse-blessing-cards) filling r, in the canvas or world space set up: the shadow, the kind's
 // card round r, the icon tinted, the pips if asked (too small to read on a monster's row, plan monster-status-icons).
-// Leaves texturing off and the alpha blend on.
+// Leaves the alpha blend on.
 void drawStatusCard(const Status& s, const ui::Rect& r, int icons, int cards, bool pips);
-// One atlas icon (not None) filling `r`, in the canvas set up. Leaves texturing off.
+// One atlas icon (not None) filling `r`, in the canvas set up.
 void drawIcon(Icon icon, const ui::Rect& r, int icons, ui::Color tint);
 } // namespace PlayerHud
 

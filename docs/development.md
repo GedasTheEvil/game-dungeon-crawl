@@ -127,7 +127,7 @@ player by `PlayerView`; both only read the sim's state ([plan/solved/sim-library
 
 The drawing moves from OpenGL 1.x fixed function to OpenGL 3.3 core, file by file
 ([gl-core-foundation](plan/gl-core-foundation.feature.md), then
-[gl-core-world](plan/gl-core-world.feature.draft.opus.md), [gl-core-ui](plan/gl-core-ui.feature.draft.opus.md),
+[gl-core-world](plan/gl-core-world.feature.draft.opus.md), [gl-core-ui](plan/gl-core-ui.feature.md),
 [gl-core-tools](plan/solved/gl-core-tools.tooling.md), [gl-core-profile](plan/gl-core-profile.feature.draft.opus.md)).
 Until the last one the context is a 3.3 compatibility one (`Window::open`), so ported and legacy code draw side by
 side. The parts, all in `src/render/`:
@@ -182,6 +182,16 @@ To port a file:
 
 Proof ports: `src/graphics/fire.cpp` (the sprites, the biggest `glBegin` user) and `src/render/brightness.cpp`; the
 full-screen passes of `ink.cpp` and `motion_fx.cpp` use `drawScreenQuad`.
+
+The UI is ported ([gl-core-ui](plan/gl-core-ui.feature.md)): `src/ui/`, `ui_draw.cpp` and `font.cpp` draw
+only through `Batch` under `gMv` / `gProj` (a screen sets them with `ui::beginCanvas`, `ui::beginSquareCanvas` or
+`ui::beginOrtho`, which also copy them into GL for the legacy code drawn after). A legacy caller of a UI part
+(`drawTooltip` in `graphics/draw.cpp`, a monster's status cards in `monster_draw.cpp`) calls
+`GlLegacy::adoptMatrices()` first; `Font::print` (the loading screen) adopts the legacy projection and colour itself.
+A font is glyph quads in one batch, transformed on the CPU as the old display lists were, split as Mesa split a display
+list's quads (a, b, d / b, c, d). The draft map clips with a scissor box (no user clip planes in a GLSL 330 program).
+The journal's creature photo keeps the legacy model draw under fixed-function `GL_LIGHT0`, set by
+`GlLegacy::setLight` from a `DefaultShader::Light` (the lit shader's), until gl-core-world gives the models a VAO.
 
 ## Adding a tile type, a monster or an item
 

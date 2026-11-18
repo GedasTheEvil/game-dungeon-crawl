@@ -1,4 +1,6 @@
 #include "level_gem.h"
+#include "../render/batch.h"
+#include "../render/gl_legacy.h"
 #include "../render/ui_draw.h"
 #include "../render/font.h"
 #include "../render/gl_includes.h"
@@ -39,19 +41,19 @@ static_assert(sizeof(GEMS) / sizeof(GEMS[0]) == LevelGem::GEM_COUNT);
 float cornerAngle(int i) { return 2.f * static_cast<float>(M_PI) * (static_cast<float>(i) + 0.5f) / SIDES; }
 
 // Octagon of radius r around (cx, cy), fan-shaded from `centre` to `edge`.
-void octagon(float cx, float cy, float r, Color centre, Color edge) {
-	glBegin(GL_TRIANGLE_FAN);
-	glColor4f(centre.r, centre.g, centre.b, 1.f);
-	glVertex2f(cx, cy);
-	glColor4f(edge.r, edge.g, edge.b, 1.f);
+void octagon(Batch& b, float cx, float cy, float r, Color centre, Color edge) {
+	b.begin(Primitive::TriangleFan);
+	b.colour(centre.r, centre.g, centre.b, 1.f);
+	b.vertex(cx, cy);
+	b.colour(edge.r, edge.g, edge.b, 1.f);
 	for (int i = 0; i <= SIDES; i++)
-		glVertex2f(cx + r * std::cos(cornerAngle(i)), cy + r * STRETCH_Y * std::sin(cornerAngle(i)));
-	glEnd();
+		b.vertex(cx + r * std::cos(cornerAngle(i)), cy + r * STRETCH_Y * std::sin(cornerAngle(i)));
+	b.end();
 }
 
 // Crown facets between the table and the girdle: the upper left ones catch the light, the lower right are in shade.
-void facets(float cx, float cy, const GemLook& gem) {
-	glBegin(GL_QUADS);
+void facets(Batch& b, float cx, float cy, const GemLook& gem) {
+	b.begin(Primitive::Quads);
 	for (int i = 0; i < SIDES; i++) {
 		float mid = (cornerAngle(i) + cornerAngle(i + 1)) / 2;
 		float lit = 0.5f + 0.5f * std::cos(mid - 2.3f); // light from the upper left
@@ -60,21 +62,21 @@ void facets(float cx, float cy, const GemLook& gem) {
 			gem.base.g + (gem.light.g - gem.base.g) * lit - (1 - lit) * (gem.base.g - gem.dark.g) * 0.6f,
 			gem.base.b + (gem.light.b - gem.base.b) * lit - (1 - lit) * (gem.base.b - gem.dark.b) * 0.6f
 		};
-		glColor4f(c.r, c.g, c.b, 1.f);
+		b.colour(c.r, c.g, c.b, 1.f);
 		for (float r : {RADIUS, RADIUS * TABLE})
 			for (int k : {0, 1}) {
 				int corner = r == RADIUS ? i + k : i + 1 - k;
-				glVertex2f(cx + r * std::cos(cornerAngle(corner)), cy + r * STRETCH_Y * std::sin(cornerAngle(corner)));
+				b.vertex(cx + r * std::cos(cornerAngle(corner)), cy + r * STRETCH_Y * std::sin(cornerAngle(corner)));
 			}
 	}
-	glEnd();
+	b.end();
 }
 } // namespace
 
 namespace LevelGem {
 void draw(int level, int resX, int resY, Font& font) {
 	const GemLook& gem = GEMS[LevelGem::GemOf(level)];
-	// Font::print resets the modelview, so the badge is scaled through the projection.
+	// Font::draw ignores the model view, so the badge is scaled through the projection.
 	float canvasH = 100.f / SCALE;
 	float canvasW = beginSquareCanvas(canvasH, resX, resY);
 
@@ -84,10 +86,12 @@ void draw(int level, int resX, int resY, Font& font) {
 
 	beginShapes();
 	ellipse(cx, cy, outer * 1.6f, outer * STRETCH_Y * 1.6f, BLACK, 0.55f); // soft shadow behind
-	octagon(cx, cy, outer, GOLD_BRIGHT, BRONZE);
-	octagon(cx, cy, RADIUS, gem.base, gem.dark);
-	facets(cx, cy, gem);
-	octagon(cx, cy, RADIUS * TABLE, gem.light, gem.base);
+	static Batch b;
+	b.style.kind = DefaultShader::Kind::Colour;
+	octagon(b, cx, cy, outer, GOLD_BRIGHT, BRONZE);
+	octagon(b, cx, cy, RADIUS, gem.base, gem.dark);
+	facets(b, cx, cy, gem);
+	octagon(b, cx, cy, RADIUS * TABLE, gem.light, gem.base);
 	if (gem.flecks)
 		for (auto [fx, fy] : {std::pair{-0.45f, 0.5f}, {0.55f, 0.25f}, {-0.2f, -0.6f}, {0.35f, -0.45f}})
 			diamond(cx + fx * RADIUS, cy + fy * RADIUS * STRETCH_Y, 0.28f, GOLD_BRIGHT, 0.9f);
@@ -108,6 +112,6 @@ void draw(int level, int resX, int resY, Font& font) {
 	text(font, textX, textY, number.c_str(), GOLD_BRIGHT);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	glColor3f(1, 1, 1);
+	GlLegacy::resetColour();
 }
 } // namespace LevelGem

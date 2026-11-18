@@ -2,6 +2,9 @@
 #include "journal_view.h"
 #include "journal_internal.h"
 #include "../render/gl_includes.h"
+#include "../render/gl_legacy.h"
+#include "../render/gl_state.h"
+#include "../render/matrix_stack.h"
 #include "../render/inscription_draw.h"
 #include "../level/input.h"
 #include "../level/bindings.h"
@@ -472,10 +475,10 @@ void JournalScreen::DrawExpedition(const Rect& p, int index) {
 	const float w = TORN_H * TORN_ASPECT;
 	const Rect sheet = {p.cx() - w / 2, p.y + TORN_BOTTOM, w, TORN_H};
 	const float tilt = static_cast<float>((found.number * 3) % 5 - 2) * 0.7f;
-	glPushMatrix();
-	glTranslatef(sheet.cx(), sheet.cy(), 0);
-	glRotatef(tilt, 0, 0, 1);
-	glTranslatef(-sheet.cx(), -sheet.cy(), 0);
+	gMv.push();
+	gMv.translate(sheet.cx(), sheet.cy(), 0);
+	gMv.rotate(tilt, 0, 0, 1);
+	gMv.translate(-sheet.cx(), -sheet.cy(), 0);
 	beginShapes();
 	texturedRect(
 		{sheet.x + 0.4f, sheet.y - 0.5f, sheet.w, sheet.h},
@@ -502,7 +505,7 @@ void JournalScreen::DrawExpedition(const Rect& p, int index) {
 		text(handSmall, x, y, l.c_str(), SEPIA);
 	}
 	beginShapes();
-	glPopMatrix();
+	gMv.pop();
 }
 
 // A creature's model, frame 0 of its move clip, from the side and a little above. As a pencil sketch: the outline
@@ -523,7 +526,8 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 	if (source != nullptr || e.id == NAME_CARTOUCHE_ID) {
 		const DecorSet& decor = world.assets.decor;
 		const float paper[3] = {PAPER.r, PAPER.g, PAPER.b};
-		glEnable(GL_TEXTURE_2D);
+		GlLegacy::syncMatrices(); // the inscription's drawing is not yet ported
+		GlLegacy::texturing(true);
 		drawInscription(
 			p.cx() - GLYPHS_SIDE / 2,
 			top - GLYPHS_TOP - GLYPHS_SIDE,
@@ -534,7 +538,6 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 			{decor.inscriptionPlates, decor.hieroglyphTex, decor.hieroglyphs},
 			paper
 		);
-		glDisable(GL_TEXTURE_2D);
 		beginShapes();
 	}
 
@@ -592,28 +595,30 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 
 	// The sketches change depth func, culling, polygon mode, colour mask, line width, lighting and blending: all of
 	// it goes back as it was, the rest of the game relies on it (GL_LEQUAL depth, game.cpp).
-	glPushAttrib(
-		GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_LINE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT |
-		GL_LIGHTING_BIT
-	);
+	const GlState saved = GlState::read();
+	GLint depthFunc = GL_LEQUAL;
+	GLint cullFace = GL_BACK;
+	GLfloat lineWidth = 1.f;
+	glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
+	glGetIntegerv(GL_CULL_FACE_MODE, &cullFace);
+	glGetFloatv(GL_LINE_WIDTH, &lineWidth);
+	const bool lineSmooth = glIsEnabled(GL_LINE_SMOOTH) == GL_TRUE;
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glPushMatrix();
+	gMv.push();
 	Rect fit = box;
+	// Light from the upper left, in front, in the page's own eye space (the model view before the photo's tilt): the
+	// lit shader's light (plan gl-core-ui). The model is still drawn by the legacy GL, GL_LIGHT0 set from it.
+	DefaultShader::Light light;
 	if (photo) {
-		// Light from the upper left, in front: set while the modelview is the page's own.
-		const float lightDir[4] = {-0.5f, 0.7f, 1.f, 0.f};
-		const float ambient[4] = {0.5f, 0.5f, 0.5f, 1.f};
-		const float diffuse[4] = {0.85f, 0.85f, 0.85f, 1.f};
-		const float none[4] = {0.f, 0.f, 0.f, 1.f};
-		glLightfv(GL_LIGHT0, GL_POSITION, lightDir);
-		glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, none);
-		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, none);
+		light.direction = {-0.5f, 0.7f, 1.f};
+		light.ambient = {0.5f, 0.5f, 0.5f};
+		light.diffuse = {0.85f, 0.85f, 0.85f};
+		GlLegacy::syncMatrices();
+		GlLegacy::setLight(light);
 
-		glTranslatef(box.cx(), box.cy(), 0);
-		glRotatef(tilt, 0, 0, 1);
-		glTranslatef(-box.cx(), -box.cy(), 0);
+		gMv.translate(box.cx(), box.cy(), 0);
+		gMv.rotate(tilt, 0, 0, 1);
+		gMv.translate(-box.cx(), -box.cy(), 0);
 		beginShapes();
 		fillRect({box.x + 0.35f, box.y - 0.45f, box.w, box.h}, BLACK, BLACK, 0.28f); // pasted on: a thin shadow
 		fillRect(box, {1, 1, 1}, darker(PAPER, 0.97f), 1.f);
@@ -632,26 +637,24 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 	float size = std::min(fit.w / reach, fit.h / tall);
 	const AnimPlayback frame0{};
 
-	glTranslatef(fit.cx(), fit.cy() - (top + bottom) / 2 * size * std::cos(lean), 0);
-	glRotatef(SKETCH_TILT, 1, 0, 0);
-	glScalef(size, size, size);
-	glRotatef(t.rotA + 90.f + SKETCH_YAW, 0, 1, 0);
+	gMv.translate(fit.cx(), fit.cy() - (top + bottom) / 2 * size * std::cos(lean), 0);
+	gMv.rotate(SKETCH_TILT, 1, 0, 0);
+	gMv.scale(size, size, size);
+	gMv.rotate(t.rotA + 90.f + SKETCH_YAW, 0, 1, 0);
+	GlLegacy::syncMatrices(); // the model is not yet ported
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	if (photo) {
 		glDepthFunc(GL_LEQUAL);
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glEnable(GL_NORMALIZE);
-		glEnable(GL_COLOR_MATERIAL);
-		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-		glColor4f(1, 1, 1, 1);
+		GlLegacy::texturing(true);
+		GlLegacy::lighting(true);
+		GlLegacy::colour(1, 1, 1, 1);
 		clip->Show(frame0, print.ID());
+		GlLegacy::lighting(false);
 	} else {
 		glDepthFunc(GL_LESS);
-		glDisable(GL_TEXTURE_2D);
+		GlLegacy::texturing(false);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		clip->Show(frame0);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -664,10 +667,19 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 		glCullFace(GL_FRONT);
 		glPolygonMode(GL_BACK, GL_LINE);
 		glLineWidth(SKETCH_LINE_PX * static_cast<float>(world.render.resY) / 720.f);
-		glColor4f(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
+		GlLegacy::colour(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
 		clip->Show(frame0);
+		glPolygonMode(GL_BACK, GL_FILL);
+		GlLegacy::texturing(true);
 	}
-	glPopMatrix();
-	glPopAttrib();
+	gMv.pop();
+	GlLegacy::syncMatrices();
+	GlLegacy::resetColour();
+	saved.apply();
+	glDepthFunc(static_cast<GLenum>(depthFunc));
+	glCullFace(static_cast<GLenum>(cullFace));
+	glLineWidth(lineWidth);
+	if (!lineSmooth)
+		glDisable(GL_LINE_SMOOTH);
 	beginShapes();
 }

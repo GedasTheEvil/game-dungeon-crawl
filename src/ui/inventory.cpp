@@ -1,4 +1,7 @@
 #include "inventory.h"
+#include "../render/batch.h"
+#include "../render/gl_legacy.h"
+#include "../render/matrix_stack.h"
 #include "../level/player_stats.h"
 #include "../level/player_actions.h"
 #include "../sim/player_control.h"
@@ -535,12 +538,8 @@ void Inventory::Draw() {
 			slotAngle[slot] = std::fmod(slotAngle[slot] + SPIN_DEG_PER_MS * static_cast<float>(elapsed), 360.f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	Rect area = visibleArea(world.render);
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);
 
 	// The slots of the rows in view, in the grid's order.
@@ -562,7 +561,7 @@ void Inventory::Draw() {
 
 	// Models get their own depth buffer so they never cut into the flat UI drawn before them.
 	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
+	GlLegacy::texturing(true);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	Lighting::setAtmosphere({{MODEL_AMBIENT, MODEL_AMBIENT, MODEL_AMBIENT}});
@@ -584,10 +583,7 @@ void Inventory::Draw() {
 	if (confirm.Open())
 		confirm.Draw(heading, body, small, area);
 
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	endScreen();
 }
 
 // Right of the grid, only for a tab with more rows than fit: the track over the rows shown, the thumb where they are.
@@ -612,20 +608,7 @@ void Inventory::DrawBackground() {
 	panel(ITEMS_PANEL, 0.9f);
 
 	// Papyrus scroll for the details, in a frame matching the items panel.
-	glEnable(GL_TEXTURE_2D);
-	world.assets.textures.papyrus.Bind();
-	glColor4f(1, 1, 1, 1);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.04f, 0.07f);
-	glVertex2f(DETAIL_PANEL.x, DETAIL_PANEL.y);
-	glTexCoord2f(0.96f, 0.07f);
-	glVertex2f(DETAIL_PANEL.x + DETAIL_PANEL.w, DETAIL_PANEL.y);
-	glTexCoord2f(0.96f, 0.93f);
-	glVertex2f(DETAIL_PANEL.x + DETAIL_PANEL.w, DETAIL_PANEL.y + DETAIL_PANEL.h);
-	glTexCoord2f(0.04f, 0.93f);
-	glVertex2f(DETAIL_PANEL.x, DETAIL_PANEL.y + DETAIL_PANEL.h);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+	texturedRect(DETAIL_PANEL, world.assets.textures.papyrus.ID(), {1, 1, 1}, 0.04f, 0.07f, 0.96f, 0.93f);
 	strokeRect(DETAIL_PANEL, BRONZE, 1.f, 3.f);
 	diamond(DETAIL_PANEL.x, DETAIL_PANEL.y, 1.2f, GOLD, 1.f);
 	diamond(DETAIL_PANEL.x + DETAIL_PANEL.w, DETAIL_PANEL.y, 1.2f, GOLD, 1.f);
@@ -754,18 +737,20 @@ void Inventory::DrawSlot(int slot) {
 		float pulse = 0.6f + 0.4f * std::sin(static_cast<float>(GameClock::now()) * 0.006f);
 		float ax = r.x + r.w - 2.8f;
 		float ay = r.y + r.h - 7.8f;
-		glColor4f(GOLD.r, GOLD.g, GOLD.b, pulse);
-		glBegin(GL_TRIANGLES);
-		glVertex2f(ax - 1.5f, ay);
-		glVertex2f(ax + 1.5f, ay);
-		glVertex2f(ax, ay + 2.f);
-		glEnd();
-		glBegin(GL_QUADS);
-		glVertex2f(ax - 0.6f, ay - 1.4f);
-		glVertex2f(ax + 0.6f, ay - 1.4f);
-		glVertex2f(ax + 0.6f, ay);
-		glVertex2f(ax - 0.6f, ay);
-		glEnd();
+		static Batch b;
+		b.style.kind = DefaultShader::Kind::Colour;
+		b.colour(GOLD.r, GOLD.g, GOLD.b, pulse);
+		b.begin(Primitive::Triangles);
+		b.vertex(ax - 1.5f, ay);
+		b.vertex(ax + 1.5f, ay);
+		b.vertex(ax, ay + 2.f);
+		b.end();
+		b.begin(Primitive::Quads);
+		b.vertex(ax - 0.6f, ay - 1.4f);
+		b.vertex(ax + 0.6f, ay - 1.4f);
+		b.vertex(ax + 0.6f, ay);
+		b.vertex(ax - 0.6f, ay);
+		b.end();
 	}
 }
 
@@ -786,12 +771,14 @@ void Inventory::DrawSlotModel(int slot) {
 	float savedAngle = model->rotA;
 	model->scale = SLOT_SCALE;
 	model->rotA = slotAngle[slot];
-	glColor3f(tint.r, tint.g, tint.b);
-	glPushMatrix();
-	glTranslatef(r.cx(), r.y + NAME_BAND_H + 1.2f - (held ? TILE_SINK : 0.f), 0);
+	GlLegacy::colour(tint.r, tint.g, tint.b, 1.f);
+	gMv.push();
+	gMv.translate(r.cx(), r.y + NAME_BAND_H + 1.2f - (held ? TILE_SINK : 0.f), 0);
+	GlLegacy::syncMatrices(); // the item models are not yet ported
 	model->Draw();
 	model->DrawPart(); // a ring's gem, right after its band
-	glPopMatrix();
+	gMv.pop();
+	GlLegacy::syncMatrices();
 	model->scale = savedScale;
 	model->rotA = savedAngle;
 }
@@ -1025,12 +1012,14 @@ void Inventory::DrawDetailModel() {
 				   : isRing(selectedSlot)	? RING_DETAIL_SCALE
 											: WEAPON_DETAIL_SCALE;
 	model->rotA = slotAngle[selectedSlot];
-	glColor3f(tint.r, tint.g, tint.b);
-	glPushMatrix();
-	glTranslatef(DETAIL_PANEL.cx(), PLINTH_Y, 0);
+	GlLegacy::colour(tint.r, tint.g, tint.b, 1.f);
+	gMv.push();
+	gMv.translate(DETAIL_PANEL.cx(), PLINTH_Y, 0);
+	GlLegacy::syncMatrices(); // the item models are not yet ported
 	model->Draw();
 	model->DrawPart();
-	glPopMatrix();
+	gMv.pop();
+	GlLegacy::syncMatrices();
 	model->scale = savedScale;
 	model->rotA = savedAngle;
 }

@@ -1,4 +1,5 @@
 #include "status_box.h"
+#include "../render/gl_legacy.h"
 #include "../render/ui_draw.h"
 #include "../render/font.h"
 #include "../render/gl_includes.h"
@@ -31,7 +32,7 @@ Color toneColour(StatusTone tone) {
 float draw(const std::vector<const StatusMessage*>& shown, int now, int resX, int resY, Font& font) {
 	if (shown.empty())
 		return TOP;
-	// Font::print resets the modelview, so the canvas is set through the projection.
+	// Font::draw ignores the model view, so the canvas is set through the projection.
 	float canvasW = beginSquareCanvas(CANVAS_H, resX, resY);
 	float top = TOP;
 	for (const StatusMessage* m : shown) {
@@ -58,7 +59,7 @@ float draw(const std::vector<const StatusMessage*>& shown, int now, int resX, in
 	}
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	glColor3f(1, 1, 1);
+	GlLegacy::resetColour();
 	return top;
 }
 } // namespace StatusBox

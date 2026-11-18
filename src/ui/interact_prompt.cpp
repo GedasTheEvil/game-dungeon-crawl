@@ -1,4 +1,5 @@
 #include "interact_prompt.h"
+#include "../render/gl_legacy.h"
 #include "player_hud.h"
 #include "../level/ui_layout.h"
 #include "../core/timer.h"
@@ -20,9 +21,8 @@ void draw(Interaction verb, const std::string& key, int resX, int resY, Font& bo
 		return;
 	using namespace PlayerHud;
 	const char* word = interactionVerb(verb);
-	// Font::print resets the modelview, so the canvas is set through the projection (as PlayerHud::draw).
+	// Font::draw ignores the model view, so the canvas is set through the projection (as PlayerHud::draw).
 	const float canvasW = beginSquareCanvas(100.f / SCALE, resX, resY, 200.f);
-	glLoadIdentity();
 	const float capW = key.empty() ? 0.f : small.TextWidth(key.c_str()) + CAP_PAD;
 	const float gap = key.empty() ? 0.f : GAP;
 	const Rect box = Box(canvasW, capW + gap + body.TextWidth(word), PANEL);
@@ -46,6 +46,6 @@ void draw(Interaction verb, const std::string& key, int resX, int resY, Font& bo
 	text(body, x, y, word, GOLD_BRIGHT, alpha);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	glColor3f(1, 1, 1);
+	GlLegacy::resetColour();
 }
 } // namespace InteractPrompt

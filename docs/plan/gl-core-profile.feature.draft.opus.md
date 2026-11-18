@@ -1,10 +1,10 @@
 # Switch to a GL 3.3 core profile context and ban legacy GL
 
-Status: draft 2026-11-18, size M, needs [gl-core-world](gl-core-world.feature.draft.opus.md), [gl-core-ui](gl-core-ui.feature.draft.opus.md), [gl-core-tools](solved/gl-core-tools.tooling.md) first.
+Status: draft 2026-11-18, size M, needs [gl-core-world](gl-core-world.feature.draft.opus.md), [gl-core-ui](gl-core-ui.feature.md), [gl-core-tools](solved/gl-core-tools.tooling.md) first.
 
 ## Problem
 
-After [gl-core-world](gl-core-world.feature.draft.opus.md), [gl-core-ui](gl-core-ui.feature.draft.opus.md) and
+After [gl-core-world](gl-core-world.feature.draft.opus.md), [gl-core-ui](gl-core-ui.feature.md) and
 [gl-core-tools](solved/gl-core-tools.tooling.md) no code needs the compatibility context, but the game still
 asks for one, so a forgotten legacy call would still work and drift back in.
 

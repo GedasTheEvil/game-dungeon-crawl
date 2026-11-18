@@ -10,6 +10,7 @@
 #include "../ui/zone_banner.h"
 #include "../ui/interact_prompt.h"
 #include "../render/ui_draw.h"
+#include "../render/gl_legacy.h"
 #include "../level/bindings.h"
 #include "../render/lighting.h"
 #include "../render/brightness.h"
@@ -158,6 +159,7 @@ void drawTooltip() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glDisable(GL_DEPTH_TEST);
+	GlLegacy::adoptMatrices(); // the UI draws under gProj and gMv (plan gl-core-ui)
 	ui::drawTooltip(Game().assets.fonts.hudSmall, GameClock::now());
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);

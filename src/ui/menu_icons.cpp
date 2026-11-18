@@ -1,5 +1,5 @@
 #include <cmath>
-#include "../render/gl_includes.h"
+#include "../render/batch.h"
 #include "menu_internal.h"
 
 namespace menu_internal {
@@ -17,6 +17,8 @@ void tray(float cx, float cy, float s, Color c) {
 
 // Flat glyph in a 2s x 2s box around (cx, cy).
 void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
+	static Batch b;
+	b.style.kind = DefaultShader::Kind::Colour;
 	float t = 0.2f * s; // stroke
 	switch (icon) {
 	case Icon::Play:
@@ -37,15 +39,15 @@ void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
 		constexpr int SEGMENTS = 24;
 		float outer = 0.62f * s;
 		float inner = 0.28f * s;
-		glColor4f(c.r, c.g, c.b, 1.f);
-		glBegin(GL_QUAD_STRIP);
+		b.colour(c.r, c.g, c.b, 1.f);
+		b.begin(Primitive::QuadStrip);
 		for (int i = 0; i <= SEGMENTS; i++) {
 			float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SEGMENTS;
-			glVertex2f(cx + outer * std::cos(a), cy + outer * std::sin(a));
-			glVertex2f(cx + inner * std::cos(a), cy + inner * std::sin(a));
+			b.vertex(cx + outer * std::cos(a), cy + outer * std::sin(a));
+			b.vertex(cx + inner * std::cos(a), cy + inner * std::sin(a));
 		}
-		glEnd();
-		glBegin(GL_QUADS);
+		b.end();
+		b.begin(Primitive::Quads);
 		for (int i = 0; i < TEETH; i++) {
 			float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / TEETH;
 			float dx = std::cos(a);
@@ -53,26 +55,26 @@ void drawIcon(Icon icon, float cx, float cy, float s, Color c) {
 			float w = 0.17f * s;
 			float r0 = 0.5f * s;
 			float r1 = 0.95f * s;
-			glVertex2f(cx + dx * r0 - dy * w, cy + dy * r0 + dx * w);
-			glVertex2f(cx + dx * r1 - dy * w, cy + dy * r1 + dx * w);
-			glVertex2f(cx + dx * r1 + dy * w, cy + dy * r1 - dx * w);
-			glVertex2f(cx + dx * r0 + dy * w, cy + dy * r0 - dx * w);
+			b.vertex(cx + dx * r0 - dy * w, cy + dy * r0 + dx * w);
+			b.vertex(cx + dx * r1 - dy * w, cy + dy * r1 + dx * w);
+			b.vertex(cx + dx * r1 + dy * w, cy + dy * r1 - dx * w);
+			b.vertex(cx + dx * r0 + dy * w, cy + dy * r0 - dx * w);
 		}
-		glEnd();
+		b.end();
 		break;
 	}
 	case Icon::Ankh: {
 		constexpr int SEGMENTS = 24;
 		float lx = cx;
 		float ly = cy + 0.5f * s;
-		glColor4f(c.r, c.g, c.b, 1.f);
-		glBegin(GL_QUAD_STRIP);
+		b.colour(c.r, c.g, c.b, 1.f);
+		b.begin(Primitive::QuadStrip);
 		for (int i = 0; i <= SEGMENTS; i++) {
 			float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SEGMENTS;
-			glVertex2f(lx + 0.38f * s * std::sin(a), ly + 0.48f * s * std::cos(a));
-			glVertex2f(lx + (0.38f * s - t) * std::sin(a), ly + (0.48f * s - t) * std::cos(a));
+			b.vertex(lx + 0.38f * s * std::sin(a), ly + 0.48f * s * std::cos(a));
+			b.vertex(lx + (0.38f * s - t) * std::sin(a), ly + (0.48f * s - t) * std::cos(a));
 		}
-		glEnd();
+		b.end();
 		bar(cx - t, cy - s, cx + t, cy + 0.05f * s, c);
 		bar(cx - 0.75f * s, cy - 0.12f * s, cx + 0.75f * s, cy - 0.12f * s + 1.3f * t, c);
 		break;

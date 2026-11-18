@@ -1,6 +1,8 @@
 #include "font.h"
+#include "batch.h"
+#include "gl_legacy.h"
+#include "matrix_stack.h"
 #include "textures.h"
-#include "gl_includes.h"
 #include <string.h>
 #include <stdarg.h>
 #include <map>
@@ -80,25 +82,67 @@ std::shared_ptr<const FontSheet> loadSheet(const char* filename, TexFilter filte
 } // namespace
 
 Font::Font() {}
-void Font::print(float x, float y, const char* fmt, ...) // Where The Printing Happens
-{
-	if (fmt == nullptr) // If There's No Text
-		return; // Do Nothing
 
-	char text[256]; // Holds Our String
-	va_list ap; // Pointer To List Of Arguments
-	va_start(ap, fmt); // Parses The String For Variables
-	vsnprintf(text, sizeof(text), fmt, ap); // cut at 255 chars
-	va_end(ap); // Results Are Stored In Text
-
-	sheet->texture.Bind(); // Select Our Font Texture
-	glPushMatrix(); // Store The Modelview Matrix
-	glLoadIdentity(); // Reset The Modelview Matrix
-	glTranslatef(x, y, 1); // Position The Text (0,0 - Bottom Left)
-	glListBase(base - 32); // Choose The Font Set
-	glCallLists(static_cast<GLsizei>(strlen(text)), GL_UNSIGNED_BYTE, text); // Draws The Display List Text
-	glPopMatrix(); // Restore The Old Projection Matrix
+void Font::draw(float x, float y, const char* text, const std::array<float, 4>& colour) {
+	if (text == nullptr || *text == '\0' || !sheet)
+		return;
+	static Batch batch;
+	batch.style.kind = DefaultShader::Kind::Texture;
+	sheet->texture.Bind();
+	// The legacy font was a display list a glyph, called with the model view loaded with glTranslatef(x, y, 1) and
+	// moved by glTranslatef(advance, 0, 0) after each glyph. Here each corner is transformed on the CPU by the
+	// projection times that glyph's matrix (Mat4 rounds as the GL did: the render snapshots match), and the whole text
+	// is drawn in one batch under identity matrices, which keep the corners as they are.
+	const Mat4 projection = gProj.top();
+	float pen = x;
+	batch.colour(colour[0], colour[1], colour[2], colour[3]);
+	batch.begin(Primitive::Triangles);
+	for (const char* c = text; *c != '\0'; c++) {
+		const int glyph = static_cast<unsigned char>(*c) - 32;
+		if (glyph < 0 || glyph >= GLYPHS) // no display list: glCallLists drew and moved nothing
+			continue;
+		const Mat4 mvp = projection * Mat4::translation(pen, y, 1.f);
+		const float left = shift[glyph];
+		const Cell& cell = cells[glyph];
+		const float corners[4][4] = {
+			{cell.u0, cell.v0, left, 0.f},
+			{cell.u1, cell.v0, left + quad, 0.f},
+			{cell.u1, cell.v1, left + quad, quad},
+			{cell.u0, cell.v1, left, quad},
+		};
+		// A display list's quad a, b, c, d as Mesa compiled it: a, b, d and b, c, d (not the a, b, c / a, c, d of an
+		// immediate GL_QUADS, Batch's Quads), so the text rasterises as before.
+		for (const int k : {0, 1, 3, 1, 2, 3}) {
+			const float* q = corners[k];
+			const Vec4 clip = mvp * Vec4{q[2], q[3], 0.f, 1.f};
+			batch.texCoord(q[0], q[1]);
+			batch.vertex(clip.x, clip.y, clip.z);
+		}
+		pen = advance[glyph] + pen;
+	}
+	gProj.push();
+	gProj.loadIdentity();
+	gMv.push();
+	gMv.loadIdentity();
+	batch.end();
+	gMv.pop();
+	gProj.pop();
 }
+
+void Font::print(float x, float y, const char* fmt, ...) {
+	if (fmt == nullptr)
+		return;
+	char text[256];
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(text, sizeof(text), fmt, ap); // cut at 255 chars
+	va_end(ap);
+	GlLegacy::adoptMatrices();
+	std::array<float, 4> colour{};
+	GlLegacy::currentColour(colour.data());
+	draw(x, y, text, colour);
+}
+
 float Font::TextWidth(const char* text) const {
 	float width = 0.f;
 	for (const char* c = text; *c != '\0'; c++) {
@@ -113,7 +157,6 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 }
 void Font::Load(const char filename[], float size, float spacing, bool proportional, TexFilter filter) {
 	static_assert(GLYPHS == SHEET_GLYPHS);
-	base = static_cast<int>(glGenLists(GLYPHS)); // Creating 95 Display Lists
 	sheet = loadSheet(filename, filter);
 	const float* left = sheet->left;
 	const float* right = sheet->right;
@@ -121,44 +164,18 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 		LOG_ERRORF("graphics", "Could not measure font glyphs: %s", filename);
 		proportional = false;
 	}
-
-	for (int loop = 0; loop < GLYPHS; loop++) // Loop Through All 95 Lists
-	{
-		float cx = static_cast<float>(loop % 10) / 10.0f; // X Position Of Current Character
-		int row = loop / 10; // Integer row index 0..9
-		float cy = static_cast<float>(row) / 10.0f; // Y Position Of Current Character
-
-		// Proportional glyphs are shifted left so the ink starts at the pen position.
-		float shift = proportional ? -left[loop] * size : 0.f;
-		// Monospaced fonts keep their historic whole-unit quads.
-		quad = proportional ? size : static_cast<float>(static_cast<int>(size));
-		advance[loop] = size / 2 + spacing;
+	// Monospaced fonts keep their historic whole-unit quads.
+	quad = proportional ? size : static_cast<float>(static_cast<int>(size));
+	for (int glyph = 0; glyph < GLYPHS; glyph++) {
+		const float cx = static_cast<float>(glyph % GRID) / 10.0f; // the cell's left edge in the sheet
+		const int row = glyph / GRID;
+		const float cy = static_cast<float>(row) / 10.0f; // its top edge, from the sheet's top
+		cells[glyph] = {cx, cx + 0.1f, 1.0f - cy - 0.1f, 1.0f - cy};
+		shift[glyph] = proportional ? -left[glyph] * size : 0.f;
+		advance[glyph] = size / 2 + spacing;
 		if (proportional)
-			advance[loop] = (right[loop] > left[loop] ? (right[loop] - left[loop]) * size : SPACE_WIDTH * size) +
-							spacing;
-
-		glNewList(base + loop, GL_COMPILE); // Start Building A List
-		{
-			glBegin(GL_QUADS); // Use A Quad For Each Character
-			{
-				glTexCoord2f(cx, 1.0f - cy - 0.1f);
-				glVertex2f(shift, 0); // Texture / Vertex Coord (Bottom Left)
-				glTexCoord2f(cx + 0.1f, 1.0f - cy - 0.1f);
-				glVertex2f(shift + quad, 0); // Texutre / Vertex Coord (Bottom Right)
-				glTexCoord2f(cx + 0.1f, 1.0f - cy);
-				glVertex2f(shift + quad, quad); // Texture / Vertex Coord (Top Right)
-				glTexCoord2f(cx, 1.0f - cy);
-				glVertex2f(shift, quad); // Texture / Vertex Coord (Top Left)
-			}
-			glEnd(); // Done Building Our Quad (Character)
-			glTranslatef(advance[loop], 0, 0); // Move To The Right Of The Character
-		}
-		glEndList(); // Done Building The Display List
-	} // Loop Until All Are Built
+			advance[glyph] = (right[glyph] > left[glyph] ? (right[glyph] - left[glyph]) * size : SPACE_WIDTH * size) +
+							 spacing;
+	}
 }
-Font::~Font() {
-	if (glContextCurrent())
-		glDeleteLists(base, GLYPHS); // Delete All 95 Font Display Lists
-	void* selfPtr = this;
-	LOG_DEBUGF("graphics", "Deleting font %p", selfPtr);
-}
+Font::~Font() = default;

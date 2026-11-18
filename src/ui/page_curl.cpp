@@ -1,4 +1,6 @@
 #include "page_curl.h"
+#include "../render/batch.h"
+#include "../render/gl_state.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <array>
@@ -121,7 +123,16 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 		outY = at.eyeY + (cy - at.eyeY) * grow;
 	};
 
-	glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT);
+	// What it changes besides GlState, put back at the end (glPushAttrib before plan gl-core-ui).
+	const GlState saved = GlState::read();
+	GLint depthFunc = GL_LESS;
+	GLint frontFace = GL_CCW;
+	GLint cullFace = GL_BACK;
+	glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
+	glGetIntegerv(GL_FRONT_FACE, &frontFace);
+	glGetIntegerv(GL_CULL_FACE_MODE, &cullFace);
+	const bool lineSmooth = glIsEnabled(GL_LINE_SMOOTH) == GL_TRUE;
+	static Batch b;
 
 	// The shadow of the curl on the revealed page: darkest at the fold, fading out past the cylinder.
 	if (!fold.flat) {
@@ -137,19 +148,19 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 			{o.x - t.x * span + n.x * reach, o.y - t.y * span + n.y * reach, 0.f},
 		};
 		band = clip(clip(clip(clip(band, 0, 0.f, false), 0, c.w, true), 1, 0.f, false), 1, c.h, true);
-		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_POLYGON);
+		b.style.kind = DefaultShader::Kind::Colour;
+		b.begin(Primitive::Polygon);
 		for (const ShadowPoint& p : band) {
 			float x = 0;
 			float y = 0;
 			toCanvas(p.x, p.y, 0.f, x, y);
-			glColor4f(0, 0, 0, p.a);
-			glVertex2f(x, y);
+			b.colour(0, 0, 0, p.a);
+			b.vertex(x, y);
 		}
-		glEnd();
+		b.end();
 	}
 
 	// Columns at the same step on into the overhang; column COLUMNS is the free edge.
@@ -171,10 +182,9 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_ALPHA_TEST); // the overhang is clear but for what hangs out of the page
-	glAlphaFunc(GL_GREATER, 0.5f);
+	b.style.kind = DefaultShader::Kind::AlphaTest; // the overhang is clear but for what hangs out of the page
+	b.style.alphaRef = 0.5f;
 	glFrontFace(at.mirror ? GL_CW : GL_CCW);
 	// Front: u runs left to right on the canvas, so from the spine on a right page. Back: laid out as the page on
 	// the other side of the spine, the spine at its other end.
@@ -183,42 +193,46 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 		glCullFace(front ? GL_BACK : GL_FRONT);
 		glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(front ? at.front : at.back));
 		for (int j = 0; j < ROWS; j++) {
-			glBegin(GL_TRIANGLE_STRIP);
+			b.begin(Primitive::TriangleStrip);
 			for (int i = 0; i <= columns; i++) {
 				float fromSpine = columnX(i) / reach;
 				float u = (front != at.mirror) ? fromSpine : 1 - fromSpine;
 				for (int k = 1; k >= 0; k--) {
 					const Vertex& v = mesh[meshIndex(i, j + k, columns)];
-					glColor4f(v.shade, v.shade, v.shade, 1.f);
-					glTexCoord2f(u, static_cast<float>(j + k) / ROWS);
-					glVertex3f(v.x, v.y, v.z);
+					b.colour(v.shade, v.shade, v.shade, 1.f);
+					b.texCoord(u, static_cast<float>(j + k) / ROWS);
+					b.vertex(v.x, v.y, v.z);
 				}
 			}
-			glEnd();
+			b.end();
 		}
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// A faint edge, so the turning page stands out from the paper under it. A hair above the page, hidden where the
 	// page covers itself.
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
-	glDisable(GL_ALPHA_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_LINE_SMOOTH);
-	glColor4f(0, 0, 0, 0.18f);
+	b.style.kind = DefaultShader::Kind::Colour;
+	b.colour(0, 0, 0, 0.18f);
 	auto edge = [&](int i, int j) {
 		const Vertex& v = mesh[meshIndex(i, j, columns)];
-		glVertex3f(v.x, v.y, v.z + 0.05f);
+		b.vertex(v.x, v.y, v.z + 0.05f);
 	};
-	glBegin(GL_LINE_STRIP);
+	b.begin(Primitive::LineStrip);
 	for (int i = 0; i <= COLUMNS; i++)
 		edge(i, 0);
 	for (int j = 0; j <= ROWS; j++)
 		edge(COLUMNS, j);
 	for (int i = COLUMNS; i >= 0; i--)
 		edge(i, ROWS);
-	glEnd();
-	glPopAttrib();
+	b.end();
+	saved.apply();
+	glDepthFunc(static_cast<GLenum>(depthFunc));
+	glFrontFace(static_cast<GLenum>(frontFace));
+	glCullFace(static_cast<GLenum>(cullFace));
+	if (!lineSmooth)
+		glDisable(GL_LINE_SMOOTH);
 }

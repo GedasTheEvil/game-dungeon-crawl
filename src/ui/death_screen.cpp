@@ -110,11 +110,7 @@ void DeathScreen::Draw(int resX, int resY) {
 		loadScreenFonts(title, heading, body, small, 8.f);
 	}
 	const Rect area = ui::visibleArea(CANVAS_W, CANVAS_H, resX, resY);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);
 
 	beginShapes();
@@ -143,8 +139,5 @@ void DeathScreen::Draw(int resX, int resY) {
 		LABEL_DIM
 	);
 
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	endScreen();
 }

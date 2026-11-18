@@ -15,9 +15,16 @@ class Font;
 namespace ui {
 
 // A canvas `height` units tall and as wide as the window's aspect needs (square units, origin bottom left, y up), for
-// the HUD parts and the draft map: sets the projection, leaves the modelview matrix current, returns the width.
+// the HUD parts and the draft map: sets the projection (gProj) and an identity model view (gMv), returns the width.
 // `depth`: the z range either side of 0.
 float beginSquareCanvas(float height, int resX, int resY, float depth = 21.f);
+// The 160 x 100 canvas over `area` (visibleArea, margins included): gProj an ortho of it, z -200..200, gMv identity.
+void beginCanvas(const Rect& area);
+// gProj an ortho of `area`, z -depth..depth, gMv identity. The canvases above set it up through this; it copies both
+// into the legacy GL matrices too while the world is not yet ported (plan gl-core-ui).
+void beginOrtho(const Rect& area, float depth);
+// A screen's last step: blend off, depth test on; texturing on and a white colour for the legacy GL drawn after it.
+void endScreen();
 
 // The four papyrus fonts of a UI screen; only the title's size differs between screens.
 void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize);
@@ -62,7 +69,10 @@ constexpr Color LABEL = {0.86f, 0.72f, 0.47f}; // body text on a dark panel
 constexpr Color LABEL_DIM = {0.55f, 0.45f, 0.30f}; // secondary text, footers
 constexpr Color WELL = {0.07f, 0.055f, 0.04f}; // icon well fill
 
-// ---- shapes (texturing off, see beginShapes) ----
+// Every part draws through a Batch (plan gl-core-ui) under gProj and gMv: set them up with a canvas above, or
+// GlLegacy::adoptMatrices() from code still on the legacy GL matrices.
+
+// ---- shapes (blend set by beginShapes) ----
 void fillRect(const Rect& r, Color top, Color bottom, float alpha);
 void strokeRect(const Rect& r, Color c, float alpha, float width);
 void line(float x0, float y0, float x1, float y1, Color c, float alpha, float width);
@@ -98,12 +108,12 @@ void tileFrame(const Rect& r, TileStyle style, bool hovered);
 // Square on the left of a tile for its icon or number.
 Rect iconWell(const Rect& tile, float inset);
 
-// Textured quad; `u0..v1` pick the part of the texture. Leaves texturing off.
+// Textured quad; `u0..v1` pick the part of the texture.
 void texturedRect(const Rect& r, int textureId, Color tint, float u0 = 0, float v0 = 0, float u1 = 1, float v1 = 1);
-// One cell of an icon atlas of columns x rows cells, counted from the PNG's top left. Leaves texturing off.
+// One cell of an icon atlas of columns x rows cells, counted from the PNG's top left.
 void atlasIcon(const Rect& r, int textureId, int cell, int columns, int rows, Color tint);
 
-// ---- text (texturing on, see beginText) ----
+// ---- text (blend on, see beginText) ----
 // The font sheets have no alpha, so the glyph brightness is used as coverage in two passes:
 // first cut the glyph out of what is below, then add the colour into the hole.
 void text(Font& font, float x, float y, const char* str, Color c, float alpha = 1.f);
@@ -133,7 +143,9 @@ void screenTabs(Font& small, ScreenTab open, int hovered, int held, bool journal
 // A tab's flat icon centred on (cx, cy), `size` its half width; the HUD's journal mark uses the book.
 void tabIcon(ScreenTab tab, float cx, float cy, float size, Color c);
 
+// Blend on, alpha blending: shapes and pictures.
 void beginShapes();
+// Blend on; text() sets its two passes' blend.
 void beginText();
 
 } // namespace ui

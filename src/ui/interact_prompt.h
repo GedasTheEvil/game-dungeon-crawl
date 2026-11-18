@@ -11,7 +11,7 @@ class Font;
 namespace InteractPrompt {
 // Once a frame: verb is what the key does in the player's cell, None to hide it (a screen open, travelling, dead,
 // won). key: the key cap ("E"), empty when unbound (the verb alone). body: the verb; small: the key. Sets its own
-// square-pixel ortho projection, the HUD's, for a resX x resY window. Leaves texturing on and the HUD blend function
+// square-pixel ortho projection, the HUD's, for a resX x resY window. Leaves the HUD blend function
 // (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR) set.
 void draw(Interaction verb, const std::string& key, int resX, int resY, Font& body, Font& small);
 } // namespace InteractPrompt

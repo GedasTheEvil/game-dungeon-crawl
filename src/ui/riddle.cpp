@@ -222,12 +222,8 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 
 void Riddle::Draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	Rect area = visibleArea(world.render);
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);
 
 	DrawBackground();
@@ -241,10 +237,7 @@ void Riddle::Draw() {
 						   : "Type the answer    Enter: answer    Backspace: erase    Esc: walk away (no reward)";
 	textCentered(small, CANVAS_W / 2, 2.2f, keys, {0.55f, 0.45f, 0.30f});
 
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
-	glColor3f(1, 1, 1);
+	endScreen();
 }
 
 void Riddle::DrawBackground() {

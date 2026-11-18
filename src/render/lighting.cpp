@@ -18,8 +18,8 @@ constexpr int MAX_LIGHTS = 16;
 
 // The world shader (plan gl-core-world), GLSL 330 core: Batch's vertices (DefaultShader's attribute locations) or a
 // model's vertex array, the matrices as uniforms.
+// After the version line.
 const char* const VERTEX_SRC = R"(
-#version 330 core
 layout(location = 0) in vec4 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec3 aNextPos; // Lighting::NEXT_POSITION_ATTRIB
@@ -98,7 +98,7 @@ void main() {
 	if (base.a <= uAlphaRef)
 		discard;
 	if (uEmissive > 0.5) { // the fog by alpha: a premultiplied sprite's clear corners stay clear (sandstorm-halls)
-		fragColour = vec4(mix(base.rgb, uFog.rgb * base.a, haze), base.a);
+		fragColour = vec4(mix(base.rgb, uFog.rgb * base.a, haze), base.a * lineCoverage());
 		return;
 	}
 	vec3 n = normalize(vNormal);
@@ -129,7 +129,7 @@ void main() {
 	} else
 		light *= 1.0 - (1.0 - METAL_DIFFUSE) * metal;
 	vec3 lit = base.rgb * (light + shine * (METAL_SHINE * metal));
-	fragColour = vec4(mix(lit, uFog.rgb, haze), base.a);
+	fragColour = vec4(mix(lit, uFog.rgb, haze), base.a * lineCoverage());
 }
 )";
 
@@ -138,12 +138,27 @@ struct Light {
 	float r, g, b;
 };
 
-// A build of the lighting program and its uniforms' locations.
+// What the vertex shader hands the fragment shader (a wide line's geometry shader passes them on).
+constexpr WideLines::Varying VARYINGS[] = {{"vec3", "vPos"}, {"vec3", "vNormal"}, {"vec4", "vColour"}, {"vec2", "vUv"}};
+
+// What a program's per-draw uniforms hold, so a draw sets only what changed: most draws in a row share the matrices
+// and the toggles (each upload costs the software renderer a copy of its constants).
+struct Uploaded {
+	bool valid = false;
+	Mat4 projection, modelView;
+	std::array<float, 4> tint{};
+	float emissive = 0.f, metalMask = 0.f, blend = 0.f, alphaRef = 0.f;
+};
+
+// A build of the lighting program (one per WideLines::Stage) and its uniforms' locations.
 struct Program {
 	GLuint id = 0;
 	GLint ambient = -1, fog = -1, fogStart = -1, emissive = -1, toon = -1, count = -1, pos = -1, colour = -1;
 	GLint blend = -1, metalMask = -1, ortho = -1, alphaRef = -1;
-	GLint mvp = -1, modelView = -1, normalMatrix = -1, tint = -1; // the core one's
+	GLint mvp = -1, modelView = -1, normalMatrix = -1, tint = -1;
+	WideLines::Uniforms lines;
+	bool fresh = false; // has the frame's atmosphere and lights (begin and commit clear it)
+	Uploaded held;
 };
 
 // What the next draws are lit with: set by begin, commit and the toggles, uploaded to the program that draws.
@@ -155,33 +170,29 @@ struct State {
 	int lightCount = 0;
 	float pos[MAX_LIGHTS * 4] = {};
 	float colour[MAX_LIGHTS * 3] = {};
+	WideLines::LineStyle outline; // setOutline
 };
 
-Program gCore; // Lighting::use
+std::array<Program, WideLines::STAGES> gPrograms; // Lighting::use, by WideLines::Stage
 bool gFailed = false;
 bool gActive = false;
 Lighting::Atmosphere gAir;
 State gState;
-bool gCoreFresh = false; // the core program has the frame's atmosphere and lights (begin and commit clear it)
-// What the core program's per-draw uniforms hold, so a draw sets only what changed: most draws in a row share the
-// matrices and the toggles (each upload costs the software renderer a copy of its constants).
-struct Uploaded {
-	bool valid = false;
-	Mat4 projection, modelView;
-	std::array<float, 4> tint{};
-	float emissive = 0.f, metalMask = 0.f, blend = 0.f, alphaRef = 0.f;
-};
-Uploaded gUploaded;
 Light gLights[64];
 int gLightCount = 0;
 bool gFlicker = true;
 
-Program build(const char* name, const char* vertexSrc, const char* version) {
+Program build(WideLines::Stage stage) {
 	Program p;
-	const std::string fragment = std::string(version) + FRAGMENT_SRC;
-	p.id = linkProgram(name, vertexSrc, fragment.c_str());
+	const char* const version = "#version 330 core\n";
+	const std::string vertex = version + WideLines::vertexDefines(stage, VARYINGS) + VERTEX_SRC;
+	const std::string fragment = version + std::string(WideLines::fragmentDefines(stage)) +
+								 WideLines::FRAGMENT_COVERAGE + FRAGMENT_SRC;
+	const std::string geometry = WideLines::geometrySource(stage, VARYINGS, version);
+	p.id = linkProgram("Lighting", vertex.c_str(), fragment.c_str(), geometry.empty() ? nullptr : geometry.c_str());
 	if (p.id == 0)
 		return p;
+	p.lines.find(p.id);
 	auto at = [&p](const char* uniform) { return glGetUniformLocation(p.id, uniform); };
 	p.ambient = at("uAmbient");
 	p.fog = at("uFog");
@@ -208,14 +219,16 @@ Program build(const char* name, const char* vertexSrc, const char* version) {
 
 // Lazy, so it runs with a current GL context. On failure the scene stays unlit (the default programs).
 bool ensureProgram() {
-	if (gCore.id != 0)
+	if (gPrograms[0].id != 0)
 		return true;
 	if (gFailed)
 		return false;
 	gFailed = true;
-	gCore = build("Lighting", VERTEX_SRC, "#version 330 core\n");
-	if (gCore.id == 0)
-		return false;
+	for (size_t i = 0; i < WideLines::STAGES; i++) {
+		gPrograms[i] = build(static_cast<WideLines::Stage>(i));
+		if (gPrograms[i].id == 0)
+			return false;
+	}
 	gFailed = false;
 	LOG_INFO("graphics", "Lighting shader ready");
 	return true;
@@ -236,8 +249,8 @@ void uploadFrame(const Program& p) {
 }
 
 // One uniform float into the bound program, unless it holds it already.
-void setFloat(GLint location, float& held, float value) {
-	if (gUploaded.valid && held == value)
+void setFloat(bool valid, GLint location, float& held, float value) {
+	if (valid && held == value)
 		return;
 	held = value;
 	glUniform1f(location, value);
@@ -273,7 +286,8 @@ void Lighting::begin() {
 		return;
 	gState = {};
 	gState.ortho = gProj.top().m[11] == 0.f ? 1.f : 0.f; // a perspective divides by -z: -1 there
-	gCoreFresh = false;
+	for (Program& p : gPrograms)
+		p.fresh = false;
 }
 
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {
@@ -312,7 +326,8 @@ void Lighting::commit() {
 		*c++ = l.b;
 	}
 	gState.lightCount = gLightCount;
-	gCoreFresh = false;
+	for (Program& p : gPrograms)
+		p.fresh = false;
 }
 
 void Lighting::setAtmosphere(const Atmosphere& air) { gAir = air; }
@@ -330,20 +345,30 @@ Batch& Lighting::batch() {
 bool Lighting::use(const DefaultShader::Style& style, const Mat4& projection, const Mat4& modelView) {
 	if (!gActive)
 		return DefaultShader::use(style, projection, modelView); // unlit: texture times colour
-	glUseProgram(gCore.id);
-	if (!gCoreFresh) {
-		uploadFrame(gCore);
-		gCoreFresh = true;
+	const WideLines::LineStyle& line = gState.outline.backEdges ? gState.outline : style.line;
+	const WideLines::Stage stage = WideLines::stageOf(line);
+	Program& core = gPrograms[static_cast<size_t>(stage)];
+	glUseProgram(core.id);
+	if (!core.fresh) {
+		uploadFrame(core);
+		core.fresh = true;
 	}
-	Uploaded& held = gUploaded;
-	setFloat(gCore.emissive, held.emissive, gState.emissive);
-	setFloat(gCore.metalMask, held.metalMask, gState.metalMask);
-	setFloat(gCore.blend, held.blend, gState.blend);
-	setFloat(gCore.alphaRef, held.alphaRef, style.kind == DefaultShader::Kind::AlphaTest ? style.alphaRef : -1.f);
+	if (stage != WideLines::Stage::None)
+		core.lines.set(line);
+	Uploaded& held = core.held;
+	setFloat(held.valid, core.emissive, held.emissive, gState.emissive);
+	setFloat(held.valid, core.metalMask, held.metalMask, gState.metalMask);
+	setFloat(held.valid, core.blend, held.blend, gState.blend);
+	setFloat(
+		held.valid,
+		core.alphaRef,
+		held.alphaRef,
+		style.kind == DefaultShader::Kind::AlphaTest ? style.alphaRef : -1.f
+	);
 	const std::array<float, 4> tint{style.tint[0], style.tint[1], style.tint[2], style.tint[3]};
 	if (!held.valid || tint != held.tint) {
 		held.tint = tint;
-		glUniform4fv(gCore.tint, 1, tint.data());
+		glUniform4fv(core.tint, 1, tint.data());
 	}
 	// Bit for bit: a -0 is another matrix to the rasteriser's rounding.
 	auto same = [](const Mat4& a, const Mat4& b) {
@@ -356,15 +381,17 @@ bool Lighting::use(const DefaultShader::Style& style, const Mat4& projection, co
 		held.projection = projection;
 		held.modelView = modelView;
 		const Mat4 mvp = projection * modelView;
-		glUniformMatrix4fv(gCore.mvp, 1, GL_FALSE, mvp.data());
-		glUniformMatrix4fv(gCore.modelView, 1, GL_FALSE, modelView.data());
-		glUniformMatrix3fv(gCore.normalMatrix, 1, GL_FALSE, normalMatrix(modelView).data());
+		glUniformMatrix4fv(core.mvp, 1, GL_FALSE, mvp.data());
+		glUniformMatrix4fv(core.modelView, 1, GL_FALSE, modelView.data());
+		glUniformMatrix3fv(core.normalMatrix, 1, GL_FALSE, normalMatrix(modelView).data());
 	}
 	held.valid = true;
 	return true;
 }
 
 void Lighting::setEmissive(bool on) { gState.emissive = on ? 1.f : 0.f; }
+
+void Lighting::setOutline(const WideLines::LineStyle& line) { gState.outline = line; }
 
 DefaultShader::Fog Lighting::emissiveFog() {
 	if (!gActive)

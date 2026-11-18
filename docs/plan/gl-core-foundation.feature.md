@@ -14,7 +14,7 @@ drivers keep it only for compatibility.
 
 This plan builds the parts every later port step uses, without changing a pixel. The port itself:
 [gl-core-world](gl-core-world.feature.md), [gl-core-ui](gl-core-ui.feature.md),
-[gl-core-tools](solved/gl-core-tools.tooling.md), then [gl-core-profile](gl-core-profile.feature.draft.opus.md).
+[gl-core-tools](solved/gl-core-tools.tooling.md), then [gl-core-profile](gl-core-profile.feature.md).
 
 ## Plan
 
@@ -43,7 +43,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
   with explicit save/restore of the few states the 8 call sites change).
 * Dev builds: a `KHR_debug` message callback logs GL errors through the logger (category `graphics`).
 * A legacy-GL counter: a script (in `make tidy` or `make check`) counts the legacy calls per file and fails when a
-  count grows; ported files drop to zero. [gl-core-profile](gl-core-profile.feature.draft.opus.md) turns it into a
+  count grows; ported files drop to zero. [gl-core-profile](gl-core-profile.feature.md) turns it into a
   ban.
 * Port two small users as proof (e.g. `brightness.cpp` and `fire.cpp`, the largest `glBegin` user) and check them
   against [render-snapshots](solved/render-snapshots.tooling.md).
@@ -59,7 +59,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
 * Loader: glad 2.0.8, header-only, in `external/glad/` (`glad.cpp` holds the implementation and the command that
   regenerates it). Generated for **3.3 compatibility** + `KHR_debug` + the anisotropy extensions, not 3.3 core: the
   not yet ported code still calls `glBegin` and the rest, and glad's core header leaves them undeclared;
-  [gl-core-profile](gl-core-profile.feature.draft.opus.md) regenerates it as `gl:core=3.3`, which also makes any
+  [gl-core-profile](gl-core-profile.feature.md) regenerates it as `gl:core=3.3`, which also makes any
   leftover legacy call a compile error. Every `<GL/gl.h>`, `<GL/glext.h>`, `<GL/glu.h>` and `GL_GLEXT_PROTOTYPES` is
   gone (`src/render/gl_includes.h`). `initGlContext` (`src/render/gl_context.*`) loads it: the game in
   `Window::open` with `SDL_GL_GetProcAddress`, the editor and the model viewer with `glutGetProcAddress`.

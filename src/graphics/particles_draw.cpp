@@ -5,9 +5,6 @@
 #include "../core/timer.h"
 
 void Particles::Draw(const ParticleSystem& system) {
-
-	glPointSize(8);
-
 	if (!system.Live() || !shown)
 		return;
 
@@ -20,6 +17,7 @@ void Particles::Draw(const ParticleSystem& system) {
 
 	gMv.push();
 	gMv.translate(system.X(), system.Y(), system.Z());
+	world.style.line.pointSize = 8.f;
 	world.begin(Primitive::Points);
 
 	const ParticleSystem::Particle* pt = system.Points();
@@ -27,6 +25,7 @@ void Particles::Draw(const ParticleSystem& system) {
 		world.vertex(pt[i].x, pt[i].y, pt[i].z);
 
 	world.end();
+	world.style.line.pointSize = 1.f;
 	gMv.pop();
 
 	world.colour(1, 1, 1, 1);
@@ -39,7 +38,7 @@ void Particles::DrawBleedDrops(float height, int seed) {
 	constexpr int DROPS = 4;
 	constexpr int FALL_MS = 900; // from the middle to the feet
 	Batch& world = Lighting::batch();
-	glPointSize(5);
+	world.style.line.pointSize = 5.f;
 	world.colour(0.6f, 0.03f, 0.03f, 1.f);
 	world.begin(Primitive::Points);
 	for (int i = 0; i < DROPS; i++) {
@@ -49,5 +48,6 @@ void Particles::DrawBleedDrops(float height, int seed) {
 		world.vertex(side * height, height * 0.55f * (1.f - t * t), 0.2f * height);
 	}
 	world.end();
+	world.style.line.pointSize = 1.f;
 	world.colour(1, 1, 1, 1);
 }

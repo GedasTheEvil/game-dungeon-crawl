@@ -115,11 +115,11 @@ class Sketch {
 			}
 		}
 	}
-	// The strokes so far in one draw.
+	// The strokes so far in one draw, smooth pencil lines widthPx wide.
 	void flush(float widthPx) {
 		static Batch lines;
 		lines.style.kind = DefaultShader::Kind::Colour;
-		glLineWidth(widthPx);
+		lines.style.line = {.width = widthPx, .smooth = true};
 		lines.begin(Primitive::Lines);
 		for (const Stroke& st : strokes) {
 			lines.colour(st.c.r, st.c.g, st.c.b, st.alpha);
@@ -127,7 +127,6 @@ class Sketch {
 			lines.vertex(st.x1, st.y1);
 		}
 		lines.end();
-		glLineWidth(1);
 		strokes.clear();
 	}
 
@@ -401,12 +400,10 @@ void drawLegend(
 	for (size_t k = 0; k < rows.size(); k++)
 		markQuad(slip.x + LEGEND_PAD, rowBottom(k) + (rowH - cell) / 2, cell, rows[k]);
 	endMarks();
-	glEnable(GL_LINE_SMOOTH);
 	Sketch you(slip.x + LEGEND_PAD, rowBottom(rows.size()) + (rowH - cell) / 2, cell);
 	you.loop(0.5f, 0.5f, 0.45f, 0.45f, 9, PENCIL_RED, 1.f, 7u);
 	you.flush(1.5f * resScale * std::sqrt(cell / REFERENCE_CELL));
 	diamond(slip.x + LEGEND_PAD + cell / 2, rowBottom(rows.size()) + rowH / 2, cell * 0.17f, PENCIL_RED, 1.f);
-	glDisable(GL_LINE_SMOOTH);
 
 	beginText();
 	Font& font = world.assets.fonts.hudSmall;
@@ -548,7 +545,6 @@ void DraftMap::Draw() {
 	const Clip clip = clipTo(
 		{paper.x + CLIP_SIDE, paper.y + CLIP_BOTTOM, paper.w - 2 * CLIP_SIDE, paper.h - CLIP_BOTTOM - CLIP_TOP}
 	);
-	glEnable(GL_LINE_SMOOTH);
 	Sketch sk(originX, originY, cell);
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
@@ -575,7 +571,6 @@ void DraftMap::Draw() {
 			}
 	sk.flush(1.5f * pxScale);
 
-	glDisable(GL_LINE_SMOOTH);
 	beginMarks(world); // one symbol a cell
 	for (int j = 0; j < LEVEL_HEIGHT; j++)
 		for (int i = 0; i < LEVEL_WIDTH; i++)
@@ -588,7 +583,6 @@ void DraftMap::Draw() {
 						shown
 					);
 	endMarks();
-	glEnable(GL_LINE_SMOOTH);
 
 	// "You are here": a red ring round the archaeologist.
 	float px, py;
@@ -596,7 +590,6 @@ void DraftMap::Draw() {
 	sk.loop(px, py + 0.5f, 0.6f, 0.6f, 9, PENCIL_RED, 1.f, 7u);
 	sk.flush(2.f * pxScale);
 	diamond(originX + px * cell, originY + (py + 0.5f) * cell, cell * 0.22f, PENCIL_RED, 1.f);
-	glDisable(GL_LINE_SMOOTH);
 	unclip(clip);
 	drawLegend(world, slip, rows, rowH, resScale); // over the sketch, where it lies over the sheet
 

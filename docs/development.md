@@ -6,7 +6,9 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git w
 
 * Make
 * GCC
-* OpenGL 3.3 (a compatibility profile until plan [gl-core-profile](plan/gl-core-profile.feature.draft.opus.md); Mesa, NVIDIA and AMD give one; no GLU)
+* OpenGL 3.3 core profile at least (plan [gl-core-profile](plan/gl-core-profile.feature.md): the game, the
+  level editor and the model viewer ask for a forward-compatible 3.3 core context and run nowhere older; Mesa,
+  NVIDIA, AMD and macOS give one; no GLU)
 * SDL3 (`libsdl3-dev`, found by `pkg-config sdl3`; the window, input and audio of the game, the level editor's and
   the model viewer's window; plans [sdl3-window-input](plan/sdl3-window-input.feature.md) and
   [gl-core-tools](plan/solved/gl-core-tools.tooling.md)). No GLUT, no GLU. No SDL3_mixer: the
@@ -19,8 +21,8 @@ PNG loading uses the bundled single-header [stb_image](https://github.com/nothin
 music (`.ogg`) the bundled `stb_vorbis` (`external/stb/stb_vorbis.c`, v1.24); no extra library needed. Their
 implementations are compiled once, in `external/stb/stb.cpp`.
 The GL functions come through the bundled [glad 2](https://github.com/Dav1dde/glad) loader (`external/glad/`, GL 3.3
-compatibility profile with `KHR_debug`; its implementation in `external/glad/glad.cpp`, which also says how to
-regenerate it). No GLU: `src/render/mat4.h` has its perspective and project ([GL core path](#gl-core-path)).
+core profile with `KHR_debug`, so a legacy call does not compile; its implementation in `external/glad/glad.cpp`, which
+also says how to regenerate it). No GLU: `src/render/mat4.h` has its perspective and project ([GL core path](#gl-core-path)).
 
 ## Build and run
 
@@ -91,7 +93,7 @@ The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`
 * `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
 * `bin/` - the game, the tools and the unit test runner (not tracked by git).
 * `build/` - object files and libraries (not tracked by git).
-* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), the balance sim (`balance/`), scenario runner script, `profile_game.sh` ([performance-testing.md](performance-testing.md)), the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, its tests `plan_test.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts), `where.py` (the rows of [where-is-x.md](where-is-x.md) for a term), `gl_legacy.py` (the legacy-GL counter, [GL core path](#gl-core-path)), `code_map.py` (for an architecture review: includes between directories, headers that sit apart from their users, functions nothing calls; a report, not a check).
+* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), the balance sim (`balance/`), scenario runner script, `profile_game.sh` ([performance-testing.md](performance-testing.md)), the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, its tests `plan_test.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts), `where.py` (the rows of [where-is-x.md](where-is-x.md) for a term), `gl_legacy.py` (the legacy-GL ban, [GL core path](#gl-core-path)), `code_map.py` (for an architecture review: includes between directories, headers that sit apart from their users, functions nothing calls; a report, not a check).
 * `tests/` - unit tests (`unit/`), scenario scripts (`scenarios/`), play scripts (`play/`), test levels (`levels/`), riddles (`riddles/`), inscriptions (`inscriptions/`), royal names (`names/`) and save games (`saves/`), results (`out/`, not tracked).
 * `external/` - third-party headers.
 * `docs/slides/` - the presentation of the original game (the user's Bachelor's thesis), kept for history, not maintained.
@@ -108,7 +110,7 @@ base, level, sim, render.
 | `build/libbase.a` | `src/core/`: `timer` (the game clock), `logger`, `paths`, `worker_pool.h` | no GL; every library may include it | everything below |
 | `build/liblevel.a` | `src/level/`: the level format (`level`), checker (`level_check`, `path_script` for levelcheck --script), generator (`level_gen`, its `LevelBuilder` in `level_builder.h` and `level_gen_*` by phase), `campaign`, the item and monster rows (`items`, `item_bag`, `loot`, `monster_kinds`), `tile_defs`, `player_stats`, `player_actions`, `progression`, the journal data, the pure layouts of the screens (`ui_layout`, `inventory_layout`, `skills_layout`, `status_list`, `message_log`, `page_turn`), `bindings`, `settings_ini`, `save_slots`, `scenario_script`, `gameplay_*.h` (the numbers, by topic) | no GL | game, editor, model viewer, level tools, balance sim, unit tests |
 | `build/libsim.a` | `src/sim/`: the dungeon's rules (`dungeon.h`, `dungeon_*.cpp`, `dungeon_rules.h`, `sim_links.h`), `monster`, `monster_ai`, `monster_<locomotion>` (burrow, charge, climb, flight, leap), `monster_grab` (holds), `monster_reach` (the bite's reach), `monster_roll` (the dung ball's windup), `figures` (the toon scale), `player`, `particles` (the blood's motion), `md3_mesh` (the model files), `model_info` (the clips and frame 0 extents the sim reads), `render_config.h` (sizes in GL units) | no GL | game, editor, model viewer, balance sim, unit tests |
-| `build/librender.a` | `src/render/`: `textures`, `font`, `animated_model`, `shader`, `lighting`, `ink`, `render_target`, `motion_fx`, `inscription_draw`, `ui_draw`; the GL core path (`gl_context`, `mat4`, `matrix_stack`, `batch`, `default_shaders`, `gl_state`, `gl_legacy`); stb, glad | GL allowed | game, editor, model viewer; unit tests (the GL-free parts) |
+| `build/librender.a` | `src/render/`: `textures`, `font`, `animated_model`, `shader`, `lighting`, `ink`, `render_target`, `motion_fx`, `inscription_draw`, `ui_draw`; the GL core path (`gl_context`, `mat4`, `matrix_stack`, `batch`, `default_shaders`, `gl_state`, `wide_lines`); stb, glad | GL allowed | game, editor, model viewer; unit tests (the GL-free parts) |
 
 The directory is the library: the makefile picks up `src/<library>/*.cpp` and `*.h`, so a new file there is part of
 it, and `make layers` reads the layer from the path. No library uses SDL or `Game()`, and a library file only includes
@@ -125,12 +127,13 @@ player by `PlayerView`; both only read the sim's state ([plan/solved/sim-library
 
 ## GL core path
 
-The drawing moves from OpenGL 1.x fixed function to OpenGL 3.3 core, file by file
+The drawing moved from OpenGL 1.x fixed function to OpenGL 3.3 core, file by file
 ([gl-core-foundation](plan/gl-core-foundation.feature.md), then
 [gl-core-world](plan/gl-core-world.feature.md), [gl-core-ui](plan/gl-core-ui.feature.md),
-[gl-core-tools](plan/solved/gl-core-tools.tooling.md), [gl-core-profile](plan/gl-core-profile.feature.draft.opus.md)).
-Until the last one the context is a 3.3 compatibility one (`Window::open`), so ported and legacy code draw side by
-side. The parts, all in `src/render/`:
+[gl-core-tools](plan/solved/gl-core-tools.tooling.md), [gl-core-profile](plan/gl-core-profile.feature.md)).
+The context is a forward-compatible 3.3 core one (`GlWindow::open`, `src/game/gl_window.cpp`; a dev build adds the
+debug flag), so no fixed-function call works any more. Every draw binds its own program and vertex array (a core
+context has none by default): `Batch`, `drawScreenQuad`, a model's vertex array. The parts, all in `src/render/`:
 
 * `gl_includes.h`: the GL API, through glad. Include it, never `<GL/gl.h>` or `<GL/glext.h>`. `initGlContext`
   (`gl_context.h`) loads it once a context is current (`SDL_GL_GetProcAddress`; `GlWindow` in
@@ -154,17 +157,22 @@ side. The parts, all in `src/render/`:
   light.
 * `gl_state.h`: `GlState` (blend, depth test and write, culling): `read()` before a draw, `apply()` the saved copy
   after; it replaces `glPushAttrib` / `glPopAttrib`.
-* `gl_legacy.h`: the bridge while both kinds of code run (deleted by gl-core-profile). Ported code that legacy code
-  calls starts with `GlLegacy::adoptMatrices()` (the legacy matrices into `gMv` and `gProj`); ported code that calls
-  legacy code first calls `GlLegacy::syncMatrices()` ("syncLegacy": `gMv` and `gProj` into GL).
-  `GlLegacy::resetColour()` leaves the legacy current colour white where a ported draw used to.
+* `wide_lines.h`: what a core context does not draw as the legacy one did (plan
+  [gl-core-profile](plan/gl-core-profile.feature.md)): lines wider than a pixel (`glLineWidth` above 1 is
+  an error), smooth lines (`GL_LINE_SMOOTH`), a model's back face edges (`glPolygonMode` of the back faces as lines, with front
+  culling: the trap contour, the journal's sketch) and points bigger than a pixel (core draws sprites). A draw's
+  `Style::line` (`WideLines::LineStyle`: width, smooth, backEdges with its depth offset, pointSize) picks a variant of
+  its program with a geometry shader that turns each line or point into a quad. The quads follow Mesa's llvmpipe step
+  by step (`lp_setup_line.c` for a plain line: whole pixels, the diamond exit rule at the ends; the draw module's
+  aaline, unfilled, offset and cull stages for smooth lines and back edges; `lp_setup_point.c` for a legacy point), so
+  the render snapshots keep their pixels. A `Batch` passes a primitive only its part (a width left set does not reach
+  a quad); the world's model outline is `Lighting::setOutline`.
 
 Shaders are GLSL 330 core with explicit attribute locations (`layout(location = N) in`), `in`/`out`, `texture()`
 and their matrices as uniforms.
 
 The world (plan [gl-core-world](plan/gl-core-world.feature.md)) draws on the core path: `drawGameplay` sets `gProj`
-and `gMv`, the HUD after it sets its canvas. With the UI and the tools ported as well, nothing in the game calls
-`GlLegacy` any more (left: the context's start state in `game/window.cpp`, gl-core-profile's).
+and `gMv`, the HUD after it sets its canvas. With the UI and the tools ported as well, nothing calls legacy GL any more.
 
 * The world shader (`Lighting::use`, `render/lighting.cpp`) is the lighting shader in GLSL 330 core: the frame's
   lights and fog, the toggles (`setEmissive`, `setMetalMask`, `setBlend`), the alpha test of a `Style` of kind
@@ -181,22 +189,15 @@ and `gMv`, the HUD after it sets its canvas. With the UI and the tools ported as
   every matrix the world builds has the bits GL's stack had (checked op by op), so no edge pixel moves.
 * Frame time: `FRAME_TIME=N` logs Draw's mean and fastest time every N frames to `game.log` (`graphics/frame_rate.*`).
 
-The legacy-GL counter, `tools/gl_legacy.py`: `make layers` (so every `make tidy`, `make check`, `make tidy-push`) fails
-when a file's count of fixed-function GL (immediate mode, the matrix stack and its readbacks, GLU, display lists,
-client arrays, `glPushAttrib`, fixed-function light and alpha test, quads, the GLSL 1.x built-ins) grew since the
-merge base. The counts at the base commit are the baseline, there is no baseline file: two branches porting different
-files never conflict over it. `tools/gl_legacy.py report` lists the counts, `show FILE` the counted lines.
+The legacy-GL ban, `tools/gl_legacy.py`: `make layers` (so every `make tidy`, `make check`, `make tidy-push`) fails
+on any fixed-function GL (immediate mode, the matrix stack and its readbacks, GLU, display lists, client arrays,
+`glPushAttrib`, fixed-function light and alpha test, quads, the GLSL 1.x built-ins) and on what a core context rejects
+or draws otherwise (`glLineWidth`, `GL_LINE_SMOOTH`, `glPolygonMode` of one side, `glPointSize`: draw them with
+`WideLines`). Most of it does not compile anyway (glad has the core profile only); the ban catches shader sources and
+the calls core still has. `tools/gl_legacy.py report` lists the counts, `show FILE` the counted lines.
 
-To port a file:
-
-1. Its `glBegin`/`glEnd` blocks to a static `Batch` (`glColor4f` → `colour`, `glTexCoord2f` → `texCoord`,
-   `glVertex3f` → `vertex`, `glEnable(GL_TEXTURE_2D)` → `style.kind`); keep `GL_QUADS` as `Primitive::Quads`.
-2. Its matrix calls to `gMv` / `gProj` (`glPushMatrix()` → `gMv.push()`, a `glGetFloatv(GL_MODELVIEW_MATRIX)` →
-   `gMv.top()`). Called from legacy code: `GlLegacy::adoptMatrices()` at the start; calling legacy code:
-   `GlLegacy::syncMatrices()` before.
-3. `glPushAttrib` / `glPopAttrib` to `GlState`; a `glColor4f` the legacy callers relied on to `GlLegacy::resetColour()`.
-4. `make snapshots` ([testing.md](testing.md#render-snapshots)): no image may change. A diff is fixed at its root (an
-   other quad split, a clamp, an order of operations), not accepted. `tools/gl_legacy.py report FILE`: zero.
+A change to the drawing: `make snapshots` ([testing.md](testing.md#render-snapshots)); a diff is fixed at its root
+(another quad split, a clamp, an order of operations), not accepted.
 
 Proof ports: `src/graphics/fire.cpp` (the sprites, the biggest `glBegin` user) and `src/render/brightness.cpp`; the
 full-screen passes of `ink.cpp` and `motion_fx.cpp` use `drawScreenQuad`.

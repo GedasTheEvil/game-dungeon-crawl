@@ -39,9 +39,9 @@ the level library: `tests/unit/ui_layout_test.cpp` checks them at 4:3, 16:9 and 
 * Everything draws on the GL core path ([development.md](development.md#gl-core-path), plan
   [gl-core-ui](plan/gl-core-ui.feature.md)): the parts and the fonts through a `Batch` under `gProj` and `gMv`,
   never `glBegin`, `glOrtho` or the GL matrix stack. A move or turn of a part is `gMv.push()`, `gMv.translate(...)`,
-  `gMv.pop()`; text ignores `gMv` (its pen starts at x, y on the canvas). Code still on the legacy GL matrices calls
-  `GlLegacy::adoptMatrices()` before it draws a UI part; a screen that draws a legacy part (the item models)
-  calls `GlLegacy::syncMatrices()` first.
+  `gMv.pop()`; text ignores `gMv` (its pen starts at x, y on the canvas). A line wider than a pixel or smooth is a
+  `style.line` of its batch (`ui::strokeRect`'s and `ui::line`'s width; `WideLines`, plan
+  [gl-core-profile](plan/gl-core-profile.feature.md)), never `glLineWidth` or `GL_LINE_SMOOTH`.
 * Fonts: `ui::loadScreenFonts()` loads a screen's title, heading, body and small fonts. The feedback line under a
   screen is a `ui::Toast` (`Show`, `Alpha`).
 * Mouse to canvas: `ui::toCanvas()`. Hit tests use `Rect::contains` on the same `constexpr Rect`s the drawing uses.
@@ -70,8 +70,7 @@ A screen's `Draw()`:
 3. Contents: shapes and text, switching with `beginShapes()` / `beginText()`.
 4. 3D models, if any (inventory): `glClear(GL_DEPTH_BUFFER_BIT)` first, so models never cut into the flat UI.
 5. Footer (hint + toast).
-6. `ui::endScreen()`: blend off, depth test on (and the legacy texturing and white colour for the not yet ported
-   world drawn after it).
+6. `ui::endScreen()`: blend off, depth test on.
 
 The screen does not end the frame: `Draw()` (`graphics/draw.cpp`) calls the screen that is open (`GameState::ui.screen`,
 one at a time) and then flushes, lets the scenario runner take its screenshot and swaps the buffers.
@@ -234,8 +233,10 @@ captions of sketches). Creature pages have a margin column of labels (`SEEN`, `K
 form filled in as it is learnt (`HP = ~40`, a blank line while unknown).
 
 Creature pictures: the model's move clip, frame 0, from the side and a little above. Before the kill a pencil sketch
-on the grid: a depth pass, then the back-face edges as `PENCIL` lines, front faces culled. After it a black and white
-photo pasted in a little askew: white border, dark backdrop, the model lit by a fixed-function light with a grey copy
+on the grid: a depth pass, then the back-face edges as smooth `PENCIL` lines (`WideLines::LineStyle::backEdges`: a
+geometry shader drops the front faces). After it a black and white
+photo pasted in a little askew: white border, dark backdrop, the model lit by one directional light (the `Lit` default
+program) with a grey copy
 of its texture (`Texture::LoadPNG`'s pixel filter), a red catalogue number above (`L07-03`: level, page), a caption
 with an arrow below.
 

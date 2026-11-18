@@ -6,8 +6,7 @@
 
 // The CPU twin of the GL matrix stack (plan gl-core-foundation), with the same verbs: a port turns glPushMatrix()
 // into gMv.push(), glTranslatef into gMv.translate, glGetFloatv(GL_MODELVIEW_MATRIX) into gMv.top(). Batch and the
-// default shaders take their matrices from gMv and gProj. No GL here (the unit tests check it); the bridge to the
-// legacy GL stack while the port runs file by file is gl_legacy.h.
+// default shaders take their matrices from gMv and gProj. No GL here (the unit tests check it).
 class MatrixStack {
   public:
 	MatrixStack() : stack(1) {}

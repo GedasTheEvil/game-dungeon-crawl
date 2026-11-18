@@ -208,8 +208,8 @@ format-check:
 format-check-changed:
 	@./tools/check_format.sh --changed $(FORMAT_FILES)
 
-# `make layers` (run by every tidy): the libraries kept apart, the sim's rules, and the legacy-GL counter
-# (tools/gl_legacy.py, plan gl-core-foundation: no file's fixed-function GL grows since the merge base).
+# `make layers` (run by every tidy): the libraries kept apart, the sim's rules, and the legacy-GL ban
+# (tools/gl_legacy.py, plan gl-core-profile: no fixed-function GL, nothing a core context rejects).
 layers:
 	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) $(BASE_LIB_HEADERS) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES) $(RENDER_LIB_HEADERS)
 	@./tools/check_sim.sh $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS)

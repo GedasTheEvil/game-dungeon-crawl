@@ -1,12 +1,15 @@
 // The GL core path's CPU side (plan gl-core-foundation): Mat4 against the matrices GL and GLU made, MatrixStack's
-// verbs, project against gluProject's numbers, and Batch's quads split into triangles. No GL context.
+// verbs, project against gluProject's numbers, Batch's quads split into triangles, and WideLines' stages (plan
+// gl-core-profile). No GL context.
 #include "../../external/doctest/doctest.h"
 #include "../../src/render/batch.h"
 #include "../../src/render/mat4.h"
 #include "../../src/render/matrix_stack.h"
+#include "../../src/render/wide_lines.h"
 #include <array>
 #include <cmath>
 #include <numbers>
+#include <string>
 #include <vector>
 
 namespace {
@@ -164,4 +167,34 @@ TEST_CASE("Batch: colour, texture coordinate and normal stay for the vertices af
 	batch.vertex(0.f, 0.f);
 	REQUIRE(batch.pending().size() == 1);
 	CHECK(batch.pending()[0].r == 0.5f);
+}
+
+// Plan gl-core-profile: what a core context does not draw as the legacy one did goes through a geometry shader; the
+// stage follows the widths llvmpipe drew (a plain line in whole pixels, ties to even; a point likewise).
+TEST_CASE("WideLines: the stage of a line style, plain widths rounded as llvmpipe") {
+	using WideLines::Stage;
+	auto stage = [](WideLines::LineStyle s) { return WideLines::stageOf(s); };
+	CHECK(stage({}) == Stage::None);
+	CHECK(stage({.width = 1.4f}) == Stage::None); // draws 1 pixel: GL's own line
+	CHECK(stage({.width = 1.5f}) == Stage::Lines); // draws 2
+	CHECK(stage({.width = 2.5f}) == Stage::Lines);
+	CHECK(stage({.width = 1.f, .smooth = true}) == Stage::Lines); // smooth at any width
+	CHECK(stage({.width = 4.f, .backEdges = true}) == Stage::BackEdges);
+	CHECK(stage({.pointSize = 1.4f}) == Stage::None);
+	CHECK(stage({.pointSize = 5.f}) == Stage::Points);
+}
+
+TEST_CASE("WideLines: a geometry shader per stage, passing the vertex shader's outputs on") {
+	const WideLines::Varying varyings[] = {{"vec4", "vColour"}};
+	CHECK(WideLines::geometrySource(WideLines::Stage::None, varyings, "#version 330 core\n").empty());
+	const std::string lines = WideLines::geometrySource(WideLines::Stage::Lines, varyings, "#version 330 core\n");
+	CHECK(lines.starts_with("#version 330 core\nlayout(lines) in;"));
+	CHECK(lines.find("in vec4 gs_vColour[];") != std::string::npos);
+	CHECK(lines.find("out vec4 vColour;") != std::string::npos);
+	const std::string edges = WideLines::geometrySource(WideLines::Stage::BackEdges, varyings, "#version 330 core\n");
+	CHECK(edges.find("layout(triangles) in;") != std::string::npos);
+	const std::string points = WideLines::geometrySource(WideLines::Stage::Points, varyings, "#version 330 core\n");
+	CHECK(points.find("layout(points) in;") != std::string::npos);
+	CHECK(WideLines::vertexDefines(WideLines::Stage::Lines, varyings) == "#define vColour gs_vColour\n");
+	CHECK(WideLines::vertexDefines(WideLines::Stage::None, varyings).empty());
 }

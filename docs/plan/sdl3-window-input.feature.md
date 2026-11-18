@@ -8,13 +8,13 @@ The window, GL context, event loop and input run on GLUT (freeglut): callbacks r
 (`glutDisplayFunc`, `glutIdleFunc`, `glutTimerFunc` for the update tick and the scenario tick, keyboard, special
 keys, mouse, motion, entry), `glutWarpPointer`/`glutSetCursor` in `src/input/input.cpp`, `glutIgnoreKeyRepeat` and
 `glutPostRedisplay` in `src/state/game_loop.cpp`. GLUT gives no control over the context version (needed for
-[gl-core-profile](gl-core-profile.feature.draft.opus.md)), no high-DPI, no gamepad, no raw mouse motion, no
+[gl-core-profile](gl-core-profile.feature.md)), no high-DPI, no gamepad, no raw mouse motion, no
 Wayland, and keys come as characters plus "special" codes.
 
 ## Plan
 
 * One `SDL_Window` with an OpenGL context (`SDL_GL_CreateContext`). Ask for a 2.1 compatibility context for now (the
-  game is still fixed-function); [gl-core-profile](gl-core-profile.feature.draft.opus.md) switches it to core.
+  game is still fixed-function); [gl-core-profile](gl-core-profile.feature.md) switches it to core.
   Depth, double buffer, alpha as now; vsync by `SDL_GL_SetSwapInterval`.
 * Own main loop instead of `glutMainLoop`: poll events, run the update tick at `UPDATE_TICK_MS` from a fixed-step
   accumulator on `SDL_GetTicksNS` (replaces `glutTimerFunc`), draw, swap. `glutPostRedisplay` call sites become a

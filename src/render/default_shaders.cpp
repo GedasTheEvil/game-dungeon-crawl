@@ -55,19 +55,23 @@ void main() {
 		discard;
 #endif
 	float haze = 1.0 - exp(-uFog.w * max(length(vEye) - uFogStart, 0.0));
-	fragColour = vec4(mix(colour.rgb, uFog.rgb * colour.a, haze), colour.a);
+	fragColour = vec4(mix(colour.rgb, uFog.rgb * colour.a, haze), colour.a * lineCoverage());
 }
 )";
+
+// What the vertex shader hands the fragment shader (a wide line's geometry shader passes them on).
+constexpr WideLines::Varying VARYINGS[] = {{"vec4", "vColour"}, {"vec2", "vUv"}, {"vec3", "vEye"}};
 
 struct Program {
 	GLuint id = 0;
 	bool tried = false;
 	GLint mvp = -1, modelView = -1, tint = -1, alphaRef = -1, fog = -1, fogStart = -1;
 	GLint lightDir = -1, lightAmbient = -1, lightDiffuse = -1;
+	WideLines::Uniforms lines;
 };
 
 constexpr size_t KINDS = 4;
-std::array<Program, KINDS> gPrograms;
+std::array<std::array<Program, WideLines::STAGES>, KINDS> gPrograms;
 
 const char* defines(DefaultShader::Kind kind) {
 	switch (kind) {
@@ -98,17 +102,20 @@ const char* name(DefaultShader::Kind kind) {
 }
 
 // Lazy, so it runs with a current GL context; tried once.
-Program& program(DefaultShader::Kind kind) {
-	Program& p = gPrograms[static_cast<size_t>(kind)];
+Program& program(DefaultShader::Kind kind, WideLines::Stage stage) {
+	Program& p = gPrograms[static_cast<size_t>(kind)][static_cast<size_t>(stage)];
 	if (p.tried)
 		return p;
 	p.tried = true;
-	const std::string head = std::string("#version 330 core\n") + defines(kind);
-	const std::string vertex = head + VERTEX_SRC;
-	const std::string fragment = head + FRAGMENT_SRC;
-	p.id = linkProgram(name(kind), vertex.c_str(), fragment.c_str());
+	const char* const version = "#version 330 core\n";
+	const std::string head = std::string(version) + defines(kind);
+	const std::string vertex = head + WideLines::vertexDefines(stage, VARYINGS) + VERTEX_SRC;
+	const std::string fragment = head + WideLines::fragmentDefines(stage) + WideLines::FRAGMENT_COVERAGE + FRAGMENT_SRC;
+	const std::string geometry = WideLines::geometrySource(stage, VARYINGS, version);
+	p.id = linkProgram(name(kind), vertex.c_str(), fragment.c_str(), geometry.empty() ? nullptr : geometry.c_str());
 	if (p.id == 0)
 		return p;
+	p.lines.find(p.id);
 	p.mvp = glGetUniformLocation(p.id, "uMvp");
 	p.modelView = glGetUniformLocation(p.id, "uModelView");
 	p.tint = glGetUniformLocation(p.id, "uTint");
@@ -126,10 +133,13 @@ Program& program(DefaultShader::Kind kind) {
 } // namespace
 
 bool DefaultShader::use(const Style& style, const Mat4& projection, const Mat4& modelView) {
-	const Program& p = program(style.kind);
+	const WideLines::Stage stage = WideLines::stageOf(style.line);
+	const Program& p = program(style.kind, stage);
 	if (p.id == 0)
 		return false;
 	glUseProgram(p.id);
+	if (stage != WideLines::Stage::None)
+		p.lines.set(style.line);
 	const Mat4 mvp = projection * modelView;
 	glUniformMatrix4fv(p.mvp, 1, GL_FALSE, mvp.data());
 	glUniformMatrix4fv(p.modelView, 1, GL_FALSE, modelView.data());

@@ -591,16 +591,11 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 		print.LoadPNG(file.c_str(), TexFilter::Mipmapped, photoGrey);
 	}
 
-	// The sketches change depth func, culling, polygon mode, colour mask, line width, lighting and blending: all of
-	// it goes back as it was, the rest of the game relies on it (GL_LEQUAL depth, game.cpp).
+	// The sketches change depth func, culling, colour mask and blending: all of it goes back as it was, the rest of the
+	// game relies on it (GL_LEQUAL depth, game.cpp).
 	const GlState saved = GlState::read();
 	GLint depthFunc = GL_LEQUAL;
-	GLint cullFace = GL_BACK;
-	GLfloat lineWidth = 1.f;
 	glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
-	glGetIntegerv(GL_CULL_FACE_MODE, &cullFace);
-	glGetFloatv(GL_LINE_WIDTH, &lineWidth);
-	const bool lineSmooth = glIsEnabled(GL_LINE_SMOOTH) == GL_TRUE;
 	glClear(GL_DEPTH_BUFFER_BIT);
 	gMv.push();
 	Rect fit = box;
@@ -653,27 +648,24 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 		clip->Show(frame0, 0, style);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glDepthFunc(GL_LEQUAL);
-		// The outline: the back faces' edges show where the body ends (and at its folds).
+		// The outline: the back faces' edges show where the body ends (and at its folds), smooth pencil lines (quads
+		// from a geometry shader that drops the front faces, plan gl-core-profile).
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		glPolygonMode(GL_BACK, GL_LINE);
-		glLineWidth(SKETCH_LINE_PX * static_cast<float>(world.render.resY) / 720.f);
+		glDisable(GL_CULL_FACE);
+		style.line = {
+			.width = SKETCH_LINE_PX * static_cast<float>(world.render.resY) / 720.f,
+			.smooth = true,
+			.backEdges = true
+		};
 		style.tint[0] = PENCIL.r;
 		style.tint[1] = PENCIL.g;
 		style.tint[2] = PENCIL.b;
 		style.tint[3] = 0.9f;
 		clip->Show(frame0, 0, style);
-		glPolygonMode(GL_BACK, GL_FILL);
 	}
 	gMv.pop();
 	saved.apply();
 	glDepthFunc(static_cast<GLenum>(depthFunc));
-	glCullFace(static_cast<GLenum>(cullFace));
-	glLineWidth(lineWidth);
-	if (!lineSmooth)
-		glDisable(GL_LINE_SMOOTH);
 	beginShapes();
 }

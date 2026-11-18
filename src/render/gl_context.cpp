@@ -29,8 +29,7 @@ void GLAD_API_PTR onDebugMessage(
 		LOG_WARNINGF("graphics", "GL %u: %s", id, message);
 }
 
-// Errors, undefined behaviour and the high severity rest; the compatibility context's deprecation and performance
-// notes would flood the log while the port runs.
+// Errors, undefined behaviour and the high severity rest; the driver's performance notes would flood the log.
 void installDebugLog() {
 	if (!GLAD_GL_KHR_debug)
 		return;
@@ -63,6 +62,14 @@ bool initGlContext(GLADloadfunc getProcAddress) {
 		);
 		return false;
 	}
+	GLint flags = 0;
+	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+	LOG_INFOF(
+		"graphics",
+		"GL context: core%s%s",
+		(flags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT) != 0 ? ", forward compatible" : "",
+		(flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0 ? ", debug" : ""
+	);
 #ifndef GAME_RELEASE
 	installDebugLog();
 #endif

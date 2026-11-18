@@ -58,23 +58,22 @@ void setUpAttributes() {
 	glVertexAttribPointer(DefaultShader::TEX_COORD, 2, GL_FLOAT, GL_FALSE, stride, at(offsetof(BatchVertex, u)));
 }
 
-// The bindings a draw changes, put back after it: the not yet ported code around it still draws with its own program
-// (the lighting shader), client arrays and buffers (plan gl-core-profile drops this).
-struct Bindings {
-	GLint program = 0, vao = 0, arrayBuffer = 0;
-	Bindings() {
-		glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
-		glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &arrayBuffer);
+bool isLines(Primitive p) { return p == Primitive::Lines || p == Primitive::LineStrip || p == Primitive::LineLoop; }
+
+// The part of `line` a draw of `drawn` takes: a wide line or a point size left set does not reach a quad.
+WideLines::LineStyle drawnPart(const WideLines::LineStyle& line, Primitive drawn) {
+	WideLines::LineStyle out;
+	if (drawn == Primitive::Points)
+		out.pointSize = line.pointSize;
+	else if (isLines(drawn)) {
+		out.width = line.width;
+		out.smooth = line.smooth;
+	} else if (drawn == Primitive::Triangles && line.backEdges) {
+		out = line;
+		out.pointSize = 1.f;
 	}
-	Bindings(const Bindings&) = delete;
-	Bindings& operator=(const Bindings&) = delete;
-	~Bindings() {
-		glBindVertexArray(static_cast<GLuint>(vao));
-		glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(arrayBuffer));
-		glUseProgram(static_cast<GLuint>(program));
-	}
-};
+	return out;
+}
 } // namespace
 
 void Batch::begin(Primitive p) {
@@ -118,8 +117,10 @@ void Batch::end() {
 	const Primitive drawn = expand(primitive, vertices, expanded);
 	if (expanded.empty())
 		return;
-	const Bindings saved;
-	if (!(program != nullptr ? program : DefaultShader::use)(style, gProj.top(), gMv.top()))
+	// Every draw binds its own program and vertex array (a core context has no default one), so none is put back.
+	DefaultShader::Style drawStyle = style;
+	drawStyle.line = drawnPart(style.line, drawn);
+	if (!(program != nullptr ? program : DefaultShader::use)(drawStyle, gProj.top(), gMv.top()))
 		return;
 	if (vao == 0) {
 		glGenVertexArrays(1, &vao);
@@ -144,7 +145,6 @@ void Batch::end() {
 void drawScreenQuad() {
 	static GLuint vao = 0;
 	static GLuint vbo = 0;
-	const Bindings saved;
 	if (vao == 0) {
 		// The quad -1,-1 / 1,-1 / 1,1 / -1,1 split as quad() does: the same triangles the legacy GL_QUADS drew (a
 		// strip moves a blurred pass's pixels by one).

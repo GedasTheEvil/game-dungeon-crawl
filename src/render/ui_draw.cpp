@@ -35,7 +35,7 @@ void fillRect(const Rect& r, Color top, Color bottom, float alpha) {
 
 void strokeRect(const Rect& r, Color c, float alpha, float width) {
 	Batch& b = shapes();
-	glLineWidth(width);
+	b.style.line.width = width;
 	b.colour(c.r, c.g, c.b, alpha);
 	b.begin(Primitive::LineLoop);
 	b.vertex(r.x, r.y);
@@ -43,18 +43,18 @@ void strokeRect(const Rect& r, Color c, float alpha, float width) {
 	b.vertex(r.x + r.w, r.y + r.h);
 	b.vertex(r.x, r.y + r.h);
 	b.end();
-	glLineWidth(1);
+	b.style.line = {};
 }
 
 void line(float x0, float y0, float x1, float y1, Color c, float alpha, float width) {
 	Batch& b = shapes();
-	glLineWidth(width);
+	b.style.line.width = width;
 	b.colour(c.r, c.g, c.b, alpha);
 	b.begin(Primitive::Lines);
 	b.vertex(x0, y0);
 	b.vertex(x1, y1);
 	b.end();
-	glLineWidth(1);
+	b.style.line = {};
 }
 
 void diamond(float x, float y, float size, Color c, float alpha) {

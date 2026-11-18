@@ -131,7 +131,6 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 	glGetIntegerv(GL_DEPTH_FUNC, &depthFunc);
 	glGetIntegerv(GL_FRONT_FACE, &frontFace);
 	glGetIntegerv(GL_CULL_FACE_MODE, &cullFace);
-	const bool lineSmooth = glIsEnabled(GL_LINE_SMOOTH) == GL_TRUE;
 	static Batch b;
 
 	// The shadow of the curl on the revealed page: darkest at the fold, fading out past the cylinder.
@@ -214,8 +213,8 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_LINE_SMOOTH);
 	b.style.kind = DefaultShader::Kind::Colour;
+	b.style.line.smooth = true;
 	b.colour(0, 0, 0, 0.18f);
 	auto edge = [&](int i, int j) {
 		const Vertex& v = mesh[meshIndex(i, j, columns)];
@@ -229,10 +228,9 @@ void drawPageCurl(const PageCurl& c, const PageCurlPlacement& at) {
 	for (int i = COLUMNS; i >= 0; i--)
 		edge(i, ROWS);
 	b.end();
+	b.style.line = {};
 	saved.apply();
 	glDepthFunc(static_cast<GLenum>(depthFunc));
 	glFrontFace(static_cast<GLenum>(frontFace));
 	glCullFace(static_cast<GLenum>(cullFace));
-	if (!lineSmooth)
-		glDisable(GL_LINE_SMOOTH);
 }

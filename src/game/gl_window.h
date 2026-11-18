@@ -4,7 +4,7 @@
 #include <SDL3/SDL_video.h>
 
 // An SDL window with the OpenGL context the game, the level editor and the model viewer draw in (plans
-// sdl3-window-input, gl-core-tools): GL 3.3 compatibility until plan gl-core-profile, RGBA 8 bits each, 24-bit depth,
+// sdl3-window-input, gl-core-tools): a GL 3.3 core context (plan gl-core-profile), RGBA 8 bits each, 24-bit depth,
 // double buffered, the GL functions loaded (initGlContext). SDL_Init(SDL_INIT_VIDEO) comes first. No Game(): the
 // tools link this file alone (makefile, GL_WINDOW_OBJECT).
 struct GlWindow {

@@ -4,14 +4,14 @@
 #include <cstdint>
 #include "gl_includes.h"
 #include "mat4.h"
+#include "wide_lines.h"
 
 // The GL core path's default programs (plan gl-core-foundation), GLSL 330 core: what the fixed-function pipeline drew
 // with glBegin, glColor, glTexCoord and GL_TEXTURE_2D. Batch draws with them; a VBO draw of a port can too.
 namespace DefaultShader {
 
 // The vertex attributes, the same in every default program and in Batch's vertex array. Colour and texture
-// coordinate stay off 2, 3 and 8: NVIDIA aliases those to the legacy normal, colour and texture coordinate, which
-// the not yet ported code still sets (the lighting shader keeps 6 and 7 for its own program).
+// coordinate stay off 2 and 3, the lighting shader's for a model's next key frame.
 constexpr GLuint POSITION = 0;
 constexpr GLuint NORMAL = 1;
 constexpr GLuint COLOUR = 6;
@@ -46,11 +46,12 @@ struct Style {
 	float alphaRef = 0.f; // AlphaTest
 	Fog fog;
 	Light light; // Lit
+	WideLines::LineStyle line; // a line draw's width and smoothing, a model's outline (wide_lines.h)
 };
 
-// Binds the program of style.kind and sets its uniforms: projection times model view (the matrices of gProj and gMv
-// for Batch), the model view alone for the fog's distance and the light's normals. False (logged once) when the
-// program does not build: the caller skips the draw.
+// Binds the program of style.kind (and style.line's stage) and sets its uniforms: projection times model view (the
+// matrices of gProj and gMv for Batch), the model view alone for the fog's distance and the light's normals. False
+// (logged once) when the program does not build: the caller skips the draw.
 bool use(const Style& style, const Mat4& projection, const Mat4& modelView);
 
 } // namespace DefaultShader

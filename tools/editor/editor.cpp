@@ -13,6 +13,7 @@
 #include "../../src/level/level.h"
 #include "../../src/level/level_check.h"
 #include <filesystem>
+#include "../../src/core/logger.h"
 #include "../../src/game/gl_window.h"
 #include "../../src/render/gl_includes.h"
 #include "../../src/render/matrix_stack.h"
@@ -1725,6 +1726,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	Paths::enterRootDir();
+	Logger::initialize(); // game.log: the GL context and its debug messages (plan gl-core-profile)
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
 		std::println(stderr, "SDL_Init: {}", SDL_GetError());
 		return 1;

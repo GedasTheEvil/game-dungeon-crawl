@@ -727,7 +727,7 @@ void DungeonView::drawHitboxes(const HitboxView& weapon) {
 	assets.textures.nullTex.Bind();
 	Lighting::setEmissive(true);
 	glDisable(GL_DEPTH_TEST);
-	glLineWidth(2.f);
+	world().style.line.width = 2.f;
 	world().colour(1, 0.2f, 0.2f);
 	for (const Monster& mon : d.monsters)
 		if (mon.Active() && mon.Alive())
@@ -743,7 +743,7 @@ void DungeonView::drawHitboxes(const HitboxView& weapon) {
 	const float from = weapon.fromEdge ? half : 0.f;
 	world().colour(1, 1, 0.2f);
 	box(d.mapX + dir * from, d.mapX + dir * (from + weapon.reach), d.mapY, d.mapY + player.Height() / 2.f);
-	glLineWidth(1.f);
+	world().style.line = {};
 	glEnable(GL_DEPTH_TEST);
 	Lighting::setEmissive(false);
 	world().colour(1, 1, 1);

@@ -59,7 +59,7 @@ void DungeonView::drawWebs() {
 		for (int s = 0; s <= SPOKES; s++)
 			world().vertex(cx + ex[s % SPOKES], y, cz + ez[s % SPOKES]);
 		world().end();
-		glLineWidth(1.5f);
+		world().style.line.width = 1.5f;
 		world().colour(0.62f * burn, 0.61f * burn, 0.57f * burn, 0.32f * fade);
 		world().begin(Primitive::Lines);
 		for (int s = 0; s < SPOKES; s++) {
@@ -78,7 +78,7 @@ void DungeonView::drawWebs() {
 			}
 		}
 		world().end();
-		glLineWidth(1.f);
+		world().style.line = {};
 	}
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);

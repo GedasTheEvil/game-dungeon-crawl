@@ -55,6 +55,9 @@ bool use(const DefaultShader::Style& style, const Mat4& projection, const Mat4& 
 
 // Draws without lighting (texture x colour) while set: flames, portals, overlays.
 void setEmissive(bool on);
+// While line.backEdges is set, the lit draws show only their back faces' edges, line.width pixels wide (a model's
+// outline, WideLines::LineStyle); a default LineStyle ends it.
+void setOutline(const WideLines::LineStyle& line);
 // The haze an emissive draw gets (plan gl-core-foundation): a ported draw with the default programs (Batch) takes it
 // from here. None while the shader is off.
 DefaultShader::Fog emissiveFog();

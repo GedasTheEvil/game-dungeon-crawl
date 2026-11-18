@@ -80,14 +80,11 @@ void pollEvents(bool input) {
 
 // The scene's GL state, once: the screens set the rest per frame.
 void initGl() {
-	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_DST_COLOR, GL_ZERO);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
-	glShadeModel(GL_SMOOTH);
-	glDisable(GL_LIGHTING);
 }
 } // namespace
 

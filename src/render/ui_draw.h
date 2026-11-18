@@ -20,10 +20,9 @@ namespace ui {
 float beginSquareCanvas(float height, int resX, int resY, float depth = 21.f);
 // The 160 x 100 canvas over `area` (visibleArea, margins included): gProj an ortho of it, z -200..200, gMv identity.
 void beginCanvas(const Rect& area);
-// gProj an ortho of `area`, z -depth..depth, gMv identity. The canvases above set it up through this; it copies both
-// into the legacy GL matrices too while the world is not yet ported (plan gl-core-ui).
+// gProj an ortho of `area`, z -depth..depth, gMv identity. The canvases above set it up through this.
 void beginOrtho(const Rect& area, float depth);
-// A screen's last step: blend off, depth test on; texturing on and a white colour for the legacy GL drawn after it.
+// A screen's last step: blend off, depth test on.
 void endScreen();
 
 // The four papyrus fonts of a UI screen; only the title's size differs between screens.

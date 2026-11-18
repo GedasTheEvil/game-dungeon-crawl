@@ -21,17 +21,25 @@ GLuint compile(const char* name, GLenum type, const char* src) {
 }
 } // namespace
 
-GLuint linkProgram(const char* name, const char* vertexSrc, const char* fragmentSrc) {
+GLuint linkProgram(const char* name, const char* vertexSrc, const char* fragmentSrc, const char* geometrySrc) {
 	GLuint vs = compile(name, GL_VERTEX_SHADER, vertexSrc);
 	GLuint fs = compile(name, GL_FRAGMENT_SHADER, fragmentSrc);
-	if (vs == 0 || fs == 0)
+	GLuint gs = geometrySrc != nullptr ? compile(name, GL_GEOMETRY_SHADER, geometrySrc) : 0;
+	if (vs == 0 || fs == 0 || (geometrySrc != nullptr && gs == 0)) {
+		glDeleteShader(vs); // 0 is ignored
+		glDeleteShader(fs);
+		glDeleteShader(gs);
 		return 0;
+	}
 	GLuint program = glCreateProgram();
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
+	if (gs != 0)
+		glAttachShader(program, gs);
 	glLinkProgram(program);
 	glDeleteShader(vs);
 	glDeleteShader(fs);
+	glDeleteShader(gs);
 	GLint ok = GL_FALSE;
 	glGetProgramiv(program, GL_LINK_STATUS, &ok);
 	if (ok != GL_TRUE) {

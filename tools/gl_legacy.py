@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""The legacy-GL counter (plan gl-core-foundation): counts the fixed-function GL a core profile does not have, per file.
+"""The legacy-GL ban (plan gl-core-profile; a counter since plan gl-core-foundation): the game runs in a GL 3.3 core
+context, so any fixed-function GL, or GL a core context rejects, is an error.
 
-  tools/gl_legacy.py check [--base REF]   fails when a file's count grew since REF (default: the merge base of HEAD
-                                          and $TIDY_BASE or master); `make layers` (so make tidy, make check and
-                                          make tidy-push) runs it
-  tools/gl_legacy.py report [PATH...]     the count per file, most first, and the total
-  tools/gl_legacy.py show PATH...         each counted line of the files
+  tools/gl_legacy.py check               fails on any counted line; `make layers` (so make tidy, make check and
+                                         make tidy-push) runs it
+  tools/gl_legacy.py report [PATH...]    the count per file, most first, and the total
+  tools/gl_legacy.py show PATH...        each counted line of the files
 
-No baseline file: the counts at the base commit are the baseline, so parallel branches that port different files
-never conflict over it. A ported file drops to zero and stays there (a count can only fall); a new file starts at
-zero; a renamed one (git's rename detection) keeps its old count; the bridge, src/render/gl_legacy.cpp, is not
-checked. Plan gl-core-profile turns it into a ban (every
-count zero). Counted: immediate mode, the matrix stack and its readbacks, GLU, display lists, client arrays,
-attribute push/pop, fixed-function light, fog, alpha test and texture enable, quads and polygons, and the GLSL 1.x
-built-ins in shader sources. Code only: // comments are left out.
+glad is generated for the core profile, so most legacy calls do not compile anyway; this catches the rest: the GLSL
+1.x built-ins in shader sources, and what core has but rejects or draws otherwise (glLineWidth above 1,
+GL_LINE_SMOOTH, glPolygonMode of one side, glPointSize's sprites; WideLines draws those). Counted: immediate mode,
+the matrix stack and its readbacks, GLU, display lists, client arrays, attribute push/pop, fixed-function light, fog,
+alpha test and texture enable, quads and polygons, wide and smooth lines, one-sided polygon modes, point sizes, and
+the GLSL 1.x built-ins in shader sources. Code only: // comments are left out.
 """
 import os
 import re
@@ -23,9 +22,6 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIRS = ('src', 'tools/editor', 'tools/model-viewer')
 SUFFIXES = ('.cpp', '.h')
-# The bridge between ported and legacy drawing (src/render/gl_legacy.h): legacy GL on purpose, deleted by plan
-# gl-core-profile with the last legacy caller.
-BRIDGE = {'src/render/gl_legacy.cpp'}
 
 LEGACY = re.compile(
     r'\b(?:'
@@ -44,12 +40,15 @@ LEGACY = re.compile(
     r'|glFog[fi]v?|glLineStipple|glPolygonStipple'
     r'|GL_ALPHA_TEST|GL_LIGHTING|GL_LIGHT[0-7]|GL_NORMALIZE|GL_COLOR_MATERIAL|GL_CLAMP|GL_LINE_STIPPLE'
     r'|GL_QUADS|GL_QUAD_STRIP|GL_POLYGON'
+    # in core, but rejected (forward compatible) or not drawn reliably: WideLines draws them
+    r'|glLineWidth|GL_LINE_SMOOTH|GL_POLYGON_SMOOTH|GL_POLYGON_OFFSET_LINE|glPointSize'
     # GLSL 1.x and the compatibility built-ins
     r'|gl_Vertex|gl_Color|gl_Normal|gl_MultiTexCoord[0-7]|gl_TexCoord|gl_FrontColor|gl_FragColor|gl_FragData'
     r'|gl_ModelViewMatrix|gl_ProjectionMatrix|gl_ModelViewProjectionMatrix|gl_NormalMatrix|gl_TextureMatrix'
     r'|ftransform|texture2D'
     r')\b'
     r'|\bgl(?:Enable|Disable)\(GL_TEXTURE_2D\)'
+    r'|\bglPolygonMode\(GL_(?:FRONT|BACK)\b'
     r'|#version 1[0-9]0\b|#version \d+ compatibility'
     r'|\b(?:varying|attribute)\s+(?:vec[234]|float|mat[234])\b'  # GLSL 1.x declarations, not a C++ name
 )
@@ -79,45 +78,14 @@ def read(path):
         return f.read()
 
 
-def default_base():
-    target = os.environ.get('TIDY_BASE') or 'master'
-    r = git('merge-base', 'HEAD', target)
-    return r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else 'HEAD'
-
-
-def renames(base):
-    """new path -> old path, for the files git sees as renamed since base."""
-    out = git('diff', '-M', '--name-status', base, '--', *DIRS).stdout
-    moved = {}
-    for line in out.splitlines():
-        parts = line.split('\t')
-        if parts[0].startswith('R') and len(parts) == 3:
-            moved[parts[2]] = parts[1]
-    return moved
-
-
-def base_count(base, path):
-    r = git('show', f'{base}:{path}')
-    return count(r.stdout) if r.returncode == 0 else 0
-
-
-def check(base):
-    moved = renames(base)
-    grown = []
-    for path in tracked_paths():
-        if path in BRIDGE:
-            continue
-        now = count(read(path))
-        if now == 0:
-            continue
-        before = base_count(base, moved.get(path, path))
-        if now > before:
-            grown.append((path, before, now))
-    if grown:
-        print(f'gl-legacy: legacy GL grew since {base[:7]} (docs/development.md, GL core path):')
-        for path, before, now in grown:
-            print(f'  {path}: {before} -> {now}')
-        print('  Draw it with Batch, gMv and the default shaders; tools/gl_legacy.py show <file> lists the calls.')
+def check():
+    rows = [(count(read(p)), p) for p in tracked_paths()]
+    rows = [r for r in rows if r[0] > 0]
+    if rows:
+        print('gl-legacy: legacy GL in a core context (docs/development.md, GL core path):')
+        for n, path in rows:
+            print(f'  {path}: {n}')
+        print('  Draw it with Batch, gMv, the default shaders and WideLines; tools/gl_legacy.py show <file> lists the calls.')
         return 1
     return 0
 
@@ -147,8 +115,7 @@ def main(argv):
         return 0 if argv else 2
     cmd, rest = argv[0], argv[1:]
     if cmd == 'check':
-        base = rest[rest.index('--base') + 1] if '--base' in rest else default_base()
-        return check(base)
+        return check()
     if cmd == 'report':
         return report(rest)
     if cmd == 'show':

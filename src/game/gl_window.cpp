@@ -6,9 +6,14 @@
 #include "../render/gl_context.h"
 
 bool GlWindow::open(const char* title, int width, int height, SDL_WindowFlags flags) {
-	// GL 3.3 for the core path's shaders (plan gl-core-foundation), in a compatibility context while the fixed-function
-	// drawing is ported file by file (plan gl-core-profile moves to core).
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	// A GL 3.3 core context (plan gl-core-profile): no fixed-function GL to drift back in. Forward compatible, as macOS
+	// needs; a dev build asks for the debug flag, so the driver reports every error (gl_context.cpp logs them).
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#ifdef GAME_RELEASE
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+#else
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG | SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);

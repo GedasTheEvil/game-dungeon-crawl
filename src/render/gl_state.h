@@ -5,7 +5,7 @@
 
 // The few fixed states a draw changes (plan gl-core-foundation): blend, depth test and write, culling. Replaces
 // glPushAttrib / glPopAttrib (gone in a core context): read() what is set, change it for the draw, apply() the saved
-// copy back. Reading asks GL, as the not yet ported code changes the states behind its back.
+// copy back. Reading asks GL, so a draw needs not know who set the states.
 struct GlState {
 	bool blend = false;
 	GLenum blendSrc = GL_ONE, blendDst = GL_ZERO;

@@ -135,8 +135,6 @@ void AnimatedModel::Compile(bool keepFrames) {
 	);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	// The vertex array: the indices and the texture coordinates for good, the frames' arrays set per draw (Show).
-	GLint previous = 0;
-	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &previous);
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -145,7 +143,7 @@ void AnimatedModel::Compile(bool keepFrames) {
 	glEnableVertexAttribArray(DefaultShader::NORMAL);
 	glEnableVertexAttribArray(DefaultShader::TEX_COORD);
 	glVertexAttribPointer(DefaultShader::TEX_COORD, 2, GL_FLOAT, GL_FALSE, 0, bufferOffset(0));
-	glBindVertexArray(static_cast<GLuint>(previous));
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	compiled = true;

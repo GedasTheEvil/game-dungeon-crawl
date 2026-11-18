@@ -3,10 +3,10 @@
 // SDL_GL_GetProcAddress (src/game/gl_window.cpp).
 //
 // Regenerate (pip install glad2 into a venv; --reproducible uses the spec bundled with glad, no download):
-//   python -m glad --quiet --reproducible --api "gl:compatibility=3.3" \
+//   python -m glad --quiet --reproducible --api "gl:core=3.3" \
 //     --extensions GL_KHR_debug,GL_EXT_texture_filter_anisotropic,GL_ARB_texture_filter_anisotropic \
 //     --out-path /tmp/glad c --header-only
-// then copy /tmp/glad/include/glad/gl.h to external/glad/include/glad/. The compatibility profile keeps the legacy
-// calls the code not yet ported makes; plan gl-core-profile regenerates it as "gl:core=3.3".
+// then copy /tmp/glad/include/glad/gl.h to external/glad/include/glad/. The core profile (plan gl-core-profile) has no
+// legacy call: one left in the code does not compile.
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>

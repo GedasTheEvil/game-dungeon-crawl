@@ -2,7 +2,6 @@
 #include "batch.h"
 #include "font.h"
 #include "gl_includes.h"
-#include "gl_legacy.h"
 #include "matrix_stack.h"
 #include <algorithm>
 #include <cmath>
@@ -138,14 +137,11 @@ void beginCanvas(const Rect& area) { beginOrtho(area, 200.f); }
 void beginOrtho(const Rect& area, float depth) {
 	gProj.load(Mat4::ortho(area.x, area.x + area.w, area.y, area.y + area.h, -depth, depth));
 	gMv.loadIdentity();
-	GlLegacy::syncMatrices(); // the not yet ported code drawn after a UI part finds the canvas set (plan gl-core-ui)
 }
 
 void endScreen() {
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	GlLegacy::texturing(true);
-	GlLegacy::resetColour();
 }
 
 void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize) {

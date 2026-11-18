@@ -40,15 +40,19 @@ the GL matrix stack. This plan moves it to `MatrixStack`, `Batch`, VAOs and the 
   `Lighting::use` is a `Batch::Program` (a hook added to `Batch`); `Lighting::batch()` is the world's batch, its
   current colour, normal and texture coordinate the world's, as GL's current values were.
 * Models: one vertex array per model over its buffers (`AnimatedModel::Compile`); the key frame blend was already in
-  the vertex shader and stays there (next frame at attributes 2 and 3). The legacy client arrays stay only for a draw
-  outside `Lighting` (the journal's sketches with fixed-function light, gl-core-ui's).
+  the vertex shader and stays there (next frame at attributes 2 and 3). `Show(playback, texture, style)` draws it with
+  a default program: the journal's photo (`Lit`, the light turned into eye space as `glLightfv` did) and sketch
+  (`Colour`), asked for by gl-core-ui. No client arrays left.
 * Files ported: `draw.cpp` (the world part; the HUD after it gets GL's matrices), `dungeon_render*.cpp`,
   `fire.cpp` (bridge calls gone), `item.cpp`, `monster_draw.cpp`, `particles_draw.cpp`, `player_view.cpp`,
   `trap.cpp`, `assets.cpp` (the loading screen's quads), `animated_model.cpp`, `lighting.cpp`, `motion_fx.cpp`,
-  `ink.cpp`, `inscription_draw.cpp`. Left legacy: `draw.cpp` 1 (`GL_TEXTURE_2D` for the legacy tooltip),
-  `assets.cpp` 3 (the font's colour), `animated_model.cpp` 9 (the fallback above): the UI's, for gl-core-ui.
-* The border: `GlLegacy::PortedScope` / `LegacyScope` carry the matrices and the current values between ported and
-  legacy code (the inventory's and journal's models and inscriptions, the model viewer, a monster's status cards).
+  `ink.cpp`, `inscription_draw.cpp`: all at zero in `tools/gl_legacy.py`.
+* While UI and tools were legacy, `GlLegacy::PortedScope` / `LegacyScope` carried the matrices and current values
+  across; after the rebase on gl-core-ui and gl-core-tools they and every `GlLegacy` call in the game and the tools
+  are gone (the inventory and the model viewer tint a model with `Lighting::batch().colour`, the status cards leave
+  the world batch's texture coordinate as the legacy atlas did, `Font::print` went with its last caller, the loading
+  screen). Legacy GL left: `game/window.cpp`'s start state (3) and the unused bridge `gl_legacy.cpp`, for
+  gl-core-profile.
 * Exactness: `Mat4::rotation` now takes `sinf`/`cosf` of the float angle as Mesa (cos 90 degrees is -4.4e-8, not
   6e-17) and `mat4.o` is built without FMA contraction: compared op by op with GL's stack over every snapshot
   scenario, the matrices have GL's bits. The references were retaken once for a precision change: the normal matrix

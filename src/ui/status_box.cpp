@@ -1,5 +1,4 @@
 #include "status_box.h"
-#include "../render/gl_legacy.h"
 #include "../render/ui_draw.h"
 #include "../render/font.h"
 #include "../render/gl_includes.h"
@@ -59,7 +58,6 @@ float draw(const std::vector<const StatusMessage*>& shown, int now, int resX, in
 	}
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	GlLegacy::resetColour();
 	return top;
 }
 } // namespace StatusBox

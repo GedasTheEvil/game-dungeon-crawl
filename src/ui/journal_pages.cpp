@@ -1,8 +1,8 @@
 // Each section's page drawing of the journal; the book, ribbons, page turns and input are in journal_view.cpp.
 #include "journal_view.h"
 #include "journal_internal.h"
+#include "../render/default_shaders.h"
 #include "../render/gl_includes.h"
-#include "../render/gl_legacy.h"
 #include "../render/gl_state.h"
 #include "../render/matrix_stack.h"
 #include "../render/inscription_draw.h"
@@ -526,8 +526,6 @@ void JournalScreen::DrawInscription(const Rect& p, int index) {
 	if (source != nullptr || e.id == NAME_CARTOUCHE_ID) {
 		const DecorSet& decor = world.assets.decor;
 		const float paper[3] = {PAPER.r, PAPER.g, PAPER.b};
-		GlLegacy::syncMatrices(); // the inscription's drawing is not yet ported
-		GlLegacy::texturing(true);
 		drawInscription(
 			p.cx() - GLYPHS_SIDE / 2,
 			top - GLYPHS_TOP - GLYPHS_SIDE,
@@ -606,15 +604,16 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 	glClear(GL_DEPTH_BUFFER_BIT);
 	gMv.push();
 	Rect fit = box;
-	// Light from the upper left, in front, in the page's own eye space (the model view before the photo's tilt): the
-	// lit shader's light (plan gl-core-ui). The model is still drawn by the legacy GL, GL_LIGHT0 set from it.
-	DefaultShader::Light light;
+	// Light from the upper left, in front, in the page's own eye space (the model view before the photo's tilt, as
+	// glLightfv(GL_POSITION) took it): the lit shader's light (plan gl-core-ui), the model drawn with it
+	// (gl-core-world).
+	DefaultShader::Style style;
 	if (photo) {
-		light.direction = {-0.5f, 0.7f, 1.f};
-		light.ambient = {0.5f, 0.5f, 0.5f};
-		light.diffuse = {0.85f, 0.85f, 0.85f};
-		GlLegacy::syncMatrices();
-		GlLegacy::setLight(light);
+		const Vec4 eye = gMv.top() * Vec4{-0.5f, 0.7f, 1.f, 0.f};
+		style.kind = DefaultShader::Kind::Lit;
+		style.light.direction = {eye.x, eye.y, eye.z};
+		style.light.ambient = {0.5f, 0.5f, 0.5f};
+		style.light.diffuse = {0.85f, 0.85f, 0.85f};
 
 		gMv.translate(box.cx(), box.cy(), 0);
 		gMv.rotate(tilt, 0, 0, 1);
@@ -641,22 +640,17 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 	gMv.rotate(SKETCH_TILT, 1, 0, 0);
 	gMv.scale(size, size, size);
 	gMv.rotate(t.rotA + 90.f + SKETCH_YAW, 0, 1, 0);
-	GlLegacy::syncMatrices(); // the model is not yet ported
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	if (photo) {
 		glDepthFunc(GL_LEQUAL);
-		GlLegacy::texturing(true);
-		GlLegacy::lighting(true);
-		GlLegacy::colour(1, 1, 1, 1);
-		clip->Show(frame0, print.ID());
-		GlLegacy::lighting(false);
+		clip->Show(frame0, print.ID(), style);
 	} else {
 		glDepthFunc(GL_LESS);
-		GlLegacy::texturing(false);
+		style.kind = DefaultShader::Kind::Colour;
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		clip->Show(frame0);
+		clip->Show(frame0, 0, style);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glDepthFunc(GL_LEQUAL);
 		// The outline: the back faces' edges show where the body ends (and at its folds).
@@ -667,14 +661,14 @@ void JournalScreen::DrawSketch(int type, const Rect& box, bool photo, float tilt
 		glCullFace(GL_FRONT);
 		glPolygonMode(GL_BACK, GL_LINE);
 		glLineWidth(SKETCH_LINE_PX * static_cast<float>(world.render.resY) / 720.f);
-		GlLegacy::colour(PENCIL.r, PENCIL.g, PENCIL.b, 0.9f);
-		clip->Show(frame0);
+		style.tint[0] = PENCIL.r;
+		style.tint[1] = PENCIL.g;
+		style.tint[2] = PENCIL.b;
+		style.tint[3] = 0.9f;
+		clip->Show(frame0, 0, style);
 		glPolygonMode(GL_BACK, GL_FILL);
-		GlLegacy::texturing(true);
 	}
 	gMv.pop();
-	GlLegacy::syncMatrices();
-	GlLegacy::resetColour();
 	saved.apply();
 	glDepthFunc(static_cast<GLenum>(depthFunc));
 	glCullFace(static_cast<GLenum>(cullFace));

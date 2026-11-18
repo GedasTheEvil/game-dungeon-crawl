@@ -1,5 +1,4 @@
 #include "inscription_draw.h"
-#include "gl_legacy.h"
 #include "lighting.h"
 
 namespace {
@@ -31,8 +30,8 @@ void drawInscription(
 	const InscriptionArt& art,
 	const float tint[3]
 ) {
-	const GlLegacy::PortedScope ported; // also the journal's page
-	Batch& world = Lighting::batch(); // lit on the wall; outside Lighting::begin..end texture times colour
+	Batch& world =
+		Lighting::batch(); // lit on the wall; outside Lighting::begin..end (the journal) texture times colour
 	world.colour(tint[0], tint[1], tint[2]);
 	art.plates.Bind();
 	quad(x, y, x + side, y + side, z, plateCell(style));

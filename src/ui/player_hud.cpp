@@ -1,5 +1,5 @@
 #include "player_hud.h"
-#include "../render/gl_legacy.h"
+#include "../render/lighting.h"
 #include "../core/timer.h"
 #include "../render/font.h"
 #include "../level/level.h"
@@ -392,15 +392,15 @@ void drawStatusCard(const Status& s, const Rect& r, int icons, int cards, bool p
 		{s.tint.r, s.tint.g, s.tint.b}
 	);
 	{
-		// The legacy current texture coordinate as the legacy GL atlasIcon left it, its last corner (u0, v1): a
-		// monster's health bar outline drawn after its cards samples its texture there (plan gl-core-ui; gone with
-		// gl-core-world's port of that outline).
+		// The world's current texture coordinate (Lighting::batch) as the legacy GL atlasIcon left it, its last
+		// corner (u0, v1): the next monster's health bar outline samples its texture there (plans gl-core-ui,
+		// gl-core-world; the snapshots keep that picture).
 		const float w = 1.f / static_cast<float>(ICON_COLUMNS);
 		const float h = 1.f / static_cast<float>(ICON_ROWS);
 		const int cell = static_cast<int>(s.icon);
 		const int row = cell / ICON_COLUMNS;
 		const float v = 1.f - h * static_cast<float>(row + 1);
-		GlLegacy::texCoord(w * static_cast<float>(cell % ICON_COLUMNS), v + h);
+		Lighting::batch().texCoord(w * static_cast<float>(cell % ICON_COLUMNS), v + h);
 	}
 	beginShapes();
 	if (!pips)
@@ -489,6 +489,5 @@ void draw(
 	}
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	GlLegacy::resetColour();
 }
 } // namespace PlayerHud

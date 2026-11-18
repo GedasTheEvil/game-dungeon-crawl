@@ -10,7 +10,6 @@
 #include <string>
 #include "../core/logger.h"
 #include "../core/timer.h"
-#include "gl_legacy.h"
 #include "ink.h"
 #include "matrix_stack.h"
 
@@ -272,7 +271,6 @@ void Lighting::begin() {
 	gActive = ensureProgram();
 	if (!gActive)
 		return;
-	const GlLegacy::PortedScope ported;
 	gState = {};
 	gState.ortho = gProj.top().m[11] == 0.f ? 1.f : 0.f; // a perspective divides by -z: -1 there
 	gCoreFresh = false;
@@ -281,7 +279,6 @@ void Lighting::begin() {
 void Lighting::add(float x, float y, float z, const LightDef& def, uint32_t seed) {
 	if (!gActive || gLightCount >= static_cast<int>(sizeof(gLights) / sizeof(gLights[0])))
 		return;
-	const GlLegacy::PortedScope ported;
 	const Vec4 eye = gMv.top() * Vec4{x, y, z, 1.f};
 	float k = flicker(seed, def.flicker);
 	gLights[gLightCount++] = {eye.x, eye.y, eye.z, def.radius * (0.95f + 0.05f * k), def.r * k, def.g * k, def.b * k};

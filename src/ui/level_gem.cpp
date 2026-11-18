@@ -1,6 +1,5 @@
 #include "level_gem.h"
 #include "../render/batch.h"
-#include "../render/gl_legacy.h"
 #include "../render/ui_draw.h"
 #include "../render/font.h"
 #include "../render/gl_includes.h"
@@ -112,6 +111,5 @@ void draw(int level, int resX, int resY, Font& font) {
 	text(font, textX, textY, number.c_str(), GOLD_BRIGHT);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	GlLegacy::resetColour();
 }
 } // namespace LevelGem

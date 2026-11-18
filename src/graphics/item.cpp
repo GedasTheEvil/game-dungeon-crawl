@@ -1,6 +1,5 @@
 #include "item.h"
 #include "../render/gl_includes.h"
-#include "../render/gl_legacy.h"
 #include "../render/ink.h"
 #include "../render/lighting.h"
 #include "../render/matrix_stack.h"
@@ -19,7 +18,6 @@ void Item::DrawHeld(float pose) { drawScaled(scale * Ink::heldWeaponScale(), pos
 void Item::drawScaled(float drawScale, float pose, int texture) {
 	if (!mdl)
 		return;
-	const GlLegacy::PortedScope ported; // also the inventory's models
 	gMv.push();
 	gMv.translate(0, 0, -DRAW_DEPTH);
 	gMv.scale(drawScale, drawScale, drawScale);
@@ -82,7 +80,6 @@ void Item::DrawPart() {
 }
 
 void Item::drawPartScaled(float drawScale) {
-	const GlLegacy::PortedScope ported; // also the inventory's models
 	Batch& world = Lighting::batch();
 	const BatchVertex colour = world.currentValues(); // the caller's tint, as glColor was
 	const Rgb c = {colour.r * part.tint.r, colour.g * part.tint.g, colour.b * part.tint.b};

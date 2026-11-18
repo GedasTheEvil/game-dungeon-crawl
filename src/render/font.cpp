@@ -1,10 +1,8 @@
 #include "font.h"
 #include "batch.h"
-#include "gl_legacy.h"
 #include "matrix_stack.h"
 #include "textures.h"
 #include <string.h>
-#include <stdarg.h>
 #include <map>
 #include <string>
 #include <utility>
@@ -127,20 +125,6 @@ void Font::draw(float x, float y, const char* text, const std::array<float, 4>& 
 	batch.end();
 	gMv.pop();
 	gProj.pop();
-}
-
-void Font::print(float x, float y, const char* fmt, ...) {
-	if (fmt == nullptr)
-		return;
-	char text[256];
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(text, sizeof(text), fmt, ap); // cut at 255 chars
-	va_end(ap);
-	GlLegacy::adoptMatrices();
-	std::array<float, 4> colour{};
-	GlLegacy::currentColour(colour.data());
-	draw(x, y, text, colour);
 }
 
 float Font::TextWidth(const char* text) const {

@@ -10,7 +10,6 @@
 #include "../ui/zone_banner.h"
 #include "../ui/interact_prompt.h"
 #include "../render/ui_draw.h"
-#include "../render/gl_legacy.h"
 #include "../level/bindings.h"
 #include "../render/lighting.h"
 #include "../render/brightness.h"
@@ -20,7 +19,6 @@
 #include "frame_rate.h"
 #include "../render/gl_includes.h"
 #include "../render/mat4.h"
-#include "../render/gl_legacy.h"
 #include "../render/matrix_stack.h"
 #include "../game/window.h"
 #include "../sim/render_config.h"
@@ -110,7 +108,6 @@ void drawAutosaved() {
 	ui::text(font, 3.3f, 94.2f, Game().ui.autosaved.text.c_str(), ui::BLACK, 0.6f * alpha); // shadow
 	ui::text(font, 3.f, 94.5f, Game().ui.autosaved.text.c_str(), ui::GOLD, alpha);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	GlLegacy::resetColour();
 }
 
 // The level's banner (plan zone-looks): when a campaign level starts, the zone's on its first level. Under the status
@@ -155,14 +152,10 @@ void drawTooltip() {
 	const ui::Rect area = ui::visibleArea(ui::CANVAS_W, ui::CANVAS_H, Game().render.resX, Game().render.resY);
 	gProj.load(Mat4::ortho(area.x, area.x + area.w, area.y, area.y + area.h, -200, 200));
 	gMv.loadIdentity();
-	GlLegacy::syncMatrices(); // the tooltip is drawn the legacy way (plan gl-core-ui ports it)
 	glDisable(GL_DEPTH_TEST);
-	GlLegacy::adoptMatrices(); // the UI draws under gProj and gMv (plan gl-core-ui)
 	ui::drawTooltip(Game().assets.fonts.hudSmall, GameClock::now());
 	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
-	GlLegacy::resetColour();
 }
 
 } // namespace
@@ -228,9 +221,7 @@ void drawGameplay() {
 	MotionFx::begin(resX, resY, Ink::toon());
 	Ink::begin(SCENE_NEAR, SCENE_FAR, resX, resY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// The world is drawn on the GL core path (plan gl-core-world): gMv, gProj and the world batch's current values,
-	// back to GL for the HUD after it.
-	std::optional<GlLegacy::PortedScope> ported{std::in_place};
+	// The world is drawn on the GL core path (plan gl-core-world): gMv, gProj and the world batch (Lighting::batch).
 	gMv.loadIdentity();
 	gProj.load(
 		Mat4::perspective(
@@ -372,8 +363,6 @@ void drawGameplay() {
 			veil(0.35f, 0.65f, 1.f, fade);
 	}
 	world.colour(1, 1, 1);
-	GlLegacy::syncMatrices(); // the HUD is drawn the legacy way (plan gl-core-ui ports it)
-	ported.reset(); // the world batch's current values (white) back to GL
 	if (cutScene) { // the HUD is hidden; the status line stays, a caption
 		drawStatusLine();
 		return;
@@ -411,8 +400,6 @@ void drawGameplay() {
 			 Game().assets.textures.hudIcons.ID(),
 			 Game().assets.textures.statusCards.ID()}
 		);
-
-	GlLegacy::resetColour();
 
 	drawLevelBanner(drawStatusLine());
 	drawAutosaved();

@@ -1,7 +1,6 @@
 #include "assets.h"
 #include "../render/batch.h"
 #include "../render/gl_includes.h"
-#include "../render/gl_legacy.h"
 #include "../render/matrix_stack.h"
 #include "../game/window.h"
 #include "../level/monster_kinds.h"
@@ -657,15 +656,10 @@ void Assets::DrawLoadingScreen(float percent, const char step[], const char deta
 	batch.vertex(10, 38, 0);
 	batch.end();
 
-	GlLegacy::syncMatrices(); // the font's text (plan gl-core-ui ports it)
-	glColor3f(1, 1, 1);
-
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	glEnable(GL_BLEND);
-	fonts.loading.print(loading_text::LEFT, 17, step);
-	glColor3f(0.9f, 0.9f, 0.9f); // the detail line, a little dimmer
-	fonts.loadingDetail.print(loading_text::LEFT, 9.5f, detail);
-	glColor3f(1, 1, 1);
+	fonts.loading.draw(loading_text::LEFT, 17, step, {1.f, 1.f, 1.f, 1.f});
+	fonts.loadingDetail.draw(loading_text::LEFT, 9.5f, detail, {0.9f, 0.9f, 0.9f, 1.f}); // a little dimmer
 	glDisable(GL_BLEND);
 
 	glFlush();

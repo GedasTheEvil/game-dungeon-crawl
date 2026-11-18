@@ -8,7 +8,6 @@
 #include "lighting.h"
 #include "textures.h"
 #include "gl_includes.h"
-#include "gl_legacy.h"
 #include "matrix_stack.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
@@ -16,42 +15,10 @@
 using namespace std;
 
 namespace {
-// The arrays of one frame and the triangles' indices: client memory, or offsets into the bound buffers. The legacy
-// pipeline's draw, only outside Lighting (the journal's sketches light it the fixed-function way) until plan
-// gl-core-ui ports them; Show draws with the world shader.
-void drawTriangles(const void* v, const void* n, const void* texCoords, const void* indices, int count) {
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, v);
-	glNormalPointer(GL_FLOAT, 0, n);
-	glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, indices);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-}
-
 // GL takes an offset into the bound buffer as a pointer.
 const void* bufferOffset(size_t bytes) { return std::bit_cast<const void*>(static_cast<std::uintptr_t>(bytes)); }
 
 int gAnimationRate = AnimatedModel::DEFAULT_ANIMATION_RATE;
-
-// The bindings a model draw changes, put back after it: the not yet ported code around it draws with the legacy
-// lighting program and no vertex array (plan gl-core-profile drops this).
-struct Bindings {
-	GLint program = 0, vao = 0;
-	Bindings() {
-		glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
-	}
-	Bindings(const Bindings&) = delete;
-	Bindings& operator=(const Bindings&) = delete;
-	~Bindings() {
-		glBindVertexArray(static_cast<GLuint>(vao));
-		glUseProgram(static_cast<GLuint>(program));
-	}
-};
 } // namespace
 
 AnimatedModel::AnimatedModel() {
@@ -72,42 +39,37 @@ int AnimatedModel::Load(const char fileName[]) { return mesh.Load(fileName) ? 1 
 void AnimatedModel::Show() const { Show(playback); }
 void AnimatedModel::Show(const AnimPlayback& p) const { Show(p, texture); }
 void AnimatedModel::Show(const AnimPlayback& p, int textureId) const {
-	const FrameBlend f = BlendOf(p, mesh.frameCount, loop, GameClock::now(), gAnimationRate);
-	glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textureId));
-	if (!compiled)
-		return; // every model is compiled after its load
-	const auto vertices = static_cast<size_t>(mesh.vertexCount);
-	const size_t frameBytes = 6 * sizeof(float) * vertices;
-	// Key frame k's positions and normals in the buffer: after the texture coordinates, per frame its positions then
-	// its normals.
-	auto positions = [&](int frame) { return 2 * sizeof(float) * vertices + static_cast<size_t>(frame) * frameBytes; };
-	const bool blend = f.t > 0.f && f.b != f.a;
-	if (!Lighting::active()) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		const size_t a = positions(f.a);
-		drawTriangles(
-			bufferOffset(a),
-			bufferOffset(a + frameBytes / 2),
-			bufferOffset(0),
-			nullptr,
-			static_cast<int>(mesh.indices.size())
-		);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		return;
-	}
-	const GlLegacy::PortedScope ported;
 	DefaultShader::Style style;
 	const BatchVertex& current = Lighting::batch().currentValues(); // the world's current colour, as glColor was
 	style.tint[0] = current.r;
 	style.tint[1] = current.g;
 	style.tint[2] = current.b;
 	style.tint[3] = current.a;
-	const Bindings saved;
 	Lighting::setMetalMask(true);
-	Lighting::setBlend(blend ? f.t : 0.f);
-	if (Lighting::use(style, gProj.top(), gMv.top())) {
+	draw(p, textureId, style, Lighting::use);
+	Lighting::setMetalMask(false);
+}
+void AnimatedModel::Show(const AnimPlayback& p, int textureId, const DefaultShader::Style& style) const {
+	draw(p, textureId, style, DefaultShader::use);
+}
+void AnimatedModel::draw(
+	const AnimPlayback& p,
+	int textureId,
+	const DefaultShader::Style& style,
+	Program program
+) const {
+	glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(textureId));
+	if (!compiled)
+		return; // every model is compiled after its load
+	const FrameBlend f = BlendOf(p, mesh.frameCount, loop, GameClock::now(), gAnimationRate);
+	const auto vertices = static_cast<size_t>(mesh.vertexCount);
+	const size_t frameBytes = 6 * sizeof(float) * vertices;
+	// Key frame k's positions and normals in the buffer: after the texture coordinates, per frame its positions then
+	// its normals.
+	auto positions = [&](int frame) { return 2 * sizeof(float) * vertices + static_cast<size_t>(frame) * frameBytes; };
+	// The blend toward the next key frame is the world shader's (the default programs draw key frame a).
+	const bool blend = f.t > 0.f && f.b != f.a && Lighting::setBlend(f.t);
+	if (program(style, gProj.top(), gMv.top())) {
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		const size_t a = positions(f.a);
@@ -133,9 +95,10 @@ void AnimatedModel::Show(const AnimPlayback& p, int textureId) const {
 		glVertexAttrib4f(DefaultShader::COLOUR, 1.f, 1.f, 1.f, 1.f); // no colour array: the tint is the colour
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, nullptr);
+		glBindVertexArray(0);
 	}
-	Lighting::setMetalMask(false);
-	Lighting::setBlend(0.f);
+	if (blend)
+		Lighting::setBlend(0.f);
 }
 void AnimatedModel::SetAnimationRate(int perSecond) { gAnimationRate = perSecond; }
 void AnimatedModel::Advance() { Advance(playback); }

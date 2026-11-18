@@ -22,12 +22,11 @@
 // + / - speed the loop up / slow it down, Escape quits. Drag with the left mouse button to turn the model.
 //
 // The window is SDL3's (src/game/gl_window.h, plan gl-core-tools); the viewer's own drawing (the projection, the
-// turn, the loop bar) is on the GL core path (gProj, gMv, Batch). The model, the lighting and the stats panel are the
-// game's code: GlLegacy::syncMatrices() hands them the matrices, ported or not.
+// turn, the loop bar) is on the GL core path (gProj, gMv, Batch), as the game's model, lighting and stats panel it
+// calls (plan gl-core-world).
 
 #include "../../src/game/gl_window.h"
 #include "../../src/render/gl_includes.h"
-#include "../../src/render/gl_legacy.h"
 #include "../../src/render/mat4.h"
 #include "../../src/render/matrix_stack.h"
 #include <SDL3/SDL_error.h>
@@ -377,7 +376,6 @@ void DrawStatsPanel() {
 
 // The GL state the frames start from; the projection is set every frame (DrawScene).
 void InitGL() {
-	GlLegacy::texturing(true); // the model's legacy draw expects it
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glClearColor(0.15f, 0.15f, 0.2f, 0.0f);
@@ -414,14 +412,12 @@ void DrawScene() {
 		gMv.translate(0.f, -0.5f, -2.f); // no HUD to make room for: centred, a bit closer
 	const bool lit = gLightMode != LightMode::Flat;
 	if (lit) {
-		GlLegacy::syncMatrices(); // Lighting::add reads GL's model view
 		Lighting::begin();
 		Lighting::add(VIEWER_LIGHT_POS[0], VIEWER_LIGHT_POS[1], VIEWER_LIGHT_POS[2], VIEWER_LIGHT, 0);
 		Lighting::commit();
 	}
 	gMv.rotate(gYawDeg, 0.0f, 1.0f, 0.0f);
 	gMv.rotate(gPitchDeg, 1.0f, 0.0f, 0.0f);
-	GlLegacy::syncMatrices(); // the game's model code draws under GL's matrices until plan gl-core-world
 
 	if (gModel)
 		gModel->Show();
@@ -429,9 +425,9 @@ void DrawScene() {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthMask(GL_FALSE);
-		GlLegacy::colour(1.f, 1.f, 1.f, POTION_GLASS_ALPHA);
+		Lighting::batch().colour(1.f, 1.f, 1.f, POTION_GLASS_ALPHA); // the colour a model draws in
 		gGlass->Show();
-		GlLegacy::resetColour();
+		Lighting::batch().colour(1.f, 1.f, 1.f, 1.f);
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
@@ -486,12 +482,9 @@ void Display() {
 	Hud::drawBar(30.0f, 6.0f, 40.0f, 4.0f, static_cast<float>(loopRatio), 0.2f, 0.6f, 1.0f);
 
 	glDisable(GL_DEPTH_TEST);
-	GlLegacy::syncMatrices(); // the stats panel is the game's UI code: an identity model view in GL too
 	DrawStatsPanel();
 	glDisable(GL_BLEND);
-	GlLegacy::texturing(true);
 	glEnable(GL_DEPTH_TEST);
-	GlLegacy::resetColour();
 }
 
 // The left button turns the model while held.

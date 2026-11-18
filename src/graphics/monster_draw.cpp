@@ -1,6 +1,5 @@
 #include "monster_draw.h"
 #include "../render/gl_includes.h"
-#include "../render/gl_legacy.h"
 #include "../render/matrix_stack.h"
 #include <algorithm>
 #include <cmath>

@@ -69,8 +69,7 @@ constexpr Color LABEL = {0.86f, 0.72f, 0.47f}; // body text on a dark panel
 constexpr Color LABEL_DIM = {0.55f, 0.45f, 0.30f}; // secondary text, footers
 constexpr Color WELL = {0.07f, 0.055f, 0.04f}; // icon well fill
 
-// Every part draws through a Batch (plan gl-core-ui) under gProj and gMv: set them up with a canvas above, or
-// GlLegacy::adoptMatrices() from code still on the legacy GL matrices.
+// Every part draws through a Batch (plan gl-core-ui) under gProj and gMv: set them up with a canvas above.
 
 // ---- shapes (blend set by beginShapes) ----
 void fillRect(const Rect& r, Color top, Color bottom, float alpha);

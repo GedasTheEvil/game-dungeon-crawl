@@ -1,5 +1,4 @@
 #include "boss_bar.h"
-#include "../render/gl_legacy.h"
 #include "../render/ui_draw.h"
 #include "player_hud.h"
 #include "../render/font.h"
@@ -55,6 +54,5 @@ void draw(const char* name, float ratio, bool poisoned, const StatusList& status
 	textCentered(font, bar.cx(), y, name, GOLD_BRIGHT);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	GlLegacy::resetColour();
 }
 } // namespace BossBar

@@ -162,8 +162,9 @@ side. The parts, all in `src/render/`:
 Shaders are GLSL 330 core with explicit attribute locations (`layout(location = N) in`), `in`/`out`, `texture()`
 and their matrices as uniforms.
 
-The world (plan [gl-core-world](plan/gl-core-world.feature.md)) draws on the core path: `drawGameplay`
-holds a `GlLegacy::PortedScope` over it, sets `gProj` and `gMv` and gives GL the HUD's matrices after it.
+The world (plan [gl-core-world](plan/gl-core-world.feature.md)) draws on the core path: `drawGameplay` sets `gProj`
+and `gMv`, the HUD after it sets its canvas. With the UI and the tools ported as well, nothing in the game calls
+`GlLegacy` any more (left: the context's start state in `game/window.cpp`, gl-core-profile's).
 
 * The world shader (`Lighting::use`, `render/lighting.cpp`) is the lighting shader in GLSL 330 core: the frame's
   lights and fog, the toggles (`setEmissive`, `setMetalMask`, `setBlend`), the alpha test of a `Style` of kind
@@ -173,12 +174,9 @@ holds a `GlLegacy::PortedScope` over it, sets `gProj` and `gMv` and gives GL the
   colour, normal and texture coordinate are the world's as GL's current values were: a `glColor` before a model draw
   is `world().colour(...)`, and `AnimatedModel::Show` draws in it.
 * A model (`AnimatedModel`) draws from one vertex array over its buffers; the key frame blend stays in the vertex
-  shader (next key frame at attributes 2 and 3). Outside `Lighting` (the journal's sketches, fixed-function light) it
-  still draws the legacy way until gl-core-ui ports them.
-* The border while UI and tools are legacy: code shared with legacy callers (`Show`, `Item::Draw`, `Lighting::begin`
-  and `add`, `drawInscription`) holds a `GlLegacy::PortedScope`: entered from legacy code it adopts GL's matrices and
-  current values and gives the current values back at its end; inside another one it does nothing. Ported code
-  calling legacy code (a monster's status cards) holds a `GlLegacy::LegacyScope`.
+  shader (next key frame at attributes 2 and 3). `Show(playback, texture, style)` draws it with a default program
+  instead (the journal's photo and sketch). The inventory and the model viewer tint a model with
+  `Lighting::batch().colour(...)`.
 * `mat4.o` is built with `-ffp-contract=off` and `Mat4::rotation` takes `sinf`/`cosf` of the float angle: with both,
   every matrix the world builds has the bits GL's stack had (checked op by op), so no edge pixel moves.
 * Frame time: `FRAME_TIME=N` logs Draw's mean and fastest time every N frames to `game.log` (`graphics/frame_rate.*`).
@@ -205,13 +203,10 @@ full-screen passes of `ink.cpp` and `motion_fx.cpp` use `drawScreenQuad`.
 
 The UI is ported ([gl-core-ui](plan/gl-core-ui.feature.md)): `src/ui/`, `ui_draw.cpp` and `font.cpp` draw
 only through `Batch` under `gMv` / `gProj` (a screen sets them with `ui::beginCanvas`, `ui::beginSquareCanvas` or
-`ui::beginOrtho`, which also copy them into GL for the legacy code drawn after). A legacy caller of a UI part
-(`drawTooltip` in `graphics/draw.cpp`, a monster's status cards in `monster_draw.cpp`) calls
-`GlLegacy::adoptMatrices()` first; `Font::print` (the loading screen) adopts the legacy projection and colour itself.
-A font is glyph quads in one batch, transformed on the CPU as the old display lists were, split as Mesa split a display
+`ui::beginOrtho`). A font is glyph quads in one batch, transformed on the CPU as the old display lists were, split as Mesa split a display
 list's quads (a, b, d / b, c, d). The draft map clips with a scissor box (no user clip planes in a GLSL 330 program).
-The journal's creature photo keeps the legacy model draw under fixed-function `GL_LIGHT0`, set by
-`GlLegacy::setLight` from a `DefaultShader::Light` (the lit shader's), until gl-core-world gives the models a VAO.
+The journal's creature photo draws the model's vertex array with the `Lit` default program
+(`AnimatedModel::Show` with a `Style`, plan gl-core-world), its sketch with `Colour`.
 
 ## Adding a tile type, a monster or an item
 

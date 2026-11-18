@@ -1,6 +1,5 @@
 #include "inventory.h"
 #include "../render/batch.h"
-#include "../render/gl_legacy.h"
 #include "../render/matrix_stack.h"
 #include "../level/player_stats.h"
 #include "../level/player_actions.h"
@@ -561,7 +560,6 @@ void Inventory::Draw() {
 
 	// Models get their own depth buffer so they never cut into the flat UI drawn before them.
 	glDisable(GL_BLEND);
-	GlLegacy::texturing(true);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	Lighting::setAtmosphere({{MODEL_AMBIENT, MODEL_AMBIENT, MODEL_AMBIENT}});
@@ -771,14 +769,13 @@ void Inventory::DrawSlotModel(int slot) {
 	float savedAngle = model->rotA;
 	model->scale = SLOT_SCALE;
 	model->rotA = slotAngle[slot];
-	GlLegacy::colour(tint.r, tint.g, tint.b, 1.f);
+	Lighting::batch().colour(tint.r, tint.g, tint.b, 1.f); // the colour the model draws in
 	gMv.push();
 	gMv.translate(r.cx(), r.y + NAME_BAND_H + 1.2f - (held ? TILE_SINK : 0.f), 0);
-	GlLegacy::syncMatrices(); // the item models are not yet ported
 	model->Draw();
 	model->DrawPart(); // a ring's gem, right after its band
 	gMv.pop();
-	GlLegacy::syncMatrices();
+	Lighting::batch().colour(1.f, 1.f, 1.f, 1.f);
 	model->scale = savedScale;
 	model->rotA = savedAngle;
 }
@@ -1012,14 +1009,13 @@ void Inventory::DrawDetailModel() {
 				   : isRing(selectedSlot)	? RING_DETAIL_SCALE
 											: WEAPON_DETAIL_SCALE;
 	model->rotA = slotAngle[selectedSlot];
-	GlLegacy::colour(tint.r, tint.g, tint.b, 1.f);
+	Lighting::batch().colour(tint.r, tint.g, tint.b, 1.f); // the colour the model draws in
 	gMv.push();
 	gMv.translate(DETAIL_PANEL.cx(), PLINTH_Y, 0);
-	GlLegacy::syncMatrices(); // the item models are not yet ported
 	model->Draw();
 	model->DrawPart();
 	gMv.pop();
-	GlLegacy::syncMatrices();
+	Lighting::batch().colour(1.f, 1.f, 1.f, 1.f);
 	model->scale = savedScale;
 	model->rotA = savedAngle;
 }

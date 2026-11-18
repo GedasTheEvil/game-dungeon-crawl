@@ -8,7 +8,6 @@
 #include "../../src/render/font.h"
 #include "../../src/render/textures.h"
 #include "../../src/render/ui_draw.h"
-#include "../../src/render/gl_legacy.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/level.h"
@@ -903,7 +902,6 @@ void Editor::draw() {
 	Rect area = visibleArea();
 	gProj.load(Mat4::ortho(area.x, area.x + area.w, area.y, area.y + area.h, -1, 1));
 	gMv.loadIdentity();
-	GlLegacy::syncMatrices(); // the not yet ported GL after it finds the canvas set
 
 	drawBackground();
 	drawMap();

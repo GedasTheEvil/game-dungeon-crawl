@@ -31,32 +31,6 @@ void setLight(const DefaultShader::Light& light);
 // diffuse) or off.
 void lighting(bool on);
 
-// Ported code entered from anywhere (plan gl-core-world): while one is alive, gMv and gProj are the matrices and the
-// world batch's current values (Lighting::batch) the colour, normal and texture coordinate; GL's are stale. The first
-// one, entered from legacy code (the inventory's and the journal's models, the model viewer, the not yet ported
-// scene), adopts GL's and gives its current values back to GL at its end; one inside another changes nothing. Ported
-// code that calls legacy code holds a LegacyScope over the call (GL gets the matrices and current values, and back).
-class PortedScope {
-  public:
-	PortedScope();
-	~PortedScope();
-	PortedScope(const PortedScope&) = delete;
-	PortedScope& operator=(const PortedScope&) = delete;
-
-  private:
-	bool outer;
-};
-// Ported code calling legacy code: syncMatrices() and, while alive, the matrices are GL's again.
-class LegacyScope {
-  public:
-	LegacyScope();
-	~LegacyScope();
-	LegacyScope(const LegacyScope&) = delete;
-	LegacyScope& operator=(const LegacyScope&) = delete;
-
-  private:
-	bool outer;
-};
 } // namespace GlLegacy
 
 #endif

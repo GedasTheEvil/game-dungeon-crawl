@@ -42,11 +42,8 @@ class Font {
 	// The text's glyph quads from the sheet in one Batch draw (plan gl-core-ui), the quad bottom of the first at x, y
 	// in gProj's canvas (the model view is not used), times `colour`; blend as the caller set it.
 	void draw(float x, float y, const char* text, const std::array<float, 4>& colour);
-	// draw() for legacy GL callers: printf formatting, the legacy projection and current colour (plan gl-core-profile
-	// drops it with the last such caller).
-	void print(float x, float y, const char* string, ...);
 	[[nodiscard]] float TextWidth(const char* text) const;
-	// print() puts the quad bottom at y: the baseline is Baseline() above it, the cap top CapHeight() above that.
+	// draw() puts the quad bottom at y: the baseline is Baseline() above it, the cap top CapHeight() above that.
 	[[nodiscard]] float Baseline() const { return quad * BASELINE_PX / QUAD_PX; }
 	[[nodiscard]] float CapHeight() const { return quad * CAP_HEIGHT_PX / QUAD_PX; }
 };

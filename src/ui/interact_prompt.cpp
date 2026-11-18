@@ -1,5 +1,4 @@
 #include "interact_prompt.h"
-#include "../render/gl_legacy.h"
 #include "player_hud.h"
 #include "../level/ui_layout.h"
 #include "../core/timer.h"
@@ -46,6 +45,5 @@ void draw(Interaction verb, const std::string& key, int resX, int resY, Font& bo
 	text(body, x, y, word, GOLD_BRIGHT, alpha);
 
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-	GlLegacy::resetColour();
 }
 } // namespace InteractPrompt

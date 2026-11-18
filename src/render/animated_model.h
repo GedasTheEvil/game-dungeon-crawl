@@ -8,6 +8,11 @@
 #include "../sim/md3_mesh.h"
 #include "../sim/model_info.h"
 
+struct Mat4;
+namespace DefaultShader {
+struct Style;
+} // namespace DefaultShader
+
 class AnimatedModel {
   protected:
 	AnimPlayback playback; // of Show() / Advance() without an argument
@@ -18,6 +23,9 @@ class AnimatedModel {
 	unsigned vbo = 0; // the frames' vertices, after Compile
 	unsigned ibo = 0; // the triangles' indices
 	unsigned vao = 0; // the vertex array over them (plan gl-core-world)
+	// Binds the program (a Batch::Program) and draws the key frames of p from the vertex array.
+	using Program = bool (*)(const DefaultShader::Style& style, const Mat4& projection, const Mat4& modelView);
+	void draw(const AnimPlayback& p, int textureId, const DefaultShader::Style& style, Program program) const;
 
   public:
 	bool loop;
@@ -29,8 +37,11 @@ class AnimatedModel {
 	void Show() const;
 	void Show(const AnimPlayback& p) const; // a shared model: the caller keeps the playback
 	// With another texture on the same UVs. In the world batch's current colour (Lighting::batch, as glColor was),
-	// lit by Lighting; outside Lighting::begin..end the legacy pipeline's (the journal's sketches, plan gl-core-ui).
+	// lit by Lighting (outside Lighting::begin..end: texture times colour), under gProj and gMv.
 	void Show(const AnimPlayback& p, int textureId) const;
+	// Drawn with a default program instead (plan gl-core-world): the journal's photo (Lit) and sketch (Colour). Key
+	// frame a only, no metal shine.
+	void Show(const AnimPlayback& p, int textureId, const DefaultShader::Style& style) const;
 	// Options > Display > Animation rate: the poses a second Show blends between the key frames (BlendOf); 0: the
 	// key frames only.
 	static constexpr int DEFAULT_ANIMATION_RATE = 60;

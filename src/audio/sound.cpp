@@ -1,130 +1,100 @@
 #include "sound.h"
-#include <SDL/SDL_mixer.h>
+#include <SDL3/SDL_timer.h>
 #include <algorithm>
+#include <memory>
 #include "../core/logger.h"
+#include "mixer.h"
 
 namespace {
 int gAudioUsers = 0;
-bool gAudioOpened = false;
-int gEffectsVolume = MIX_MAX_VOLUME; // Audio::SetVolumes
+std::unique_ptr<Mixer> gMixer; // while an AudioUser lives
+// Audio::SetVolumes, 0..1
+float gMusicVolume = 1.f;
+float gEffectsVolume = 1.f;
+
+constexpr int MUSIC_FADE_MS = 1500;
+constexpr int AMBIENCE_CHANNEL = 0; // reserved (Mixer::RESERVED): the effects never take it
+constexpr int AMBIENCE_FADE_MS = 1500;
+
+uint64_t nowMs() { return SDL_GetTicks(); }
 } // namespace
 
 AudioUser::AudioUser() {
-	if (gAudioUsers++ > 0 || gAudioOpened)
+	if (gAudioUsers++ > 0)
 		return;
-	int rate;
-	Uint16 format;
-	int channels;
-	const bool alreadyOpen = Mix_QuerySpec(&rate, &format, &channels) != 0;
-	if (!alreadyOpen && Mix_OpenAudio(22050, AUDIO_S16, 2, 4096) != 0)
-		LOG_ERROR("audio", "Unable to open audio!");
-	else
-		gAudioOpened = true;
+	gMixer = std::make_unique<Mixer>();
+	gMixer->SetMusicVolume(gMusicVolume);
+	gMixer->SetVolume(-1, gEffectsVolume);
 }
 
 AudioUser::~AudioUser() {
-	if (--gAudioUsers == 0 && gAudioOpened) {
-		Mix_CloseAudio();
-		gAudioOpened = false;
-	}
-}
-
-Sound::~Sound() {
-	if (chunk)
-		Mix_FreeChunk(chunk);
+	if (--gAudioUsers == 0)
+		gMixer.reset();
 }
 
 bool Sound::Load(const char filename[]) {
-	if (chunk) {
+	if (!clip.empty()) {
 		LOG_ERRORF("audio", "Sound already loaded, not loading %s", filename);
 		return false;
 	}
-	chunk = Mix_LoadWAV(filename);
-	if (!chunk) {
-		LOG_ERRORF("audio", "Sound load error: %s: %s", filename, Mix_GetError());
-		return false;
-	}
-	return true;
+	clip = gMixer->LoadWav(filename);
+	return !clip.empty();
 }
 
 // Every play sets its channel's volume: one played quieter leaves none behind for the next sound on the channel.
 int Sound::Play(float gain) const {
-	if (!chunk)
-		return -1;
-	const int channel = Mix_PlayChannel(-1, chunk, 0);
-	if (channel >= 0)
-		Mix_Volume(channel, static_cast<int>(static_cast<float>(gEffectsVolume) * std::clamp(gain, 0.f, 1.f)));
-	return channel;
+	return gMixer->Play(clip, -1, gEffectsVolume * std::clamp(gain, 0.f, 1.f), false, 0, nowMs());
 }
 
 void Sound::Stop(int channel) {
-	if (channel >= 0)
-		Mix_HaltChannel(channel);
+	if (gMixer)
+		gMixer->Halt(channel);
 }
 
-Music::~Music() {
-	if (music)
-		Mix_FreeMusic(music);
-}
+Music::~Music() { gMixer->HaltMusic(); }
 
-namespace {
-constexpr int MUSIC_FADE_MS = 1500;
-constexpr int AMBIENCE_CHANNEL = 0; // reserved: the effects never take it
-constexpr int AMBIENCE_FADE_MS = 1500;
-} // namespace
-
-// Mix_FadeInMusic and Mix_FreeMusic wait for a fade-out to end: the new file starts on the first update after it.
+// The new file starts on the first update after the fade-out of the one playing ends.
 void Music::Play(const std::string& filename) {
+	const uint64_t now = nowMs();
+	gMixer->Update(now);
 	if (filename != wanted) {
 		wanted = filename;
-		if (Mix_PlayingMusic() != 0)
-			Mix_FadeOutMusic(MUSIC_FADE_MS);
+		gMixer->FadeOutMusic(MUSIC_FADE_MS, now);
 	}
-	if (Mix_PlayingMusic() != 0)
+	if (gMixer->MusicPlaying())
 		return;
 	if (wanted != loaded) {
-		if (music)
-			Mix_FreeMusic(music);
 		loaded = wanted;
-		music = Mix_LoadMUS(loaded.c_str());
-		if (!music)
-			LOG_ERRORF("audio", "Music load error: %s: %s", loaded.c_str(), Mix_GetError());
+		loadedOk = gMixer->LoadMusic(loaded);
 	}
-	if (music)
-		Mix_FadeInMusic(music, -1, MUSIC_FADE_MS);
+	if (loadedOk)
+		gMixer->FadeInMusic(MUSIC_FADE_MS, now);
 }
 
-Ambience::~Ambience() {
-	if (chunk) {
-		Mix_HaltChannel(AMBIENCE_CHANNEL);
-		Mix_FreeChunk(chunk);
-	}
-}
+Ambience::~Ambience() { gMixer->Halt(AMBIENCE_CHANNEL); }
 
 void Ambience::Play(const std::string& filename) {
 	if (filename == playing)
 		return;
 	playing = filename;
-	Mix_ReserveChannels(AMBIENCE_CHANNEL + 1);
-	if (chunk) {
-		Mix_HaltChannel(AMBIENCE_CHANNEL);
-		Mix_FreeChunk(chunk);
-		chunk = nullptr;
-	}
+	gMixer->Halt(AMBIENCE_CHANNEL);
+	clip.clear();
 	if (filename.empty())
 		return;
-	chunk = Mix_LoadWAV(filename.c_str());
-	if (!chunk) {
-		LOG_ERRORF("audio", "Ambience load error: %s: %s", filename.c_str(), Mix_GetError());
-		return;
-	}
-	Mix_FadeInChannel(AMBIENCE_CHANNEL, chunk, -1, AMBIENCE_FADE_MS);
+	clip = gMixer->LoadWav(filename.c_str());
+	gMixer->Play(clip, AMBIENCE_CHANNEL, gEffectsVolume, true, AMBIENCE_FADE_MS, nowMs());
 }
 
 void Audio::SetVolumes(int music, int effects) {
-	Mix_VolumeMusic(music * MIX_MAX_VOLUME / 100);
-	gEffectsVolume = effects * MIX_MAX_VOLUME / 100;
-	Mix_Volume(-1, gEffectsVolume);
+	gMusicVolume = static_cast<float>(music) / 100.f;
+	gEffectsVolume = static_cast<float>(effects) / 100.f;
+	if (!gMixer)
+		return;
+	gMixer->SetMusicVolume(gMusicVolume);
+	gMixer->SetVolume(-1, gEffectsVolume);
 }
 
-void Audio::CloseDevice() { SDL_CloseAudio(); }
+void Audio::CloseDevice() {
+	if (gMixer)
+		gMixer->CloseDevice();
+}

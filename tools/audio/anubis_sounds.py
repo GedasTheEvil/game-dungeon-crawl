@@ -6,7 +6,7 @@ release, a falling hiss and buzz as the bolt flies off. Short and dry, not the t
 
 The magic is generated (no samples), so this script is its source. The grunt is the sample media/sounds/monsters/anubis_att.wav
 (IMA ADPCM, which Python's wave cannot read: ffmpeg decodes it), mixed in at 70% from the start.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

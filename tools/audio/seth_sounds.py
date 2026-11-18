@@ -6,7 +6,7 @@ hissing and ticking on the walls as it dies away.
 
 Everything is generated (no samples), so this script is the source of the sounds; the hippo's come from
 hippo_sounds.py.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

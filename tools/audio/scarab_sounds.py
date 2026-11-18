@@ -7,7 +7,7 @@ buzz (scarab_jump.wav, plan missing-monster-sounds).
 
 Everything is generated (no samples), so this script is the source of these three; the scarab's bite and death are
 older files.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

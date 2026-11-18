@@ -5,7 +5,7 @@ a last few ticks). The chitin clicks, scrapes and rattles come from scorpion_sou
     python3 tools/audio/camel_spider_sounds.py [out_dir]  (default: media/sounds/monsters/, writes camel_spider_{att,die}.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

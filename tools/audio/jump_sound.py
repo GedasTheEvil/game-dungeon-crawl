@@ -3,7 +3,7 @@
     python3 tools/audio/jump_sound.py [out.wav]      (default: media/sounds/characters/archeologist_jump.wav)
 
 Everything is generated (no samples), so this script is the source of the sound.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

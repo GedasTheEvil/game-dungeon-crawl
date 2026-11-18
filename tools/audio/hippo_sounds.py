@@ -6,7 +6,7 @@ rolling over). The water sounds come from crocodile_sounds.py.
     python3 tools/audio/hippo_sounds.py [out_dir]      (default: media/sounds/monsters/, writes hippo_{wake,att,die}.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

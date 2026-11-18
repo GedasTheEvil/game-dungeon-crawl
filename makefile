@@ -12,12 +12,14 @@ RM=rm -f
 ifndef NO_CCACHE
 CCACHE:=$(shell command -v ccache 2>/dev/null)
 endif
+# SDL3 (the game's audio, plan sdl3-audio): its flags from pkg-config.
+SDL_CFLAGS:=$(shell pkg-config --cflags sdl3)
+SDL_LIBS:=$(shell pkg-config --libs sdl3)
 # -Wno-missing-field-initializers: a table row in designated initializers leaves out what it does not need.
-CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -MMD -MP
-TIDY_CPPFLAGS=-std=c++23 -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) $(SDL_CFLAGS) -D_GNU_SOURCE=1 -MMD -MP
+TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) -D_GNU_SOURCE=1
 # Game and tools link only what they use: GL for every window, SDL (audio) for the game alone.
 GL_LIBS=-lX11 -lglut -lGL -lGLU -lm -ldl -L/usr/X11R6/lib
-SDL_LIBS=-lSDL_mixer -lSDL
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
 ifdef RELEASE
@@ -84,9 +86,9 @@ BALANCE_SOURCES=tools/balance/balance.cpp
 BALANCE=$(BIN)/balance
 
 # Unit tests (doctest, external/doctest) of the library code, no GL context needed. tests/unit/main.cpp is the runner.
-# stb (no GL) reads PNGs for the font sheet test.
+# stb (no GL) reads PNGs for the font sheet test. The audio mixer (SDL3, on the dummy driver) for its own test.
 UNIT_SOURCES=$(wildcard tests/unit/*.cpp)
-UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o)
+UNIT_OBJECTS=$(UNIT_SOURCES:%.cpp=$(BUILD)/%.o) $(BUILD)/src/audio/mixer.o
 UNIT=$(BIN)/unit
 
 TIDY_SOURCES=$(SOURCES) $(EDITOR_SOURCES) $(VIEWER_SOURCES) $(LEVEL_TOOL_SOURCES) $(BALANCE_SOURCES)
@@ -253,7 +255,7 @@ run-model-viewer: $(VIEWER)
 
 $(UNIT): $(UNIT_OBJECTS) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB) $(EXTERNAL_OBJECTS)
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $^ -o $@
+	$(GATE) $(CXX) $^ -o $@ $(SDL_LIBS)
 
 # `make unit`: the unit tests in parallel shards (tools/unit_shards.sh, plan check-speed); `make unit-serial` runs them
 # in one process, for a debugger or doctest's own options (bin/unit --help).

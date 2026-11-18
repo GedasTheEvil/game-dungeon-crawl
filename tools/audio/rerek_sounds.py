@@ -6,7 +6,7 @@ gust of sand thrown up, grains ticking down after it.
 
 The worm's samples (media/sounds/monsters/worm_{att,die}.wav, IMA ADPCM) are read through ffmpeg; the rest is
 generated, so this script is the source of Rerek's sounds.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

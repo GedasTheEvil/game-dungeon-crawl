@@ -1,6 +1,6 @@
 # Audio on SDL3: drop SDL 1.2 and SDL_mixer
 
-Status: draft 2026-11-18, size M, needs nothing first.
+Status: implemented 2026-11-18, waiting for the user's play-test. Was: draft 2026-11-18, size M, needs nothing first.
 
 ## Problem
 
@@ -37,3 +37,13 @@ fade in and out, music volume, `PlayingMusic`.
 * `bin/game --level 1`: music starts with its fade-in, footsteps, doors, monsters and pickups sound as before.
 * Change music and effect volume in Options: both follow at once.
 * Go to the next level: the music fades out and the next track fades in, with no click or gap.
+
+## Done
+
+* `src/audio/mixer.*`: `Mixer` (8 channels, channel 0 reserved for the ambience, one music stream; a looped clip is
+  put again from the stream's get-callback, the music decoded there) and `GainRamp` (the fades, stepped by
+  `Mixer::Update`, which `Music::Play` calls each update). `src/audio/sound.*` keeps its API on top of it.
+* `external/stb/stb_vorbis.c` v1.24 (github.com/nothings/stb master, 2026-11-18), compiled in `external/stb/stb.cpp`.
+* Unit test `tests/unit/mixer_test.cpp` (dummy driver). Checked once on SDL's disk driver: the mixed music matches
+  an ffmpeg decode of `menu.ogg` sample for sample at gain 1 (correlation 1.0), the fades and the effects show in
+  the levels.

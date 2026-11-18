@@ -7,7 +7,7 @@ Then the cursed mimic's (plan cursed-mimic), mimic_cursed_{wake,att,die,jump}.wa
 slower, under a whisper (band noise wavering), and a leap (a creak, the wooden thud of its landing, coins rattling).
 
 Everything is generated (no samples), so this script is the source of the sounds.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

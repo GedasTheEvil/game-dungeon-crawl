@@ -8,11 +8,15 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git w
 * GCC
 * OpenGL
 * GLUT
-* SDL, SDL Mixer (the game's audio; the tools do not need them)
+* SDL3 (`libsdl3-dev`, found by `pkg-config sdl3`; the game's audio, the tools do not need it). No SDL3_mixer: the
+  game mixes its own sounds on SDL3 audio streams (`src/audio/mixer.*`, plan
+  [sdl3-audio](plan/sdl3-audio.feature.md))
 * Python 3 (`tools/plan.py`, run by `make check`; the asset scripts)
 * clang-format, clang-tidy (`make format`, `make tidy`)
 
-PNG loading uses the bundled single-header [stb_image](https://github.com/nothings/stb) (`external/stb/stb_image.h`), no extra library needed.
+PNG loading uses the bundled single-header [stb_image](https://github.com/nothings/stb) (`external/stb/stb_image.h`), the
+music (`.ogg`) the bundled `stb_vorbis` (`external/stb/stb_vorbis.c`, v1.24); no extra library needed. Their
+implementations are compiled once, in `external/stb/stb.cpp`.
 
 ## Build and run
 
@@ -28,8 +32,8 @@ read their file arguments from the current directory.
 * `make release` (plan [release-zip](plan/solved/release-zip.tooling.md)): `release-<version>.zip` in the repo
   root (version: `.version`, `-dirty` appended for a dirty tree, which is refused unless `make release ARGS=--allow-dirty`).
   Holds `Play`, `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the
-  dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL, GL and GLUT
-  installed (no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
+  dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL3 (`libsdl3-0`; SDL 1.2 and SDL_mixer
+  are no longer needed), GL and GLUT installed (no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
 * Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)
   `PROUD.DEFAULT.SHAME`: PROUD for a release we are proud of, DEFAULT for a normal one, SHAME for fixing something
   embarrassing; a lower part resets to 0. Who bumps what: [AGENTS.md](../AGENTS.md#version) (agents bump DEFAULT
@@ -77,7 +81,7 @@ The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`
 ## Project layout
 
 * `src/` - one directory per library, then the game ([Libraries](#libraries), plan src-dirs-by-layer): `core` (base),
-  `level`, `sim`, `render`; the game's own `game` (`main`), `audio` (SDL_mixer sounds), `graphics` (the game's drawing, the loaded `Assets`), `ui`, `input`,
+  `level`, `sim`, `render`; the game's own `game` (`main`), `audio` (the sounds and music, the `Mixer` on SDL3 audio streams), `graphics` (the game's drawing, the loaded `Assets`), `ui`, `input`,
   `state`, `test` (scenario runner).
 * `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
 * `bin/` - the game, the tools and the unit test runner (not tracked by git).
@@ -158,7 +162,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 
 ## Code structure
 
-* `game/game.cpp` - `main`: SDL, the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
+* `game/game.cpp` - `main`: SDL (audio only), the GLUT window and callbacks. `Game()` (`state/game_state.h`) is the one
   `GameState`, created before the window.
 * `graphics/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
   monster types). The rows come from the level library: `KINDS` (`level/monster_kinds.cpp`), `ITEMS` (`level/items.cpp`).

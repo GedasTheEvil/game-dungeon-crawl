@@ -1,6 +1,6 @@
 # Window, input and main loop on SDL3: drop GLUT
 
-Status: draft 2026-11-18, size L, needs [sdl3-audio](sdl3-audio.feature.draft.opus.md) first.
+Status: draft 2026-11-18, size L, needs [sdl3-audio](sdl3-audio.feature.md) first.
 
 ## Problem
 

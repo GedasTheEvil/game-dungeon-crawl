@@ -11,7 +11,7 @@ voice for his words.
               (frame 12 of the 26-frame attack clip at 14 frames a second, as the Anubis's), a falling purple hiss,
   die         a long voiced moan sinking and breaking up, the staff clattering on the stone, dust, linen, a thud.
 Everything is generated (no samples), so this script is the source of the sounds.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

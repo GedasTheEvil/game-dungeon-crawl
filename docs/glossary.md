@@ -367,6 +367,8 @@ Sections: [Map and levels](#map-and-levels), [Monsters](#monsters), [Combat](#co
 | plan find | | `tools/plan.py find TERM...`: every plan (open, solved, won't do) that has all the terms, with its first matching line; instead of `ls docs/plan \| grep` | `tools/plan.py` |
 | plan kind | | `bug`, `feature` or `tooling`, in a plan's file name; no kind: an old plan, a feature. Bugs come first in `plan.py status` and `next`, a tooling plan skips the play-test | `tools/plan.py` |
 | plan size | | `size S` (an hour or less), `M` (a few hours), `L` (a day or more) in a draft's Status line; also `prio high` / `low` | `tools/plan.py` |
+| mixer | | ([sdl3-audio](plan/sdl3-audio.feature.md)) the game's own audio mixer on SDL3 (no SDL3_mixer): one playback device, one SDL audio stream per channel (8, channel 0 reserved for the ambience loop) and one for the music, bound to the device so SDL mixes them; a channel's volume and fade are its stream's gain. The music is decoded by `stb_vorbis`, looped | `Mixer`, `src/audio/mixer.h` |
+| gain ramp | | a fade of the mixer: a channel's or the music's gain goes in a straight line from one level to another over a time, stepped once per game update (`Music::Play` calls `Mixer::Update`) | `GainRamp` |
 | effects stream | | the random stream for what only shows (a clip's start frame); never shifts the game's rolls | `GameRandom` |
 | gameplay stream | | the random stream for what changes the game: loot, riddles, poison rolls | `GameRandom` |
 | implemented plan | | a plan done but not confirmed by the user, `docs/plan/<slug>.<kind>.md` | `docs/plan` |

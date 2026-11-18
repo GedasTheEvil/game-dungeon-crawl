@@ -6,7 +6,7 @@ sand: a low rumble from below, sand bursting up, grains pattering down. Smaller 
 
 Everything is generated (no samples), so this script is the source of worm_wake.wav; the worm's bite and death are
 older files.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

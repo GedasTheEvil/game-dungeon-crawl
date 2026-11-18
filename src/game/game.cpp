@@ -2,7 +2,8 @@
 
 #include <GL/glu.h>
 #include <GL/gl.h>
-#include <SDL/SDL.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_init.h>
 #include <stdlib.h>
 #include <malloc.h>
 #include <stdexcept>
@@ -74,9 +75,6 @@ void reSizeGlScene(GLsizei width, GLsizei height) {
 	}
 }
 
-// SDL redefines main as SDL_main; without this, Windows builds fail with "WinMain@16" undefined.
-#undef main
-
 static bool debugFlag = false; // --debug: the debug keys (F3 hitboxes, plan controls-help)
 
 // The command line: a scenario run, a hand-played level or scenario (Scenario::loadPlay), or the plain game.
@@ -85,7 +83,7 @@ static bool parseArgs(int argc, char* argv[]) {
 	std::vector<std::string> args;
 	for (int i = 1; i < argc; i++) {
 		if (std::string(argv[i]) == "--no-sound")
-			setenv("SDL_AUDIODRIVER", "dummy", 1); // no music or sound effects, for runs in the background
+			setenv("SDL_AUDIO_DRIVER", "dummy", 1); // no music or sound effects, for runs in the background
 		else if (std::string(argv[i]) == "--debug")
 			debugFlag = true;
 		else
@@ -102,7 +100,7 @@ static bool parseArgs(int argc, char* argv[]) {
 		std::vector<std::string> paths(args.size());
 		std::transform(args.begin(), args.end(), paths.begin(), Paths::fromLaunchDir);
 		ok = paths.size() == 1 ? Scenario::load(paths[0].c_str()) : Scenario::loadBatch(paths);
-		setenv("SDL_AUDIODRIVER", "dummy", 1);
+		setenv("SDL_AUDIO_DRIVER", "dummy", 1);
 		GameClock::enableVirtual();
 	} else if (!args.empty()) {
 		fprintf(
@@ -128,7 +126,8 @@ int main(int argc, char* argv[]) {
 	bool isScenario = Scenario::active();
 
 	try {
-		if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+		// Audio only (plan sdl3-audio): GLUT keeps the window.
+		if (!SDL_Init(SDL_INIT_AUDIO)) {
 			LOG_ERRORF("game", "SDL initialization failed: %s", SDL_GetError());
 			return -1;
 		}

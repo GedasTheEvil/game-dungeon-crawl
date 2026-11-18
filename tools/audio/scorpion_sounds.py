@@ -4,7 +4,7 @@ of the tail strike, the sting's tick) and the death (dry chitin rattle of the co
     python3 tools/audio/scorpion_sounds.py [out_dir]      (default: media/sounds/monsters/, writes scorpion_{att,die,wake}.wav)
 
 Everything is generated (no samples), so this script is the source of the sounds.
-Output: 16-bit PCM mono 22050 Hz, which SDL_mixer's Mix_LoadWAV reads directly.
+Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 
 import os

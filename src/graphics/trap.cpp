@@ -1,5 +1,5 @@
 #include "trap.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 
 Trap::Trap() : mdl(std::make_shared<AnimatedModel>()) {}
 

@@ -1,5 +1,5 @@
 #include "particles_draw.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include "../core/timer.h"
 
 void Particles::Draw(const ParticleSystem& system) {

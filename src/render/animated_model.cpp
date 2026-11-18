@@ -1,4 +1,3 @@
-#define GL_GLEXT_PROTOTYPES // GL 1.5 buffer entry points, exported by libGL on Linux
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -8,10 +7,9 @@
 #include "animated_model.h"
 #include "lighting.h"
 #include "textures.h"
-#include <GL/glext.h>
+#include "gl_includes.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
-#include <GL/glu.h>
 
 using namespace std;
 

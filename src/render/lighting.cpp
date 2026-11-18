@@ -1,9 +1,7 @@
-#define GL_GLEXT_PROTOTYPES // GL 2.0 shader entry points, exported by libGL on Linux
 #include "lighting.h"
 #include "shader.h"
 
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include "gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include "../core/logger.h"
@@ -13,13 +11,18 @@
 namespace {
 constexpr int MAX_LIGHTS = 16;
 
+// GLSL 330 with the compatibility profile's built-ins (plan gl-core-foundation): the scene still sends its vertices,
+// colours and matrices the legacy way (glBegin, client arrays, glTranslatef), so gl_Vertex, gl_Color and the
+// matrices stay until plan gl-core-world draws the world with Batch, VBOs and gMv.
 const char* const VERTEX_SRC = R"(
-#version 120
+#version 330 compatibility
 uniform float uBlend; // toward the next key frame of a model (plan model-frame-interpolation); 0: gl_Vertex as is
-attribute vec3 aNextPos;
-attribute vec3 aNextNormal;
-varying vec3 vPos;
-varying vec3 vNormal;
+layout(location = 6) in vec3 aNextPos; // Lighting::NEXT_POSITION_ATTRIB
+layout(location = 7) in vec3 aNextNormal; // Lighting::NEXT_NORMAL_ATTRIB
+out vec3 vPos;
+out vec3 vNormal;
+out vec4 vColour;
+out vec2 vUv;
 void main() {
 	vec4 pos = gl_Vertex;
 	vec3 normal = gl_Normal;
@@ -29,14 +32,14 @@ void main() {
 	}
 	vPos = vec3(gl_ModelViewMatrix * pos);
 	vNormal = gl_NormalMatrix * normal;
-	gl_FrontColor = gl_Color;
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	vColour = clamp(gl_Color, 0.0, 1.0); // as gl_FrontColor was clamped
+	vUv = gl_MultiTexCoord0.st;
 	gl_Position = uBlend > 0.0 ? gl_ModelViewProjectionMatrix * pos : ftransform();
 }
 )";
 
 const char* const FRAGMENT_SRC = R"(
-#version 120
+#version 330 compatibility
 const int MAX_LIGHTS = 16;
 uniform sampler2D uTex;
 uniform vec3 uAmbient;
@@ -45,14 +48,17 @@ uniform float uFogStart;
 uniform float uEmissive;
 uniform float uToon; // 1 = cel bands (see toonLight)
 // 1 = the texture's alpha is the metal mask (plan metallic-shading): 1 matte, 0 all metal; the draw's alpha is
-// gl_Color's alone.
+// vColour's alone.
 uniform float uMetalMask;
 uniform float uOrtho; // 1 = an orthographic view (the inventory): the eye looks down -z at every fragment
 uniform int uLightCount;
 uniform vec4 uLightPos[MAX_LIGHTS]; // eye space xyz, radius in w
 uniform vec3 uLightColor[MAX_LIGHTS];
-varying vec3 vPos;
-varying vec3 vNormal;
+in vec3 vPos;
+in vec3 vNormal;
+in vec4 vColour;
+in vec2 vUv;
+out vec4 fragColour;
 const float METAL_DIFFUSE = 0.7; // what is left of the diffuse light on full metal: it mostly reflects
 const float METAL_SHININESS = 10.0; // Blinn-Phong exponent: broad, so small items catch it
 const float METAL_SHINE = 2.2; // the highlight's strength, tinted by the metal's colour
@@ -68,16 +74,16 @@ vec3 toonLight(vec3 light) {
 	return mix(hue, vec3(0.55, 0.6, 1.0), shade * 0.6) * band;
 }
 void main() {
-	vec4 tex = texture2D(uTex, gl_TexCoord[0].st);
-	vec4 base = tex * gl_Color;
+	vec4 tex = texture(uTex, vUv);
+	vec4 base = tex * vColour;
 	float metal = 0.0;
 	if (uMetalMask > 0.5) {
 		metal = 1.0 - tex.a;
-		base.a = gl_Color.a;
+		base.a = vColour.a;
 	}
 	float haze = 1.0 - exp(-uFog.w * max(length(vPos) - uFogStart, 0.0));
 	if (uEmissive > 0.5) { // the fog by alpha: a premultiplied sprite's clear corners stay clear (sandstorm-halls)
-		gl_FragColor = vec4(mix(base.rgb, uFog.rgb * base.a, haze), base.a);
+		fragColour = vec4(mix(base.rgb, uFog.rgb * base.a, haze), base.a);
 		return;
 	}
 	vec3 n = normalize(vNormal);
@@ -108,7 +114,7 @@ void main() {
 	} else
 		light *= 1.0 - (1.0 - METAL_DIFFUSE) * metal;
 	vec3 lit = base.rgb * (light + shine * (METAL_SHINE * metal));
-	gl_FragColor = vec4(mix(lit, uFog.rgb, haze), base.a);
+	fragColour = vec4(mix(lit, uFog.rgb, haze), base.a);
 }
 )";
 
@@ -136,12 +142,7 @@ bool ensureProgram() {
 		return false;
 	gFailed = true;
 
-	GLuint program = linkProgram(
-		"Lighting",
-		VERTEX_SRC,
-		FRAGMENT_SRC,
-		{{Lighting::NEXT_POSITION_ATTRIB, "aNextPos"}, {Lighting::NEXT_NORMAL_ATTRIB, "aNextNormal"}}
-	);
+	GLuint program = linkProgram("Lighting", VERTEX_SRC, FRAGMENT_SRC);
 	if (program == 0)
 		return false;
 
@@ -248,6 +249,12 @@ void Lighting::end() {
 void Lighting::setEmissive(bool on) {
 	if (gActive)
 		glUniform1f(gLocEmissive, on ? 1.f : 0.f);
+}
+
+DefaultShader::Fog Lighting::emissiveFog() {
+	if (!gActive)
+		return {};
+	return {gAir.fog[0], gAir.fog[1], gAir.fog[2], gAir.fogDensity, gAir.fogStart};
 }
 
 void Lighting::setMetalMask(bool on) {

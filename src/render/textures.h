@@ -1,6 +1,6 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
-#include <GL/gl.h>
+#include "gl_includes.h"
 #include <cstdint>
 #include <future>
 #include <memory>

@@ -3,7 +3,7 @@
 #include "dungeon_view.h"
 #include "assets.h"
 #include "../sim/player.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include "../sim/render_config.h"

@@ -1,5 +1,5 @@
 #include "player_view.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <cmath>
 #include "../render/ink.h"
 #include "particles_draw.h"

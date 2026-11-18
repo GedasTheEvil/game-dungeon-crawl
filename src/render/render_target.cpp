@@ -1,8 +1,7 @@
-#define GL_GLEXT_PROTOTYPES // GL 3.0 framebuffer entry points, exported by libGL on Linux
 #include "render_target.h"
 #include "textures.h"
 
-#include <GL/glext.h>
+#include "gl_includes.h"
 #include "../core/logger.h"
 
 RenderTarget::~RenderTarget() {

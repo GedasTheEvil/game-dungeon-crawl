@@ -13,7 +13,6 @@
 #include "../level/journal_text.h"
 #include "../level/monster_kinds.h"
 #include "page_curl.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <cctype>
 #include <cmath>

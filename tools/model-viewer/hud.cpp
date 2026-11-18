@@ -1,5 +1,5 @@
 #include "hud.h"
-#include <GL/gl.h>
+#include "../../src/render/gl_includes.h"
 
 namespace Hud {
 void drawBar(float left, float bottom, float width, float height, float ratio, float red, float green, float blue) {

@@ -4,7 +4,7 @@
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include "../level/leaderboard.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <cmath>
 #include <ctime>
 

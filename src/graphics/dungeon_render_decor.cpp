@@ -10,7 +10,7 @@
 #include "../render/inscription_draw.h"
 #include "../render/lighting.h"
 #include "../level/inscriptions.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>

@@ -20,7 +20,6 @@
 #include "../level/loot.h"
 #include "../level/level_gen.h"
 #include "../level/spike_cycle.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <chrono>
 #include <cmath>

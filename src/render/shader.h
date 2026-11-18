@@ -1,17 +1,10 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <GL/gl.h>
-#include <initializer_list>
-#include <utility>
+#include "gl_includes.h"
 
-// A GLSL program from its vertex and fragment source, 0 on failure (the log names `name`: "Lighting", "Ink").
-// attributes: generic vertex attributes bound to fixed locations before the link.
-[[nodiscard]] GLuint linkProgram(
-	const char* name,
-	const char* vertexSrc,
-	const char* fragmentSrc,
-	std::initializer_list<std::pair<GLuint, const char*>> attributes = {}
-);
+// A GLSL program from its vertex and fragment source, 0 on failure (the log names `name`: "Lighting", "Ink"). The
+// sources give their attributes' locations (layout(location = N), GLSL 330).
+[[nodiscard]] GLuint linkProgram(const char* name, const char* vertexSrc, const char* fragmentSrc);
 
 #endif

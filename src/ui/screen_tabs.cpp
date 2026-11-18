@@ -4,7 +4,6 @@
 #include "../state/game_state.h" // RenderSettings
 #include "../state/ui_context.h"
 #include "../render/ui_draw.h"
-#include <GL/gl.h>
 
 namespace {
 constexpr Screen TAB_SCREENS[ui::SCREEN_TAB_COUNT] = {Screen::Inventory, Screen::Map, Screen::Journal, Screen::Skills};

@@ -1,5 +1,4 @@
 #include "draw.h"
-#include <GL/gl.h>
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include "../ui/player_hud.h"
@@ -18,11 +17,13 @@
 #include "../render/motion_fx.h"
 #include "fire.h"
 #include "../render/gl_includes.h"
+#include "../render/mat4.h"
 #include "../game/window.h"
 #include "../sim/render_config.h"
 #include "../level/gameplay_monster_kinds.h"
 #include "../level/gameplay_skills.h"
 #include <algorithm>
+#include <array>
 #include <optional>
 #include <string>
 
@@ -38,17 +39,19 @@ constexpr Lighting::LightDef PLAYER_BURNING_LIGHT = {1.f, 0.55f, 0.2f, 80.f, 0.7
 struct ScreenPoint {
 	float x, y;
 };
-ScreenPoint toScreen(double x, double y, double z) {
-	GLdouble model[16], projection[16];
-	GLint viewport[4];
-	glGetDoublev(GL_MODELVIEW_MATRIX, model);
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	GLdouble wx = 0, wy = 0, wz = 0;
-	if (gluProject(x, y, z, model, projection, viewport, &wx, &wy, &wz) == GL_FALSE || viewport[2] <= 0 ||
-		viewport[3] <= 0)
+ScreenPoint toScreen(float x, float y, float z) {
+	Mat4 model, projection;
+	std::array<GLint, 4> viewport{};
+	glGetFloatv(GL_MODELVIEW_MATRIX, model.m.data());
+	glGetFloatv(GL_PROJECTION_MATRIX, projection.m.data());
+	glGetIntegerv(GL_VIEWPORT, viewport.data());
+	const std::optional<WindowPoint> w = project({x, y, z}, model, projection, viewport);
+	if (!w || viewport[2] <= 0 || viewport[3] <= 0)
 		return {0.5f, 0.5f};
-	return {static_cast<float>((wx - viewport[0]) / viewport[2]), static_cast<float>((wy - viewport[1]) / viewport[3])};
+	return {
+		static_cast<float>((w->x - viewport[0]) / viewport[2]),
+		static_cast<float>((w->y - viewport[1]) / viewport[3])
+	};
 }
 
 // Progress 0..1 of a beam started at `at` (the level up's sun beam, a prayer's blue one), or none when it is not
@@ -227,7 +230,15 @@ void drawGameplay() {
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(MotionFx::fov(45.0f), static_cast<float>(resX) / static_cast<float>(resY), SCENE_NEAR, SCENE_FAR);
+	glMultMatrixf(
+		Mat4::perspective(
+			MotionFx::fov(45.0f),
+			static_cast<float>(resX) / static_cast<float>(resY),
+			SCENE_NEAR,
+			SCENE_FAR
+		)
+			.data()
+	);
 	glMatrixMode(GL_MODELVIEW);
 
 	glTranslatef(0, -20, -70);

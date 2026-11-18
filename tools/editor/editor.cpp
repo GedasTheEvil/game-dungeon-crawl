@@ -13,8 +13,9 @@
 #include "../../src/level/level.h"
 #include "../../src/level/level_check.h"
 #include <filesystem>
-#include <GL/gl.h>
+#include "../../src/render/gl_context.h"
 #include <GL/glut.h>
+#include <GL/freeglut_ext.h> // glutGetProcAddress
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -1598,6 +1599,8 @@ int main(int argc, char* argv[]) {
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(START_WIDTH, START_HEIGHT);
 	glutCreateWindow("Dungeon Editor");
+	if (!initGlContext(glutGetProcAddress))
+		return 1;
 
 	editor = std::make_unique<Editor>();
 	if (!levelFile.empty())

@@ -8,7 +8,7 @@
 #include "dungeon_view.h"
 #include "assets.h"
 #include "../render/lighting.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <cmath>
 #include <iterator>
 #include <utility>

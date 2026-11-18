@@ -1,6 +1,5 @@
 #include "page_curl.h"
 #include "../render/gl_includes.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <array>
 #include <cmath>

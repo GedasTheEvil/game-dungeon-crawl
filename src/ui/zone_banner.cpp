@@ -1,7 +1,7 @@
 #include "zone_banner.h"
 #include "../render/ui_draw.h"
 #include "../render/font.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 
 using namespace ui;

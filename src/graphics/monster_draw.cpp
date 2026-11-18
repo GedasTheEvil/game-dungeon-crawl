@@ -1,5 +1,5 @@
 #include "monster_draw.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include "../render/ink.h"

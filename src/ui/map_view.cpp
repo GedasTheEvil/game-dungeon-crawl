@@ -7,7 +7,6 @@
 #include "../level/bindings.h"
 #include "../level/input.h"
 #include "../render/font.h"
-#include <GL/gl.h>
 #include <algorithm>
 #include <array>
 #include <cmath>

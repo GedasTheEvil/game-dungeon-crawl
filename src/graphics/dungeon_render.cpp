@@ -5,7 +5,7 @@
 #include "../level/journal.h"
 #include "../level/rng.h"
 #include "../level/world_events.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include <utility>

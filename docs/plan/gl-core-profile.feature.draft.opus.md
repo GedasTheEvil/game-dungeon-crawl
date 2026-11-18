@@ -13,7 +13,7 @@ asks for one, so a forgotten legacy call would still work and drift back in.
 * Ask SDL for a 3.3 core profile (forward compatible, so it also runs on macOS); dev builds add the debug flag.
 * Remove `MatrixStack::syncLegacy()` and every remaining compatibility leftover (`GL_QUADS` outside `Batch`,
   `glEnable(GL_TEXTURE_2D)`, `glShadeModel`, `GL_LIGHTING`, `GL_ALPHA_TEST`, the default VAO assumption).
-* The legacy-GL counter from [gl-core-foundation](gl-core-foundation.feature.draft.opus.md) becomes a ban in
+* The legacy-GL counter from [gl-core-foundation](gl-core-foundation.feature.md) becomes a ban in
   `make check`: any legacy call fails the build check (an allowlist is not needed).
 * Run everything with the `KHR_debug` callback on: `make test`, `make snapshots`, a level of each zone; zero GL
   errors and no snapshot diff.

@@ -6,7 +6,7 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <algorithm>
-#include "../render/gl_includes.h"
+#include "../render/gl_context.h"
 #include "../core/logger.h"
 #include "../graphics/draw.h"
 #include "../graphics/frame_rate.h"
@@ -94,9 +94,11 @@ void initGl() {
 namespace Window {
 
 bool open(int width, int height, bool fullscreen) {
-	// Fixed-function GL for now: a compatibility context (plan gl-core-profile moves to core).
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	// GL 3.3 for the core path's shaders (plan gl-core-foundation), in a compatibility context while the fixed-function
+	// drawing is ported file by file (plan gl-core-profile moves to core).
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -113,9 +115,11 @@ bool open(int width, int height, bool fullscreen) {
 	}
 	gContext = SDL_GL_CreateContext(gWindow);
 	if (gContext == nullptr) {
-		LOG_ERRORF("game", "No OpenGL context: %s", SDL_GetError());
+		LOG_ERRORF("game", "No OpenGL 3.3 context: %s", SDL_GetError());
 		return false;
 	}
+	if (!initGlContext(SDL_GL_GetProcAddress))
+		return false;
 	initGl();
 	resized();
 	return true;

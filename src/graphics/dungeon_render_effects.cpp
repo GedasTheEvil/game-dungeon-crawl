@@ -11,7 +11,7 @@
 #include "../sim/render_config.h"
 #include "../level/gameplay_combat.h"
 #include "../level/gameplay_monster_kinds.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include <utility>

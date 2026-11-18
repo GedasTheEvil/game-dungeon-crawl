@@ -1,6 +1,6 @@
 #include "ui_draw.h"
 #include "font.h"
-#include <GL/gl.h>
+#include "gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include <utility>

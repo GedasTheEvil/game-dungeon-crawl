@@ -1,5 +1,5 @@
 #include "inscription_draw.h"
-#include <GL/gl.h>
+#include "gl_includes.h"
 
 namespace {
 void quad(float x0, float y0, float x1, float y1, float z, AtlasRect uv) {

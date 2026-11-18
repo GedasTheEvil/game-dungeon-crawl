@@ -1,6 +1,6 @@
 #include "font.h"
 #include "textures.h"
-#include <GL/gl.h>
+#include "gl_includes.h"
 #include <string.h>
 #include <stdarg.h>
 #include <map>

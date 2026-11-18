@@ -2,6 +2,7 @@
 #define LIGHTING_H
 
 #include <cstdint>
+#include "default_shaders.h"
 
 // Per-pixel point lights over a dark ambient for the gameplay scene (GLSL 1.20 program on top of the
 // fixed-function pipeline: texture x vertex colour x (ambient + lights)). Toon mode (F1) snaps the light to cel
@@ -44,6 +45,9 @@ void end();
 
 // Draws without lighting (texture x colour) while set: flames, portals, overlays.
 void setEmissive(bool on);
+// The haze an emissive draw gets (plan gl-core-foundation): a ported draw with the default programs (Batch) takes it
+// from here. None while the shader is off.
+DefaultShader::Fog emissiveFog();
 
 // Metal shine (plan metallic-shading) while set: the bound texture's alpha is a metal mask (255 matte, lower more
 // metal), not see-through; the draw's alpha is the colour's alone. The models set it (AnimatedModel::Show).

@@ -1,6 +1,9 @@
 #include "fire.h"
 
-#include <GL/gl.h>
+#include "../render/batch.h"
+#include "../render/gl_includes.h"
+#include "../render/gl_legacy.h"
+#include "../render/matrix_stack.h"
 #include <algorithm>
 #include <cmath>
 #include "../render/lighting.h"
@@ -19,6 +22,17 @@ struct Particle {
 };
 
 GLuint gSprite = 0;
+// The sprites' quads (plan gl-core-foundation): the default texture program, with the scene's haze when the lighting
+// shader is on, as its emissive draws had it.
+Batch gBatch;
+
+// Every draw starts here: called from the not yet ported scene, it takes the legacy matrices (GlLegacy) and the
+// lighting's haze. The model view, column-major: its first two rows are the camera's right and up in local space.
+const float* beginDraw() {
+	GlLegacy::adoptMatrices();
+	gBatch.style.fog = Lighting::emissiveFog();
+	return gMv.top().data();
+}
 
 uint32_t mix(uint32_t h) { // lowbias32 integer hash
 	h ^= h >> 16;
@@ -128,19 +142,17 @@ void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed
 	ensureSprite();
 
 	// Billboard axes: the modelview's first two rows are the camera's right and up in local space.
-	float m[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	const float* m = beginDraw();
 	float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
 	float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
 	float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
 	float ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
 
-	Lighting::setEmissive(true);
 	glBindTexture(GL_TEXTURE_2D, gSprite);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	for (int pass = 0; pass < 2; pass++) // smoke first, so the flames glow on top of it
 		for (int i = 0; i < n; i++) {
 			const Particle& q = parts[i];
@@ -148,21 +160,20 @@ void Fire::draw(const FireStyle& style, float x, float y, float z, uint32_t seed
 				continue;
 			float h = q.size / 2.f;
 			float cx = x + q.x, cy = y + q.y, cz = z + q.z;
-			glColor4f(q.r * fade, q.g * fade, q.b * fade, q.a * fade); // premultiplied: all four
-			glTexCoord2f(0, 0);
-			glVertex3f(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
-			glTexCoord2f(1, 0);
-			glVertex3f(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
-			glTexCoord2f(1, 1);
-			glVertex3f(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
-			glTexCoord2f(0, 1);
-			glVertex3f(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
+			gBatch.colour(q.r * fade, q.g * fade, q.b * fade, q.a * fade); // premultiplied: all four
+			gBatch.texCoord(0, 0);
+			gBatch.vertex(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
+			gBatch.texCoord(1, 0);
+			gBatch.vertex(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
+			gBatch.texCoord(1, 1);
+			gBatch.vertex(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
+			gBatch.texCoord(0, 1);
+			gBatch.vertex(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
 		}
-	glEnd();
+	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	glColor4f(1, 1, 1, 1);
-	Lighting::setEmissive(false);
+	GlLegacy::resetColour();
 }
 
 // Rows of flames up the box, one to a few across: the bigger the body, the more.
@@ -185,8 +196,7 @@ void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 	constexpr float DROP = 40.f; // ceiling to floor, world units
 	ensureSprite();
 
-	float m[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	const float* m = beginDraw();
 	float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
 	float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
 	float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
@@ -195,12 +205,11 @@ void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 	float t = static_cast<float>(GameClock::now());
 	int alive = static_cast<int>(static_cast<float>(GRAINS) * std::fmin(1.f, 0.25f + progress));
 
-	Lighting::setEmissive(true);
 	glBindTexture(GL_TEXTURE_2D, gSprite);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	for (int i = 0; i < alive; i++) {
 		uint32_t base = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x85ebca6bU));
 		float u = t / FALL_MS + unit01(base);
@@ -212,21 +221,20 @@ void Dust::draw(float x, float y, float z, float progress, uint32_t seed) {
 		float size = 0.8f + 1.6f * unit01(mix(h));
 		float a = 0.55f * (1.f - p);
 		float h2 = size / 2.f;
-		glColor4f(0.55f * a, 0.47f * a, 0.36f * a, a); // sandstone grit, premultiplied
-		glTexCoord2f(0, 0);
-		glVertex3f(cx - (rx + ux) * h2, cy - (ry + uy) * h2, cz - (rz + uz) * h2);
-		glTexCoord2f(1, 0);
-		glVertex3f(cx + (rx - ux) * h2, cy + (ry - uy) * h2, cz + (rz - uz) * h2);
-		glTexCoord2f(1, 1);
-		glVertex3f(cx + (rx + ux) * h2, cy + (ry + uy) * h2, cz + (rz + uz) * h2);
-		glTexCoord2f(0, 1);
-		glVertex3f(cx - (rx - ux) * h2, cy - (ry - uy) * h2, cz - (rz - uz) * h2);
+		gBatch.colour(0.55f * a, 0.47f * a, 0.36f * a, a); // sandstone grit, premultiplied
+		gBatch.texCoord(0, 0);
+		gBatch.vertex(cx - (rx + ux) * h2, cy - (ry + uy) * h2, cz - (rz + uz) * h2);
+		gBatch.texCoord(1, 0);
+		gBatch.vertex(cx + (rx - ux) * h2, cy + (ry - uy) * h2, cz + (rz - uz) * h2);
+		gBatch.texCoord(1, 1);
+		gBatch.vertex(cx + (rx + ux) * h2, cy + (ry + uy) * h2, cz + (rz + uz) * h2);
+		gBatch.texCoord(0, 1);
+		gBatch.vertex(cx - (rx - ux) * h2, cy - (ry - uy) * h2, cz - (rz - uz) * h2);
 	}
-	glEnd();
+	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	glColor4f(1, 1, 1, 1);
-	Lighting::setEmissive(false);
+	GlLegacy::resetColour();
 }
 
 void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_t seed) {
@@ -240,34 +248,32 @@ void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_
 		return;
 	ensureSprite();
 
-	float m[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	const float* m = beginDraw();
 	float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
 	float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
 	float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
 	float ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
 	auto quad = [&](float cx, float cy, float cz, float size, float r, float g, float b, float a) {
 		float h = size / 2.f;
-		glColor4f(r * a, g * a, b * a, a); // premultiplied
-		glTexCoord2f(0, 0);
-		glVertex3f(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
-		glTexCoord2f(1, 0);
-		glVertex3f(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
-		glTexCoord2f(1, 1);
-		glVertex3f(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
-		glTexCoord2f(0, 1);
-		glVertex3f(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
+		gBatch.colour(r * a, g * a, b * a, a); // premultiplied
+		gBatch.texCoord(0, 0);
+		gBatch.vertex(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
+		gBatch.texCoord(1, 0);
+		gBatch.vertex(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
+		gBatch.texCoord(1, 1);
+		gBatch.vertex(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
+		gBatch.texCoord(0, 1);
+		gBatch.vertex(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
 	};
 	const float fade = 1.f - t / end;
 	// Pale sand thrown up from the floor; dark grit and old dust from the ceiling, to show against the lit walls.
 	const float r = fromCeiling ? 0.30f : 0.78f, g = fromCeiling ? 0.25f : 0.66f, b = fromCeiling ? 0.19f : 0.46f;
 
-	Lighting::setEmissive(true);
 	glBindTexture(GL_TEXTURE_2D, gSprite);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	for (int i = 0; i < CLOUDS; i++) { // spreads and thins out
 		uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x68e31da4U));
 		float grow = 1.f - (1.f - t / end) * (1.f - t / end);
@@ -295,11 +301,10 @@ void Grit::burst(float x, float y, float z, int ageMs, bool fromCeiling, uint32_
 		float size = 1.2f + 2.f * unit01(mix(h2));
 		quad(cx, cy, cz, size, r, g, b, 0.9f * fade);
 	}
-	glEnd();
+	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	glColor4f(1, 1, 1, 1);
-	Lighting::setEmissive(false);
+	GlLegacy::resetColour();
 }
 
 namespace {
@@ -309,37 +314,34 @@ struct Sprites {
 	float rx = 1.f, ry = 0.f, rz = 0.f, ux = 0.f, uy = 1.f, uz = 0.f;
 	void begin() {
 		ensureSprite();
-		float m[16];
-		glGetFloatv(GL_MODELVIEW_MATRIX, m);
+		const float* m = beginDraw();
 		const float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
 		const float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
 		rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
 		ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
-		Lighting::setEmissive(true);
 		glBindTexture(GL_TEXTURE_2D, gSprite);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthMask(GL_FALSE);
-		glBegin(GL_QUADS);
+		gBatch.begin(Primitive::Quads);
 	}
 	void add(float cx, float cy, float cz, float size, float r, float g, float b, float a) const {
 		const float h = size / 2.f;
-		glColor4f(r * a, g * a, b * a, a);
-		glTexCoord2f(0, 0);
-		glVertex3f(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
-		glTexCoord2f(1, 0);
-		glVertex3f(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
-		glTexCoord2f(1, 1);
-		glVertex3f(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
-		glTexCoord2f(0, 1);
-		glVertex3f(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
+		gBatch.colour(r * a, g * a, b * a, a);
+		gBatch.texCoord(0, 0);
+		gBatch.vertex(cx - (rx + ux) * h, cy - (ry + uy) * h, cz - (rz + uz) * h);
+		gBatch.texCoord(1, 0);
+		gBatch.vertex(cx + (rx - ux) * h, cy + (ry - uy) * h, cz + (rz - uz) * h);
+		gBatch.texCoord(1, 1);
+		gBatch.vertex(cx + (rx + ux) * h, cy + (ry + uy) * h, cz + (rz + uz) * h);
+		gBatch.texCoord(0, 1);
+		gBatch.vertex(cx - (rx - ux) * h, cy - (ry - uy) * h, cz - (rz - uz) * h);
 	}
 	static void end() {
-		glEnd();
+		gBatch.end();
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
-		glColor4f(1, 1, 1, 1);
-		Lighting::setEmissive(false);
+		GlLegacy::resetColour();
 	}
 };
 constexpr float SAND_R = 0.80f, SAND_G = 0.66f, SAND_B = 0.44f; // pale desert sand
@@ -547,8 +549,7 @@ void SunBeam::draw(float x, float y, float z, float progress, Tint tint) {
 		return;
 	ensureSprite();
 
-	float m[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	const float* m = beginDraw();
 	float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
 	float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
 	float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
@@ -557,12 +558,11 @@ void SunBeam::draw(float x, float y, float z, float progress, Tint tint) {
 	float hl = std::sqrt(rx * rx + rz * rz);
 	float bx = hl > 0.f ? rx / hl : 1.f, bz = hl > 0.f ? rz / hl : 0.f;
 
-	Lighting::setEmissive(true);
 	glBindTexture(GL_TEXTURE_2D, gSprite);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	glDepthMask(GL_FALSE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 
 	// Shaft: a wide soft glow and a narrow core. The sprite's middle row is the soft side-to-side falloff.
 	float narrow = progress < 0.5f ? 1.f : 1.f - 0.7f * (progress - 0.5f) / 0.5f; // closes as it fades
@@ -577,30 +577,30 @@ void SunBeam::draw(float x, float y, float z, float progress, Tint tint) {
 			float w0 = l.halfWidth * narrow * (1.f - 0.25f * ROW_Y[r] / HEIGHT);
 			float w1 = l.halfWidth * narrow * (1.f - 0.25f * ROW_Y[r + 1] / HEIGHT);
 			float k0 = l.bright * ROW_K[r] * s, k1 = l.bright * ROW_K[r + 1] * s;
-			glColor4f(tint.r * k0, tint.g * k0, tint.b * k0, 1);
-			glTexCoord2f(0, 0.5f);
-			glVertex3f(x - bx * w0, y + ROW_Y[r], z - bz * w0);
-			glTexCoord2f(1, 0.5f);
-			glVertex3f(x + bx * w0, y + ROW_Y[r], z + bz * w0);
-			glColor4f(tint.r * k1, tint.g * k1, tint.b * k1, 1);
-			glTexCoord2f(1, 0.5f);
-			glVertex3f(x + bx * w1, y + ROW_Y[r + 1], z + bz * w1);
-			glTexCoord2f(0, 0.5f);
-			glVertex3f(x - bx * w1, y + ROW_Y[r + 1], z - bz * w1);
+			gBatch.colour(tint.r * k0, tint.g * k0, tint.b * k0, 1);
+			gBatch.texCoord(0, 0.5f);
+			gBatch.vertex(x - bx * w0, y + ROW_Y[r], z - bz * w0);
+			gBatch.texCoord(1, 0.5f);
+			gBatch.vertex(x + bx * w0, y + ROW_Y[r], z + bz * w0);
+			gBatch.colour(tint.r * k1, tint.g * k1, tint.b * k1, 1);
+			gBatch.texCoord(1, 0.5f);
+			gBatch.vertex(x + bx * w1, y + ROW_Y[r + 1], z + bz * w1);
+			gBatch.texCoord(0, 0.5f);
+			gBatch.vertex(x - bx * w1, y + ROW_Y[r + 1], z - bz * w1);
 		}
 
 	// Pool of light on the floor.
 	float pool = 0.6f * s;
 	float px = 18.f * narrow, pz = 9.f * narrow;
-	glColor4f(tint.r * pool, tint.g * pool, tint.b * pool, 1);
-	glTexCoord2f(0, 0);
-	glVertex3f(x - px, y + 0.3f, z - pz);
-	glTexCoord2f(0, 1);
-	glVertex3f(x - px, y + 0.3f, z + pz);
-	glTexCoord2f(1, 1);
-	glVertex3f(x + px, y + 0.3f, z + pz);
-	glTexCoord2f(1, 0);
-	glVertex3f(x + px, y + 0.3f, z - pz);
+	gBatch.colour(tint.r * pool, tint.g * pool, tint.b * pool, 1);
+	gBatch.texCoord(0, 0);
+	gBatch.vertex(x - px, y + 0.3f, z - pz);
+	gBatch.texCoord(0, 1);
+	gBatch.vertex(x - px, y + 0.3f, z + pz);
+	gBatch.texCoord(1, 1);
+	gBatch.vertex(x + px, y + 0.3f, z + pz);
+	gBatch.texCoord(1, 0);
+	gBatch.vertex(x + px, y + 0.3f, z - pz);
 
 	// Gold motes rising through the shaft.
 	float t = static_cast<float>(GameClock::now());
@@ -615,21 +615,20 @@ void SunBeam::draw(float x, float y, float z, float progress, Tint tint) {
 		float size = 0.7f + 1.1f * unit01(mix(h));
 		float a = s * std::fmin(1.f, p * 5.f) * (1.f - p); // fade in, then out towards the top
 		float h2 = size / 2.f;
-		glColor4f(tint.r * a, tint.g * a, tint.b * 0.8f * a, 1);
-		glTexCoord2f(0, 0);
-		glVertex3f(cx - (rx + ux) * h2, cy - (ry + uy) * h2, cz - (rz + uz) * h2);
-		glTexCoord2f(1, 0);
-		glVertex3f(cx + (rx - ux) * h2, cy + (ry - uy) * h2, cz + (rz - uz) * h2);
-		glTexCoord2f(1, 1);
-		glVertex3f(cx + (rx + ux) * h2, cy + (ry + uy) * h2, cz + (rz + uz) * h2);
-		glTexCoord2f(0, 1);
-		glVertex3f(cx - (rx - ux) * h2, cy - (ry - uy) * h2, cz - (rz - uz) * h2);
+		gBatch.colour(tint.r * a, tint.g * a, tint.b * 0.8f * a, 1);
+		gBatch.texCoord(0, 0);
+		gBatch.vertex(cx - (rx + ux) * h2, cy - (ry + uy) * h2, cz - (rz + uz) * h2);
+		gBatch.texCoord(1, 0);
+		gBatch.vertex(cx + (rx - ux) * h2, cy + (ry - uy) * h2, cz + (rz - uz) * h2);
+		gBatch.texCoord(1, 1);
+		gBatch.vertex(cx + (rx + ux) * h2, cy + (ry + uy) * h2, cz + (rz + uz) * h2);
+		gBatch.texCoord(0, 1);
+		gBatch.vertex(cx - (rx - ux) * h2, cy - (ry - uy) * h2, cz - (rz - uz) * h2);
 	}
-	glEnd();
+	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	glColor4f(1, 1, 1, 1);
-	Lighting::setEmissive(false);
+	GlLegacy::resetColour();
 }
 
 void DazeStars::draw(float x, float y, float z, float strength) {
@@ -647,14 +646,12 @@ void DazeStars::draw(float x, float y, float z, float strength) {
 		return;
 	ensureSprite();
 
-	float m[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	const float* m = beginDraw();
 	const float rl = std::sqrt(m[0] * m[0] + m[4] * m[4] + m[8] * m[8]);
 	const float ul = std::sqrt(m[1] * m[1] + m[5] * m[5] + m[9] * m[9]);
 	const float rx = m[0] / rl, ry = m[4] / rl, rz = m[8] / rl;
 	const float ux = m[1] / ul, uy = m[5] / ul, uz = m[9] / ul;
 
-	Lighting::setEmissive(true);
 	glBindTexture(GL_TEXTURE_2D, gSprite);
 	glEnable(GL_BLEND);
 	glDepthMask(GL_FALSE);
@@ -677,31 +674,31 @@ void DazeStars::draw(float x, float y, float z, float strength) {
 	}
 	// A soft gold glow round each star, added to what is there.
 	glBlendFunc(GL_ONE, GL_ONE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	for (const Star& s : stars) {
 		const float h = s.size * 2.2f;
 		const float k = 0.35f * strength * (0.5f + 0.5f * s.near);
-		glColor4f(R * k, G * k, B * k, 1);
-		glTexCoord2f(0, 0);
-		glVertex3f(s.cx - (rx + ux) * h, s.cy - (ry + uy) * h, s.cz - (rz + uz) * h);
-		glTexCoord2f(1, 0);
-		glVertex3f(s.cx + (rx - ux) * h, s.cy + (ry - uy) * h, s.cz + (rz - uz) * h);
-		glTexCoord2f(1, 1);
-		glVertex3f(s.cx + (rx + ux) * h, s.cy + (ry + uy) * h, s.cz + (rz + uz) * h);
-		glTexCoord2f(0, 1);
-		glVertex3f(s.cx - (rx - ux) * h, s.cy - (ry - uy) * h, s.cz - (rz - uz) * h);
+		gBatch.colour(R * k, G * k, B * k, 1);
+		gBatch.texCoord(0, 0);
+		gBatch.vertex(s.cx - (rx + ux) * h, s.cy - (ry + uy) * h, s.cz - (rz + uz) * h);
+		gBatch.texCoord(1, 0);
+		gBatch.vertex(s.cx + (rx - ux) * h, s.cy + (ry - uy) * h, s.cz + (rz - uz) * h);
+		gBatch.texCoord(1, 1);
+		gBatch.vertex(s.cx + (rx + ux) * h, s.cy + (ry + uy) * h, s.cz + (rz + uz) * h);
+		gBatch.texCoord(0, 1);
+		gBatch.vertex(s.cx - (rx - ux) * h, s.cy - (ry - uy) * h, s.cz - (rz - uz) * h);
 	}
-	glEnd();
+	gBatch.end();
 	// The stars: solid (the sprite's opaque middle), premultiplied, a dark star behind each for the outline.
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glTexCoord2f(0.5f, 0.5f);
-	glBegin(GL_TRIANGLES);
+	gBatch.texCoord(0.5f, 0.5f);
+	gBatch.begin(Primitive::Triangles);
 	for (const Star& s : stars)
 		for (int pass = 0; pass < 2; pass++) {
 			const float outer = pass == 0 ? s.size + OUTLINE : s.size;
 			const float inner = pass == 0 ? s.size * INNER + OUTLINE : s.size * INNER;
 			const float shade = pass == 0 ? 0.12f : 0.75f + 0.25f * s.near;
-			glColor4f(R * shade * strength, G * shade * strength, B * shade * strength, strength);
+			gBatch.colour(R * shade * strength, G * shade * strength, B * shade * strength, strength);
 			for (int k = 0; k < 10; k++) {
 				const float a0 = s.spin + static_cast<float>(M_PI) * static_cast<float>(k) / 5.f;
 				const float a1 = s.spin + static_cast<float>(M_PI) * static_cast<float>(k + 1) / 5.f;
@@ -709,17 +706,16 @@ void DazeStars::draw(float x, float y, float z, float strength) {
 				const float r1 = k % 2 == 0 ? inner : outer;
 				const float sx0 = r0 * std::sin(a0), sy0 = r0 * std::cos(a0);
 				const float sx1 = r1 * std::sin(a1), sy1 = r1 * std::cos(a1);
-				glVertex3f(s.cx, s.cy, s.cz);
-				glVertex3f(s.cx + rx * sx0 + ux * sy0, s.cy + ry * sx0 + uy * sy0, s.cz + rz * sx0 + uz * sy0);
-				glVertex3f(s.cx + rx * sx1 + ux * sy1, s.cy + ry * sx1 + uy * sy1, s.cz + rz * sx1 + uz * sy1);
+				gBatch.vertex(s.cx, s.cy, s.cz);
+				gBatch.vertex(s.cx + rx * sx0 + ux * sy0, s.cy + ry * sx0 + uy * sy0, s.cz + rz * sx0 + uz * sy0);
+				gBatch.vertex(s.cx + rx * sx1 + ux * sy1, s.cy + ry * sx1 + uy * sy1, s.cz + rz * sx1 + uz * sy1);
 			}
 		}
-	glEnd();
+	gBatch.end();
 	glDepthMask(GL_TRUE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_BLEND);
-	glColor4f(1, 1, 1, 1);
-	Lighting::setEmissive(false);
+	GlLegacy::resetColour();
 }
 
 void SunBeam::shaft(float x, float y, float z, uint32_t seed) {
@@ -729,38 +725,38 @@ void SunBeam::shaft(float x, float y, float z, uint32_t seed) {
 	constexpr float MOTE_MS = 6000.f;
 	Sprites s;
 	s.begin();
-	glEnd();
+	gBatch.end();
 	glBlendFunc(GL_ONE, GL_ONE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	struct Layer {
 		float top, bottom, bright; // half widths at the ceiling and the floor
 	};
 	constexpr Layer LAYERS[] = {{7.f, 13.f, 0.16f}, {2.5f, 5.f, 0.3f}};
 	for (const Layer& l : LAYERS) {
-		glColor4f(R * l.bright * 0.5f, G * l.bright * 0.5f, B * l.bright * 0.5f, 1);
-		glTexCoord2f(0, 0.5f);
-		glVertex3f(x - l.bottom * s.rx, y, z - l.bottom * s.rz);
-		glTexCoord2f(1, 0.5f);
-		glVertex3f(x + l.bottom * s.rx, y, z + l.bottom * s.rz);
-		glColor4f(R * l.bright, G * l.bright, B * l.bright, 1);
-		glTexCoord2f(1, 0.5f);
-		glVertex3f(x + l.top * s.rx, y + HEIGHT, z + l.top * s.rz);
-		glTexCoord2f(0, 0.5f);
-		glVertex3f(x - l.top * s.rx, y + HEIGHT, z - l.top * s.rz);
+		gBatch.colour(R * l.bright * 0.5f, G * l.bright * 0.5f, B * l.bright * 0.5f, 1);
+		gBatch.texCoord(0, 0.5f);
+		gBatch.vertex(x - l.bottom * s.rx, y, z - l.bottom * s.rz);
+		gBatch.texCoord(1, 0.5f);
+		gBatch.vertex(x + l.bottom * s.rx, y, z + l.bottom * s.rz);
+		gBatch.colour(R * l.bright, G * l.bright, B * l.bright, 1);
+		gBatch.texCoord(1, 0.5f);
+		gBatch.vertex(x + l.top * s.rx, y + HEIGHT, z + l.top * s.rz);
+		gBatch.texCoord(0, 0.5f);
+		gBatch.vertex(x - l.top * s.rx, y + HEIGHT, z - l.top * s.rz);
 	}
 	const float pool = 0.22f; // on the floor
-	glColor4f(R * pool, G * pool, B * pool, 1);
-	glTexCoord2f(0, 0);
-	glVertex3f(x - 16.f, y + 0.3f, z - 8.f);
-	glTexCoord2f(0, 1);
-	glVertex3f(x - 16.f, y + 0.3f, z + 8.f);
-	glTexCoord2f(1, 1);
-	glVertex3f(x + 16.f, y + 0.3f, z + 8.f);
-	glTexCoord2f(1, 0);
-	glVertex3f(x + 16.f, y + 0.3f, z - 8.f);
-	glEnd();
+	gBatch.colour(R * pool, G * pool, B * pool, 1);
+	gBatch.texCoord(0, 0);
+	gBatch.vertex(x - 16.f, y + 0.3f, z - 8.f);
+	gBatch.texCoord(0, 1);
+	gBatch.vertex(x - 16.f, y + 0.3f, z + 8.f);
+	gBatch.texCoord(1, 1);
+	gBatch.vertex(x + 16.f, y + 0.3f, z + 8.f);
+	gBatch.texCoord(1, 0);
+	gBatch.vertex(x + 16.f, y + 0.3f, z - 8.f);
+	gBatch.end();
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	const float now = static_cast<float>(GameClock::now());
 	for (int i = 0; i < MOTES; i++) { // dust sinking slowly through the light
 		const uint32_t h = mix(seed ^ mix(static_cast<uint32_t>(i) + 0x27d4eb2fU));
@@ -783,9 +779,9 @@ void SunBeam::ray(float x0, float y0, float x1, float y1, float z, uint32_t seed
 		return;
 	Sprites s;
 	s.begin();
-	glEnd();
+	gBatch.end();
 	glBlendFunc(GL_ONE, GL_ONE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	// Across the beam: the camera's right for a column (it turns to face the camera), up for a row.
 	const float wx = vertical ? s.rx : 0.f, wy = vertical ? 0.f : 1.f, wz = vertical ? s.rz : 0.f;
 	struct Layer {
@@ -794,19 +790,19 @@ void SunBeam::ray(float x0, float y0, float x1, float y1, float z, uint32_t seed
 	constexpr Layer LAYERS[] = {{8.f, 0.22f}, {3.f, 0.5f}, {1.f, 0.6f}};
 	for (const Layer& l : LAYERS) {
 		const float hx = wx * l.halfWidth, hy = wy * l.halfWidth, hz = wz * l.halfWidth;
-		glColor4f(R * l.bright, G * l.bright, B * l.bright, 1);
-		glTexCoord2f(0, 0.5f);
-		glVertex3f(x0 - hx, y0 - hy, z - hz);
-		glTexCoord2f(1, 0.5f);
-		glVertex3f(x0 + hx, y0 + hy, z + hz);
-		glTexCoord2f(1, 0.5f);
-		glVertex3f(x1 + hx, y1 + hy, z + hz);
-		glTexCoord2f(0, 0.5f);
-		glVertex3f(x1 - hx, y1 - hy, z - hz);
+		gBatch.colour(R * l.bright, G * l.bright, B * l.bright, 1);
+		gBatch.texCoord(0, 0.5f);
+		gBatch.vertex(x0 - hx, y0 - hy, z - hz);
+		gBatch.texCoord(1, 0.5f);
+		gBatch.vertex(x0 + hx, y0 + hy, z + hz);
+		gBatch.texCoord(1, 0.5f);
+		gBatch.vertex(x1 + hx, y1 + hy, z + hz);
+		gBatch.texCoord(0, 0.5f);
+		gBatch.vertex(x1 - hx, y1 - hy, z - hz);
 	}
-	glEnd();
+	gBatch.end();
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	const float now = static_cast<float>(GameClock::now());
 	const int motes = static_cast<int>(MOTES_PER_TILE * length / RenderConfig::TILE_SIZE) + 1;
 	for (int i = 0; i < motes; i++) { // dust drifting slowly along the light, glittering in it
@@ -823,9 +819,9 @@ void SunBeam::glow(float x, float y, float z, float size, float strength) {
 	constexpr float R = 1.f, G = 0.88f, B = 0.62f;
 	Sprites s;
 	s.begin();
-	glEnd();
+	gBatch.end();
 	glBlendFunc(GL_ONE, GL_ONE);
-	glBegin(GL_QUADS);
+	gBatch.begin(Primitive::Quads);
 	s.add(x, y, z, size, R * strength, G * strength, B * strength, 1.f);
 	s.add(x, y, z, size * 0.4f, strength, strength, strength * 0.9f, 1.f);
 	Sprites::end();

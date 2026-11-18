@@ -4,7 +4,6 @@
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include "../level/input.h"
-#include <GL/gl.h>
 #include "../render/gl_includes.h"
 #include "../render/ui_draw.h"
 #include "../level/journal.h"

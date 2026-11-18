@@ -3,6 +3,8 @@ CXX=g++
 # RELEASE=1 (make release): a portable build in build/release, so it runs on an older CPU than this one's.
 ifdef RELEASE
 MARCH=-march=x86-64-v2
+# A player's build: no GL debug log (src/render/gl_context.cpp).
+RELEASE_DEFINES=-DGAME_RELEASE=1
 else
 MARCH=-march=native
 endif
@@ -16,11 +18,13 @@ endif
 SDL_CFLAGS:=$(shell pkg-config --cflags sdl3)
 SDL_LIBS:=$(shell pkg-config --libs sdl3)
 # -Wno-missing-field-initializers: a table row in designated initializers leaves out what it does not need.
-CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) $(SDL_CFLAGS) -D_GNU_SOURCE=1 -MMD -MP
-TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) -D_GNU_SOURCE=1
+# The GL loader's header (external/glad, plan gl-core-foundation) as a system header: no warnings from its code.
+GLAD_CFLAGS=-isystem external/glad/include
+CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) $(RELEASE_DEFINES) $(SDL_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1 -MMD -MP
+TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1
 # Game and tools link only what they use: GL for every window, SDL for the game's, GLUT for the editor's and the model
 # viewer's (until plan gl-core-tools).
-GL_LIBS=-lGL -lGLU -lm -ldl
+GL_LIBS=-lGL -lm -ldl
 GLUT_LIBS=-lX11 -lglut $(GL_LIBS) -L/usr/X11R6/lib
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
@@ -35,8 +39,8 @@ BIN=build/release/bin
 else
 BIN=bin
 endif
-# Third-party implementations (stb), compiled without warnings and outside make tidy.
-EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o
+# Third-party implementations (stb, the glad GL loader), compiled without warnings and outside make tidy.
+EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o $(BUILD)/external/glad/glad.o
 
 # Libraries shared by the game and the tools (docs/plan/solved/layered-build.md), each on top of the ones before it:
 # base <- level <- sim <- render <- the game and the tools. tools/check_layers.sh (make layers) keeps them apart:
@@ -199,9 +203,12 @@ format-check:
 format-check-changed:
 	@./tools/check_format.sh --changed $(FORMAT_FILES)
 
+# `make layers` (run by every tidy): the libraries kept apart, the sim's rules, and the legacy-GL counter
+# (tools/gl_legacy.py, plan gl-core-foundation: no file's fixed-function GL grows since the merge base).
 layers:
 	@./tools/check_layers.sh base $(BASE_LIB_SOURCES) $(BASE_LIB_HEADERS) -- level $(LEVEL_LIB_SOURCES) $(LEVEL_LIB_HEADERS) -- sim $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS) -- render $(RENDER_LIB_SOURCES) $(RENDER_LIB_HEADERS)
 	@./tools/check_sim.sh $(SIM_LIB_SOURCES) $(SIM_LIB_HEADERS)
+	@python3 -I tools/gl_legacy.py check
 
 tidy-fix: export GATE_STATS=$(BUILD)/.gate-tidy
 tidy-fix:
@@ -264,7 +271,7 @@ $(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 run-model-viewer: $(VIEWER)
 	$(VIEWER) $(ARGS)
 
-$(UNIT): $(UNIT_OBJECTS) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB) $(EXTERNAL_OBJECTS)
+$(UNIT): $(UNIT_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@ $(SDL_LIBS)
 

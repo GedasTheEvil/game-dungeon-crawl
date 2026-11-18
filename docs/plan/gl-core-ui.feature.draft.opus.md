@@ -1,10 +1,10 @@
 # Port the UI screens and fonts to the GL core path
 
-Status: draft 2026-11-18, size L, needs [gl-core-foundation](gl-core-foundation.feature.draft.opus.md) first.
+Status: draft 2026-11-18, size L, needs [gl-core-foundation](gl-core-foundation.feature.md) first.
 
 ## Problem
 
-After [gl-core-foundation](gl-core-foundation.feature.draft.opus.md) the UI still draws with immediate mode,
+After [gl-core-foundation](gl-core-foundation.feature.md) the UI still draws with immediate mode,
 `glOrtho`, display-list fonts and, in the journal, fixed-function lights.
 
 ## Plan

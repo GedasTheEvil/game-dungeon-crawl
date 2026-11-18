@@ -19,9 +19,10 @@
 // Keys: space cycles through the model's clips, T through its textures, L the lighting (flat, game, toon),
 // + / - speed the loop up / slow it down. Drag with the left mouse button to turn the model.
 
+#include "../../src/render/gl_context.h" // before GLUT: glad replaces <GL/gl.h>
+#include "../../src/render/mat4.h"
 #include <GL/glut.h>
-#include <GL/glu.h>
-#include <GL/gl.h>
+#include <GL/freeglut_ext.h> // glutGetProcAddress
 
 #include <cstdio>
 #include <cstdlib>
@@ -372,8 +373,9 @@ void InitGL(int width, int height) {
 	glShadeModel(GL_SMOOTH);
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0, static_cast<double>(width) / static_cast<double>(height), Z_NEAR, Z_FAR);
+	glLoadMatrixf(
+		Mat4::perspective(45.0, static_cast<double>(width) / static_cast<double>(height), Z_NEAR, Z_FAR).data()
+	);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -389,12 +391,13 @@ void DrawScene() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Re-issue the 3D perspective projection every frame (mirrors
-	// src/graphics/draw.cpp's Draw(), which also sets up gluPerspective from
+	// src/graphics/draw.cpp's Draw(), which also sets up the perspective from
 	// scratch each call) since the 2D overlay pass below switches the
 	// projection matrix to an orthographic one for the HUD bar.
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0, static_cast<double>(gWinWidth) / static_cast<double>(gWinHeight), Z_NEAR, Z_FAR);
+	glLoadMatrixf(
+		Mat4::perspective(45.0, static_cast<double>(gWinWidth) / static_cast<double>(gWinHeight), Z_NEAR, Z_FAR).data()
+	);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -605,8 +608,9 @@ void Reshape(int width, int height) {
 	glViewport(0, 0, width, height);
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45.0, static_cast<double>(width) / static_cast<double>(height), Z_NEAR, Z_FAR);
+	glLoadMatrixf(
+		Mat4::perspective(45.0, static_cast<double>(width) / static_cast<double>(height), Z_NEAR, Z_FAR).data()
+	);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -696,6 +700,8 @@ int main(int argc, char* argv[]) {
 
 	std::string title = "Model Viewer :: " + FileStem(modelPath) + ".md3";
 	glutCreateWindow(title.c_str());
+	if (!initGlContext(glutGetProcAddress))
+		return 1;
 
 	InitGL(gWinWidth, gWinHeight);
 

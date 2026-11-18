@@ -2,7 +2,7 @@
 #include "../render/ui_draw.h"
 #include "player_hud.h"
 #include "../render/font.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 
 using namespace ui;

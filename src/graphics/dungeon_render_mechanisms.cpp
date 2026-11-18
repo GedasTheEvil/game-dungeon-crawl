@@ -10,7 +10,7 @@
 #include "../level/gameplay_rhythm_traps.h"
 #include "../level/gameplay_traps.h"
 #include "../level/gameplay_world.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include <memory>

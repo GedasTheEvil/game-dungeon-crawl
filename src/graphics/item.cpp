@@ -1,5 +1,5 @@
 #include "item.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include "../render/ink.h"
 #include "../render/lighting.h"
 #include "../core/timer.h"

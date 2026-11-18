@@ -1,5 +1,4 @@
 #include <cmath>
-#include <GL/gl.h>
 #include "../render/gl_includes.h"
 #include "menu_internal.h"
 

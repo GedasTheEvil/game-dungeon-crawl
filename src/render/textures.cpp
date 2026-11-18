@@ -1,8 +1,6 @@
-#define GL_GLEXT_PROTOTYPES // glGenerateMipmap, exported by libGL on Linux
 #include "textures.h"
-#include <GL/glx.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include "gl_includes.h"
+#include <GL/glx.h> // after glad (textures.h)
 #include <algorithm>
 #include <cstring>
 #include "../core/logger.h"
@@ -18,9 +16,7 @@ float anisotropy() {
 	static float level = -1.f;
 	if (level < 0.f) {
 		level = 1.f;
-		const char* ext = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-		if (ext != nullptr && (strstr(ext, "GL_EXT_texture_filter_anisotropic") != nullptr ||
-							   strstr(ext, "GL_ARB_texture_filter_anisotropic") != nullptr)) {
+		if (GLAD_GL_EXT_texture_filter_anisotropic || GLAD_GL_ARB_texture_filter_anisotropic) {
 			float driverMax = 1.f;
 			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &driverMax);
 			level = std::clamp(driverMax, 1.f, MAX_ANISOTROPY);

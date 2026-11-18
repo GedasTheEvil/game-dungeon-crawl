@@ -1,7 +1,7 @@
 #include "level_gem.h"
 #include "../render/ui_draw.h"
 #include "../render/font.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include <string>

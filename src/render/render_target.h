@@ -1,7 +1,7 @@
 #ifndef RENDER_TARGET_H
 #define RENDER_TARGET_H
 
-#include <GL/gl.h>
+#include "gl_includes.h"
 
 // An offscreen colour + depth buffer to draw into, then use as a mipmapped texture (the journal's pages, which the
 // page turn bends). Owns its GL objects: freed with it, not copied.

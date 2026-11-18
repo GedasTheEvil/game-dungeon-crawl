@@ -1,10 +1,9 @@
-#define GL_GLEXT_PROTOTYPES // GL 2.0 shader entry points, exported by libGL on Linux
 #include "motion_fx.h"
 #include "render_target.h"
+#include "batch.h"
 #include "shader.h"
 
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include "gl_includes.h"
 #include <algorithm>
 
 namespace {
@@ -19,49 +18,52 @@ constexpr float BLIND_REACH = 0.12f; // a blind's blur (plan giant-cobra-blindin
 constexpr float BLIND_DARK = 0.95f; // its vignette, green-black, round a small clear spot
 
 const char* const VERTEX_SRC = R"(
-#version 120
-varying vec2 vUv;
+#version 330 core
+layout(location = 0) in vec2 aPos; // drawScreenQuad's corners, clip space
+out vec2 vUv;
 void main() {
-	vUv = gl_Vertex.xy * 0.5 + 0.5;
-	gl_Position = gl_Vertex;
+	vUv = aPos * 0.5 + 0.5;
+	gl_Position = vec4(aPos, 0.0, 1.0);
 }
 )";
 
 // Samples along the line to the centre. The reach grows with the distance, so the player in the middle stays sharp.
 const char* const BLUR_SRC = R"(
-#version 120
+#version 330 core
 uniform sampler2D uScene;
 uniform vec2 uCentre;
 uniform float uAspect;
 uniform float uReach;
 uniform float uSepia;
 uniform float uBlind;
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColour;
 void main() {
 	vec2 d = vUv - uCentre;
 	float r = length(d * vec2(uAspect, 1.0));
 	float reach = uReach * smoothstep(mix(0.1, 0.03, uBlind), mix(0.6, 0.3, uBlind), r);
 	vec3 sum = vec3(0.0);
 	for (int i = 0; i < 12; i++)
-		sum += texture2D(uScene, vUv - d * reach * float(i) / 11.0).rgb;
+		sum += texture(uScene, vUv - d * reach * float(i) / 11.0).rgb;
 	vec3 colour = sum / 12.0;
 	float grey = dot(colour, vec3(0.299, 0.587, 0.114));
 	colour = mix(colour, grey * vec3(1.08, 0.95, 0.76), uSepia);
-	gl_FragColor = vec4(mix(colour, colour * vec3(0.55, 1.0, 0.5), 0.7 * uBlind), 1.0);
+	fragColour = vec4(mix(colour, colour * vec3(0.55, 1.0, 0.5), 0.7 * uBlind), 1.0);
 }
 )";
 
 const char* const VIGNETTE_SRC = R"(
-#version 120
+#version 330 core
 uniform vec2 uCentre;
 uniform float uAspect;
 uniform float uDark;
 uniform float uBlind;
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColour;
 void main() {
 	float r = length((vUv - uCentre) * vec2(uAspect, 1.0)) / uAspect;
 	float edge = smoothstep(mix(0.35, 0.05, uBlind), mix(0.9, 0.3, uBlind), r);
-	gl_FragColor = vec4(vec3(0.0, 0.08, 0.02) * uBlind, uDark * edge);
+	fragColour = vec4(vec3(0.0, 0.08, 0.02) * uBlind, uDark * edge);
 }
 )";
 
@@ -118,12 +120,7 @@ void fullScreenQuad(const Program& p, float centreX, float centreY, float amount
 	glUniform2f(p.centre, centreX, centreY);
 	glUniform1f(p.aspect, static_cast<float>(gWidth) / static_cast<float>(std::max(gHeight, 1)));
 	glUniform1f(p.amount, amount);
-	glBegin(GL_QUADS); // clip space, the vertex shader ignores the matrices
-	glVertex2f(-1.f, -1.f);
-	glVertex2f(1.f, -1.f);
-	glVertex2f(1.f, 1.f);
-	glVertex2f(-1.f, 1.f);
-	glEnd();
+	drawScreenQuad();
 	glUseProgram(0);
 }
 
@@ -215,13 +212,17 @@ void MotionFx::end() {
 	const float centreX = gCentreX, centreY = gCentreY;
 	if (!anyLook())
 		return;
+	const bool blurred = gActive;
+	gActive = false;
+	// Back on the window before the attributes are saved: popped, GL_COLOR_BUFFER_BIT sets the draw buffer it saved,
+	// and the target's GL_COLOR_ATTACHMENT0 on the window is an error (the KHR_debug log, plan gl-core-foundation).
+	if (blurred)
+		gTarget.End();
 	glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_LIGHTING);
-	if (gActive) {
-		gActive = false;
-		gTarget.End();
+	if (blurred) {
 		glClear(GL_DEPTH_BUFFER_BIT); // the scene's depth went to the target: the HUD must not test against stale depth
 		glDisable(GL_BLEND);
 		glActiveTexture(GL_TEXTURE0);

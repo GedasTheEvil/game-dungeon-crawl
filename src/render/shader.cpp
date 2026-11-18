@@ -1,7 +1,6 @@
-#define GL_GLEXT_PROTOTYPES // GL 2.0 shader entry points, exported by libGL on Linux
 #include "shader.h"
 
-#include <GL/glext.h>
+#include "gl_includes.h"
 #include "../core/logger.h"
 
 namespace {
@@ -22,12 +21,7 @@ GLuint compile(const char* name, GLenum type, const char* src) {
 }
 } // namespace
 
-GLuint linkProgram(
-	const char* name,
-	const char* vertexSrc,
-	const char* fragmentSrc,
-	std::initializer_list<std::pair<GLuint, const char*>> attributes
-) {
+GLuint linkProgram(const char* name, const char* vertexSrc, const char* fragmentSrc) {
 	GLuint vs = compile(name, GL_VERTEX_SHADER, vertexSrc);
 	GLuint fs = compile(name, GL_FRAGMENT_SHADER, fragmentSrc);
 	if (vs == 0 || fs == 0)
@@ -35,8 +29,6 @@ GLuint linkProgram(
 	GLuint program = glCreateProgram();
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
-	for (const auto& [location, attribute] : attributes)
-		glBindAttribLocation(program, location, attribute);
 	glLinkProgram(program);
 	glDeleteShader(vs);
 	glDeleteShader(fs);

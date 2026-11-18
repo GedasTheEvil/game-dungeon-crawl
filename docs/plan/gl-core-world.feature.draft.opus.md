@@ -1,10 +1,10 @@
 # Port the 3D world drawing to the GL core path
 
-Status: draft 2026-11-18, size L, needs [gl-core-foundation](gl-core-foundation.feature.draft.opus.md) first.
+Status: draft 2026-11-18, size L, needs [gl-core-foundation](gl-core-foundation.feature.md) first.
 
 ## Problem
 
-After [gl-core-foundation](gl-core-foundation.feature.draft.opus.md) the world still draws with immediate mode and
+After [gl-core-foundation](gl-core-foundation.feature.md) the world still draws with immediate mode and
 the GL matrix stack. This plan moves it to `MatrixStack`, `Batch`, VAOs and the GLSL 330 shaders.
 
 ## Plan

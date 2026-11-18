@@ -3,7 +3,6 @@
 #include "../graphics/loading_text.h"
 #include "settings.h"
 #include "../ui/player_hud.h"
-#include <GL/gl.h>
 #include "../render/gl_includes.h"
 #include <cassert>
 #include <cstdarg>

@@ -1,20 +1,20 @@
-#define GL_GLEXT_PROTOTYPES // GL 2.0 shader and 3.0 framebuffer entry points, exported by libGL on Linux
 #include "ink.h"
 #include "../sim/figures.h"
 #include "motion_fx.h"
+#include "batch.h"
 #include "shader.h"
 
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include "gl_includes.h"
 #include "../core/logger.h"
 
 namespace {
 const char* const VERTEX_SRC = R"(
-#version 120
-varying vec2 vUv;
+#version 330 core
+layout(location = 0) in vec2 aPos; // drawScreenQuad's corners, clip space
+out vec2 vUv;
 void main() {
-	vUv = gl_Vertex.xy * 0.5 + 0.5;
-	gl_Position = gl_Vertex;
+	vUv = aPos * 0.5 + 0.5;
+	gl_Position = vec4(aPos, 0.0, 1.0);
 }
 )";
 
@@ -22,16 +22,17 @@ void main() {
 // difference is zero on a plane and jumps on a crease, whatever the viewing angle. Silhouettes are a big
 // relative distance step to a neighbour, drawn only on the nearer side so the line hugs the front object.
 const char* const FRAGMENT_SRC = R"(
-#version 120
+#version 330 core
 uniform sampler2D uColor;
 uniform sampler2D uDepth;
 uniform vec2 uPixel; // one pixel in uv
 uniform float uWidth; // line half width in pixels
 uniform float uNear;
 uniform float uFar;
-varying vec2 vUv;
+in vec2 vUv;
+out vec4 fragColour;
 float w(vec2 uv) {
-	float d = texture2D(uDepth, uv).r;
+	float d = texture(uDepth, uv).r;
 	return (uFar - d * (uFar - uNear)) / (uNear * uFar);
 }
 float edgeAt(vec2 uv) {
@@ -59,12 +60,12 @@ float edgeAt(vec2 uv) {
 	return edge;
 }
 void main() {
-	vec3 col = texture2D(uColor, vUv).rgb;
+	vec3 col = texture(uColor, vUv).rgb;
 	// four sub-pixel taps smooth the stair steps of a per-pixel depth test
 	vec2 q = uPixel * 0.35;
 	float edge = 0.25 * (edgeAt(vUv + vec2(-q.x, -q.y)) + edgeAt(vUv + vec2(q.x, -q.y)) +
 						 edgeAt(vUv + vec2(-q.x, q.y)) + edgeAt(vUv + vec2(q.x, q.y)));
-	gl_FragColor = vec4(mix(col, col * vec3(0.1, 0.08, 0.12), edge * 0.92), 1.0);
+	fragColour = vec4(mix(col, col * vec3(0.1, 0.08, 0.12), edge * 0.92), 1.0);
 }
 )";
 
@@ -208,12 +209,7 @@ void Ink::end() {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colour);
 	glUseProgram(gProgram);
-	glBegin(GL_QUADS); // clip space, the vertex shader ignores the matrices
-	glVertex2f(-1.f, -1.f);
-	glVertex2f(1.f, -1.f);
-	glVertex2f(1.f, 1.f);
-	glVertex2f(-1.f, 1.f);
-	glEnd();
+	drawScreenQuad();
 	glUseProgram(0);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, 0);

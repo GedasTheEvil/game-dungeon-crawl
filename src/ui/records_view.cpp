@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
-#include <GL/gl.h>
 #include "../render/gl_includes.h"
 #include "../level/input.h"
 #include "../state/game_state.h"

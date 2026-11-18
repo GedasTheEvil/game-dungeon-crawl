@@ -3,7 +3,7 @@
 #include "../level/ui_layout.h"
 #include "../core/timer.h"
 #include "../render/font.h"
-#include <GL/gl.h>
+#include "../render/gl_includes.h"
 
 using namespace ui;
 

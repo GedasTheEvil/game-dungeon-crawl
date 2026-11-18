@@ -36,7 +36,9 @@ hang. To follow progress, read the job's log (`tools/job.sh log NAME`).
 
 `bin/game` plays music and ends on SIGTERM only between frames (SDL turns it into a quit, as the window's close
 button; not while it loads). Run it as `xvfb-run -a timeout -k 5 N bin/game --no-sound ...`, with
-`timeout` inside `xvfb-run` (AGENTS.md, Scenario tests). `bin/editor` has no sound and no flags: `xvfb-run -a timeout -k 5 N bin/editor [level file]`.
+`timeout` inside `xvfb-run` (AGENTS.md, Scenario tests). `bin/editor` has no sound and no flags: `SDL_VIDEO_DRIVER=x11
+xvfb-run -a timeout -k 5 N bin/editor [level file]` (SDL3 prefers Wayland, and `WAYLAND_DISPLAY` outlives `xvfb-run`:
+without the driver the window opens on the desktop). The same for `bin/model-viewer` without `--shot`.
 
 ## Finding leftovers
 

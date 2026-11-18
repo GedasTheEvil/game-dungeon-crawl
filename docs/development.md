@@ -7,10 +7,9 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git w
 * Make
 * GCC
 * OpenGL 3.3 (a compatibility profile until plan [gl-core-profile](plan/gl-core-profile.feature.draft.opus.md); Mesa, NVIDIA and AMD give one; no GLU)
-* GLUT (freeglut; the level editor and the model viewer only, until plan
-  [gl-core-tools](plan/gl-core-tools.tooling.draft.opus.md))
-* SDL3 (`libsdl3-dev`, found by `pkg-config sdl3`; the game's window, input and audio, the tools do not need it;
-  plan [sdl3-window-input](plan/sdl3-window-input.feature.md)). No SDL3_mixer: the
+* SDL3 (`libsdl3-dev`, found by `pkg-config sdl3`; the window, input and audio of the game, the level editor's and
+  the model viewer's window; plans [sdl3-window-input](plan/sdl3-window-input.feature.md) and
+  [gl-core-tools](plan/solved/gl-core-tools.tooling.md)). No GLUT, no GLU. No SDL3_mixer: the
   game mixes its own sounds on SDL3 audio streams (`src/audio/mixer.*`, plan
   [sdl3-audio](plan/sdl3-audio.feature.md))
 * Python 3 (`tools/plan.py`, run by `make check`; the asset scripts)
@@ -129,14 +128,14 @@ player by `PlayerView`; both only read the sim's state ([plan/solved/sim-library
 The drawing moves from OpenGL 1.x fixed function to OpenGL 3.3 core, file by file
 ([gl-core-foundation](plan/gl-core-foundation.feature.md), then
 [gl-core-world](plan/gl-core-world.feature.draft.opus.md), [gl-core-ui](plan/gl-core-ui.feature.draft.opus.md),
-[gl-core-tools](plan/gl-core-tools.tooling.draft.opus.md), [gl-core-profile](plan/gl-core-profile.feature.draft.opus.md)).
+[gl-core-tools](plan/solved/gl-core-tools.tooling.md), [gl-core-profile](plan/gl-core-profile.feature.draft.opus.md)).
 Until the last one the context is a 3.3 compatibility one (`Window::open`), so ported and legacy code draw side by
 side. The parts, all in `src/render/`:
 
 * `gl_includes.h`: the GL API, through glad. Include it, never `<GL/gl.h>` or `<GL/glext.h>`. `initGlContext`
-  (`gl_context.h`) loads it once a context is current (the game with `SDL_GL_GetProcAddress`, the tools with
-  `glutGetProcAddress`) and, in a dev build (not `make release`), sends GL errors (`KHR_debug`) to the log under
-  `graphics`.
+  (`gl_context.h`) loads it once a context is current (`SDL_GL_GetProcAddress`; `GlWindow` in
+  `src/game/gl_window.h` opens the window and the context of the game and of the tools) and, in a dev build (not
+  `make release`), sends GL errors (`KHR_debug`) to the log under `graphics`.
 * `mat4.h`: `Mat4` (column-major, as GL), `translation`, `rotation`, `scaling`, `perspective` (GLU's),
   `ortho`, `frustum`, and `project` (`gluProject`). They compute what Mesa and GLU computed, step by step, so a
   ported view gives the same pixels. Our own, not glm: glm's headers cost 0.3 s per translation unit.

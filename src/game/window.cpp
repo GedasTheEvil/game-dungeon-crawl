@@ -6,7 +6,8 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <algorithm>
-#include "../render/gl_context.h"
+#include "../render/gl_includes.h"
+#include "gl_window.h"
 #include "../core/logger.h"
 #include "../graphics/draw.h"
 #include "../graphics/frame_rate.h"
@@ -19,8 +20,7 @@
 #include "../test/scenario.h"
 
 namespace {
-SDL_Window* gWindow = nullptr;
-SDL_GLContext gContext = nullptr;
+GlWindow gGl;
 bool gQuit = false;
 bool gHeld = false;
 
@@ -36,7 +36,7 @@ constexpr Uint64 IDLE_SLEEP_NS = SDL_NS_PER_MS;
 void resized() {
 	int width = 0;
 	int height = 0;
-	SDL_GetWindowSizeInPixels(gWindow, &width, &height);
+	SDL_GetWindowSizeInPixels(gGl.window, &width, &height);
 	height = std::max(height, 1);
 	glViewport(0, 0, width, height);
 	LOG_INFOF("graphics", "Resized to : %d x %d", width, height);
@@ -47,7 +47,7 @@ void resized() {
 	if (!display.fullscreen && !Scenario::active()) {
 		int w = 0;
 		int h = 0;
-		SDL_GetWindowSize(gWindow, &w, &h);
+		SDL_GetWindowSize(gGl.window, &w, &h);
 		display.width = std::clamp(w, MIN_WINDOW_W, MAX_WINDOW_W);
 		display.height = std::clamp(h, MIN_WINDOW_H, MAX_WINDOW_H);
 	}
@@ -72,7 +72,7 @@ void pollEvents(bool input) {
 			break;
 		default:
 			if (input)
-				handleInputEvent(event, SDL_GetWindowPixelDensity(gWindow));
+				handleInputEvent(event, SDL_GetWindowPixelDensity(gGl.window));
 			break;
 		}
 	}
@@ -94,45 +94,17 @@ void initGl() {
 namespace Window {
 
 bool open(int width, int height, bool fullscreen) {
-	// GL 3.3 for the core path's shaders (plan gl-core-foundation), in a compatibility context while the fixed-function
-	// drawing is ported file by file (plan gl-core-profile moves to core).
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_WindowFlags flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+	SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 	if (fullscreen)
 		flags |= SDL_WINDOW_FULLSCREEN;
-	gWindow = SDL_CreateWindow("Dungeon Crawl", width, height, flags);
-	if (gWindow == nullptr) {
-		LOG_ERRORF("game", "No window: %s", SDL_GetError());
-		return false;
-	}
-	gContext = SDL_GL_CreateContext(gWindow);
-	if (gContext == nullptr) {
-		LOG_ERRORF("game", "No OpenGL 3.3 context: %s", SDL_GetError());
-		return false;
-	}
-	if (!initGlContext(SDL_GL_GetProcAddress))
+	if (!gGl.open("Dungeon Crawl", width, height, flags))
 		return false;
 	initGl();
 	resized();
 	return true;
 }
 
-void close() {
-	if (gContext != nullptr)
-		SDL_GL_DestroyContext(gContext);
-	if (gWindow != nullptr)
-		SDL_DestroyWindow(gWindow);
-	gContext = nullptr;
-	gWindow = nullptr;
-}
+void close() { gGl.close(); }
 
 void run() {
 	Uint64 nextUpdate = SDL_GetTicksNS();
@@ -170,17 +142,17 @@ void runScenario() {
 
 void quit() { gQuit = true; }
 
-void swap() { SDL_GL_SwapWindow(gWindow); }
+void swap() { gGl.swap(); }
 
 void setFullscreen(bool on) {
-	if (!SDL_SetWindowFullscreen(gWindow, on))
+	if (!SDL_SetWindowFullscreen(gGl.window, on))
 		LOG_WARNINGF("display", "Fullscreen %s failed: %s", on ? "on" : "off", SDL_GetError());
 }
 
-void resize(int width, int height) { SDL_SetWindowSize(gWindow, width, height); }
+void resize(int width, int height) { SDL_SetWindowSize(gGl.window, width, height); }
 
 Size desktopSize() {
-	const SDL_DisplayMode* mode = SDL_GetDesktopDisplayMode(SDL_GetDisplayForWindow(gWindow));
+	const SDL_DisplayMode* mode = SDL_GetDesktopDisplayMode(SDL_GetDisplayForWindow(gGl.window));
 	if (mode == nullptr)
 		return {MAX_WINDOW_W, MAX_WINDOW_H};
 	return {mode->w, mode->h};
@@ -192,12 +164,12 @@ void holdPointer(bool held) {
 	if (Scenario::active() || held == gHeld) // a script has no pointer
 		return;
 	gHeld = held;
-	SDL_SetWindowRelativeMouseMode(gWindow, held);
+	SDL_SetWindowRelativeMouseMode(gGl.window, held);
 	if (!held) {
 		int w = 0;
 		int h = 0;
-		SDL_GetWindowSize(gWindow, &w, &h);
-		SDL_WarpMouseInWindow(gWindow, static_cast<float>(w) / 2, static_cast<float>(h) / 2);
+		SDL_GetWindowSize(gGl.window, &w, &h);
+		SDL_WarpMouseInWindow(gGl.window, static_cast<float>(w) / 2, static_cast<float>(h) / 2);
 	}
 }
 

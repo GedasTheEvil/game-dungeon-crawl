@@ -13,6 +13,11 @@ void syncMatrices();
 void adoptMatrices();
 // The legacy current colour back to white, as a ported draw used to leave it for its legacy callers.
 void resetColour();
+// The legacy current colour: the tint of a legacy draw that follows (the model viewer's potion glass, plan
+// gl-core-tools).
+void colour(float r, float g, float b, float a);
+// Fixed-function texturing on or off (glEnable / glDisable(GL_TEXTURE_2D)), as the legacy draws that follow expect it.
+void texturing(bool on);
 } // namespace GlLegacy
 
 #endif

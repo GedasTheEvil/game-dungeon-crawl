@@ -11,18 +11,30 @@
 //   --shot <dir>            screenshot mode: writes <dir>/<stem>_<frame>.png for the frames and exits, no HUD
 //   --frames 0,4,8|all      the frames for --shot (default all)
 //   --size <w>x<h>          the window size (default 800x600)
-// Headless shots: xvfb-run -a -s "-screen 0 1280x1024x24" bin/model-viewer <model.md3> --shot <dir> ...
+// Headless shots: xvfb-run -a -s "-screen 0 1280x1024x24" bin/model-viewer <model.md3> --shot <dir> ... (--shot
+// opens the window on X11, so under xvfb-run it stays off a Wayland desktop; an SDL_VIDEO_DRIVER set by the caller
+// wins).
 //
 // A potion vessel with a glass shell (PotionModelDef::glass, plan potion-glass-vessels) gets it drawn over it,
 // see-through as in the game, in the lit modes.
 //
 // Keys: space cycles through the model's clips, T through its textures, L the lighting (flat, game, toon),
-// + / - speed the loop up / slow it down. Drag with the left mouse button to turn the model.
+// + / - speed the loop up / slow it down, Escape quits. Drag with the left mouse button to turn the model.
+//
+// The window is SDL3's (src/game/gl_window.h, plan gl-core-tools); the viewer's own drawing (the projection, the
+// turn, the loop bar) is on the GL core path (gProj, gMv, Batch). The model, the lighting and the stats panel are the
+// game's code: GlLegacy::syncMatrices() hands them the matrices, ported or not.
 
-#include "../../src/render/gl_context.h" // before GLUT: glad replaces <GL/gl.h>
+#include "../../src/game/gl_window.h"
+#include "../../src/render/gl_includes.h"
+#include "../../src/render/gl_legacy.h"
 #include "../../src/render/mat4.h"
-#include <GL/glut.h>
-#include <GL/freeglut_ext.h> // glutGetProcAddress
+#include "../../src/render/matrix_stack.h"
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_mouse.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -342,8 +354,7 @@ void DrawStatsPanel() {
 	std::snprintf(lines[5], sizeof lines[5], "Light: %s", LIGHT_MODE_NAMES[static_cast<int>(gLightMode)]);
 	const char* hint = "space clip   T texture   L light   + / - speed   drag turn";
 
-	float canvasW = ui::beginSquareCanvas(100.f, gWinWidth, gWinHeight);
-	glLoadIdentity();
+	float canvasW = ui::beginSquareCanvas(100.f, gWinWidth, gWinHeight); // the model view stays the identity
 	float textW = gHintFont.TextWidth(hint);
 	for (const auto& line : lines)
 		textW = std::max(textW, gStatsFont.TextWidth(line));
@@ -364,20 +375,13 @@ void DrawStatsPanel() {
 	ui::text(gHintFont, box.x + PAD, y + LINE_H - HINT_H, hint, ui::GOLD_DIM);
 }
 
-void InitGL(int width, int height) {
-	glEnable(GL_TEXTURE_2D);
+// The GL state the frames start from; the projection is set every frame (DrawScene).
+void InitGL() {
+	GlLegacy::texturing(true); // the model's legacy draw expects it
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glClearColor(0.15f, 0.15f, 0.2f, 0.0f);
 	glClearDepth(1.0);
-	glShadeModel(GL_SMOOTH);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(
-		Mat4::perspective(45.0, static_cast<double>(width) / static_cast<double>(height), Z_NEAR, Z_FAR).data()
-	);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 }
 
 void SetLightMode(LightMode mode) {
@@ -394,12 +398,10 @@ void DrawScene() {
 	// src/graphics/draw.cpp's Draw(), which also sets up the perspective from
 	// scratch each call) since the 2D overlay pass below switches the
 	// projection matrix to an orthographic one for the HUD bar.
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(
-		Mat4::perspective(45.0, static_cast<double>(gWinWidth) / static_cast<double>(gWinHeight), Z_NEAR, Z_FAR).data()
+	gProj.load(
+		Mat4::perspective(45.0, static_cast<double>(gWinWidth) / static_cast<double>(gWinHeight), Z_NEAR, Z_FAR)
 	);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	gMv.loadIdentity();
 
 	// Centrify() normalizes the model to roughly unit size with its base at
 	// y=0 and centered on x/z, so a fixed camera a couple of units back and
@@ -407,17 +409,19 @@ void DrawScene() {
 	// it reasonably for any model. A static yaw gives a 3/4 view instead of
 	// a flat front-on silhouette; nothing here animates the model itself.
 	if (gShotDir.empty())
-		glTranslatef(-0.35f, -0.5f, -2.2f);
+		gMv.translate(-0.35f, -0.5f, -2.2f);
 	else
-		glTranslatef(0.f, -0.5f, -2.f); // no HUD to make room for: centred, a bit closer
+		gMv.translate(0.f, -0.5f, -2.f); // no HUD to make room for: centred, a bit closer
 	const bool lit = gLightMode != LightMode::Flat;
 	if (lit) {
+		GlLegacy::syncMatrices(); // Lighting::add reads GL's model view
 		Lighting::begin();
 		Lighting::add(VIEWER_LIGHT_POS[0], VIEWER_LIGHT_POS[1], VIEWER_LIGHT_POS[2], VIEWER_LIGHT, 0);
 		Lighting::commit();
 	}
-	glRotatef(gYawDeg, 0.0f, 1.0f, 0.0f);
-	glRotatef(gPitchDeg, 1.0f, 0.0f, 0.0f);
+	gMv.rotate(gYawDeg, 0.0f, 1.0f, 0.0f);
+	gMv.rotate(gPitchDeg, 1.0f, 0.0f, 0.0f);
+	GlLegacy::syncMatrices(); // the game's model code draws under GL's matrices until plan gl-core-world
 
 	if (gModel)
 		gModel->Show();
@@ -425,9 +429,9 @@ void DrawScene() {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthMask(GL_FALSE);
-		glColor4f(1.f, 1.f, 1.f, POTION_GLASS_ALPHA);
+		GlLegacy::colour(1.f, 1.f, 1.f, POTION_GLASS_ALPHA);
 		gGlass->Show();
-		glColor4f(1.f, 1.f, 1.f, 1.f);
+		GlLegacy::resetColour();
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 	}
@@ -476,69 +480,42 @@ void Display() {
 
 	DrawScene();
 
-	// 2D loop-progress bar overlay, using the same
-	// glOrtho(0, 100, 0, 100, -21, 21) 2D-overlay convention
-	// src/graphics/draw.cpp's Draw() uses for the in-game HUD.
-	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, 100, 0, 100, -21, 21);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// The model's texture is still bound from the 3D pass; disable
-	// GL_TEXTURE_2D so the bar's glColor3f calls set flat, untextured color
-	// instead of being modulated by whatever texel the untextured quad
-	// happens to sample.
-	glDisable(GL_TEXTURE_2D);
+	// The loop's progress bar, on the glOrtho(0, 100, 0, 100, -21, 21) canvas of the game's HUD.
+	gProj.load(Mat4::ortho(0, 100, 0, 100, -21, 21));
+	gMv.loadIdentity();
 	Hud::drawBar(30.0f, 6.0f, 40.0f, 4.0f, static_cast<float>(loopRatio), 0.2f, 0.6f, 1.0f);
-	glEnable(GL_TEXTURE_2D);
 
 	glDisable(GL_DEPTH_TEST);
+	GlLegacy::syncMatrices(); // the stats panel is the game's UI code: an identity model view in GL too
 	DrawStatsPanel();
 	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
+	GlLegacy::texturing(true);
 	glEnable(GL_DEPTH_TEST);
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	glutSwapBuffers();
+	GlLegacy::resetColour();
 }
 
-void Idle() { glutPostRedisplay(); }
-
-void MouseButton(int button, int state, int x, int y) {
-	if (button != GLUT_LEFT_BUTTON)
+// The left button turns the model while held.
+void MouseButton(const SDL_MouseButtonEvent& event) {
+	if (event.button != SDL_BUTTON_LEFT)
 		return;
-	if (state == GLUT_DOWN) {
-		gDragging = true;
-		gLastMouseX = x;
-		gLastMouseY = y;
-	} else if (state == GLUT_UP) {
-		gDragging = false;
-	}
+	gDragging = event.down;
+	gLastMouseX = static_cast<int>(event.x);
+	gLastMouseY = static_cast<int>(event.y);
 }
 
-void MouseMotion(int x, int y) {
+void MouseMotion(const SDL_MouseMotionEvent& event) {
 	if (!gDragging)
 		return;
+	const int x = static_cast<int>(event.x);
+	const int y = static_cast<int>(event.y);
 	int dx = x - gLastMouseX;
 	int dy = y - gLastMouseY;
 	gLastMouseX = x;
 	gLastMouseY = y;
 
 	gYawDeg += static_cast<float>(dx) * DRAG_DEG_PER_PX;
-	gPitchDeg += static_cast<float>(dy) * DRAG_DEG_PER_PX; // sign: adjust during
-														   // verification if the
-														   // up/down feel is
-														   // inverted -- not a
-														   // hard requirement,
-														   // pick whichever reads
-														   // as natural by eye
-	if (gPitchDeg > MAX_PITCH_DEG)
-		gPitchDeg = MAX_PITCH_DEG;
-	if (gPitchDeg < -MAX_PITCH_DEG)
-		gPitchDeg = -MAX_PITCH_DEG;
+	gPitchDeg += static_cast<float>(dy) * DRAG_DEG_PER_PX;
+	gPitchDeg = std::clamp(gPitchDeg, -MAX_PITCH_DEG, MAX_PITCH_DEG);
 }
 
 // Loads the next clip of the model.
@@ -572,46 +549,70 @@ void NextTexture() {
 	gModel->BindTexture(LoadCurrentTexture());
 }
 
-void KeyPressed(unsigned char key, int /*x*/, int /*y*/) {
+// False: quit (Escape).
+bool KeyPressed(SDL_Keycode key) {
 	switch (key) {
-	case ' ':
+	case SDLK_SPACE:
 		NextClip();
 		break;
-	case 't':
-	case 'T':
+	case SDLK_T:
 		NextTexture();
 		break;
-	case 'l':
-	case 'L':
+	case SDLK_L:
 		SetLightMode(static_cast<LightMode>((static_cast<int>(gLightMode) + 1) % std::size(LIGHT_MODE_NAMES)));
 		break;
-	case '+':
-	case '=': // + without shift
+	case SDLK_PLUS:
+	case SDLK_EQUALS: // + without shift
+	case SDLK_KP_PLUS:
 		SetDuration(gDurationSeconds / SPEED_STEP);
 		break;
-	case '-':
-	case '_':
+	case SDLK_MINUS:
+	case SDLK_KP_MINUS:
 		SetDuration(gDurationSeconds * SPEED_STEP);
 		break;
+	case SDLK_ESCAPE:
+		return false;
 	default:
 		break;
 	}
+	return true;
 }
 
-void Reshape(int width, int height) {
-	if (height == 0)
-		height = 1;
+void Reshape(const GlWindow& window) {
+	window.pixelSize(gWinWidth, gWinHeight);
+	glViewport(0, 0, gWinWidth, gWinHeight);
+}
 
-	gWinWidth = width;
-	gWinHeight = height;
-
-	glViewport(0, 0, width, height);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(
-		Mat4::perspective(45.0, static_cast<double>(width) / static_cast<double>(height), Z_NEAR, Z_FAR).data()
-	);
-	glMatrixMode(GL_MODELVIEW);
+// The window's events until it closes or Escape, a frame after each pass.
+void Run(const GlWindow& window) {
+	for (;;) {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			switch (event.type) {
+			case SDL_EVENT_QUIT:
+			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+				return;
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+				Reshape(window);
+				break;
+			case SDL_EVENT_KEY_DOWN:
+				if (!KeyPressed(event.key.key))
+					return;
+				break;
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			case SDL_EVENT_MOUSE_BUTTON_UP:
+				MouseButton(event.button);
+				break;
+			case SDL_EVENT_MOUSE_MOTION:
+				MouseMotion(event.motion);
+				break;
+			default:
+				break;
+			}
+		}
+		Display();
+		window.swap();
+	}
 }
 
 } // namespace
@@ -691,19 +692,22 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	// glutInit is called only after a successful model load so a bad path
-	// never gets as far as opening a window.
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA);
-	glutInitWindowSize(gWinWidth, gWinHeight);
-	glutInitWindowPosition(50, 50);
-
-	std::string title = "Model Viewer :: " + FileStem(modelPath) + ".md3";
-	glutCreateWindow(title.c_str());
-	if (!initGlContext(glutGetProcAddress))
+	// The window opens only after a successful model load, so a bad path never gets as far as opening one.
+	if (!gShotDir.empty())
+		setenv("SDL_VIDEO_DRIVER", "x11", 0); // a headless run: on xvfb-run's display, not on a Wayland desktop
+	if (!SDL_Init(SDL_INIT_VIDEO)) {
+		std::println(stderr, "SDL_Init: {}", SDL_GetError());
 		return 1;
-
-	InitGL(gWinWidth, gWinHeight);
+	}
+	std::string title = "Model Viewer :: " + FileStem(modelPath) + ".md3";
+	GlWindow window;
+	if (!window.open(title.c_str(), gWinWidth, gWinHeight, SDL_WINDOW_RESIZABLE)) {
+		std::println(stderr, "No OpenGL 3.3 window: {}", SDL_GetError());
+		return 1;
+	}
+	SDL_GL_SetSwapInterval(1); // vsync where the driver allows it: no busy loop
+	Reshape(window);
+	InitGL();
 
 	gStatsFont.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.6f, 0.1f, true); // the UI screens' body and small fonts
 	gHintFont.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.f, 0.08f, true);
@@ -738,14 +742,8 @@ int main(int argc, char* argv[]) {
 	}
 	SetLightMode(gLightMode);
 
-	glutDisplayFunc(Display);
-	glutIdleFunc(Idle);
-	glutReshapeFunc(Reshape);
-	glutMouseFunc(MouseButton);
-	glutMotionFunc(MouseMotion);
-	glutKeyboardFunc(KeyPressed);
-
-	glutMainLoop();
-
+	Run(window);
+	// The window and its context go with the process, after the textures and models (file statics) free their GL
+	// objects in it.
 	return 0;
 }

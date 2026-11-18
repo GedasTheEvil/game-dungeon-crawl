@@ -29,7 +29,7 @@ Wayland, and keys come as characters plus "special" codes.
   High-DPI: draw at `SDL_GetWindowSizeInPixels`, UI layout from the pixel size as now.
 * Window close: the loop ends, the same shutdown path as now (`GLUT_ACTION_GLUTMAINLOOP_RETURNS`).
 * Drop `-lglut` and `freeglut_ext.h` from the game (the editor and the model viewer keep GLUT until
-  [gl-core-tools](gl-core-tools.tooling.draft.opus.md)); `gl_includes.h` includes `<SDL3/SDL_opengl.h>` or the GL
+  [gl-core-tools](solved/gl-core-tools.tooling.md)); `gl_includes.h` includes `<SDL3/SDL_opengl.h>` or the GL
   headers directly.
 * Gamepad: not in this plan; with SDL3 in place it is a small follow-up (save it as a draft when done).
 * Scenario tests: they inject input through the same functions the callbacks called; keep that seam so `scenario.cpp`

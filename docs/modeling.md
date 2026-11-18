@@ -57,10 +57,11 @@ started (port 9876).
   In live Blender (MCP): `exec(open(p).read(), g); g["build"](bake=False)` for quick iteration.
 * `bin/model-viewer <file.md3> [seconds] [options]` (`make model-viewer`, or `make run-model-viewer ARGS="..."`) - check exported files in the real engine.
   Space cycles the model's clips, T its textures, L the lighting (flat, the game's with the player's light, toon with
-  ink lines), + / - change the loop speed, left-drag turns the model. Screenshots in the game's renderer (texture
+  ink lines), + / - change the loop speed, left-drag turns the model, Escape quits. Screenshots in the game's renderer (texture
   filtering, int16 steps, `Centrify`, lighting), headless: `xvfb-run -a -s "-screen 0 1280x1024x24" bin/model-viewer
   media/models/monsters/rat.md3 --shot /tmp/shots --frames 0,6,12 --yaw 90 --light toon --texture rat_giant --size 480x480`
-  writes `<stem>_<frame>.png` and exits (`--frames` default all; `--pitch`). The model in the dungeon, among walls and
+  writes `<stem>_<frame>.png` and exits (`--frames` default all; `--pitch`; `--shot` opens the window on X11, so it
+  stays on Xvfb under a Wayland desktop). The model in the dungeon, among walls and
   torches: a scenario ([testing.md](testing.md)), e.g. `tests/scenarios/solved/props.txt`.
 
 ## Format and engine conventions

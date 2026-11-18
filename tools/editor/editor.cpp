@@ -13,13 +13,23 @@
 #include "../../src/level/level.h"
 #include "../../src/level/level_check.h"
 #include <filesystem>
-#include "../../src/render/gl_context.h"
-#include <GL/glut.h>
-#include <GL/freeglut_ext.h> // glutGetProcAddress
+#include "../../src/game/gl_window.h"
+#include "../../src/render/gl_includes.h"
+#include "../../src/render/gl_legacy.h"
+#include "../../src/render/matrix_stack.h"
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_timer.h>
 #include <algorithm>
+#include <cstdint>
 #include <cmath>
 #include <cstdio>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 #include "../../src/core/paths.h"
@@ -91,6 +101,20 @@ constexpr unsigned char KEY_BACKSPACE = 8;
 constexpr unsigned char KEY_DELETE = 127;
 constexpr unsigned char KEY_CTRL_O = 15;
 constexpr unsigned char KEY_CTRL_S = 19;
+
+// The mouse buttons as mouseButton takes them: SDL's three, then the wheel's notches as buttons.
+enum class MouseButton : std::uint8_t {
+	Left,
+	Middle,
+	Right,
+	WheelUp,
+	WheelDown,
+	WheelLeft,
+	WheelRight,
+};
+
+// Milliseconds since the start (the status line's fade, the pulses, the caret).
+int nowMs() { return static_cast<int>(SDL_GetTicks()); }
 
 constexpr Color WALL_TOP = {0.40f, 0.31f, 0.21f};
 constexpr Color WALL_BOTTOM = {0.30f, 0.23f, 0.15f};
@@ -214,12 +238,12 @@ class Editor {
 	Editor();
 	void draw();
 	void resize(int width, int height);
-	void mouseButton(int button, int state, int x, int y);
+	void mouseButton(MouseButton button, bool down, int x, int y);
 	void mouseDrag(int x, int y);
 	void mouseMove(int x, int y);
 	void keyPressed(unsigned char key);
 	void open(const std::string& path);
-	void specialKeyPressed(int key);
+	void specialKeyPressed(SDL_Keycode key);
 
   private:
 	LevelGrid grid; // all wall, the rock the level is carved from
@@ -294,7 +318,7 @@ class Editor {
 	[[nodiscard]] Rect cellRect(int col, int row) const { return view.cellRect(col, row); }
 	void updateHover(float x, float y);
 	void track(int mouseX, int mouseY);
-	void wheel(int button);
+	void wheel(MouseButton button);
 	void zoomTo(int zoom);
 	void centerOnMinimap(float x, float y);
 	void beginMapClip() const;
@@ -460,12 +484,12 @@ void Editor::centerOnMinimap(float x, float y) {
 	updateHover(pointerX, pointerY);
 }
 
-// The mouse wheel, freeglut's buttons 3 (up), 4 (down), 5 (left), 6 (right): Ctrl zooms, Shift pans sideways.
-void Editor::wheel(int button) {
-	const bool forward = button == 3 || button == 5; // up, left
-	const int modifiers = glutGetModifiers();
+// The mouse wheel, MouseButton::WheelUp to WheelRight: Ctrl zooms, Shift pans sideways.
+void Editor::wheel(MouseButton button) {
+	const bool forward = button == MouseButton::WheelUp || button == MouseButton::WheelLeft;
+	const SDL_Keymod modifiers = SDL_GetModState();
 	if (TILES_PANEL.contains(pointerX, pointerY)) { // scrolls the palette's rows
-		if (button == 3 || button == 4) {
+		if (button == MouseButton::WheelUp || button == MouseButton::WheelDown) {
 			const int slots = static_cast<int>(paletteOf(layer).size());
 			paletteScroll = std::clamp(paletteScroll + (forward ? -1 : 1), 0, paletteMaxScroll(slots, TILES_PANEL));
 			updateHover(pointerX, pointerY);
@@ -473,41 +497,41 @@ void Editor::wheel(int button) {
 		return;
 	}
 	if (HINT_PANEL.contains(pointerX, pointerY)) { // scrolls the papyrus text
-		if (button == 3 || button == 4)
+		if (button == MouseButton::WheelUp || button == MouseButton::WheelDown)
 			hintScroll = std::clamp(hintScroll + (forward ? -HINT_SCROLL_STEP : HINT_SCROLL_STEP), 0.f, hintScrollMax);
 		return;
 	}
-	if ((modifiers & GLUT_ACTIVE_CTRL) != 0) {
-		zoomTo(view.zoom() + (button == 3 ? 1 : (button == 4 ? -1 : 0)));
+	if ((modifiers & SDL_KMOD_CTRL) != 0) {
+		zoomTo(view.zoom() + (button == MouseButton::WheelUp ? 1 : (button == MouseButton::WheelDown ? -1 : 0)));
 		return;
 	}
 	const float step = forward ? WHEEL_PAN_CELLS : -WHEEL_PAN_CELLS;
-	if (button >= 5 || (modifiers & GLUT_ACTIVE_SHIFT) != 0)
+	if (button >= MouseButton::WheelLeft || (modifiers & SDL_KMOD_SHIFT) != 0)
 		view.pan(-step, 0.f); // wheel up: left
 	else
 		view.pan(0.f, step);
 	updateHover(pointerX, pointerY);
 }
 
-void Editor::mouseButton(int button, int state, int x, int y) {
+void Editor::mouseButton(MouseButton button, bool down, int x, int y) {
 	track(x, y);
 
-	if (button >= 3) {
-		if (state == GLUT_DOWN)
+	if (button >= MouseButton::WheelUp) {
+		if (down)
 			wheel(button);
 		return;
 	}
-	if (button == GLUT_MIDDLE_BUTTON) {
-		panning = state == GLUT_DOWN && MAP_AREA.contains(pointerX, pointerY);
+	if (button == MouseButton::Middle) {
+		panning = down && MAP_AREA.contains(pointerX, pointerY);
 		return;
 	}
-	if (state == GLUT_UP) {
+	if (!down) {
 		painting = false;
 		draggingMinimap = false;
 		return;
 	}
 
-	if (button == GLUT_LEFT_BUTTON && minimapShown() && MINIMAP.contains(pointerX, pointerY)) {
+	if (button == MouseButton::Left && minimapShown() && MINIMAP.contains(pointerX, pointerY)) {
 		field = Field::None;
 		draggingMinimap = true;
 		centerOnMinimap(pointerX, pointerY);
@@ -516,18 +540,18 @@ void Editor::mouseButton(int button, int state, int x, int y) {
 
 	if (hovered.col >= 0) {
 		field = Field::None;
-		if (button == GLUT_RIGHT_BUTTON) {
+		if (button == MouseButton::Right) {
 			pick(hovered);
-		} else if (button == GLUT_LEFT_BUTTON && mode == Mode::Check) {
+		} else if (button == MouseButton::Left && mode == Mode::Check) {
 			checked = hovered;
-		} else if (button == GLUT_LEFT_BUTTON) {
+		} else if (button == MouseButton::Left) {
 			painting = true;
 			paint(hovered);
 		}
 		return;
 	}
 
-	if (button != GLUT_LEFT_BUTTON)
+	if (button != MouseButton::Left)
 		return;
 	field = Field::None;
 	switch (hoveredTarget) {
@@ -678,16 +702,16 @@ void Editor::keyPressed(unsigned char key) {
 	}
 }
 
-void Editor::specialKeyPressed(int key) {
+void Editor::specialKeyPressed(SDL_Keycode key) {
 	if (field != Field::None)
 		return;
-	if (key == GLUT_KEY_LEFT)
+	if (key == SDLK_LEFT)
 		view.pan(-WHEEL_PAN_CELLS, 0.f);
-	else if (key == GLUT_KEY_RIGHT)
+	else if (key == SDLK_RIGHT)
 		view.pan(WHEEL_PAN_CELLS, 0.f);
-	else if (key == GLUT_KEY_UP)
+	else if (key == SDLK_UP)
 		view.pan(0.f, WHEEL_PAN_CELLS);
-	else if (key == GLUT_KEY_DOWN)
+	else if (key == SDLK_DOWN)
 		view.pan(0.f, -WHEEL_PAN_CELLS);
 	updateHover(pointerX, pointerY);
 }
@@ -857,7 +881,7 @@ void Editor::nextZone() {
 void Editor::showStatus(const std::string& text, bool error) {
 	status = text;
 	statusError = error;
-	statusStartMs = glutGet(GLUT_ELAPSED_TIME);
+	statusStartMs = nowMs();
 }
 
 // ---- drawing ---------------------------------------------------------------
@@ -876,12 +900,10 @@ void Editor::draw() {
 
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	Rect area = visibleArea();
-	glOrtho(area.x, area.x + area.w, area.y, area.y + area.h, -1, 1);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	gProj.load(Mat4::ortho(area.x, area.x + area.w, area.y, area.y + area.h, -1, 1));
+	gMv.loadIdentity();
+	GlLegacy::syncMatrices(); // the game's UI drawing under GL's matrices until plan gl-core-ui
 
 	drawBackground();
 	drawMap();
@@ -893,8 +915,6 @@ void Editor::draw() {
 	drawHint();
 	drawLevelPanel();
 	drawFooter();
-
-	glutSwapBuffers();
 }
 
 void Editor::drawBackground() {
@@ -1127,7 +1147,7 @@ void Editor::drawMinimap() {
 void Editor::drawMapOverlay() {
 	beginShapes();
 	beginMapClip();
-	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(glutGet(GLUT_ELAPSED_TIME)) * 0.005f);
+	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(nowMs()) * 0.005f);
 
 	if (mode == Mode::Check) {
 		// Cheapest path from the entrance to the goal.
@@ -1294,14 +1314,14 @@ void Editor::drawTextBox(const Rect& r, const std::string& value, Field which, T
 	float y = r.y + (r.h - 2.7f) / 2 + 0.2f;
 	text(body, x, y, shown.c_str(), empty ? GOLD_DIM : GOLD, empty && which == Field::Name ? 0.6f : 1.f);
 	beginShapes();
-	if (active && (glutGet(GLUT_ELAPSED_TIME) / 500) % 2 == 0) { // blinking caret
+	if (active && (nowMs() / 500) % 2 == 0) { // blinking caret
 		float cx = x + body.TextWidth(shown.c_str()) + 0.3f;
 		line(cx, r.y + 0.8f, cx, r.y + r.h - 0.8f, GOLD, 1.f, 1.5f);
 	}
 }
 
 void Editor::drawPalette() {
-	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(glutGet(GLUT_ELAPSED_TIME)) * 0.004f);
+	float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(nowMs()) * 0.004f);
 	const std::vector<int> palette = paletteOf(layer);
 	const int slots = static_cast<int>(palette.size());
 	if (selectedId() != paletteSelected) { // the brush changed (a pick, a layer switch): show its slot
@@ -1527,7 +1547,7 @@ void Editor::drawLevelPanel() {
 
 void Editor::drawFooter() {
 	beginText();
-	int age = glutGet(GLUT_ELAPSED_TIME) - statusStartMs;
+	int age = nowMs() - statusStartMs;
 	if (!status.empty() && age < STATUS_MS) {
 		float alpha = age > STATUS_MS - STATUS_FADE_MS
 						  ? static_cast<float>(STATUS_MS - age) / static_cast<float>(STATUS_FADE_MS)
@@ -1577,10 +1597,121 @@ void Editor::drawFooter() {
 
 std::unique_ptr<Editor> editor;
 
+// A key that types no text: Ctrl+S / Ctrl+O, the fields' Tab, Enter, Escape, Backspace and Delete (as keyPressed
+// takes them), the arrows. The typed characters come as text (SDL_EVENT_TEXT_INPUT).
+void keyDown(const SDL_KeyboardEvent& event) {
+	const bool ctrl = (event.mod & SDL_KMOD_CTRL) != 0;
+	switch (event.key) {
+	case SDLK_S:
+		if (ctrl)
+			editor->keyPressed(KEY_CTRL_S);
+		break;
+	case SDLK_O:
+		if (ctrl)
+			editor->keyPressed(KEY_CTRL_O);
+		break;
+	case SDLK_TAB:
+		editor->keyPressed(KEY_TAB);
+		break;
+	case SDLK_RETURN:
+	case SDLK_KP_ENTER:
+		editor->keyPressed(KEY_ENTER);
+		break;
+	case SDLK_ESCAPE:
+		editor->keyPressed(KEY_ESCAPE);
+		break;
+	case SDLK_BACKSPACE:
+		editor->keyPressed(KEY_BACKSPACE);
+		break;
+	case SDLK_DELETE:
+		editor->keyPressed(KEY_DELETE);
+		break;
+	default:
+		editor->specialKeyPressed(event.key);
+		break;
+	}
+}
+
+// The mouse wheel's whole notches as button presses (MouseButton::WheelUp to WheelRight).
+void wheel(const SDL_MouseWheelEvent& event) {
+	const int flip = event.direction == SDL_MOUSEWHEEL_FLIPPED ? -1 : 1;
+	const int x = static_cast<int>(event.mouse_x);
+	const int y = static_cast<int>(event.mouse_y);
+	for (int n = event.integer_y * flip; n != 0; n += n > 0 ? -1 : 1)
+		editor->mouseButton(n > 0 ? MouseButton::WheelUp : MouseButton::WheelDown, true, x, y);
+	for (int n = event.integer_x * flip; n != 0; n += n > 0 ? -1 : 1)
+		editor->mouseButton(n > 0 ? MouseButton::WheelRight : MouseButton::WheelLeft, true, x, y);
+}
+
+// SDL's button (1 left, 2 middle, 3 right); none for the others.
+std::optional<MouseButton> buttonOf(Uint8 sdlButton) {
+	switch (sdlButton) {
+	case SDL_BUTTON_LEFT:
+		return MouseButton::Left;
+	case SDL_BUTTON_MIDDLE:
+		return MouseButton::Middle;
+	case SDL_BUTTON_RIGHT:
+		return MouseButton::Right;
+	default:
+		return std::nullopt;
+	}
+}
+
+// The window's events until it closes, a frame after each pass.
+void run(const GlWindow& window) {
+	for (;;) {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			switch (event.type) {
+			case SDL_EVENT_QUIT:
+			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+				return;
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED: {
+				int w = 0;
+				int h = 0;
+				window.pixelSize(w, h);
+				editor->resize(w, h);
+				break;
+			}
+			case SDL_EVENT_KEY_DOWN:
+				keyDown(event.key);
+				break;
+			case SDL_EVENT_TEXT_INPUT:
+				for (const char* c = event.text.text; *c != '\0'; c++)
+					if (static_cast<unsigned char>(*c) < 0x80) // the fields take ASCII only (isNameChar)
+						editor->keyPressed(static_cast<unsigned char>(*c));
+				break;
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			case SDL_EVENT_MOUSE_BUTTON_UP:
+				if (const std::optional<MouseButton> button = buttonOf(event.button.button))
+					editor->mouseButton(
+						*button,
+						event.button.down,
+						static_cast<int>(event.button.x),
+						static_cast<int>(event.button.y)
+					);
+				break;
+			case SDL_EVENT_MOUSE_MOTION:
+				if ((event.motion.state & (SDL_BUTTON_LMASK | SDL_BUTTON_MMASK | SDL_BUTTON_RMASK)) != 0)
+					editor->mouseDrag(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
+				else
+					editor->mouseMove(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
+				break;
+			case SDL_EVENT_MOUSE_WHEEL:
+				wheel(event.wheel);
+				break;
+			default:
+				break;
+			}
+		}
+		editor->draw();
+		window.swap();
+	}
+}
+
 } // namespace
 
 int main(int argc, char* argv[]) {
-	glutInit(&argc, argv); // strips GLUT's own options from argv
 	if (argc > 2) {
 		std::println(stderr, "Usage: {} [level file]", argv[0]);
 		return 1;
@@ -1596,24 +1727,26 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	Paths::enterRootDir();
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	glutInitWindowSize(START_WIDTH, START_HEIGHT);
-	glutCreateWindow("Dungeon Editor");
-	if (!initGlContext(glutGetProcAddress))
+	if (!SDL_Init(SDL_INIT_VIDEO)) {
+		std::println(stderr, "SDL_Init: {}", SDL_GetError());
 		return 1;
+	}
+	GlWindow window;
+	if (!window.open("Dungeon Editor", START_WIDTH, START_HEIGHT, SDL_WINDOW_RESIZABLE)) {
+		std::println(stderr, "No OpenGL 3.3 window: {}", SDL_GetError());
+		return 1;
+	}
+	SDL_GL_SetSwapInterval(1); // vsync where the driver allows it: no busy loop
+	SDL_StartTextInput(window.window); // the name and number fields
 
 	editor = std::make_unique<Editor>();
+	int w = 0;
+	int h = 0;
+	window.pixelSize(w, h);
+	editor->resize(w, h);
 	if (!levelFile.empty())
 		editor->open(levelFile);
-	glutDisplayFunc([] { editor->draw(); });
-	glutIdleFunc([] { glutPostRedisplay(); });
-	glutReshapeFunc([](int w, int h) { editor->resize(w, h); });
-	glutKeyboardFunc([](unsigned char key, int, int) { editor->keyPressed(key); });
-	glutSpecialFunc([](int key, int, int) { editor->specialKeyPressed(key); });
-	glutMouseFunc([](int button, int state, int x, int y) { editor->mouseButton(button, state, x, y); });
-	glutMotionFunc([](int x, int y) { editor->mouseDrag(x, y); });
-	glutPassiveMotionFunc([](int x, int y) { editor->mouseMove(x, y); });
-
-	glutMainLoop();
+	run(window);
+	// The window and its context go with the process, after the editor's textures free their GL objects in it.
 	return 0;
 }

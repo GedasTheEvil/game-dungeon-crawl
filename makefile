@@ -22,10 +22,8 @@ SDL_LIBS:=$(shell pkg-config --libs sdl3)
 GLAD_CFLAGS=-isystem external/glad/include
 CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) $(RELEASE_DEFINES) $(SDL_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1 -MMD -MP
 TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1
-# Game and tools link only what they use: GL for every window, SDL for the game's, GLUT for the editor's and the model
-# viewer's (until plan gl-core-tools).
+# Game and tools link only what they use: GL and SDL for every window (no GLUT, plan gl-core-tools).
 GL_LIBS=-lGL -lm -ldl
-GLUT_LIBS=-lX11 -lglut $(GL_LIBS) -L/usr/X11R6/lib
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
 ifdef RELEASE
@@ -71,14 +69,18 @@ EXECUTABLE=$(BIN)/game
 APP_SOURCES=$(filter-out $(BASE_LIB_SOURCES) $(LEVEL_LIB_SOURCES) $(SIM_LIB_SOURCES) $(RENDER_LIB_SOURCES),$(SOURCES))
 APP_OBJECTS=$(APP_SOURCES:%.cpp=$(BUILD)/%.o)
 
+# The SDL window with its GL context (src/game/gl_window.h): the game's, and the editor and the model viewer link it
+# alone (plan gl-core-tools).
+GL_WINDOW_OBJECT=$(BUILD)/src/game/gl_window.o
+
 # Level editor, works from the repo root. Uses the game's texture, font, UI drawing and level code.
 EDITOR_SOURCES=$(wildcard tools/editor/*.cpp)
-EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o)
+EDITOR_OBJECTS=$(EDITOR_SOURCES:%.cpp=$(BUILD)/%.o) $(GL_WINDOW_OBJECT)
 EDITOR=$(BIN)/editor
 
 # MD3 model viewer, works from the repo root.
 VIEWER_SOURCES=$(wildcard tools/model-viewer/*.cpp)
-VIEWER_OBJECTS=$(VIEWER_SOURCES:%.cpp=$(BUILD)/%.o)
+VIEWER_OBJECTS=$(VIEWER_SOURCES:%.cpp=$(BUILD)/%.o) $(GL_WINDOW_OBJECT)
 VIEWER=$(BIN)/model-viewer
 
 # Level tools (no GL): levelcheck validates and ranks levels, levelgen writes random ones, levelconvert rewrites
@@ -257,7 +259,7 @@ editor: $(EDITOR)
 
 $(EDITOR): $(EDITOR_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $^ -o $@ $(GLUT_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
 
 run-editor: $(EDITOR)
 	$(EDITOR) $(LEVEL)
@@ -266,7 +268,7 @@ model-viewer: $(VIEWER)
 
 $(VIEWER): $(VIEWER_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $^ -o $@ $(GLUT_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
 
 run-model-viewer: $(VIEWER)
 	$(VIEWER) $(ARGS)

@@ -14,7 +14,7 @@ drivers keep it only for compatibility.
 
 This plan builds the parts every later port step uses, without changing a pixel. The port itself:
 [gl-core-world](gl-core-world.feature.draft.opus.md), [gl-core-ui](gl-core-ui.feature.draft.opus.md),
-[gl-core-tools](gl-core-tools.tooling.draft.opus.md), then [gl-core-profile](gl-core-profile.feature.draft.opus.md).
+[gl-core-tools](solved/gl-core-tools.tooling.md), then [gl-core-profile](gl-core-profile.feature.draft.opus.md).
 
 ## Plan
 

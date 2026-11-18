@@ -5,9 +5,8 @@
 // display's size, fullscreen and the pointer. SDL_Init(SDL_INIT_VIDEO) comes first (main).
 namespace Window {
 
-// Opens the window at width x height (fullscreen: borderless on the desktop) with a GL 2.1 compatibility context:
-// RGBA 8 bits each, 24-bit depth, double buffered. Draws at its size in pixels (high-DPI); the first resize is applied
-// at once. False: SDL's error is logged.
+// Opens the window at width x height (fullscreen: borderless on the desktop), a GlWindow (gl_window.h). Draws at its
+// size in pixels (high-DPI); the first resize is applied at once. False: SDL's error is logged.
 bool open(int width, int height, bool fullscreen);
 void close();
 

@@ -1,6 +1,6 @@
 // The GL loader (plan gl-core-foundation): glad 2.0.8, header-only, its implementation in this translation unit. Built
-// with the game and the tools, not checked by clang-tidy. The game loads it with SDL_GL_GetProcAddress
-// (src/game/window.cpp), the editor and the model viewer with glutGetProcAddress.
+// with the game and the tools, not checked by clang-tidy. The game, the editor and the model viewer load it with
+// SDL_GL_GetProcAddress (src/game/gl_window.cpp).
 //
 // Regenerate (pip install glad2 into a venv; --reproducible uses the spec bundled with glad, no download):
 //   python -m glad --quiet --reproducible --api "gl:compatibility=3.3" \

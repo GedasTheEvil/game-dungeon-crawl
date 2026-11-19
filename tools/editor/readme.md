@@ -168,10 +168,10 @@ The glyph is the one in the level file's structure drawing and in `levelcheck --
 ## Tile reference
 
 The object and wall layers share the type numbers. The wall types (`Lever`, `Inscription`, `WallSpikes`, `SunDisc`,
-`FireVent`, `PoisonDrip`, `SandGust`, `CeilingSpikes`, `CeilingDeath`) go in the
+`FireVent`, `PoisonDrip`, `SandGust`, `CeilingSpikes`, `CeilingDeath`, `PressurePlate`) go in the
 wall layer, the others in the object layer. Objects palette: `None`, `Door`, `Death`, `Monster`, `Spike`, `Ladder`,
-`Treasure`; then `Ankh`, `Key`, `Gate`, `RockFall`, `DartPlate`, ..., `TrappedTreasure`. Wall palette: `None`, `Lever`, `Inscription`,
-`WallSpikes`, `SunDisc`, `FireVent`, `PoisonDrip`, `SandGust`, `CeilingSpikes`, `CeilingDeath`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
+`Treasure`; then `Ankh`, `Key`, `Gate`, `RockFall`, `DartPlate`, ..., `TrappedTreasure`, `Stone`. Wall palette: `None`, `Lever`, `Inscription`,
+`WallSpikes`, `SunDisc`, `FireVent`, `PoisonDrip`, `SandGust`, `CeilingSpikes`, `CeilingDeath`, `PressurePlate`. Types 0 (the wall, now a structure) and 7 (`Area3D`, unused) are gone.
 
 | Type | Tile | Attribute | Value | In game |
 |---|---|---|---|---|
@@ -193,7 +193,7 @@ wall layer, the others in the object layer. Objects palette: `None`, `Door`, `De
 | 17 | LightShaft | Way: 0 down, 1 left, 2 up, 3 right | - | Sunlight through a crack in the rock ([sunlight mirrors](../../docs/plan/solved/sunlight-mirrors.md)): a beam runs from this cell the way it shines, through open cells, until rock, deep water or a gate not fully open stops it. Mirrors turn it; it burns mummies standing in it and keeps camel spiders out like a torch. Put rock behind it (above it for a beam down; the checker warns). |
 | 18 | Mirror | - | Way it points: 0 down, 1 left, 2 up, 3 right | A bronze mirror on a stand: a beam that falls on it goes on the way it points (the gold pointer on its hub); pointing the way the beam goes it stands edge-on and lets it by, pointing back at it, it catches it. Interact turns it a quarter turn clockwise. Not in front of an inscription (reading it takes the key; the checker warns). |
 | 19 | SunDisc | Lock colour, see below | 0 | A sun disc (the Aten) on the back wall. A beam on it lights it for good and opens every gate of its colour, as a lever. The checker warns when no beam can ever reach it, and when one lights it as the level starts. |
-| 20 | Page | Page number, 1 to 24, in order of depth over the campaign | 0 (1 once taken) | A torn page of the earlier expedition's notebook ([expedition notes](../../docs/plan/solved/expedition-notes.md)), floating over a skeleton (the scatter puts one there). Picked up on touch, it goes into the journal's Expedition section; the skeleton stays. Optional: keep it off the exit path, but for the last page (24), which lies on it. The checker warns about one out of reach or without a number. |
+| 20 | Page | Page number, 1 to 24, in order of depth over the campaign; 25 the back cover ([expedition ending](../../docs/plan/solved/expedition-ending.feature.md): at D. J.'s remains on lvl49's right route) | 0 (1 once taken) | A torn page of the earlier expedition's notebook ([expedition notes](../../docs/plan/solved/expedition-notes.md)), floating over a skeleton (the scatter puts one there). Picked up on touch, it goes into the journal's Expedition section; the skeleton stays. Optional: keep it off the exit path, but for the last page (24), which lies on it. The checker warns about one out of reach or without a number. |
 | 21 | TrappedTreasure | Item type, as Treasure | Item id, as Treasure | A trapped treasure ([trapped chests](../../docs/plan/solved/trapped-chests.md)): it looks like any container (a darker one only up close) and opens the same way, but its opening sets off a trap, rolled then: poison darts (6 damage, the trap ward cuts it, medium poison), a puff of poison gas (weak poison while the player stands in it, 4 s), a curse (an execration text on the lid) or, deep down, 3 scarabs digging out; darts and gas early, curses and the swarm from the worked tunnels and the tombs on. Canopic jars and pottery jars always curse (disease). The trap ward amulet's percentage is also the chance the trap does not go off. Half of them hold the item and one bonus more, the rest are empty. Never put what the level needs in one: the checker does not count its antidote. |
 | 22 | FireVent | Speed: 0 normal, 1 fast, 2 slow | Phase, 0 to 7 (eighths of the cycle) | Rhythm trap ([plan](../../docs/plan/solved/fire-jet-trap.md)): a vent low in the back wall breathes a jet of fire up through the cell, on the wall spikes' cycle (out 1.2 s of every 4 s, fast 0.8 of 3.2 s, slow 1.6 of 4.8 s); 0.6 s before, it glows red, sparks and hisses, then roars. The jet blocks nothing: whoever stands in the cell while it burns takes half their max HP a second (at least 450, a whole jet 540 and more; monsters 15), all fire (through armour, the trap ward and the Fire Warding amulet both cut it) and burns on for 3 s (a fifth of that a second); a jump does not clear it. Monsters as at spikes, their fire resistance counts (a mummy burns double). Runs of them with the phases staggered: the checker warns when a run of rhythm traps (wall spikes and fire vents) cannot be walked through both ways. The jet lights the corridor. Put a floor under it. |
 | 23 | PoisonDrip | Speed: 0 normal, 1 fast, 2 slow | Phase, 0 to 7 (eighths of the cycle) | Rhythm and floor trap ([plan](../../docs/plan/solved/poison-drip-trap.md)), in the wall layer for the wall spikes' cycle though it hangs from the ceiling: a green puddle on the floor that never dries and a lump of venom in a stain on the ceiling over it. Walking into the puddle poisons (weak, once per entry, no damage); a jump clears it, flyers too. The lump swells, and in the last 0.6 s it wobbles and creaks, then falls into the puddle and the venom pours after it for the spikes' out time (1.2 s of every 4 s, fast 0.8 of 3.2 s, slow 1.6 of 4.8 s): whoever is in the cell then, in a jump too, takes 8 (the trap ward cuts it, not the poison) and medium poison, once per drop. Cowards stop at the puddle (walk-jumpers leap it), the reckless walk in and are poisoned. A row of them, staggered, with free cells between: jump each puddle between drops. The checker counts the puddle as a floor trap (jumped over), warns when a run of rhythm traps cannot be walked through both ways, and wants an antidote in reach. Put a floor under it and a ceiling over it; nothing in the cell but a key or a page. |
@@ -304,12 +304,13 @@ Invalid ids write an error to the log and give nothing.
 
 ## File format
 
-Level format v7, plain text (`src/level/level.h`). A header, the level's zone, the structure layer as a drawing,
+Level format v7, plain text (`src/level/level.h`). A header, the level's zone, an optional title, the structure layer as a drawing,
 then the wall layer, the object layer, the decor layer, the decal layer, the shape layer and the looks layer as lists:
 
 ```
 DCLEVEL 7 40 47
 zone tomb_entrance                        the zone's slug (ZONE_INFO, src/level/campaign.h), or none
+title The Jackal Statue                   optional, the rest of the line (the editor keeps it, cannot edit it)
 structure
 ########################################
 #......................................#

@@ -17,7 +17,7 @@ Level glyphs (monsters, tiles) are only read by tools and agents. Pick a free on
 To check game behaviour or visuals, write a script in `tests/scenarios/` and run `make test SCENARIO=...`. Screenshots and results go to `tests/out/<name>/`. Reference: [docs/testing.md](docs/testing.md).
 Any other run of `bin/game` by an agent (smoke checks, `--level`, `--play`) must be silent and bounded, or the user hears
 its music: `xvfb-run -a timeout -k 5 N bin/game --no-sound ...`. Put `timeout` inside `xvfb-run` (outside, it kills only
-the wrapper and the game lives on), with `-k` (the game ignores SIGTERM).
+the wrapper and the game lives on), with `-k` (the game ends on SIGTERM only between frames, not while it loads).
 
 ## UI screens
 Menu, options, credits, inventory, riddle, map, journal and Heka share one look. Canvas, parts, colours, fonts and how to add a menu sub-screen: [docs/ui.md](docs/ui.md).

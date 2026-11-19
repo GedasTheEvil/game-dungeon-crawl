@@ -10,10 +10,10 @@ A cell has three layers ([level-format-layers.md](plan/solved/level-format-layer
 * **Structure**: `Wall`, `Empty`, `HalfWater`, `DeepWater`, `Sand`, `Quicksand`. A cell blocks when it is `Wall` or
   `DeepWater`.
 * **Wall**: at most one fixture on the cell's back wall, with attribute and value: lever, inscription, wall spikes,
-  sun disc, fire vent, poison drip, sand gust, ceiling spikes, ceiling death trap (the wall types, `isWallType` in
+  sun disc, fire vent, poison drip, sand gust, ceiling spikes, ceiling death trap, pressure plate (the wall types, `isWallType` in
   `src/level/level.h`).
 * **Object**: at most one thing standing in the cell, with attribute and value: ladder, door, gate, key, treasure,
-  trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page.
+  trapped treasure, ankh, monster spawn, spike, death trap, rock fall, dart plate, light shaft, mirror, expedition page, stone.
 
 An open structure can carry a **shape** ([level-subcells](plan/solved/level-subcells.md)): the cell splits into
 4 x 4 sub-cells, a quarter tile each way, and the shape is the mask of the solid ones (steps, stairs, low ceilings,

@@ -47,7 +47,7 @@ sunlight onto the sun disc that opens a gate. Now and then the way forks, left o
 **A boss for almost every zone.** Khepri, the lord of the scarabs; the Bat of Shezmu, who heals by biting; the Mother of
 Webs, who puts out the torches; the High Priest of Anubis; the scorpion queen; the serpent Apep; Sobek the crocodile
 god; Seth, the red hippo; Rerek, the sand serpent; Babi, the baboon of the Lake of Fire; and Anubis himself, whose
-living statues step out of the walls. The ankh behind Anubis wins the game.
+living statues step out of the walls. Behind Anubis waits the ankh: take it for life without end, or renounce the gods and break it.
 
 **Grow stronger, learn Heka.** Kills, riddles and read inscriptions give experience; a new level brings more health
 and stamina. Each slain boss gives a heka to spend on the Heka screen (`K`): the old magic of the gods, such as

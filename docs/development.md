@@ -93,9 +93,9 @@ The build uses C++23 (`-std=c++23` in `CXXFLAGS` and `TIDY_CPPFLAGS`, `makefile`
 * `tools/editor/saved/` - the level editor's work-in-progress levels (not tracked by git).
 * `bin/` - the game, the tools and the unit test runner (not tracked by git).
 * `build/` - object files and libraries (not tracked by git).
-* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), the balance sim (`balance/`), scenario runner script, `profile_game.sh` ([performance-testing.md](performance-testing.md)), the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, its tests `plan_test.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts), `where.py` (the rows of [where-is-x.md](where-is-x.md) for a term), `gl_legacy.py` (the legacy-GL ban, [GL core path](#gl-core-path)), `code_map.py` (for an architecture review: includes between directories, headers that sit apart from their users, functions nothing calls; a report, not a check).
-* `tests/` - unit tests (`unit/`), scenario scripts (`scenarios/`), play scripts (`play/`), test levels (`levels/`), riddles (`riddles/`), inscriptions (`inscriptions/`), royal names (`names/`) and save games (`saves/`), results (`out/`, not tracked).
-* `external/` - third-party headers.
+* `tools/` - level tools (`level/`), level editor (`editor/`), model viewer (`model-viewer/`), Blender model scripts (`blender/`), sound and texture generators (`audio/`, `textures/`), the balance sim (`balance/`), the render snapshots' pixel diff (`snapdiff/`, `snapshots.sh`), the player manual's pictures (`manual/`), the scenario runner (`run_scenarios.sh`), the release zip (`release.sh`), waits (`job.sh`, the wait-loop hook in `hooks/`), the unit test shards (`unit_shards.sh`), the docs drift check (`docs_check.py`), `profile_game.sh` ([performance-testing.md](performance-testing.md)), the check scripts (`check_*.sh`, `tidy.sh`, `load_gate.sh`), plan bookkeeping (`plan.py`, its tests `plan_test.py`, [plans.md](plans.md)), `friction_report.py` (what the checks and rules cost agents, from the Claude Code transcripts), `where.py` (the rows of [where-is-x.md](where-is-x.md) for a term), `gl_legacy.py` (the legacy-GL ban, [GL core path](#gl-core-path)), `code_map.py` (for an architecture review: includes between directories, headers that sit apart from their users, functions nothing calls; a report, not a check).
+* `tests/` - unit tests (`unit/`), scenario scripts (`scenarios/`), play scripts (`play/`), test levels (`levels/`), render snapshot references (`snapshots/`), riddles (`riddles/`), inscriptions (`inscriptions/`), royal names (`names/`) and save games (`saves/`), results (`out/`, not tracked).
+* `external/` - third-party code: glad, stb, doctest.
 * `docs/slides/` - the presentation of the original game (the user's Bachelor's thesis), kept for history, not maintained.
 * `Play`, `LevelEditor`, `ViewModel` - root launchers: start `bin/game`, `bin/editor` and `bin/model-viewer` from the repo root, for a release build tested on a system without dev tools. Plain `sh`, no make or dev-tool dependency.
 
@@ -199,7 +199,7 @@ the calls core still has. `tools/gl_legacy.py report` lists the counts, `show FI
 A change to the drawing: `make snapshots` ([testing.md](testing.md#render-snapshots)); a diff is fixed at its root
 (another quad split, a clamp, an order of operations), not accepted.
 
-Proof ports: `src/graphics/fire.cpp` (the sprites, the biggest `glBegin` user) and `src/render/brightness.cpp`; the
+Proof ports: `src/graphics/fire.cpp` (the sprites, once the biggest `glBegin` user) and `src/render/brightness.cpp`; the
 full-screen passes of `ink.cpp` and `motion_fx.cpp` use `drawScreenQuad`.
 
 The UI is ported ([gl-core-ui](plan/solved/gl-core-ui.feature.md)): `src/ui/`, `ui_draw.cpp` and `font.cpp` draw

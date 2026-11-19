@@ -8,6 +8,7 @@ parts below instead of drawing their own.
 |---|---|---|
 | Main / in-game menu, Save, Load, Options, How to Play, Credits | `src/ui/menu.cpp` (`MainMenu`), its Options `menu_options.cpp`, How to Play `menu_help.cpp`, Save / Load slots `menu_slots.cpp`, icons `menu_icons.cpp`, shared layout `menu_internal.h` | 160 x 100 |
 | Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/level/leaderboard.h`) | 160 x 100 |
+| Ending choice (using the ankh asks first: take it or break it; then the win entry) | `src/ui/ending_screen.cpp` (`EndingScreen`, [ending-choice](plan/ending-choice.feature.md)) | 160 x 100, over the dimmed game |
 | Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
@@ -404,6 +405,11 @@ Win entry: over the won game dimmed (black, alpha 0.55; the HUD hidden meanwhile
 "The Ankh of Life" in `title` `GOLD_BRIGHT`, the run summary in `body` `GOLD`, a `small` label over a `WELL` name field
 with a `GOLD` frame and a blinking caret, the key hint at the panel's foot. Esc asks (confirm box) before skipping the
 record.
+
+Ending choice: over the game dimmed (black, alpha 0.55), a `panel` `{28, 26, 104, 44}` with the picture-frame drop
+shadow: "The Ankh of Life" in `title` `GOLD`, the question in `body` `LABEL`, two 88 x 9 tiles (Take the ankh, lapis;
+Renounce the gods, stone), the key hint in `small` at the panel's foot. Enter picks the focused tile (Take at first),
+for good; Esc goes back to the game with nothing chosen.
 
 ### Confirm box
 

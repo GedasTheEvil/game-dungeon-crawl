@@ -6,8 +6,10 @@ Two kinds: unit tests of the GL-free library code, and scenario tests of the run
 ## Unit tests
 
 [doctest](https://github.com/doctest/doctest) (one header, `external/doctest/doctest.h`). `tests/unit/*_test.cpp`
-link `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL. Besides them the
-audio mixer (`src/audio/mixer.cpp`, SDL3) for `mixer_test.cpp`, on SDL's dummy driver (silent). `make unit` builds
+link `build/librender.a`, `build/libsim.a`, `build/liblevel.a` and `build/libbase.a` only: no window, no GL
+context (`gl_core_test.cpp` checks `Mat4`, `MatrixStack`, `Batch` and the wide lines on the CPU). Besides them the
+audio mixer (`src/audio/mixer.cpp`, SDL3) for `mixer_test.cpp`, on SDL's dummy driver (silent), and the key map
+(`src/input/keymap.cpp`, SDL's scancodes) for `keymap_test.cpp`. `make unit` builds
 `bin/unit` and runs it in parallel shards (`tools/unit_shards.sh`: one seeded random order cut into windows, each
 shard through the load gate; a failed shard's output in full, then one summary line). Every test case runs once, in
 one shard, in its own process with other cases: a test must not depend on another one's state or order, and a file

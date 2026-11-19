@@ -81,6 +81,8 @@ Still ask before other git actions (rewriting `master` history, config, other br
 implements the work: a feature raises DEFAULT by 1 (SHAME resets to 0); a fix of bugs only raises SHAME by 1. Several
 features and bugs in one go: DEFAULT +1 once, nothing else. Tooling only: no bump. PROUD is the user's alone: never
 change it.
+Every version change gets a git tag named as the version (`git tag -a 1.4.2 -m 1.4.2`, no `v`) on the `master` commit
+that carries it (for a worktree task: after the merge), pushed with `master` (`git push origin master 1.4.2`).
 
 ## Old save games
 This game has no real players yet. Old saves can mostly be ignored.

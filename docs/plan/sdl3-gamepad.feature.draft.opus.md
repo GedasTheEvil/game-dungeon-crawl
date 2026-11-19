@@ -5,7 +5,7 @@ Status: draft 2026-11-18, size M, needs nothing first.
 ## Idea
 
 Play with a gamepad (Xbox, PlayStation, Steam Deck). The window and input run on SDL3 since
-[sdl3-window-input](sdl3-window-input.feature.md), which has `SDL_Gamepad` with a standard button layout;
+[sdl3-window-input](solved/sdl3-window-input.feature.md), which has `SDL_Gamepad` with a standard button layout;
 GLUT had none, so the game has no pad support yet.
 
 ## Plan

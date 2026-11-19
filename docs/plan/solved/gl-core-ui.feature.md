@@ -1,6 +1,6 @@
 # Port the UI screens and fonts to the GL core path
 
-Status: implemented 2026-11-18, waiting for the user's play-test. Was: draft 2026-11-18, size L, needs [gl-core-foundation](gl-core-foundation.feature.md) first.
+Status: solved 2026-11-19 (play-tested by the user). Was: implemented 2026-11-18, waiting for the user's play-test. Was: draft 2026-11-18, size L, needs [gl-core-foundation](gl-core-foundation.feature.md) first.
 
 ## Problem
 
@@ -15,12 +15,12 @@ After [gl-core-foundation](gl-core-foundation.feature.md) the UI still draws wit
 * Projection: an ortho matrix in `MatrixStack` replaces `glOrtho`.
 * Font: display lists (`glCallLists`) → glyph quads into a `Batch` from the existing font atlas texture; same
   metrics, same look.
-* `ui_draw.cpp` parts (panels, frames, gradients) on `Batch`; all screens share them ([ui.md](../ui.md)), so most
+* `ui_draw.cpp` parts (panels, frames, gradients) on `Batch`; all screens share them ([ui.md](../../ui.md)), so most
   screens port by porting `ui_draw.cpp`.
 * Journal page: its 3D lit page with the default lit shader (same light direction and colours as now).
 * Page curl and map: `Batch`; the map's many small quads in one batch per frame.
-* Each screen checked with `make snapshots` ([render-snapshots](solved/render-snapshots.tooling.md)).
-* Update [ui.md](../ui.md) where it names GL calls.
+* Each screen checked with `make snapshots` ([render-snapshots](render-snapshots.tooling.md)).
+* Update [ui.md](../../ui.md) where it names GL calls.
 
 ## Play-test
 

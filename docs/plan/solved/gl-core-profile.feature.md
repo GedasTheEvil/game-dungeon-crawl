@@ -1,11 +1,11 @@
 # Switch to a GL 3.3 core profile context and ban legacy GL
 
-Status: implemented 2026-11-19, waiting for the user's play-test. Was: draft 2026-11-18, size M, needs [gl-core-world](gl-core-world.feature.md), [gl-core-ui](gl-core-ui.feature.md), [gl-core-tools](solved/gl-core-tools.tooling.md) first.
+Status: solved 2026-11-19 (play-tested by the user). Was: implemented 2026-11-19, waiting for the user's play-test. Was: draft 2026-11-18, size M, needs [gl-core-world](../gl-core-world.feature.md), [gl-core-ui](../gl-core-ui.feature.md), [gl-core-tools](gl-core-tools.tooling.md) first.
 
 ## Problem
 
-After [gl-core-world](gl-core-world.feature.md), [gl-core-ui](gl-core-ui.feature.md) and
-[gl-core-tools](solved/gl-core-tools.tooling.md) no code needs the compatibility context, but the game still
+After [gl-core-world](../gl-core-world.feature.md), [gl-core-ui](../gl-core-ui.feature.md) and
+[gl-core-tools](gl-core-tools.tooling.md) no code needs the compatibility context, but the game still
 asks for one, so a forgotten legacy call would still work and drift back in.
 
 ## Plan
@@ -17,7 +17,7 @@ asks for one, so a forgotten legacy call would still work and drift back in.
   `make check`: any legacy call fails the build check (an allowlist is not needed).
 * Run everything with the `KHR_debug` callback on: `make test`, `make snapshots`, a level of each zone; zero GL
   errors and no snapshot diff.
-* Check on llvmpipe (the tests) and the user's AMD GPU; note in [development.md](../development.md) the minimum:
+* Check on llvmpipe (the tests) and the user's AMD GPU; note in [development.md](../../development.md) the minimum:
   OpenGL 3.3.
 * Version bump for the whole port in this plan's commit is the implementer's call per AGENTS.md (each feature plan
   already bumped DEFAULT).

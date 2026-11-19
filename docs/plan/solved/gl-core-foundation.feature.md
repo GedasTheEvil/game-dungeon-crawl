@@ -1,6 +1,6 @@
 # GL core foundation: loader, math, matrix stack, vertex batcher, GLSL 330
 
-Status: implemented 2026-11-18, waiting for the user's play-test. Was: draft 2026-11-18, size L, needs [sdl3-window-input](sdl3-window-input.feature.md), [render-snapshots](solved/render-snapshots.tooling.md) first.
+Status: solved 2026-11-19 (play-tested by the user). Was: implemented 2026-11-18, waiting for the user's play-test. Was: draft 2026-11-18, size L, needs [sdl3-window-input](../sdl3-window-input.feature.md), [render-snapshots](render-snapshots.tooling.md) first.
 
 ## Problem
 
@@ -13,8 +13,8 @@ The drawing is OpenGL 1.x fixed function with a few GLSL 1.20 shaders on top: ab
 drivers keep it only for compatibility.
 
 This plan builds the parts every later port step uses, without changing a pixel. The port itself:
-[gl-core-world](gl-core-world.feature.md), [gl-core-ui](gl-core-ui.feature.md),
-[gl-core-tools](solved/gl-core-tools.tooling.md), then [gl-core-profile](gl-core-profile.feature.md).
+[gl-core-world](../gl-core-world.feature.md), [gl-core-ui](../gl-core-ui.feature.md),
+[gl-core-tools](gl-core-tools.tooling.md), then [gl-core-profile](../gl-core-profile.feature.md).
 
 ## Plan
 
@@ -43,13 +43,13 @@ This plan builds the parts every later port step uses, without changing a pixel.
   with explicit save/restore of the few states the 8 call sites change).
 * Dev builds: a `KHR_debug` message callback logs GL errors through the logger (category `graphics`).
 * A legacy-GL counter: a script (in `make tidy` or `make check`) counts the legacy calls per file and fails when a
-  count grows; ported files drop to zero. [gl-core-profile](gl-core-profile.feature.md) turns it into a
+  count grows; ported files drop to zero. [gl-core-profile](../gl-core-profile.feature.md) turns it into a
   ban.
 * Port two small users as proof (e.g. `brightness.cpp` and `fire.cpp`, the largest `glBegin` user) and check them
-  against [render-snapshots](solved/render-snapshots.tooling.md).
+  against [render-snapshots](render-snapshots.tooling.md).
 * Unit tests: `MatrixStack` against known matrices, `project` against the old `gluProject` result, `Batch` quad
   splitting.
-* Docs: a "GL core path" section in [development.md](../development.md) (the matrix stack, `Batch`, shaders, how
+* Docs: a "GL core path" section in [development.md](../../development.md) (the matrix stack, `Batch`, shaders, how
   to port a file); glossary rows for the new terms.
 * After the profile switch, SDL_GPU (Vulkan, Metal, D3D12 behind one SDL3 API) is the next step up; it needs shader
   cross-compiling (SPIR-V/MSL) and would be its own plan. Not worth it for this game unless a platform needs it.
@@ -59,7 +59,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
 * Loader: glad 2.0.8, header-only, in `external/glad/` (`glad.cpp` holds the implementation and the command that
   regenerates it). Generated for **3.3 compatibility** + `KHR_debug` + the anisotropy extensions, not 3.3 core: the
   not yet ported code still calls `glBegin` and the rest, and glad's core header leaves them undeclared;
-  [gl-core-profile](gl-core-profile.feature.md) regenerates it as `gl:core=3.3`, which also makes any
+  [gl-core-profile](../gl-core-profile.feature.md) regenerates it as `gl:core=3.3`, which also makes any
   leftover legacy call a compile error. Every `<GL/gl.h>`, `<GL/glext.h>`, `<GL/glu.h>` and `GL_GLEXT_PROTOTYPES` is
   gone (`src/render/gl_includes.h`). `initGlContext` (`src/render/gl_context.*`) loads it: the game in
   `Window::open` with `SDL_GL_GetProcAddress`, the editor and the model viewer with `glutGetProcAddress`.
@@ -85,7 +85,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
   `#version 330 compatibility` with `in`/`out`, `texture()` and explicit locations for its own attributes, but keeps
   `gl_Vertex`, `gl_Color`, `gl_ModelViewMatrix` and `ftransform()`: the whole world feeds it through immediate mode,
   client arrays and the GL matrix stack, so its matrices can only become uniforms with
-  [gl-core-world](gl-core-world.feature.md) (left out here, on purpose).
+  [gl-core-world](../gl-core-world.feature.md) (left out here, on purpose).
 * `GlState` (`src/render/gl_state.*`): blend and its function, depth test and write, culling; `read()` / `apply()`.
   Used by the brightness pass; the other 8 `glPushAttrib` sites are in the files of gl-core-world and gl-core-ui.
 * `KHR_debug` (dev builds, not `make release`: `GAME_RELEASE`): errors, undefined behaviour and high severity to the
@@ -102,7 +102,7 @@ This plan builds the parts every later port step uses, without changing a pixel.
 * `make snapshots`: 79 images, 0 changed, before and after (no reference touched). Unit tests:
   `tests/unit/gl_core_test.cpp` (Mat4 against GL's and GLU's matrices, MatrixStack, `project` against gluProject's
   numbers, Batch's splitting and current values).
-* Docs: [development.md](../development.md#gl-core-path) (the parts, the bridge, the counter, how to port a file),
+* Docs: [development.md](../../development.md#gl-core-path) (the parts, the bridge, the counter, how to port a file),
   glossary rows (GL core path, batch, matrix stack, default shader, legacy GL, GL bridge), a where-is-x row.
 * Not done: SDL_GPU (the draft's last point is a note for later, no work).
 

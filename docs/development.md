@@ -6,14 +6,14 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git w
 
 * Make
 * GCC
-* OpenGL 3.3 core profile at least (plan [gl-core-profile](plan/gl-core-profile.feature.md): the game, the
+* OpenGL 3.3 core profile at least (plan [gl-core-profile](plan/solved/gl-core-profile.feature.md): the game, the
   level editor and the model viewer ask for a forward-compatible 3.3 core context and run nowhere older; Mesa,
   NVIDIA, AMD and macOS give one; no GLU)
 * SDL3 (`libsdl3-dev`, found by `pkg-config sdl3`; the window, input and audio of the game, the level editor's and
-  the model viewer's window; plans [sdl3-window-input](plan/sdl3-window-input.feature.md) and
+  the model viewer's window; plans [sdl3-window-input](plan/solved/sdl3-window-input.feature.md) and
   [gl-core-tools](plan/solved/gl-core-tools.tooling.md)). No GLUT, no GLU. No SDL3_mixer: the
   game mixes its own sounds on SDL3 audio streams (`src/audio/mixer.*`, plan
-  [sdl3-audio](plan/sdl3-audio.feature.md))
+  [sdl3-audio](plan/solved/sdl3-audio.feature.md))
 * Python 3 (`tools/plan.py`, run by `make check`; the asset scripts)
 * clang-format, clang-tidy (`make format`, `make tidy`)
 
@@ -43,7 +43,7 @@ read their file arguments from the current directory.
 * Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)
   `PROUD.DEFAULT.SHAME`: PROUD for a release we are proud of, DEFAULT for a normal one, SHAME for fixing something
   embarrassing; a lower part resets to 0. Who bumps what: [AGENTS.md](../AGENTS.md#version) (agents bump DEFAULT
-  for a feature, SHAME for a bug fix; PROUD only the user).
+  for a feature, SHAME for a bug fix; PROUD only the user). Each version change is tagged with the version and pushed.
 * `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
   scenario's setup (level, gear) by hand. `--no-sound` mutes either, and opens the window on X11 (a background run
   under `xvfb-run` then stays off a Wayland desktop; scenarios do the same). See [testing.md](testing.md#play-by-hand).
@@ -128,9 +128,9 @@ player by `PlayerView`; both only read the sim's state ([plan/solved/sim-library
 ## GL core path
 
 The drawing moved from OpenGL 1.x fixed function to OpenGL 3.3 core, file by file
-([gl-core-foundation](plan/gl-core-foundation.feature.md), then
-[gl-core-world](plan/gl-core-world.feature.md), [gl-core-ui](plan/gl-core-ui.feature.md),
-[gl-core-tools](plan/solved/gl-core-tools.tooling.md), [gl-core-profile](plan/gl-core-profile.feature.md)).
+([gl-core-foundation](plan/solved/gl-core-foundation.feature.md), then
+[gl-core-world](plan/solved/gl-core-world.feature.md), [gl-core-ui](plan/solved/gl-core-ui.feature.md),
+[gl-core-tools](plan/solved/gl-core-tools.tooling.md), [gl-core-profile](plan/solved/gl-core-profile.feature.md)).
 The context is a forward-compatible 3.3 core one (`GlWindow::open`, `src/game/gl_window.cpp`; a dev build adds the
 debug flag), so no fixed-function call works any more. Every draw binds its own program and vertex array (a core
 context has none by default): `Batch`, `drawScreenQuad`, a model's vertex array. The parts, all in `src/render/`:
@@ -158,7 +158,7 @@ context has none by default): `Batch`, `drawScreenQuad`, a model's vertex array.
 * `gl_state.h`: `GlState` (blend, depth test and write, culling): `read()` before a draw, `apply()` the saved copy
   after; it replaces `glPushAttrib` / `glPopAttrib`.
 * `wide_lines.h`: what a core context does not draw as the legacy one did (plan
-  [gl-core-profile](plan/gl-core-profile.feature.md)): lines wider than a pixel (`glLineWidth` above 1 is
+  [gl-core-profile](plan/solved/gl-core-profile.feature.md)): lines wider than a pixel (`glLineWidth` above 1 is
   an error), smooth lines (`GL_LINE_SMOOTH`), a model's back face edges (`glPolygonMode` of the back faces as lines, with front
   culling: the trap contour, the journal's sketch) and points bigger than a pixel (core draws sprites). A draw's
   `Style::line` (`WideLines::LineStyle`: width, smooth, backEdges with its depth offset, pointSize) picks a variant of
@@ -171,7 +171,7 @@ context has none by default): `Batch`, `drawScreenQuad`, a model's vertex array.
 Shaders are GLSL 330 core with explicit attribute locations (`layout(location = N) in`), `in`/`out`, `texture()`
 and their matrices as uniforms.
 
-The world (plan [gl-core-world](plan/gl-core-world.feature.md)) draws on the core path: `drawGameplay` sets `gProj`
+The world (plan [gl-core-world](plan/solved/gl-core-world.feature.md)) draws on the core path: `drawGameplay` sets `gProj`
 and `gMv`, the HUD after it sets its canvas. With the UI and the tools ported as well, nothing calls legacy GL any more.
 
 * The world shader (`Lighting::use`, `render/lighting.cpp`) is the lighting shader in GLSL 330 core: the frame's
@@ -202,7 +202,7 @@ A change to the drawing: `make snapshots` ([testing.md](testing.md#render-snapsh
 Proof ports: `src/graphics/fire.cpp` (the sprites, the biggest `glBegin` user) and `src/render/brightness.cpp`; the
 full-screen passes of `ink.cpp` and `motion_fx.cpp` use `drawScreenQuad`.
 
-The UI is ported ([gl-core-ui](plan/gl-core-ui.feature.md)): `src/ui/`, `ui_draw.cpp` and `font.cpp` draw
+The UI is ported ([gl-core-ui](plan/solved/gl-core-ui.feature.md)): `src/ui/`, `ui_draw.cpp` and `font.cpp` draw
 only through `Batch` under `gMv` / `gProj` (a screen sets them with `ui::beginCanvas`, `ui::beginSquareCanvas` or
 `ui::beginOrtho`). A font is glyph quads in one batch, transformed on the CPU as the old display lists were, split as Mesa split a display
 list's quads (a, b, d / b, c, d). The draft map clips with a scissor box (no user clip planes in a GLSL 330 program).

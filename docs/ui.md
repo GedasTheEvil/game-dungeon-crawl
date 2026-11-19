@@ -37,11 +37,11 @@ the level library: `tests/unit/ui_layout_test.cpp` checks them at 4:3, 16:9 and 
 * The HUD parts and the draft map use a canvas of fixed height and the window's aspect instead:
   `ui::beginSquareCanvas(height, resX, resY)` sets it up and returns its width.
 * Everything draws on the GL core path ([development.md](development.md#gl-core-path), plan
-  [gl-core-ui](plan/gl-core-ui.feature.md)): the parts and the fonts through a `Batch` under `gProj` and `gMv`,
+  [gl-core-ui](plan/solved/gl-core-ui.feature.md)): the parts and the fonts through a `Batch` under `gProj` and `gMv`,
   never `glBegin`, `glOrtho` or the GL matrix stack. A move or turn of a part is `gMv.push()`, `gMv.translate(...)`,
   `gMv.pop()`; text ignores `gMv` (its pen starts at x, y on the canvas). A line wider than a pixel or smooth is a
   `style.line` of its batch (`ui::strokeRect`'s and `ui::line`'s width; `WideLines`, plan
-  [gl-core-profile](plan/gl-core-profile.feature.md)), never `glLineWidth` or `GL_LINE_SMOOTH`.
+  [gl-core-profile](plan/solved/gl-core-profile.feature.md)), never `glLineWidth` or `GL_LINE_SMOOTH`.
 * Fonts: `ui::loadScreenFonts()` loads a screen's title, heading, body and small fonts. The feedback line under a
   screen is a `ui::Toast` (`Show`, `Alpha`).
 * Mouse to canvas: `ui::toCanvas()`. Hit tests use `Rect::contains` on the same `constexpr Rect`s the drawing uses.

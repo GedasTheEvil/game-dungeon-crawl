@@ -190,6 +190,22 @@ The choices are `GameState::settings`, kept in `saves/settings.ini` ([settings.m
 Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and a black shadow, the key cap name in
 `small` `GOLD`, a `LABEL_DIM` dash when unbound; the mouse cell shows a small mouse with its button lit.
 
+### Credits
+
+Two pages ([credits-second-section](plan/credits-second-section.feature.md)): the PNG sheet, and the text page
+(`menu_credits.cpp`) with the credits that are not on the sheet. A button right of Back ("More" / "Sheet"), Left / Right
+and Enter on the button switch them; the text page scrolls with Up / Down and the wheel, 16 rows a view, `CREDITS_*` in
+`menu_internal.h`. A cell too long for its column is cut with "..". The text comes from `content/credits`, no credit
+text is in C++:
+
+* `# Heading` starts a group (Music, Fonts, Agents); `//` starts a comment line; blank lines are skipped.
+* Every other line is a row of cells split at `|`: name, author, licence (the licence is right aligned; with two cells
+  the second is the author column in gold).
+* A last group "Game" with the version is added by the screen: `.version`, embedded at build time (`GAME_RELEASE`,
+  the makefile).
+* Parser: `ParseCredits` / `LoadCredits` in `src/level/credits_text.h` (`tests/unit/credits_text_test.cpp`). The music
+  rows follow `media/sounds/music/CREDITS.md`, the fonts' `*-LICENSE.txt` / `*-OFL.txt`; a new track or font gets a row.
+
 ### Footer and toast
 
 * Key hint: `textCentered(small, 80, 2.2, hint, LABEL_DIM)`, keys and actions separated by 4 spaces

@@ -139,6 +139,7 @@ void MainMenu::LoadAssets() {
 		return;
 	assetsLoaded = true;
 	creditsSheet.LoadPNG(MEDIA_DIR "textures/ui/credits.png", TexFilter::Flat);
+	credits = LoadCredits(CONTENT_DIR "credits");
 	loadScreenFonts(title, heading, body, small, 8.f);
 }
 
@@ -163,7 +164,10 @@ void MainMenu::Draw() {
 		DrawBackground("Credits");
 		DrawCredits();
 		DrawBackButton();
-		DrawFooter("Esc: back");
+		DrawFooter(
+			creditsText ? "Left / Right: page    Up / Down, wheel: scroll    Esc: back"
+						: "Left / Right: page    Esc: back"
+		);
 	} else if (optionsD) {
 		DrawBackground("Options");
 		DrawOptions();
@@ -197,13 +201,13 @@ void MainMenu::BeginCanvas() {
 void MainMenu::EndFrame() { endScreen(); }
 
 void MainMenu::DrawBackground(const char* caption) {
-	bool wide = saveD || loadD || optionsD || recordsD || helpD;
+	bool wide = saveD || loadD || optionsD || recordsD || helpD || (creditsD && creditsText);
 	backdrop(visibleArea(world.render), world.assets.textures.loadingBackground.ID());
 	titleBar(title, CENTRE, caption, wide ? 58.f : 44.f);
 	panel(
 		recordsD   ? records.Panel()
 		: helpD	   ? HELP_PANEL
-		: creditsD ? CREDITS_PANEL
+		: creditsD ? (creditsText ? CREDITS_TEXT_PANEL : CREDITS_PANEL)
 		: optionsD ? OPTIONS_PANEL
 		: loadD	   ? LOAD_PANEL
 		: saveD	   ? SLOT_PANEL
@@ -233,6 +237,15 @@ void MainMenu::DrawButtons() {
 }
 
 void MainMenu::DrawCredits() {
+	const bool hovered = pointer.hovered == CREDITS_PAGE;
+	const Rect page = tile(CREDITS_PAGE_BUTTON, TileStyle::Stone, hovered, pointer.Held(CREDITS_PAGE));
+	beginText();
+	textCenteredIn(heading, page, creditsText ? "Sheet" : "More", hovered ? TEXT_HOVER : LABEL);
+	beginShapes();
+	if (creditsText) {
+		DrawCreditsText();
+		return;
+	}
 	texturedRect(CREDITS_SHEET, creditsSheet.ID(), {1, 1, 1});
 	beginShapes();
 	strokeRect(CREDITS_SHEET, GOLD_DIM, 1.f, 1.f);
@@ -266,6 +279,8 @@ void MainMenu::DrawFooter(const char* hint) {
 
 std::vector<MainMenu::Placed> MainMenu::Targets() const {
 	std::vector<Placed> targets;
+	if (creditsD)
+		targets.push_back({CREDITS_PAGE, CREDITS_PAGE_BUTTON});
 	if (recordsD || creditsD) {
 		targets.push_back({BACK, BACK_BUTTON});
 		return targets;
@@ -340,6 +355,14 @@ void MainMenu::Navigate(NavKey key) {
 	const std::vector<Placed> targets = Targets();
 	if (key == NavKey::None || targets.empty())
 		return;
+	if (creditsD && (key == NavKey::Left || key == NavKey::Right)) { // the page
+		creditsText = key == NavKey::Right;
+		return;
+	}
+	if (creditsD && creditsText && (key == NavKey::Up || key == NavKey::Down)) { // the text's rows
+		ScrollCredits(key == NavKey::Up ? -1 : 1);
+		return;
+	}
 	const auto at = std::ranges::find(targets, pointer.hovered, &Placed::target);
 	if (at == targets.end()) {
 		if (key != NavKey::Activate)
@@ -396,6 +419,11 @@ void MainMenu::Activate(int target) {
 	}
 	if (recordsD) {
 		records.Activate(target - RECORDS_BASE);
+		return;
+	}
+	if (creditsD) {
+		if (target == CREDITS_PAGE)
+			creditsText = !creditsText;
 		return;
 	}
 	if (helpD) {
@@ -547,6 +575,10 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		pointer.Move(TargetAt(x, y));
 		return;
 	}
+	if (creditsD && creditsText && state == MOUSE_DOWN && (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN)) {
+		ScrollCredits(button == MOUSE_WHEEL_UP ? -1 : 1);
+		return;
+	}
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
 	if (state == MOUSE_DOWN && optionsD && target >= OPTION_BASE && target < RESET_CONTROLS &&
@@ -630,6 +662,8 @@ void MainMenu::SpecialKeyPressed(int key) {
 void MainMenu::ResetSubScreens() {
 	confirm.Cancel();
 	creditsD = false;
+	creditsText = false;
+	creditsScroll = 0;
 	helpD = false;
 	recordsD = false;
 	saveD = false;

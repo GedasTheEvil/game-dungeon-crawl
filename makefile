@@ -170,6 +170,10 @@ VERSION_STAMP=$(BUILD)/version.txt
 $(shell mkdir -p $(BUILD); [ "$$(cat $(VERSION_STAMP) 2>/dev/null)" = "$(GAME_VERSION)" ] || echo "$(GAME_VERSION)" > $(VERSION_STAMP))
 $(BUILD)/src/ui/win_entry.o: $(VERSION_STAMP)
 $(BUILD)/src/ui/win_entry.o: CXXFLAGS += -DGAME_VERSION=\"$(GAME_VERSION)\"
+# The credits screen shows .version (plan credits-second-section); the file is a prerequisite, so a bump rebuilds it.
+GAME_RELEASE:=$(shell cat .version 2>/dev/null || echo unknown)
+$(BUILD)/src/ui/menu_credits.o: .version
+$(BUILD)/src/ui/menu_credits.o: CXXFLAGS += -DGAME_RELEASE=\"$(GAME_RELEASE)\"
 # The GL core path's matrices round as Mesa's: no fused multiply-add (-march=native has it, C++ contracts by default),
 # or a translation lands one ulp off and an edge pixel flips (plan gl-core-world).
 $(BUILD)/src/render/mat4.o: CXXFLAGS += -ffp-contract=off

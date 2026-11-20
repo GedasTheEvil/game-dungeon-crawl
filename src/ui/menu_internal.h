@@ -74,6 +74,13 @@ constexpr float SLIDER_VALUE_W = 9.f; // the number right of the slider
 constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
 constexpr Rect CREDITS_PANEL = {CREDITS_SHEET.x - 3, CREDITS_SHEET.y - 3, CREDITS_SHEET.w + 6, CREDITS_SHEET.h + 6};
 
+// The credits' second page (plan credits-second-section): rows of name, author and licence in a wide panel, scrolled.
+constexpr Rect CREDITS_TEXT_PANEL = OPTIONS_PANEL;
+constexpr Rect CREDITS_PAGE_BUTTON = {BACK_BUTTON.x + BACK_BUTTON.w + 4, BACK_BUTTON.y, 34, BACK_BUTTON.h};
+constexpr float CREDITS_ROW_H = 3.4f;
+constexpr int CREDITS_VISIBLE_ROWS = 16;
+constexpr float CREDITS_AUTHOR_X = 60.f; // from the panel's inner left edge
+
 // How to Play (plan controls-help): the bound keys in three columns of groups, the hints switch and a button to
 // Options > Controls at the foot of the right column.
 constexpr Rect HELP_PANEL = OPTIONS_PANEL;

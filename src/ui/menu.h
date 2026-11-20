@@ -7,6 +7,7 @@
 #include "../render/font.h"
 #include "../render/textures.h"
 #include "../level/bindings.h"
+#include "../level/credits_text.h"
 #include "confirm_box.h"
 #include "../level/pointer.h"
 #include "records_view.h"
@@ -27,6 +28,7 @@ class MainMenu {
 	static constexpr int BACK = 100; // Back button of the sub-screens
 	static constexpr int HELP_HINTS = 110; // How to Play: the hints switch (plan controls-help)
 	static constexpr int HELP_KEYS = 111; // How to Play: to Options > Controls
+	static constexpr int CREDITS_PAGE = 112; // Credits: the button to the other page (plan credits-second-section)
 	static constexpr int TAB_BASE = 200; // options tabs
 	static constexpr int OPTION_BASE = 300; // Options > Display / Sound: the row's switch, choice or slider
 	static constexpr int RESET_CONTROLS = 390; // Options > Controls: back to the default keys
@@ -44,6 +46,9 @@ class MainMenu {
 	int capturing = NONE; // the BIND_BASE target waiting for a key or a mouse button
 	int dragging = NONE; // the slider the mouse went down on
 	RecordsView records;
+	std::vector<CreditsGroup> credits; // content/credits, the second page (plan credits-second-section)
+	bool creditsText = false; // the credits page shown: the text, not the sheet
+	int creditsScroll = 0; // the first row of the text shown
 	ConfirmBox confirm; // "Overwrite slot 2?" over the screen (plan save-load-safety)
 
 	void LoadAssets();
@@ -64,6 +69,8 @@ class MainMenu {
 	void StartCapture(int target);
 	void Bind(const InputKey& key);
 	void DrawCredits();
+	void DrawCreditsText(); // menu_credits.cpp
+	void ScrollCredits(int rows);
 	void DrawHelp(); // How to Play (plan controls-help, menu_help.cpp)
 	void DrawBackButton();
 	void DrawFooter(const char* hint);

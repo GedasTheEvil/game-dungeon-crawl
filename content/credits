@@ -1,0 +1,24 @@
+// The credits screen's second page (plan credits-second-section, docs/ui.md#credits). `# Group` heads a group, a row
+// is cells split at `|`: name | author | licence. The game version is added by the screen.
+// Music: from media/sounds/music/CREDITS.md.
+# Music
+Desert_mystic 2 | PolygonDan | CC0
+Forgoten tomb ambience | kindland | CC0
+Cave 2 | HoliznaCC0 | CC0
+Dark Cavern Ambient | Paul Wortmann | CC0
+Egyptian meditation music | brandon75689 | CC0 or OGA-BY 3.0
+Desert theme | yd | CC0
+Ancient Power Of Serpents | Kevin MacLeod (FreePD) | CC0
+The Seeing Pool | Umplix | CC0
+Un desert | Komiku | CC0
+Osiris Monolith | Bobjt | CC0
+Evil temple Ambiance loop | HaelDB | CC0 or OGA-BY 3.0
+Dungeon Ambience | yd | CC0
+Great Labyrinth | MintoDog | CC0
+# Fonts
+Courier 10 Pitch | Bitstream Inc. | free licence
+DejaVu Sans Condensed Bold | Bitstream, DejaVu authors | Bitstream Vera
+Kalam | Indian Type Foundry | SIL OFL 1.1
+Parchment MF | Rick W. Mueller | free font
+# Agents
+Claude | Anthropic | AI agent

@@ -1,7 +1,7 @@
 #!/bin/bash
 # The release zip (plan release-zip): the portable game build, media, content, Play and an empty saves/ in
 # release-<version>.zip in the repo root (version: .version, pride versioning PROUD.DEFAULT.SHAME, see
-# docs/development.md). Usage: tools/release.sh [--allow-dirty]
+# docs/development.md); Install-check (plan install-helper-script) lists the missing libs. Usage: tools/release.sh [--allow-dirty]
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -42,6 +42,7 @@ trap 'rm -rf release' EXIT
 mkdir release/bin
 cp build/release/bin/game release/bin/game
 cp Play release/Play
+cp Install-check release/Install-check
 cp .version release/.version
 for dir in media content; do
 	cp -r "$dir" release/

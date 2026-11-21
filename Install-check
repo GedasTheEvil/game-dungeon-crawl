@@ -1,0 +1,105 @@
+#! /bin/sh
+# Install-check (plan install-helper-script): finds the shared libs bin/game lacks and prints one `apt install` line.
+# Never installs anything. Ubuntu / Linux Mint (apt, amd64); other systems get the soname list only.
+# Exit 0: nothing missing, 1: something missing (or unsupported system), 2: no bin/game.
+# Test hooks: IC_OS_RELEASE (default /etc/os-release); `ldd` and `dpkg` come from PATH.
+cd "$(dirname "$0")" || exit 2
+[ -e bin/game ] || { echo "Install-check: bin/game not found (run from the unzipped release)"; exit 2; }
+
+# soname -> apt package (Ubuntu 24.04+, from the ldd of the release binary and what SDL3 loads at run time)
+pkg_for() {
+	case "$1" in
+		libSDL3.so*) echo libsdl3-0 ;;
+		libGL.so*) echo libgl1 ;;
+		libGLX.so*) echo libglx0 ;;
+		libGLdispatch.so*) echo libglvnd0 ;;
+		libstdc++.so*) echo libstdc++6 ;;
+		libgcc_s.so*) echo libgcc-s1 ;;
+		libc.so* | libm.so* | libmvec.so*) echo libc6 ;;
+		libasound.so*) echo libasound2t64 ;;
+		libpulse.so* | libpulsecommon*) echo libpulse0 ;;
+		libX11.so*) echo libx11-6 ;;
+		libX11-xcb.so*) echo libx11-xcb1 ;;
+		libXext.so*) echo libxext6 ;;
+		libXcursor.so*) echo libxcursor1 ;;
+		libXi.so*) echo libxi6 ;;
+		libXfixes.so*) echo libxfixes3 ;;
+		libXrandr.so*) echo libxrandr2 ;;
+		libXrender.so*) echo libxrender1 ;;
+		libXss.so*) echo libxss1 ;;
+		libXtst.so*) echo libxtst6 ;;
+		libxcb.so*) echo libxcb1 ;;
+		libXau.so*) echo libxau6 ;;
+		libXdmcp.so*) echo libxdmcp6 ;;
+		libxkbcommon.so*) echo libxkbcommon0 ;;
+		libdecor-0.so*) echo libdecor-0-0 ;;
+		libdrm.so*) echo libdrm2 ;;
+		libgbm.so*) echo libgbm1 ;;
+		libwayland-client.so*) echo libwayland-client0 ;;
+		libwayland-cursor.so*) echo libwayland-cursor0 ;;
+		libwayland-egl.so*) echo libwayland-egl1 ;;
+		libfribidi.so*) echo libfribidi0 ;;
+		libdbus-1.so*) echo libdbus-1-3 ;;
+		libsndfile.so*) echo libsndfile1 ;;
+		libFLAC.so*) echo libflac14 ;;
+		libvorbis.so*) echo libvorbis0a ;;
+		libvorbisenc.so*) echo libvorbisenc2 ;;
+		libogg.so*) echo libogg0 ;;
+		libopus.so*) echo libopus0 ;;
+		libmpg123.so*) echo libmpg123-0t64 ;;
+		libmp3lame.so*) echo libmp3lame0 ;;
+		libsystemd.so*) echo libsystemd0 ;;
+		*) echo "" ;;
+	esac
+}
+
+# the ldd result decides, not dpkg
+missing=$(ldd bin/game 2>&1 | sed -n 's/^[[:space:]]*\([^ ]*\) => not found.*/\1/p' | sort -u)
+
+packages=""
+unknown=""
+for so in $missing; do
+	p=$(pkg_for "$so")
+	if [ -n "$p" ]; then
+		case " $packages " in *" $p "*) ;; *) packages="$packages $p" ;; esac
+	else
+		unknown="$unknown $so"
+	fi
+done
+
+if [ -z "$missing" ]; then
+	echo "Libraries: all found."
+else
+	echo "Missing libraries:$(printf ' %s' $missing)"
+fi
+
+apt_system=0
+os_release=${IC_OS_RELEASE:-/etc/os-release}
+if [ -r "$os_release" ]; then
+	id=$(sed -n 's/^ID=//p' "$os_release" | tr -d '"')
+	like=$(sed -n 's/^ID_LIKE=//p' "$os_release" | tr -d '"')
+	case " $id $like " in *" ubuntu "* | *" debian "* | *" linuxmint "*) apt_system=1 ;; esac
+fi
+
+# runtime needs ldd cannot see: hints only, they never change the exit code
+if command -v glxinfo >/dev/null 2>&1; then
+	glxinfo 2>/dev/null | grep -q 'OpenGL core profile version string: [3-9]\.' ||
+		echo "Hint: no OpenGL 3.3 core driver reported by glxinfo (the game needs one; try: sudo apt install libgl1-mesa-dri)."
+fi
+if [ -z "$(ls /proc/asound 2>/dev/null)" ] && ! command -v pactl >/dev/null 2>&1; then
+	echo "Hint: no audio device found; the game runs without sound."
+fi
+
+if [ -z "$missing" ]; then
+	echo "All good, run ./Play"
+	exit 0
+fi
+
+if [ "$apt_system" = 1 ]; then
+	[ -n "$unknown" ] && echo "No package known for:$unknown (search it with: apt-file search <soname>)"
+	[ -n "$packages" ] && echo "Run:  sudo apt install$packages"
+	echo "Then run ./Install-check again (libraries hidden behind a missing one show up only then)."
+else
+	echo "Unsupported system (no apt: Ubuntu / Linux Mint only), libs needed:$(printf ' %s' $missing)"
+fi
+exit 1

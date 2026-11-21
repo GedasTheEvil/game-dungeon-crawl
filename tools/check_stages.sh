@@ -35,7 +35,7 @@ base=$(git merge-base HEAD master 2>/dev/null || echo HEAD)
 files=$({ git diff --name-only "$base"; git ls-files --others --exclude-standard; } | sort -u | grep -c .)
 
 stage build "$make --no-print-directory all"
-stage plan './tools/plan.py links; ./tools/plan.py lint; python3 -I tools/plan_test.py; python3 -I tools/docs_check.py; tools/job_test.sh; tools/hooks/test_no_wait_loops.sh'
+stage plan './tools/plan.py links; ./tools/plan.py lint; python3 -I tools/plan_test.py; python3 -I tools/docs_check.py; tools/job_test.sh; tools/install_check_test.sh; tools/hooks/test_no_wait_loops.sh'
 stage format "$make --no-print-directory format; $make --no-print-directory format-check-changed"
 # Tidy and unit (plan check-tidy-unit-parallel) do not depend on each other: run them together (both go through the
 # load gate), each output in its own file, printed afterwards (tidy first) so it does not interleave. A failed earlier

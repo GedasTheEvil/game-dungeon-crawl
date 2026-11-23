@@ -33,13 +33,11 @@ text sharp are welcome too.
 **Pick A**, with B's pixel snapping as its first step (it is part of A anyway). C is the fallback if A proves too
 heavy; D is a weaker A.
 
-Library for A, the implementer's choice:
-
-* `stb_truetype.h` (recommended): one public-domain header next to `external/stb/stb_image.h`, no new package, no
-  hinting (its output at 15 to 20 px is clean with pixel snapping and a bold font).
-* SDL3_ttf (FreeType + HarfBuzz, hinting, best small text): the game already links SDL3; needs
-  `sudo apt install libsdl3-ttf-dev`, a pkg-config line in the `makefile`, and the install helper
-  ([install-helper-script](install-helper-script.feature.md)). Ask the user to install it; never work around it.
+Library for A: **SDL3_ttf** (decided 2026-11-23; the user installed `libsdl3-ttf-dev`, 3.2.2). FreeType hinting gives
+the best small text; the game already links SDL3. Flags from `pkg-config --cflags --libs sdl3-ttf` in the `makefile`
+(game, and the editor if its small text moves too); add the package to the install helper
+([install-helper-script](install-helper-script.feature.md)) and the build docs. Bake with `TTF_RenderGlyph_Blended`
+(or `_LCD` off: grey only) per glyph into the atlas; `TTF_SetFontHinting` normal or light, compare both.
 
 ## Plan
 
@@ -75,8 +73,6 @@ Library for A, the implementer's choice:
 
 ## Open questions
 
-* stb_truetype vs SDL3_ttf (hinting, a new package). Recommendation: stb_truetype, unless step 2's 15 px `small` text
-  still looks soft; then SDL3_ttf.
 * Snapped advances shift line lengths by up to 1 px a glyph: check the widest panels (inventory details, Heka cards,
   credits) still fit at 720p.
 * Does the user want parchment as a TTF too (licence)?

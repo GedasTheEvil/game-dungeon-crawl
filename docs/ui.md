@@ -491,7 +491,7 @@ Every screen handles its mouse through one `ui::Pointer<Target>` (`src/level/poi
 
 The wheel, the menu's slider drag and the journal's page drag stay with the screen, before the pointer.
 
-Scroll bars ([scrollbar-mouse-drag](plan/scrollbar-mouse-drag.bug.md)): one `ui::ScrollBar` (track, rows, rows shown)
+Scroll bars ([scrollbar-mouse-drag](plan/solved/scrollbar-mouse-drag.bug.md)): one `ui::ScrollBar` (track, rows, rows shown)
 and one `ui::ScrollDrag` per bar (`src/level/scroll_bar.h`), for the inventory grid (`InventoryLayout::scrollBar`), the
 Heka cards (`SkillsLayout::scrollBar`), the credits text (`MainMenu::CreditsBar`) and the editor's palette
 (`paletteScrollBar`). Draw `track` and `Thumb(scroll)` (the thumb lighter while `Dragging()`). A left press goes to

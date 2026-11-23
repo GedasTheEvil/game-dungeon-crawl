@@ -1,6 +1,6 @@
 # Scrollbars drag with the mouse
 
-Status: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-20, size M, needs nothing first.
+Status: solved 2026-11-23 (play-tested by the user). Was: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-20, size M, needs nothing first.
 
 ## Repro
 
@@ -19,7 +19,7 @@ Nothing happens. Only the mouse wheel scrolls.
 ## Fixed when
 
 * Dragging a scrollbar thumb scrolls the list, on every screen that draws a scrollbar (one shared helper for hit
-  test, drag state and offset mapping, not a copy per screen; see [ui.md](../ui.md)).
+  test, drag state and offset mapping, not a copy per screen; see [ui.md](../../ui.md)).
 * A test that names the plan fails before the fix and passes after it (the helper's drag-to-offset mapping).
 
 ## Done
@@ -30,7 +30,7 @@ Nothing happens. Only the mouse wheel scrolls.
 * Used by every bar: inventory grid, Heka cards, credits' second page (menu, `MainMenu::CreditsBar`) and the level
   editor's palette, which had only the wheel and the edge arrows and now draws a bar too (its grid sits 0.6 left).
 * Tests: `tests/unit/scroll_bar_test.cpp` (mapping, paging, every bar clear of its slots), scenario
-  `tests/scenarios/scrollbar_mouse_drag.txt` (inventory and Heka dragged, Heka paged).
+  `tests/scenarios/solved/scrollbar_mouse_drag.txt` (inventory and Heka dragged, Heka paged).
 
 ## Play-test
 

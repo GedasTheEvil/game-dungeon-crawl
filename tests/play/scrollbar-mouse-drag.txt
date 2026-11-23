@@ -1,7 +1,0 @@
-# Plan scrollbar-mouse-drag, for `bin/game --play tests/play/scrollbar-mouse-drag.txt`: level 1 with heka to spend.
-# I: drag the inventory's scroll bar (right of the slots); K: the Heka cards' bar; Esc, Main Menu, Credits, More: the
-# credits text's bar. A click on a bar's track pages.
-seed 1
-god
-level 1
-heka 2

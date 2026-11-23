@@ -581,6 +581,10 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	}
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
+	if (recordsD && RecordsBarButton(state == MOUSE_DOWN, x, y)) { // drags or pages a run's details
+		pointer.Down(NONE, button);
+		return;
+	}
 	if (creditsD && creditsText && CreditsBarButton(state == MOUSE_DOWN, x, y)) { // drags or pages the text
 		pointer.Down(NONE, button);
 		return;
@@ -614,6 +618,13 @@ bool MainMenu::CreditsBarButton(bool down, int x, int y) {
 	return creditsDrag.Down(CreditsBar(), cx, cy, creditsScroll);
 }
 
+bool MainMenu::RecordsBarButton(bool down, int x, int y) {
+	float cx = 0.f;
+	float cy = 0.f;
+	ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
+	return records.BarButton(down, cx, cy);
+}
+
 void MainMenu::MousePassiveMotion(int x, int y) {
 	if (confirm.Open()) {
 		float cx = 0.f;
@@ -635,6 +646,11 @@ void MainMenu::MouseDrag(int x, int y) {
 		float cy = 0.f;
 		ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
 		creditsDrag.Move(CreditsBar(), cy, creditsScroll);
+	} else if (records.BarDragging()) {
+		float cx = 0.f;
+		float cy = 0.f;
+		ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
+		records.BarDrag(cy);
 	} else
 		pointer.Move(TargetAt(x, y));
 }

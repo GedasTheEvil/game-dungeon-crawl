@@ -113,7 +113,7 @@ TEST_CASE("offering gift: the offerings counted are kept by a save, an old save 
 	CHECK(next == "NEXT");
 
 	std::string old = file.str();
-	old.erase(old.find("OFFERINGS"), std::string("OFFERINGS 13\n").size());
+	old.erase(old.find("OFFERINGS"), old.find("NEXT") - old.find("OFFERINGS")); // and the lines after it
 	std::stringstream oldFile(old);
 	RunStats fromOld;
 	fromOld.LoadDump(oldFile);

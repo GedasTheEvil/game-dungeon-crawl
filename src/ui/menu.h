@@ -76,6 +76,7 @@ class MainMenu {
 	[[nodiscard]] ui::ScrollBar CreditsBar() const; // menu_credits.cpp
 	// A left press or release on the credits text's bar (window pixels); true if the bar took it.
 	bool CreditsBarButton(bool down, int x, int y);
+	bool RecordsBarButton(bool down, int x, int y); // a run's details' scroll bar (plan endgame-stats-skills-weapon)
 	void DrawHelp(); // How to Play (plan controls-help, menu_help.cpp)
 	void DrawBackButton();
 	void DrawFooter(const char* hint);

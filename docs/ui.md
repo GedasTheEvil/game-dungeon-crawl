@@ -413,8 +413,11 @@ The leaderboard ([plan/leaderboard.md](plan/solved/leaderboard.md)), a main menu
 score in the open order (`small` header, striped `body` rows 4.3 high, ten visible, the wheel or Up / Down scroll).
 The run just recorded breathes lapis; the selected or hovered row has a gold frame. A click or Enter opens the run's
 details: the title is its name, panel `{6, 20, 148, 64}`, four columns of `heading` sections with `small` label /
-value rows (Run and Fights; Slain; Explored, Potions, Skills; the time per level in two halves); a column out of room
-ends with "+ n more" on its last row. The footer names the run's date and version. Esc or Back goes back to the list,
+value rows (Run, Fights and the favourite weapon; Slain; Ending, Explored, Potions, Skills, each skill with its
+Heka icon 3.8 high on a row 4.6 high; the time per level in two halves). The columns scroll together, 3.35 a step
+(wheel, Up / Down, PgUp / PgDn, the `ui::ScrollBar` at the panel's right edge), a row drawn only while its baseline is
+inside the panel ([endgame-stats-skills-weapon](plan/endgame-stats-skills-weapon.feature.md)). The footer
+names the run's date and version, and the scroll keys when the bar shows. Esc or Back goes back to the list,
 the sort kept.
 
 Win entry: over the won game dimmed (black, alpha 0.55; the HUD hidden meanwhile), a `panel` `{36, 30, 88, 40}`:
@@ -493,7 +496,7 @@ The wheel, the menu's slider drag and the journal's page drag stay with the scre
 
 Scroll bars ([scrollbar-mouse-drag](plan/solved/scrollbar-mouse-drag.bug.md)): one `ui::ScrollBar` (track, rows, rows shown)
 and one `ui::ScrollDrag` per bar (`src/level/scroll_bar.h`), for the inventory grid (`InventoryLayout::scrollBar`), the
-Heka cards (`SkillsLayout::scrollBar`), the credits text (`MainMenu::CreditsBar`) and the editor's palette
+Heka cards (`SkillsLayout::scrollBar`), the credits text (`MainMenu::CreditsBar`), a run's details in the Hall of Records (`RecordsView::DetailBar`) and the editor's palette
 (`paletteScrollBar`). Draw `track` and `Thumb(scroll)` (the thumb lighter while `Dragging()`). A left press goes to
 `ScrollDrag::Down` before the pointer: true means the bar took it (the thumb is held, or the track paged by the rows
 shown), so press nothing (`pointer.Down(none, ...)`). Motion: `Move`; release: `Up`. The bar hits `GRAB_PAD` beside

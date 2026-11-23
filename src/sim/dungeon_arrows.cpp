@@ -104,6 +104,7 @@ bool Dungeon::ShootWeapon(ItemKind weapon, int damage, int dir, float height, fl
 	if (!exact)
 		sim.items->SpendShot(weapon);
 	Shoot(missileOf(weapon), damage, weaponMix(weapon), dir, height, aimRange, exact);
+	projectiles.missiles.back().weapon = weapon; // Shoot always adds one
 	return true;
 }
 void Dungeon::Shoot(
@@ -246,7 +247,8 @@ void Dungeon::updateMissiles() {
 						mon.InWater() ? a.damage * ARROW_WATER_DAMAGE_PCT / 100 : a.damage,
 						&a.mix,
 						a.exact,
-						a.kind == MissileKind::Arrow ? HitBy::Bow : HitBy::Other
+						a.kind == MissileKind::Arrow ? HitBy::Bow : HitBy::Other,
+						a.weapon
 					);
 					sim.events->Play(rules.hit);
 					if (rules.returns)

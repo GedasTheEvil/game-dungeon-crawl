@@ -29,6 +29,10 @@ struct RunRecord {
 	int armor = 0;
 	int might = 0;
 	std::vector<std::string> skills; // names, as on the Heka screen
+	// The weapon whose hits took the most HP, its name; empty: none hit, or a record from before it (plan
+	// endgame-stats-skills-weapon). With the HP it took.
+	std::string favoriteWeapon;
+	int favoriteWeaponDealt = 0;
 	std::vector<std::pair<std::string, int>> slain; // monster name, count
 	std::vector<std::pair<std::string, int>> potions; // potion name, count
 	std::vector<int> levelMs; // [level - 1]: time in play there

@@ -1,0 +1,70 @@
+# Plan endgame-stats-skills-weapon: a won run's details list the skills learned with their icons and the favourite
+# weapon (the most damage dealt: the dagger here); the details scroll with PgDn / Down and the wheel, nothing drawn
+# outside the panel.
+seed 1
+god
+level tests/levels/win_run
+campaign
+heka 14
+learn stun 2
+learn words_of_thoth
+learn dodge 2
+learn power_hit
+learn eye_of_horus
+learn favour_of_hapi
+learn serkets_favour
+learn blessing_of_isis
+learn ka_of_osiris
+learn strength_of_montu
+learn djed_of_ptah
+expect skills == 11
+give melee 3
+equip dagger
+wait 30
+walk to 2.2
+attack
+wait 700ms
+attack
+wait 700ms
+attack
+wait 700ms
+attack
+wait 700ms
+attack
+wait 700ms
+attack
+wait 1s
+expect nearest == 0
+walk to 9.5
+interact
+wait 100ms
+expect ending_screen == 1
+key enter
+wait 500ms
+expect won == 1
+key backspace
+key S
+key t
+key a
+key t
+key s
+key enter
+wait 100ms
+expect records == 1
+key esc
+wait 100ms
+click 50 65.5
+wait 100ms
+screenshot details_top
+key page_down
+wait 100ms
+screenshot details_page_down
+key page_down
+key page_down
+wait 100ms
+screenshot details_bottom
+key up
+key up
+wait 100ms
+screenshot details_up_two
+quit

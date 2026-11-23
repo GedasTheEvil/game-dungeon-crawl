@@ -71,6 +71,10 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 		r.skills = splitList(value);
 		return true;
 	}
+	if (key == "favorite_weapon") { // plan endgame-stats-skills-weapon
+		r.favoriteWeapon = value;
+		return true;
+	}
 	if (key == "level_ms") {
 		r.levelMs.clear();
 		for (const std::string& item : splitList(value)) {
@@ -88,7 +92,7 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 		r.slain.emplace_back(key.substr(std::string(SLAIN_KEY).size()), number);
 	else if (key.starts_with(POTION_KEY))
 		r.potions.emplace_back(key.substr(std::string(POTION_KEY).size()), number);
-	const std::array<std::pair<const char*, int*>, 17> ints = {{
+	const std::array<std::pair<const char*, int*>, 18> ints = {{
 		{"time_ms", &r.playMs},
 		{"xp", &r.xp},
 		{"player_level", &r.playerLevel},
@@ -106,6 +110,7 @@ bool readField(RunRecord& r, const std::string& key, const std::string& value) {
 		{"cursed", &r.cursed},
 		{"secrets", &r.secrets},
 		{"deaths", &r.deaths},
+		{"favorite_weapon_dealt", &r.favoriteWeaponDealt},
 	}};
 	for (const auto& [name, field] : ints)
 		if (key == name)
@@ -153,6 +158,10 @@ RunRecord recordOf(const PlayerStats& stats, std::string name, std::string date,
 	r.secrets = run.secrets;
 	r.deaths = run.deaths;
 	r.ending = run.ending; // plan ending-choice
+	if (const std::optional<ItemKind> weapon = run.FavoriteWeapon()) { // plan endgame-stats-skills-weapon
+		r.favoriteWeapon = itemText(*weapon).name;
+		r.favoriteWeaponDealt = run.WeaponDealt(*weapon);
+	}
 	return r;
 }
 
@@ -269,6 +278,8 @@ void writeRecord(std::ostream& out, const RunRecord& r) {
 		<< "armor=" << r.armor << '\n'
 		<< "might=" << r.might << '\n'
 		<< "skills=" << list(r.skills, [](const std::string& s) { return s; }) << '\n'
+		<< "favorite_weapon=" << r.favoriteWeapon << '\n'
+		<< "favorite_weapon_dealt=" << r.favoriteWeaponDealt << '\n'
 		<< "inscriptions=" << r.inscriptions << '\n'
 		<< "treasures=" << r.treasures << '\n'
 		<< "riddles=" << r.riddles << '\n'

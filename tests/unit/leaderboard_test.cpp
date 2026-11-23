@@ -1,6 +1,7 @@
 // Plan leaderboard: the run's counters (kept by a save and load), the leaderboard file, its orders and scores.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
+#include "../../src/level/gameplay_skills.h"
 #include "../../src/level/leaderboard.h"
 #include "../../src/level/run_stats.h"
 #include "sim_world.h"
@@ -45,6 +46,10 @@ TEST_CASE("a kill, a treasure and the play time count; a load puts the saved cou
 	CHECK(stats.damageDealt > 0);
 	CHECK(stats.biggestHit > 0);
 	CHECK(stats.biggestHit <= stats.damageDealt);
+	// Plan endgame-stats-skills-weapon: every HP of it the weapon swung, the favourite.
+	const ItemKind swung = world.items.Equipped();
+	CHECK(stats.WeaponDealt(swung) == stats.damageDealt);
+	CHECK(stats.FavoriteWeapon() == swung);
 
 	world.SaveAndLoad(); // the saved run: one rat, no treasure yet
 	REQUIRE(world.WalkTo(6.5f));
@@ -56,6 +61,71 @@ TEST_CASE("a kill, a treasure and the play time count; a load puts the saved cou
 	CHECK(world.player.stats.run.treasures == 1);
 	CHECK(world.player.stats.run.SlainTotal() == 1);
 	CHECK(world.player.stats.run.PlayMs() == 1000);
+	CHECK(world.player.stats.run.FavoriteWeapon() == swung);
+}
+
+TEST_CASE("endgame-stats-skills-weapon: a shot's damage counts for the weapon that shot it") {
+	SimWorld world; // tests/levels/archery: the plant at col 13, the player at col 1
+	world.player.god = true;
+	REQUIRE(world.Load("tests/levels/archery"));
+	world.WaitTicks(30);
+	world.Equip(ItemKind::SelfBow);
+	REQUIRE(world.Walk(10.f)); // the plant 2.5 tiles ahead
+	world.WaitTicks(70);
+	RunStats& stats = world.player.stats.run;
+	for (int i = 0; i < 20 && stats.damageDealt == 0; i++)
+		world.Wait(world.Attack() ? 1400 : SHOT_RECOVERY_MS);
+	REQUIRE(stats.damageDealt > 0);
+	CHECK(stats.WeaponDealt(ItemKind::SelfBow) == stats.damageDealt);
+	CHECK(stats.FavoriteWeapon() == ItemKind::SelfBow);
+}
+
+TEST_CASE("endgame-stats-skills-weapon: the favourite weapon is the one that dealt the most, kept by the save line") {
+	RunStats stats;
+	CHECK_FALSE(stats.FavoriteWeapon()); // no weapon hit
+	stats.Hit(7); // a hit of no weapon's: counted in the total only
+	CHECK_FALSE(stats.FavoriteWeapon());
+	stats.Hit(5, ItemKind::Dagger);
+	stats.Hit(5, ItemKind::Dagger);
+	stats.Hit(9, ItemKind::SelfBow);
+	CHECK(stats.damageDealt == 26);
+	CHECK(stats.WeaponDealt(ItemKind::Dagger) == 10);
+	CHECK(stats.FavoriteWeapon() == ItemKind::Dagger); // most damage, not the biggest hit
+	stats.Hit(1, ItemKind::SelfBow); // a tie: the first kind
+	CHECK(stats.FavoriteWeapon() == ItemKind::Dagger);
+
+	std::stringstream saved;
+	stats.Dump(saved);
+	saved << "NEXT";
+	RunStats loaded;
+	loaded.LoadDump(saved);
+	CHECK(loaded.WeaponDealt(ItemKind::Dagger) == 10);
+	CHECK(loaded.WeaponDealt(ItemKind::SelfBow) == 10);
+	std::string next;
+	saved >> next;
+	CHECK(next == "NEXT");
+
+	std::stringstream old("RUN2 1 0 0 0 0 0 0 0 0 0 0 0\nNAMES 5\nDEATHS 0\nSECRETS 0\nHINTS 0\nOFFERINGS 2\nNEXT");
+	RunStats before; // a save from before the weapons line
+	before.LoadDump(old);
+	CHECK(before.offerings == 2);
+	CHECK_FALSE(before.FavoriteWeapon());
+	old >> next;
+	CHECK(next == "NEXT");
+
+	PlayerStats player;
+	player.run = stats;
+	const RunRecord r = recordOf(player, "Ahmose", "2026-11-23", "v1");
+	CHECK(r.favoriteWeapon == std::string(itemText(ItemKind::Dagger).name));
+	CHECK(r.favoriteWeaponDealt == 10);
+	std::stringstream file;
+	writeRecord(file, r);
+	std::vector<std::string> warnings;
+	const std::vector<RunRecord> back = readRecords(file, warnings);
+	REQUIRE(back.size() == 1);
+	CHECK(back[0].favoriteWeapon == r.favoriteWeapon);
+	CHECK(back[0].favoriteWeaponDealt == 10);
+	CHECK(warnings.empty());
 }
 
 TEST_CASE("run counters: potions by kind, play time per level, the save line and back") {

@@ -3,6 +3,7 @@
 
 #include "../render/font.h"
 #include "../level/leaderboard.h"
+#include "../level/scroll_bar.h"
 #include "../level/ui_layout.h"
 #include <string>
 #include <vector>
@@ -23,7 +24,7 @@ class RecordsView {
 	// recorded: marked and scrolled into view.
 	void Open(int marked);
 	[[nodiscard]] bool InDetail() const { return detail != NONE; }
-	void CloseDetail() { detail = NONE; } // back to the list, the sort kept
+	void CloseDetail(); // back to the list, the sort kept
 	[[nodiscard]] std::string Caption() const; // "Hall of Records", or the run's name
 	[[nodiscard]] std::string Hint() const;
 	[[nodiscard]] ui::Rect Panel() const;
@@ -31,9 +32,16 @@ class RecordsView {
 	void Draw(Font& heading, Font& body, Font& small, int hovered, int pressed);
 	[[nodiscard]] int TargetAt(float cx, float cy) const; // a sort button or a row, NONE
 	void Activate(int target);
-	void SpecialKey(int key); // Up / Down move the selection
+	void SpecialKey(int key); // Up / Down move the selection; in the details, they and PgUp / PgDn scroll
 	void Key(unsigned char key); // Enter opens the selected row
-	void Scroll(int rows);
+	void Scroll(int rows); // the list, or the open run's details (plan endgame-stats-skills-weapon)
+	// The run's details scroll bar (canvas units): shown when its rows do not all fit the panel.
+	[[nodiscard]] ui::ScrollBar DetailBar() const;
+	// The left button down or up at (cx, cy): the details' bar takes it (drags the thumb, pages on the track). True
+	// if it did.
+	bool BarButton(bool down, float cx, float cy);
+	[[nodiscard]] bool BarDragging() const { return detailDrag.Dragging(); }
+	void BarDrag(float cy); // the mouse moved to height cy, the thumb held
 
   private:
 	const ScreenWorld& world; // the game it shows and changes (plan game-state-split)
@@ -45,11 +53,14 @@ class RecordsView {
 	int selected = NONE; // a rank, from the keys
 	int marked = NONE; // record index of the run just recorded
 	int detail = NONE; // record index (into Shown) of the open detail screen
+	int detailScroll = 0; // its rows scrolled away, DETAIL_LINE each
+	ui::ScrollDrag detailDrag; // its bar's thumb held
 
 	[[nodiscard]] std::vector<RunRecord> shown() const;
 	void select(int rank, int count);
+	void openDetail(int index);
 	void drawList(Font& heading, Font& body, Font& small, int hovered, int pressed);
-	void drawDetail(Font& heading, Font& small) const;
+	void drawDetail(Font& heading, Font& small);
 };
 
 #endif

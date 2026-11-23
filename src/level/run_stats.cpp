@@ -11,9 +11,20 @@ void RunStats::Slay(int monsterType) {
 
 void RunStats::Drink(ItemKind potion) { drunk[std::to_underlying(potion)]++; }
 
-void RunStats::Hit(int dealt) {
+void RunStats::Hit(int dealt, std::optional<ItemKind> weapon) {
 	damageDealt += dealt;
 	biggestHit = std::max(biggestHit, dealt);
+	if (weapon)
+		weaponDealt[std::to_underlying(*weapon)] += dealt;
+}
+
+std::optional<ItemKind> RunStats::FavoriteWeapon() const {
+	std::optional<ItemKind> best;
+	for (int i = 0; i < ITEM_KIND_COUNT; i++)
+		if (weaponDealt[static_cast<size_t>(i)] > 0 &&
+			(!best || weaponDealt[static_cast<size_t>(i)] > WeaponDealt(*best)))
+			best = itemAt(i);
+	return best;
 }
 
 void RunStats::AddPlayMs(int ms, int level) {
@@ -39,17 +50,17 @@ template <size_t N> void dumpCounts(std::ostream& out, const std::array<int, N>&
 			out << ' ' << i << ' ' << counts[i];
 }
 
-// " n type id count ..." of the potions drunk, by file id (RUN2).
-void dumpDrunk(std::ostream& out, const std::array<int, ITEM_KIND_COUNT>& drunk) {
-	out << ' ' << std::count_if(drunk.begin(), drunk.end(), [](int n) { return n != 0; });
+// " n type id count ..." of the non-zero counts by item kind, by file id (RUN2's potions drunk, WEAPONS).
+void dumpByFile(std::ostream& out, const std::array<int, ITEM_KIND_COUNT>& counts) {
+	out << ' ' << std::count_if(counts.begin(), counts.end(), [](int n) { return n != 0; });
 	for (int i = 0; i < ITEM_KIND_COUNT; i++)
-		if (drunk[static_cast<size_t>(i)] != 0) {
+		if (counts[static_cast<size_t>(i)] != 0) {
 			const ItemFileId file = fileIdOf(itemAt(i));
-			out << ' ' << file.type << ' ' << file.id << ' ' << drunk[static_cast<size_t>(i)];
+			out << ' ' << file.type << ' ' << file.id << ' ' << counts[static_cast<size_t>(i)];
 		}
 }
 
-bool loadDrunk(std::istream& in, std::array<int, ITEM_KIND_COUNT>& drunk) {
+bool loadByFile(std::istream& in, std::array<int, ITEM_KIND_COUNT>& counts) {
 	int n = 0;
 	if (!(in >> n))
 		return false;
@@ -60,7 +71,7 @@ bool loadDrunk(std::istream& in, std::array<int, ITEM_KIND_COUNT>& drunk) {
 		if (!(in >> type >> id >> count))
 			return false;
 		if (const std::optional<ItemKind> kind = itemFromFile(type, id)) // else: an item of a newer build
-			drunk[static_cast<size_t>(itemIndex(*kind))] = count;
+			counts[static_cast<size_t>(itemIndex(*kind))] = count;
 	}
 	return true;
 }
@@ -88,7 +99,7 @@ void RunStats::Dump(std::ostream& out) const {
 	out << "RUN2 " << (campaign ? 1 : 0) << ' ' << inscriptions << ' ' << treasures << ' ' << riddles << ' '
 		<< damageDealt << ' ' << damageTaken << ' ' << biggestHit << ' ' << poisoned << ' ' << cursed;
 	dumpCounts(out, slain);
-	dumpDrunk(out, drunk);
+	dumpByFile(out, drunk);
 	out << ' ' << levelMs.size();
 	for (int ms : levelMs)
 		out << ' ' << ms;
@@ -97,6 +108,9 @@ void RunStats::Dump(std::ostream& out) const {
 	out << "SECRETS " << secrets << '\n';
 	out << "HINTS " << hints << '\n';
 	out << "OFFERINGS " << offerings << '\n';
+	out << "WEAPONS";
+	dumpByFile(out, weaponDealt);
+	out << '\n';
 }
 
 void RunStats::LoadDump(std::istream& in) {
@@ -116,7 +130,7 @@ void RunStats::LoadDump(std::istream& in) {
 				  loaded.damageTaken >> loaded.biggestHit >> loaded.poisoned >> loaded.cursed
 			  ) &&
 			  loadCounts(in, loaded.slain) &&
-			  (tag == "RUN2" ? loadDrunk(in, loaded.drunk) : loadCounts(in, loaded.drunk)) &&
+			  (tag == "RUN2" ? loadByFile(in, loaded.drunk) : loadCounts(in, loaded.drunk)) &&
 			  static_cast<bool>(in >> levels);
 	for (size_t i = 0; ok && i < levels; i++) {
 		int ms = 0;
@@ -167,6 +181,14 @@ void RunStats::LoadDump(std::istream& in) {
 		in.clear();
 		in.seekg(offeringsAt);
 		offerings = 0;
+		return;
+	}
+	// From the favourite weapon on (plan endgame-stats-skills-weapon).
+	const auto weaponsAt = in.tellg();
+	if (!(in >> tag) || tag != "WEAPONS" || !loadByFile(in, weaponDealt)) {
+		in.clear();
+		in.seekg(weaponsAt);
+		weaponDealt = {};
 	}
 }
 

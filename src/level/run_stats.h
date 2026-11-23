@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <istream>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -46,18 +47,24 @@ class RunStats {
 
 	void Slay(int monsterType);
 	void Drink(ItemKind potion);
-	void Hit(int dealt);
+	// A hit of the player's that took `dealt` HP, with `weapon` (plan endgame-stats-skills-weapon: per weapon kind;
+	// none for a hit of no weapon's, a cheat or a test).
+	void Hit(int dealt, std::optional<ItemKind> weapon = std::nullopt);
 	void AddPlayMs(int ms, int level); // a tick in play on the campaign level
 	[[nodiscard]] int Slain(int monsterType) const { return slain.at(static_cast<size_t>(monsterType)); }
 	[[nodiscard]] int Drunk(ItemKind potion) const { return drunk.at(std::to_underlying(potion)); }
 	[[nodiscard]] int SlainTotal() const;
 	[[nodiscard]] int DrunkTotal() const;
+	[[nodiscard]] int WeaponDealt(ItemKind weapon) const { return weaponDealt.at(std::to_underlying(weapon)); }
+	// The favourite weapon: the one whose hits took the most HP (the first kind on a tie); none if no weapon hit.
+	[[nodiscard]] std::optional<ItemKind> FavoriteWeapon() const;
 	[[nodiscard]] int PlayMs() const;
 	[[nodiscard]] const std::vector<int>& LevelMs() const { return levelMs; } // [level - 1]: time in play there
 
-	// "RUN2 ..." (drunk by file id; the old "RUN" has it by ItemKind position), "NAMES seed", "DEATHS n", "SECRETS n"
-	// and "HINTS bits" and "OFFERINGS n" lines after the player stats; a save without them (or broken) leaves a fresh,
-	// non-campaign run (seed 0, no deaths, no secrets, no hints shown, no offerings).
+	// "RUN2 ..." (drunk by file id; the old "RUN" has it by ItemKind position), "NAMES seed", "DEATHS n", "SECRETS n",
+	// "HINTS bits", "OFFERINGS n" and "WEAPONS n type id dealt..." lines after the player stats; a save without them
+	// (or broken) leaves a fresh, non-campaign run (seed 0, no deaths, no secrets, no hints shown, no offerings, no
+	// weapon damage).
 	void Dump(std::ostream& out) const;
 	void LoadDump(std::istream& in);
 	// A save game's text with its "DEATHS" line set to `count` (plan autosave: a death rewrites the autosave's count,
@@ -67,6 +74,7 @@ class RunStats {
   private:
 	std::array<int, MONSTER_TYPE_MAX + 1> slain{}; // by MonsterTypeId
 	std::array<int, ITEM_KIND_COUNT> drunk{}; // by ItemKind, the potions only
+	std::array<int, ITEM_KIND_COUNT> weaponDealt{}; // by ItemKind, the weapons only: HP their hits took
 	std::vector<int> levelMs;
 };
 

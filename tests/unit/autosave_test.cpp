@@ -111,7 +111,7 @@ TEST_CASE("the deaths ride in the save; a death rewrites only that number; an ol
 	const std::string before = text;
 	REQUIRE(RunStats::SetDeaths(text, 7));
 	CHECK(text.size() == before.size());
-	CHECK(text.contains("DEATHS 7\nSECRETS 0\nHINTS 0\nOFFERINGS 0\nNEXT"));
+	CHECK(text.contains("DEATHS 7\nSECRETS 0\nHINTS 0\nOFFERINGS 0\nWEAPONS 0\nNEXT"));
 	std::string unchanged = text;
 	unchanged.replace(unchanged.find("DEATHS 7"), 8, "DEATHS 2");
 	CHECK(unchanged == before);

@@ -7,6 +7,7 @@
 #include "../level/items.h"
 #include "../level/monster_kinds.h"
 #include "../level/rgb.h"
+#include <optional>
 #include <vector>
 
 struct MonsterType;
@@ -25,6 +26,8 @@ struct Missile {
 	int stuckMs = -1; // GameClock time it hit a wall or the floor (or a monster: the stick turns back); < 0: flying
 	float endX = 0.f, endY = 0.f; // where it stopped: the throwing stick flies back from there
 	float drift = 0.f; // map units a sand gust has carried it along x (plan sandstorm-halls)
+	// The weapon that shot it, for the run's damage per weapon (plan endgame-stats-skills-weapon); none: a test's shot.
+	std::optional<ItemKind> weapon;
 	[[nodiscard]] float X() const { return x0 + vx * t + drift; }
 	[[nodiscard]] float Y() const;
 };

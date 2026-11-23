@@ -349,7 +349,15 @@ class Dungeon {
 	// hit): the hit takes exactly 1 HP, not what the amulets, resistances, a stun or the weapon's damage make of dmg;
 	// the fire still sets it burning and the type's side effects still roll.
 	// by: what struck, for the archer skills (plan archer-skills): a bow's arrow, a blade, or another missile.
-	void playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit = false, HitBy by = HitBy::Melee);
+	// `weapon`: the one that dealt it, counted in the run's stats (none: a cheat's or a test's hit).
+	void playerHit(
+		Monster& mon,
+		int dmg,
+		const DamageMix* mix,
+		bool exactHit = false,
+		HitBy by = HitBy::Melee,
+		std::optional<ItemKind> weapon = std::nullopt
+	);
 	void touchPoison(const Monster& mon); // the plant's sap, after a melee hit
 	// The venom amulet's roll after a weapon hit, one with Sting of Serket (a bow's) or Fang of Wadjet (a blade's).
 	void venomHit(Monster& mon, HitBy by);

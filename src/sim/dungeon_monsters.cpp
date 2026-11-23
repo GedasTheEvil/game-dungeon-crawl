@@ -287,7 +287,7 @@ bool Dungeon::AttackNearest(int damage, const DamageMix& mix, float reach, int d
 		powerHit = {nearest->NearEdge(dir), (nearest->BottomY() + nearest->TopY()) / 2.f, GameClock::now(), power};
 		sim.events->Play(WorldSound::PowerHit);
 	}
-	playerHit(*nearest, damage, &mix, exact, HitBy::Melee);
+	playerHit(*nearest, damage, &mix, exact, HitBy::Melee, sim.items->Equipped()); // the weapon swung
 	touchPoison(*nearest);
 	return true;
 }
@@ -346,7 +346,14 @@ Monster* Dungeon::freeMonsterSlot() {
 		farthest->Clear();
 	return farthest;
 }
-void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactHit, HitBy by) {
+void Dungeon::playerHit(
+	Monster& mon,
+	int dmg,
+	const DamageMix* mix,
+	bool exactHit,
+	HitBy by,
+	std::optional<ItemKind> weapon
+) {
 	const bool exact = exactHit && mix != nullptr; // a typed hit only
 	const MonsterType& type = *mon.Type();
 	if (mix && sim.journal->TryDamage(type.id, levelNumber, mainType(*mix))) {
@@ -370,7 +377,7 @@ void Dungeon::playerHit(Monster& mon, int dmg, const DamageMix* mix, bool exactH
 	const bool killed = exact ? mon.TakeExactHit(*mix)
 						: mix ? mon.TakeWeaponHit(dmg, *mix, rings.amethystPercent, rings.amethystMovesImmune)
 							  : mon.takeHit(dmg);
-	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()));
+	sim.player->stats.run.Hit(healthBefore - std::max(0, mon.Health()), weapon);
 	if (mix && (*mix)[FIRE] > 0)
 		sim.events->Note(FieldNote::Fire);
 	if (mon.Burns() && !wasBurning)

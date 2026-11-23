@@ -108,3 +108,9 @@ the best small text; the game already links SDL3. Flags from `pkg-config --cflag
 * Install-check knows `libfreetype6` and its libs; development.md lists FreeType.
 * Render snapshots: no DejaVu in them; the 6 failing (Options tabs, credits) date from earlier plans
   (ui-font-setting, credits-second-section), refs not retaken here.
+
+## Play-test feedback
+
+### Round 1 (2026-11-23)
+
+- [x] Options rows: all the text offset to the top by 8-12 px (DejaVu), options only. Fixed: not the TrueType text (its baseline matches parchment's) but the Options row layout: name and hint at fixed offsets, about a unit above the band's centre (the name's cap top over the band's top edge; DejaVu's taller letters show it). The pair is now centred on the band from the font metrics (`menu_options.cpp`), in both fonts.

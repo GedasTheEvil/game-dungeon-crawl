@@ -267,8 +267,13 @@ void MainMenu::DrawRows() {
 		}
 
 		beginText();
-		text(body, band.x + 3.f, band.y + 2.4f, row.name, LABEL);
-		text(small, band.x + 3.f, band.y + 0.3f, row.hint, LABEL_DIM);
+		// The name over the hint, the pair centred on the band: from the hint's descenders (about a third of its
+		// cap height under its baseline) to the name's cap top (plan sharp-text-ttf: it sat a unit high).
+		constexpr float LINE_GAP = 2.3f; // baseline to baseline
+		const float descent = small.CapHeight() / 3.f;
+		const float hintBaseline = band.cy() - (LINE_GAP + body.CapHeight() - descent) / 2.f;
+		text(body, band.x + 3.f, hintBaseline + LINE_GAP - body.Baseline(), row.name, LABEL);
+		text(small, band.x + 3.f, hintBaseline - small.Baseline(), row.hint, LABEL_DIM);
 		if (row.kind == OptionKind::Slider)
 			textMiddle(heading, control.x + control.w + 2.5f, control.cy(), value, isHovered ? GOLD_BRIGHT : GOLD);
 		else

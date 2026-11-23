@@ -1,6 +1,6 @@
 # Ending choice: immortality or renounce the gods and destroy the ankh
 
-Status: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size M, needs nothing first.
+Status: solved 2026-11-23 (play-tested by the user). Was: implemented 2026-11-17, waiting for the user's play-test. Was: draft 2026-11-17, size M, needs nothing first.
 
 ## Idea
 
@@ -11,12 +11,12 @@ destroy the ankh. The choice is recorded for the Hall of Records.
 
 Using the ankh tile on lvl54 sets `won` (`Dungeon::useGate`, `src/sim/dungeon_interact.cpp`). `WinEntry`
 (`src/ui/win_entry.cpp`) then runs name entry, the epilogue (`DiaryPage::Dawn`, `[diary.dawn]` in
-`content/texts/journal.txt`: "Life without end"), the Hall of Records ([win-ending-flow](solved/win-ending-flow.md)).
-The scales verdict pages follow Dawn ([weighing-of-the-heart](solved/weighing-of-the-heart.feature.md)).
+`content/texts/journal.txt`: "Life without end"), the Hall of Records ([win-ending-flow](win-ending-flow.md)).
+The scales verdict pages follow Dawn ([weighing-of-the-heart](weighing-of-the-heart.feature.md)).
 
 ## Plan
 
-* **The choice.** Using the ankh asks first, before `won`: two options in the shared UI look ([ui.md](../ui.md)),
+* **The choice.** Using the ankh asks first, before `won`: two options in the shared UI look ([ui.md](../../ui.md)),
   e.g. "Take the ankh: life without end" / "Renounce the gods as demons and break the ankh". Esc: back to the game,
   nothing chosen. Once picked, the choice is final (the user, 2026-11-17): no second ask, no undo. The `ConfirmBox` (`src/ui/confirm_box.h`) may fit with two labelled buttons, else a small panel.
 * **Store it.** A `RunEnding` enum (`Immortal`, `Renounced`) on the run stats, set by the choice. Both still win the
@@ -26,7 +26,7 @@ The scales verdict pages follow Dawn ([weighing-of-the-heart](solved/weighing-of
 * **Epilogue.** A second dawn page for Renounced (`[diary.dawn-renounced]`): the archaeologist names them demons, breaks
   the ankh, comes up mortal into an ordinary sunrise; the twelfth-hour rebirth refused. The Immortal page stays
   `[diary.dawn]`. Check the scales verdict pages and D. J.'s answer
-  ([expedition-ending](solved/expedition-ending.feature.md)) still read right after the new page; adjust a line if one assumes
+  ([expedition-ending](expedition-ending.feature.md)) still read right after the new page; adjust a line if one assumes
   the ankh was kept.
 * **Hall of Records.** `RunRecord` gets `ending` (written to `saves/leaderboard.txt`; old records without it read as
   Immortal). Shown in the run details (an "Ending" row: "Immortal" / "Renounced the gods"); a small mark in the board

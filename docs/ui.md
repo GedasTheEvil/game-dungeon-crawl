@@ -8,7 +8,7 @@ parts below instead of drawing their own.
 |---|---|---|
 | Main / in-game menu, Save, Load, Options, How to Play, Credits | `src/ui/menu.cpp` (`MainMenu`), its Options `menu_options.cpp`, How to Play `menu_help.cpp`, Save / Load slots `menu_slots.cpp`, icons `menu_icons.cpp`, shared layout `menu_internal.h` | 160 x 100 |
 | Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/level/leaderboard.h`) | 160 x 100 |
-| Ending choice (using the ankh asks first: take it or break it; then the win entry) | `src/ui/ending_screen.cpp` (`EndingScreen`, [ending-choice](plan/ending-choice.feature.md)) | 160 x 100, over the dimmed game |
+| Ending choice (using the ankh asks first: take it or break it; then the win entry) | `src/ui/ending_screen.cpp` (`EndingScreen`, [ending-choice](plan/solved/ending-choice.feature.md)) | 160 x 100, over the dimmed game |
 | Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
@@ -193,7 +193,7 @@ Key cells: a dark gradient cap with a `GOLD_DIM` frame (`GOLD` when hovered) and
 
 ### Credits
 
-Two pages ([credits-second-section](plan/credits-second-section.feature.md)): the PNG sheet, and the text page
+Two pages ([credits-second-section](plan/solved/credits-second-section.feature.md)): the PNG sheet, and the text page
 (`menu_credits.cpp`) with the credits that are not on the sheet. A button right of Back ("More" / "Sheet"), Left / Right
 and Enter on the button switch them; the text page scrolls with Up / Down and the wheel, 16 rows a view, `CREDITS_*` in
 `menu_internal.h`. A cell too long for its column is cut with "..". The text comes from `content/credits`, no credit
@@ -417,7 +417,7 @@ details: the title is its name, panel `{6, 20, 148, 64}`, four columns of `headi
 value rows (Run, Fights and the favourite weapon; Slain; Ending, Explored, Potions, Skills, each skill with its
 Heka icon 3.8 high on a row 4.6 high; the time per level in two halves). The columns scroll together, 3.35 a step
 (wheel, Up / Down, PgUp / PgDn, the `ui::ScrollBar` at the panel's right edge), a row drawn only while its baseline is
-inside the panel ([endgame-stats-skills-weapon](plan/endgame-stats-skills-weapon.feature.md)). The footer
+inside the panel ([endgame-stats-skills-weapon](plan/solved/endgame-stats-skills-weapon.feature.md)). The footer
 names the run's date and version, and the scroll keys when the bar shows. Esc or Back goes back to the list,
 the sort kept.
 
@@ -556,7 +556,7 @@ larger, `Mipmapped` for text drawn much smaller than its sheet cells, where thin
 editor's small text, `media/textures/fonts/dejavu-condensed-bold.png`, DejaVu Sans Condensed Bold, licence
 `media/textures/fonts/dejavu-LICENSE.txt`).
 The UI font setting (Options > Display > Text font, `ui_font` in [settings.md](settings.md),
-[ui-font-setting](plan/ui-font-setting.feature.md)) switches the `body` and `small` fonts below and the HUD's
+[ui-font-setting](plan/solved/ui-font-setting.feature.md)) switches the `body` and `small` fonts below and the HUD's
 `hudBody` / `hudSmall` to DejaVu Sans Condensed Bold, mipmapped, at parchment's size and spacing (about the same line
 lengths: DejaVu is condensed, its x-height taller); `ui::loadBodyFont` loads a body font from the chosen sheet. `title` and `heading` (titles, headings, button labels, tabs), the boss bar's and the zone banner's names, the
 loading screen, Kalam, Courier and Impact stay as they are.

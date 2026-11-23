@@ -4,7 +4,7 @@ Status: draft 2026-11-23, size L, needs nothing first.
 
 ## Idea
 
-The user, 2026-11-23: with Options > Display > Text font on DejaVu ([ui-font-setting](ui-font-setting.feature.md)),
+The user, 2026-11-23: with Options > Display > Text font on DejaVu ([ui-font-setting](solved/ui-font-setting.feature.md)),
 the text looks nice but blurry. Investigate TrueType fonts instead of the font sheet textures; other ways to make the
 text sharp are welcome too.
 
@@ -36,7 +36,7 @@ heavy; D is a weaker A.
 Library for A: **SDL3_ttf** (decided 2026-11-23; the user installed `libsdl3-ttf-dev`, 3.2.2). FreeType hinting gives
 the best small text; the game already links SDL3. Flags from `pkg-config --cflags --libs sdl3-ttf` in the `makefile`
 (game, and the editor if its small text moves too); add the package to the install helper
-([install-helper-script](install-helper-script.feature.md)) and the build docs. Bake with `TTF_RenderGlyph_Blended`
+([install-helper-script](solved/install-helper-script.feature.md)) and the build docs. Bake with `TTF_RenderGlyph_Blended`
 (or `_LCD` off: grey only) per glyph into the atlas; `TTF_SetFontHinting` normal or light, compare both.
 
 ## Plan

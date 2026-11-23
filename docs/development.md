@@ -37,7 +37,7 @@ read their file arguments from the current directory.
   switch, a merge or a reverted header edit hits the cache. `make NO_CCACHE=1` opts out; no ccache, no error. `ccache -s` shows the hit rate.
 * `make release` (plan [release-zip](plan/solved/release-zip.tooling.md)): `release-<version>.zip` in the repo
   root (version: `.version`, `-dirty` appended for a dirty tree, which is refused unless `make release ARGS=--allow-dirty`).
-  Holds `Play`, `Install-check` (plan [install-helper-script](plan/install-helper-script.feature.md): lists the missing libs, prints one `apt install` line, installs nothing; test `tools/install_check_test.sh`), `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the
+  Holds `Play`, `Install-check` (plan [install-helper-script](plan/solved/install-helper-script.feature.md): lists the missing libs, prints one `apt install` line, installs nothing; test `tools/install_check_test.sh`), `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the
   dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL3 (`libsdl3-0`; SDL 1.2 and SDL_mixer
   are no longer needed) and GL installed (no GLUT, no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
 * Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)

@@ -61,7 +61,7 @@ fullscreen, brightness, the rest of `[display]`), Graphics (the rest of `[graphi
 a black square with an ankh a shade above black; set the brightness so the ankh is barely visible. The Window size row
 steps through the common sizes that fit the desktop, then the desktop's own size
 ([settings-extras](plan/solved/settings-extras.feature.md)). The Text font row (Display, last) switches `ui_font`; every
-screen takes it on its next frame ([ui-font-setting](plan/ui-font-setting.feature.md)).
+screen takes it on its next frame ([ui-font-setting](plan/solved/ui-font-setting.feature.md)).
 
 ## Controls
 

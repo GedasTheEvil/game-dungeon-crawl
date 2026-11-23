@@ -1,7 +1,0 @@
-# Plan ending-choice, for `bin/game --play tests/play/ending-choice.txt`: a campaign run on level 54, in the ankh's
-# room two cells left of it. Walk right, use the ankh (E): the choice (Esc: back to the game). Renounce: the ankh
-# breaks, the renounced epilogue, the Hall of Records says Renounced. Take the ankh: the old epilogue, Immortal.
-seed 1
-god
-level 54 at 24 2
-campaign

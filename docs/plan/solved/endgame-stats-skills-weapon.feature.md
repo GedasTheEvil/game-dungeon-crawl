@@ -1,6 +1,6 @@
 # Endgame stats: skills learned with icons, favorite weapon, scrollable
 
-Status: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-20, size M, needs nothing first.
+Status: solved 2026-11-23 (play-tested by the user). Was: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-20, size M, needs nothing first.
 
 ## Idea
 
@@ -16,7 +16,7 @@ in `RunStats`, `src/level/run_stats.h`; the Hall of Records `src/ui/records_view
 * Count per weapon in `RunStats` (damage dealt by weapon kind, where `damageDealt` is counted); it rides in the save
   game like the other counters (old saves: zero, ignored). Favorite = the max; none if no weapon hit (fists).
 * Skills learned: read from the player's learned skills at the end; record them in the run stats if the win flow
-  clears them. Icons from the skill UI (`tools/where.py skill icon`), drawn in the shared UI look ([ui.md](../ui.md)).
+  clears them. Icons from the skill UI (`tools/where.py skill icon`), drawn in the shared UI look ([ui.md](../../ui.md)).
 * Scrolling: wheel and arrow / PgUp / PgDn keys, a scrollbar like other scrollable screens (reuse one if it exists),
   content clipped to the panel.
 * Hall of Records: store the favorite weapon in the entry if cheap; otherwise only the ending screen shows it.
@@ -33,7 +33,7 @@ in `RunStats`, `src/level/run_stats.h`; the Hall of Records `src/ui/records_view
   `favorite_weapon` and `favorite_weapon_dealt`; old records show None.
 * Skills: from the record's names (rank II kept), each with its Heka icon. Scrolling: the four columns together, by a
   row, wheel, Up / Down, PgUp / PgDn and the shared scroll bar; the "+ n more" cut is gone.
-* Scenario `tests/scenarios/endgame_stats_skills_weapon.txt`, unit tests in `tests/unit/leaderboard_test.cpp`.
+* Scenario `tests/scenarios/solved/endgame_stats_skills_weapon.txt`, unit tests in `tests/unit/leaderboard_test.cpp`.
 
 ## Play-test
 

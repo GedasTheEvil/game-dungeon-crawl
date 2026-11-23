@@ -1,6 +1,6 @@
 # Installation helper script in the release (checks libs, suggests apt install)
 
-Status: implemented 2026-11-21, waiting for the user's play-test. Was: draft 2026-11-20, size S, needs nothing first.
+Status: solved 2026-11-23 (play-tested by the user). Was: implemented 2026-11-21, waiting for the user's play-test. Was: draft 2026-11-20, size S, needs nothing first.
 
 ## Idea
 

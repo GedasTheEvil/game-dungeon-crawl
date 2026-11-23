@@ -1,6 +1,6 @@
 # UI font setting: parchment or DejaVu condensed bold
 
-Status: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-20, size M, needs nothing first.
+Status: solved 2026-11-23 (play-tested by the user). Was: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-20, size M, needs nothing first.
 
 ## Idea
 
@@ -10,9 +10,9 @@ only the smaller text.
 
 ## Plan
 
-* New `Settings` field (`level/settings_ini.*`, `state/settings.*`, [settings.md](../settings.md)), a two-value enum, default
+* New `Settings` field (`level/settings_ini.*`, `state/settings.*`, [settings.md](../../settings.md)), a two-value enum, default
   parchment; an Options row in `ui/menu_options.cpp` (`tools/where.py options settings`). Old settings files: default.
-* "Headlines" = the `title` and `heading` fonts of `ui::loadScreenFonts()` (`src/render/ui_draw.cpp`, [ui.md](../ui.md#fonts));
+* "Headlines" = the `title` and `heading` fonts of `ui::loadScreenFonts()` (`src/render/ui_draw.cpp`, [ui.md](../../ui.md#fonts));
   they stay parchment. The `body` and `small` fonts (and HUD / toast body text) switch to the chosen sheet. Implementer
   checks the button labels (`heading`) stay parchment and lists which texts changed.
 * DejaVu is drawn much smaller than its sheet: load it with `TexFilter::Mipmapped`. Its metrics differ (wider/narrower
@@ -50,5 +50,5 @@ only the smaller text.
   headings), the boss bar and zone banner, the loading screen, Kalam, Courier, Impact.
 * DejaVu loads mipmapped at parchment's size and spacing: the line lengths come out about the same (checked in the
   scenario), so no per-font scale.
-* Tests: `tests/unit/settings_test.cpp` (default, round trip, bad name), scenario `tests/scenarios/ui_font_setting.txt`
+* Tests: `tests/unit/settings_test.cpp` (default, round trip, bad name), scenario `tests/scenarios/solved/ui_font_setting.txt`
   (each screen in both fonts).

@@ -1,6 +1,6 @@
 # Sharp text: glyphs rasterised from the TrueType font at the screen pixel size
 
-Status: draft 2026-11-23, size L, needs nothing first.
+Status: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-23, size L, needs nothing first.
 
 ## Idea
 
@@ -78,6 +78,33 @@ the best small text; the game already links SDL3. Flags from `pkg-config --cflag
 
 ## Play-test
 
-* `bin/game --play tests/play/sharp-text-ttf.txt`; Esc > Options > Display > Text font: DejaVu.
-* Inventory (I), Heka (K), How to Play: body and small text crisp, no soft edges, nothing overflows.
+* `bin/game --play tests/play/sharp-text-ttf.txt` (the script sets Text font to DejaVu, not saved).
+* Inventory (I), Heka (K), journal (J), How to Play: body and small text crisp, no soft edges, nothing overflows.
 * Resize the window (or change resolution): text stays crisp, lines wrap as before.
+* Level editor (`make run-editor`): the small text (palette names, readout, hints) is crisp.
+
+## Implemented
+
+* Step 1 skipped: straight to the TrueType atlas (step 2); the snapping is part of it.
+* **FreeType, not SDL3_ttf:** the render library may not include SDL (`tools/check_layers.sh`), and `Font` lives
+  there. FreeType is what SDL3_ttf wraps (`libfreetype-dev`, `pkg-config freetype2`); `libsdl3-ttf-dev` is not needed.
+  `src/render/truetype.*` (`TrueTypeFace`: advances, kerning, cap height in ems; `Bake`: the 95 glyphs into one
+  coverage image, light hinting, a free texel between glyphs; no GL), `Font::LoadTrueType`, `Font::drawTrueType`
+  and the atlas cache (`glyphAtlas`, `render/font.cpp`).
+* Pixel size from the canvas as drawn (`gProj` and `GL_VIEWPORT`), so every canvas (160 x 100 screens, the HUD's,
+  the editor's) and every window size works with no reload or generation: a new size bakes on its next draw. The
+  last 16 atlases stay cached: the HUD's body font is drawn in two canvases of a different scale each frame and
+  switched atlases every frame with a one-entry cache.
+* Layout: the face's advances and kerning, 0.055 em tighter (fitted over the game's texts), plus the old spacing:
+  lines as long as the old DejaVu sheet's (the first try with the plain advances ran 13 % wider, "Weapons" left its
+  tab). Cap height and baseline as the sheet's. Pen positions and the baseline rounded to whole pixels per glyph;
+  `TextWidth` unchanged by the window size.
+* Atlas RGBA white on black: `ui::text`'s cut-out and add passes draw it unchanged (no single-pass change).
+* DejaVu TTF in `media/fonts/` with its licence (moved from `media/textures/fonts/`); the DejaVu sheet PNG deleted
+  (nothing else used it). The level editor's small, tiny and tinier text moved to TrueType too.
+* Hinting: light only (vertical); normal was not compared, the light result is crisp at 720p and 1440p.
+* Scenario command `uifont parchment|dejavu`; scenarios `tests/scenarios/sharp_text_ttf.txt` (720p) and
+  `sharp_text_ttf_1440.txt` (1440p): HUD, inventory, Heka, journal. Unit test `tests/unit/truetype_test.cpp`.
+* Install-check knows `libfreetype6` and its libs; development.md lists FreeType.
+* Render snapshots: no DejaVu in them; the 6 failing (Options tabs, credits) date from earlier plans
+  (ui-font-setting, credits-second-section), refs not retaken here.

@@ -2,10 +2,14 @@
 #include "batch.h"
 #include "matrix_stack.h"
 #include "textures.h"
+#include "truetype.h"
 #include <string.h>
+#include <algorithm>
+#include <cmath>
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 #include "../core/logger.h"
 
 #pragma GCC diagnostic push
@@ -82,6 +86,10 @@ std::shared_ptr<const FontSheet> loadSheet(const char* filename, TexFilter filte
 Font::Font() {}
 
 void Font::draw(float x, float y, const char* text, const std::array<float, 4>& colour) {
+	if (face) {
+		drawTrueType(x, y, text, colour);
+		return;
+	}
 	if (text == nullptr || *text == '\0' || !sheet)
 		return;
 	static Batch batch;
@@ -127,20 +135,172 @@ void Font::draw(float x, float y, const char* text, const std::array<float, 4>& 
 	gProj.pop();
 }
 
+// A GlyphBitmaps on the GPU: an RGBA texture with each channel the coverage (white ink on black for ui::text's
+// cut-out and add passes).
+struct GlyphAtlas {
+	Texture texture;
+	GlyphBitmaps layout; // its coverage is dropped after the upload
+	float emPx = 0.f;
+};
+
+namespace {
+// `face` baked at `emPx` and uploaded, shared per face and pixel size. The last ATLASES used stay: one font drawn in
+// two canvases of a different scale (the HUD's body text) switches between two atlases every frame; after a resize the
+// old sizes drop out.
+std::shared_ptr<const GlyphAtlas> glyphAtlas(const std::shared_ptr<TrueTypeFace>& face, float emPx) {
+	constexpr size_t ATLASES = 16;
+	struct Entry {
+		std::shared_ptr<TrueTypeFace> face; // keeps the key's face alive
+		std::shared_ptr<const GlyphAtlas> atlas;
+		unsigned long lastUse = 0;
+	};
+	static std::map<std::pair<const TrueTypeFace*, float>, Entry> atlases;
+	static unsigned long uses = 0;
+	Entry& entry = atlases[{face.get(), emPx}];
+	entry.lastUse = ++uses;
+	if (entry.atlas)
+		return entry.atlas;
+	auto atlas = std::make_shared<GlyphAtlas>();
+	atlas->emPx = emPx;
+	atlas->layout = face->Bake(emPx);
+	std::vector<unsigned char> rgba(atlas->layout.coverage.size() * 4);
+	for (size_t i = 0; i < atlas->layout.coverage.size(); i++)
+		std::fill_n(rgba.begin() + static_cast<ptrdiff_t>(i * 4), 4, atlas->layout.coverage[i]);
+	atlas->texture.LoadPixels(rgba.data(), atlas->layout.width, atlas->layout.height, TexFilter::Flat);
+	atlas->texture.ClampToEdge();
+	atlas->layout.coverage = {};
+	LOG_INFOF("graphics", "Glyph atlas: %.2f px an em, %dx%d", atlas->emPx, atlas->layout.width, atlas->layout.height);
+	entry.face = face;
+	entry.atlas = atlas;
+	if (atlases.size() > ATLASES)
+		atlases.erase(std::ranges::min_element(atlases, {}, [](const auto& e) { return e.second.lastUse; }));
+	return atlas;
+}
+
+// The canvas point (x, y) of gProj's ortho in window pixels (the viewport's), and its depth in clip space.
+struct PixelPoint {
+	float x, y, z;
+};
+PixelPoint toWindow(const Mat4& projection, const int viewport[4], float x, float y) {
+	const Vec4 clip = projection * Vec4{x, y, 1.f, 1.f};
+	return {
+		static_cast<float>(viewport[0]) + (clip.x / clip.w + 1.f) * 0.5f * static_cast<float>(viewport[2]),
+		static_cast<float>(viewport[1]) + (clip.y / clip.w + 1.f) * 0.5f * static_cast<float>(viewport[3]),
+		clip.z / clip.w,
+	};
+}
+} // namespace
+
+void Font::drawTrueType(float x, float y, const char* text, const std::array<float, 4>& colour) {
+	if (text == nullptr || *text == '\0')
+		return;
+	GLint viewport[4] = {};
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	if (viewport[2] <= 0 || viewport[3] <= 0)
+		return;
+	const Mat4 projection = gProj.top();
+	const PixelPoint origin = toWindow(projection, viewport, x, y);
+	const float pxPerUnit = std::abs(toWindow(projection, viewport, x, y + 1.f).y - origin.y);
+	// The atlas for this pixel size, baked on its first use (a quarter pixel apart is the same).
+	const float emPx = std::round(em * pxPerUnit * 4.f) / 4.f;
+	if (emPx < 1.f)
+		return;
+	if (!atlas || atlas->emPx != emPx)
+		atlas = glyphAtlas(face, emPx);
+	const GlyphBitmaps& layout = atlas->layout;
+	if (layout.width <= 0 || layout.height <= 0)
+		return;
+	static Batch batch;
+	batch.style.kind = DefaultShader::Kind::Texture;
+	atlas->texture.Bind();
+	// Every glyph on whole pixels: the baseline row rounded once, each pen position rounded on its own (the pen itself
+	// runs on the canvas advances, so the text is as wide as TextWidth says).
+	const float baseline = std::round(toWindow(projection, viewport, x, y + Baseline()).y);
+	const float toNdcX = 2.f / static_cast<float>(viewport[2]);
+	const float toNdcY = 2.f / static_cast<float>(viewport[3]);
+	const auto vx = static_cast<float>(viewport[0]);
+	const auto vy = static_cast<float>(viewport[1]);
+	const auto texW = static_cast<float>(layout.width);
+	const auto texH = static_cast<float>(layout.height);
+	float pen = x;
+	int previous = -1;
+	batch.colour(colour[0], colour[1], colour[2], colour[3]);
+	batch.begin(Primitive::Triangles);
+	for (const char* c = text; *c != '\0'; c++) {
+		const int glyph = static_cast<unsigned char>(*c) - 32;
+		if (glyph < 0 || glyph >= GLYPHS)
+			continue;
+		if (previous >= 0)
+			pen += face->Kerning(previous, glyph) * em;
+		previous = glyph;
+		const BakedGlyph& g = layout.glyphs[static_cast<size_t>(glyph)];
+		if (g.width > 0 && g.height > 0) {
+			const float left = std::round(toWindow(projection, viewport, pen, y).x) + static_cast<float>(g.left);
+			const float top = baseline + static_cast<float>(g.top);
+			const float x0 = (left - vx) * toNdcX - 1.f;
+			const float x1 = (left + static_cast<float>(g.width) - vx) * toNdcX - 1.f;
+			const float y1 = (top - vy) * toNdcY - 1.f;
+			const float y0 = (top - static_cast<float>(g.height) - vy) * toNdcY - 1.f;
+			const float u0 = static_cast<float>(g.x) / texW;
+			const float u1 = static_cast<float>(g.x + g.width) / texW;
+			const float t0 = static_cast<float>(g.y) / texH; // the bitmap's top row
+			const float t1 = static_cast<float>(g.y + g.height) / texH;
+			const float corners[4][4] = {{u0, t1, x0, y0}, {u1, t1, x1, y0}, {u1, t0, x1, y1}, {u0, t0, x0, y1}};
+			for (const int k : {0, 1, 3, 1, 2, 3}) {
+				batch.texCoord(corners[k][0], corners[k][1]);
+				batch.vertex(corners[k][2], corners[k][3], origin.z);
+			}
+		}
+		pen += advance[glyph];
+	}
+	gProj.push();
+	gProj.loadIdentity();
+	gMv.push();
+	gMv.loadIdentity();
+	batch.end();
+	gMv.pop();
+	gProj.pop();
+}
+
 float Font::TextWidth(const char* text) const {
 	float width = 0.f;
+	int previous = -1;
 	for (const char* c = text; *c != '\0'; c++) {
 		int glyph = static_cast<unsigned char>(*c) - 32;
-		if (glyph >= 0 && glyph < GLYPHS)
-			width += advance[glyph];
+		if (glyph < 0 || glyph >= GLYPHS)
+			continue;
+		if (face && previous >= 0)
+			width += face->Kerning(previous, glyph) * em;
+		previous = glyph;
+		width += advance[glyph];
 	}
 	return width;
+}
+
+void Font::LoadTrueType(const char filename[], float size, float spacing) {
+	sheet.reset();
+	atlas.reset();
+	face = TrueTypeFace::Open(filename);
+	quad = size;
+	if (!face) {
+		em = 0.f;
+		return;
+	}
+	// The em that gives 'H' a sheet font's cap height at this size.
+	em = CapHeight() / face->CapHeight();
+	// The face's advances run wider than a sheet's inked widths (side bearings): this much tighter, the lines are as
+	// long as with the DejaVu sheet the screens were laid out with (measured over the game's texts).
+	constexpr float TRACKING = -0.055f; // of the em
+	for (int glyph = 0; glyph < GLYPHS; glyph++)
+		advance[glyph] = (face->Advance(glyph) + TRACKING) * em + spacing;
 }
 void Font::Load(const char filename[], float size, float spacing, bool proportional) {
 	Load(filename, size, spacing, proportional, TexFilter::Flat);
 }
 void Font::Load(const char filename[], float size, float spacing, bool proportional, TexFilter filter) {
 	static_assert(GLYPHS == SHEET_GLYPHS);
+	face.reset();
+	atlas.reset();
 	sheet = loadSheet(filename, filter);
 	const float* left = sheet->left;
 	const float* right = sheet->right;

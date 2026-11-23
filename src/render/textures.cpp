@@ -28,9 +28,9 @@ float anisotropy() {
 
 TextureBatch* openBatch = nullptr;
 
-// Gives the texture `id` its pixels and filter.
-void upload(GLuint id, const DecodedImage& image, TexFilter filter) {
-	const GLenum format = image.components == 4 ? GL_RGBA : GL_RGB;
+// Gives the texture `id` its pixels (`components` 3 RGB, 4 RGBA) and filter.
+void upload(GLuint id, const unsigned char* pixels, int width, int height, int components, TexFilter filter) {
+	const GLenum format = components == 4 ? GL_RGBA : GL_RGB;
 	glBindTexture(GL_TEXTURE_2D, id);
 	bool mipmaps = filter == TexFilter::Mipmapped;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -40,20 +40,14 @@ void upload(GLuint id, const DecodedImage& image, TexFilter filter) {
 
 	// stb_image packs rows tightly, so RGB rows need not be 4-byte aligned.
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0,
-		static_cast<GLint>(format),
-		image.width,
-		image.height,
-		0,
-		format,
-		GL_UNSIGNED_BYTE,
-		image.pixels.get()
-	);
+	glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(format), width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	if (mipmaps)
 		glGenerateMipmap(GL_TEXTURE_2D); // keeps the real size; gluBuild2DMipmaps rescaled non-power-of-two images
+}
+
+void upload(GLuint id, const DecodedImage& image, TexFilter filter) {
+	upload(id, image.pixels.get(), image.width, image.height, image.components, filter);
 }
 } // namespace
 
@@ -130,6 +124,14 @@ int Texture::LoadPNG(const char* filename, TexFilter filter, PixelFilter change)
 	upload(texture.texID, image, filter); // OpenGL keeps its own copy
 	loaded = true;
 	return 1;
+}
+void Texture::LoadPixels(const unsigned char* rgba, int width, int height, TexFilter filter) {
+	free();
+	texture.width = width;
+	texture.height = height;
+	glGenTextures(1, &texture.texID);
+	upload(texture.texID, rgba, width, height, 4, filter);
+	loaded = true;
 }
 //----------------------------------------------------------------------------------
 void Texture::Bind() const { glBindTexture(GL_TEXTURE_2D, texture.texID); }

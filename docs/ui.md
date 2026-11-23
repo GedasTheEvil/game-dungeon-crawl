@@ -552,13 +552,24 @@ height at any size; parchment, kalam and courier are 2048, so big text stays sha
 strokes). The TTFs stay outside the repo: Kalam from Google Fonts (`ofl/kalam/Kalam-Regular.ttf`), Courier 10 Pitch from
 `xfonts-scalable` (`/usr/share/fonts/X11/Type1/c0419bt_.pfb`).
 `Font::Load` takes an optional `TexFilter` last: `Flat` (the default) for text drawn at about its sheet size or
-larger, `Mipmapped` for text drawn much smaller than its sheet cells, where thin strokes would break up (the level
-editor's small text, `media/textures/fonts/dejavu-condensed-bold.png`, DejaVu Sans Condensed Bold, licence
-`media/textures/fonts/dejavu-LICENSE.txt`).
+larger, `Mipmapped` for text drawn much smaller than its sheet cells, where thin strokes would break up.
+
+**TrueType fonts** (plan [sharp-text-ttf](plan/sharp-text-ttf.feature.md)): DejaVu Sans Condensed Bold is no sheet but
+its TTF, `media/fonts/DejaVuSansCondensed-Bold.ttf` (`ui::DEJAVU_FONT`, licence `media/fonts/dejavu-LICENSE.txt`),
+loaded with `Font::LoadTrueType(file, size, spacing)`. FreeType (`render/truetype.*`, `TrueTypeFace`; not SDL3_ttf: the
+libraries have no SDL) reads its advances, kerning and cap height; `Font::draw` bakes the printable ASCII glyphs into a
+**glyph atlas** at the pixel size the text is drawn at (the canvas's pixels a unit from `gProj` and the viewport, light
+hinting), and draws each glyph texel on a screen pixel: the baseline row and every pen position rounded to whole pixels.
+A window resize or another canvas bakes a new atlas on the next draw (shared per face and pixel size, freed once no font
+draws at it); no reload, no generation. The layout stays in canvas units: `TextWidth`, `wrap` and the boxes do not
+change with the window size (unit test `tests/unit/truetype_test.cpp`). `size` gives `H` a sheet font's cap height and
+baseline; the face's advances run 0.055 em tighter, so the lines are as long as the old DejaVu sheet's. The atlas is
+white on black, so `ui::text`'s two passes draw it as a sheet. Parchment stays a sheet for good (the user, 2026-11-23);
+Kalam, Courier and Impact stay sheets.
 The UI font setting (Options > Display > Text font, `ui_font` in [settings.md](settings.md),
 [ui-font-setting](plan/solved/ui-font-setting.feature.md)) switches the `body` and `small` fonts below and the HUD's
-`hudBody` / `hudSmall` to DejaVu Sans Condensed Bold, mipmapped, at parchment's size and spacing (about the same line
-lengths: DejaVu is condensed, its x-height taller); `ui::loadBodyFont` loads a body font from the chosen sheet. `title` and `heading` (titles, headings, button labels, tabs), the boss bar's and the zone banner's names, the
+`hudBody` / `hudSmall` to DejaVu, TrueType, at parchment's size and spacing; `ui::loadBodyFont` loads a body font in
+the chosen font. The level editor's small text is DejaVu TrueType too. `title` and `heading` (titles, headings, button labels, tabs), the boss bar's and the zone banner's names, the
 loading screen, Kalam, Courier and Impact stay as they are.
 Each screen loads four sizes as it draws, through `ui::ensureScreenFonts` (fonts need the GL context): all four on its
 first frame, the body and small ones again when the UI font changed since (`ui::bodyFontGeneration()`); the HUD's two

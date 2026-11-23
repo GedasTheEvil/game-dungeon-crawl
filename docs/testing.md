@@ -150,6 +150,7 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
 | `motion on\|off` | Options > Graphics > Motion effects (sprint blur, FOV kick, vignette). On by default; scenarios never read or write `saves/settings.ini` ([settings.md](settings.md)): they run with the default settings and key bindings. |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |
+| `uifont parchment\|dejavu` | Options > Display > Text font: the body and small text in parchment (default) or DejaVu, TrueType at the drawn pixel size (plan sharp-text-ttf). Not saved. |
 | `toonblurfirst on\|off` | Toon mode's sprint blur before the ink lines (on) or over the finished picture (off, default); plan sprint-toon-blur-and-extras. |
 | `cutscenes on\|off` | Options > Graphics > Cut-scenes: a lever or a boss's death that opens a gate off the screen shows it ([cinematic effects](plan/solved/cinematic-effects.md)). Off in scenarios, so their timings stay; any `key` skips a cut-scene playing. |
 | `hitboxes on\|off` | Debug outlines (F3 with `--debug`): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |

@@ -14,6 +14,8 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git w
   [gl-core-tools](plan/solved/gl-core-tools.tooling.md)). No GLUT, no GLU. No SDL3_mixer: the
   game mixes its own sounds on SDL3 audio streams (`src/audio/mixer.*`, plan
   [sdl3-audio](plan/solved/sdl3-audio.feature.md))
+* FreeType (`libfreetype-dev`, found by `pkg-config freetype2`; the TrueType text, plan
+  [sharp-text-ttf](plan/sharp-text-ttf.feature.md)). FreeType itself, not SDL3_ttf: the libraries have no SDL
 * Python 3 (`tools/plan.py`, run by `make check`; the asset scripts)
 * clang-format, clang-tidy (`make format`, `make tidy`)
 
@@ -38,7 +40,7 @@ read their file arguments from the current directory.
 * `make release` (plan [release-zip](plan/solved/release-zip.tooling.md)): `release-<version>.zip` in the repo
   root (version: `.version`, `-dirty` appended for a dirty tree, which is refused unless `make release ARGS=--allow-dirty`).
   Holds `Play`, `Install-check` (plan [install-helper-script](plan/solved/install-helper-script.feature.md): lists the missing libs, prints one `apt install` line, installs nothing; test `tools/install_check_test.sh`), `bin/game` (the game only, built portably with `-march=x86-64-v2` in `build/release`, apart from the
-  dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL3 (`libsdl3-0`; SDL 1.2 and SDL_mixer
+  dev build), `media/`, `content/` and an empty `saves/`. Unzip and run `./Play` on a system with SDL3 (`libsdl3-0`), FreeType (`libfreetype6`; SDL 1.2 and SDL_mixer
   are no longer needed) and GL installed (no GLUT, no dev tools needed). The music fallback `soundtrack.ogg` ships if it is present locally.
 * Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)
   `PROUD.DEFAULT.SHAME`: PROUD for a release we are proud of, DEFAULT for a normal one, SHAME for fixing something

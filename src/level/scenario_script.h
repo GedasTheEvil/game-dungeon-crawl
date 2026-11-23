@@ -30,6 +30,7 @@ enum class CommandType : unsigned char {
 	Camera,
 	Toon,
 	ToonBlurFirst,
+	UiFont,
 	CutScenes,
 	Hitboxes,
 	Hints,

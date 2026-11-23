@@ -1,5 +1,4 @@
-media/textures/fonts/dejavu-condensed-bold.png is a font sheet made with tools/textures/font_sheet.py (--size 1024) from
-DejaVu Sans Condensed Bold (DejaVuSansCondensed-Bold.ttf, Debian package fonts-dejavu-core, https://dejavu-fonts.github.io/).
+media/fonts/DejaVuSansCondensed-Bold.ttf is DejaVu Sans Condensed Bold, unchanged (DejaVuSansCondensed-Bold.ttf, Debian package fonts-dejavu-core, https://dejavu-fonts.github.io/).
 DejaVu is derived from Bitstream Vera; its licence:
 
 Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved. 

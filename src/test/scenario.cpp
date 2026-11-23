@@ -345,6 +345,11 @@ void runSetupCommand(const Command& cmd) {
 		Ink::setToon(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return;
+	case CommandType::UiFont: // Options > Display > Text font (plan sharp-text-ttf)
+		Game().settings.display.uiFont = cmd.a > 0.5f ? UiFont::DejavuCondensedBold : UiFont::Parchment;
+		ui::setBodyFont(Game().settings.display.uiFont);
+		report(cmd, true, "");
+		return;
 	case CommandType::ToonBlurFirst: // plan sprint-toon-blur-and-extras: the sprint blur before the ink lines
 		MotionFx::setToonBlurFirst(cmd.a > 0.5f);
 		report(cmd, true, "");
@@ -780,6 +785,7 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Motion:
 	case CommandType::Toon:
 	case CommandType::ToonBlurFirst:
+	case CommandType::UiFont:
 	case CommandType::CutScenes:
 	case CommandType::Hitboxes:
 	case CommandType::Hints:

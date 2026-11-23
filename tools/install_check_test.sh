@@ -25,6 +25,11 @@ stub '	libSDL3.so.0 => not found
 	libGL.so.1 => not found
 	libweird.so.1 => not found'
 check "missing, mint" 1 "sudo apt install libgl1 libsdl3-0" "$tmp/mint"
+stub '	libfreetype.so.6 => not found'
+check "freetype" 1 "sudo apt install libfreetype6" "$tmp/mint"
+stub '	libSDL3.so.0 => not found
+	libGL.so.1 => not found
+	libweird.so.1 => not found'
 check "unknown soname" 1 "No package known for: libweird.so.1" "$tmp/mint"
 check "non-apt distro" 1 "Unsupported system.*libSDL3.so.0" "$tmp/fedora"
 if [ "$fails" != 0 ]; then

@@ -5,6 +5,7 @@
 // two-pass text. Works in whatever ortho canvas is set up (y up); sizes are in canvas units, line widths in pixels.
 // Conventions: docs/ui.md.
 
+#include "../core/paths.h"
 #include "../level/settings_ini.h"
 #include "../level/ui_layout.h"
 #include <cstdint>
@@ -35,7 +36,9 @@ void ensureScreenFonts(Font& title, Font& heading, Font& body, Font& small, floa
 // The UI font setting: GameState::ApplySettings passes it on; a change bumps bodyFontGeneration().
 void setBodyFont(UiFont font);
 [[nodiscard]] int bodyFontGeneration();
-// A body-text font from the chosen sheet, at `size` and `spacing` (the same for both sheets).
+// DejaVu Sans Condensed Bold: the UI font setting's TrueType choice and the level editor's small text.
+inline constexpr const char* DEJAVU_FONT = MEDIA_DIR "fonts/DejaVuSansCondensed-Bold.ttf";
+// A body-text font from the chosen font, at `size` and `spacing` (the same for both sheets).
 void loadBodyFont(Font& font, float size, float spacing);
 
 struct Color {

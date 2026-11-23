@@ -17,13 +17,17 @@ endif
 # SDL3 (the game's window, input and audio, plans sdl3-window-input and sdl3-audio): its flags from pkg-config.
 SDL_CFLAGS:=$(shell pkg-config --cflags sdl3)
 SDL_LIBS:=$(shell pkg-config --libs sdl3)
+# FreeType (plan sharp-text-ttf): the render library bakes TrueType glyphs at the drawn pixel size. FreeType itself, not
+# SDL3_ttf: the libraries have no SDL (tools/check_layers.sh).
+FT_CFLAGS:=$(shell pkg-config --cflags freetype2)
+FT_LIBS:=$(shell pkg-config --libs freetype2)
 # -Wno-missing-field-initializers: a table row in designated initializers leaves out what it does not need.
 # The GL loader's header (external/glad, plan gl-core-foundation) as a system header: no warnings from its code.
 GLAD_CFLAGS=-isystem external/glad/include
-CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) $(RELEASE_DEFINES) $(SDL_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1 -MMD -MP
-TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1
+CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wold-style-cast -O3 $(MARCH) $(RELEASE_DEFINES) $(SDL_CFLAGS) $(FT_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1 -MMD -MP
+TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) $(FT_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1
 # Game and tools link only what they use: GL and SDL for every window (no GLUT, plan gl-core-tools).
-GL_LIBS=-lGL -lm -ldl
+GL_LIBS=-lGL -lm -ldl $(FT_LIBS)
 
 SOURCES=$(sort $(wildcard src/*/*.cpp))
 ifdef RELEASE
@@ -282,7 +286,7 @@ run-model-viewer: $(VIEWER)
 
 $(UNIT): $(UNIT_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $^ -o $@ $(SDL_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(SDL_LIBS) $(FT_LIBS)
 
 # `make unit`: the unit tests in parallel shards (tools/unit_shards.sh, plan check-speed); `make unit-serial` runs them
 # in one process, for a debugger or doctest's own options (bin/unit --help).

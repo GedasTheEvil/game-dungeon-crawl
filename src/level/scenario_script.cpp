@@ -154,6 +154,14 @@ bool onOff(const Args& args, Command& cmd) {
 	return true;
 }
 
+// parchment|dejavu -> a = 0 / 1 (plan sharp-text-ttf).
+bool parseUiFont(const Args& args, Command& cmd) {
+	if (args.size() != 1 || (args[0] != "parchment" && args[0] != "dejavu"))
+		return false;
+	cmd.a = args[0] == "dejavu" ? 1.f : 0.f;
+	return true;
+}
+
 // attack [up]: the key pressed (a = 0), or let go (a = 1): a power hit's charge swings (plan skill-power-hit).
 bool parseAttack(const Args& args, Command& cmd) {
 	if (args.size() > 1 || (args.size() == 1 && args[0] != "up"))
@@ -460,6 +468,7 @@ bool isPlaySetupCommand(CommandType type) {
 	case CommandType::Motion:
 	case CommandType::Toon:
 	case CommandType::ToonBlurFirst:
+	case CommandType::UiFont:
 	case CommandType::CutScenes:
 	case CommandType::Hitboxes:
 	case CommandType::Hints:
@@ -505,6 +514,7 @@ const std::vector<CommandDef>& commandDefs() {
 		{"camera", CommandType::Camera, twoNumbers, "<rotM> <rotN>"},
 		{"toon", CommandType::Toon, onOff, "<on|off>"},
 		{"toonblurfirst", CommandType::ToonBlurFirst, onOff, "<on|off>"},
+		{"uifont", CommandType::UiFont, parseUiFont, "<parchment|dejavu>"},
 		{"cutscenes", CommandType::CutScenes, onOff, "<on|off>"},
 		{"hitboxes", CommandType::Hitboxes, onOff, "<on|off>"},
 		{"hints", CommandType::Hints, onOff, "<on|off> (the first hints in any run, plan controls-help)"},

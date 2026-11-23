@@ -1,0 +1,11 @@
+# Plan sharp-text-ttf: DejaVu body and small text from its TrueType file, baked at the window's pixel size.
+seed 1
+god
+level tests/levels/classic1
+uifont dejavu
+give melee 4
+give ranged 1
+give potion 0 3
+give amulet 8
+give ring 4
+xp 3000

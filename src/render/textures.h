@@ -51,6 +51,8 @@ class Texture {
 	// reserved.
 	int LoadPNG(const char* filename, TexFilter filter = TexFilter::Mipmapped, PixelFilter change = nullptr);
 	static DecodedImage Decode(const char* filename, PixelFilter change = nullptr);
+	// Replaces what it held with `width` x `height` RGBA pixels, row 0 at t = 0 (a glyph atlas, plan sharp-text-ttf).
+	void LoadPixels(const unsigned char* rgba, int width, int height, TexFilter filter);
 	void Bind() const;
 	void ClampToEdge() const; // no wrapping: for an image drawn once, not tiled
 	[[nodiscard]] int ID() const;

@@ -1,0 +1,27 @@
+# Plan sharp-text-ttf: the 1440p half of sharp_text_ttf.txt (a window size is set once, before the level).
+resolution 2560 1440
+seed 1
+god
+level tests/levels/classic1
+uifont dejavu
+give melee 4
+give ranged 1
+give potion 0 3
+give amulet 8
+give ring 4
+xp 3000
+wait 10
+screenshot hud_1440
+key i
+wait 3
+screenshot inventory_1440
+key esc
+wait 3
+key k
+wait 3
+screenshot skills_1440
+key esc
+wait 3
+key j
+wait 3
+screenshot journal_1440

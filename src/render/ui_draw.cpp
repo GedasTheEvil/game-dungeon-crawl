@@ -166,9 +166,9 @@ int bodyFontGeneration() { return gBodyFontGeneration; }
 
 void loadBodyFont(Font& font, float size, float spacing) {
 	if (gBodyFont == UiFont::DejavuCondensedBold) {
-		// Parchment's size and spacing give DejaVu about the same line lengths (its x-height is taller, its glyphs
-		// condensed); mipmapped, as it is drawn far below its sheet size.
-		font.Load(MEDIA_DIR "textures/fonts/dejavu-condensed-bold.png", size, spacing, true, TexFilter::Mipmapped);
+		// TrueType, baked at the pixel size it is drawn at (plan sharp-text-ttf). Parchment's size and spacing give
+		// DejaVu a little shorter lines than parchment (its x-height is taller, its glyphs condensed).
+		font.LoadTrueType(DEJAVU_FONT, size, spacing);
 		return;
 	}
 	font.Load(MEDIA_DIR "textures/fonts/parchment.png", size, spacing, true);

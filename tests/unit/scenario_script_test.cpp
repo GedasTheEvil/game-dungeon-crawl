@@ -31,6 +31,7 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"camera", "camera 10 -5"},
 	{"toon", "toon on"},
 	{"toonblurfirst", "toonblurfirst on"},
+	{"uifont", "uifont dejavu"},
 	{"cutscenes", "cutscenes on"},
 	{"hitboxes", "hitboxes off"},
 	{"hints", "hints on"},

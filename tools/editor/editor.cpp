@@ -363,14 +363,13 @@ class Editor {
 	void drawCell(const Tile& t, const Rect& r, float structureAlpha, float wallAlpha, float objectAlpha);
 };
 
-constexpr const char* SMALL_FONT = MEDIA_DIR "textures/fonts/dejavu-condensed-bold.png";
-
 Editor::Editor() {
 	title.Load(MEDIA_DIR "textures/fonts/parchment.png", 6.f, 0.26f, true);
 	heading.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.6f, 0.12f, true);
 	body.Load(MEDIA_DIR "textures/fonts/parchment.png", 2.7f, 0.08f, true);
-	// The small text in a sans-serif built for small sizes, mipmapped: parchment's thin strokes break up this small.
-	small.Load(SMALL_FONT, 2.3f, 0.06f, true, TexFilter::Mipmapped);
+	// The small text in a sans-serif built for small sizes, from its TrueType file at the drawn pixel size (plan
+	// sharp-text-ttf): parchment's thin strokes break up this small.
+	small.LoadTrueType(ui::DEJAVU_FONT, 2.3f, 0.06f);
 	wallTexture.LoadPNG(MEDIA_DIR "textures/ui/scarab_slate.png", TexFilter::Flat);
 	papyrus.LoadPNG(MEDIA_DIR "textures/ui/papyrus_sheet.png", TexFilter::Flat);
 	for (int type = 0; type < TILE_TYPE_COUNT; type++) {
@@ -382,8 +381,8 @@ Editor::Editor() {
 		if (!hasIcon[type])
 			std::println(stderr, "Cannot load {}", path);
 	}
-	tiny.Load(SMALL_FONT, 1.9f, 0.05f, true, TexFilter::Mipmapped);
-	tinier.Load(SMALL_FONT, 1.6f, 0.03f, true, TexFilter::Mipmapped);
+	tiny.LoadTrueType(ui::DEJAVU_FONT, 1.9f, 0.05f);
+	tinier.LoadTrueType(ui::DEJAVU_FONT, 1.6f, 0.03f);
 	for (int d = 0; d < DECOR_COUNT; d++) {
 		std::string path = std::string("tools/editor/icons/prop_") + DECOR_NAMES[d] + ".png";
 		hasPropIcon[d] = propIcons[d].LoadPNG(path.c_str(), TexFilter::Flat) != 0;

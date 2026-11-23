@@ -10,6 +10,11 @@ cd "$(dirname "$0")" || exit 2
 pkg_for() {
 	case "$1" in
 		libSDL3.so*) echo libsdl3-0 ;;
+		libfreetype.so*) echo libfreetype6 ;;
+		libpng16.so*) echo libpng16-16t64 ;;
+		libz.so*) echo zlib1g ;;
+		libbz2.so*) echo libbz2-1.0 ;;
+		libbrotlidec.so* | libbrotlicommon.so*) echo libbrotli1 ;;
 		libGL.so*) echo libgl1 ;;
 		libGLX.so*) echo libglx0 ;;
 		libGLdispatch.so*) echo libglvnd0 ;;

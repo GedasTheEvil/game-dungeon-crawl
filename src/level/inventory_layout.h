@@ -6,6 +6,7 @@
 
 #include "ui_layout.h"
 #include "item_bag.h"
+#include "scroll_bar.h"
 #include "items.h"
 #include <string>
 #include <vector>
@@ -52,6 +53,9 @@ using GridOrder = std::vector<ItemKind>;
 // Its tab scrolled down by `scroll` rows.
 [[nodiscard]] Rect slotRect(const GridOrder& order, int slot, int scroll);
 [[nodiscard]] bool slotVisible(const GridOrder& order, int slot, int scroll);
+// The group's scroll bar right of the grid, over the rows shown (shown only with more rows than fit); the mouse drags
+// it (plan scrollbar-mouse-drag).
+[[nodiscard]] ui::ScrollBar scrollBar(ItemGroup group);
 // The tabs leave the right end of the row to the sort buttons.
 [[nodiscard]] Rect tabRect(int group);
 [[nodiscard]] Rect sortRect(int order);

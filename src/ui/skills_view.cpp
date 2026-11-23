@@ -128,10 +128,12 @@ void SkillsScreen::MouseMotion(int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
 	toCanvas(world.render, x, y, cx, cy);
+	scrollDrag.Move(scrollBar(), cy, scroll);
 	UpdateHover(cx, cy);
 }
 
-// A card is selected when the button goes down on it; Learn fires when the button comes up over it.
+// A card is selected when the button goes down on it; Learn fires when the button comes up over it. The scroll bar
+// takes a press on it: the thumb drags, the track pages.
 void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
@@ -147,6 +149,11 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 	UpdateHover(cx, cy);
 	const Pick at = pointer.hovered;
 	if (state == MOUSE_DOWN) {
+		if (scrollDrag.Down(scrollBar(), cx, cy, scroll)) {
+			pointer.Down(Pick{}, button);
+			UpdateHover(cx, cy);
+			return;
+		}
 		pointer.Down(at, button);
 		if (at.target == Target::Card)
 			Select(at.card);
@@ -154,6 +161,7 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 			confirming = false;
 		return;
 	}
+	scrollDrag.Up();
 	if (pointer.Up(at, button).target == Target::LearnButton)
 		PressLearn();
 }
@@ -314,8 +322,9 @@ void SkillsScreen::DrawCard(int card) {
 void SkillsScreen::DrawScrollBar() {
 	if (MAX_SCROLL == 0)
 		return;
-	fillRect(scrollTrack(), {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
-	fillRect(scrollThumb(scroll), GOLD, GOLD_DIM, 1.f);
+	const ui::ScrollBar bar = scrollBar();
+	fillRect(bar.track, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
+	fillRect(bar.Thumb(scroll), scrollDrag.Dragging() ? GOLD_BRIGHT : GOLD, GOLD_DIM, 1.f);
 }
 
 // The selected skill on papyrus: its icon, name, effect and lore, what it takes, and the Learn button. A learnt

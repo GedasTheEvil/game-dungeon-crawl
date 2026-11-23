@@ -268,6 +268,7 @@ class Editor {
 	float pointerY = 0.f;
 	bool panning = false; // middle button drag
 	bool draggingMinimap = false;
+	ui::ScrollDrag paletteDrag; // the palette bar's thumb held (plan scrollbar-mouse-drag)
 	Target hoveredTarget = Target::None;
 	int hoveredSlot = -1;
 
@@ -319,6 +320,7 @@ class Editor {
 	void updateHover(float x, float y);
 	void track(int mouseX, int mouseY);
 	void wheel(MouseButton button);
+	[[nodiscard]] int paletteSlots() const { return static_cast<int>(paletteOf(layer).size()); }
 	void zoomTo(int zoom);
 	void centerOnMinimap(float x, float y);
 	void beginMapClip() const;
@@ -430,7 +432,7 @@ void Editor::updateHover(float x, float y) {
 	hovered = minimapShown() && MINIMAP.contains(x, y) ? CellPos{} : view.cellAt(x, y);
 	hoveredSlot = -1;
 	hoveredTarget = Target::None;
-	hoveredSlot = paletteSlotAt(x, y, static_cast<int>(paletteOf(layer).size()), paletteScroll, TILES_PANEL);
+	hoveredSlot = paletteSlotAt(x, y, paletteSlots(), paletteScroll, TILES_PANEL);
 	if (hoveredSlot >= 0)
 		hoveredTarget = Target::Tile;
 	static const std::pair<Rect, Target> TARGETS[] = {
@@ -490,7 +492,7 @@ void Editor::wheel(MouseButton button) {
 	const SDL_Keymod modifiers = SDL_GetModState();
 	if (TILES_PANEL.contains(pointerX, pointerY)) { // scrolls the palette's rows
 		if (button == MouseButton::WheelUp || button == MouseButton::WheelDown) {
-			const int slots = static_cast<int>(paletteOf(layer).size());
+			const int slots = paletteSlots();
 			paletteScroll = std::clamp(paletteScroll + (forward ? -1 : 1), 0, paletteMaxScroll(slots, TILES_PANEL));
 			updateHover(pointerX, pointerY);
 		}
@@ -528,6 +530,14 @@ void Editor::mouseButton(MouseButton button, bool down, int x, int y) {
 	if (!down) {
 		painting = false;
 		draggingMinimap = false;
+		paletteDrag.Up();
+		return;
+	}
+
+	if (button == MouseButton::Left &&
+		paletteDrag.Down(paletteScrollBar(paletteSlots(), TILES_PANEL), pointerX, pointerY, paletteScroll)) {
+		field = Field::None;
+		updateHover(pointerX, pointerY);
 		return;
 	}
 
@@ -628,6 +638,10 @@ void Editor::mouseDrag(int x, int y) {
 	track(x, y);
 	if (draggingMinimap) {
 		centerOnMinimap(pointerX, pointerY);
+		return;
+	}
+	if (paletteDrag.Move(paletteScrollBar(paletteSlots(), TILES_PANEL), pointerY, paletteScroll)) {
+		updateHover(pointerX, pointerY);
 		return;
 	}
 	if (panning) { // the map follows the mouse
@@ -1409,6 +1423,11 @@ void Editor::drawPalette() {
 			GOLD,
 			0.9f
 		);
+	// Its scroll bar right of the slots: drag the thumb, click the track (plan scrollbar-mouse-drag).
+	if (const ScrollBar bar = paletteScrollBar(slots, TILES_PANEL); bar.Shown()) {
+		fillRect(bar.track, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
+		fillRect(bar.Thumb(paletteScroll), paletteDrag.Dragging() ? GOLD_BRIGHT : GOLD, GOLD_DIM, 1.f);
+	}
 
 	drawButton(PAINT_BUTTON, "Paint", mode == Mode::Paint, Target::PaintMode);
 	drawButton(CHECK_BUTTON, "Check", mode == Mode::Check, Target::CheckMode);

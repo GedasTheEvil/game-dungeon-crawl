@@ -204,14 +204,16 @@ TEST_CASE("the Heka screen's list scrolls: every card shows at some scroll, in t
 			CHECK(r.inset(-1.f).within(CARDS_PANEL)); // the selection frame too
 			CHECK(r.y + r.h < POINTS_BASELINE - 1.f);
 			CHECK(cardAt(r.cx(), r.cy(), scroll) == a);
-			CHECK_FALSE(r.overlaps(scrollTrack()));
+			CHECK_FALSE(r.overlaps(scrollBar().track.inset(-ui::ScrollBar::GRAB_PAD)));
 		}
-	CHECK(scrollTrack().within(CARDS_PANEL));
+	CHECK(scrollBar().track.within(CARDS_PANEL));
 	CHECK(scrollTo(SKILL_COUNT - 1, 0) == MAX_SCROLL);
 	CHECK(scrollTo(0, MAX_SCROLL) == 0);
 	CHECK(scrollTo(2 * COLUMNS, 1) == 1); // in view: the list stays
-	CHECK(scrollThumb(0).y + scrollThumb(0).h == doctest::Approx(scrollTrack().y + scrollTrack().h));
-	CHECK(scrollThumb(MAX_SCROLL).y == doctest::Approx(scrollTrack().y));
+	const ui::ScrollBar bar = scrollBar();
+	CHECK(bar.Thumb(0).y + bar.Thumb(0).h == doctest::Approx(bar.Top()));
+	CHECK(bar.Thumb(MAX_SCROLL).y == doctest::Approx(bar.track.y));
+	CHECK(bar.MaxScroll() == MAX_SCROLL);
 }
 
 TEST_CASE("Disarm trap: a trapped chest's trap goes off about 1 time in 5, and it is never empty") {

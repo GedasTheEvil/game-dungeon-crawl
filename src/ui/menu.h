@@ -10,6 +10,7 @@
 #include "../level/credits_text.h"
 #include "confirm_box.h"
 #include "../level/pointer.h"
+#include "../level/scroll_bar.h"
 #include "records_view.h"
 #include "../render/ui_draw.h"
 #include "screen_world.h"
@@ -49,6 +50,7 @@ class MainMenu {
 	std::vector<CreditsGroup> credits; // content/credits, the second page (plan credits-second-section)
 	bool creditsText = false; // the credits page shown: the text, not the sheet
 	int creditsScroll = 0; // the first row of the text shown
+	ui::ScrollDrag creditsDrag; // its bar's thumb held (plan scrollbar-mouse-drag)
 	ConfirmBox confirm; // "Overwrite slot 2?" over the screen (plan save-load-safety)
 
 	void LoadAssets();
@@ -71,6 +73,9 @@ class MainMenu {
 	void DrawCredits();
 	void DrawCreditsText(); // menu_credits.cpp
 	void ScrollCredits(int rows);
+	[[nodiscard]] ui::ScrollBar CreditsBar() const; // menu_credits.cpp
+	// A left press or release on the credits text's bar (window pixels); true if the bar took it.
+	bool CreditsBarButton(bool down, int x, int y);
 	void DrawHelp(); // How to Play (plan controls-help, menu_help.cpp)
 	void DrawBackButton();
 	void DrawFooter(const char* hint);

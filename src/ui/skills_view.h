@@ -5,6 +5,7 @@
 #include "../render/font.h"
 #include "../level/bindings.h"
 #include "../level/pointer.h"
+#include "../level/scroll_bar.h"
 #include "../render/ui_draw.h"
 #include <string>
 #include <vector>
@@ -40,6 +41,7 @@ class SkillsScreen final : public UiScreen {
 	int selected = 0; // a SkillId
 	int scroll = 0; // the first card row shown (plan heka-surplus): follows the selection, the wheel moves it
 	ui::Pointer<Pick> pointer;
+	ui::ScrollDrag scrollDrag; // the bar's thumb held (plan scrollbar-mouse-drag)
 	bool confirming = false; // the first press of Learn: the next one learns
 	ui::Toast toast;
 	Font title, heading, body, small;

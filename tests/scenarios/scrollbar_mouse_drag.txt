@@ -1,0 +1,27 @@
+# Plan scrollbar-mouse-drag: the inventory's and the Heka screen's scroll bars drag with the mouse (thumb pressed,
+# moved down, released: the list follows), a click on the track pages. 1600 x 1000: 1% across is 1.6 canvas units.
+resolution 1600 1000
+level tests/levels/classic1
+wait 10
+key i
+wait 2
+screenshot inventory_top
+press 58.9 70
+mouse 58.9 40
+release 58.9 40
+wait 2
+screenshot inventory_dragged
+key esc
+wait 2
+heka 2
+key k
+wait 2
+screenshot skills_top
+press 62.8 70
+mouse 62.8 30
+release 62.8 30
+wait 2
+screenshot skills_dragged
+click 62.8 74
+wait 2
+screenshot skills_paged_up

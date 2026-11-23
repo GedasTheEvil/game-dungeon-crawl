@@ -56,8 +56,6 @@ constexpr float MODEL_LIGHT_POS[3] = {-300.f, 400.f, 600.f}; // from the area's 
 constexpr float REST_ANGLE = 25.f; // degrees, idle slots show the model a little turned
 constexpr float SPIN_DEG_PER_MS = 0.09f; // hovered / selected models
 
-constexpr float SCROLL_BAR_W = 1.f;
-
 // The sort buttons' faces (their places: inventory_layout.h).
 constexpr const char* SORT_LABELS[SORT_ORDER_COUNT] = {"", "a-z", "*", "new"};
 constexpr const char* SORT_HINTS[SORT_ORDER_COUNT] = {"", "Sort by name", "Strongest first", "Last found first"};
@@ -328,7 +326,7 @@ bool Inventory::TwoButtons() const {
 
 void Inventory::ScrollBy(int rows) {
 	int& scroll = scrollRow[static_cast<int>(tab)];
-	scroll = std::clamp(scroll + rows, 0, std::max(0, rowsOf(tab) - VISIBLE_ROWS));
+	scroll = std::clamp(scroll + rows, 0, scrollBar(tab).MaxScroll());
 }
 
 void Inventory::SwitchTab(ItemGroup group) {
@@ -391,11 +389,12 @@ void Inventory::MouseMotion(int x, int y) {
 		confirm.Move(cx, cy);
 		return;
 	}
+	scrollDrag.Move(scrollBar(tab), cy, scrollRow[static_cast<int>(tab)]);
 	UpdateHover(cx, cy);
 }
 
 // Left click selects a slot (on press) or presses a button (fires on release over it).
-// Right click on a slot selects and uses it straight away.
+// Right click on a slot selects and uses it straight away. A left press on the scroll bar drags its thumb or pages.
 void Inventory::MouseFunction(int button, int state, int x, int y) {
 	float cx = 0.f;
 	float cy = 0.f;
@@ -416,6 +415,12 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	}
 
 	const Pick at = pointer.hovered;
+	if (state == MOUSE_DOWN && button == MOUSE_LEFT_BUTTON &&
+		scrollDrag.Down(scrollBar(tab), cx, cy, scrollRow[static_cast<int>(tab)])) {
+		pointer.Down(Pick{}, button);
+		UpdateHover(cx, cy);
+		return;
+	}
 	if (state == MOUSE_DOWN) {
 		// Any button on a slot; only the left one on the rest, a dimmed tab takes none.
 		const bool takes = at.target == Target::Slot || (button == MOUSE_LEFT_BUTTON && at.target != Target::Guard &&
@@ -427,6 +432,8 @@ void Inventory::MouseFunction(int button, int state, int x, int y) {
 	}
 	if (state != MOUSE_UP)
 		return;
+	if (button == MOUSE_LEFT_BUTTON)
+		scrollDrag.Up();
 
 	const Pick fired = pointer.Up(at, button);
 	switch (fired.target) {
@@ -586,17 +593,11 @@ void Inventory::Draw() {
 
 // Right of the grid, only for a tab with more rows than fit: the track over the rows shown, the thumb where they are.
 void Inventory::DrawScrollBar() {
-	const int rows = rowsOf(tab);
-	if (rows <= VISIBLE_ROWS)
+	const ui::ScrollBar bar = scrollBar(tab);
+	if (!bar.Shown())
 		return;
-	const float top = TOP_ROW_Y + SLOT_H;
-	const float bottom = TOP_ROW_Y - (VISIBLE_ROWS - 1) * (SLOT_H + SLOT_GAP);
-	const float x = ITEMS_PANEL.cx() + GRID_W / 2 +
-					(ITEMS_PANEL.x + ITEMS_PANEL.w - ITEMS_PANEL.cx() - GRID_W / 2) / 2 - SCROLL_BAR_W / 2;
-	fillRect({x, bottom, SCROLL_BAR_W, top - bottom}, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
-	const float rowH = (top - bottom) / static_cast<float>(rows);
-	const float thumbTop = top - rowH * static_cast<float>(Scroll());
-	fillRect({x, thumbTop - rowH * VISIBLE_ROWS, SCROLL_BAR_W, rowH * VISIBLE_ROWS}, GOLD, GOLD_DIM, 1.f);
+	fillRect(bar.track, {0.09f, 0.07f, 0.05f}, {0.06f, 0.045f, 0.03f}, 1.f);
+	fillRect(bar.Thumb(Scroll()), scrollDrag.Dragging() ? GOLD_BRIGHT : GOLD, GOLD_DIM, 1.f);
 }
 
 void Inventory::DrawBackground() {

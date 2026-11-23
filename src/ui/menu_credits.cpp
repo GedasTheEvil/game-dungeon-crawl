@@ -44,8 +44,15 @@ std::string fitted(const Font& font, std::string text, float width) {
 using namespace menu_internal;
 
 void MainMenu::ScrollCredits(int rows) {
-	const int most = std::max(0, static_cast<int>(flatten(credits).size()) - CREDITS_VISIBLE_ROWS);
-	creditsScroll = std::clamp(creditsScroll + rows, 0, most);
+	creditsScroll = std::clamp(creditsScroll + rows, 0, CreditsBar().MaxScroll());
+}
+
+// Right of the rows, over the rows shown; drawn and dragged only when they do not all fit.
+ScrollBar MainMenu::CreditsBar() const {
+	const float right = CREDITS_TEXT_PANEL.x + CREDITS_TEXT_PANEL.w - 7.f;
+	const float top = CREDITS_TEXT_PANEL.y + CREDITS_TEXT_PANEL.h - 5.f;
+	const float barH = static_cast<float>(CREDITS_VISIBLE_ROWS) * CREDITS_ROW_H;
+	return {{right + 3.f, top - barH, 1.6f, barH}, static_cast<int>(flatten(credits).size()), CREDITS_VISIBLE_ROWS};
 }
 
 void MainMenu::DrawCreditsText() {
@@ -54,7 +61,8 @@ void MainMenu::DrawCreditsText() {
 	const float right = CREDITS_TEXT_PANEL.x + CREDITS_TEXT_PANEL.w - 7.f; // room for the scroll bar
 	const float top = CREDITS_TEXT_PANEL.y + CREDITS_TEXT_PANEL.h - 5.f;
 	const int total = static_cast<int>(rows.size());
-	creditsScroll = std::clamp(creditsScroll, 0, std::max(0, total - CREDITS_VISIBLE_ROWS));
+	const ScrollBar bar = CreditsBar();
+	creditsScroll = std::clamp(creditsScroll, 0, bar.MaxScroll());
 	for (int i = 0; i < CREDITS_VISIBLE_ROWS && creditsScroll + i < total; i++) {
 		const Row& row = rows[static_cast<size_t>(creditsScroll) + static_cast<size_t>(i)];
 		const Rect r = {left, top - static_cast<float>(i + 1) * CREDITS_ROW_H, right - left, CREDITS_ROW_H};
@@ -81,13 +89,8 @@ void MainMenu::DrawCreditsText() {
 		}
 		beginShapes();
 	}
-	if (total > CREDITS_VISIBLE_ROWS) { // the scroll bar: a track and a lapis thumb
-		const float barH = static_cast<float>(CREDITS_VISIBLE_ROWS) * CREDITS_ROW_H;
-		const Rect track = {right + 3.f, top - barH, 1.6f, barH};
-		fillRect(track, WELL, WELL, 0.9f);
-		const float thumbH = barH * static_cast<float>(CREDITS_VISIBLE_ROWS) / static_cast<float>(total);
-		const float travel = barH - thumbH;
-		const float at = travel * static_cast<float>(creditsScroll) / static_cast<float>(total - CREDITS_VISIBLE_ROWS);
-		fillRect({track.x, top - thumbH - at, track.w, thumbH}, LAPIS, LAPIS_DARK, 1.f);
+	if (bar.Shown()) { // the scroll bar: a track and a lapis thumb, lighter while dragged
+		fillRect(bar.track, WELL, WELL, 0.9f);
+		fillRect(bar.Thumb(creditsScroll), creditsDrag.Dragging() ? LAPIS_HOVER_TOP : LAPIS, LAPIS_DARK, 1.f);
 	}
 }

@@ -36,19 +36,12 @@ int scrollTo(int card, int scroll) {
 	return std::clamp(std::clamp(scroll, row - VISIBLE_ROWS + 1, row), 0, MAX_SCROLL);
 }
 
-Rect scrollTrack() {
+ui::ScrollBar scrollBar() {
 	const float top = TOP_CARD_Y + CARD_H;
 	const float bottom = TOP_CARD_Y - (VISIBLE_ROWS - 1) * ROW_STEP;
 	const float gridRight = CARDS_PANEL.cx() + GRID_W / 2;
 	const float x = (gridRight + CARDS_PANEL.x + CARDS_PANEL.w) / 2 - SCROLL_BAR_W / 2;
-	return {x, bottom, SCROLL_BAR_W, top - bottom};
-}
-
-Rect scrollThumb(int scroll) {
-	const Rect track = scrollTrack();
-	const float rowH = track.h / static_cast<float>(ROWS);
-	const float top = track.y + track.h - rowH * static_cast<float>(scroll);
-	return {track.x, top - rowH * VISIBLE_ROWS, track.w, rowH * VISIBLE_ROWS};
+	return {{x, bottom, SCROLL_BAR_W, top - bottom}, ROWS, VISIBLE_ROWS};
 }
 
 } // namespace SkillsLayout

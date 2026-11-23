@@ -6,6 +6,7 @@
 
 #include "ui_layout.h"
 #include "skills.h"
+#include "scroll_bar.h"
 
 namespace SkillsLayout {
 using ui::Rect;
@@ -35,8 +36,7 @@ constexpr float SCROLL_BAR_W = 1.f;
 [[nodiscard]] int cardAt(float x, float y, int scroll = 0);
 // The scroll that shows the card's row, from `scroll` (moved as little as it can).
 [[nodiscard]] int scrollTo(int card, int scroll);
-[[nodiscard]] Rect scrollTrack();
-[[nodiscard]] Rect scrollThumb(int scroll);
+[[nodiscard]] ui::ScrollBar scrollBar(); // the mouse drags it (plan scrollbar-mouse-drag)
 } // namespace SkillsLayout
 
 #endif

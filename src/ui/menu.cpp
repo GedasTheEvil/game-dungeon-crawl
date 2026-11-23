@@ -581,6 +581,10 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 	}
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
+	if (creditsD && creditsText && CreditsBarButton(state == MOUSE_DOWN, x, y)) { // drags or pages the text
+		pointer.Down(NONE, button);
+		return;
+	}
 	if (state == MOUSE_DOWN && optionsD && target >= OPTION_BASE && target < RESET_CONTROLS &&
 		optionRows(optionsTab)[target - OPTION_BASE].kind == OptionKind::Slider) {
 		dragging = target;
@@ -596,6 +600,18 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		pointer.Move(NONE); // the next screen has its own targets
 		Activate(fired);
 	}
+}
+
+bool MainMenu::CreditsBarButton(bool down, int x, int y) {
+	if (!down) {
+		const bool took = creditsDrag.Dragging();
+		creditsDrag.Up();
+		return took;
+	}
+	float cx = 0.f;
+	float cy = 0.f;
+	ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
+	return creditsDrag.Down(CreditsBar(), cx, cy, creditsScroll);
 }
 
 void MainMenu::MousePassiveMotion(int x, int y) {
@@ -614,7 +630,12 @@ void MainMenu::MouseDrag(int x, int y) {
 		MousePassiveMotion(x, y);
 	else if (dragging != NONE)
 		SetSlider(dragging - OPTION_BASE, x);
-	else
+	else if (creditsDrag.Dragging()) {
+		float cx = 0.f;
+		float cy = 0.f;
+		ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, y, cx, cy);
+		creditsDrag.Move(CreditsBar(), cy, creditsScroll);
+	} else
 		pointer.Move(TargetAt(x, y));
 }
 
@@ -664,6 +685,7 @@ void MainMenu::ResetSubScreens() {
 	creditsD = false;
 	creditsText = false;
 	creditsScroll = 0;
+	creditsDrag.Up();
 	helpD = false;
 	recordsD = false;
 	saveD = false;

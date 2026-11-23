@@ -491,6 +491,14 @@ Every screen handles its mouse through one `ui::Pointer<Target>` (`src/level/poi
 
 The wheel, the menu's slider drag and the journal's page drag stay with the screen, before the pointer.
 
+Scroll bars ([scrollbar-mouse-drag](plan/scrollbar-mouse-drag.bug.md)): one `ui::ScrollBar` (track, rows, rows shown)
+and one `ui::ScrollDrag` per bar (`src/level/scroll_bar.h`), for the inventory grid (`InventoryLayout::scrollBar`), the
+Heka cards (`SkillsLayout::scrollBar`), the credits text (`MainMenu::CreditsBar`) and the editor's palette
+(`paletteScrollBar`). Draw `track` and `Thumb(scroll)` (the thumb lighter while `Dragging()`). A left press goes to
+`ScrollDrag::Down` before the pointer: true means the bar took it (the thumb is held, or the track paged by the rows
+shown), so press nothing (`pointer.Down(none, ...)`). Motion: `Move`; release: `Up`. The bar hits `GRAB_PAD` beside
+its thin track: keep that clear of the slots. A new scrolling list gets the same pair, not its own maths.
+
 Keys ([keyboard-menus](plan/solved/keyboard-menus.md)): `navKeyOf` (`src/level/bindings.h`) turns a key into a
 `NavKey`: the arrows, Enter and Space, and the keys bound to move left / right, climb up / down and interact. `hovered`
 is the focus, so a focused tile looks hovered; the mouse moves it too.

@@ -12,6 +12,15 @@ int positionOf(const GridOrder& order, int slot) {
 
 int rowsOf(ItemGroup group) { return (groupItems(group).count + COLUMNS - 1) / COLUMNS; }
 
+ui::ScrollBar scrollBar(ItemGroup group) {
+	constexpr float W = 1.f;
+	const float top = TOP_ROW_Y + SLOT_H;
+	const float bottom = TOP_ROW_Y - (VISIBLE_ROWS - 1) * (SLOT_H + SLOT_GAP);
+	const float gridRight = ITEMS_PANEL.cx() + GRID_W / 2;
+	const float x = (gridRight + ITEMS_PANEL.x + ITEMS_PANEL.w) / 2 - W / 2;
+	return {{x, bottom, W, top - bottom}, rowsOf(group), VISIBLE_ROWS};
+}
+
 int rowOf(const GridOrder& order, int slot) { return positionOf(order, slot) / COLUMNS; }
 
 Rect slotRect(const GridOrder& order, int slot, int scroll) {

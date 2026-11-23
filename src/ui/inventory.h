@@ -60,6 +60,7 @@ class Inventory final : public UiScreen {
 		bool operator==(const Pick&) const = default;
 	};
 	ui::Pointer<Pick> pointer;
+	ui::ScrollDrag scrollDrag; // the bar's thumb held (plan scrollbar-mouse-drag)
 
 	float slotAngle[ITEM_KIND_COUNT] = {}; // model turntable angle per slot
 	int lastFrameMs = 0;

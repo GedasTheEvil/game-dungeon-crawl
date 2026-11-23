@@ -3,7 +3,7 @@
 #include "../../tools/editor/palette_scroll.h"
 
 namespace {
-constexpr ui::Rect PANEL = {84.f, 53.f, 70.f, 27.f}; // as TILES_PANEL in the editor
+constexpr ui::Rect PANEL = {84.f, 53.f, 72.f, 27.f}; // as TILES_PANEL in the editor
 constexpr int DECOR_SLOTS = 34;
 } // namespace
 

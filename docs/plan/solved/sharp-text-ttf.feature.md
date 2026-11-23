@@ -1,10 +1,10 @@
 # Sharp text: glyphs rasterised from the TrueType font at the screen pixel size
 
-Status: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-23, size L, needs nothing first.
+Status: solved 2026-11-23 (play-tested by the user). Was: implemented 2026-11-23, waiting for the user's play-test. Was: draft 2026-11-23, size L, needs nothing first.
 
 ## Idea
 
-The user, 2026-11-23: with Options > Display > Text font on DejaVu ([ui-font-setting](solved/ui-font-setting.feature.md)),
+The user, 2026-11-23: with Options > Display > Text font on DejaVu ([ui-font-setting](ui-font-setting.feature.md)),
 the text looks nice but blurry. Investigate TrueType fonts instead of the font sheet textures; other ways to make the
 text sharp are welcome too.
 
@@ -36,7 +36,7 @@ heavy; D is a weaker A.
 Library for A: **SDL3_ttf** (decided 2026-11-23; the user installed `libsdl3-ttf-dev`, 3.2.2). FreeType hinting gives
 the best small text; the game already links SDL3. Flags from `pkg-config --cflags --libs sdl3-ttf` in the `makefile`
 (game, and the editor if its small text moves too); add the package to the install helper
-([install-helper-script](solved/install-helper-script.feature.md)) and the build docs. Bake with `TTF_RenderGlyph_Blended`
+([install-helper-script](install-helper-script.feature.md)) and the build docs. Bake with `TTF_RenderGlyph_Blended`
 (or `_LCD` off: grey only) per glyph into the atlas; `TTF_SetFontHinting` normal or light, compare both.
 
 ## Plan
@@ -65,7 +65,7 @@ the best small text; the game already links SDL3. Flags from `pkg-config --cflag
   the editor's small text (`tools/editor/editor.cpp`, same sheet). Parchment, Kalam, Courier, Impact stay sheets in
   this plan. Parchment stays a bitmap sheet for good (the user, 2026-11-23: it looks great now, no change needed):
   no TTF, no snapping or filter change on it. Kalam (OFL) and Courier could follow in a later plan.
-* `tools/textures/font_sheet.py` and the sheets stay for the fonts not moved. Docs: [ui.md](../ui.md#fonts) Fonts
+* `tools/textures/font_sheet.py` and the sheets stay for the fonts not moved. Docs: [ui.md](../../ui.md#fonts) Fonts
   section (TTF vs sheet, the re-bake), glossary row for the atlas term, `tools/where.py` row.
 * Tests: a unit test that a baked font's `TextWidth` in canvas units stays within a few percent at 720p and 1440p
   (layout must not depend on resolution beyond rounding); a scenario screenshotting body text at two window sizes.
@@ -103,7 +103,7 @@ the best small text; the game already links SDL3. Flags from `pkg-config --cflag
 * DejaVu TTF in `media/fonts/` with its licence (moved from `media/textures/fonts/`); the DejaVu sheet PNG deleted
   (nothing else used it). The level editor's small, tiny and tinier text moved to TrueType too.
 * Hinting: light only (vertical); normal was not compared, the light result is crisp at 720p and 1440p.
-* Scenario command `uifont parchment|dejavu`; scenarios `tests/scenarios/sharp_text_ttf.txt` (720p) and
+* Scenario command `uifont parchment|dejavu`; scenarios `tests/scenarios/solved/sharp_text_ttf.txt` (720p) and
   `sharp_text_ttf_1440.txt` (1440p): HUD, inventory, Heka, journal. Unit test `tests/unit/truetype_test.cpp`.
 * Install-check knows `libfreetype6` and its libs; development.md lists FreeType.
 * Render snapshots: no DejaVu in them; the 6 failing (Options tabs, credits) date from earlier plans

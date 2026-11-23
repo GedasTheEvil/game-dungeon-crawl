@@ -15,7 +15,7 @@ Terms used in the game, the code and the docs: [glossary.md](glossary.md). Git w
   game mixes its own sounds on SDL3 audio streams (`src/audio/mixer.*`, plan
   [sdl3-audio](plan/solved/sdl3-audio.feature.md))
 * FreeType (`libfreetype-dev`, found by `pkg-config freetype2`; the TrueType text, plan
-  [sharp-text-ttf](plan/sharp-text-ttf.feature.md)). FreeType itself, not SDL3_ttf: the libraries have no SDL
+  [sharp-text-ttf](plan/solved/sharp-text-ttf.feature.md)). FreeType itself, not SDL3_ttf: the libraries have no SDL
 * Python 3 (`tools/plan.py`, run by `make check`; the asset scripts)
 * clang-format, clang-tidy (`make format`, `make tidy`)
 

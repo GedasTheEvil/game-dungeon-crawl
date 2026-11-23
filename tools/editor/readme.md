@@ -149,7 +149,7 @@ Tile and prop icons (`prop_<name>.png`, `torch.png`, `no_torch.png`, `bare.png`)
 `media/textures/decorations/decals.png`. Fonts and backgrounds come from the game's `media/textures/fonts/` and
 `media/textures/ui/`: the title, headings and body text are parchment, as in the game; the small text (palette names,
 the readout, the hints, the footer) is DejaVu Sans Condensed Bold, from its TrueType file `media/fonts/` baked at the
-drawn pixel size, so it stays sharp this small (plan [sharp-text-ttf](../../docs/plan/sharp-text-ttf.feature.md)). A palette name too wide for its tile is drawn a size smaller.
+drawn pixel size, so it stays sharp this small (plan [sharp-text-ttf](../../docs/plan/solved/sharp-text-ttf.feature.md)). A palette name too wide for its tile is drawn a size smaller.
 
 ## Structure reference
 

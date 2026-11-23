@@ -554,7 +554,7 @@ strokes). The TTFs stay outside the repo: Kalam from Google Fonts (`ofl/kalam/Ka
 `Font::Load` takes an optional `TexFilter` last: `Flat` (the default) for text drawn at about its sheet size or
 larger, `Mipmapped` for text drawn much smaller than its sheet cells, where thin strokes would break up.
 
-**TrueType fonts** (plan [sharp-text-ttf](plan/sharp-text-ttf.feature.md)): DejaVu Sans Condensed Bold is no sheet but
+**TrueType fonts** (plan [sharp-text-ttf](plan/solved/sharp-text-ttf.feature.md)): DejaVu Sans Condensed Bold is no sheet but
 its TTF, `media/fonts/DejaVuSansCondensed-Bold.ttf` (`ui::DEJAVU_FONT`, licence `media/fonts/dejavu-LICENSE.txt`),
 loaded with `Font::LoadTrueType(file, size, spacing)`. FreeType (`render/truetype.*`, `TrueTypeFace`; not SDL3_ttf: the
 libraries have no SDL) reads its advances, kerning and cap height; `Font::draw` bakes the printable ASCII glyphs into a

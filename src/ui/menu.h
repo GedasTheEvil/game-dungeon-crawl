@@ -31,7 +31,8 @@ class MainMenu {
 	static constexpr int HELP_KEYS = 111; // How to Play: to Options > Controls
 	static constexpr int CREDITS_PAGE = 112; // Credits: the button to the other page (plan credits-second-section)
 	static constexpr int TAB_BASE = 200; // options tabs
-	static constexpr int OPTION_BASE = 300; // Options > Display / Sound: the row's switch, choice or slider
+	static constexpr int OPTION_BASE =
+		300; // Options > Mouse / Display / Graphics / Sound: the row's switch, choice or slider
 	static constexpr int RESET_CONTROLS = 390; // Options > Controls: back to the default keys
 	static constexpr int BIND_BASE = 400; // Options > Controls: action * BINDING_SLOTS + slot
 	static constexpr int RECORDS_BASE = 600; // Hall of Records: its own targets (RecordsView)
@@ -41,6 +42,7 @@ class MainMenu {
 
 	bool assetsLoaded = false;
 	Font title, heading, body, small;
+	int fontGeneration = -1; // ensureScreenFonts
 	Texture creditsSheet;
 	ui::Toast toast; // feedback line after an action
 	int optionsTab = 0;

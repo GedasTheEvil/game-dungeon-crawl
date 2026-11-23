@@ -77,7 +77,7 @@ bool setBlend(float t);
 
 // Brightness multiplier around 1 for a fire with this seed at the current game time; 1 with the flicker off.
 float flicker(uint32_t seed, float amount);
-// Options > Display > Light flicker. On at start.
+// Options > Graphics > Light flicker. On at start.
 void setFlicker(bool on);
 
 } // namespace Lighting

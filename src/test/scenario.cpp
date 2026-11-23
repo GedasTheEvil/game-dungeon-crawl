@@ -335,7 +335,7 @@ void runSetupCommand(const Command& cmd) {
 		Game().camera.rotN = cmd.b;
 		report(cmd, true, "");
 		return;
-	case CommandType::Motion: // Options > Display > Motion effects
+	case CommandType::Motion: // Options > Graphics > Motion effects
 		Game().settings.graphics.motionEffects = cmd.a > 0.5f;
 		Game().dungeon.SetMotionEffects(cmd.a > 0.5f);
 		report(cmd, true, "");
@@ -349,7 +349,7 @@ void runSetupCommand(const Command& cmd) {
 		MotionFx::setToonBlurFirst(cmd.a > 0.5f);
 		report(cmd, true, "");
 		return;
-	case CommandType::CutScenes: // Options > Display > Cut-scenes (off in scenarios)
+	case CommandType::CutScenes: // Options > Graphics > Cut-scenes (off in scenarios)
 		Game().settings.graphics.cutScenes = cmd.a > 0.5f;
 		Game().dungeon.SetCutScenes(cmd.a > 0.5f);
 		report(cmd, true, "");

@@ -39,7 +39,7 @@ class WinEntry {
 	std::string name;
 	int marked = -1; // the recorded run's row in the Hall of Records (RecordsView::NONE: none)
 	ConfirmBox confirm; // "Leave without entering the Hall of Records?"
-	bool fontsLoaded = false;
+	int fontGeneration = -1; // ensureScreenFonts
 	Font title, heading, body, small;
 
 	void record();

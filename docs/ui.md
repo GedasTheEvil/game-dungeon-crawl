@@ -172,9 +172,10 @@ with white alpha 0.035 (Options).
 
 ### Options rows and key cells
 
-Options tabs: Controls, Display and Sound.
+Options tabs: Controls, Mouse, Display, Graphics and Sound.
 
-* Display and Sound: one striped row a setting (`DISPLAY_ROWS`, `SOUND_ROWS` in `menu_options.cpp`): name in `body`
+* Mouse, Display, Graphics and Sound: one striped row a setting (`MOUSE_ROWS`, `DISPLAY_ROWS`, `GRAPHICS_ROWS`,
+  `SOUND_ROWS` in `menu_options.cpp`, at most ten): name in `body`
   `LABEL`, what it does in `small` `LABEL_DIM`, the control on the right. A row's kind picks the control: a switch
   (On / Off tile, lapis when on), a choice (stone tile with the value, a click steps to the next; disabled when it
   does not apply) or a slider (dark track filled lapis up to a gold knob, the number in `heading` to its right; it
@@ -554,7 +555,14 @@ strokes). The TTFs stay outside the repo: Kalam from Google Fonts (`ofl/kalam/Ka
 larger, `Mipmapped` for text drawn much smaller than its sheet cells, where thin strokes would break up (the level
 editor's small text, `media/textures/fonts/dejavu-condensed-bold.png`, DejaVu Sans Condensed Bold, licence
 `media/textures/fonts/dejavu-LICENSE.txt`).
-Each screen loads four sizes on its first frame (fonts need the GL context):
+The UI font setting (Options > Display > Text font, `ui_font` in [settings.md](settings.md),
+[ui-font-setting](plan/ui-font-setting.feature.md)) switches the `body` and `small` fonts below and the HUD's
+`hudBody` / `hudSmall` to DejaVu Sans Condensed Bold, mipmapped, at parchment's size and spacing (about the same line
+lengths: DejaVu is condensed, its x-height taller); `ui::loadBodyFont` loads a body font from the chosen sheet. `title` and `heading` (titles, headings, button labels, tabs), the boss bar's and the zone banner's names, the
+loading screen, Kalam, Courier and Impact stay as they are.
+Each screen loads four sizes as it draws, through `ui::ensureScreenFonts` (fonts need the GL context): all four on its
+first frame, the body and small ones again when the UI font changed since (`ui::bodyFontGeneration()`); the HUD's two
+through `FontSet::RefreshBodyFonts` at the start of each frame.
 
 | Font | `Load(file, size, spacing, true)` | Use |
 |---|---|---|

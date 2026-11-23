@@ -2,9 +2,17 @@
 #define SETTINGS_INI_H
 
 #include "bindings.h"
+#include <cstdint>
 #include <istream>
 #include <string>
 #include <vector>
+
+// The sheet of the UI's body and small text (plan ui-font-setting); titles and headings stay parchment.
+enum class UiFont : std::uint8_t { Parchment, DejavuCondensedBold };
+// Its name in settings.ini: "parchment", "dejavu-condensed-bold".
+[[nodiscard]] const char* uiFontName(UiFont font);
+// The font of a name, case-insensitive; false (out untouched) when unknown.
+[[nodiscard]] bool parseUiFont(const std::string& name, UiFont& out);
 
 // What saves/settings.ini holds (docs/settings.md): the Options choices. GL-free; src/state/settings.h reads and
 // writes the file.
@@ -21,6 +29,7 @@ struct Settings {
 		int frameRate = 0;
 		// The final picture's brightness in percent (plan settings-extras): a gamma, brightenedChannel.
 		int brightness = 100;
+		UiFont uiFont = UiFont::Parchment; // the body and small text's sheet (plan ui-font-setting)
 	} display;
 	struct Graphics {
 		bool motionEffects = true; // sprint blur, FOV kick, vignette

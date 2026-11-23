@@ -69,6 +69,7 @@ class Inventory final : public UiScreen {
 	ConfirmBox confirm; // "Offer the ... to Ptah?" over the screen (plan shrine-offerings)
 
 	Font title, heading, body, small;
+	int fontGeneration = -1; // ensureScreenFonts
 
 	[[nodiscard]] Item* Model(ItemKind kind) const;
 	[[nodiscard]] bool CanUse(int slot, const char** reason) const;

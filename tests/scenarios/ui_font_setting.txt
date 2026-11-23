@@ -1,0 +1,112 @@
+# Plan ui-font-setting: Options > Display > Text font switches the body and small text of every screen from parchment
+# to DejaVu Sans Condensed Bold, the titles and headings stay. Each screen shot once per font: HUD, inventory, Heka,
+# journal, Options, How to Play, credits page 2.
+seed 1
+god
+level tests/levels/classic1
+give melee 4
+give ranged 1
+give potion 0 3
+give amulet 8
+give ring 4
+xp 3000
+wait 10
+screenshot hud_parchment
+key i
+wait 3
+screenshot inventory_parchment
+key esc
+wait 3
+key k
+wait 3
+screenshot skills_parchment
+key esc
+wait 3
+key j
+wait 3
+screenshot journal_parchment
+key esc
+wait 3
+# Options: the in-game menu's fifth button, the Display tab (third), its last row (sixth).
+key esc
+wait 2
+key down
+key down
+key down
+key down
+key down
+key enter
+wait 2
+key right
+key right
+wait 2
+key down
+key down
+key down
+key down
+key down
+key down
+wait 2
+screenshot options_parchment
+key enter
+wait 2
+screenshot options_dejavu
+key esc
+wait 2
+screenshot menu_dejavu
+key esc
+wait 3
+screenshot hud_dejavu
+key i
+wait 3
+screenshot inventory_dejavu
+key esc
+wait 3
+key k
+wait 3
+screenshot skills_dejavu
+key esc
+wait 3
+key j
+wait 3
+screenshot journal_dejavu
+key esc
+wait 3
+# How to Play, then the main menu's credits, page 2.
+key esc
+wait 2
+key down
+key down
+key down
+key down
+key down
+key down
+key enter
+wait 2
+screenshot help_dejavu
+key esc
+wait 2
+key esc
+wait 2
+key esc
+wait 2
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key enter
+wait 2
+screenshot main_menu_dejavu
+key down
+key down
+key down
+key down
+key down
+key enter
+wait 2
+key enter
+wait 2
+screenshot credits_dejavu

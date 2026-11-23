@@ -135,12 +135,12 @@ MainMenu::~MainMenu() {}
 
 // The menu exists before the GL context, so the fonts and the credits sheet load on the first frame.
 void MainMenu::LoadAssets() {
+	ensureScreenFonts(title, heading, body, small, 8.f, fontGeneration); // the UI font may change in Options
 	if (assetsLoaded)
 		return;
 	assetsLoaded = true;
 	creditsSheet.LoadPNG(MEDIA_DIR "textures/ui/credits.png", TexFilter::Flat);
 	credits = LoadCredits(CONTENT_DIR "credits");
-	loadScreenFonts(title, heading, body, small, 8.f);
 }
 
 void MainMenu::ShowToast(const std::string& text) { toast.Show(text, GameClock::now()); }

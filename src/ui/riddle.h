@@ -28,6 +28,7 @@ class Riddle {
 	int misses = 0;
 	int wrongAtMs = -100000;
 	Font title, heading, body, small;
+	int fontGeneration = -1; // ensureScreenFonts
 
 	[[nodiscard]] bool CheckAnswer() const;
 	void shuffleDeck(Rng& rng); // refills `deck` with the common riddles

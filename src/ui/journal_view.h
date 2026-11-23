@@ -87,7 +87,7 @@ class JournalScreen final : public UiScreen {
 	enum class PageSlot : std::uint8_t { Left, Right, Front, Back };
 	static constexpr size_t PAGE_SLOTS = 4;
 
-	bool fontsLoaded = false;
+	int fontGeneration = -1; // ensureScreenFonts
 	Font title, heading, body, small;
 	Font handHeading, hand, handSmall, handTiny; // the archaeologist's handwriting, for what is written on the pages
 	Font stamp, stampSmall; // typewriter: page and catalogue numbers

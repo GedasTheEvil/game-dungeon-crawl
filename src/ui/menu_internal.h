@@ -45,7 +45,7 @@ constexpr int AUTOSAVE_TARGET = SaveSlots::COUNT; // the click target after the 
 constexpr int QUICKSAVE_TARGET = AUTOSAVE_TARGET + 1; // plan quick-save: right of the autosave
 
 constexpr Rect OPTIONS_PANEL = {6, 20, 148, 64};
-constexpr float TAB_W = 30.f;
+constexpr float TAB_W = 26.f; // five tabs across OPTIONS_PANEL
 constexpr float TAB_H = 7.f;
 constexpr float OPTIONS_LEFT = OPTIONS_PANEL.x + 5; // the tab contents, the rule under the tabs
 constexpr float OPTIONS_RIGHT = OPTIONS_PANEL.x + OPTIONS_PANEL.w - 5;
@@ -64,7 +64,7 @@ constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be 
 
 // Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
 constexpr float OPTION_TOP = 71.5f;
-constexpr float OPTION_H = 5.04f; // ten Display rows above the panel's bottom edge
+constexpr float OPTION_H = 5.04f; // ten rows above the panel's bottom edge
 constexpr float SWITCH_W = 22.f;
 constexpr float CHOICE_W = 30.f;
 constexpr float SLIDER_W = 44.f;
@@ -101,11 +101,14 @@ Rect visibleArea(const RenderSettings& render);
 
 // ---- options ----------------------------------------------------------------
 
-constexpr std::array<const char*, 4> TABS = {"Controls", "Mouse", "Display", "Sound"};
+// Display holds [display] of settings.ini, Graphics [graphics] (plan ui-font-setting split them: the Text font row
+// did not fit an eleventh row).
+constexpr std::array<const char*, 5> TABS = {"Controls", "Mouse", "Display", "Graphics", "Sound"};
 constexpr int CONTROLS_TAB = 0;
 constexpr int MOUSE_TAB = 1;
 constexpr int DISPLAY_TAB = 2;
-constexpr int SOUND_TAB = 3;
+constexpr int GRAPHICS_TAB = 3;
+constexpr int SOUND_TAB = 4;
 
 enum class MouseInput : std::uint8_t { None, Left, Middle, Right };
 
@@ -118,6 +121,7 @@ enum class OptionId : std::uint8_t {
 	AnimationRate,
 	FrameRate,
 	Brightness,
+	UiFont,
 	MotionEffects,
 	Toon,
 	Blood,

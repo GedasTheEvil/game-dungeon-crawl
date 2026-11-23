@@ -148,10 +148,10 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `jump`, `attack`, `interact` | Same as the key press (interact = open a chest, take its item once open (a second press, after its clip), a riddle, ...). |
 | `attack up` | The attack key let go: a [power hit](plan/solved/skill-power-hit.md)'s charge (begun by `attack` with the skill and the stamina-skill toggle on) swings on the next tick. |
 | `camera M N` | Set the camera `rotM`/`rotN` (not clamped). |
-| `motion on\|off` | Options > Display > Motion effects (sprint blur, FOV kick, vignette). On by default; scenarios never read or write `saves/settings.ini` ([settings.md](settings.md)): they run with the default settings and key bindings. |
+| `motion on\|off` | Options > Graphics > Motion effects (sprint blur, FOV kick, vignette). On by default; scenarios never read or write `saves/settings.ini` ([settings.md](settings.md)): they run with the default settings and key bindings. |
 | `toon on\|off` | Toon shading (F1): cel-banded lights and ink outlines. |
 | `toonblurfirst on\|off` | Toon mode's sprint blur before the ink lines (on) or over the finished picture (off, default); plan sprint-toon-blur-and-extras. |
-| `cutscenes on\|off` | Options > Display > Cut-scenes: a lever or a boss's death that opens a gate off the screen shows it ([cinematic effects](plan/solved/cinematic-effects.md)). Off in scenarios, so their timings stay; any `key` skips a cut-scene playing. |
+| `cutscenes on\|off` | Options > Graphics > Cut-scenes: a lever or a boss's death that opens a gate off the screen shows it ([cinematic effects](plan/solved/cinematic-effects.md)). Off in scenarios, so their timings stay; any `key` skips a cut-scene playing. |
 | `hitboxes on\|off` | Debug outlines (F3 with `--debug`): monster hitboxes red, the player's green, the equipped weapon's reach yellow. Only after `level` (a level load keeps it). |
 | `hints on\|off` | The first hints ([controls-help](plan/solved/controls-help.feature.md)) in this run, though it is no campaign run; also their switch. Off by default in scenarios (no campaign run). |
 | `gifts on\|off` | Every shrine offering brings a gift ([offering-gift](plan/solved/offering-gift.feature.md)); the god's weights still pick which. Off by default. |
@@ -246,7 +246,7 @@ bin/snapdiff [--threshold N] [--tolerance PCT] [--diff DIR] REF_DIR OUT_DIR
   traps run on the game clock), `monsters` (models mid-clip, hit blood, a stun's stars, a boss rising with its bar, its
   bolt, the Anubis guard out of the wall), `effects` (toon ink, sprint blur and its toon order, hurt, blind, daze,
   poison and burning, the death screen, the ankh's choice and the epilogue, brightness) and `ui` (the in-game and main
-  menus, load, options' four tabs, how to play, credits, Hall of Records, inventory tabs and the amulet turntable, HUD
+  menus, load, options' five tabs, how to play, credits, Hall of Records, inventory tabs and the amulet turntable, HUD
   states, draft map, journal and its page curl, riddle, Heka screen, the tooltip, status lines over the banner, the
   confirm box). Not covered: the Hall of Records with a run in it (a record's date is the real day).
 * `tools/snapshots.sh` runs them through `tools/run_scenarios.sh` (Xvfb, llvmpipe, `--no-sound`) and copies each

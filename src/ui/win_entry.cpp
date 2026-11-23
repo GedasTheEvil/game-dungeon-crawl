@@ -110,10 +110,7 @@ void WinEntry::record() {
 void WinEntry::Draw(int resX, int resY) {
 	if (state != State::Typing)
 		return;
-	if (!fontsLoaded) {
-		fontsLoaded = true;
-		loadScreenFonts(title, heading, body, small, 7.f);
-	}
+	ensureScreenFonts(title, heading, body, small, 7.f, fontGeneration);
 	const Rect area = visibleArea(CANVAS_W, CANVAS_H, resX, resY);
 	beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);

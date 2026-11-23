@@ -21,7 +21,7 @@ class CutScene {
 		int cell;
 		int arrivalMs;
 	};
-	void SetEnabled(bool on) { enabled = on; } // Options > Display > Cut-scenes; off: remote gates open unseen
+	void SetEnabled(bool on) { enabled = on; } // Options > Graphics > Cut-scenes; off: remote gates open unseen
 	// The cut-scene for the gates just opened (cells): the nearest CUTSCENE_MAX_STOPS outside view, from the player at
 	// (x, y). Empty (none started): off, one already playing, or all on the screen.
 	std::vector<Stop> Start(const std::vector<int>& opened, ViewWindow view, float x, float y);

@@ -31,7 +31,7 @@ MouseInput mouseInput(const InputKey& key) {
 	}
 }
 
-constexpr std::array<OptionRow, 10> DISPLAY_ROWS = {{
+constexpr std::array<OptionRow, 6> DISPLAY_ROWS = {{
 	{OptionId::WindowSize, OptionKind::Choice, "Window size", "Click for the next size, or drag the window"},
 	{OptionId::Fullscreen, OptionKind::Switch, "Fullscreen", "The whole screen, no window frame"},
 	{OptionId::Brightness, OptionKind::Slider, "Brightness", "Set the ankh in the black box barely visible"},
@@ -40,6 +40,9 @@ constexpr std::array<OptionRow, 10> DISPLAY_ROWS = {{
 	 "Animation rate",
 	 "Poses a second of the figures, or key frames only"},
 	{OptionId::FrameRate, OptionKind::Choice, "Frame rate", "Frames a second; lower saves power and heat"},
+	{OptionId::UiFont, OptionKind::Choice, "Text font", "The letters of the text; headings stay"},
+}};
+constexpr std::array<OptionRow, 5> GRAPHICS_ROWS = {{
 	{OptionId::MotionEffects, OptionKind::Switch, "Motion effects", "Sprint blur, wider view and darker edges"},
 	{OptionId::Toon, OptionKind::Switch, "Toon shading", "Cel bands and ink outlines (F1)"},
 	{OptionId::Blood, OptionKind::Switch, "Blood", "Blood splashes of hits and deaths"},
@@ -64,6 +67,8 @@ OptionRows optionRows(int tab) {
 		return {SOUND_ROWS.data(), static_cast<int>(SOUND_ROWS.size())};
 	if (tab == DISPLAY_TAB)
 		return {DISPLAY_ROWS.data(), static_cast<int>(DISPLAY_ROWS.size())};
+	if (tab == GRAPHICS_TAB)
+		return {GRAPHICS_ROWS.data(), static_cast<int>(GRAPHICS_ROWS.size())};
 	if (tab == MOUSE_TAB)
 		return {MOUSE_ROWS.data(), static_cast<int>(MOUSE_ROWS.size())};
 	return {DISPLAY_ROWS.data(), 0}; // the Controls tab has its own table
@@ -224,6 +229,13 @@ void MainMenu::DrawRows() {
 			);
 			if (windowSize)
 				std::snprintf(value, sizeof(value), "%d x %d", settings.display.width, settings.display.height);
+			else if (row.id == OptionId::UiFont)
+				std::snprintf(
+					value,
+					sizeof(value),
+					"%s",
+					settings.display.uiFont == UiFont::Parchment ? "Parchment" : "DejaVu"
+				);
 			else if (row.id == OptionId::FrameRate) {
 				const int rate = settings.display.frameRate;
 				if (rate == FRAME_RATE_MONITOR)
@@ -403,6 +415,9 @@ void MainMenu::ActivateOption(int row, int step) {
 			display.frameRate = at == FRAME_RATES.end() || at + 1 == FRAME_RATES.end() ? FRAME_RATES[0] : *(at + 1);
 		else
 			display.frameRate = at == FRAME_RATES.end() || at == FRAME_RATES.begin() ? FRAME_RATES.back() : *(at - 1);
+	} else if (option.id == OptionId::UiFont) {
+		// Two fonts: either step goes to the other (plan ui-font-setting); the screens reload theirs as they draw.
+		display.uiFont = display.uiFont == UiFont::Parchment ? UiFont::DejavuCondensedBold : UiFont::Parchment;
 	} else if (option.kind == OptionKind::Switch) {
 		bool& on = switchOf(world, option.id);
 		on = !on;

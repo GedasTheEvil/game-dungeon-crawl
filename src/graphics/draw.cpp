@@ -171,6 +171,7 @@ void Draw() {
 	if (!Game().cacheLoaded)
 		return;
 	FrameRate::drawStarted();
+	Game().assets.fonts.RefreshBodyFonts(); // the UI font setting may have changed (plan ui-font-setting)
 
 	switch (Game().ui.screen) {
 	case Screen::Menu:

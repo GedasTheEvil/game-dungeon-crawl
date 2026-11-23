@@ -274,3 +274,23 @@ TEST_CASE("frame redraw due") {
 		CHECK(warnings.size() == 1);
 	}
 }
+
+// Plan ui-font-setting: the UI font, parchment by default, written and read back by name.
+TEST_CASE("the UI font: default, round trip and a bad name") {
+	CHECK(Settings{}.display.uiFont == UiFont::Parchment);
+	CHECK(parse("[display]\nbrightness = 100\n").display.uiFont == UiFont::Parchment); // an old file: the default
+
+	Settings s;
+	s.display.uiFont = UiFont::DejavuCondensedBold;
+	const std::string text = writeSettings(s);
+	CHECK(text.contains("ui_font = dejavu-condensed-bold\n"));
+	CHECK(parse(text).display.uiFont == UiFont::DejavuCondensedBold);
+	CHECK(writeSettings(Settings{}).contains("ui_font = parchment\n"));
+	CHECK(parse("[display]\nui_font = DejaVu-Condensed-Bold\n").display.uiFont == UiFont::DejavuCondensedBold);
+
+	std::vector<std::string> warnings;
+	const Settings bad = parse("[display]\nui_font = comic-sans\n", warnings);
+	CHECK(bad.display.uiFont == UiFont::Parchment);
+	REQUIRE(warnings.size() == 1);
+	CHECK(warnings[0].contains("ui_font"));
+}

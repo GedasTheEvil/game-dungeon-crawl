@@ -45,7 +45,7 @@ class SkillsScreen final : public UiScreen {
 	bool confirming = false; // the first press of Learn: the next one learns
 	ui::Toast toast;
 	Font title, heading, body, small;
-	bool fontsLoaded = false;
+	int fontGeneration = -1; // ensureScreenFonts
 
 	void LoadFonts();
 	std::vector<std::string> EffectLines(int card, bool rankTwo);

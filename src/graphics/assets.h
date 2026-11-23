@@ -63,6 +63,9 @@ struct FontSet {
 	Font hud; // bold digits for the HUD level gem
 	Font hudBody; // the player HUD's health numbers
 	Font hudSmall; // the player HUD's key caps and counts
+	int bodyGeneration = -1; // ui::bodyFontGeneration() hudBody and hudSmall were loaded at (plan ui-font-setting)
+	// Reloads hudBody and hudSmall from the UI font setting's sheet when it changed since their last load.
+	void RefreshBodyFonts();
 };
 
 struct ItemPrototypes {

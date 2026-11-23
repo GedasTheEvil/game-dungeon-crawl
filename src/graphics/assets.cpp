@@ -2,6 +2,7 @@
 #include "../render/batch.h"
 #include "../render/gl_includes.h"
 #include "../render/matrix_stack.h"
+#include "../render/ui_draw.h"
 #include "../game/window.h"
 #include "../level/monster_kinds.h"
 #include <cstdio>
@@ -436,10 +437,17 @@ void loadFonts(FontSet& fonts) {
 	fonts.status.Load(MEDIA_DIR "textures/fonts/parchment.png", 5, 0.3f, true);
 	fonts.banner.Load(MEDIA_DIR "textures/fonts/parchment.png", 7, 0.3f, true);
 	fonts.hud.Load(MEDIA_DIR "textures/fonts/impact.png", 11, 0.2f, true);
-	fonts.hudBody.Load(MEDIA_DIR "textures/fonts/parchment.png", 4.2f, 0.12f, true);
-	fonts.hudSmall.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.f, 0.08f, true);
+	fonts.RefreshBodyFonts();
 }
 } // namespace
+
+void FontSet::RefreshBodyFonts() {
+	if (bodyGeneration == ui::bodyFontGeneration())
+		return;
+	bodyGeneration = ui::bodyFontGeneration();
+	ui::loadBodyFont(hudBody, 4.2f, 0.12f);
+	ui::loadBodyFont(hudSmall, 3.f, 0.08f);
+}
 
 void Assets::Load(const std::function<void(float, const char*, const char*)>& progress) {
 	// Plan faster-loading: the PNGs and the monster models are decoded on these threads, GL stays on this one.

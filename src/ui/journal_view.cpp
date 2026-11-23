@@ -464,16 +464,15 @@ void JournalScreen::MouseFunction(int button, int state, int x, int y) {
 // ---- drawing ---------------------------------------------------------------
 
 void JournalScreen::Draw() {
-	if (!fontsLoaded) {
-		loadScreenFonts(title, heading, body, small, 7.f);
+	if (fontGeneration < 0) {
 		handHeading.Load(HAND_FONT, 5.f, 0.12f, true);
 		hand.Load(HAND_FONT, 3.6f, 0.08f, true);
 		handSmall.Load(HAND_FONT, 3.f, 0.06f, true);
 		handTiny.Load(HAND_FONT, 2.5f, 0.05f, true);
 		stamp.Load(STAMP_FONT, 3.6f, 0.f, true);
 		stampSmall.Load(STAMP_FONT, 2.5f, 0.f, true);
-		fontsLoaded = true;
 	}
+	ensureScreenFonts(title, heading, body, small, 7.f, fontGeneration);
 	PaginateLog();
 	for (int s = 0; s < SECTION_COUNT; s++)
 		spread[static_cast<size_t>(s)] = std::clamp(

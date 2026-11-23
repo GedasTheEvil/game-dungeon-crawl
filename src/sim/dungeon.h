@@ -409,7 +409,7 @@ class Dungeon {
 	int lockedHintMs = -1000000; // last "the gate is locked" message, to keep it from repeating every step
 	int waterHintMs = -1000000; // last "too deep to jump" message
 	int sprintPuffMs = -1000000; // last dust puff of a sprint step (plan sprint-toon-blur-and-extras)
-	bool motionEffectsOn = true; // Options > Display > Motion effects (SetMotionEffects): the sprint's dust
+	bool motionEffectsOn = true; // Options > Graphics > Motion effects (SetMotionEffects): the sprint's dust
 	int wadeSoundMs = -1000000; // last splashing step, or step in sand
 	void resetMechanisms();
 	void updateMechanisms();

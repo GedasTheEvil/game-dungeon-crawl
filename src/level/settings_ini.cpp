@@ -48,10 +48,11 @@ const char* onOff(bool on) { return on ? "on" : "off"; }
 struct Key {
 	const char* section;
 	const char* name;
-	enum class Kind : std::uint8_t { Bool, Int } kind;
+	enum class Kind : std::uint8_t { Bool, Int, Font } kind;
 	int lo, hi;
 	bool* boolean;
 	int* integer;
+	UiFont* font = nullptr;
 };
 
 std::vector<Key> keysOf(Settings& s) {
@@ -63,6 +64,7 @@ std::vector<Key> keysOf(Settings& s) {
 		{"display", "animation_rate", K::Int, 0, MAX_ANIMATION_RATE, nullptr, &s.display.animationRate},
 		{"display", "frame_rate", K::Int, FRAME_RATE_UNLIMITED, MAX_FRAME_RATE, nullptr, &s.display.frameRate},
 		{"display", "brightness", K::Int, MIN_BRIGHTNESS, MAX_BRIGHTNESS, nullptr, &s.display.brightness},
+		{"display", "ui_font", K::Font, 0, 0, nullptr, nullptr, &s.display.uiFont},
 		{"graphics", "motion_effects", K::Bool, 0, 0, &s.graphics.motionEffects, nullptr},
 		{"graphics", "toon", K::Bool, 0, 0, &s.graphics.toon, nullptr},
 		{"graphics", "blood", K::Bool, 0, 0, &s.graphics.blood, nullptr},
@@ -98,6 +100,11 @@ std::string readKey(Settings& settings, const std::string& section, const std::s
 	for (const Key& key : keysOf(settings)) {
 		if (section != key.section || name != key.name)
 			continue;
+		if (key.kind == Key::Kind::Font) {
+			if (!parseUiFont(value, *key.font))
+				return name + ": '" + value + "' is not parchment / dejavu-condensed-bold";
+			return "";
+		}
 		if (key.kind == Key::Kind::Bool && !parseBool(value, *key.boolean))
 			return name + ": '" + value + "' is not on / off";
 		if (key.kind == Key::Kind::Int && !parseInt(value, key.lo, key.hi, *key.integer))
@@ -108,6 +115,19 @@ std::string readKey(Settings& settings, const std::string& section, const std::s
 	return "unknown key '" + name + "' in [" + section + "]";
 }
 } // namespace
+
+const char* uiFontName(UiFont font) {
+	return font == UiFont::DejavuCondensedBold ? "dejavu-condensed-bold" : "parchment";
+}
+
+bool parseUiFont(const std::string& name, UiFont& out) {
+	for (UiFont font : {UiFont::Parchment, UiFont::DejavuCondensedBold})
+		if (lower(name) == uiFontName(font)) {
+			out = font;
+			return true;
+		}
+	return false;
+}
 
 float brightenedChannel(float value, int percent) {
 	return std::pow(std::clamp(value, 0.f, 1.f), 100.f / static_cast<float>(std::max(percent, 1)));
@@ -195,13 +215,14 @@ std::string writeSettings(const Settings& settings) {
 		   "are lost.\n";
 	out << "\n; Window size in pixels, fullscreen on/off, model poses a second (0: the key frames only), "
 		   "frames a second (0: the monitor's, -1: unlimited), "
-		   "brightness in percent (70-150).\n[display]\n";
+		   "brightness in percent (70-150), ui_font parchment / dejavu-condensed-bold (the body text).\n[display]\n";
 	out << "window_width = " << settings.display.width << "\n";
 	out << "window_height = " << settings.display.height << "\n";
 	out << "fullscreen = " << onOff(settings.display.fullscreen) << "\n";
 	out << "animation_rate = " << settings.display.animationRate << "\n";
 	out << "frame_rate = " << settings.display.frameRate << "\n";
 	out << "brightness = " << settings.display.brightness << "\n";
+	out << "ui_font = " << uiFontName(settings.display.uiFont) << "\n";
 	out << "\n; Visual effects, each on/off.\n[graphics]\n";
 	out << "motion_effects = " << onOff(settings.graphics.motionEffects) << "\n";
 	out << "toon = " << onOff(settings.graphics.toon) << "\n";

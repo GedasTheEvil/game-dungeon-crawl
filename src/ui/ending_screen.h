@@ -31,7 +31,7 @@ class EndingScreen {
 	static constexpr int TAKE = 0;
 	static constexpr int RENOUNCE = 1;
 	ui::Pointer<int> pointer{NONE}; // hovered: the keys' and the mouse's button, kept when the mouse leaves it
-	bool fontsLoaded = false;
+	int fontGeneration = -1; // ensureScreenFonts
 	Font title, heading, body, small;
 
 	[[nodiscard]] int buttonAt(int x, int y) const;

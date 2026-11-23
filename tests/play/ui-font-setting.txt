@@ -1,0 +1,8 @@
+# Plan ui-font-setting: a level with items and skills to look at; Esc > Options > Display > Text font switches the font.
+god
+level 1
+give melee 4
+give ranged 1
+give potion 0 3
+give amulet 8
+xp 3000

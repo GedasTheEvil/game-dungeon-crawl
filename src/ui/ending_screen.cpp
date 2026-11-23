@@ -85,10 +85,7 @@ void EndingScreen::MouseFunction(int button, int state, int x, int y) {
 }
 
 void EndingScreen::Draw(int resX, int resY) {
-	if (!fontsLoaded) {
-		fontsLoaded = true;
-		loadScreenFonts(title, heading, body, small, 8.f);
-	}
+	ensureScreenFonts(title, heading, body, small, 8.f, fontGeneration);
 	const Rect area = visibleArea(CANVAS_W, CANVAS_H, resX, resY);
 	beginCanvas(area);
 	glDisable(GL_DEPTH_TEST);

@@ -5,6 +5,7 @@
 // two-pass text. Works in whatever ortho canvas is set up (y up); sizes are in canvas units, line widths in pixels.
 // Conventions: docs/ui.md.
 
+#include "../level/settings_ini.h"
 #include "../level/ui_layout.h"
 #include <cstdint>
 #include <string>
@@ -25,8 +26,17 @@ void beginOrtho(const Rect& area, float depth);
 // A screen's last step: blend off, depth test on.
 void endScreen();
 
-// The four papyrus fonts of a UI screen; only the title's size differs between screens.
+// The four fonts of a UI screen; only the title's size differs between screens. The title and heading are parchment;
+// the body and small text the UI font setting's sheet (plan ui-font-setting).
 void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize);
+// loadScreenFonts on a screen's first frame (`generation` -1), and again, the body and small fonts only, once the UI
+// font changed since (`generation` holds bodyFontGeneration() of the last load). Call it as a screen draws.
+void ensureScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize, int& generation);
+// The UI font setting: GameState::ApplySettings passes it on; a change bumps bodyFontGeneration().
+void setBodyFont(UiFont font);
+[[nodiscard]] int bodyFontGeneration();
+// A body-text font from the chosen sheet, at `size` and `spacing` (the same for both sheets).
+void loadBodyFont(Font& font, float size, float spacing);
 
 struct Color {
 	float r, g, b;

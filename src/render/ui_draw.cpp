@@ -3,6 +3,7 @@
 #include "font.h"
 #include "gl_includes.h"
 #include "matrix_stack.h"
+#include "textures.h"
 #include <algorithm>
 #include <cmath>
 #include <utility>
@@ -144,11 +145,49 @@ void endScreen() {
 	glEnable(GL_DEPTH_TEST);
 }
 
+namespace {
+UiFont gBodyFont = UiFont::Parchment;
+int gBodyFontGeneration = 0;
+
+void loadBodyFonts(Font& body, Font& small) {
+	loadBodyFont(body, 3.6f, 0.1f);
+	loadBodyFont(small, 3.f, 0.08f);
+}
+} // namespace
+
+void setBodyFont(UiFont font) {
+	if (font != gBodyFont) {
+		gBodyFont = font;
+		gBodyFontGeneration++;
+	}
+}
+
+int bodyFontGeneration() { return gBodyFontGeneration; }
+
+void loadBodyFont(Font& font, float size, float spacing) {
+	if (gBodyFont == UiFont::DejavuCondensedBold) {
+		// Parchment's size and spacing give DejaVu about the same line lengths (its x-height is taller, its glyphs
+		// condensed); mipmapped, as it is drawn far below its sheet size.
+		font.Load(MEDIA_DIR "textures/fonts/dejavu-condensed-bold.png", size, spacing, true, TexFilter::Mipmapped);
+		return;
+	}
+	font.Load(MEDIA_DIR "textures/fonts/parchment.png", size, spacing, true);
+}
+
 void loadScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize) {
 	title.Load(MEDIA_DIR "textures/fonts/parchment.png", titleSize, 0.3f, true);
 	heading.Load(MEDIA_DIR "textures/fonts/parchment.png", 5.f, 0.16f, true);
-	body.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.6f, 0.1f, true);
-	small.Load(MEDIA_DIR "textures/fonts/parchment.png", 3.f, 0.08f, true);
+	loadBodyFonts(body, small);
+}
+
+void ensureScreenFonts(Font& title, Font& heading, Font& body, Font& small, float titleSize, int& generation) {
+	if (generation == gBodyFontGeneration)
+		return;
+	if (generation < 0)
+		loadScreenFonts(title, heading, body, small, titleSize);
+	else
+		loadBodyFonts(body, small);
+	generation = gBodyFontGeneration;
 }
 
 void backdrop(const Rect& area, int textureId) {

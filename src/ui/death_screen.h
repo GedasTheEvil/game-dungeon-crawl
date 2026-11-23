@@ -38,7 +38,7 @@ class DeathScreen {
 	bool retryEnabled = false; // a save was there when the screen opened
 	std::string retryLabel; // "Retry from Slot 3": the newest save then (plan retry-latest-save)
 	ui::Pointer<int> pointer{NONE}; // hovered: the keys' and the mouse's button, kept when the mouse leaves it
-	bool fontsLoaded = false;
+	int fontGeneration = -1; // ensureScreenFonts
 	Font title, heading, body, small;
 
 	[[nodiscard]] int buttonAt(int x, int y) const;

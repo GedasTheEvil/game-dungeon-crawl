@@ -194,12 +194,7 @@ void SkillsScreen::Navigate(NavKey key) {
 
 // ---- drawing ---------------------------------------------------------------
 
-void SkillsScreen::LoadFonts() {
-	if (!fontsLoaded) {
-		loadScreenFonts(title, heading, body, small, 7.f);
-		fontsLoaded = true;
-	}
-}
+void SkillsScreen::LoadFonts() { ensureScreenFonts(title, heading, body, small, 7.f, fontGeneration); }
 
 // The effect under a card's name (plan heka-card-effect-two-lines), rank II's once upgraded (plan skill-upgrades):
 // wrapped to the card's text width, from the icon well to the right edge.

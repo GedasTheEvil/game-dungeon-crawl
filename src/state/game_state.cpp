@@ -16,6 +16,7 @@
 #include "../render/ink.h"
 #include "../graphics/frame_rate.h"
 #include "../render/lighting.h"
+#include "../render/ui_draw.h"
 #include "../graphics/particles_draw.h"
 #include "../core/paths.h"
 #include <utility>
@@ -208,6 +209,7 @@ void GameState::ApplySettings(bool save) {
 		playedVolume(settings.sound.effects, settings.sound)
 	);
 	Brightness::set(settings.display.brightness);
+	ui::setBodyFont(settings.display.uiFont);
 	if (save)
 		SettingsFile::Save(settings);
 }

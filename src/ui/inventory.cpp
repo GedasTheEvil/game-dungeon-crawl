@@ -117,7 +117,7 @@ void toCanvas(const RenderSettings& render, int mouseX, int mouseY, float& x, fl
 
 Inventory::Inventory(const ScreenWorld& world, UIContext& ui)
 	: world(world), ui(ui), bag(world.bag), commands(world.items) {
-	loadScreenFonts(title, heading, body, small, 7.f);
+	ensureScreenFonts(title, heading, body, small, 7.f, fontGeneration);
 
 	Reset();
 	for (float& angle : slotAngle)
@@ -532,6 +532,7 @@ void Inventory::SpecialKeyPressed(int key) {
 // ---- drawing ---------------------------------------------------------------
 
 void Inventory::Draw() {
+	ensureScreenFonts(title, heading, body, small, 7.f, fontGeneration); // the UI font may have changed
 	if (std::exchange(reopened, false))
 		Select(selectedSlot); // a used-up item may have moved (plan empty-slots-last)
 	int now = GameClock::now();

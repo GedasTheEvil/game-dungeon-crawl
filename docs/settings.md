@@ -26,6 +26,7 @@ fullscreen = off
 animation_rate = 60     ; 0-240 model poses a second, blended between the key frames; 0: the key frames only
 frame_rate = 0          ; -1-240 frames a second drawn; 0: the monitor's (vsync), -1: unlimited
 brightness = 100        ; 70-150 percent, a gamma over the whole picture (menus and HUD too)
+ui_font = parchment     ; parchment / dejavu-condensed-bold: the body and small text (titles and headings stay parchment)
 
 [graphics]
 motion_effects = on     ; sprint blur, FOV kick, vignette
@@ -55,11 +56,12 @@ move_left = a, left
 
 (The `;` comments after the values above are for this page only. The parser reads comments on their own lines.)
 
-Options shows these on four tabs: Controls, Mouse (sensitivity, invert Y, camera recentre), Display (window size,
-fullscreen, brightness, the rest of `[display]` and `[graphics]`) and Sound. The Brightness row has a calibration box:
+Options shows these on five tabs: Controls, Mouse (sensitivity, invert Y, camera recentre), Display (window size,
+fullscreen, brightness, the rest of `[display]`), Graphics (the rest of `[graphics]`) and Sound. The Brightness row has a calibration box:
 a black square with an ankh a shade above black; set the brightness so the ankh is barely visible. The Window size row
 steps through the common sizes that fit the desktop, then the desktop's own size
-([settings-extras](plan/solved/settings-extras.feature.md)).
+([settings-extras](plan/solved/settings-extras.feature.md)). The Text font row (Display, last) switches `ui_font`; every
+screen takes it on its next frame ([ui-font-setting](plan/ui-font-setting.feature.md)).
 
 ## Controls
 

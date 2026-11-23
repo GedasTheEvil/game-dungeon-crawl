@@ -44,7 +44,7 @@ Rect visibleArea(const RenderSettings& render) { return ui::visibleArea(CANVAS_W
 bool Riddle::Seshat() const { return world.player.stats.heka.Has(SkillId::WisdomOfSeshat); }
 
 Riddle::Riddle(const ScreenWorld& world, UIContext& ui) : world(world), ui(ui) {
-	loadScreenFonts(title, heading, body, small, 7.f);
+	ensureScreenFonts(title, heading, body, small, 7.f, fontGeneration);
 	Load(CONTENT_DIR "riddles");
 }
 
@@ -221,6 +221,7 @@ void Riddle::KeyboardF(unsigned char key, int mouseX, int mouseY) {
 // ---- drawing ---------------------------------------------------------------
 
 void Riddle::Draw() {
+	ensureScreenFonts(title, heading, body, small, 7.f, fontGeneration); // the UI font may have changed
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Rect area = visibleArea(world.render);
 	beginCanvas(area);

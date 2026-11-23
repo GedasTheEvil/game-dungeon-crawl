@@ -41,11 +41,11 @@ the best small text; the game already links SDL3. Flags from `pkg-config --cflag
 
 ## Plan
 
-* **Step 1, cheap, measure first.** In `Font::draw`, snap the pen's first quad corner to a whole pixel (from `gProj`
-  and the viewport: canvas → pixels → round → canvas) and let the advances keep their fractions or round them too.
-  Try `GL_TEXTURE_LOD_BIAS` -0.5 on the mipmapped sheet. Scenario screenshots of the inventory and Heka body text in
-  both fonts, before and after, cropped at 1:1 (`tests/out/`). Show the user; if they find it sharp enough, stop here,
-  write it down, and size the plan down (S).
+* **Step 1, cheap, measure first.** DejaVu only, not parchment: in `Font::draw`, snap the pen's first quad corner to a
+  whole pixel (from `gProj` and the viewport: canvas → pixels → round → canvas) and let the advances keep their
+  fractions or round them too. Try `GL_TEXTURE_LOD_BIAS` -0.5 on the mipmapped sheet. Scenario screenshots of the
+  inventory and Heka body text in DejaVu, before and after, cropped at 1:1 (`tests/out/`). Show the user; if they find
+  it sharp enough, stop here, write it down, and size the plan down (S).
 * **Step 2, TrueType atlas.** `Font::Load` gets a TTF path variant (or a `FontFace` source next to `FontSheet`): the
   size in canvas units times the current pixels per canvas unit (window height / `ui::CANVAS_H` for the 160 x 100
   canvas; the HUD canvases' own scale) gives the pixel size; bake printable ASCII (95 glyphs, maybe Latin-1 later) into
@@ -63,8 +63,8 @@ the best small text; the game already links SDL3. Flags from `pkg-config --cflag
 * **Scope:** DejaVu body / small first (the TTF from `/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf`,
   copied to `media/fonts/`, its licence `dejavu-LICENSE.txt` is already in the repo). Then, the implementer's choice,
   the editor's small text (`tools/editor/editor.cpp`, same sheet). Parchment, Kalam, Courier, Impact stay sheets in
-  this plan: parchment's TTF has no licence file (`parchment-LICENSE.txt`, "all rights reserved"), ask the user before
-  shipping the TTF itself. Kalam (OFL) and Courier could follow in a later plan.
+  this plan. Parchment stays a bitmap sheet for good (the user, 2026-11-23: it looks great now, no change needed):
+  no TTF, no snapping or filter change on it. Kalam (OFL) and Courier could follow in a later plan.
 * `tools/textures/font_sheet.py` and the sheets stay for the fonts not moved. Docs: [ui.md](../ui.md#fonts) Fonts
   section (TTF vs sheet, the re-bake), glossary row for the atlas term, `tools/where.py` row.
 * Tests: a unit test that a baked font's `TextWidth` in canvas units stays within a few percent at 720p and 1440p
@@ -75,7 +75,6 @@ the best small text; the game already links SDL3. Flags from `pkg-config --cflag
 
 * Snapped advances shift line lengths by up to 1 px a glyph: check the widest panels (inventory details, Heka cards,
   credits) still fit at 720p.
-* Does the user want parchment as a TTF too (licence)?
 
 ## Play-test
 

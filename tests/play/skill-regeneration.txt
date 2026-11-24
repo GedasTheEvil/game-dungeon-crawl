@@ -1,9 +1,0 @@
-# Plan skill-regeneration, for `bin/game --play tests/play/skill-regeneration.txt`: Touch of Imhotep learnt at rank I, 30 HP
-# off, level 1 (monsters near), no god mode. HP climbs 1 per 5 s, also while chased; a hit stops it for 5 s. Rank II: heka 1
-# more, Heka screen (K), Upgrade. With the regeneration amulet: put it on in the inventory, faster than either alone.
-seed 1
-level content/levels/lvl1
-heka 2
-learn touch_of_imhotep
-give amulet 32
-hurt 30

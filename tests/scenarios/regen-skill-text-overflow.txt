@@ -1,0 +1,42 @@
+# Bug regen-skill-text-overflow: a long skill text on the Heka papyrus scrolls (a bar at its right edge, the wheel,
+# PgUp / PgDn) instead of running over the status line and the Learn button. Touch of Imhotep is the last card.
+god
+level tests/levels/fire
+heka 1
+key k
+wait 2
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key down
+key right
+wait 2
+screenshot top
+key page_down
+wait 2
+screenshot paged
+key page_down
+wait 2
+screenshot end
+key page_up
+key page_up
+key page_up
+wait 2
+screenshot back_top
+key k
+heka 2
+learn touch_of_imhotep 2
+key k
+wait 2
+screenshot rank_two
+key page_down
+wait 2
+screenshot rank_two_paged
+key k
+dump

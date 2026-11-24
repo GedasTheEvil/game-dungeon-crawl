@@ -32,6 +32,12 @@ constexpr float DETAIL_EFFECT_Y = 46.8f;
 constexpr float DETAIL_EFFECT_STEP = 4.4f;
 constexpr float DETAIL_LORE_STEP = 3.6f;
 constexpr float DETAIL_STATUS_Y = 26.f;
+// The effect and lore scroll by lines between these baselines, clear of the rule and the status line; their bar at the
+// papyrus's right edge.
+constexpr float DETAIL_TEXT_BOTTOM = 29.6f;
+constexpr float DETAIL_TEXT_H = DETAIL_EFFECT_Y - DETAIL_TEXT_BOTTOM;
+constexpr Rect DETAIL_BAR =
+	{DETAIL_PANEL.x + DETAIL_PANEL.w - 2.6f, DETAIL_TEXT_BOTTOM - 1.f, 0.8f, DETAIL_TEXT_H + 4.f};
 
 constexpr Color DIM_TEXT = {0.40f, 0.33f, 0.23f}; // a sealed card
 constexpr Color DIM_ICON = {0.35f, 0.30f, 0.25f};
@@ -67,8 +73,17 @@ void papyrus(const ScreenWorld& world, const Rect& r) {
 void SkillsScreen::Select(int card) {
 	if (card != selected)
 		confirming = false;
+	const int was = selected;
 	selected = std::clamp(card, 0, SKILL_COUNT - 1);
 	scroll = scrollTo(selected, scroll);
+	if (selected != was) {
+		detailScroll = 0;
+		detailDrag.Up();
+	}
+}
+
+void SkillsScreen::ScrollDetail(int lines) {
+	detailScroll = std::clamp(detailScroll + lines, 0, DetailBar().MaxScroll());
 }
 
 void SkillsScreen::MoveSelection(int dx, int dy) {
@@ -100,6 +115,7 @@ void SkillsScreen::PressLearn() {
 		confirming = false;
 		if (const std::optional<std::string> upgraded = upgradeSkill(world.player.stats, world.events, id))
 			toast.Show(*upgraded, now);
+		detailScroll = 0; // rank II's text
 		return;
 	}
 	if (!points.CanLearn(id)) {
@@ -129,6 +145,7 @@ void SkillsScreen::MouseMotion(int x, int y) {
 	float cy = 0.f;
 	toCanvas(world.render, x, y, cx, cy);
 	scrollDrag.Move(scrollBar(), cy, scroll);
+	detailDrag.Move(DetailBar(), cy, detailScroll);
 	UpdateHover(cx, cy);
 }
 
@@ -139,8 +156,11 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 	float cy = 0.f;
 	toCanvas(world.render, x, y, cx, cy);
 	if (button == MOUSE_WHEEL_UP || button == MOUSE_WHEEL_DOWN) {
-		if (state == MOUSE_DOWN)
-			scroll = std::clamp(scroll + (button == MOUSE_WHEEL_UP ? -1 : 1), 0, MAX_SCROLL);
+		const int step = button == MOUSE_WHEEL_UP ? -1 : 1;
+		if (state == MOUSE_DOWN && DETAIL_PANEL.contains(cx, cy))
+			ScrollDetail(step);
+		else if (state == MOUSE_DOWN)
+			scroll = std::clamp(scroll + step, 0, MAX_SCROLL);
 		UpdateHover(cx, cy);
 		return;
 	}
@@ -149,7 +169,7 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 	UpdateHover(cx, cy);
 	const Pick at = pointer.hovered;
 	if (state == MOUSE_DOWN) {
-		if (scrollDrag.Down(scrollBar(), cx, cy, scroll)) {
+		if (scrollDrag.Down(scrollBar(), cx, cy, scroll) || detailDrag.Down(DetailBar(), cx, cy, detailScroll)) {
 			pointer.Down(Pick{}, button);
 			UpdateHover(cx, cy);
 			return;
@@ -162,13 +182,22 @@ void SkillsScreen::MouseFunction(int button, int state, int x, int y) {
 		return;
 	}
 	scrollDrag.Up();
+	detailDrag.Up();
 	if (pointer.Up(at, button).target == Target::LearnButton)
 		PressLearn();
 }
 
 void SkillsScreen::KeyPressed(unsigned char key) { Navigate(navKeyOf(InputKey::Char(key), world.settings.controls)); }
 
-void SkillsScreen::SpecialKeyPressed(int key) { Navigate(navKeyOf(InputKey::Special(key), world.settings.controls)); }
+// PgUp / PgDn page the papyrus text; the rest browse the cards.
+void SkillsScreen::SpecialKeyPressed(int key) {
+	if (key == SpecialKey::PAGE_UP || key == SpecialKey::PAGE_DOWN) {
+		const int page = std::max(1, DetailBar().visible - 1);
+		ScrollDetail(key == SpecialKey::PAGE_UP ? -page : page);
+		return;
+	}
+	Navigate(navKeyOf(InputKey::Special(key), world.settings.controls));
+}
 
 void SkillsScreen::Navigate(NavKey key) {
 	switch (key) {
@@ -215,6 +244,37 @@ int SkillsScreen::MostEffectLines() {
 	for (int card = 0; card < SKILL_COUNT; card++)
 		most = std::max({most, EffectLines(card, false).size(), EffectLines(card, true).size()});
 	return static_cast<int>(most);
+}
+
+std::vector<SkillsScreen::DetailLine> SkillsScreen::DetailLines() {
+	LoadFonts();
+	const auto id = static_cast<SkillId>(selected);
+	const SkillDef& def = skillDef(id);
+	const bool deepen = heka(world).Has(id) && upgradable(id); // rank II is shown
+	const float width = DETAIL_PANEL.w - 2 * DETAIL_PAD;
+	std::vector<DetailLine> lines;
+	float drop = 0.f;
+	const std::string effect = deepen ? std::string("II: ") + def.rankTwo : def.effect;
+	for (std::string& l : wrap(body, effect, width)) {
+		lines.push_back({std::move(l), false, drop});
+		drop += DETAIL_EFFECT_STEP;
+	}
+	drop += 1.f;
+	for (std::string& l : wrap(small, deepen ? skillRankTwoLore(id) : skillLore(id), width)) {
+		lines.push_back({std::move(l), true, drop});
+		drop += DETAIL_LORE_STEP;
+	}
+	return lines;
+}
+
+// A line a row: the last scroll is the first line from which the rest fit.
+ui::ScrollBar SkillsScreen::DetailBar() {
+	const std::vector<DetailLine> lines = DetailLines();
+	const int rows = static_cast<int>(lines.size());
+	int last = 0;
+	while (rows > 0 && lines.back().drop - lines[static_cast<size_t>(last)].drop > DETAIL_TEXT_H)
+		last++;
+	return {DETAIL_BAR, rows, std::max(1, rows - last)};
 }
 
 void SkillsScreen::Draw() {
@@ -340,16 +400,24 @@ void SkillsScreen::DrawDetails() {
 
 	beginText();
 	textCentered(heading, p.cx(), DETAIL_NAME_Y, def.name, INK);
-	float y = DETAIL_EFFECT_Y;
-	const std::string effect = deepen ? std::string("II: ") + def.rankTwo : def.effect;
-	for (const std::string& l : wrap(body, effect, p.w - 2 * DETAIL_PAD)) {
-		text(body, p.x + DETAIL_PAD, y, l.c_str(), INK);
-		y -= DETAIL_EFFECT_STEP;
-	}
-	y -= 1.f;
-	for (const std::string& l : wrap(small, deepen ? skillRankTwoLore(id) : skillLore(id), p.w - 2 * DETAIL_PAD)) {
-		text(small, p.x + DETAIL_PAD, y, l.c_str(), INK_FADED);
-		y -= DETAIL_LORE_STEP;
+	// The effect and the lore from the first line scrolled to, as many as fit over the status line.
+	const ui::ScrollBar bar = DetailBar();
+	detailScroll = std::clamp(detailScroll, 0, bar.MaxScroll());
+	const std::vector<DetailLine> lines = DetailLines();
+	const float top = lines.empty() ? 0.f : lines[static_cast<size_t>(detailScroll)].drop;
+	for (size_t i = static_cast<size_t>(detailScroll); i < lines.size() && lines[i].drop - top <= DETAIL_TEXT_H; i++)
+		text(
+			lines[i].lore ? small : body,
+			p.x + DETAIL_PAD,
+			DETAIL_EFFECT_Y - (lines[i].drop - top),
+			lines[i].text.c_str(),
+			lines[i].lore ? INK_FADED : INK
+		);
+	if (bar.Shown()) { // a faded ink track, the thumb in ink
+		beginShapes();
+		fillRect(bar.track, INK_FADED, INK_FADED, 0.25f);
+		fillRect(bar.Thumb(detailScroll), detailDrag.Dragging() ? INK : INK_FADED, INK_FADED, 1.f);
+		beginText();
 	}
 
 	const bool done = rank == 2 || (learnt && !deepen); // nothing more to buy
@@ -388,6 +456,7 @@ void SkillsScreen::DrawDetails() {
 
 void SkillsScreen::DrawFooter() {
 	constexpr float CENTRE = CANVAS_W / 2;
+	const bool paged = DetailBar().Shown();
 	beginText();
 	if (float alpha = toast.Alpha(GameClock::now()); alpha > 0.f)
 		textCentered(body, CENTRE, 7.2f, toast.text.c_str(), TOAST, alpha);
@@ -395,7 +464,8 @@ void SkillsScreen::DrawFooter() {
 		small,
 		CENTRE,
 		2.2f,
-		"Click: select    Enter: learn    Arrows: browse    Wheel: scroll    K / Esc: close",
+		paged ? "Click: select    Enter: learn    Arrows: browse    Wheel, PgUp / PgDn: scroll    K / Esc: close"
+			  : "Click: select    Enter: learn    Arrows: browse    Wheel: scroll    K / Esc: close",
 		LABEL_DIM
 	);
 	beginShapes();

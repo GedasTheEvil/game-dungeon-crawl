@@ -394,7 +394,7 @@ with the baked icon (`media/textures/ui/skill_icons.png`, `tools/textures/skill_
 `body`, its one line in `small`. Learnt: lapis tile, `GOLD` name, a `GOLD_BRIGHT` diamond top right. Sealed (rules not
 in yet): `Disabled` tile, dim icon and text, a red wax dot. No heka left: the icons dimmed. The selected card has the
 inventory's breathing halo and gold frame. Right a papyrus scroll (`DETAIL_PANEL`): the icon at 20, the name, a rule,
-the line in `body` `INK`, the lore in `small` `INK_FADED`, a status line, and the Learn tile (lapis; papyrus-disabled
+the line in `body` `INK`, the lore in `small` `INK_FADED` (the two scroll by lines over the status line when they do not fit: a thin ink bar at the papyrus's right edge, the wheel over the papyrus, PgUp / PgDn; `SkillsScreen::DetailBar`), a status line, and the Learn tile (lapis; papyrus-disabled
 when it cannot): the first press turns it to "Sure? Learn" with a pulsing ring, the second learns. A refused press says
 why in the toast.
 
@@ -497,7 +497,7 @@ The wheel, the menu's slider drag and the journal's page drag stay with the scre
 
 Scroll bars ([scrollbar-mouse-drag](plan/solved/scrollbar-mouse-drag.bug.md)): one `ui::ScrollBar` (track, rows, rows shown)
 and one `ui::ScrollDrag` per bar (`src/level/scroll_bar.h`), for the inventory grid (`InventoryLayout::scrollBar`), the
-Heka cards (`SkillsLayout::scrollBar`), the credits text (`MainMenu::CreditsBar`), a run's details in the Hall of Records (`RecordsView::DetailBar`) and the editor's palette
+Heka cards (`SkillsLayout::scrollBar`) and the Heka papyrus text (`SkillsScreen::DetailBar`), the credits text (`MainMenu::CreditsBar`), a run's details in the Hall of Records (`RecordsView::DetailBar`) and the editor's palette
 (`paletteScrollBar`). Draw `track` and `Thumb(scroll)` (the thumb lighter while `Dragging()`). A left press goes to
 `ScrollDrag::Down` before the pointer: true means the bar took it (the thumb is held, or the track paged by the rows
 shown), so press nothing (`pointer.Down(none, ...)`). Motion: `Move`; release: `Up`. The bar hits `GRAB_PAD` beside

@@ -42,6 +42,8 @@ class SkillsScreen final : public UiScreen {
 	int scroll = 0; // the first card row shown (plan heka-surplus): follows the selection, the wheel moves it
 	ui::Pointer<Pick> pointer;
 	ui::ScrollDrag scrollDrag; // the bar's thumb held (plan scrollbar-mouse-drag)
+	int detailScroll = 0; // the papyrus text's first line shown: the wheel over it, its bar, PgUp / PgDn
+	ui::ScrollDrag detailDrag;
 	bool confirming = false; // the first press of Learn: the next one learns
 	ui::Toast toast;
 	Font title, heading, body, small;
@@ -49,6 +51,14 @@ class SkillsScreen final : public UiScreen {
 
 	void LoadFonts();
 	std::vector<std::string> EffectLines(int card, bool rankTwo);
+	struct DetailLine {
+		std::string text;
+		bool lore = false; // `small` INK_FADED, else the effect in `body` INK
+		float drop = 0.f; // below the first line's baseline
+	};
+	std::vector<DetailLine> DetailLines(); // the selected skill's effect and lore on the papyrus, wrapped
+	ui::ScrollBar DetailBar(); // beside them, when they do not fit over the status line
+	void ScrollDetail(int lines);
 	void Select(int card);
 	void MoveSelection(int dx, int dy);
 	void Navigate(NavKey key); // the arrows and the bound move keys pick a card, Enter / Space / Interact learn

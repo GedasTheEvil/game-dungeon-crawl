@@ -1,10 +1,10 @@
 # Source files by topic: sub-directories inside the libraries, misplaced files moved
 
-Status: draft 2026-11-24, size L, needs nothing first.
+Status: solved 2026-11-24. Was: draft 2026-11-24, size L, needs nothing first.
 
 ## Problem
 
-The directory is the library ([development.md](../development.md#libraries)): `src/level/` is `liblevel.a`, the one
+The directory is the library ([development.md](../../development.md#libraries)): `src/level/` is `liblevel.a`, the one
 GL-free library under sim and render that the unit tests, the editor, the level tools and the balance sim link. So
 every GL-free piece that a test or a tool needs landed in `src/level/`, whatever its topic: 139 files, of which about
 half are not about levels. A reader looking for the scroll bar opens `src/ui/` and finds nothing; `level/scroll_bar.h`,
@@ -42,7 +42,7 @@ Sub-directory names (user 2026-11-24): the implementer decides them (`tuning/` o
   each globs `src/*/`; make them see `src/*/*/`. `code_map.py graph` groups by the top directory (the library), with
   an option for sub-directories.
 * Includes stay relative to the including file (`"../../level/level.h"` from `src/level/ui/`).
-* Rule in [development.md](../development.md#libraries): the top directory is the library, a sub-directory is a topic
+* Rule in [development.md](../../development.md#libraries): the top directory is the library, a sub-directory is a topic
   inside it; at most one level deep.
 
 ### 2. `src/level/` by topic (the main part)
@@ -110,3 +110,23 @@ users disagree with its row stays where its users are and the commit says so.
 * `src/level/` top holds about 16 files; `tools/code_map.py headers` lists fewer "only other directories" headers.
 * `tools/code_map.py graph`: no `graphics <-> ui`, `graphics <-> state` cycle.
 * `grep -rn` of every old path finds only solved plans.
+
+## Result (2026-11-24)
+
+Four commits, one per step, each passing `make check`; `make tidy-all` and `make test` pass at the end. Moves by
+`tools/move_src.py` (new: `git mv`, includes rewritten relative to both files' new places, path mentions in docs,
+tools and comments).
+
+* Step 1: makefile, `.clang-tidy`, `check_sim.sh` (the game's `ui/` and `input/` only by `../`, so `../level/ui/` is
+  fine), `code_map.py` (groups by library, `--subdirs` apart). The other scripts already walk recursively.
+* Step 2: as the table; `level/input.h` renamed `level/input/keys.h`. 16 stems stay at the top (32 files).
+* Step 3: as listed.
+* Step 4: `draw`, `frame_rate` to `game/`; the status card's drawing to `graphics/status_card.*` (`StatusCard::draw`),
+  so `monster_draw` needs no `ui/` header; `dungeon_cutscene.cpp` renamed `cut_scene_dungeon.cpp`. Not done:
+  `loading_text` stays in `graphics/` (in `ui/` it made a new graphics -> ui edge: only `Assets` and `GameState` read
+  it); `state/gameplay_commands.h` stays (GameState implements it, input calls it: a move only moves the cycle);
+  `dungeon_cheats` in `sim/dungeon/`; `brightness` and `render_config` unchanged.
+* `code_map.py graph`: no `graphics <-> ui`, `graphics <-> state`. New two-way edges with `game/` (now the top that
+  composes the frame): `state` (Options set the frame rate), `test` (a scenario draws a frame), `ui` (`window.h`, as
+  before). `headers`: 56 listed apart from their users (55 before): `draw.h` gone, `rng.h` and `rgb.h` added (base
+  library headers, used by every library by design); the rest are liblevel headers the game and tests read, by design.

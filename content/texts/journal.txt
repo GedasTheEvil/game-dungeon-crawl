@@ -526,6 +526,11 @@ text: Wadjet's fang is on my blade. Now and then a blow that does not kill poiso
 	statues, plants and the Anubis guard are proof against it. With the venom amulet the chances add, and the stronger
 	poison counts.
 
+[note.touch-of-imhotep]
+title: Touch of Imhotep
+text: Imhotep's hand is on my shoulder. While nothing has hurt me for 5 seconds, and no fire, poison or bleeding runs,
+	I heal 1 health every 5 seconds, a chasing beast or not. It adds to the lotus and the garnets.
+
 [note.shrine-of-montu]
 title: The Shrine of Montu
 text: Another little naos, this one painted red. Montu stands in it with a falcon's head and the sun on it, his

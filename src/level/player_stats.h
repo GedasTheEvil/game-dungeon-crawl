@@ -39,6 +39,7 @@ class PlayerStats {
 	int regen_carry_ms = 0; // regeneration time not yet turned into HP
 	RingBonus rings; // the worn rings' (WearRings)
 	int ring_regen_carry = 0; // the garnets' ms x HP an hour not yet turned into HP
+	int skill_regen_carry = 0; // Touch of Imhotep: in 1 / REGEN_SKILL_UNITS_PER_HP of a HP not yet turned into HP
 	int resist_percent = 0; // the last resistance potion's, while resist_left_ms runs
 	int resist_left_ms = 0;
 	int water_left_ms = 0; // the Blessing of Hapi's time left (plan water-blessing-potion)

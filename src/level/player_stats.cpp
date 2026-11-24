@@ -265,6 +265,7 @@ void PlayerStats::Wear(const AmuletBonus& bonus, bool keepShare) {
 	amulet = bonus;
 	resist = bonus.resist;
 	regen_carry_ms = 0;
+	skill_regen_carry = 0;
 	if (keepShare)
 		keepHpShare(oldMax);
 }
@@ -342,6 +343,19 @@ void PlayerStats::Regenerate(int tickMs) {
 		ring_regen_carry += tickMs * ringHpPerHour;
 		vitals.hp = std::min(CurrentMaxHP(), vitals.hp + ring_regen_carry / RingEffect::MS_PER_HOUR);
 		ring_regen_carry %= RingEffect::MS_PER_HOUR;
+	}
+	// Touch of Imhotep (plan skill-regeneration): rank II replaces rank I's rate; adds to the others'.
+	const int skillUnitsPerMs = heka.ByRank(
+		SkillId::TouchOfImhotep,
+		REGEN_SKILL_UNITS_PER_HP / REGEN_SKILL_MS_PER_HP,
+		CurrentMaxHP() * REGEN_SKILL_PERMYRIAD_2
+	);
+	if (skillUnitsPerMs <= 0 || !healing)
+		skill_regen_carry = 0;
+	else {
+		skill_regen_carry += tickMs * skillUnitsPerMs;
+		vitals.hp = std::min(CurrentMaxHP(), vitals.hp + skill_regen_carry / REGEN_SKILL_UNITS_PER_HP);
+		skill_regen_carry %= REGEN_SKILL_UNITS_PER_HP;
 	}
 	if (amulet.regenHpPerSecond <= 0 || !healing) {
 		regen_carry_ms = 0;

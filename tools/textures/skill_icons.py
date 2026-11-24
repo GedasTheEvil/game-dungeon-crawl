@@ -342,10 +342,25 @@ def poison_blade():
     return img
 
 
+def touch_of_imhotep():
+    """An open hand in bone, a carnelian heart in its palm, and a faience ankh above it: the healing touch."""
+    img, d = canvas()
+    d.rounded_rectangle([130, 250, 382, 470], radius=50, fill=BONE, outline=INK, width=LINE)
+    for x in (150, 205, 260, 315):
+        d.rounded_rectangle([x, 130, x + 48, 290], radius=22, fill=BONE, outline=INK, width=LINE)
+    d.rounded_rectangle([60, 290, 140, 410], radius=34, fill=BONE, outline=INK, width=LINE)
+    d.ellipse([186, 300, 326, 420], fill=CARNELIAN, outline=INK, width=LINE)
+    d.polygon([(186, 350), (326, 350), (256, 450)], fill=CARNELIAN, outline=INK, width=LINE)
+    d.ellipse([186, 330, 326, 420], fill=CARNELIAN)
+    d.ellipse([226, 20, 286, 100], fill=None, outline=INK, width=22 + 2 * LINE)
+    d.ellipse([226, 20, 286, 100], fill=None, outline=FAIENCE, width=22)
+    return img
+
+
 # Order = atlas cell: the heka mark, then SkillId order.
 ICONS = [heka, stun, thoth, dodge, power_hit, eye_of_horus, hapi, serket, isis, flaming_arrows, ka_of_osiris,
          strength_of_montu, djed_of_ptah, breath_of_shu, speed_of_mafdet, wisdom_of_seshat, disarm_trap,
-         quiver_of_neith, bleed_skill, sharp_arrows, poison_arrows, poison_blade]
+         quiver_of_neith, bleed_skill, sharp_arrows, poison_arrows, poison_blade, touch_of_imhotep]
 ROWS = (len(ICONS) + GRID - 1) // GRID
 
 

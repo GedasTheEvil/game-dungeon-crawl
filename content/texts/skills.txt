@@ -83,3 +83,10 @@ rank2: Rank II: the sting goes deep. The poison is strong.
 lore: Wadjet, the spitting cobra on the brow, wets your blade: now and then a blow that does not kill leaves medium
 	poison.
 rank2: Rank II: the fang bites. The poison is strong.
+
+[skill.touch-of-imhotep]
+lore: Imhotep, the builder who became a god of healing, lays a hand on you: 1 health every 5 seconds, while nothing has
+	hurt you for 5 seconds and no fire, poison or bleeding runs. A chasing foe does not stop it. It adds to the lotus
+	amulet and the garnet rings.
+rank2: Rank II: the whole hand. 0.25% of your max health every second, more as your health grows (1 health in 4
+	seconds at 100).

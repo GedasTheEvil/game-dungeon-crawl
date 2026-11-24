@@ -1,6 +1,6 @@
 # Skill: regeneration (rank I 1 HP / 5 s, rank II 0.25% max HP / s)
 
-Status: draft 2026-11-24, size S, needs nothing first.
+Status: implemented 2026-11-24, waiting for the user's play-test. Was: draft 2026-11-24, size S, needs nothing first.
 
 ## Idea
 

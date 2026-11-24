@@ -51,7 +51,7 @@ SKILL_ICONS = [
     "heka", "stun", "words_of_thoth", "dodge", "power_hit", "eye_of_horus", "favour_of_hapi", "serkets_favour",
     "blessing_of_isis", "flaming_arrows", "ka_of_osiris", "strength_of_montu", "djed_of_ptah", "breath_of_shu",
     "speed_of_mafdet", "wisdom_of_seshat", "disarm_trap", "quiver_of_neith", "bleed",
-    "arrows_of_satet", "sting_of_serket", "fang_of_wadjet",
+    "arrows_of_satet", "sting_of_serket", "fang_of_wadjet", "touch_of_imhotep",
 ]  # fmt: skip
 
 # hud_icons.png: 8 columns of 128 px (PlayerHud::Icon, src/level/hud_icon.h). status_cards.png: blessing, condition,

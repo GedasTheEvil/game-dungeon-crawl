@@ -5,7 +5,7 @@ Status: implemented 2026-11-24, waiting for the user's play-test. Was: draft 202
 ## Idea
 
 The user: every regeneration (the lotus amulet, the garnet rings, the regeneration skill of
-[skill-regeneration](skill-regeneration.feature.draft.sonet.md)) uses one rule for "safe": no HP lost in the last
+[skill-regeneration](skill-regeneration.feature.md)) uses one rule for "safe": no HP lost in the last
 5 s (`REGEN_DAMAGE_PAUSE_MS`, plan regen-after-damage), plus what blocks it today (burning, poison, bleeding, dead,
 full HP). A monster that sees or chases the player no longer stops it; being hit does.
 

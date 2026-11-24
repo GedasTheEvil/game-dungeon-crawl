@@ -78,14 +78,14 @@ constexpr std::array<const char*, static_cast<int>(FieldNote::RingFirst) - stati
 };
 // ... and after the rings', in FieldNote order.
 constexpr std::array<const char*, FIELD_NOTE_COUNT - static_cast<int>(FieldNote::RingLast) - 1> AFTER_RING_SLUGS = {
-	"shrine-of-isis",  "wall-spikes",	  "fire-jets",		 "poison-drips",	 "dodge",
-	"power-hit",	   "flaming-arrows",  "words-of-thoth",	 "ka-of-osiris",	 "strength-of-montu",
-	"djed-of-ptah",	   "breath-of-shu",	  "speed-of-mafdet", "wisdom-of-seshat", "disarm-trap",
-	"quiver-of-neith", "shrine-of-montu", "shrine-of-ptah",	 "shrine-of-amun",	 "shrine-of-serket",
-	"sky-iron",		   "pressure-plates", "floor-spikes",	 "rock-falls",		 "ceiling-traps",
-	"riddle-gates",	   "name-gates",	  "wading",			 "the-dark",		 "heart-light",
-	"heart-heavy",	   "bleeding",		  "bleed",			 "arrows-of-satet",	 "sting-of-serket",
-	"fang-of-wadjet",
+	"shrine-of-isis",  "wall-spikes",	   "fire-jets",		  "poison-drips",	  "dodge",
+	"power-hit",	   "flaming-arrows",   "words-of-thoth",  "ka-of-osiris",	  "strength-of-montu",
+	"djed-of-ptah",	   "breath-of-shu",	   "speed-of-mafdet", "wisdom-of-seshat", "disarm-trap",
+	"quiver-of-neith", "shrine-of-montu",  "shrine-of-ptah",  "shrine-of-amun",	  "shrine-of-serket",
+	"sky-iron",		   "pressure-plates",  "floor-spikes",	  "rock-falls",		  "ceiling-traps",
+	"riddle-gates",	   "name-gates",	   "wading",		  "the-dark",		  "heart-light",
+	"heart-heavy",	   "bleeding",		   "bleed",			  "arrows-of-satet",  "sting-of-serket",
+	"fang-of-wadjet",  "touch-of-imhotep",
 };
 
 std::string fieldNoteKey(int note) {

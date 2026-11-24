@@ -119,7 +119,7 @@ TEST_CASE("archer-skills: the three skills are learnt and upgraded, each with a 
 		CHECK(skillNote(id).has_value());
 		CHECK(std::string(skillRankTwoLore(id)).size() > 0);
 	}
-	CHECK(SKILL_COUNT == 21);
+	CHECK(SKILL_COUNT == 22);
 }
 
 TEST_CASE("archer-skills: a bow shot cuts deeper with Arrows of Satet, more at rank II") {

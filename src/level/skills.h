@@ -36,8 +36,10 @@ enum class SkillId : std::uint8_t {
 	SharpArrows, // Arrows of Satet (Dungeon::Shoot, Dungeon::bleedRoll)
 	PoisonArrows, // Sting of Serket (Dungeon::venomHit)
 	PoisonBlade, // Fang of Wadjet (Dungeon::venomHit)
+	TouchOfImhotep, // plan skill-regeneration: heals, as every regeneration under the safe rule
+					// (PlayerStats::Regenerate)
 };
-constexpr int SKILL_COUNT = 21;
+constexpr int SKILL_COUNT = 22;
 
 // The stat skills' gains (plan heka-surplus), applied where the stat is computed (PlayerStats).
 constexpr int SKILL_HEALTH_PERCENT = 25;
@@ -50,6 +52,12 @@ constexpr int DISARM_TRAP_PERCENT = 80;
 // Quiver of Neith (plan skill-quiver-of-neith): added to the shots and shot recovery amulets' percents (PlayerStats).
 constexpr int QUIVER_SHOTS_PERCENT = 40;
 constexpr int QUIVER_RECOVERY_PERCENT = 25;
+// Touch of Imhotep (plan skill-regeneration): rank I heals 1 HP every REGEN_SKILL_MS_PER_HP; rank II
+// REGEN_SKILL_PERMYRIAD_2 hundredths of a percent of max HP every second (0.25%: 1 HP / 4 s at 100 max HP). Integers:
+// PlayerStats::skill_regen_carry counts in 1 / REGEN_SKILL_UNITS_PER_HP of a HP.
+constexpr int REGEN_SKILL_MS_PER_HP = 5000;
+constexpr int REGEN_SKILL_PERMYRIAD_2 = 25;
+constexpr int REGEN_SKILL_UNITS_PER_HP = 10000 * 1000;
 
 // Rank II (plan skill-upgrades): a second heka on a learnt skill adds 75%..125% of rank I. The values per rank are
 // here; a chance's rank II gain is a share of the failure left (rankTwoChance), so nothing becomes sure.

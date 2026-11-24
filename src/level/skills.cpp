@@ -38,6 +38,8 @@ const std::array<SkillDef, SKILL_COUNT> SKILLS = {{
 	{"Arrows of Satet", "Bow shots cut 5 deeper, may bleed", "Bow shots cut 10 deeper, bleed medium", false},
 	{"Sting of Serket", "Bow shots may poison (medium)", "Bow shots may poison (strong)", false},
 	{"Fang of Wadjet", "Melee hits may poison (medium)", "Melee hits may poison (strong)", false},
+	// Plan skill-regeneration: heals while safe (PlayerStats::Regenerate).
+	{"Touch of Imhotep", "Heal 1 health every 5 s", "Heal 0.25% max health every second", false},
 }};
 
 const char* skillLore(SkillId id) { return gameText("skill." + textSlug(skillDef(id).name) + ".lore").c_str(); }

@@ -1,10 +1,10 @@
 // Sunlight mirrors (plan sunlight-mirrors): the beam's way through the mirrors, the checker's search over the mirrors
 // the player can turn, and the beam in the world: a turned mirror, a lit sun disc opening its gate, a burning mummy.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "../../src/level/sun_beam.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_world.h"
+#include "../../src/level/tuning/gameplay_world.h"
 #include <algorithm>
 #include <string>
 #include <vector>

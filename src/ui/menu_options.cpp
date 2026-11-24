@@ -10,7 +10,7 @@
 #include "../game/window.h"
 #include "../state/game_state.h"
 #include "../state/settings.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "menu_internal.h"
 
 namespace menu_internal {

@@ -3,11 +3,11 @@
 // roll or on the player. A jump clears it.
 #include "dungeon.h"
 #include "player.h"
-#include "../level/journal.h"
-#include "../level/rng.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_shared.h"
+#include "../level/rules/journal.h"
+#include "../core/rng.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 

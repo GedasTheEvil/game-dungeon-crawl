@@ -2,9 +2,9 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/journal_text.h"
+#include "../../src/level/ui/journal_text.h"
 #include "../../src/level/level.h"
-#include "../../src/level/monster_kinds.h"
+#include "../../src/level/rules/monster_kinds.h"
 #include <algorithm>
 #include <iterator>
 #include <set>

@@ -3,9 +3,9 @@
 
 #include "ui_screen.h"
 #include "../render/font.h"
-#include "../level/bindings.h"
-#include "../level/pointer.h"
-#include "../level/scroll_bar.h"
+#include "../level/input/bindings.h"
+#include "../level/ui/pointer.h"
+#include "../level/ui/scroll_bar.h"
 #include "../render/ui_draw.h"
 #include <string>
 #include <vector>

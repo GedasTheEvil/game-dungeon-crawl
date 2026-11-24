@@ -2,8 +2,8 @@
 // from them where it cannot; a rooted one stays.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_monster_kinds.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monster_kinds.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 constexpr DamageMix ARROW = {0, 0, 100, 0};

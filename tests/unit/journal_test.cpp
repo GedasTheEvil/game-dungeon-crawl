@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/journal.h"
-#include "../../src/level/journal_text.h"
+#include "../../src/level/rules/journal.h"
+#include "../../src/level/ui/journal_text.h"
 #include <sstream>
 
 namespace {

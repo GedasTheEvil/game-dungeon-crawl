@@ -3,7 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/gameplay_world.h"
+#include "../../src/level/tuning/gameplay_world.h"
 
 namespace {
 constexpr int ROW = 1; // tests/levels/cutscene: the corridor's row

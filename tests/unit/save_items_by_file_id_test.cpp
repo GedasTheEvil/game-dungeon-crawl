@@ -2,8 +2,8 @@
 // new ItemKind anywhere in the enum moves no saved item. tests/saves/items_by_file_id.sav was written by the code with
 // the ItemKind order of that day: it must keep loading the same items whatever the order is later.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/item_bag.h"
-#include "../../src/level/run_stats.h"
+#include "../../src/level/rules/item_bag.h"
+#include "../../src/level/rules/run_stats.h"
 #include <fstream>
 #include <sstream>
 #include <string>

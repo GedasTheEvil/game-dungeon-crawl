@@ -11,9 +11,9 @@
 #include "../../src/level/decor.h"
 #include "../../src/level/inscriptions.h"
 #include "../../src/level/level.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/path_script.h"
-#include "../../src/level/monster_kinds.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/check/path_script.h"
+#include "../../src/level/rules/monster_kinds.h"
 #include "../../src/level/movement.h"
 #include "../../src/level/tile_defs.h"
 #include <algorithm>

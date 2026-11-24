@@ -3,8 +3,8 @@
 // draw them): a step three quarters high at cols 4 and 5, its face at x 6, the Anubis coming from col 8.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <cmath>
 
 namespace {

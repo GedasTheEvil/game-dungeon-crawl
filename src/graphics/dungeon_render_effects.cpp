@@ -10,15 +10,15 @@
 #include "../render/ink.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"
-#include "../level/gameplay_combat.h"
-#include "../level/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_combat.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
 #include <utility>
 
 namespace {
-// The held bow is drawn 12 units tall for its 1.2 m (ITEMS in level/items.cpp, items.py); arrow.md3 is in metres.
+// The held bow is drawn 12 units tall for its 1.2 m (ITEMS in level/rules/items.cpp, items.py); arrow.md3 is in metres.
 constexpr float ARROW_WORLD_PER_METRE = 10.f;
 constexpr float ARROW_DEPTH = -18.f; // just in front of the monsters (-20)
 constexpr float RAD_TO_DEG = 57.29578f;

@@ -4,8 +4,8 @@
 // already bleeds that one.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_skills.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_skills.h"
 
 namespace {
 // `level` loaded, the player with (or without) the Bleed skill, up to the nearest monster (woken, in reach).

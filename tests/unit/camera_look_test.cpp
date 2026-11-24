@@ -1,8 +1,8 @@
 // Camera peek (plan controls-smoothing): the look keys turn the camera at a steady rate while held, an idle peek eases
 // back to straight ahead.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/camera_look.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/input/camera_look.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 using Dir = CameraLook::Dir;

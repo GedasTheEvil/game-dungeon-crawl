@@ -2,8 +2,8 @@
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/climb_path.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <cmath>
 
 // Climbers (plan monster-climbers): the path on the level's cells, and the climbers following it.

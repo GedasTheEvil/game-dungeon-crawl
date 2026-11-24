@@ -2,8 +2,8 @@
 #define ENDING_SCREEN_H
 
 #include "../render/font.h"
-#include "../level/bindings.h"
-#include "../level/pointer.h"
+#include "../level/input/bindings.h"
+#include "../level/ui/pointer.h"
 #include "screen_world.h"
 
 /// @file ending_screen.h

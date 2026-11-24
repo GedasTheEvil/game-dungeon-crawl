@@ -1,9 +1,9 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/decor_scatter.h"
-#include "../../src/level/level_gen.h"
+#include "../../src/level/gen/level_gen.h"
 #include "../../src/level/tile_defs.h"
 #include "../../src/level/zone_look.h"
 #include <cmath>

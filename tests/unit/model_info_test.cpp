@@ -1,10 +1,10 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include "../../src/core/timer.h"
 #include "../../src/sim/model_info.h"
 #include "../../src/level/level.h"
-#include "../../src/level/monster_kinds.h"
-#include "../../src/level/rng.h"
+#include "../../src/level/rules/monster_kinds.h"
+#include "../../src/core/rng.h"
 #include <algorithm>
 #include <string>
 

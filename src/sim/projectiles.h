@@ -3,10 +3,10 @@
 // dungeon_balls.cpp); drawn in dungeon_render_effects.cpp.
 #ifndef PROJECTILES_H
 #define PROJECTILES_H
-#include "../level/damage.h"
-#include "../level/items.h"
-#include "../level/monster_kinds.h"
-#include "../level/rgb.h"
+#include "../level/rules/damage.h"
+#include "../level/rules/items.h"
+#include "../level/rules/monster_kinds.h"
+#include "../core/rgb.h"
 #include <optional>
 #include <vector>
 

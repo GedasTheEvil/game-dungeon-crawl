@@ -2,9 +2,9 @@
 // lights of the fires among them. Also the inscriptions, decals the level places.
 #include "dungeon_view.h"
 #include "world_draw.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_world.h"
-#include "../level/names.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_world.h"
+#include "../level/files/names.h"
 #include "assets.h"
 #include "../sim/render_config.h"
 #include "fire.h"

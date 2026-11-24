@@ -78,7 +78,7 @@ Water rules (the game, `levelcheck` as far as it models them): the player wades 
 cannot sprint or jump while standing in it (the Favour of Hapi skill and the Blessing of Hapi potion allow both) (jumping into it is fine, so a pool can be a trap); a fall into it lands like on a
 floor. Walkers wade too: slowed (scarabs, the worm, the mummy), unaffected (rats, Anubis), or faster (a swimmer,
 `Wading::Swimmer`, is native to water: the terrain affinity's water row gives it double speed, `TERRAIN_ROWS` in
-`src/level/gameplay_shared.h`; `MonsterKind::wading` in `src/level/monster_kinds.h`). An arrow hits a monster standing in water for half its damage. Traps
+`src/level/tuning/gameplay_shared.h`; `MonsterKind::wading` in `src/level/rules/monster_kinds.h`). An arrow hits a monster standing in water for half its damage. Traps
 work in it and show through the surface. `levelcheck` warns about half water that is not on deep water or a wall,
 deep water not under water, a ladder that goes down into water (one may start in it), a crocodile, hippo, Sobek or Seth not
 in or next to water and a lotus not in half water.

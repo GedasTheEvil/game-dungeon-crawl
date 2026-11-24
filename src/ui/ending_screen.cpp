@@ -1,6 +1,6 @@
 #include "ending_screen.h"
 #include "../render/ui_draw.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include <array>

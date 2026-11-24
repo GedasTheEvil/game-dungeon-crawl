@@ -1,8 +1,8 @@
 // Plan ending-choice: the ankh asks first; Renounced breaks it and writes its own epilogue; the Hall of Records keeps
 // the ending (a record from before it reads as Immortal).
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/journal_text.h"
-#include "../../src/level/leaderboard.h"
+#include "../../src/level/ui/journal_text.h"
+#include "../../src/level/files/leaderboard.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <sstream>

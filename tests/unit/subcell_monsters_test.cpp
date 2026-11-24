@@ -4,8 +4,8 @@
 #include "sim_world.h"
 #include "../../src/sim/model_info.h"
 #include "../../src/level/climb_path.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 

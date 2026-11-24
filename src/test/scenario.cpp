@@ -1,10 +1,10 @@
 #include "scenario.h"
 #include "scenario_fields.h"
-#include "../level/scenario_script.h"
+#include "../level/files/scenario_script.h"
 #include "../sim/dungeon_cheats.h"
-#include "../level/player_actions.h"
+#include "../level/rules/player_actions.h"
 #include "../render/gl_includes.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "../graphics/draw.h"
 #include "../state/game_loop.h"
 #include "../input/input_actions.h"
@@ -18,8 +18,8 @@
 #include "../ui/screen_state.h"
 #include "../ui/inventory.h"
 #include "../level/loot.h"
-#include "../level/level_gen.h"
-#include "../level/spike_cycle.h"
+#include "../level/gen/level_gen.h"
+#include "../level/rules/spike_cycle.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -37,9 +37,9 @@
 #include <unistd.h>
 
 #include "../../external/stb/stb_image_write.h"
-#include "../level/gameplay_environment.h"
-#include "../level/gameplay_player.h"
-#include "../level/gameplay_shared.h"
+#include "../level/tuning/gameplay_environment.h"
+#include "../level/tuning/gameplay_player.h"
+#include "../level/tuning/gameplay_shared.h"
 
 using namespace Scenario;
 

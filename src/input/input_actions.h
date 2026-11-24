@@ -1,8 +1,8 @@
 #ifndef INPUT_ACTIONS_H
 #define INPUT_ACTIONS_H
 
-#include "../level/input.h"
-#include "../level/bindings.h"
+#include "../level/input/keys.h"
+#include "../level/input/bindings.h"
 #include "../state/gameplay_commands.h"
 #include <string>
 

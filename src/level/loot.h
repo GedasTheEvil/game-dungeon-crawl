@@ -2,9 +2,9 @@
 #define LOOT_H
 
 #include "containers.h"
-#include "curses.h"
-#include "items.h"
-#include "rng.h"
+#include "rules/curses.h"
+#include "rules/items.h"
+#include "../core/rng.h"
 #include <array>
 #include <optional>
 #include <vector>

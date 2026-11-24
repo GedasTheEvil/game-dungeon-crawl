@@ -2,7 +2,7 @@
 // holds while it opens, and eases back to the player. The look (bars, tint) is drawn by the game from the shot.
 #include "cut_scene.h"
 #include "../core/timer.h"
-#include "../level/gameplay_world.h"
+#include "../level/tuning/gameplay_world.h"
 #include "../level/level.h"
 #include <algorithm>
 #include <utility>

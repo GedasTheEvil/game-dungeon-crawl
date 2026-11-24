@@ -6,8 +6,8 @@
 #include "../audio/sound.h"
 #include "../render/animated_model.h"
 #include "../render/textures.h"
-#include "../level/items.h"
-#include "../level/rgb.h"
+#include "../level/rules/items.h"
+#include "../core/rgb.h"
 
 // A weapon, potion, amulet, ring or the treasure chest: a static model, drawn where the caller has placed it. The
 // potions that come in one vessel share its model, each with its own texture (shareModel). An item may have a second

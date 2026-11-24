@@ -1,9 +1,9 @@
 #include "first_hints.h"
 #include "game_state.h"
 #include "ui_context.h"
-#include "../level/controls_help.h"
+#include "../level/ui/controls_help.h"
 #include "../core/timer.h"
-#include "../level/gameplay_shared.h"
+#include "../level/tuning/gameplay_shared.h"
 #include <cmath>
 
 namespace {

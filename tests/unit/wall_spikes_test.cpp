@@ -1,11 +1,11 @@
 // Wall spikes (plan rhythm-traps): the cycle, the checker's walk through a run of them, and the trap in the world.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/spike_cycle.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/spike_cycle.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_rhythm_traps.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_rhythm_traps.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <string>
 #include <vector>
 

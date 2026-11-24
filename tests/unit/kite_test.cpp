@@ -1,7 +1,7 @@
 // Kiters (plan monster-kiting): keep the player at the range of their shot, back off, fight when cornered.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 // No kind kites yet (the baboon will), so the tests make the Anubis one: its band 1.5 to 3 tiles, its shot reaching

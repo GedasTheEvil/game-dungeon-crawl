@@ -6,11 +6,11 @@
 // Drawn in dungeon_render_mechanisms.cpp.
 #include "dungeon.h"
 #include "player.h"
-#include "../level/rng.h"
-#include "../level/spike_cycle.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_rhythm_traps.h"
-#include "../level/gameplay_traps.h"
+#include "../core/rng.h"
+#include "../level/rules/spike_cycle.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_rhythm_traps.h"
+#include "../level/tuning/gameplay_traps.h"
 #include <cmath>
 
 void Dungeon::updateRhythmTraps() {

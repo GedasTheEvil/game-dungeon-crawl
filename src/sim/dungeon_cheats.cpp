@@ -1,7 +1,7 @@
 // What only the tests do to the dungeon (plan dungeon-subsystems).
 #include "dungeon_cheats.h"
-#include "../level/rng.h"
-#include "../level/gameplay_skills.h"
+#include "../core/rng.h"
+#include "../level/tuning/gameplay_skills.h"
 
 Monster* DungeonCheats::nearest() const {
 	const Monster* mon = d.nearestMonster();

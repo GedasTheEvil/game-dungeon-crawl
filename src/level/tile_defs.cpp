@@ -1,6 +1,6 @@
 #include "tile_defs.h"
 #include "inscriptions.h"
-#include "monster_kinds.h"
+#include "rules/monster_kinds.h"
 #include <array>
 #include <utility>
 

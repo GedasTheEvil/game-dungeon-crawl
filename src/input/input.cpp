@@ -9,15 +9,15 @@
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include "../render/ink.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "input_actions.h"
 #include "../state/gameplay_commands.h"
-#include "../level/mouse_look.h"
-#include "../level/camera_look.h"
+#include "../level/input/mouse_look.h"
+#include "../level/input/camera_look.h"
 #include "../ui/screen_state.h"
 #include "../render/ui_draw.h"
-#include "../level/gameplay_player.h"
-#include "../level/gameplay_shared.h"
+#include "../level/tuning/gameplay_player.h"
+#include "../level/tuning/gameplay_shared.h"
 
 namespace {
 MouseLook mouseLook;

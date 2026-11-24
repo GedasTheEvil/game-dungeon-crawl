@@ -1,7 +1,7 @@
 // The Stargate's dial (plan stargate-chamber): the chevrons' timing, the track's turn and the glow.
 #include "stargate_dial.h"
 #include "../core/timer.h"
-#include "../level/gameplay_world.h"
+#include "../level/tuning/gameplay_world.h"
 #include <algorithm>
 #include <cmath>
 

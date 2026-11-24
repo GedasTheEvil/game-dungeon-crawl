@@ -1,11 +1,11 @@
 // Plan bleeding: cut damage's own condition in three tiers, the same for the player and the monsters.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/bleeding.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/monster_kinds.h"
-#include "../../src/level/player_stats.h"
+#include "../../src/level/rules/bleeding.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/monster_kinds.h"
+#include "../../src/level/rules/player_stats.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <sstream>
 #include <tuple>
 #include <utility>

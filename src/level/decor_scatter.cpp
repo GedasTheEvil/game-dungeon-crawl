@@ -1,9 +1,9 @@
 #include "decor_scatter.h"
 #include "campaign.h"
 #include "zone_look.h"
-#include "monster_kinds.h"
+#include "rules/monster_kinds.h"
 #include "tile_defs.h"
-#include "gameplay_monsters.h"
+#include "tuning/gameplay_monsters.h"
 #include <algorithm>
 #include <cstdlib>
 #include <cstdint>

@@ -97,7 +97,7 @@ def fix_mentions(moves, dry_run):
         return []
     changed = []
     for name in git("ls-files").split():
-        if name.startswith(HISTORY):
+        if name.startswith(HISTORY) or name == "tools/move_src.py":  # its examples are old paths
             continue
         path = ROOT / name
         if not path.is_file() or path.is_symlink():

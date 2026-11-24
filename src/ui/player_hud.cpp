@@ -3,7 +3,7 @@
 #include "../core/timer.h"
 #include "../render/font.h"
 #include "../level/level.h"
-#include "../level/skills.h"
+#include "../level/rules/skills.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>

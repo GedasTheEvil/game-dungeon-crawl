@@ -2,9 +2,9 @@
 #define RECORDS_VIEW_H
 
 #include "../render/font.h"
-#include "../level/leaderboard.h"
-#include "../level/scroll_bar.h"
-#include "../level/ui_layout.h"
+#include "../level/files/leaderboard.h"
+#include "../level/ui/scroll_bar.h"
+#include "../level/ui/ui_layout.h"
 #include <string>
 #include <vector>
 #include "screen_world.h"

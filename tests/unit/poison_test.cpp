@@ -1,7 +1,7 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/items.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/poison.h"
+#include "../../src/level/rules/items.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/poison.h"
 #include "../../src/level/tile_defs.h"
 #include <sstream>
 #include <tuple>

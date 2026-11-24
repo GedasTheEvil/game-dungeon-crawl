@@ -2,9 +2,9 @@
 // the Heka screen's scrolling list.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/skills_layout.h"
-#include "../../src/level/skills.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/ui/skills_layout.h"
+#include "../../src/level/rules/skills.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include "../../src/core/paths.h"
 #include <algorithm>
 #include <sstream>

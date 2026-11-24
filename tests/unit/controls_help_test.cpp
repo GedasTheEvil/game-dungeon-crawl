@@ -2,9 +2,9 @@
 // the key bound now, the run keeps the hints shown in the save, and the dungeon tells a jump or a ladder ahead.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/controls_help.h"
-#include "../../src/level/run_stats.h"
-#include "../../src/level/settings_ini.h"
+#include "../../src/level/ui/controls_help.h"
+#include "../../src/level/rules/run_stats.h"
+#include "../../src/level/files/settings_ini.h"
 #include <sstream>
 
 namespace {

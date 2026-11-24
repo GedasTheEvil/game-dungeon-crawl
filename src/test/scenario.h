@@ -3,7 +3,7 @@
 
 // Scripted test runs: `bin/game tests/scenarios/foo.txt`.
 // Command reference and output layout: docs/testing.md.
-#include "../level/gameplay_shared.h"
+#include "../level/tuning/gameplay_shared.h"
 #include <string>
 #include <vector>
 

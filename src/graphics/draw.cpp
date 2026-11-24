@@ -10,7 +10,7 @@
 #include "../ui/zone_banner.h"
 #include "../ui/interact_prompt.h"
 #include "../render/ui_draw.h"
-#include "../level/bindings.h"
+#include "../level/input/bindings.h"
 #include "../render/lighting.h"
 #include "../render/brightness.h"
 #include "../render/ink.h"
@@ -22,8 +22,8 @@
 #include "../render/matrix_stack.h"
 #include "../game/window.h"
 #include "../sim/render_config.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_skills.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_skills.h"
 #include <algorithm>
 #include <array>
 #include <optional>

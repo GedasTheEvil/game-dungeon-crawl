@@ -4,9 +4,9 @@
 #include "dungeon.h"
 #include "player.h"
 #include "monster.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_monsters.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_monsters.h"
 #include <algorithm>
 #include <cmath>
 

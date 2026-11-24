@@ -1,7 +1,7 @@
 // The credits' second page (plan credits-second-section): the groups and rows of content/credits.
 #include "../../external/doctest/doctest.h"
 #include "../../src/core/paths.h"
-#include "../../src/level/credits_text.h"
+#include "../../src/level/ui/credits_text.h"
 #include <sstream>
 
 TEST_CASE("credits text: headings start groups, rows split at the bar") {

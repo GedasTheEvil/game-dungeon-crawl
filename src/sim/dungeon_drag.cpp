@@ -6,9 +6,9 @@
 #include "dungeon_rules.h"
 #include "../level/containers.h"
 #include "../level/decor.h"
-#include "../level/gameplay_player.h"
+#include "../level/tuning/gameplay_player.h"
 #include "../level/shrines.h"
-#include "../level/world_events.h"
+#include "../level/rules/world_events.h"
 #include <cmath>
 #include <cstdlib>
 

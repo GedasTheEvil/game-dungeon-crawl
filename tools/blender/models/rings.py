@@ -1,7 +1,7 @@
 """Procedural rings (plan ring-accessories): the band with its raised setting (ring_band) and the cut gem that sits in
 it (ring_gem), two models so the engine can draw the gem see-through over the opaque band (Item::DrawPart). All 24
 rings share them: the band baked once per metal (ring_band_copper, ring_band_silver, ring_band_gold,
-ring_band_sky_iron), the gem baked once in pale greys the engine tints per gem (ringGemColour in src/level/items.cpp).
+ring_band_sky_iron), the gem baked once in pale greys the engine tints per gem (ringGemColour in src/level/rules/items.cpp).
 
 Sky iron (plan sky-iron-rings): meteoric iron, dark grey with a cold blue sheen and the etched Widmanstaetten lattice,
 three sets of thin crossing lines (etch_lattice), so it reads apart from silver and the gem stands out.

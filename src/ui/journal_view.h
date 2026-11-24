@@ -6,9 +6,9 @@
 #include "../render/render_target.h"
 #include "../render/textures.h"
 #include "../level/level.h"
-#include "../level/bindings.h"
-#include "../level/message_log.h"
-#include "../level/pointer.h"
+#include "../level/input/bindings.h"
+#include "../level/ui/message_log.h"
+#include "../level/ui/pointer.h"
 #include "../render/ui_draw.h"
 #include "../sim/dungeon_save.h"
 #include <array>
@@ -20,8 +20,9 @@
 
 // The archaeologist's journal ([J]): a cloth-bound field notebook open on two grid pages, a coloured ribbon bookmark
 // in the first page of each section with pages, hanging out on the left or right. Pages turn over the spine
-// (ui/page_curl.h): a click, a key or a drag of a page corner. The data is ScreenWorld::journal (level/journal.h); this
-// is only the screen. The game is paused while it is open. It opens on the section and pages looked at last.
+// (ui/page_curl.h): a click, a key or a drag of a page corner. The data is ScreenWorld::journal
+// (level/rules/journal.h); this is only the screen. The game is paused while it is open. It opens on the section and
+// pages looked at last.
 struct UIContext;
 
 class JournalScreen final : public UiScreen {

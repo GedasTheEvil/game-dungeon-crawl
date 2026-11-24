@@ -1,7 +1,7 @@
 // Plan hud-ranged-weapon-icons: the HUD's weapon icon is the weapon's own cell (the atlas holds the real weapons
 // only), the test weapons show a real weapon's, and no weapon spills into the amulets' cells.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/hud_icon.h"
+#include "../../src/level/ui/hud_icon.h"
 
 using PlayerHud::Icon;
 using PlayerHud::weaponIcon;

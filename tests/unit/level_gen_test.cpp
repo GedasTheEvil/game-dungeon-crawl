@@ -5,10 +5,10 @@
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/inscriptions.h"
-#include "../../src/level/items.h"
+#include "../../src/level/rules/items.h"
 #include "../../src/level/level.h"
-#include "../../src/level/level_gen.h"
-#include "../../src/level/monster_kinds.h"
+#include "../../src/level/gen/level_gen.h"
+#include "../../src/level/rules/monster_kinds.h"
 #include <algorithm>
 #include <cstdlib>
 #include <iterator>

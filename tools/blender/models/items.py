@@ -62,7 +62,7 @@ FILES = {"chest": "treasure_chest"}
 GLASS_VESSELS = ("potion_flask", "potion_lotus", "potion_cobra")  # each with a glass shell <vessel>_glass (glass_vessel)  # model / texture stem when it differs from the item name
 TEX_SIZE = 512
 GLASS_TEX_SIZE = 128  # the glass shells' textures: one tint
-# The potions, in ItemKind order: texture stem (media/textures/items/<stem>.png, PotionDef::texture in src/level/items.cpp),
+# The potions, in ItemKind order: texture stem (media/textures/items/<stem>.png, PotionDef::texture in src/level/rules/items.cpp),
 # vessel model (POTION_MODELS there) and the palette keys its texture overrides.
 POTIONS = [
     ("potion_small_health", "potion_flask", {"liquid": (0.70, 0.04, 0.03), "liquid_dark": (0.38, 0.02, 0.02)}),

@@ -1,11 +1,11 @@
 // Monster rules on the sim harness (plan scenarios-to-unit-tests technique 7), ported from the scenarios that checked
 // them with `expect` lines only: courage and traps, speed, leaps, poison, damage types, the health bars.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_skills.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_skills.h"
 #include <set>
 #include <utility>
 

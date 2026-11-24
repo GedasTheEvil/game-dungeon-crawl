@@ -2,11 +2,11 @@
 // shelter (a cell without a gust) keeps them; the haze closes in and the wind drowns the other sounds; the checker
 // wants each run crossable against the wind in one calm and nothing bad downwind.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/spike_cycle.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/spike_cycle.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_rhythm_traps.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_rhythm_traps.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <string>
 

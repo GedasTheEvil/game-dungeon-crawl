@@ -2,12 +2,12 @@
 // wall spikes' cycle (a small hit and medium poison).
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/climb_path.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/spike_cycle.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/spike_cycle.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_rhythm_traps.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_traps.h"
+#include "../../src/level/tuning/gameplay_rhythm_traps.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_traps.h"
 #include <string>
 #include <vector>
 #include <utility>

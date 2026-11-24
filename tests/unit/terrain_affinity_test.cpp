@@ -3,11 +3,11 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "../../src/level/terrain.h"
-#include "../../src/level/gameplay_environment.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_environment.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <cmath>
 
 namespace {

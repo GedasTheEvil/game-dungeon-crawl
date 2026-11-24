@@ -1,6 +1,6 @@
 // Half water and deep water in the checker (plan crocodiles-and-flooded-cells), on small levels.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "../../src/level/tile_defs.h"
 #include <cstring>
 #include <string>

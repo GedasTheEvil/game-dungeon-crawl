@@ -4,8 +4,8 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/gameplay_monster_kinds.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monster_kinds.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 // The level loaded, its giant bat spawned on the ceiling (col 6, the player's row) and placed by one tick, the player

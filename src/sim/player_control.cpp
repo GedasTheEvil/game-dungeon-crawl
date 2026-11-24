@@ -2,8 +2,8 @@
 #include "dungeon.h"
 #include "player.h"
 #include "../core/timer.h"
-#include "../level/gameplay_shared.h"
-#include "../level/items.h"
+#include "../level/tuning/gameplay_shared.h"
+#include "../level/rules/items.h"
 
 BagUser bagUser(const Player& player) {
 	const PlayerStats& s = player.stats;

@@ -2,7 +2,7 @@
 // a monster too close, and softer hits than the melee twin. The HUD's pips: tests/scenarios/solved/ranged_shots.txt.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_skills.h"
+#include "../../src/level/tuning/gameplay_skills.h"
 #include <algorithm>
 #include <sstream>
 #include <string>

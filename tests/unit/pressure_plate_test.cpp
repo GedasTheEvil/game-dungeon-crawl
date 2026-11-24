@@ -4,13 +4,13 @@
 // warns when nothing on a plate's floor run is heavy enough.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/containers.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/map_marks.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/ui/map_marks.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_player.h"
-#include "../../src/level/gameplay_traps.h"
-#include "../../src/level/gameplay_world.h"
+#include "../../src/level/tuning/gameplay_player.h"
+#include "../../src/level/tuning/gameplay_traps.h"
+#include "../../src/level/tuning/gameplay_world.h"
 #include <cmath>
 #include <string>
 

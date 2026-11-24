@@ -2,10 +2,10 @@
 #include "world_draw.h"
 #include "assets.h"
 #include "../sim/player.h"
-#include "../level/item_bag.h"
-#include "../level/journal.h"
-#include "../level/rng.h"
-#include "../level/world_events.h"
+#include "../level/rules/item_bag.h"
+#include "../level/rules/journal.h"
+#include "../core/rng.h"
+#include "../level/rules/world_events.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>
@@ -14,9 +14,9 @@
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../level/tile_defs.h"
-#include "../level/gameplay_trap_damage.h"
-#include "../level/gameplay_traps.h"
-#include "../level/gameplay_world.h"
+#include "../level/tuning/gameplay_trap_damage.h"
+#include "../level/tuning/gameplay_traps.h"
+#include "../level/tuning/gameplay_world.h"
 
 namespace {
 constexpr float CHEST_MIN_SCALE = 10.f; // the small weapons (the club) are drawn bigger over the container

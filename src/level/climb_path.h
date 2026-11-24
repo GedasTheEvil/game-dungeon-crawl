@@ -6,7 +6,7 @@
 // bottom), so the sim and the unit tests share it.
 
 #include "level.h"
-#include "gameplay_shared.h"
+#include "tuning/gameplay_shared.h"
 #include <array>
 #include <cstdint>
 #include <functional>

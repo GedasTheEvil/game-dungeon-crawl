@@ -4,7 +4,7 @@
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_scancode.h>
 #include <optional>
-#include "../level/bindings.h"
+#include "../level/input/bindings.h"
 
 // SDL's keys as the game's (plan sdl3-window-input): an ASCII character or a special key code (input.h, bindings.cpp;
 // the numbers GLUT had, so the [controls] names and the scenario keys stay as they were).

@@ -1,10 +1,10 @@
 // Crossing a spike or death trap on foot (TrapBell): a bell curve of damage over its hitbox, about SPIKES_CROSS_HP for
 // a walk over the spikes and a quarter more at a sprint, a share of the max HP at high level; its edge only nicks.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/trap_hurt.h"
+#include "../../src/level/rules/trap_hurt.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_trap_damage.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_trap_damage.h"
 
 namespace {
 // The HP a player of maxHp loses walking (or sprinting) from col 3 to col 6 over the trap of the level, at col 4 or 5.

@@ -12,7 +12,7 @@ GLUT had none, so the game has no pad support yet.
 
 * `SDL_Init` adds `SDL_INIT_GAMEPAD`; open pads on `SDL_EVENT_GAMEPAD_ADDED`, close on `_REMOVED` (hot plug). The
   events reach the game in `handleInputEvent` (`src/input/input.cpp`), next to the keys.
-* A pad button is a new `InputKey::Kind::Pad` (`level/bindings.h`): a third key slot or part of the key slots, named in
+* A pad button is a new `InputKey::Kind::Pad` (`level/input/bindings.h`): a third key slot or part of the key slots, named in
   `[controls]` (`pad_a`, `pad_b`, `pad_x`, `pad_y`, `pad_lb`, `pad_rb`, `pad_lt`, `pad_rt`, `pad_start`, `pad_back`,
   `pad_dpad_up`, ...) and captured in Options > Controls like a key. Defaults: left stick / d-pad walk and climb, A
   jump, X attack, B interact, Y drag, LB / RB melee / ranged, LT sprint, RT attack (hold: the power hit), Start the

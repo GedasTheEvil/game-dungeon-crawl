@@ -2,9 +2,9 @@
 // blocks it; the bursts of sand: Seth's storm roar as his stun ends, Rerek's spray as he comes up.
 #include "dungeon.h"
 #include "player.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_shared.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 

@@ -8,8 +8,8 @@
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"
-#include "../level/spike_cycle.h"
-#include "../level/gameplay_rhythm_traps.h"
+#include "../level/rules/spike_cycle.h"
+#include "../level/tuning/gameplay_rhythm_traps.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>

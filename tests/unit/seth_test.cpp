@@ -5,8 +5,8 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_monster_kinds.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monster_kinds.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 const Monster* seth(const SimWorld& world) {

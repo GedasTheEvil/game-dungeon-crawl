@@ -3,8 +3,8 @@
 #include <array>
 #include <cstdint>
 #include <string>
-#include "../level/bindings.h"
-#include "../level/save_slots.h"
+#include "../level/input/bindings.h"
+#include "../level/files/save_slots.h"
 #include "../render/ui_draw.h"
 
 /// @file menu_internal.h

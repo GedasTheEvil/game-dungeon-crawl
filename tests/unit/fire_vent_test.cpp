@@ -1,11 +1,11 @@
 // Fire vents (plan fire-jet-trap): a rhythm trap on the wall spikes' cycle whose jet burns whoever stands in its cell.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/spike_cycle.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/spike_cycle.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_rhythm_traps.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_trap_damage.h"
+#include "../../src/level/tuning/gameplay_rhythm_traps.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_trap_damage.h"
 #include <string>
 #include <vector>
 #include <utility>

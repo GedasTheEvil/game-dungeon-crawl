@@ -2,8 +2,8 @@
 // ball's roll is the dungeon's (sim/dungeon_balls.cpp).
 #include "monster.h"
 #include <algorithm>
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/journal.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/rules/journal.h"
 
 bool Monster::canRoll(float px, float py) const {
 	if (!type->roll || !Alive() || !alerted || lurking() || RollingBall() || jumping() ||

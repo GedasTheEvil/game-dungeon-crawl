@@ -3,7 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/loot.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 // The fire level's mummy (weak to slash, pierce and fire) awake and next to the player, who holds the weapon, has

@@ -5,7 +5,7 @@
 #include "../../src/level/decor.h"
 #include "../../src/level/shrines.h"
 #include "sim_world.h"
-#include "../../src/level/journal_text.h"
+#include "../../src/level/ui/journal_text.h"
 #include <algorithm>
 #include <string>
 

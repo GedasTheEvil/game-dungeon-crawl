@@ -1,8 +1,8 @@
 // Plan offering-gift: a shrine god sometimes answers an offering with a gift.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/offering_gift.h"
-#include "../../src/level/player_stats.h"
-#include "../../src/level/run_stats.h"
+#include "../../src/level/rules/offering_gift.h"
+#include "../../src/level/rules/player_stats.h"
+#include "../../src/level/rules/run_stats.h"
 #include <sstream>
 #include <utility>
 

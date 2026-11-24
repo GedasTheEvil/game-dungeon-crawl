@@ -1,8 +1,8 @@
 // Curses (plan curses): timed debuffs from monster hits, several at once, no stacking, no cure.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/curses.h"
-#include "../../src/level/monster_kinds.h"
+#include "../../src/level/rules/curses.h"
+#include "../../src/level/rules/monster_kinds.h"
 #include "../../src/ui/player_hud.h"
 #include <sstream>
 #include <string>

@@ -2,8 +2,8 @@
 // necropolis's guard and the Anubis boss 3x HP, 2x damage.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/monster_kinds.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/monster_kinds.h"
 #include <string>
 
 TEST_CASE("the lesser Anubis statue: the guard's model at half size, 0.75x its old HP and blow, no bolt") {

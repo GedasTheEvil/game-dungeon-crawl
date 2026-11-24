@@ -1,0 +1,941 @@
+#include "items.h"
+#include "journal.h"
+#include "../files/texts.h"
+#include "../tuning/gameplay_combat.h"
+#include <algorithm>
+#include <array>
+#include <cstdio>
+#include <string>
+#include <utility>
+
+namespace {
+// The weapons, then the potions, in ItemKind order. A weapon's motion: grip, rest / windup / strike tilt, thrust, hit
+// (frame delay) / swing / recovery ms. Levelgen: weapons by depth like in the campaign (the deeper, the more kinds),
+// potions by weight; no antidote, as generated levels have no poisoners.
+//
+// Ranged weaker than melee (plan ranged-weaker-than-melee): a ranged weapon hits softer than its twin, the melee weapon
+// of the same type: below the twin's base damage per hit, and at most RANGED_TWIN_DPS_PERCENT of the twin's damage per
+// second (damage / WeaponMotion::AttackMs()). A cap, never a raise. It takes the twin's growth, so the caps hold at
+// every weapon level. The twins: the throwing stick and the sling the club (blunt), the javelin the spear (the same
+// pole), the self-bow the knife (pierce, from the start), the composite bow the duckbill axe (pierce, from depth 7).
+// Ranged is the opener, melee the finish: a few shots (shots, coming back slowly) and none at point blank (minRange).
+constexpr std::array<ItemDef, FIRST_AMULET> ITEMS = {{
+	// The club is slow and heavy, and grows most.
+	{.file = {ItemType::MELEE_WEAPON, 0},
+	 .text = {"Acacia Club", "Club", "club", ""},
+	 .weapon =
+		 {.model = "club",
+		  .scale = 6,
+		  .damage = 10,
+		  .range = 2,
+		  .mix = {85, 15, 0},
+		  .growthPercent = 40,
+		  .motion = {0.12f, 35, -40, 115, 0, 300, 560, 600},
+		  .swingSound = "club_swing",
+		  .strikeSound = "club_hit"}},
+	{.file = {ItemType::MELEE_WEAPON, 3},
+	 .text = {"Flint Knife", "Knife", "dagger", ""},
+	 .weapon =
+		 {.model = "dagger",
+		  .scale = 4,
+		  .damage = 8,
+		  .range = 1,
+		  .mix = {0, 30, 70},
+		  .growthPercent = 30,
+		  .motion = {0.15f, 45, 15, 100, 0.25f, 150, 320, 250},
+		  .swingSound = "dagger_swing",
+		  .strikeSound = "spear_hit"}},
+	// Quick; it starts strongest, so it grows least.
+	{.file = {ItemType::MELEE_WEAPON, 1},
+	 .text = {"Bronze Sword", "Sword", "short sword", ""},
+	 .weapon =
+		 {.model = "sword",
+		  .scale = 9,
+		  .damage = 35,
+		  .range = 3,
+		  .mix = {0, 85, 15},
+		  .growthPercent = 10,
+		  .motion = {0.1f, 40, -10, 120, 0, 180, 360, 370},
+		  .swingSound = "sword_swing",
+		  .strikeSound = "sword_hit",
+		  .generatedFrom = 3}},
+	// The khopesh flows from swing to swing; the axes and the mace wind up long.
+	{.file = {ItemType::MELEE_WEAPON, 4},
+	 .text = {"Khopesh", "Khopesh", "khopesh", ""},
+	 .weapon =
+		 {.model = "khopesh",
+		  .scale = 6.5f,
+		  .damage = 45,
+		  .range = 3,
+		  .mix = {0, 100, 0},
+		  .motion = {0.12f, 40, -30, 125, 0, 300, 560, 400},
+		  .swingSound = "sword_swing",
+		  .strikeSound = "sword_hit",
+		  .generatedFrom = 5}},
+	{.file = {ItemType::MELEE_WEAPON, 5},
+	 .text = {"Epsilon Axe", "Ep. axe", "epsilon axe", ""},
+	 .weapon =
+		 {.model = "epsilon_axe",
+		  .scale = 8,
+		  .damage = 55,
+		  .range = 3,
+		  .mix = {30, 70, 0},
+		  .motion = {0.1f, 35, -45, 120, 0, 550, 820, 400},
+		  .swingSound = "axe_swing",
+		  .strikeSound = "axe_hit",
+		  .generatedFrom = 7}},
+	{.file = {ItemType::MELEE_WEAPON, 6},
+	 .text = {"Duckbill Axe", "Db. axe", "duckbill axe", ""},
+	 .weapon =
+		 {.model = "duckbill_axe",
+		  .scale = 7,
+		  .damage = 50,
+		  .range = 3,
+		  .mix = {20, 0, 80},
+		  .motion = {0.1f, 35, -45, 115, 0, 500, 770, 400},
+		  .swingSound = "axe_swing",
+		  .strikeSound = "axe_hit",
+		  .generatedFrom = 7}},
+	{.file = {ItemType::MELEE_WEAPON, 7},
+	 .text = {"Pear Mace", "Mace", "mace", ""},
+	 .weapon =
+		 {.model = "mace",
+		  .scale = 7,
+		  .damage = 50,
+		  .range = 2,
+		  .mix = {100, 0, 0},
+		  .motion = {0.1f, 35, -50, 115, 0, 600, 870, 400},
+		  .swingSound = "club_swing",
+		  .strikeSound = "mace_hit",
+		  .generatedFrom = 7}},
+	// It thrusts.
+	{.file = {ItemType::MELEE_WEAPON, 2},
+	 .text = {"Medjay Spear", "Spear", "spear", ""},
+	 .weapon =
+		 {.model = "spear",
+		  .scale = 15,
+		  .damage = 26,
+		  .range = 5,
+		  .mix = {0, 15, 85},
+		  .motion = {0.35f, 70, 70, 70, 0.3f, 200, 420, 550},
+		  .swingSound = "spear_swing",
+		  .strikeSound = "spear_hit",
+		  .generatedFrom = 3}},
+	// The test weapons (plan test-weapons): the real swing of the club, the knife and the sword, but exactly 1 HP a
+	// hit,
+	// for scenarios that need many hits on one monster. Never loot, never in a level (WeaponDef::testOnly).
+	{.file = {ItemType::MELEE_WEAPON, 8},
+	 .text = {"Smash Test", "Smash Test", "smash test", ""},
+	 .weapon =
+		 {.model = "club",
+		  .scale = 6,
+		  .damage = 1,
+		  .range = 2,
+		  .mix = {100, 0, 0, 0},
+		  .growthPercent = 0,
+		  .motion = {0.12f, 35, -40, 115, 0, 300, 560, 600},
+		  .swingSound = "club_swing",
+		  .strikeSound = "club_hit",
+		  .testOnly = true}},
+	{.file = {ItemType::MELEE_WEAPON, 9},
+	 .text = {"Stab Test", "Stab Test", "stab test", ""},
+	 .weapon =
+		 {.model = "dagger",
+		  .scale = 4,
+		  .damage = 1,
+		  .range = 1,
+		  .mix = {0, 0, 100, 0},
+		  .growthPercent = 0,
+		  .motion = {0.15f, 45, 15, 100, 0.25f, 150, 320, 250},
+		  .swingSound = "dagger_swing",
+		  .strikeSound = "spear_hit",
+		  .testOnly = true}},
+	{.file = {ItemType::MELEE_WEAPON, 10},
+	 .text = {"Cut Test", "Cut Test", "cut test", ""},
+	 .weapon =
+		 {.model = "sword",
+		  .scale = 9,
+		  .damage = 1,
+		  .range = 3,
+		  .mix = {0, 100, 0, 0},
+		  .growthPercent = 0,
+		  .motion = {0.1f, 40, -10, 120, 0, 180, 360, 370},
+		  .swingSound = "sword_swing",
+		  .strikeSound = "sword_hit",
+		  .testOnly = true}},
+	{.file = {ItemType::MELEE_WEAPON, 11},
+	 .text = {"Fire Test", "Fire Test", "fire test", ""},
+	 .weapon =
+		 {.model = "club",
+		  .scale = 6,
+		  .damage = 1,
+		  .range = 2,
+		  .mix = {0, 0, 0, 100},
+		  .growthPercent = 0,
+		  .motion = {0.12f, 35, -40, 115, 0, 300, 560, 600},
+		  .swingSound = "club_swing",
+		  .strikeSound = "club_hit",
+		  .testOnly = true}},
+	{.file = {ItemType::RANGED_WEAPON, 0},
+	 .text = {"Nubian Bow", "Bow", "self-bow", ""},
+	 .weapon =
+		 {.model = "bow",
+		  .scale = 12,
+		  .damage = 7,
+		  .range = 30,
+		  .shots = 5,
+		  .minRange = 8,
+		  .gradeDamage = 12,
+		  .mix = {0, 0, 100},
+		  .growthPercent = 30,
+		  .motion = {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
+		  .swingSound = "bow_draw",
+		  .strikeSound = "bow_release"}},
+	{.file = {ItemType::RANGED_WEAPON, 1},
+	 .text = {"Chariot Bow", "Ch. bow", "composite bow", ""},
+	 .weapon =
+		 {.model = "composite_bow",
+		  .scale = 11,
+		  .damage = 22,
+		  .range = 40,
+		  .shots = 6,
+		  .minRange = 8,
+		  .mix = {0, 0, 100},
+		  .motion = {0.5f, 0, 0, 0, 0, 650, 750, 650},
+		  .swingSound = "bow_draw",
+		  .strikeSound = "bow_release",
+		  .generatedFrom = 7}},
+	// Whirled overhead from hanging down, let go in front.
+	{.file = {ItemType::RANGED_WEAPON, 2},
+	 .text = {"Nubian Sling", "Sling", "sling", ""},
+	 .weapon =
+		 {.model = "sling",
+		  .scale = 5,
+		  .damage = 6,
+		  .range = 20,
+		  .shots = 6,
+		  .minRange = 5,
+		  .gradeDamage = 10,
+		  .mix = {100, 0, 0},
+		  .growthPercent = 40,
+		  .motion = {0.05f, 160, -150, 45, 0, 350, 600, 450},
+		  .swingSound = "sling_swing",
+		  .strikeSound = "sling_release",
+		  .missile = MissileKind::Stone}},
+	{.file = {ItemType::RANGED_WEAPON, 3},
+	 .text = {"Throwing Stick", "Stick", "throwing stick", ""},
+	 .weapon =
+		 {.model = "throwing_stick",
+		  .scale = 5,
+		  .damage = 5,
+		  .range = 12,
+		  .shots = 3,
+		  .minRange = 5,
+		  .gradeDamage = 14,
+		  .mix = {90, 10, 0},
+		  .growthPercent = 40,
+		  .motion = {0.08f, 40, -60, 100, 0, 300, 500, 400},
+		  .swingSound = "club_swing",
+		  .strikeSound = "throw",
+		  .missile = MissileKind::Stick,
+		  .thrown = true,
+		  .generatedFrom = 4}},
+	{.file = {ItemType::RANGED_WEAPON, 4},
+	 .text = {"Medjay Javelin", "Javelin", "javelin", ""},
+	 .weapon =
+		 {.model = "javelin",
+		  .scale = 11,
+		  .damage = 20,
+		  .range = 15,
+		  .shots = 2,
+		  .minRange = 5,
+		  .gradeDamage = 30,
+		  .mix = {0, 10, 90},
+		  .motion = {0.45f, 60, 20, 80, 0, 500, 700, 700},
+		  .swingSound = "spear_swing",
+		  .strikeSound = "throw",
+		  .missile = MissileKind::Javelin,
+		  .thrown = true,
+		  .generatedFrom = 4}},
+	{.file = {ItemType::RANGED_WEAPON, 5},
+	 .text = {"Bow Test", "Bow Test", "bow test", ""},
+	 .weapon =
+		 {.model = "bow",
+		  .scale = 12,
+		  .damage = 1,
+		  .range = 30,
+		  .shots = 5, // never spent (Dungeon::ShootWeapon)
+		  .mix = {0, 0, 100, 0},
+		  .growthPercent = 0,
+		  .motion = {0.5f, 0, 0, 0, 0, BOW_DRAW_MS, BOW_DRAW_MS + 100, 550},
+		  .swingSound = "bow_draw",
+		  .strikeSound = "bow_release",
+		  .testOnly = true}},
+	{.file = {ItemType::POTION, 0},
+	 .text = {"Lesser Potion of Sekhmet", "Heal", "small health", "Heals 25% of max health"},
+	 .potion =
+		 {.gain = {.healPercent = PotionEffect::SMALL_HEAL_PERCENT},
+		  .model = PotionModel::Flask,
+		  .texture = "potion_small_health",
+		  .colour = {1.f, 0.f, 0.f},
+		  .note = FieldNote::HealthPotions,
+		  .generatedWeight = 30}},
+	{.file = {ItemType::POTION, 1},
+	 .text = {"Greater Potion of Sekhmet", "Heal+", "large health", "Heals 50% of max health"},
+	 .potion =
+		 {.gain = {.healPercent = PotionEffect::LARGE_HEAL_PERCENT},
+		  .model = PotionModel::Lotus,
+		  .texture = "potion_large_health",
+		  .colour = {0.7f, 0.f, 0.3f},
+		  .note = FieldNote::HealthPotions,
+		  .generatedWeight = 15}},
+	{.file = {ItemType::POTION, 2},
+	 .text = {"Blood of Montu", "Might", "might", "Might +1, for good"},
+	 .potion =
+		 {.gain = {.might = PotionEffect::MIGHT},
+		  .model = PotionModel::Pilgrim,
+		  .texture = "potion_might",
+		  .colour = {0.4f, 0.f, 0.6f},
+		  .note = FieldNote::Might,
+		  .generatedWeight = 10}},
+	{.file = {ItemType::POTION, 3},
+	 .text = {"Granite of Ptah", "Armor", "armor", "Armor +1, for good"},
+	 .potion =
+		 {.gain = {.armor = PotionEffect::ARMOR},
+		  .model = PotionModel::Canopic,
+		  .texture = "potion_armor",
+		  .colour = {1.f, 0.6f, 0.f},
+		  .note = FieldNote::Armor,
+		  .generatedWeight = 10}},
+	{.file = {ItemType::POTION, 4},
+	 .text = {"Breath of Amun", "Life", "life", "Max health +5%, full heal"},
+	 .potion =
+		 {.gain = {.maxHpPercent = PotionEffect::LIFE_MAX_HP_PERCENT},
+		  .model = PotionModel::Ankh,
+		  .texture = "potion_life",
+		  .colour = {0.7f, 0.6f, 0.3f},
+		  .note = FieldNote::Life,
+		  .generatedWeight = 5}},
+	// Small Stamina: green faience
+	{.file = {ItemType::POTION, 5},
+	 .text = {"Date Wine", "Vigor", "small stamina", "Restores 50% of stamina"},
+	 .potion =
+		 {.gain = {.staminaPercent = PotionEffect::SMALL_STAMINA_PERCENT},
+		  .model = PotionModel::Flask,
+		  .texture = "potion_small_stamina",
+		  .colour = {0.45f, 0.85f, 0.25f},
+		  .note = FieldNote::StaminaPotions,
+		  .generatedWeight = 20}},
+	// Large Stamina: turquoise
+	{.file = {ItemType::POTION, 6},
+	 .text = {"Beer of Hathor", "Vigor+", "large stamina", "Restores all stamina"},
+	 .potion =
+		 {.gain = {.staminaPercent = PotionEffect::LARGE_STAMINA_PERCENT},
+		  .model = PotionModel::Lotus,
+		  .texture = "potion_large_stamina",
+		  .colour = {0.15f, 0.78f, 0.72f},
+		  .note = FieldNote::StaminaPotions,
+		  .generatedWeight = 10}},
+	// Antidote: dark malachite
+	{.file = {ItemType::POTION, 7},
+	 .text = {"Milk of Renenutet", "Cure", "antidote", "Cures all poison"},
+	 .potion =
+		 {.gain = {.cure = true},
+		  .model = PotionModel::Cobra,
+		  .texture = "potion_antidote",
+		  .colour = {0.05f, 0.45f, 0.2f},
+		  .note = FieldNote::Antidote,
+		  .generatedWeight = 0,
+		  .mimicLoot = false}},
+	// The resistance potions: sky blue, deep lapis. Like the antidote, they lie only on the levels with poisoners.
+	{.file = {ItemType::POTION, 8},
+	 .text = {"Lesser Ward of Wadjet", "Ward", "lesser resistance", "Resists poison 50% for 2 min"},
+	 .potion =
+		 {.gain = {.resistPercent = PotionEffect::LESSER_RESIST_PERCENT},
+		  .model = PotionModel::Cobra,
+		  .texture = "potion_lesser_resistance",
+		  .colour = {0.35f, 0.62f, 0.92f},
+		  .note = FieldNote::Resistance,
+		  .generatedWeight = 0,
+		  .mimicLoot = false}},
+	{.file = {ItemType::POTION, 9},
+	 .text = {"Greater Ward of Wadjet", "Ward+", "greater resistance", "Cures, resists poison 95% for 2 min"},
+	 .potion =
+		 {.gain = {.cure = true, .resistPercent = PotionEffect::GREATER_RESIST_PERCENT},
+		  .model = PotionModel::Cobra,
+		  .texture = "potion_greater_resistance",
+		  .colour = {0.12f, 0.22f, 0.78f},
+		  .note = FieldNote::Resistance,
+		  .generatedWeight = 0,
+		  .mimicLoot = false}},
+	// Blessing of Hapi (plan water-blessing-potion): Nile blue-green. Lies only in chests on the levels with half
+	// water.
+	{.file = {ItemType::POTION, 10},
+	 .text = {"Blessing of Hapi", "Hapi", "water blessing", "Wade, sprint, jump in water for 2 min"},
+	 .potion = {
+		 .gain = {.waterBlessing = true},
+		 .model = PotionModel::Pilgrim,
+		 .texture = "potion_water_blessing",
+		 .colour = {0.08f, 0.52f, 0.68f},
+		 .note = FieldNote::WaterBlessing,
+		 .generatedWeight = 0,
+		 .mimicLoot = false
+	 }},
+}};
+
+constexpr bool validItems() {
+	int weights = 0;
+	for (size_t i = 0; i < ITEMS.size(); i++) {
+		const ItemDef& def = ITEMS[i];
+		for (size_t j = 0; j < i; j++)
+			if (ITEMS[j].file.type == def.file.type && ITEMS[j].file.id == def.file.id)
+				return false;
+		const bool weapon = static_cast<int>(i) < WEAPON_KIND_COUNT;
+		if (weapon && (def.file.type == ItemType::POTION ||
+					   def.weapon.mix[0] + def.weapon.mix[1] + def.weapon.mix[2] + def.weapon.mix[3] != 100))
+			return false;
+		if (!weapon && def.file.type != ItemType::POTION)
+			return false;
+		// A ranged weapon holds shots and its minimum range is inside its range; a melee one has neither.
+		const bool ranged = def.file.type == ItemType::RANGED_WEAPON;
+		if (weapon && (ranged ? def.weapon.shots < 1 || def.weapon.minRange >= def.weapon.range
+							  : def.weapon.shots != 0 || def.weapon.minRange != 0))
+			return false;
+		weights += weapon ? 0 : def.potion.generatedWeight;
+	}
+	return weights == 100;
+}
+static_assert(
+	validItems(),
+	"ITEMS: weapons then potions, unique file ids, damage mixes and potion weights of 100%, shots for the ranged"
+);
+
+// The amulets in ItemKind order.
+constexpr std::array<Amulet, AMULET_KIND_COUNT> AMULETS = [] {
+	std::array<Amulet, AMULET_KIND_COUNT> amulets{};
+	int i = 0;
+	for (int type = 0; type < AMULET_TYPE_COUNT; type++)
+		for (int tier = 0; tier < AMULET_TIER_COUNT; tier++)
+			if (static_cast<AmuletType>(type) != AmuletType::Regeneration ||
+				tier >= static_cast<int>(AmuletTier::Normal))
+				amulets[static_cast<size_t>(i++)] = {static_cast<AmuletType>(type), static_cast<AmuletTier>(tier)};
+	return amulets;
+}();
+static_assert(
+	AMULETS.back().type == AmuletType::QuickShots && AMULETS.back().tier == AmuletTier::Grand,
+	"AMULETS ends with grand quick shots, the last amulet"
+);
+
+// Per type: the bonus of each tier (lesser, minor, normal, grand; 0: no such tier) and the texts its tiers share (the
+// lore lines: content/texts/items.txt, [item.<model>]).
+struct AmuletTypeDef {
+	const char* model; // media/models/items/<model>.md3
+	std::array<int, AMULET_TIER_COUNT> amount;
+	const char* noun; // the amulet's object: "Jackal Tooth"; its name is the tier and the noun
+	const char* labelNoun; // what it does, for the label ("amulet of <labelNoun>"): editor, tools, scenarios
+	const char* shortNoun; // the slot's name band, with the tier as I .. IV
+	const char* effect; // printf format of the amount
+};
+constexpr std::array<AmuletTypeDef, AMULET_TYPE_COUNT> AMULET_TYPES = {{
+	{"amulet_strength", {1, 2, 4, 6}, "Jackal Tooth", "Strength", "Str.", "Might +%d while worn"},
+	{"amulet_armor", {1, 2, 4, 6}, "Bronze Scarab", "Armor", "Arm.", "Armor +%d while worn"},
+	{"amulet_health", {5, 10, 20, 30}, "Carnelian Heart", "Health", "Life", "Max health +%d%% while worn"},
+	{"amulet_poison",
+	 {10, 25, 50, 80},
+	 "Serket's Scorpion",
+	 "Poison Guard",
+	 "Pois.",
+	 "Resists poison %d%% of the time"},
+	{"amulet_traps",
+	 {25, 50, 75, 100},
+	 "Wedjat",
+	 "Trap Guard",
+	 "Trap",
+	 "Trap damage and chest traps -%d%%"}, // chest traps: the chance they do not go off (plan trapped-chests)
+	{"amulet_blunt", {8, 16, 28, 40}, "Djed Pillar", "Smash Guard", "Smash Guard", "Smash guard: you take %d%% less"},
+	{"amulet_slash", {8, 16, 28, 40}, "Knot of Isis", "Cut Guard", "Cut Guard", "Cut guard: you take %d%% less"},
+	{"amulet_pierce", {8, 16, 28, 40}, "Shen Ring", "Stab Guard", "Stab Guard", "Stab guard: you take %d%% less"},
+	{"amulet_regeneration",
+	 {0, 0, 1, 2},
+	 "Faience Lotus",
+	 "Regeneration",
+	 "Regen",
+	 "Heals %d health a second when safe"},
+	{"amulet_venom", {10, 15, 20, 30}, "Wadjet's Cobra", "Venom", "Venom", "%d%% of hits poison (%s)"},
+	// Never more than 80%: fire always hurts a little. Armour does not stop fire, only this does (plan fire-damage).
+	{"amulet_fire", {20, 40, 60, 80}, "Sun Disc", "Fire Guard", "Fire Guard", "Fire guard: you take %d%% less"},
+	// The matching share of the weapon's damage mix grows (plan amulet-extras).
+	{"amulet_crushing", {10, 20, 30, 50}, "Seth's Mace", "Crushing", "Smash Power", "Smash power: you deal %d%% more"},
+	{"amulet_cleaving", {10, 20, 30, 50}, "Montu's Khopesh", "Cleaving", "Cut Power", "Cut power: you deal %d%% more"},
+	{"amulet_piercing",
+	 {10, 20, 30, 50},
+	 "Neith's Arrowhead",
+	 "Piercing",
+	 "Stab Power",
+	 "Stab power: you deal %d%% more"},
+	// The ranged weapons' shots (plan ranged-weaker-than-melee): more of them (plan amulet-more-shots), back sooner
+	// (plan amulet-quick-shots).
+	{"amulet_shots", {25, 50, 75, 100}, "Satet's Quiver", "Shots", "Shots", "Ranged weapons hold %d%% more shots"},
+	{"amulet_quick_shots",
+	 {25, 50, 75, 100},
+	 "Bastet's Cat",
+	 "Quick Shots",
+	 "Quick Shots",
+	 "Shots come back %d%% faster"},
+}};
+// The venom amulet's poison, by tier: the stronger amulets poison more often and worse.
+constexpr std::array<PoisonTier, AMULET_TIER_COUNT> VENOM_TIERS =
+	{PoisonTier::Weak, PoisonTier::Weak, PoisonTier::Medium, PoisonTier::Strong};
+constexpr const char* POISON_TIER_WORDS[POISON_TIER_COUNT] = {"weak", "medium", "strong"};
+constexpr const char* TIER_NUMERALS[AMULET_TIER_COUNT] = {"I", "II", "III", "IV"};
+
+const AmuletTypeDef& typeDef(AmuletType type) { return AMULET_TYPES[std::to_underlying(type)]; }
+
+// Lore line 1 or 2 of an item's card: [item.<name>] in content/texts/items.txt, by its label (an amulet: its model).
+const char* loreLine(const char* name, int line) {
+	return gameText("item." + textSlug(name) + ".lore" + std::to_string(line)).c_str();
+}
+int amount(Amulet a) { return typeDef(a.type).amount[std::to_underlying(a.tier)]; }
+
+// Built once: the names are put together from the type and the tier.
+struct AmuletTexts {
+	std::array<std::string, AMULET_KIND_COUNT> names, shortNames, labels, effects;
+	std::array<ItemText, AMULET_KIND_COUNT> texts{};
+	AmuletTexts() {
+		constexpr const char* TIER_WORDS[AMULET_TIER_COUNT] = {"lesser", "minor", "", "grand"};
+		for (size_t i = 0; i < AMULETS.size(); i++) {
+			const Amulet a = AMULETS[i];
+			const AmuletTypeDef& def = typeDef(a.type);
+			const std::string noun = def.noun;
+			const std::string labelNoun = def.labelNoun;
+			switch (a.tier) {
+			case AmuletTier::Lesser:
+				names[i] = "Lesser " + noun;
+				break;
+			case AmuletTier::Minor:
+				names[i] = "Minor " + noun;
+				break;
+			case AmuletTier::Normal:
+				names[i] = noun;
+				break;
+			case AmuletTier::Grand:
+				names[i] = "Grand " + noun;
+				break;
+			}
+			shortNames[i] = std::string(def.shortNoun) + " " + TIER_NUMERALS[std::to_underlying(a.tier)];
+			const std::string tierWord = TIER_WORDS[std::to_underlying(a.tier)];
+			labels[i] = tierWord.empty() ? "" : tierWord + " ";
+			labels[i] += "amulet of ";
+			labels[i] += labelNoun;
+			for (char& c : labels[i])
+				c = static_cast<char>(c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c);
+			char effect[64];
+			if (a.type == AmuletType::TrapWard && amount(a) >= 100)
+				std::snprintf(effect, sizeof(effect), "Immune to traps");
+			else if (a.type == AmuletType::Venom)
+				std::snprintf(
+					effect,
+					sizeof(effect),
+					def.effect,
+					amount(a),
+					POISON_TIER_WORDS[std::to_underlying(VENOM_TIERS[std::to_underlying(a.tier)])]
+				);
+			else
+				std::snprintf(effect, sizeof(effect), def.effect, amount(a));
+			effects[i] = effect;
+			texts[i] = {
+				names[i].c_str(),
+				shortNames[i].c_str(),
+				labels[i].c_str(),
+				effects[i].c_str(),
+				loreLine(def.model, 1),
+				loreLine(def.model, 2)
+			};
+		}
+	}
+};
+
+// Per gem (plan ring-accessories): its names and colour; the effect line is put together from RingEffect's numbers.
+// The lore lines: content/texts/items.txt, [item.ring-<gem slug>].
+struct RingGemDef {
+	const char* noun; // "Garnet": the name is the metal, the noun and "Ring"
+	const char* slug; // the lore's and the field note's: [item.ring-<slug>], [note.ring-<slug>]
+	const char* labelNoun; // what it does, for the label ("ring of <labelNoun>"): editor, tools, scenarios
+	Rgb colour;
+};
+constexpr std::array<RingGemDef, RING_GEM_COUNT> RING_GEMS = {{
+	{"Garnet", "garnet", "regeneration", {0.78f, 0.04f, 0.10f}},
+	{"Lapis", "lapis", "vigor", {0.10f, 0.28f, 0.95f}},
+	{"Feldspar", "feldspar", "cleansing", {0.05f, 0.75f, 0.30f}},
+	{"Jasper", "jasper", "speed", {1.f, 0.92f, 0.25f}}, // lemon: apart from the gold band
+	{"Crystal", "crystal", "reach", {0.82f, 0.92f, 1.f}}, // near clear, a cold blue
+	{"Amethyst", "amethyst", "sundering", {0.62f, 0.22f, 0.92f}},
+}};
+constexpr const char* METAL_WORDS[RING_METAL_COUNT] = {"Copper", "Silver", "Gold", "Sky-Iron"};
+constexpr const char* METAL_TEXTURES[RING_METAL_COUNT] =
+	{"ring_band_copper", "ring_band_silver", "ring_band_gold", "ring_band_sky_iron"};
+
+const RingGemDef& gemDef(RingGem gem) { return RING_GEMS[std::to_underlying(gem)]; }
+
+// "Heals 1 health every 3 s", "Weapon reach +25%".
+std::string ringEffect(Ring r) {
+	const auto m = std::to_underlying(r.metal);
+	char effect[64];
+	switch (r.gem) {
+	case RingGem::Garnet:
+		if (r.metal == RingMetal::SkyIron)
+			std::snprintf(
+				effect,
+				sizeof(effect),
+				"Heals 1%% health (at least 1) every %d s",
+				RingEffect::GARNET_SKY_IRON_MS / 1000
+			);
+		else
+			std::snprintf(effect, sizeof(effect), "Heals 1 health every %d s", RingEffect::GARNET_MS_PER_HP[m] / 1000);
+		break;
+	case RingGem::Lapis:
+		std::snprintf(effect, sizeof(effect), "Stamina returns %d%% faster", RingEffect::LAPIS_PERCENT[m]);
+		break;
+	case RingGem::Feldspar:
+		std::snprintf(effect, sizeof(effect), "Poison wears off %d%% faster", RingEffect::FELDSPAR_PERCENT[m]);
+		break;
+	case RingGem::Jasper:
+		std::snprintf(effect, sizeof(effect), "Walk and sprint %d%% faster", RingEffect::JASPER_PERCENT[m]);
+		break;
+	case RingGem::Crystal:
+		std::snprintf(effect, sizeof(effect), "Weapon reach +%d%%", RingEffect::CRYSTAL_PERCENT[m]);
+		break;
+	case RingGem::Amethyst:
+		std::snprintf(effect, sizeof(effect), "Resistances %d%% of a tier weaker", RingEffect::AMETHYST_PERCENT[m]);
+		break;
+	}
+	return effect;
+}
+
+// Built once, as the amulets'.
+struct RingTexts {
+	std::array<std::string, RING_KIND_COUNT> names, shortNames, labels, effects;
+	std::array<ItemText, RING_KIND_COUNT> texts{};
+	RingTexts() {
+		for (size_t i = 0; i < texts.size(); i++) {
+			const Ring r = ringOf(itemAt(FIRST_RING + static_cast<int>(i)));
+			const RingGemDef& def = gemDef(r.gem);
+			const auto m = std::to_underlying(r.metal);
+			names[i] = std::string(METAL_WORDS[m]) + " " + def.noun + " Ring";
+			shortNames[i] = std::string(def.noun) + " " + TIER_NUMERALS[m];
+			labels[i] = METAL_WORDS[m];
+			labels[i] += " ring of ";
+			labels[i] += def.labelNoun;
+			for (char& c : labels[i])
+				c = static_cast<char>(c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c);
+			effects[i] = ringEffect(r);
+			// The sky-iron rings share the metal's lore (plan sky-iron-rings), the others the gem's.
+			const std::string lore = r.metal == RingMetal::SkyIron ? std::string("ring_sky_iron")
+																   : std::string("ring_") + def.slug;
+			texts[i] = {
+				names[i].c_str(),
+				shortNames[i].c_str(),
+				labels[i].c_str(),
+				effects[i].c_str(),
+				loreLine(lore.c_str(), 1),
+				loreLine(lore.c_str(), 2)
+			};
+		}
+	}
+};
+} // namespace
+
+Rgb ringGemColour(RingGem gem) { return gemDef(gem).colour; }
+
+const char* ringGemSlug(RingGem gem) { return gemDef(gem).slug; }
+
+const char* ringBandTexture(RingMetal metal) { return METAL_TEXTURES[std::to_underlying(metal)]; }
+
+RingBonus ringBonus(const WornRings& worn) {
+	RingBonus bonus;
+	for (const std::optional<ItemKind>& on : worn) {
+		if (!on || !isRing(*on))
+			continue;
+		const Ring r = ringOf(*on);
+		const auto m = std::to_underlying(r.metal);
+		switch (r.gem) {
+		case RingGem::Garnet:
+			if (r.metal == RingMetal::SkyIron)
+				bonus.regenPercentPerHour += RingEffect::GARNET_SKY_IRON_PERCENT_PER_HOUR;
+			else
+				bonus.regenHpPerHour += RingEffect::MS_PER_HOUR / RingEffect::GARNET_MS_PER_HP[m];
+			break;
+		case RingGem::Lapis:
+			bonus.staminaRegenPercent += RingEffect::LAPIS_PERCENT[m];
+			break;
+		case RingGem::Feldspar:
+			bonus.poisonFasterPercent += RingEffect::FELDSPAR_PERCENT[m];
+			break;
+		case RingGem::Jasper:
+			bonus.speedPercent += RingEffect::JASPER_PERCENT[m];
+			break;
+		case RingGem::Crystal:
+			bonus.reachPercent += RingEffect::CRYSTAL_PERCENT[m];
+			break;
+		case RingGem::Amethyst:
+			bonus.amethystPercent += RingEffect::AMETHYST_PERCENT[m];
+			bonus.amethystMovesImmune = bonus.amethystMovesImmune || r.metal == RingMetal::SkyIron;
+			break;
+		}
+	}
+	bonus.speedPercent = std::min(bonus.speedPercent, RingEffect::JASPER_CAP);
+	bonus.reachPercent = std::min(bonus.reachPercent, RingEffect::CRYSTAL_CAP);
+	bonus.amethystPercent = std::min(bonus.amethystPercent, RingEffect::AMETHYST_CAP);
+	return bonus;
+}
+
+Amulet amuletOf(ItemKind amulet) { return AMULETS[static_cast<size_t>(itemIndex(amulet) - FIRST_AMULET)]; }
+
+std::optional<ItemKind> amuletKind(AmuletType type, AmuletTier tier) {
+	for (size_t i = 0; i < AMULETS.size(); i++)
+		if (AMULETS[i].type == type && AMULETS[i].tier == tier)
+			return itemAt(FIRST_AMULET + static_cast<int>(i));
+	return std::nullopt;
+}
+
+AmuletBonus amuletBonus(std::optional<ItemKind> worn) {
+	AmuletBonus bonus;
+	if (!worn || !isAmulet(*worn))
+		return bonus;
+	const Amulet a = amuletOf(*worn);
+	const int n = amount(a);
+	switch (a.type) {
+	case AmuletType::Strength:
+		bonus.might = n;
+		break;
+	case AmuletType::Armor:
+		bonus.armor = n;
+		break;
+	case AmuletType::Health:
+		bonus.maxHpPercent = n;
+		break;
+	case AmuletType::PoisonWard:
+		bonus.poisonResistPercent = n;
+		break;
+	case AmuletType::TrapWard:
+		bonus.trapCutPercent = n;
+		break;
+	case AmuletType::BluntWard:
+		bonus.resist[std::to_underlying(DamageType::Blunt)] = NORMAL - n;
+		break;
+	case AmuletType::SlashWard:
+		bonus.resist[std::to_underlying(DamageType::Slash)] = NORMAL - n;
+		break;
+	case AmuletType::PierceWard:
+		bonus.resist[std::to_underlying(DamageType::Pierce)] = NORMAL - n;
+		break;
+	case AmuletType::Regeneration:
+		bonus.regenHpPerSecond = n;
+		break;
+	case AmuletType::Venom:
+		bonus.venomPercent = n;
+		bonus.venomTier = VENOM_TIERS[std::to_underlying(a.tier)];
+		break;
+	case AmuletType::FireWard:
+		bonus.resist[FIRE] = NORMAL - n;
+		break;
+	case AmuletType::Crushing:
+		bonus.typeMightPercent[std::to_underlying(DamageType::Blunt)] = n;
+		break;
+	case AmuletType::Cleaving:
+		bonus.typeMightPercent[std::to_underlying(DamageType::Slash)] = n;
+		break;
+	case AmuletType::Piercing:
+		bonus.typeMightPercent[std::to_underlying(DamageType::Pierce)] = n;
+		break;
+	case AmuletType::Shots:
+		bonus.shotsPercent = n;
+		break;
+	case AmuletType::QuickShots:
+		bonus.shotRecoveryPercent = n;
+		break;
+	}
+	return bonus;
+}
+
+std::string ringSumText(const RingBonus& bonus, RingGem gem) {
+	char text[64] = "";
+	switch (gem) {
+	case RingGem::Garnet: {
+		const double flatEvery = bonus.regenHpPerHour > 0
+									 ? static_cast<double>(RingEffect::MS_PER_HOUR) / 1000.0 / bonus.regenHpPerHour
+									 : 0.0;
+		const int percent = bonus.regenPercentPerHour / RingEffect::GARNET_SKY_IRON_PERCENT_PER_HOUR;
+		const int skyEvery = RingEffect::GARNET_SKY_IRON_MS / 1000;
+		if (percent > 0 && bonus.regenHpPerHour > 0)
+			std::snprintf(
+				text,
+				sizeof(text),
+				"heals %d%% health every %d s, 1 every %.1f s",
+				percent,
+				skyEvery,
+				flatEvery
+			);
+		else if (percent > 0)
+			std::snprintf(text, sizeof(text), "heals %d%% health every %d s", percent, skyEvery);
+		else if (bonus.regenHpPerHour > 0)
+			std::snprintf(text, sizeof(text), "heals 1 health every %.1f s", flatEvery);
+		break;
+	}
+	case RingGem::Lapis:
+		if (bonus.staminaRegenPercent > 0)
+			std::snprintf(text, sizeof(text), "stamina returns %d%% faster", bonus.staminaRegenPercent);
+		break;
+	case RingGem::Feldspar:
+		if (bonus.poisonFasterPercent > 0)
+			std::snprintf(text, sizeof(text), "poison wears off %d%% faster", bonus.poisonFasterPercent);
+		break;
+	case RingGem::Jasper:
+		if (bonus.speedPercent > 0)
+			std::snprintf(text, sizeof(text), "walk and sprint %d%% faster", bonus.speedPercent);
+		break;
+	case RingGem::Crystal:
+		if (bonus.reachPercent > 0)
+			std::snprintf(text, sizeof(text), "weapon reach +%d%%", bonus.reachPercent);
+		break;
+	case RingGem::Amethyst:
+		if (bonus.amethystPercent > 0 && bonus.amethystPercent % 100 == 0)
+			std::snprintf(
+				text,
+				sizeof(text),
+				"resistances %s weaker",
+				bonus.amethystPercent == 100 ? "a tier" : "two tiers"
+			);
+		else if (bonus.amethystPercent > 0)
+			std::snprintf(text, sizeof(text), "resistances %d%% of a tier weaker", bonus.amethystPercent);
+		break;
+	}
+	return text;
+}
+
+const char* amuletModel(AmuletType type) { return typeDef(type).model; }
+
+const WeaponDef& weaponDef(ItemKind weapon) { return ITEMS[static_cast<size_t>(itemIndex(weapon))].weapon; }
+
+const PotionDef& potionDef(ItemKind potion) { return ITEMS[static_cast<size_t>(itemIndex(potion))].potion; }
+
+namespace {
+// By PotionModel. Each is about as tall as the flask; the scales keep the real sizes apart (Centrify fits the largest
+// dimension).
+constexpr std::array<PotionModelDef, POTION_MODEL_COUNT> POTION_MODELS = {{
+	{"potion_flask", 5.f, 16.f, "potion_flask_glass"},
+	{"potion_lotus", 5.f, 16.f, "potion_lotus_glass"},
+	{"potion_pilgrim", 5.2f, 16.5f},
+	{"potion_canopic", 4.6f, 15.f},
+	{"potion_cobra", 5.f, 16.f, "potion_cobra_glass"},
+	{"potion_ankh", 5.5f, 17.5f},
+}};
+} // namespace
+
+const PotionModelDef& potionModelDef(PotionModel model) { return POTION_MODELS[std::to_underlying(model)]; }
+
+ItemFileId fileIdOf(ItemKind kind) {
+	if (isRing(kind)) {
+		const Ring r = ringOf(kind);
+		const int gem = static_cast<int>(r.gem);
+		return {
+			ItemType::RING,
+			r.metal == RingMetal::SkyIron
+				? ItemType::SKY_IRON_RING_FILE_ID + gem
+				: gem * ItemType::SKY_IRON_RING_FILE_ID / RING_GEM_COUNT + static_cast<int>(r.metal)
+		};
+	}
+	if (isAmulet(kind))
+		return {ItemType::AMULET, itemIndex(kind) - FIRST_AMULET};
+	return ITEMS[static_cast<size_t>(itemIndex(kind))].file;
+}
+
+std::optional<ItemKind> itemFromFile(int type, int id) {
+	if (type == ItemType::AMULET)
+		return id >= 0 && id < AMULET_KIND_COUNT ? std::optional(itemAt(FIRST_AMULET + id)) : std::nullopt;
+	if (type == ItemType::RING) {
+		constexpr int OLD_METALS = ItemType::SKY_IRON_RING_FILE_ID / RING_GEM_COUNT; // copper, silver, gold
+		if (id >= 0 && id < ItemType::SKY_IRON_RING_FILE_ID)
+			return ringKind(static_cast<RingGem>(id / OLD_METALS), static_cast<RingMetal>(id % OLD_METALS));
+		if (id >= ItemType::SKY_IRON_RING_FILE_ID && id < ItemType::SKY_IRON_RING_FILE_ID + RING_GEM_COUNT)
+			return ringKind(static_cast<RingGem>(id - ItemType::SKY_IRON_RING_FILE_ID), RingMetal::SkyIron);
+		return std::nullopt;
+	}
+	for (int i = 0; i < FIRST_AMULET; i++)
+		if (ITEMS[static_cast<size_t>(i)].file.type == type && ITEMS[static_cast<size_t>(i)].file.id == id)
+			return itemAt(i);
+	return std::nullopt;
+}
+
+ItemRange groupItems(ItemGroup group) {
+	ItemRange range = {ITEM_KIND_COUNT, 0};
+	for (int i = ITEM_KIND_COUNT - 1; i >= 0; i--) {
+		if (itemGroup(itemAt(i)) == group) {
+			range.first = i;
+			range.count++;
+		}
+	}
+	return range;
+}
+
+const ItemText& itemText(ItemKind kind) {
+	if (isRing(kind)) {
+		static const RingTexts RING_TEXTS;
+		return RING_TEXTS.texts[static_cast<size_t>(itemIndex(kind) - FIRST_RING)];
+	}
+	if (isAmulet(kind)) {
+		static const AmuletTexts AMULET_TEXTS;
+		return AMULET_TEXTS.texts[static_cast<size_t>(itemIndex(kind) - FIRST_AMULET)];
+	}
+	// The table's row with its lore lines, built once.
+	static const std::array<ItemText, FIRST_AMULET> TEXTS = [] {
+		std::array<ItemText, FIRST_AMULET> texts{};
+		for (size_t i = 0; i < texts.size(); i++) {
+			texts[i] = ITEMS[i].text;
+			texts[i].lore1 = loreLine(texts[i].label, 1);
+			texts[i].lore2 = loreLine(texts[i].label, 2);
+		}
+		return texts;
+	}();
+	return TEXTS[static_cast<size_t>(itemIndex(kind))];
+}
+
+namespace {
+float smooth(float k) { return k * k * (3.f - 2.f * k); }
+
+float mix(float a, float b, float k) { return a + (b - a) * k; }
+} // namespace
+
+int windupMs(const WeaponMotion& m) { return static_cast<int>(static_cast<float>(m.hitMs) * SWING_WINDUP_SHARE); }
+
+SwingPose chargePose(const WeaponMotion& m, int heldMs, float back) {
+	const int windup = windupMs(m);
+	const float k = windup > 0 ? std::min(1.f, static_cast<float>(heldMs) / static_cast<float>(windup)) : 1.f;
+	SwingPose pose = swingPose(m, std::min(heldMs, windup), back * k);
+	pose.draw = 0.f;
+	return pose;
+}
+
+SwingPose swingPose(const WeaponMotion& m, int elapsedMs, float back) {
+	if (elapsedMs < 0)
+		return {m.restTilt, 0.f, 0.f};
+	const auto t = static_cast<float>(elapsedMs);
+	const auto hit = static_cast<float>(m.hitMs);
+	const float windup = hit * SWING_WINDUP_SHARE;
+	// Back: away from the strike, past the windup; a thrust (no tilt between) only draws back further.
+	const float away = m.windupTilt > m.strikeTilt ? 1.f : m.windupTilt < m.strikeTilt ? -1.f : 0.f;
+	const float windupTilt = m.windupTilt + away * SWING_CHARGE_BACK_DEG * back;
+	const float pull = -(SWING_WINDUP_PULL + SWING_CHARGE_PULL * back) * m.thrust;
+	if (t < windup) {
+		const float k = smooth(t / windup);
+		return {mix(m.restTilt, windupTilt, k), mix(0.f, pull, k), t / hit};
+	}
+	if (t < hit) {
+		float k = (t - windup) / (hit - windup);
+		k *= k; // gathering speed down to the strike
+		return {mix(windupTilt, m.strikeTilt, k), mix(pull, m.thrust, k), t / hit};
+	}
+	const auto recover = static_cast<float>(m.swingMs - m.hitMs);
+	const float k = recover > 0.f ? smooth(std::min(1.f, (t - hit) / recover)) : 1.f;
+	return {mix(m.strikeTilt, m.restTilt, k), mix(m.thrust, 0.f, k), 0.f};
+}

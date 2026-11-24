@@ -5,8 +5,8 @@
 // world's per-tick player update, shared by the game (input.cpp, game_loop.cpp) and the unit tests' SimWorld. No
 // sound, no key state, no camera: the facing comes in, what began goes out, and the caller plays the sound.
 
-#include "../level/item_bag.h"
-#include "../level/world_events.h"
+#include "../level/rules/item_bag.h"
+#include "../level/rules/world_events.h"
 
 class Dungeon;
 class Player;

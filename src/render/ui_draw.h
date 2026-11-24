@@ -6,8 +6,8 @@
 // Conventions: docs/ui.md.
 
 #include "../core/paths.h"
-#include "../level/settings_ini.h"
-#include "../level/ui_layout.h"
+#include "../level/files/settings_ini.h"
+#include "../level/ui/ui_layout.h"
 #include <cstdint>
 #include <string>
 #include <vector>

@@ -3,9 +3,9 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/player_stats.h"
-#include "../../src/level/status_list.h"
-#include "../../src/level/world_events.h"
+#include "../../src/level/rules/player_stats.h"
+#include "../../src/level/ui/status_list.h"
+#include "../../src/level/rules/world_events.h"
 
 using PlayerHud::Icon;
 

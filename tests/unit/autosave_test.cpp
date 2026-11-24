@@ -1,12 +1,12 @@
 // Plan autosave: the danger guard, the world's safe moments (the exit's level start, the slain boss), the deaths
 // counter in the save and the leaderboard, and the autosave beside the save slots.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/save_slots.h"
-#include "../../src/level/leaderboard.h"
-#include "../../src/level/run_stats.h"
+#include "../../src/level/files/save_slots.h"
+#include "../../src/level/files/leaderboard.h"
+#include "../../src/level/rules/run_stats.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <array>
 #include <chrono>

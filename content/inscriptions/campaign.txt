@@ -605,7 +605,7 @@ T: Hear his name, and keep away from his water.
 N: A fan letter, sealed in the rock. The red land is the desert. I noticed.
 
 # ---- boss forewarnings (plan boss-forewarning-texts): one on each boss level that had none, before the boss.
-# Each text is atmosphere and one hint that matches the boss's rules (src/level/monster_kinds.cpp).
+# Each text is atmosphere and one hint that matches the boss's rules (src/level/rules/monster_kinds.cpp).
 
 # lvl4, Khepri: scarabs dig out of the floor, burning dung balls. A boon (life): the campaign's boon ratio test needs 1 in 6
 id: 138

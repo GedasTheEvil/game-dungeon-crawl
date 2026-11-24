@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include "player.h"
-#include "../level/journal.h"
-#include "../level/gameplay_monster_kinds.h"
+#include "../level/rules/journal.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
 #include "render_config.h"
 
 float Monster::flightProbeX() const {

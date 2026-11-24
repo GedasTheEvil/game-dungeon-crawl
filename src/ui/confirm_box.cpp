@@ -1,5 +1,5 @@
 #include "confirm_box.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "../render/ui_draw.h"
 #include <utility>
 #include <vector>

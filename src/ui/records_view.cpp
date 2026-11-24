@@ -3,11 +3,11 @@
 #include <cmath>
 #include <cstdio>
 #include "../render/gl_includes.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "../state/game_state.h"
 #include "../render/ui_draw.h"
-#include "../level/bindings.h"
-#include "../level/skills.h"
+#include "../level/input/bindings.h"
+#include "../level/rules/skills.h"
 #include "../graphics/texture_registry.h"
 #include <array>
 

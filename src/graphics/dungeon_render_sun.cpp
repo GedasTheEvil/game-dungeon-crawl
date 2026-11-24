@@ -7,7 +7,7 @@
 #include "fire.h"
 #include "../render/lighting.h"
 #include "../sim/render_config.h"
-#include "../level/gameplay_world.h"
+#include "../level/tuning/gameplay_world.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>

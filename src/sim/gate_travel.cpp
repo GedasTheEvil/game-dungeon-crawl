@@ -2,7 +2,7 @@
 #include "gate_travel.h"
 #include "dungeon_rules.h"
 #include "../core/timer.h"
-#include "../level/gameplay_world.h"
+#include "../level/tuning/gameplay_world.h"
 #include <algorithm>
 
 void GateTravel::Start(bool exitGate) {

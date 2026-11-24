@@ -2,12 +2,12 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/skills_layout.h"
-#include "../../src/level/skills.h"
-#include "../../src/level/gameplay_environment.h"
-#include "../../src/level/gameplay_monster_kinds.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_skills.h"
+#include "../../src/level/ui/skills_layout.h"
+#include "../../src/level/rules/skills.h"
+#include "../../src/level/tuning/gameplay_environment.h"
+#include "../../src/level/tuning/gameplay_monster_kinds.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_skills.h"
 #include <algorithm>
 #include <sstream>
 

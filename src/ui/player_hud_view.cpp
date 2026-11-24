@@ -1,6 +1,6 @@
 #include "player_hud_view.h"
 #include "inventory.h"
-#include "../level/bindings.h"
+#include "../level/input/bindings.h"
 #include "../core/timer.h"
 #include "../state/game_state.h"
 #include <optional>

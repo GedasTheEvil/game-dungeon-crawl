@@ -1,7 +1,7 @@
 // The campaign's later mirror puzzles (plan level-content-gaps): sideways light shafts, one or two mirrors. As the
 // level starts no beam falls on the sun disc; turned as the player would (interact: a quarter turn clockwise), it does.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "../../src/level/sun_beam.h"
 #include <string>
 #include <vector>

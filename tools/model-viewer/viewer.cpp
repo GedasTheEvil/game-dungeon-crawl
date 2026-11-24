@@ -53,7 +53,7 @@
 #include "../../src/render/ink.h"
 #include "hud.h"
 #include "../../src/render/font.h"
-#include "../../src/level/items.h"
+#include "../../src/level/rules/items.h"
 #include "../../src/render/ui_draw.h"
 #include "../../src/core/logger.h"
 #include "../../src/core/timer.h"

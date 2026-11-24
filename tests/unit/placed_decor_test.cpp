@@ -3,7 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor_scatter.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "../../tools/editor/dressing_brush.h"
 #include <memory>
 #include <sstream>

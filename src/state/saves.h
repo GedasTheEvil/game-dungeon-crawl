@@ -1,8 +1,8 @@
 #ifndef SAVES_H
 #define SAVES_H
 
-#include "../level/save_slots.h"
-#include "../level/world_events.h"
+#include "../level/files/save_slots.h"
+#include "../level/rules/world_events.h"
 #include <string>
 
 class GameState;

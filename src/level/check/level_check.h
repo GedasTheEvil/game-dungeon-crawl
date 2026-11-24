@@ -1,0 +1,179 @@
+#ifndef LEVEL_CHECK_H
+#define LEVEL_CHECK_H
+
+// Level validator: can the player get from the entrance to the exit, how big is the level, how hard is it.
+// Models the player's movement from Dungeon (dungeon_base.cpp) on whole cells:
+//   - walk left / right into any open cell (not a wall, not a closed gate); without a floor below, fall straight down
+//     until there is one or a ladder catches the player;
+//   - climb up / down between vertically adjacent ladder cells;
+//   - jump over one cell, a gap in the floor, a spike / death trap on it or quicksand, from a floor (a ladder's foot,
+//     sand and quicksand too; the jump peaks 0.4 tiles high, Jump::ARC in movement.h, so no step up onto a ledge),
+//     never out of half water (walking through it is slower, which the checker does not count);
+//   - sand slows the walk, quicksand sinks the player (plan desert-chapter): both cost a little more on the path, a run
+//     of quicksand is at most QUICKSAND_MAX_RUN cells (checkSand);
+//   - touching a key, or pulling a lever not pulled yet, opens every gate of its colour from then on (in level data a
+//     gate is closed only with value 0);
+//   - interacting with a teleporter moves the player to its partner (both ways); a name gate too (the name spoken),
+//     but the exit, the keys, the levers and the name cartouche must be found with it sealed;
+//   - reaching the boss's cell counts as killing it: the boss gates (BOSS_LOCK) open;
+//   - reaching a pressure plate (plan pressure-plate) holds it down: the plate gates of its colour open (they share the
+//     colour's bit with its keys and levers); checkLocks warns when the things on the plate's flat floor run (stones,
+//     mirrors, treasures, monsters' bodies) weigh less than it needs, so the player can leave it held;
+//   - turning a mirror (plan sunlight-mirrors) lights every sun disc a beam can reach with the mirrors the player
+//     reaches from there set as needed (sun_beam.h): the gates of its colour open; a disc lit as the level starts
+//     opens them from the start (and is warned about);
+//   - wall spikes (plan rhythm-traps) go back in, so they never block for good; a fire vent's jet (plan fire-jet-trap)
+//     and a poison drip's falling venom (plan poison-drip-trap) never block; a run of these rhythm traps in a row must
+//     be crossable at walking speed, which is checked on its own (checkWallSpikes), not on the path. A poison drip's
+//     puddle is a floor trap: a cost, jumped over like spikes;
+//   - sand gusts (plan sandstorm-halls) push the player downwind, never for good: a cost on the path. Each run of them
+//     must be crossable against the wind between gusts and blow the player into nothing worse than rock or a floor,
+//     checked on its own (checkSandGusts).
+//   - sub-cells (plan subcell-checker): a shaped cell is walked by its standing places, sub-cells over solid ones
+//   (every
+//     other cell is one place, as before): a quarter step is jumped onto (from beside it, or over water or a gap),
+//     half a tile is too high, walking off a step drops, an opening a quarter high is crawled through, a gap is jumped
+//     from a step as from the floor; jumps need the head room of their arc. A large monster does not reach the path
+//     through a crawl space (MonsterKind::heightQuarters).
+// A Death cell with no way out (a spike pit) kills the player; any other dead end is a softlock.
+
+#include "../level.h"
+#include "../sun_beam.h"
+#include "../terrain.h"
+#include <string>
+#include <vector>
+
+struct CellPos {
+	int col = -1;
+	int row = -1;
+};
+
+// How the player gets into a path cell from the one before it. Crawl: crouched into a crawl space, Step: a jump up onto
+// a quarter step (plan subcell-checker).
+// SpikedStep: a Step whose jump touches ceiling spikes or a ceiling death trap (plan ceiling-spikes).
+enum class PathMove : unsigned char { Start, Walk, Drop, Climb, Jump, Pull, Teleport, Turn, Crawl, Step, SpikedStep };
+
+// A jump on the path (plan subcell-checker-mismatches), for levelcheck --script: where it takes off and lands, in
+// sub-cells (SUBCELLS a cell, x across, y up), the way it goes and the sub-cells to the face it jumps onto (1: the
+// face is right in front of the take-off, so the player stands against it; 0: no face, a jump over a gap or a trap).
+struct PathTakeOff {
+	int x = 0, y = 0; // the sub-cell the player stands in at the take-off
+	int landX = 0;
+	int dir = 1; // -1 left, +1 right
+	int face = 0;
+};
+
+struct LevelReport {
+	bool valid = false;
+	std::vector<std::string> errors; // the level cannot be finished (or has no start / goal)
+	std::vector<std::string> warnings; // it can be finished, but something is off
+
+	CellPos start;
+	int entrances = 0;
+	int exits = 0; // exit gates + ankhs
+	bool finale = false; // the goal is the ankh (wins the game) rather than an exit gate
+
+	// Size
+	int openCells = 0; // every non-wall cell
+	int reachableCells = 0; // cells the player can stand in
+	int boundsWidth = 0; // bounding box of the open cells
+	int boundsHeight = 0;
+
+	// Content, whole level
+	int monsters[MONSTER_TYPE_MAX + 1] = {}; // by MonsterTypeId (index 0 = unknown type)
+	int monsterCount = 0;
+	int spikes = 0, deathTraps = 0, rockFalls = 0, dartPlates = 0, wallSpikes = 0, treasures = 0, keys = 0, gates = 0,
+		levers = 0, riddles = 0;
+	int sandFalls = 0; // among the rock falls (plan desert-chapter)
+	int fireVents = 0; // plan fire-jet-trap
+	int poisonDrips = 0; // plan poison-drip-trap
+	int sandGusts = 0; // plan sandstorm-halls
+	int sandCells = 0, quicksandCells = 0; // sand counts the quicksand too
+	int teleporters = 0;
+	int lightShafts = 0, mirrors = 0, sunDiscs = 0; // plan sunlight-mirrors
+	int nameGates = 0; // teleporters sealed by the level's name (plan secret-name-gates)
+	int inscriptions = 0;
+	int pages = 0, reachablePages = 0; // the earlier expedition's (plan expedition-notes)
+	int nameCartouches = 0; // among the inscriptions
+	int bosses = 0;
+	int reachableTreasures = 0; // the trapped ones too
+	int trappedTreasures = 0; // among the treasures (plan trapped-chests)
+	int softlockCells = 0; // reachable cells from which the goal cannot be reached (spike pits not counted)
+	std::vector<int> bareLandings; // cells a fall of LANDING_HEAP_ROWS+ lands in with no landing heap (soft-landing)
+
+	// Cheapest path from the entrance to the goal (hazards cost extra, see level_check.cpp)
+	std::vector<CellPos> path;
+	std::vector<PathMove> pathMoves; // one per path cell (Start for the first; Pull and Turn stay in the cell)
+	// Per path cell: the jumps into it and inside it, in order (a stair in one cell: a jump per step), and the height
+	// the player arrives at over the sub-cell they left, in sub-cells (off a ladder onto a step beside it: the climb
+	// first). Plan subcell-checker-mismatches.
+	std::vector<std::vector<PathTakeOff>> pathTakeOffs;
+	std::vector<int> pathRise;
+	// Per Turn on the path, in order: how the mirrors the player reaches are set for the sun disc it lights.
+	std::vector<std::vector<MirrorSetting>> pathTurnWays;
+	int pathLength = 0; // moves
+	int pathJumps = 0, pathDrops = 0, pathClimb = 0, pathTeleports = 0, pathTurns = 0;
+	int pathSteps = 0, pathCrawls = 0; // quarter steps jumped onto, sub-cells crawled (plan subcell-checker)
+	int pathCeilingSpikes = 0; // of those steps, the ones jumped into a ceiling trap (plan ceiling-spikes)
+	int pathSpikes = 0, pathDeathTraps = 0, pathRockFalls = 0, pathDartPlates = 0, pathWallSpikes = 0, pathGates = 0,
+		pathMonsters = 0;
+	int pathSandFalls = 0, pathSand = 0, pathQuicksand = 0; // pathRockFalls counts no sand falls
+	int pathFireVents = 0, pathPoisonDrips = 0;
+	int pathSandGusts = 0;
+	int keysNeeded = 0; // colours the path has to collect before a gate
+	bool pathBoss = false; // the path goes through a boss gate: the boss has to die
+
+	float difficulty = 0.f; // see difficultyScore(); ~0 trivial, 10 hard, 20+ brutal
+};
+
+[[nodiscard]] LevelReport checkLevel(const LevelGrid& grid);
+
+// The cells a sunbeam lights at level start, the mirrors as placed: lit[cell] != 0 (plan
+// checker-sunbeam-light-terrain). The game's Dungeon::Sunlit before the player turns a mirror. Trace it once per
+// level and pass it to spawnTerrains.
+[[nodiscard]] std::vector<char> startSunlight(const LevelGrid& grid);
+
+// The terrains of a monster's spawn cell as far as the checker knows them (plan terrain-affinity): water, sand, a
+// fire vent's cell (always), the placed braziers and oil lamps (fire and light), the placed torches and the sunbeams
+// at level start (sunlit, startSunlight; light, within LIGHT_SHUN_CELLS along the row, as Dungeon::Lit); every other
+// cell is dark (the scattered flames are the game's: the estimate stays on the safe side for a native of the dark).
+// A flyer is never in water or sand; no webs lie in a level file. The checker scores a native there higher and warns
+// of a monster spawned in a hostile cell; levelgen keeps them apart.
+struct MonsterKind;
+[[nodiscard]] Terrains
+spawnTerrains(const LevelGrid& grid, const std::vector<char>& sunlit, int col, int row, const MonsterKind& kind);
+
+// Rhythm traps (plans rhythm-traps, fire-jet-trap, poison-drip-trap): can the player walk through the run of them from
+// col to col + count - 1 on row, without stopping, in the direction dir (+1 / -1), at some start time? Out, wall spikes
+// block and stab the player they come out on, a fire vent's jet burns, a poison drip's venom falls on them.
+[[nodiscard]] bool wallSpikesCrossable(const LevelGrid& grid, int col, int row, int count, int dir);
+
+// Sand gusts (plan sandstorm-halls): can the player cross the run of them from col to col + count - 1 on row against
+// the wind, between gusts, at the walk (in sand, if the run has any), GUST_CROSS_MARGIN_MS to spare, at some start
+// time? A run that blows both ways: against the first one's wind.
+[[nodiscard]] bool gustsCrossable(const LevelGrid& grid, int col, int row, int count);
+
+// The flat floor the player can drag things along (Dungeon::dragGround, plan pressure-plate): open and dry, no shape,
+// not solid (a closed gate is), on rock.
+[[nodiscard]] bool dragFloor(const LevelGrid& grid, int col, int row);
+
+// The cells a thing in cell (an index) can be dragged to along its row (Dungeon::dragGround, plan
+// campaign-plate-puzzles): the drag floor on either side up to the first cell with an object or a fixture other than
+// a pressure plate.
+[[nodiscard]] std::vector<int> dragRun(const LevelGrid& grid, int cell);
+
+// Threat of one monster of this MonsterTypeId in the difficulty score.
+[[nodiscard]] float monsterThreat(int type);
+
+// The level as text, top row first (wall rows above and below the level are skipped), one tileGlyph per cell
+// (legend: glyphLegend in tile_defs.h, `levelcheck --legend`; m, <, >: a monster type, key or gate colour the game
+// does not know); a cell without an object shows its fixture. With a report, the path is drawn as '*' over open
+// cells. A level with water, sand or shaped cells gets a second drawing after a "structure" line, the same rows in
+// cellGlyph (level.h); a level with fixtures one after a "wall" line, the same rows, the fixtures alone ('#' / '.':
+// none). A level with placed props (plan placed-decor) gets a "decor" drawing: decorGlyph (decor.h),
+// '-' bare; one with placed decals or torches a "decals" drawing: decalLetter (decor.h), upper case with
+// a torch, 't' a torch alone, '-' bare or no torch ('#' / '.': unset); one with placed container looks (plan
+// placed-container-looks) a "containers" drawing: CONTAINER_GLYPHS, a coffin's plain or inscribed lid 'p' / 'i'.
+[[nodiscard]] std::string renderLevel(const LevelGrid& grid, const LevelReport* report);
+
+#endif

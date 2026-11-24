@@ -3,8 +3,8 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_skills.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_skills.h"
 
 namespace {
 // tests/levels/fire, the mummy woken and come up to the player, who has the Stun skill (skill).

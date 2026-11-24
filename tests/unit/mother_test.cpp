@@ -7,9 +7,9 @@
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/gameplay_monster_kinds.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monster_kinds.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 const Monster* find(const SimWorld& world, int type) {

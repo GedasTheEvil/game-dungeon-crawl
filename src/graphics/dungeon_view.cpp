@@ -2,7 +2,7 @@
 // dungeon_render*.cpp.
 #include "dungeon_view.h"
 #include "../core/timer.h"
-#include "../level/gameplay_shared.h"
+#include "../level/tuning/gameplay_shared.h"
 
 namespace {
 constexpr int PORTAL_STEP_MS = 50; // the plasma texture moves a step this often

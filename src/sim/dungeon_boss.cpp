@@ -2,12 +2,12 @@
 // opens the boss gates. plan boss-rooms.
 #include "dungeon.h"
 #include "player.h"
-#include "../level/item_bag.h"
-#include "../level/journal.h"
-#include "../level/rng.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_monsters.h"
-#include "../level/gameplay_skills.h"
+#include "../level/rules/item_bag.h"
+#include "../level/rules/journal.h"
+#include "../core/rng.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_monsters.h"
+#include "../level/tuning/gameplay_skills.h"
 #include <algorithm>
 #include <cmath>
 #include <vector>

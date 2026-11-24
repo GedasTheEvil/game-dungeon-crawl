@@ -4,11 +4,11 @@
 // with no underside a jump reaches; the checker warns when the only way on jumps into them.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "../../src/level/movement.h"
 #include "../../src/level/tile_defs.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_trap_damage.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_trap_damage.h"
 #include <algorithm>
 #include <sstream>
 

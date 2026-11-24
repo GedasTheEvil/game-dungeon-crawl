@@ -2,8 +2,8 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/inscriptions.h"
-#include "../../src/level/journal.h"
-#include "../../src/level/progression.h"
+#include "../../src/level/rules/journal.h"
+#include "../../src/level/rules/progression.h"
 #include "sim_world.h"
 #include <fstream>
 #include <initializer_list>

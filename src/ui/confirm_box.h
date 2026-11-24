@@ -2,9 +2,9 @@
 #define CONFIRM_BOX_H
 
 #include "../render/font.h"
-#include "../level/bindings.h"
-#include "../level/pointer.h"
-#include "../level/ui_layout.h"
+#include "../level/input/bindings.h"
+#include "../level/ui/pointer.h"
+#include "../level/ui/ui_layout.h"
 #include <functional>
 #include <string>
 

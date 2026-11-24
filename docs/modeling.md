@@ -16,7 +16,7 @@ started (port 9876).
 3. Iterate in live Blender (MCP) or headless with `render_sheet.py`; check the motion (`--onion`, `--paths`, `MINZ`,
    `SEAM`, `SLIDE`).
 4. `-- --export`, then `md3_stats.py` and `bin/model-viewer` on the files.
-5. Wire it in: a row in `KINDS` (`src/level/monster_kinds.cpp`) or `ITEMS` (`src/level/items.cpp`), sounds from a
+5. Wire it in: a row in `KINDS` (`src/level/rules/monster_kinds.cpp`) or `ITEMS` (`src/level/rules/items.cpp`), sounds from a
    `tools/audio/<name>_sounds.py` (`media/sounds/<category>/<name>_{wake,att,die}.wav`, optional `_jump`, `_att_ranged`), a scenario to see it in the
    dungeon ([testing.md](testing.md)).
 6. A monster with a boss: the boss texture on the same UVs (`--boss-texture`, `<NAME>_TEX=<boss>` in review renders).
@@ -68,7 +68,7 @@ started (port 9876).
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
   exporter splits surfaces). Game space Y-up, counter-clockwise triangles, each file scaled to fill the int16 range
   (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `Md3Mesh::Load` in `src/sim/md3_mesh.cpp`.
-* Blender space: Z-up. Facing depends on the monster's `rotA` in `KINDS` (`src/level/monster_kinds.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
+* Blender space: Z-up. Facing depends on the monster's `rotA` in `KINDS` (`src/level/rules/monster_kinds.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
   Check the facing in `KINDS` first.
 * The engine normalizes a monster by its reference clip's frame 0 (the walk-slot file `<name>.md3`; `_idle` for the mimics, `AMBUSH_CLIPS`, `AMBUSH_HOP_CLIPS`): largest dimension -> 1, centred in x/z,
   min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `LoadClips` in `src/sim/model_info.cpp`),
@@ -124,7 +124,7 @@ started (port 9876).
   the carapace at 0.6) and the mummy priest (`mummy_priest.py`: ankh, finger stalls, scarab).
   Re-bake with `tools/blender/rebake.py` (Tools), not a plain `--export`: Cycles adds a little noise, and `uv_unwrap`
   may lay the UVs out anew since the last export (then the `.md3` must go with its new texture).
-* Engine side: `src/sim/md3_mesh.cpp` (MD3 loader), `src/sim/model_info.cpp` (clip files, normalization), `src/render/animated_model.cpp` (drawing), `src/render/textures.cpp` (PNG textures), model/texture paths in `src/level/monster_kinds.cpp` (`KINDS`) and `src/level/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
+* Engine side: `src/sim/md3_mesh.cpp` (MD3 loader), `src/sim/model_info.cpp` (clip files, normalization), `src/render/animated_model.cpp` (drawing), `src/render/textures.cpp` (PNG textures), model/texture paths in `src/level/rules/monster_kinds.cpp` (`KINDS`) and `src/level/rules/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
 * Lighting: `src/render/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/render/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,

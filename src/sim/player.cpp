@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <cmath>
 #include "figures.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_player.h"
-#include "../level/gameplay_shared.h"
-#include "../level/gameplay_skills.h"
-#include "../level/head_bump.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_player.h"
+#include "../level/tuning/gameplay_shared.h"
+#include "../level/tuning/gameplay_skills.h"
+#include "../level/rules/head_bump.h"
 #include "render_config.h"
 
 int powerHitBonusPercent(int points, int rank) {

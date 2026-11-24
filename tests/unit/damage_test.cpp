@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/damage.h"
+#include "../../src/level/rules/damage.h"
 #include <cmath>
 #include <string>
 

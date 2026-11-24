@@ -2,9 +2,9 @@
 #include "monster.h"
 #include <cmath>
 #include "player.h"
-#include "../level/journal.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_shared.h"
+#include "../level/rules/journal.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_shared.h"
 
 bool Monster::canCharge(float px, float py) const {
 	if (!type->charge || !Alive() || !alerted || Charging() || !sameRow(py) || GameClock::now() < charge.nextMs)

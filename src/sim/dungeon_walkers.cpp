@@ -2,9 +2,9 @@
 // a coward's flight, a climber's path across floors and the step that puts it together.
 #include "dungeon.h"
 #include "player.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_monsters.h"
-#include "../level/gameplay_shared.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_monsters.h"
+#include "../level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 #include "../level/climb_path.h"

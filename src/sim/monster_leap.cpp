@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include "player.h"
-#include "../level/journal.h"
-#include "../level/gameplay_head_bump.h"
-#include "../level/gameplay_monsters.h"
-#include "../level/gameplay_shared.h"
-#include "../level/head_bump.h"
+#include "../level/rules/journal.h"
+#include "../level/tuning/gameplay_head_bump.h"
+#include "../level/tuning/gameplay_monsters.h"
+#include "../level/tuning/gameplay_shared.h"
+#include "../level/rules/head_bump.h"
 #include "render_config.h"
 
 bool Monster::canJump() const {

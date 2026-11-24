@@ -1,8 +1,8 @@
-// The draft map's marks (plan map-legend-sprites, src/level/map_marks.h): what a cell shows (its object, else its
+// The draft map's marks (plan map-legend-sprites, src/level/ui/map_marks.h): what a cell shows (its object, else its
 // fixture, else a taken treasure's container, else its prop), the sprite of each look, and the guards against the
 // next gap: every tile type and every prop the player can use has a mark, every mark a name and a sprite.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/map_marks.h"
+#include "../../src/level/ui/map_marks.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
 #include <set>

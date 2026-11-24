@@ -4,7 +4,7 @@
 #include "../render/matrix_stack.h"
 #include "../render/ui_draw.h"
 #include "../game/window.h"
-#include "../level/monster_kinds.h"
+#include "../level/rules/monster_kinds.h"
 #include <cstdio>
 #include <algorithm>
 #include <cstring>
@@ -13,11 +13,11 @@
 #include <string>
 #include <utility>
 #include "../core/logger.h"
-#include "../level/gameplay_trap_damage.h"
+#include "../level/tuning/gameplay_trap_damage.h"
 #include "../core/paths.h"
 #include "../core/worker_pool.h"
 #include "loading_text.h"
-#include "../level/world_events.h"
+#include "../level/rules/world_events.h"
 
 namespace {
 // Sand spilling from a FLOOR_SAND cell onto the stone floor beside it (SurfaceCell::sandLeft, sandRight): floor_sand,

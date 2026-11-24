@@ -5,10 +5,10 @@
 // dungeon_render_sand.cpp.
 #include "dungeon.h"
 #include "player.h"
-#include "../level/spike_cycle.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_rhythm_traps.h"
-#include "../level/gameplay_shared.h"
+#include "../level/rules/spike_cycle.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_rhythm_traps.h"
+#include "../level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 

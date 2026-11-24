@@ -11,11 +11,11 @@
 #include "../audio/sound.h"
 #include "../level/containers.h"
 #include "../level/decor.h"
-#include "../level/inscription_layout.h"
-#include "../level/items.h"
+#include "../level/ui/inscription_layout.h"
+#include "../level/rules/items.h"
 #include "../level/level.h"
 #include "../level/shrines.h"
-#include "../level/world_events.h"
+#include "../level/rules/world_events.h"
 #include <array>
 #include <functional>
 #include <memory>

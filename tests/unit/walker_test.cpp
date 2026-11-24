@@ -1,7 +1,7 @@
 // The checker's movement rules against the game's (plan movement-model), on small levels.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/items.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/items.h"
 #include "../../src/level/tile_defs.h"
 #include <string>
 #include <vector>

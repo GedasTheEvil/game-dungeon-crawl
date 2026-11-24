@@ -1,9 +1,9 @@
 // Plan leaderboard: the run's counters (kept by a save and load), the leaderboard file, its orders and scores.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
-#include "../../src/level/gameplay_skills.h"
-#include "../../src/level/leaderboard.h"
-#include "../../src/level/run_stats.h"
+#include "../../src/level/tuning/gameplay_skills.h"
+#include "../../src/level/files/leaderboard.h"
+#include "../../src/level/rules/run_stats.h"
 #include "sim_world.h"
 #include <filesystem>
 #include <sstream>

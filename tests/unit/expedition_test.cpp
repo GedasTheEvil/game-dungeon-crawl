@@ -3,8 +3,8 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/journal_text.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/ui/journal_text.h"
+#include "../../src/level/check/level_check.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <cstring>

@@ -2,12 +2,12 @@
 // them with `expect` lines only: teleporters, the exit, dart traps, rock falls, the fall trap, arrows in water, the
 // boss fights and their saves.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_gen.h"
+#include "../../src/level/gen/level_gen.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_player.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_player.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <cmath>
 #include <iterator>

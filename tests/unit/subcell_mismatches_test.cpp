@@ -4,10 +4,10 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/sim/dungeon_cheats.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/path_script.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/check/path_script.h"
 #include "../../src/level/tile_defs.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <cmath>
 #include <sstream>
 #include <string>

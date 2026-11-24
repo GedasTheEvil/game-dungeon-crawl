@@ -1,8 +1,8 @@
 // What lies or hangs on the level for a while (plan dungeon-subsystems): the parts that need no level.
 #include "hazards.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_environment.h"
-#include "../level/gameplay_traps.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_environment.h"
+#include "../level/tuning/gameplay_traps.h"
 #include <algorithm>
 
 void Hazards::Clear() {

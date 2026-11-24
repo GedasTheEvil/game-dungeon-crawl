@@ -1,7 +1,7 @@
 // What flies or rolls on the level (plan dungeon-subsystems): the parts that need no level.
 #include "projectiles.h"
-#include "../level/gameplay_combat.h"
-#include "../level/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_combat.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
 #include <algorithm>
 #include <cmath>
 

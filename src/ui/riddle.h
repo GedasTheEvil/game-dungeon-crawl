@@ -1,9 +1,9 @@
 #ifndef RIDDLE_H
 #define RIDDLE_H
 #include "../render/font.h"
-#include "../level/names.h"
-#include "../level/riddle_file.h"
-#include "../level/rng.h"
+#include "../level/files/names.h"
+#include "../level/files/riddle_file.h"
+#include "../core/rng.h"
 #include "screen_world.h"
 #include <string>
 #include <vector>

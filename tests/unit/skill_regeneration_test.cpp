@@ -1,9 +1,9 @@
 // Touch of Imhotep (plan skill-regeneration): a Heka skill that regenerates HP under the safe rule of plan
 // regen-safe-rule. Rank I 1 HP / 5 s, rank II 0.25% of max HP / s; stacks with the amulet and the garnet rings.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/player_stats.h"
-#include "../../src/level/skills.h"
-#include "../../src/level/vitals.h"
+#include "../../src/level/rules/player_stats.h"
+#include "../../src/level/rules/skills.h"
+#include "../../src/level/rules/vitals.h"
 #include <algorithm>
 
 namespace {

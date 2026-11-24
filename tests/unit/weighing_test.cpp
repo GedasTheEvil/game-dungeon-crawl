@@ -2,10 +2,10 @@
 // field note, and the epilogue writes its page after Dawn.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/judgment.h"
-#include "../../src/level/journal_text.h"
+#include "../../src/level/rules/judgment.h"
+#include "../../src/level/ui/journal_text.h"
 #include "../../src/level/level.h"
-#include "../../src/level/map_marks.h"
+#include "../../src/level/ui/map_marks.h"
 #include "sim_world.h"
 #include <algorithm>
 #include <fstream>

@@ -9,8 +9,8 @@
 #include <cstdio>
 #include "../core/logger.h"
 #include <memory>
-#include "../level/gameplay_player.h"
-#include "../level/texts.h"
+#include "../level/tuning/gameplay_player.h"
+#include "../level/files/texts.h"
 #include "../render/animated_model.h"
 #include "../render/brightness.h"
 #include "../render/ink.h"

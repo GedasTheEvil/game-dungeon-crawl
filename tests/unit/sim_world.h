@@ -1,9 +1,9 @@
 #ifndef SIM_WORLD_H
 #define SIM_WORLD_H
 
-#include "../../src/level/gameplay_player.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_world.h"
+#include "../../src/level/tuning/gameplay_player.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_world.h"
 #include "../../src/core/timer.h"
 #include "../../src/sim/model_info.h"
 #include "../../src/sim/monster.h"
@@ -13,14 +13,14 @@
 #include "../../src/level/campaign.h"
 #include "../../src/sim/dungeon.h"
 #include "../../src/sim/dungeon_save.h"
-#include "../../src/level/item_bag.h"
-#include "../../src/level/items.h"
+#include "../../src/level/rules/item_bag.h"
+#include "../../src/level/rules/items.h"
 #include "../../src/level/inscriptions.h"
-#include "../../src/level/journal.h"
-#include "../../src/level/names.h"
-#include "../../src/level/player_actions.h"
-#include "../../src/level/rng.h"
-#include "../../src/level/world_events.h"
+#include "../../src/level/rules/journal.h"
+#include "../../src/level/files/names.h"
+#include "../../src/level/rules/player_actions.h"
+#include "../../src/core/rng.h"
+#include "../../src/level/rules/world_events.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>

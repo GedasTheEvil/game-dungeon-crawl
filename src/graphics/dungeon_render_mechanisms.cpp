@@ -7,10 +7,10 @@
 #include "../sim/render_config.h"
 #include "fire.h"
 #include "../render/lighting.h"
-#include "../level/spike_cycle.h"
-#include "../level/gameplay_rhythm_traps.h"
-#include "../level/gameplay_traps.h"
-#include "../level/gameplay_world.h"
+#include "../level/rules/spike_cycle.h"
+#include "../level/tuning/gameplay_rhythm_traps.h"
+#include "../level/tuning/gameplay_traps.h"
+#include "../level/tuning/gameplay_world.h"
 #include "../render/gl_includes.h"
 #include <algorithm>
 #include <cmath>

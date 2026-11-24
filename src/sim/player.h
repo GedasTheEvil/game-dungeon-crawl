@@ -4,11 +4,11 @@
 #include <cmath>
 #include "model_info.h"
 #include "particles.h"
-#include "../level/player_stats.h"
+#include "../level/rules/player_stats.h"
 #include "../core/timer.h"
-#include "../level/gameplay_shared.h"
-#include "../level/world_events.h"
-#include "../level/rng.h"
+#include "../level/tuning/gameplay_shared.h"
+#include "../level/rules/world_events.h"
+#include "../core/rng.h"
 
 // Power hit (plan skill-power-hit): the bonus% of a melee hit charged with this many stamina points, on the weapon's
 // damage (POWER_CURVE_SCALE, POWER_CURVE_POINTS); 0 for none.

@@ -46,7 +46,7 @@ SHOTS = [
     ("003_heka.png", "heka", None, 800),
 ]
 
-# skill_icons.png: 4 columns of 128 px, the heka mark, then the skills in SkillId order (src/level/skills.h).
+# skill_icons.png: 4 columns of 128 px, the heka mark, then the skills in SkillId order (src/level/rules/skills.h).
 SKILL_ICONS = [
     "heka", "stun", "words_of_thoth", "dodge", "power_hit", "eye_of_horus", "favour_of_hapi", "serkets_favour",
     "blessing_of_isis", "flaming_arrows", "ka_of_osiris", "strength_of_montu", "djed_of_ptah", "breath_of_shu",
@@ -54,8 +54,8 @@ SKILL_ICONS = [
     "arrows_of_satet", "sting_of_serket", "fang_of_wadjet", "touch_of_imhotep",
 ]  # fmt: skip
 
-# hud_icons.png: 8 columns of 128 px (PlayerHud::Icon, src/level/hud_icon.h). status_cards.png: blessing, condition,
-# curse, 128 px each. (file name, icon cell, card, tint: the status list's, src/level/status_list.cpp)
+# hud_icons.png: 8 columns of 128 px (PlayerHud::Icon, src/level/ui/hud_icon.h). status_cards.png: blessing, condition,
+# curse, 128 px each. (file name, icon cell, card, tint: the status list's, src/level/ui/status_list.cpp)
 CARD_BLESSING, CARD_CONDITION, CARD_CURSE = 0, 1, 2
 FIRST_CURSE = 37
 CURSES = ["weakness", "clumsiness", "vulnerability", "fatigue", "disease", "slowness", "palsy", "insanity"]
@@ -147,7 +147,7 @@ AMULET_ICONS = ["strength", "armor", "health", "poison_guard", "trap_guard", "sm
                 "regeneration", "venom", "fire_guard", "crushing", "cleaving", "piercing", "shots", "quick_shots"]  # fmt: skip
 
 
-# The potions on hud_icons.png's white potion cell (0), tinted with their colour (ITEMS, src/level/items.cpp).
+# The potions on hud_icons.png's white potion cell (0), tinted with their colour (ITEMS, src/level/rules/items.cpp).
 POTIONS = [
     ("small_health", (1.0, 0.0, 0.0)), ("large_health", (0.7, 0.0, 0.3)), ("might", (0.4, 0.0, 0.6)),
     ("armor", (1.0, 0.6, 0.0)), ("life", (0.7, 0.6, 0.3)), ("small_stamina", (0.45, 0.85, 0.25)),
@@ -156,7 +156,7 @@ POTIONS = [
 ]  # fmt: skip
 
 
-# The ring cell's blue gem recoloured per gem (RING_GEMS, src/level/items.cpp).
+# The ring cell's blue gem recoloured per gem (RING_GEMS, src/level/rules/items.cpp).
 RING_GEMS = [
     ("garnet", (0.78, 0.04, 0.10)), ("lapis", (0.10, 0.28, 0.95)), ("feldspar", (0.05, 0.75, 0.30)),
     ("jasper", (1.0, 0.92, 0.25)), ("crystal", (0.82, 0.92, 1.0)), ("amethyst", (0.62, 0.22, 0.92)),

@@ -9,7 +9,7 @@
 #include "../core/paths.h"
 #include "../level/zone_music.h"
 #include "first_hints.h"
-#include "../level/gameplay_shared.h"
+#include "../level/tuning/gameplay_shared.h"
 #include <filesystem>
 #include <map>
 #include <string>

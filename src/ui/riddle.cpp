@@ -3,12 +3,12 @@
 #include "../state/ui_context.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "../render/gl_includes.h"
 #include "../render/ui_draw.h"
-#include "../level/journal.h"
+#include "../level/rules/journal.h"
 #include "../level/campaign.h"
-#include "../level/player_actions.h"
+#include "../level/rules/player_actions.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>

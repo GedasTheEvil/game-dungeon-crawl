@@ -4,9 +4,9 @@
 #include "player.h"
 #include "../level/decor.h"
 #include "dungeon_rules.h"
-#include "../level/journal.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_world.h"
+#include "../level/rules/journal.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_world.h"
 #include <algorithm>
 #include <cmath>
 

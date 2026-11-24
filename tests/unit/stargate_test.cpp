@@ -2,10 +2,10 @@
 // will not, the XP the first time; the dial device's note; the chamber on lvl48 and the checker's torch rule.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_world.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_world.h"
 #include <algorithm>
 #include <string>
 

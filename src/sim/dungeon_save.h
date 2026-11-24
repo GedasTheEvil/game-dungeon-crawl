@@ -3,8 +3,8 @@
 
 #include "player.h"
 #include "dungeon.h"
-#include "../level/item_bag.h"
-#include "../level/journal.h"
+#include "../level/rules/item_bag.h"
+#include "../level/rules/journal.h"
 #include <array>
 #include <istream>
 #include <ostream>

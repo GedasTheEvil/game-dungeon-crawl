@@ -125,7 +125,7 @@ for `--play` only; `make test` does not run them. `tools/plan.py solve` removes 
 
 One command per line. `#` starts a comment.
 
-A new command is a row in `commandDefs()` (`src/level/scenario_script.cpp`: name, argument parser, usage), its run in the group function it belongs to
+A new command is a row in `commandDefs()` (`src/level/files/scenario_script.cpp`: name, argument parser, usage), its run in the group function it belongs to
 (`src/test/scenario.cpp`: `runSetupCommand`, `runInputCommand`, `runItemCommand`, `runProgressCommand`, `runMonsterCommand`,
 `runPlayerCommand`, `runWorldCommand`, `runDataCommand`) plus its `case` in `runInstant`'s list (`-Wswitch` asks for it), an example line in
 `tests/unit/scenario_script_test.cpp` and a row in the table below. A new `expect` field is a row in `fieldDefs()` and

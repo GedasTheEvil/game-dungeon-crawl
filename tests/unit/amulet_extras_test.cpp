@@ -1,9 +1,9 @@
 // The crushing, cleaving and piercing amulets, and the journal note of every amulet type (plan amulet-extras).
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/player_stats.h"
-#include "../../src/level/item_bag.h"
-#include "../../src/level/journal.h"
-#include "../../src/level/journal_text.h"
+#include "../../src/level/rules/player_stats.h"
+#include "../../src/level/rules/item_bag.h"
+#include "../../src/level/rules/journal.h"
+#include "../../src/level/ui/journal_text.h"
 #include "sim_world.h"
 #include <set>
 #include <string>

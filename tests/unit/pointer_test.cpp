@@ -1,7 +1,7 @@
 // The screens' shared click rules (plan shared-click-handling): a press fires on release over the same target, with
 // the same mouse button.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/pointer.h"
+#include "../../src/level/ui/pointer.h"
 
 namespace {
 constexpr int NONE = -1;

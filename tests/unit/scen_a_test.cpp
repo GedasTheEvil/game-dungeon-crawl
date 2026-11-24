@@ -1,7 +1,7 @@
 // Sim checks of the old amulet, poison, scorpion, bow and ranged-weapon scenarios (plan lean-scenario-tests).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_skills.h"
+#include "../../src/level/tuning/gameplay_skills.h"
 
 namespace {
 ItemKind amulet(AmuletType type, AmuletTier tier) { return *amuletKind(type, tier); }

@@ -5,10 +5,10 @@
 #include "sim_world.h"
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/level_gen.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/gen/level_gen.h"
 #include "../../src/level/zone_look.h"
-#include "../../src/level/gameplay_environment.h"
+#include "../../src/level/tuning/gameplay_environment.h"
 #include <algorithm>
 #include <string>
 

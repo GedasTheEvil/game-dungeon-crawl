@@ -4,7 +4,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/sim/figures.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <string>
 
 namespace {

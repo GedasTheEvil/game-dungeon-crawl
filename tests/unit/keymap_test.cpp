@@ -2,7 +2,7 @@
 // and the [controls] names stay as they were.
 #include "../../external/doctest/doctest.h"
 #include "../../src/input/keymap.h"
-#include "../../src/level/input.h"
+#include "../../src/level/input/keys.h"
 
 namespace {
 InputKey at(SDL_Scancode scancode, bool numLock = true) {

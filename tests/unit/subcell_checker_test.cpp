@@ -3,7 +3,7 @@
 // set on them (bit = column + 4 * row, row 0 at the bottom).
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include "../../src/level/tile_defs.h"
 #include <algorithm>
 #include <string>

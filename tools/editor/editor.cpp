@@ -11,7 +11,7 @@
 #include "../../src/level/campaign.h"
 #include "../../src/level/decor.h"
 #include "../../src/level/level.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include <filesystem>
 #include "../../src/core/logger.h"
 #include "../../src/game/gl_window.h"

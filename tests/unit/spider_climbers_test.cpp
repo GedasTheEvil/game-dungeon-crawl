@@ -6,9 +6,9 @@
 #include "../../src/level/campaign.h"
 #include "../../src/level/climb_path.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/level_gen.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gen/level_gen.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <cmath>
 
 namespace {

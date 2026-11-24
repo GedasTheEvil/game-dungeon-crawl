@@ -1,14 +1,14 @@
 // The rings (plan ring-accessories): two worn at once, one per hand; the gem's effect, the metal's strength, the sums
 // and caps, the hands, the save, the loot.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/player_stats.h"
-#include "../../src/level/item_bag.h"
-#include "../../src/level/journal.h"
-#include "../../src/level/journal_text.h"
+#include "../../src/level/rules/player_stats.h"
+#include "../../src/level/rules/item_bag.h"
+#include "../../src/level/rules/journal.h"
+#include "../../src/level/ui/journal_text.h"
 #include "../../src/level/loot.h"
 #include "../../src/level/movement.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 #include <sstream>
 #include <string>
 #include <utility>

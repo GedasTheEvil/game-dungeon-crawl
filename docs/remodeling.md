@@ -41,7 +41,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   with two-bone leg IK (two strides per walk clip), FK tail chain laid onto the floor where it would sink (limp in the die clip),
   per-frame floor fix from a numpy copy of the skinning. The jump clip (`rat_jump.md3`, 10 frames, plays once: crouch, push-off,
   stretched in the air, paws reaching down, landing crouch) stays on the floor; the engine moves it along the arc
-  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/level/gameplay_monsters.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
+  (`Monster::UpdateJump`, `MONSTER_JUMP_*` in `src/level/tuning/gameplay_monsters.h`). Bakes two textures on the same UVs: `rat.png` and `rat_giant.png`
   (near-black mangy fur, red eyes); `RAT_TEX=giant` shows the giant one in review renders.
   Climb (`rat_climb.md3`, 16 frames, loops, back to the camera): a bound, the hind feet push together, then the forepaws reach and
   pull (a rung is about a hind leg's reach); body pitched 82 deg nose up, belly to the ladder (+Y); gripping paw tips on IK targets
@@ -54,8 +54,8 @@ conventions, steps). New model notes go in the script's docstring, not here.
   0.25 wingspans below the origin on the downstroke (`BAT_WING_DIP`). Bakes `bat.png` and `bat_giant.png` on the same UVs;
   `BAT_TEX=giant` shows the giant one in review renders. `--boss-texture` bakes only `bat_vampire.png` (the vampire bat
   boss: blue-black fur, blood-red veins, crimson eyes). Sounds: `tools/audio/bat_sounds.py` (`media/sounds/monsters/bat_{att,die}.wav`).
-  Engine: `Monster::Fly` (`Locomotion::Fly` in `KINDS`, `src/level/monster_kinds.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
-  (`BAT_*` in `src/level/gameplay_monster_kinds.h`), falls to the floor on death.
+  Engine: `Monster::Fly` (`Locomotion::Fly` in `KINDS`, `src/level/rules/monster_kinds.cpp`): hangs from `BAT_CEILING` by the idle clip's top, swoops through the player and back
+  (`BAT_*` in `src/level/tuning/gameplay_monster_kinds.h`), falls to the floor on death.
 * `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
   `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
   their own into the right half), so the rest pose is the item vertex for vertex: frame 0 of `mimic_idle.md3`, the mimic's normalization reference
@@ -273,14 +273,14 @@ conventions, steps). New model notes go in the script's docstring, not here.
   metres (the engine centres each and scales its largest dimension to 1, `Item::loadModel`). Weapons stand on +Z, grip at the
   bottom, flat faces in the x-z plane; the bow's back bulges to +x. The engine holds the weapon in the fist nearer the camera
   (`PlayerView::Fist`: a fist vertex found in the idle clip, followed through every clip), at `WeaponMotion::grip` of its length
-  up from the lowest point, tilted and swung per its `WeaponDef` (`ITEMS` in `src/level/items.cpp`).
+  up from the lowest point, tilted and swung per its `WeaponDef` (`ITEMS` in `src/level/rules/items.cpp`).
   The bows (`bow`, `composite_bow`) are held upright by their grip and have `BOW_FRAMES` (8) frames, the draw: frame 0 at rest, then the string pulled back
   with an arrow on it (collapsed onto the nock in frame 0, so every frame has the same vertices); the engine picks the frame
   from the draw time (`Item::Draw(pose)`). Texture and UVs come from the fully drawn bow, the frames from shape keys
   (`bow_frames`). The missiles in flight are drawn in metres, not centred (`Dungeon::drawMissiles`): `arrow.md3` (tip at +Z),
   `sling_stone.md3`, and the throwing stick and javelin models a second time (loaded uncentred for the flight).
   The chest faces -Y (drawn at rotA 0), lid open to +Y, a heap of gold inside for the tile's item to stand in.
-  The potion vessels (`potion_<model>`, `PotionModel` in `src/level/items.h`; each about the flask's 0.18 m height):
+  The potion vessels (`potion_<model>`, `PotionModel` in `src/level/rules/items.h`; each about the flask's 0.18 m height):
   `flask` (round glass flask, cork and cord: small health, small stamina), `lotus` (glass jar on a gold foot, a lotus
   flower of faience petals at the mouth, two handles: large health, large stamina), `pilgrim` (flat faience "New Year
   flask" with gold rings: might, water blessing), `canopic` (alabaster jar, falcon head lid: armor), `cobra` (slim vial, a gold cobra
@@ -322,7 +322,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/audio/weapon_sounds.py` - synthesizes `media/sounds/items/`: a swing and a hit per melee weapon (`<weapon>_swing`,
   `<weapon>_hit`, shared by the weapons alike: `axe_hit`, `mace_hit`), the bow's draw and release, the sling's whirl and
   release, a throw, the arrow in a body and in stone (`arrow_hit`, `arrow_wall`), a stone or stick on a body or off a wall
-  (`stone_hit`, `stone_wall`). Wired in `ITEMS` (`src/level/items.cpp`) and `MISSILE_RULES`
+  (`stone_hit`, `stone_wall`). Wired in `ITEMS` (`src/level/rules/items.cpp`) and `MISSILE_RULES`
   (`src/sim/dungeon_rules.h`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `media/sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).

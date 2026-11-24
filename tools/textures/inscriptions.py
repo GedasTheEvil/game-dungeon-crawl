@@ -12,7 +12,7 @@
 The signs are every code on a `G:` line of content/inscriptions/*.txt and content/names/*.txt (docs/inscriptions.md),
 sorted, so the cell order is stable. G: lists the signs by Gardiner code (A1, M23, Aa1, N35A), drawn with the Noto
 Sans Egyptian Hieroglyphs font (SIL Open Font License; Debian/Ubuntu package fonts-noto-extra). The game lays them
-out in the plate of the inscription's style (inscriptionLayout in src/level/inscription_layout.cpp):
+out in the plate of the inscription's style (inscriptionLayout in src/level/ui/inscription_layout.cpp):
 
     cartouche  an upright royal oval on its bar, the signs in a column (up to 6)
     column     a framed panel, the signs in a column (up to 7)
@@ -34,7 +34,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from decals import INK, PAINT, S, bleed, layer, weather  # noqa: E402
 
-PLATE_GRID = 3  # PLATE_GRID in src/level/inscription_layout.h; the plates are drawn at S = 512 px
+PLATE_GRID = 3  # PLATE_GRID in src/level/ui/inscription_layout.h; the plates are drawn at S = 512 px
 SIGN_GRID = 16  # HIEROGLYPH_SHEET_GRID
 SIGN_PX = 128  # a sign's cell; drawn at S and scaled down
 SIGN_GUTTER = 4  # px of a cell kept clear around the sign (HIEROGLYPH_GUTTER), so filtering does not reach the next

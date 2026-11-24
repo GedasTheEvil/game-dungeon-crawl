@@ -1,7 +1,7 @@
 // The riddle files (plan riddle-duplicate-and-hints): no two riddles share a question.
 #include "../../external/doctest/doctest.h"
 #include "../../src/core/paths.h"
-#include "../../src/level/riddle_file.h"
+#include "../../src/level/files/riddle_file.h"
 #include <cctype>
 #include <filesystem>
 #include <fstream>

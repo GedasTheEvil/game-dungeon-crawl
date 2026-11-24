@@ -2,7 +2,7 @@
 // likelier. A dazed player rolls nothing and is not dazed longer.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 TEST_CASE("the coal's daze is data: the baboon 3 s, Babi's stronger; no other thrower dazes") {
 	const MonsterKind& baboon = *monsterKind(MonsterBaboon);

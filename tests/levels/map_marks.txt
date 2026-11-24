@@ -1,4 +1,4 @@
-; Plan map-legend-sprites: one of every draft map mark (src/level/map_marks.h), along the walk (row 1) and over it
+; Plan map-legend-sprites: one of every draft map mark (src/level/ui/map_marks.h), along the walk (row 1) and over it
 ; (row 2), for the map's screenshot (tests/scenarios/map_marks.txt) and tests/unit/map_marks_test.cpp. As
 ; tests/levels/map_symbols, then ceiling spikes (col 32) and a ceiling death trap (col 34), each a shaped cell under
 ; rock. Cols 23 to 30 stay free: the scenario and the test put the props there (shrines, Stargate, dial, brazier).

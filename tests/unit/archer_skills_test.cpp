@@ -3,8 +3,8 @@
 // amulet and the Bleed skill as one roll.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/archer_skills.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/rules/archer_skills.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 // tests/levels/hitbox_bow: a giant rat (no poison resistance, bleeds) 2 tiles off, the player with `skill` at `rank`.

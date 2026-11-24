@@ -1,7 +1,7 @@
 #ifndef GAMEPLAY_COMMANDS_H
 #define GAMEPLAY_COMMANDS_H
 
-#include "../level/camera_look.h"
+#include "../level/input/camera_look.h"
 #include "../sim/player_control.h"
 
 // The player's gameplay commands (plan game-state-split): what a key, a click or a scenario asks the player to do, and

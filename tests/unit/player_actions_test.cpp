@@ -1,7 +1,7 @@
 // The player's actions outside the screens (plan item-actions-out-of-screens): an offering's XP, counter and gift; a
 // merge into sky iron's note; a riddle's reward and counter; Hieroglyphs' translation XP and the skill's note.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/player_actions.h"
+#include "../../src/level/rules/player_actions.h"
 #include <algorithm>
 #include <string>
 

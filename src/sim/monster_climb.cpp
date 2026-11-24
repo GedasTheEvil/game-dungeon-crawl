@@ -5,9 +5,9 @@
 #include <cmath>
 #include <utility>
 #include "figures.h"
-#include "../level/journal.h"
-#include "../level/gameplay_monsters.h"
-#include "../level/gameplay_player.h"
+#include "../level/rules/journal.h"
+#include "../level/tuning/gameplay_monsters.h"
+#include "../level/tuning/gameplay_player.h"
 #include "render_config.h"
 
 void Monster::WalkPath(int dir, bool blocked) {

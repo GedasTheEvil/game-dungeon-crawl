@@ -1,9 +1,9 @@
 #include "skills_view.h"
-#include "../level/skills_layout.h"
+#include "../level/ui/skills_layout.h"
 #include "../core/timer.h"
 #include "../render/gl_includes.h"
-#include "../level/input.h"
-#include "../level/player_actions.h"
+#include "../level/input/keys.h"
+#include "../level/rules/player_actions.h"
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include <algorithm>

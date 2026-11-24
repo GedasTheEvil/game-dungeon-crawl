@@ -3,9 +3,9 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/sun_beam.h"
-#include "../../src/level/gameplay_combat.h"
-#include "../../src/level/gameplay_head_bump.h"
-#include "../../src/level/gameplay_player.h"
+#include "../../src/level/tuning/gameplay_combat.h"
+#include "../../src/level/tuning/gameplay_head_bump.h"
+#include "../../src/level/tuning/gameplay_player.h"
 #include <algorithm>
 
 namespace {

@@ -2,7 +2,7 @@
 // player sets off, the first jump into ceiling spikes. Each has a text.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/journal_text.h"
+#include "../../src/level/ui/journal_text.h"
 #include <algorithm>
 #include <string>
 

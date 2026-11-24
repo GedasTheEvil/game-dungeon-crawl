@@ -2,10 +2,10 @@
 // the Favour of Hapi skill (plan skill-blessing-of-hapi).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/skills.h"
-#include "../../src/level/gameplay_environment.h"
-#include "../../src/level/gameplay_shared.h"
-#include "../../src/level/gameplay_skills.h"
+#include "../../src/level/rules/skills.h"
+#include "../../src/level/tuning/gameplay_environment.h"
+#include "../../src/level/tuning/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_skills.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>

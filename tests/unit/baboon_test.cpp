@@ -3,7 +3,7 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 // The level loaded, the baboon on it: it has come up to its band and stands there, or has thrown already.

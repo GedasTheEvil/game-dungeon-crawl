@@ -3,7 +3,7 @@
     python3 tools/textures/map_marks.py [out.png]
 
 Pencil strokes on clear, drawn at 4x and downsampled (plan map-legend-sprites). Cell order must match MapMark in
-src/level/map_marks.h: a mark's sprite is the cell of its number, then from cell 40 on the second looks
+src/level/ui/map_marks.h: a mark's sprite is the cell of its number, then from cell 40 on the second looks
 (MarkDef::stateCell): the gate open, the boss gate open, the lever pulled, the rock fallen. A sprite holds the map
 cell in its middle, MARGIN of its width free on every side (MAP_MARK_MARGIN). Strokes are in map cell units, y up,
 as the map drew them in code before the sheet. White sprites (key, gate, lever, sun disc) are tinted by the map with
@@ -485,7 +485,7 @@ def scales(sk):
     sk.pencil(0.78, 0.4, 0.8, 0.62, GRAPHITE, 0.7, 21)
 
 
-# In MapMark order (src/level/map_marks.h), then the second looks.
+# In MapMark order (src/level/ui/map_marks.h), then the second looks.
 MARKS = [
     entrance,
     exit_,

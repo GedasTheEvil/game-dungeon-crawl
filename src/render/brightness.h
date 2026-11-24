@@ -3,7 +3,7 @@
 
 // The picture's brightness (plan settings-extras): a gamma over the whole finished frame, the screens and the HUD
 // too, so the Options calibration ankh shows what the game will look like. The curve is brightenedChannel
-// (level/settings_ini.h).
+// (level/files/settings_ini.h).
 namespace Brightness {
 // In percent, MIN_BRIGHTNESS .. MAX_BRIGHTNESS; 100 draws nothing extra.
 void set(int percent);

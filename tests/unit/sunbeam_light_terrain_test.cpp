@@ -1,9 +1,9 @@
 // The checker's light terrain (plan checker-sunbeam-light-terrain): a sunbeam at level start is light, as the game's
 // Dungeon::Lit, for a light shunner's spawn: within LIGHT_SHUN_CELLS of the beam along the row, not past it.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/monster_kinds.h"
-#include "../../src/level/gameplay_monsters.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/rules/monster_kinds.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
 #include <string>
 #include <vector>
 

@@ -6,7 +6,7 @@
 #include "../../src/level/decor.h"
 #include "../../src/level/decor_scatter.h"
 #include "../../src/level/level.h"
-#include "../../src/level/monster_kinds.h"
+#include "../../src/level/rules/monster_kinds.h"
 #include "../../src/level/zone_look.h"
 #include <filesystem>
 #include <cctype>

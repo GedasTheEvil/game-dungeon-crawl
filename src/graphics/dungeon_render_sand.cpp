@@ -10,9 +10,9 @@
 #include "../sim/render_config.h"
 #include "fire.h"
 #include "../render/lighting.h"
-#include "../level/spike_cycle.h"
-#include "../level/gameplay_environment.h"
-#include "../level/gameplay_traps.h"
+#include "../level/rules/spike_cycle.h"
+#include "../level/tuning/gameplay_environment.h"
+#include "../level/tuning/gameplay_traps.h"
 
 namespace {
 constexpr float T = RenderConfig::TILE_SIZE;

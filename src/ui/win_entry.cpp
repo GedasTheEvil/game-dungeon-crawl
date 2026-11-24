@@ -1,9 +1,9 @@
 #include "win_entry.h"
 #include "../render/ui_draw.h"
-#include "../level/input.h"
+#include "../level/input/keys.h"
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
-#include "../level/leaderboard.h"
+#include "../level/files/leaderboard.h"
 #include "../render/gl_includes.h"
 #include <cmath>
 #include <ctime>

@@ -1,12 +1,12 @@
 #include "map_view.h"
 #include "../render/batch.h"
 #include "screen_tabs.h"
-#include "../level/map_marks.h"
+#include "../level/ui/map_marks.h"
 #include "../render/ui_draw.h"
 #include "../render/gl_includes.h"
 #include "../state/game_state.h"
-#include "../level/bindings.h"
-#include "../level/input.h"
+#include "../level/input/bindings.h"
+#include "../level/input/keys.h"
 #include "../render/font.h"
 #include <algorithm>
 #include <array>

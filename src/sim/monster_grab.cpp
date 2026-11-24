@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include "player.h"
-#include "../level/journal.h"
-#include "../level/gameplay_monster_kinds.h"
+#include "../level/rules/journal.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
 
 bool Monster::StartGrab() {
 	if (!type->hold || Grabbing())

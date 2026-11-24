@@ -1,5 +1,5 @@
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/monster_kinds.h"
+#include "../../src/level/rules/monster_kinds.h"
 #include "../../src/level/tile_defs.h"
 #include <set>
 #include <string>

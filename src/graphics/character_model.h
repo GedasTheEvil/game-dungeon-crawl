@@ -5,7 +5,7 @@
 #include "../render/animated_model.h"
 #include "../render/textures.h"
 #include "../audio/sound.h"
-#include "../level/rng.h"
+#include "../core/rng.h"
 #include <array>
 #include <memory>
 #include <vector>
@@ -18,7 +18,7 @@ struct CharacterClips {
 
 // The clips, texture and sounds of one character (a monster type or the player), loaded once and shared by every
 // instance. Instances keep their own ModelState and ClipPlayback.
-enum class CharacterSound : unsigned char; // level/world_events.h
+enum class CharacterSound : unsigned char; // level/rules/world_events.h
 
 class CharacterModel {
   private:

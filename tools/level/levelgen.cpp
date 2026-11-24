@@ -12,8 +12,8 @@
 #include "../../src/level/campaign.h"
 #include "../../src/level/inscriptions.h"
 #include "../../src/level/level.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/level_gen.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/gen/level_gen.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

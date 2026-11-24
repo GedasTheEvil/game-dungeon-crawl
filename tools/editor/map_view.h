@@ -4,9 +4,9 @@
 // The editor's map view (plan editor-zoom): the zoom (1x to 3x) and the pan offset, and the mapping between cells and
 // canvas coordinates. View state only, not saved in the level. Header only, no GL: the unit tests use it.
 
-#include "../../src/level/ui_layout.h"
+#include "../../src/level/ui/ui_layout.h"
 #include "../../src/level/level.h"
-#include "../../src/level/level_check.h"
+#include "../../src/level/check/level_check.h"
 #include <algorithm>
 #include <cmath>
 

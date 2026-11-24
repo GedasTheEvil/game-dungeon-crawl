@@ -2,10 +2,10 @@
 // level, the checker's rules, the campaign's rooms.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/campaign.h"
-#include "../../src/level/level_check.h"
-#include "../../src/level/inscription_layout.h"
-#include "../../src/level/names.h"
-#include "../../src/level/run_stats.h"
+#include "../../src/level/check/level_check.h"
+#include "../../src/level/ui/inscription_layout.h"
+#include "../../src/level/files/names.h"
+#include "../../src/level/rules/run_stats.h"
 #include "sim_world.h"
 #include <set>
 #include <sstream>

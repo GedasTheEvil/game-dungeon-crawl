@@ -1,8 +1,8 @@
 #ifndef ITEM_COMMANDS_H
 #define ITEM_COMMANDS_H
 
-#include "../level/player_actions.h"
-#include "../level/quick_potion.h"
+#include "../level/rules/player_actions.h"
+#include "../level/rules/quick_potion.h"
 #include <optional>
 
 class GameState;

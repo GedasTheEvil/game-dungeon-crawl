@@ -3,8 +3,8 @@
 // in dungeon_render_sun.cpp.
 #include "dungeon.h"
 #include "dungeon_rules.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_world.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_world.h"
 #include <algorithm>
 #include <cmath>
 

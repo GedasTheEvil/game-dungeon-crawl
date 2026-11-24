@@ -1,8 +1,8 @@
 // The shared scroll bar (plan scrollbar-mouse-drag): the thumb drags with the mouse, the track pages, on every screen.
 #include "../../external/doctest/doctest.h"
-#include "../../src/level/inventory_layout.h"
-#include "../../src/level/scroll_bar.h"
-#include "../../src/level/skills_layout.h"
+#include "../../src/level/ui/inventory_layout.h"
+#include "../../src/level/ui/scroll_bar.h"
+#include "../../src/level/ui/skills_layout.h"
 #include "../../tools/editor/palette_scroll.h"
 
 namespace {

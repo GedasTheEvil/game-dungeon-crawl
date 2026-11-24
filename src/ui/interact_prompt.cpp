@@ -1,6 +1,6 @@
 #include "interact_prompt.h"
 #include "player_hud.h"
-#include "../level/ui_layout.h"
+#include "../level/ui/ui_layout.h"
 #include "../core/timer.h"
 #include "../render/font.h"
 #include "../render/gl_includes.h"

@@ -1,10 +1,10 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
 #include "../../src/level/decor.h"
-#include "../../src/level/level_gen.h"
-#include "../../src/level/gameplay_monster_kinds.h"
-#include "../../src/level/gameplay_monsters.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/gen/level_gen.h"
+#include "../../src/level/tuning/gameplay_monster_kinds.h"
+#include "../../src/level/tuning/gameplay_monsters.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 TEST_CASE("a walker stops at a wall: the rat behind it never bites") {
 	SimWorld world;

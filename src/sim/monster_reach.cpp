@@ -5,9 +5,9 @@
 #include <array>
 #include <cmath>
 #include "player.h"
-#include "../level/journal.h"
-#include "../level/gameplay_monsters.h"
-#include "../level/gameplay_shared.h"
+#include "../level/rules/journal.h"
+#include "../level/tuning/gameplay_monsters.h"
+#include "../level/tuning/gameplay_shared.h"
 #include "render_config.h"
 
 namespace {

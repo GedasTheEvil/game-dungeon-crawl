@@ -1,7 +1,7 @@
 #include "menu.h"
 #include <array>
 #include <vector>
-#include "../level/controls_help.h"
+#include "../level/ui/controls_help.h"
 #include "../state/game_state.h"
 #include "menu_internal.h"
 

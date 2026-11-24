@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <cmath>
 #include "player.h"
-#include "../level/journal.h"
-#include "../level/gameplay_environment.h"
-#include "../level/gameplay_monster_kinds.h"
-#include "../level/gameplay_monsters.h"
-#include "../level/gameplay_shared.h"
+#include "../level/rules/journal.h"
+#include "../level/tuning/gameplay_environment.h"
+#include "../level/tuning/gameplay_monster_kinds.h"
+#include "../level/tuning/gameplay_monsters.h"
+#include "../level/tuning/gameplay_shared.h"
 #include "figures.h"
 #include "render_config.h"
 

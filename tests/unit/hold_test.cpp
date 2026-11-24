@@ -3,8 +3,8 @@
 // scorpion's hold ends in a sure sting unless the player's hits break it.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/level/gameplay_monster_kinds.h"
-#include "../../src/level/gameplay_shared.h"
+#include "../../src/level/tuning/gameplay_monster_kinds.h"
+#include "../../src/level/tuning/gameplay_shared.h"
 
 namespace {
 const Monster* find(const SimWorld& world, int type) {

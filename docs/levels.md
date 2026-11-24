@@ -204,7 +204,7 @@ bin/levelcheck --script tests/out/paths content/levels/lvl*   # a scenario per l
 
 Exit code: 0 if all levels are valid, 1 if one cannot be finished, 2 for a usage error or an unreadable file.
 
-The check walks the level with the player's movement rules from `Dungeon` (`src/level/level_check.h`):
+The check walks the level with the player's movement rules from `Dungeon` (`src/level/check/level_check.h`):
 
 - Walk left or right into any open cell. With no floor below, fall straight down to a floor or a ladder.
 - Climb between vertically adjacent `Ladder` cells.
@@ -233,7 +233,7 @@ The check walks the level with the player's movement rules from `Dungeon` (`src/
   (there the down key climbs; leave a sub-cell of head room between them,
   [subcell-checker-mismatches](plan/solved/subcell-checker-mismatches.bug.md)). The path lists cells; `sub-cells:` counts the
   quarter steps jumped onto and the sub-cells crawled.
-- `--script` (`src/level/path_script.cpp`) plays the path with the scenario commands: it crouches through a crawl,
+- `--script` (`src/level/check/path_script.cpp`) plays the path with the scenario commands: it crouches through a crawl,
   climbs a ladder to a step's height before stepping off it, and per jump (a stair in one cell: one per step) opens
   the key gates on the arc first, runs up to the checker's take-off sub-cell (or against the step's face) and turns
   the jump's way. At a pressure plate on the path it drags the nearest stone of the plate's floor run onto it, pushed
@@ -285,7 +285,7 @@ bin/levelgen --seed 1 --difficulty 3 --count 5 /tmp/gen    # /tmp/gen1 .. /tmp/g
 
 Difficulty runs from 1 to 10. The same seed and difficulty always give the same level.
 
-The generator (`src/level/level_gen.cpp`; `LevelBuilder` in `level_builder.h`, its phases in `level_gen_*.cpp`) builds levels like the hand-made ones:
+The generator (`src/level/gen/level_gen.cpp`; `LevelBuilder` in `level_builder.h`, its phases in `level_gen_*.cpp`) builds levels like the hand-made ones:
 
 1. **Main route.** 3 + difficulty / 2 corridors, one cell high (sometimes a two-cell hall), 6 to 15 cells long.
    Ladders (both ways) and drop shafts (one way down) join them. The entrance is at one end of the first
@@ -398,7 +398,7 @@ so the game dresses it as the zone. Scenarios: `level gen:SEED:DIFFICULTY:ZONE`.
    level, with `--boss`) the ankh behind the boss gate wins the game: no exit (a rare chest in its place), no last gate. The
    inscriptions on the halls of the route, between where it comes in and leaves (on the way): the ids given, else 2
    or 3 (1 or 2 in the tomb entrance) of the zone's texts in `content/inscriptions/rebuild.txt` (`ZONE_TEXT_FIRST`,
-   `src/level/level_gen.h`), at most one with a boon; the hints bound to one thing stay out (the ring transporter's,
+   `src/level/gen/level_gen.h`), at most one with a boon; the hints bound to one thing stay out (the ring transporter's,
    the last fork's, the Stargate's), the name gate's comes only with a name gate. Without the texts (a unit test's
    level, levelgen run off the repo root) none. Each secret room gets a lore text (the ids given, `--lore`, else one of
    `SECRET_ROOM_TEXTS`, no second boon). An expedition page lies on a skeleton at a free wing's end, the title goes in the level file. The

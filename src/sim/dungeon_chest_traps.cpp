@@ -3,11 +3,11 @@
 // The tomb-curse coffins too (plan tomb-curse-containers).
 #include "dungeon.h"
 #include "player.h"
-#include "../level/journal.h"
+#include "../level/rules/journal.h"
 #include "../level/loot.h"
-#include "../level/world_events.h"
-#include "../level/gameplay_monsters.h"
-#include "../level/gameplay_traps.h"
+#include "../level/rules/world_events.h"
+#include "../level/tuning/gameplay_monsters.h"
+#include "../level/tuning/gameplay_traps.h"
 #include <algorithm>
 #include <cmath>
 #include <string>

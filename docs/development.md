@@ -110,8 +110,8 @@ base, level, sim, render.
 
 | Library | Sources | Rules | Linked by |
 |---|---|---|---|
-| `build/libbase.a` | `src/core/`: `timer` (the game clock), `logger`, `paths`, `worker_pool.h` | no GL; every library may include it | everything below |
-| `build/liblevel.a` | `src/level/`: the level format (`level`), checker (`level_check`, `path_script` for levelcheck --script), generator (`level_gen`, its `LevelBuilder` in `level_builder.h` and `level_gen_*` by phase), `campaign`, the item and monster rows (`items`, `item_bag`, `loot`, `monster_kinds`), `tile_defs`, `player_stats`, `player_actions`, `progression`, the journal data, the pure layouts of the screens (`ui_layout`, `inventory_layout`, `skills_layout`, `status_list`, `message_log`, `page_turn`), `bindings`, `settings_ini`, `save_slots`, `scenario_script`, `gameplay_*.h` (the numbers, by topic) | no GL | game, editor, model viewer, level tools, balance sim, unit tests |
+| `build/libbase.a` | `src/core/`: `timer` (the game clock), `logger`, `paths`, `worker_pool.h`, `rng.h`, `rgb.h` | no GL; every library may include it | everything below |
+| `build/liblevel.a` | `src/level/`: the level and its cells at the top (`level`, `tile_defs`, `campaign`, `containers`, `decor`, `inscriptions`, `shrines`, `terrain`, `zone_look`, `movement`, `loot`, ...); by topic: `check/` (the checker `level_check*`, `level_walker`, `path_script` for levelcheck --script), `gen/` (the generator `level_gen*`, its `LevelBuilder`), `rules/` (the game rules and rows: `items`, `item_bag`, `monster_kinds`, `damage`, `curses`, `skills`, `player_stats`, `progression`, the journal data, ...), `tuning/` (`gameplay_*.h`, the numbers by topic), `ui/` (the pure layouts and rules of the screens: `ui_layout`, `inventory_layout`, `scroll_bar`, `pointer`, `status_list`, `message_log`, `page_turn`, ...), `input/` (`bindings`, `keys`, `mouse_look`, `camera_look`), `files/` (`settings_ini`, `save_slots`, `leaderboard`, `texts`, `names`, `scenario_script`, ...) | no GL | game, editor, model viewer, level tools, balance sim, unit tests |
 | `build/libsim.a` | `src/sim/`: the dungeon's rules (`dungeon.h`, `dungeon_*.cpp`, `dungeon_rules.h`, `sim_links.h`), `monster`, `monster_ai`, `monster_<locomotion>` (burrow, charge, climb, flight, leap), `monster_grab` (holds), `monster_reach` (the bite's reach), `monster_roll` (the dung ball's windup), `figures` (the toon scale), `player`, `particles` (the blood's motion), `md3_mesh` (the model files), `model_info` (the clips and frame 0 extents the sim reads), `render_config.h` (sizes in GL units) | no GL | game, editor, model viewer, balance sim, unit tests |
 | `build/librender.a` | `src/render/`: `textures`, `font`, `animated_model`, `shader`, `lighting`, `ink`, `render_target`, `motion_fx`, `inscription_draw`, `ui_draw`; the GL core path (`gl_context`, `mat4`, `matrix_stack`, `batch`, `default_shaders`, `gl_state`, `wide_lines`); stb, glad | GL allowed | game, editor, model viewer; unit tests (the GL-free parts) |
 
@@ -223,20 +223,20 @@ The facts live in one table each; the compiler and the unit tests point at the r
   name, editor text, decor flags, glyph, editor icon; the icon drawn by `tools/editor/icons/make_icons.py`), and its
   glyph in the legend. A thing on the back wall is a wall type: add it to `isWallType` (`level.h`), read it from
   `Tile::fixture` and draw it in `DungeonView::drawFixture`. `-Wswitch` then flags `DungeonView::drawTileContent`; the checker (`level_check.cpp`), the draft
-  map (`level/map_marks.h`: `thingMark`, a `MapMark` with its legend name and its sprite, [ui.md](ui.md#draft-map)) and the editor's hints (`describeCell`, `tools/editor/tile_info.cpp`) need a look by hand.
-* **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/level/monster_kinds.cpp`): names, glyph,
+  map (`level/ui/map_marks.h`: `thingMark`, a `MapMark` with its legend name and its sprite, [ui.md](ui.md#draft-map)) and the editor's hints (`describeCell`, `tools/editor/tile_info.cpp`) need a look by hand.
+* **Monster:** a value in `MonsterTypeId` and a row in `KINDS` (`src/level/rules/monster_kinds.cpp`): names, glyph,
   threat, stats, model, resistances, wading, poison, ranged attack, boss summons, levelgen weights. Only the fields that differ
   from the defaults in `MonsterKind`.
 * **Weapon or potion:** a value in `ItemKind` at the end of its group, a free file id (saves go by it, not by position) and a row in
-  `ITEMS` (`src/level/items.cpp`): file id, texts, and the weapon part (model, damage, reach, mix, growth, motion,
+  `ITEMS` (`src/level/rules/items.cpp`): file id, texts, and the weapon part (model, damage, reach, mix, growth, motion,
   sounds, missile, levelgen depth) or the potion part (gain, vessel model, texture, icon colour, journal note,
   levelgen weight, mimic loot). A potion's texture is a row in `POTIONS` (`tools/blender/models/items.py`), baked on
   its vessel. A weapon also needs its HUD icon (`tools/textures/hud_icons.py`, in `ItemKind` order).
 * **Amulet type:** a value in `AmuletType`, its four `ItemKind` values and a row in `AMULET_TYPES`
-  (`src/level/items.cpp`: model, amounts, texts); its bonus in `amuletBonus`.
+  (`src/level/rules/items.cpp`: model, amounts, texts); its bonus in `amuletBonus`.
 * **Ring gem:** a value in `RingGem`, its four `ItemKind` values (copper, silver, gold, sky iron) and a row in `RING_GEMS`
-  (`src/level/items.cpp`: names, slug, label, colour); its effect line in `ringEffect`, its bonus in `RingBonus` /
-  `ringBonus` (`level/items.*`); models `tools/blender/models/rings.py`. A ring metal: `RingMetal`, the `RingEffect`
+  (`src/level/rules/items.cpp`: names, slug, label, colour); its effect line in `ringEffect`, its bonus in `RingBonus` /
+  `ringBonus` (`level/rules/items.*`); models `tools/blender/models/rings.py`. A ring metal: `RingMetal`, the `RingEffect`
   columns, `METAL_WORDS` / `METAL_TEXTURES`, its file ids (`fileIdOf`, `itemFromFile`: a new metal's ids go after the
   last, as sky iron's `SKY_IRON_RING_FILE_ID`), `nextMetal`, `OFFER_XP_RING`, a band palette in `rings.py`.
 * **Lock colour:** a row in `LOCK_COLOURS` (`level.h`) and its textures.
@@ -247,7 +247,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
 
 * `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle) and, by kind, `_jump`, `_climb`, `_rise`, `_att_ranged` (`sim/model_info.h`).
 * `media/textures/<category>/`, `media/textures/fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `media/models/` plus `ui`, `dungeon`, `effects`.
-* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_att_ranged`, `_die`, `_jump`, `_wake`, `_roar`; weapons `_swing`, `_hit`; the game logs a warning for a monster sound the code can play but has no file, `playsSound` in `level/monster_kinds.cpp`), `mechanisms/`, `items/`, `water/`, `ui/`, `ambience/` (a zone's ambient loop, `ZoneLook::ambience` in `level/zone_look.h`, made by `tools/audio/zone_ambience.py`), and `music/`: `menu.ogg` (start menu, death and win screens) and `<zone slug>.ogg` (a zone's levels, slugs in `ZONE_INFO`, `level/campaign.h`; a copy or symlink shares a track), `soundtrack.ogg` (not tracked by git) where a file is missing or a level has no zone (`level/zone_music.h`, plan zone-music). The menu and zone tracks are CC0, fetched and loudness-normalised by `tools/audio/zone_music.py` (its table names each source; it writes `music/CREDITS.md`). `tools/audio/*.py` synthesize most of them, one script per monster or group (weapons, mechanisms, containers, water, ...).
+* `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_att_ranged`, `_die`, `_jump`, `_wake`, `_roar`; weapons `_swing`, `_hit`; the game logs a warning for a monster sound the code can play but has no file, `playsSound` in `level/rules/monster_kinds.cpp`), `mechanisms/`, `items/`, `water/`, `ui/`, `ambience/` (a zone's ambient loop, `ZoneLook::ambience` in `level/zone_look.h`, made by `tools/audio/zone_ambience.py`), and `music/`: `menu.ogg` (start menu, death and win screens) and `<zone slug>.ogg` (a zone's levels, slugs in `ZONE_INFO`, `level/campaign.h`; a copy or symlink shares a track), `soundtrack.ogg` (not tracked by git) where a file is missing or a level has no zone (`level/zone_music.h`, plan zone-music). The menu and zone tracks are CC0, fetched and loudness-normalised by `tools/audio/zone_music.py` (its table names each source; it writes `music/CREDITS.md`). `tools/audio/*.py` synthesize most of them, one script per monster or group (weapons, mechanisms, containers, water, ...).
 * `content/levels/` - campaign levels, edited with the level editor.
 * `content/riddles/` - riddle gate questions, one theme per text file. See [riddles.md](riddles.md).
 * `content/names/` - the royal names of the name gates. See [names.md](names.md).
@@ -263,7 +263,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   main loop with the fixed-step update tick and the draws). `Game()` (`state/game_state.h`) is the one `GameState`,
   created before the window. SDL's key and mouse events reach the game in `input/input.cpp` (`handleInputEvent`).
 * `graphics/assets.*` - `Assets`: everything loaded once and only read afterwards (textures, models, sounds, fonts,
-  monster types). The rows come from the level library: `KINDS` (`level/monster_kinds.cpp`), `ITEMS` (`level/items.cpp`).
+  monster types). The rows come from the level library: `KINDS` (`level/rules/monster_kinds.cpp`), `ITEMS` (`level/rules/items.cpp`).
 * `state/game_state.*` - `GameState`: the session. The player, the dungeon, the UI screens, camera, status lines
   (`ShowStatus`, `MessageLog`), save / load.
 * `state/ui_context.h` - `UIContext` (`Game().ui`): the screens and what shows over the game; apart so
@@ -274,7 +274,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
   ([settings.md](settings.md)).
 * `sim/` - `Dungeon` (the level being played: map, monsters, mechanisms, decorations, save data), `MonsterType`
   (the rows plus the clips, shared), `Monster` (one monster on the level: position, health, AI state, clip playback),
-  `Player` (with its `PlayerStats`, `level/player_stats.*`).
+  `Player` (with its `PlayerStats`, `level/rules/player_stats.*`).
 * `level/` - the GL-free level code shared with the tools (`level`, `level_check`, `level_gen`, `campaign`, the item
   and monster rows).
 * `render/` - `AnimatedModel` (MD3; shared models take the playback as an argument), textures, fonts, lighting,
@@ -283,7 +283,7 @@ Models are rebuilt procedurally with Blender Python scripts in `tools/blender/`;
 * `graphics/` - the game's drawing: the dungeon (`DungeonView`, `dungeon_view.h`, `dungeon_render*.cpp`), `CharacterModel` (the clips, texture and
   sounds of a monster type or the player), `DrawMonster`, `PlayerView`, `Item`, `Trap`, particles, fire, the gameplay
   `Draw()` (`Update()` is in `state/game_loop.*`).
-* `ui/`, `input/`, `test/` - screens, keyboard / mouse handling (through the key bindings, `level/bindings.h`), the
+* `ui/`, `input/`, `test/` - screens, keyboard / mouse handling (through the key bindings, `level/input/bindings.h`), the
   scenario runner. UI look and layout conventions: [ui.md](ui.md).
 
 ## Where is X

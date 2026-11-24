@@ -24,11 +24,14 @@ Keep one library per top directory (`make layers` keeps reading the layer from t
 topic sub-directories inside any `src/<dir>/`: `src/level/ui/scroll_bar.h` is liblevel, topic UI. The sub-directory
 names repeat the game's directories (`ui`, `input`) so a reader finds the GL-free half next to where they look.
 
-Rejected (implementer may revisit, say why in the commit): a new library directory for the GL-free UI and input
+Rejected (user 2026-11-24: `level/ui/scroll_bar.h` is fine): a new library directory for the GL-free UI and input
 logic (`src/front/` or similar). It needs its own layer slot between level and sim (sim includes `status_list.h`,
 `save_slots.h`), a new `.a`, link-line changes in five programs, and gains little over a sub-directory.
 
 ## Plan
+
+Sub-directory names (user 2026-11-24): the implementer decides them (`tuning/` or `numbers/`, `scenario_script` in
+`files/` or a `test/`, ...); the ones below are suggestions.
 
 ### 1. Build and checks read sub-directories
 
@@ -53,10 +56,10 @@ Stays at the top of `src/level/` (the level and its cells): `level`, `tile_defs`
 | `level/check/` | `level_check`, `level_check_dressing`, `level_check_internal`, `level_check_mechanisms`, `level_walker`, `path_script` | the checker, 6 files |
 | `level/gen/` | `level_gen`, `level_gen_content`, `level_gen_dressing`, `level_gen_gates`, `level_gen_layout`, `level_builder` | the generator, 6 files |
 | `level/rules/` | `items`, `item_bag`, `monster_kinds`, `damage`, `curses`, `poison`, `bleeding`, `tier_drain`, `vitals`, `head_bump`, `trap_hurt`, `spike_cycle`, `skills`, `archer_skills`, `player_stats`, `player_actions`, `progression`, `offering_gift`, `quick_potion`, `judgment`, `run_stats`, `interaction`, `world_events`, `journal`, `journal_ids` | game rules and data rows, not the level |
-| `level/tuning/` | every `gameplay_*.h` (13) | the numbers by topic (name: implementer's choice, `numbers/` also fine; keep the file names) |
+| `level/tuning/` | every `gameplay_*.h` (13) | the numbers by topic (keep the file names) |
 | `level/ui/` | `ui_layout`, `inventory_layout`, `skills_layout`, `inscription_layout`, `scroll_bar`, `pointer`, `page_turn`, `map_marks`, `message_log`, `status_list`, `hud_icon`, `controls_help`, `credits_text`, `journal_text` | the screens' GL-free layouts and rules; only each other include them inside liblevel |
 | `level/input/` | `bindings`, `input` renamed `keys` (clash with `input/input.h`), `mouse_look`, `camera_look` | key codes, bindings, look maths |
-| `level/files/` | `settings_ini`, `save_slots`, `leaderboard`, `riddle_file`, `texts`, `names`, `scenario_script` | files on disk and their parsers (`scenario_script` may go to `level/test/` instead, mirroring `src/test/`) |
+| `level/files/` | `settings_ini`, `save_slots`, `leaderboard`, `riddle_file`, `texts`, `names`, `scenario_script` | files on disk and their parsers |
 | `core/` | `rng`, `rgb` | generic, include nothing of liblevel; base library |
 
 Checked 2026-11-24: none of the `level/ui/` and `level/input/` files is included by a level/rules file, except

@@ -4,6 +4,8 @@
     python3 -I tools/code_map.py graph              includes between directories, as counts
     python3 -I tools/code_map.py edge FROM TO       the includes behind one count (graph's directory names)
     python3 -I tools/code_map.py headers            headers nothing includes, or only other directories do
+    --subdirs (before the command)                  src/'s topic sub-directories count apart (src/level/ui), not
+                                                    as their library (src/level)
     python3 -I tools/code_map.py unused             functions a header declares that nothing else names
     make complexity [THRESHOLD=N]                   functions above a cognitive complexity, most complex first
                                                     (code_map.py complexity [--threshold N] SOURCES -- FLAGS)
@@ -45,9 +47,16 @@ def sources():
     return sorted(files)
 
 
+SUBDIRS = False  # --subdirs
+
+
 def group(path):
-    """The directory a file counts under: src/sim, tools/editor, tests/unit."""
-    return path.parent.relative_to(ROOT).as_posix()
+    """The directory a file counts under: src/sim, tools/editor, tests/unit. A topic sub-directory of src/ counts as
+    its library (src/level/ui is src/level), or apart with --subdirs."""
+    parts = path.parent.relative_to(ROOT).parts
+    if parts[0] == "src" and len(parts) > 2 and not SUBDIRS:
+        parts = parts[:2]
+    return "/".join(parts)
 
 
 def code(path):
@@ -209,6 +218,7 @@ def cmd_complexity(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--subdirs", action="store_true", help="src/'s topic sub-directories count apart")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("graph").set_defaults(run=cmd_graph)
     edge = commands.add_parser("edge")
@@ -229,6 +239,8 @@ def main():
         args.flags = argv[cut + 1:]
     else:
         args = parser.parse_args()
+    global SUBDIRS
+    SUBDIRS = args.subdirs
     args.run(args)
     return 0
 

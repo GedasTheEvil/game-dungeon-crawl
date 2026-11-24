@@ -29,7 +29,8 @@ TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) $(FT_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE
 # Game and tools link only what they use: GL and SDL for every window (no GLUT, plan gl-core-tools).
 GL_LIBS=-lGL -lm -ldl $(FT_LIBS)
 
-SOURCES=$(sort $(wildcard src/*/*.cpp))
+# Each src/<dir>/ may hold one level of topic sub-directories (src/level/ui/): still the same library.
+SOURCES=$(sort $(wildcard src/*/*.cpp src/*/*/*.cpp))
 ifdef RELEASE
 BUILD=build/release
 else
@@ -49,17 +50,17 @@ EXTERNAL_OBJECTS=$(BUILD)/external/stb/stb.o $(BUILD)/external/glad/glad.o
 # base, level and sim have no GL, no library has SDL or Game(), and each includes only its own headers and those of
 # the libraries under it. The base library (the game clock, the log) is linked by everything that links one.
 # One directory per library (plan src-dirs-by-layer): a new file there is part of it, no list to keep.
-BASE_LIB_SOURCES=$(sort $(wildcard src/core/*.cpp))
-BASE_LIB_HEADERS=$(wildcard src/core/*.h)
-LEVEL_LIB_SOURCES=$(sort $(wildcard src/level/*.cpp))
-LEVEL_LIB_HEADERS=$(wildcard src/level/*.h)
+BASE_LIB_SOURCES=$(sort $(wildcard src/core/*.cpp src/core/*/*.cpp))
+BASE_LIB_HEADERS=$(wildcard src/core/*.h src/core/*/*.h)
+LEVEL_LIB_SOURCES=$(sort $(wildcard src/level/*.cpp src/level/*/*.cpp))
+LEVEL_LIB_HEADERS=$(wildcard src/level/*.h src/level/*/*.h)
 # The sim (docs/plan/solved/sim-library.md): the dungeon, the monsters and the player, their rules and the model facts
 # they read, without GL. The dungeon's drawing (dungeon_render*.cpp) is in the game, in src/graphics/, with the views.
 # render_config.h: the world's sizes in GL units (a tile is 40), the sim's lifts and depths, the drawing's frame.
-SIM_LIB_SOURCES=$(sort $(wildcard src/sim/*.cpp))
-SIM_LIB_HEADERS=$(wildcard src/sim/*.h)
-RENDER_LIB_SOURCES=$(sort $(wildcard src/render/*.cpp))
-RENDER_LIB_HEADERS=$(wildcard src/render/*.h)
+SIM_LIB_SOURCES=$(sort $(wildcard src/sim/*.cpp src/sim/*/*.cpp))
+SIM_LIB_HEADERS=$(wildcard src/sim/*.h src/sim/*/*.h)
+RENDER_LIB_SOURCES=$(sort $(wildcard src/render/*.cpp src/render/*/*.cpp))
+RENDER_LIB_HEADERS=$(wildcard src/render/*.h src/render/*/*.h)
 BASE_LIB=$(BUILD)/libbase.a
 LEVEL_LIB=$(BUILD)/liblevel.a
 SIM_LIB=$(BUILD)/libsim.a
@@ -203,7 +204,7 @@ release:
 clean:
 	rm -rf $(BUILD) $(BIN)
 
-FORMAT_FILES=$(wildcard src/*/*.h src/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp \
+FORMAT_FILES=$(wildcard src/*/*.h src/*/*.cpp src/*/*/*.h src/*/*/*.cpp tools/level/*.cpp tools/editor/*.h tools/editor/*.cpp \
 	tools/model-viewer/*.h tools/model-viewer/*.cpp tools/balance/*.cpp tools/snapdiff/*.cpp tests/unit/*.cpp)
 
 format:

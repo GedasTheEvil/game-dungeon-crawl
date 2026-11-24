@@ -3,7 +3,8 @@
 # no Game(), no game_state.h, no screens (ui/) or input. What it needs comes in by SimLinks / MonsterLinks or a
 # parameter, and what it tells the app goes out by WorldEvents. It draws nothing: no GL, no graphics/ or render/
 # header; the dungeon draws itself in src/graphics/dungeon_render*.cpp, in the game (plans sim-unit-tests,
-# src-dirs-by-layer). make layers checks the includes too; this names the reason.
+# src-dirs-by-layer). make layers checks the includes too; this names the reason. The game's ui/ and input/ are
+# reached by ../ alone; the level library's topics (../level/ui/) are fine.
 #
 #   tools/check_sim.sh FILES...
 #
@@ -15,7 +16,7 @@ for file in "$@"; do
 	while IFS= read -r hit; do
 		echo "$file:${hit%%:*}: uses ${hit#*:}"
 		errors=$((errors + 1))
-	done < <(grep -nE '\bGame\(\)|#include ".*(game_state\.h|/ui/|/input/)' "$file")
+	done < <(grep -nE '\bGame\(\)|#include "(.*game_state\.h|(\.\./)+(ui|input)/)' "$file")
 	while IFS= read -r hit; do
 		echo "$file:${hit%%:*}: draws outside src/graphics/dungeon_render*.cpp: ${hit#*:}"
 		errors=$((errors + 1))

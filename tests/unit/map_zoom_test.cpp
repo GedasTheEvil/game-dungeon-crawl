@@ -1,6 +1,6 @@
 // The draft map's zoom and pan (plan map-symbols-and-zoom).
 #include "../../external/doctest/doctest.h"
-#include "../../src/ui/map_zoom.h"
+#include "../../src/ui/map/map_zoom.h"
 
 namespace {
 // A sheet 60 x 70 showing 30 x 35 cells at 1x, the cell (15, 17.5) at its centre.

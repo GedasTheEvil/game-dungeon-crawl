@@ -1,7 +1,7 @@
 #include "particles.h"
 #include <cmath>
 #include <cstdlib>
-#include "render_config.h"
+#include "model/render_config.h"
 
 void ParticleSystem::Fall() {
 	if (!decayTimer.TimePassed())

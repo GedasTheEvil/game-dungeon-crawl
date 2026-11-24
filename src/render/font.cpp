@@ -1,6 +1,6 @@
 #include "font.h"
-#include "batch.h"
-#include "matrix_stack.h"
+#include "gl/batch.h"
+#include "gl/matrix_stack.h"
 #include "textures.h"
 #include "truetype.h"
 #include <string.h>

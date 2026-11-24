@@ -1,5 +1,5 @@
 #include "trap.h"
-#include "../render/matrix_stack.h"
+#include "../render/gl/matrix_stack.h"
 
 Trap::Trap() : mdl(std::make_shared<AnimatedModel>()) {}
 

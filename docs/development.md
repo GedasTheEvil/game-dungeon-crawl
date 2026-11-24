@@ -24,7 +24,7 @@ music (`.ogg`) the bundled `stb_vorbis` (`external/stb/stb_vorbis.c`, v1.24); no
 implementations are compiled once, in `external/stb/stb.cpp`.
 The GL functions come through the bundled [glad 2](https://github.com/Dav1dde/glad) loader (`external/glad/`, GL 3.3
 core profile with `KHR_debug`, so a legacy call does not compile; its implementation in `external/glad/glad.cpp`, which
-also says how to regenerate it). No GLU: `src/render/mat4.h` has its perspective and project ([GL core path](#gl-core-path)).
+also says how to regenerate it). No GLU: `src/render/gl/mat4.h` has its perspective and project ([GL core path](#gl-core-path)).
 
 ## Build and run
 
@@ -112,8 +112,8 @@ base, level, sim, render.
 |---|---|---|---|
 | `build/libbase.a` | `src/core/`: `timer` (the game clock), `logger`, `paths`, `worker_pool.h`, `rng.h`, `rgb.h` | no GL; every library may include it | everything below |
 | `build/liblevel.a` | `src/level/`: the level and its cells at the top (`level`, `tile_defs`, `campaign`, `containers`, `decor`, `inscriptions`, `shrines`, `terrain`, `zone_look`, `movement`, `loot`, ...); by topic: `check/` (the checker `level_check*`, `level_walker`, `path_script` for levelcheck --script), `gen/` (the generator `level_gen*`, its `LevelBuilder`), `rules/` (the game rules and rows: `items`, `item_bag`, `monster_kinds`, `damage`, `curses`, `skills`, `player_stats`, `progression`, the journal data, ...), `tuning/` (`gameplay_*.h`, the numbers by topic), `ui/` (the pure layouts and rules of the screens: `ui_layout`, `inventory_layout`, `scroll_bar`, `pointer`, `status_list`, `message_log`, `page_turn`, ...), `input/` (`bindings`, `keys`, `mouse_look`, `camera_look`), `files/` (`settings_ini`, `save_slots`, `leaderboard`, `texts`, `names`, `scenario_script`, ...) | no GL | game, editor, model viewer, level tools, balance sim, unit tests |
-| `build/libsim.a` | `src/sim/`: the dungeon's rules (`dungeon.h`, `dungeon_*.cpp`, `dungeon_rules.h`, `sim_links.h`), `monster`, `monster_ai`, `monster_<locomotion>` (burrow, charge, climb, flight, leap), `monster_grab` (holds), `monster_reach` (the bite's reach), `monster_roll` (the dung ball's windup), `figures` (the toon scale), `player`, `particles` (the blood's motion), `md3_mesh` (the model files), `model_info` (the clips and frame 0 extents the sim reads), `render_config.h` (sizes in GL units) | no GL | game, editor, model viewer, balance sim, unit tests |
-| `build/librender.a` | `src/render/`: `textures`, `font`, `animated_model`, `shader`, `lighting`, `ink`, `render_target`, `motion_fx`, `inscription_draw`, `ui_draw`; the GL core path (`gl_context`, `mat4`, `matrix_stack`, `batch`, `default_shaders`, `gl_state`, `wide_lines`); stb, glad | GL allowed | game, editor, model viewer; unit tests (the GL-free parts) |
+| `build/libsim.a` | `src/sim/`: `player`, `player_control`, `particles` at the top; `dungeon/`: the dungeon's rules (`dungeon.h`, `dungeon_*.cpp`, `dungeon_rules.h`, `sim_links.h`, `mechanisms`, `hazards`, `projectiles`, `cut_scene`, `gate_travel`, `stargate_dial`), `monster/`: `monster`, `monster_ai`, `monster_<locomotion>` (burrow, charge, climb, flight, leap), `monster_grab` (holds), `monster_reach` (the bite's reach), `monster_roll` (the dung ball's windup); `model/`: `figures` (the toon scale), `md3_mesh` (the model files), `model_info` (the clips and frame 0 extents the sim reads), `render_config.h` (sizes in GL units) | no GL | game, editor, model viewer, balance sim, unit tests |
+| `build/librender.a` | `src/render/`: `textures`, `font`, `animated_model`, `lighting`, `ink`, `render_target`, `motion_fx`, `inscription_draw`, `ui_draw`; `gl/`: the GL core path (`gl_context`, `mat4`, `matrix_stack`, `batch`, `default_shaders`, `gl_state`, `wide_lines`, `shader`); stb, glad | GL allowed | game, editor, model viewer; unit tests (the GL-free parts) |
 
 The directory is the library: the makefile picks up `src/<library>/*.cpp` and `*.h`, so a new file there is part of
 it, and `make layers` reads the layer from the path. A sub-directory is a topic inside its library, at most one level
@@ -125,10 +125,10 @@ runs it first. To move a file into a library, move it into that directory (`git 
 it. Includes are relative to the including file (`"../level/level.h"`).
 
 The sim (`src/sim/`) has no `Game()` and no screens; `make layers` checks that too (`tools/check_sim.sh`). It draws
-nothing: `DungeonView` (`src/graphics/dungeon_view.h`, a friend of `Dungeon`) draws the dungeon in
-`src/graphics/dungeon_render*.cpp` (in the game, not the library), with the state only the drawing keeps (contours,
+nothing: `DungeonView` (`src/graphics/dungeon/dungeon_view.h`, a friend of `Dungeon`) draws the dungeon in
+`src/graphics/dungeon/dungeon_render*.cpp` (in the game, not the library), with the state only the drawing keeps (contours,
 item parts, the cells drawn) and the animations by the game clock; `GameState::dungeonView` owns it. Rules both
-sides need go in `src/sim/dungeon_rules.h`. A monster is drawn by `DrawMonster` (`graphics/monster_draw.cpp`), the
+sides need go in `src/sim/dungeon/dungeon_rules.h`. A monster is drawn by `DrawMonster` (`graphics/monster_draw.cpp`), the
 player by `PlayerView`; both only read the sim's state ([plan/solved/sim-library.md](plan/solved/sim-library.md)).
 
 ## GL core path
@@ -184,7 +184,7 @@ and `gMv`, the HUD after it sets its canvas. With the UI and the tools ported as
   lights and fog, the toggles (`setEmissive`, `setMetalMask`, `setBlend`), the alpha test of a `Style` of kind
   `AlphaTest`, the matrices and the normal matrix as uniforms. A `Batch` draws with it when its `program` is
   `Lighting::use` (added to `Batch`; outside `Lighting::begin`..`end` it falls back to the default program).
-* The world batch, `Lighting::batch()` (`world()` in `graphics/world_draw.h`): the world's immediate mode. Its current
+* The world batch, `Lighting::batch()` (`world()` in `graphics/dungeon/world_draw.h`): the world's immediate mode. Its current
   colour, normal and texture coordinate are the world's as GL's current values were: a `glColor` before a model draw
   is `world().colour(...)`, and `AnimatedModel::Show` draws in it.
 * A model (`AnimatedModel`) draws from one vertex array over its buffers; the key frame blend stays in the vertex
@@ -245,7 +245,7 @@ The facts live in one table each; the compiler and the unit tests point at the r
 
 ## Assets
 
-* `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle) and, by kind, `_jump`, `_climb`, `_rise`, `_att_ranged` (`sim/model_info.h`).
+* `media/models/<category>/` - Quake 3 MD3 models (`characters`, `monsters`, `items`, `props`, `traps`, `decorations`, `ladders`, `mechanisms`). Monsters use `<name>.md3` (move), `<name>_att.md3` (attack), `<name>_die.md3` (death), optional `<name>_idle.md3` (idle) and, by kind, `_jump`, `_climb`, `_rise`, `_att_ranged` (`sim/model/model_info.h`).
 * `media/textures/<category>/`, `media/textures/fonts/` - PNG textures (24-bit RGB; alpha is supported); same categories as `media/models/` plus `ui`, `dungeon`, `effects`.
 * `media/sounds/` - WAV effects in the same `<category>/<name>_<clip>.wav` layout as `media/models/` and `media/textures/` (`_att`, `_att_ranged`, `_die`, `_jump`, `_wake`, `_roar`; weapons `_swing`, `_hit`; the game logs a warning for a monster sound the code can play but has no file, `playsSound` in `level/rules/monster_kinds.cpp`), `mechanisms/`, `items/`, `water/`, `ui/`, `ambience/` (a zone's ambient loop, `ZoneLook::ambience` in `level/zone_look.h`, made by `tools/audio/zone_ambience.py`), and `music/`: `menu.ogg` (start menu, death and win screens) and `<zone slug>.ogg` (a zone's levels, slugs in `ZONE_INFO`, `level/campaign.h`; a copy or symlink shares a track), `soundtrack.ogg` (not tracked by git) where a file is missing or a level has no zone (`level/zone_music.h`, plan zone-music). The menu and zone tracks are CC0, fetched and loudness-normalised by `tools/audio/zone_music.py` (its table names each source; it writes `music/CREDITS.md`). `tools/audio/*.py` synthesize most of them, one script per monster or group (weapons, mechanisms, containers, water, ...).
 * `content/levels/` - campaign levels, edited with the level editor.

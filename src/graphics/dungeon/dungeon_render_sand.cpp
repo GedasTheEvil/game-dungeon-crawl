@@ -1,0 +1,282 @@
+// Sand on the floor (plan desert-chapter): the drifts, the quicksand's swirl, the dust of the steps, the sand worm's
+// ripple and the sand falls pouring down.
+#include "dungeon_view.h"
+#include "world_draw.h"
+#include "../assets.h"
+#include "../../sim/player.h"
+#include "../../render/gl/gl_includes.h"
+#include <algorithm>
+#include <cmath>
+#include "../../sim/model/render_config.h"
+#include "../fire.h"
+#include "../../render/lighting.h"
+#include "../../level/rules/spike_cycle.h"
+#include "../../level/tuning/gameplay_environment.h"
+#include "../../level/tuning/gameplay_traps.h"
+
+namespace {
+constexpr float T = RenderConfig::TILE_SIZE;
+constexpr int DRIFT_NX = 10, DRIFT_NZ = 5; // the drift's grid over a cell
+constexpr float DRIFT_HEIGHT = 0.11f * T; // its crest over the floor
+constexpr float DRIFT_EDGE = 0.35f; // of a cell: the drift runs out towards a neighbour without sand
+constexpr float RIPPLE = 0.12f * DRIFT_HEIGHT;
+constexpr float QUICKSAND_DIP = 0.55f; // of the height: its middle sags
+constexpr float SWIRL_NEAR = 2.5f; // tiles: the quicksand swirls for a player this near
+constexpr float SWIRL_TWIST = 0.9f; // radians at the middle, to and fro
+constexpr float POUR_DEPTH = 0.5f; // of the cell's depth: in the middle of the corridor, as the rock's
+constexpr float SHAFT_DEPTH = 0.45f; // of the cell's depth: the crack runs along the middle of the ceiling
+constexpr float RIPPLE_SCALE = 18.f; // the worm's: a bigger burrower (Rerek) heaves a bigger mound
+
+float smooth(float e0, float e1, float x) {
+	const float k = std::clamp((x - e0) / (e1 - e0), 0.f, 1.f);
+	return k * k * (3.f - 2.f * k);
+}
+} // namespace
+
+// The drift's height (world units) at (u, v) of cell (i, j): u 0..1 left to right, v 0..1 back wall to front. Ripples
+// run in level coordinates, so drifts side by side meet; towards an open neighbour without sand the drift runs out,
+// against rock it piles up, and it piles against the back wall too. Quicksand sags in the middle.
+float DungeonView::driftHeight(int i, int j, float u, float v) const {
+	const float x = static_cast<float>(i) + u;
+	float h = DRIFT_HEIGHT * (0.8f + 0.35f * (1.f - v) * (1.f - v));
+	h += RIPPLE * std::sin(6.2832f * (2.3f * x + 0.4f * v)) + 0.5f * RIPPLE * std::sin(6.2832f * (5.1f * x - 0.9f * v));
+	for (int side : {-1, 1}) {
+		const float edge = side < 0 ? u : 1.f - u; // 0 at that side's border
+		if (d.isRock(i + side, j))
+			h += 0.5f * DRIFT_HEIGHT * (1.f - smooth(0.f, 0.5f, edge));
+		else if (!d.IsInBounds(i + side, j) || !inSand(d.MapAt(i + side, j)))
+			h *= smooth(0.f, DRIFT_EDGE, edge);
+	}
+	if (inQuicksand(d.MapAt(i, j))) {
+		const float r = std::hypot(u - 0.5f, (v - 0.5f) * 0.8f) / 0.45f;
+		h *= 1.f - QUICKSAND_DIP * std::max(0.f, 1.f - r) * std::max(0.f, 1.f - r);
+	}
+	return std::max(h, 0.f);
+}
+// The drift as a grid over the cell's floor, its front edge closed by a strip of sand down to the floor. Quicksand is
+// darker, and up close its sand twists slowly round the middle (the tell).
+void DungeonView::drawSandDrift(int i, int j) {
+	const bool quick = inQuicksand(d.MapAt(i, j));
+	float twist = 0.f;
+	if (quick) {
+		const float near = std::hypot(d.mapX - static_cast<float>(i) - 0.5f, (d.mapY - static_cast<float>(j)) * 2.f);
+		const float k = 1.f - smooth(1.f, SWIRL_NEAR, near);
+		twist = k * SWIRL_TWIST * std::sin(static_cast<float>(GameClock::now()) * 0.0011f + static_cast<float>(i));
+	}
+	auto texAt = [&](float u, float v, float out[2]) {
+		const float du = u - 0.5f, dv = v - 0.5f;
+		const float a = twist * std::max(0.f, 1.f - std::hypot(du, dv) / 0.5f);
+		out[0] = 0.5f + du * std::cos(a) - dv * std::sin(a);
+		out[1] = 0.5f + du * std::sin(a) + dv * std::cos(a);
+	};
+	float hs[DRIFT_NX + 1][DRIFT_NZ + 1];
+	for (int a = 0; a <= DRIFT_NX; a++)
+		for (int b = 0; b <= DRIFT_NZ; b++)
+			hs[a][b] = driftHeight(i, j, static_cast<float>(a) / DRIFT_NX, static_cast<float>(b) / DRIFT_NZ);
+
+	assets.decor.floorTex[FLOOR_SAND].Bind();
+	if (quick)
+		world().colour(0.78f, 0.68f, 0.55f);
+	constexpr float DX = T / DRIFT_NX, DZ = T / DRIFT_NZ;
+	for (int b = 0; b < DRIFT_NZ; b++) {
+		world().begin(Primitive::TriangleStrip);
+		for (int a = 0; a <= DRIFT_NX; a++)
+			for (int k : {b + 1, b}) { // front row first: the strip faces up
+				const int a0 = std::max(a - 1, 0), a1 = std::min(a + 1, DRIFT_NX);
+				const int k0 = std::max(k - 1, 0), k1 = std::min(k + 1, DRIFT_NZ);
+				const float sx = (hs[a1][k] - hs[a0][k]) / (DX * static_cast<float>(a1 - a0));
+				const float sz = (hs[a][k1] - hs[a][k0]) / (DZ * static_cast<float>(k1 - k0)); // v grows to the front
+				const float n = std::sqrt(sx * sx + sz * sz + 1.f);
+				world().normal(-sx / n, 1.f / n, -sz / n);
+				float st[2];
+				texAt(static_cast<float>(a) / DRIFT_NX, static_cast<float>(k) / DRIFT_NZ, st);
+				world().texCoord(st[0], 1.f - st[1]);
+				world().vertex(static_cast<float>(a) * DX, hs[a][k], -T + static_cast<float>(k) * DZ);
+			}
+		world().end();
+	}
+	world().begin(Primitive::QuadStrip); // the front edge
+	world().normal(0, 0, 1);
+	for (int a = 0; a <= DRIFT_NX; a++) {
+		const float s = static_cast<float>(a) / DRIFT_NX;
+		world().texCoord(s, 0.f);
+		world().vertex(static_cast<float>(a) * DX, 0.f, 0.f);
+		world().texCoord(s, hs[a][DRIFT_NZ] / T);
+		world().vertex(static_cast<float>(a) * DX, hs[a][DRIFT_NZ], 0.f);
+	}
+	world().end();
+	world().colour(1, 1, 1);
+}
+// Same window and frame as drawSummonEffects: the dust of the steps in sand, a sand worm's ripple under the sand, the
+// sand falls pouring down.
+void DungeonView::drawSandEffects() {
+	const int now = GameClock::now();
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
+	// Each list holds what the last tick kept (Dungeon::updateEffects); one that ran out since is skipped.
+	for (const Hazards::Hole& p : d.hazards.puffs)
+		if (now - p.startMs < SAND_PUFF_MS)
+			Grit::puff(
+				(p.x - col0) * T,
+				(static_cast<float>(p.row) - row0) * T + DRIFT_HEIGHT,
+				RenderConfig::MONSTER_DEPTH,
+				now - p.startMs,
+				SAND_PUFF_MS,
+				static_cast<uint32_t>(p.startMs)
+			);
+
+	// A fall's puff of the landing heap's matter (plan soft-landing).
+	for (const Hazards::Landing& l : d.hazards.landings)
+		if (now - l.startMs < LANDING_PUFF_MS)
+			Grit::landing(
+				(l.x - col0) * T,
+				(static_cast<float>(l.row) - row0) * T,
+				RenderConfig::MONSTER_DEPTH,
+				now - l.startMs,
+				LANDING_PUFF_MS,
+				l.heap,
+				static_cast<uint32_t>(l.startMs)
+			);
+
+	for (const Monster& mon : d.monsters) {
+		const std::optional<float> x = mon.Active() && mon.Type()->sandBurrow ? mon.BurrowRipple() : std::nullopt;
+		if (!x)
+			continue;
+		const float cx = (*x - col0) * T, cy = (static_cast<float>(mon.Row()) - row0) * T + DRIFT_HEIGHT;
+		drawRipple(cx, cy, RenderConfig::MONSTER_DEPTH, std::sqrt(mon.Type()->scale / RIPPLE_SCALE), now);
+	}
+
+	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++) // after the opaque scene
+		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++)
+			if (lightShaft(i, j))
+				SunBeam::shaft(
+					(static_cast<float>(i) + 0.5f - col0) * T,
+					(static_cast<float>(j) - row0) * T,
+					-T * SHAFT_DEPTH,
+					static_cast<uint32_t>(d.MapIndex(i, j))
+				);
+	for (const Hazards::Hole& p : d.hazards.pours) // started by the tick as the sand fall's warning ends
+		Grit::pour(
+			(p.x - col0) * T,
+			(static_cast<float>(p.row + 1) - row0) * T,
+			-T * (1.f - POUR_DEPTH),
+			now - p.startMs,
+			SAND_POUR_MS,
+			static_cast<uint32_t>(p.startMs)
+		);
+}
+// Same frame as drawSandEffects: the sand blown through each cell of a sandstorm hall (plan sandstorm-halls), after the
+// opaque scene.
+void DungeonView::drawGusts() {
+	const int now = GameClock::now();
+	const auto col0 = static_cast<float>(d.view().originCol), row0 = static_cast<float>(d.view().originRow);
+	for (int j = drawnCells.row0; j < drawnCells.row0 + drawnCells.rows; j++)
+		for (int i = drawnCells.col0; i < drawnCells.col0 + drawnCells.cols; i++) {
+			if (!d.IsInBounds(i, j))
+				continue;
+			const Fixture& f = d.MapAt(i, j).fixture;
+			if (f.type != SandGust)
+				continue;
+			Grit::gust(
+				(static_cast<float>(i) - col0) * T,
+				(static_cast<float>(j) - row0) * T,
+				-T,
+				0.f,
+				gustDir(f),
+				gustStrength(f, now),
+				now,
+				static_cast<uint32_t>(d.MapIndex(i, j))
+			);
+		}
+}
+int DungeonView::windbreakSide(int i, int j) const {
+	if (!d.IsInBounds(i, j) || d.isRock(i, j) || d.MapAt(i, j).fixture.type == SandGust)
+		return 0;
+	for (const int side : {-1, 1})
+		if (d.IsInBounds(i + side, j)) {
+			const Fixture& f = d.MapAt(i + side, j).fixture;
+			if (f.type == SandGust && gustDir(f) == -side)
+				return side;
+		}
+	constexpr int TALL = 2; // rows of a tall hall the pillar goes up through
+	for (int below = 1; below <= TALL && !d.isRock(i, j - below); below++)
+		if (const int side = windbreakSide(i, j - below); side != 0 && d.isRock(i, j - below - 1))
+			return side;
+	return 0;
+}
+void DungeonView::drawWindbreak(int side, bool floor, bool ceiling) {
+	constexpr float WIDTH = 0.26f * T, DEPTH = 0.34f * T; // the shaft
+	constexpr float LIP = 0.05f * T, SLAB = 0.07f * T; // the base and the capital stand out this far, this high
+	const float outer = side > 0 ? T : 0.f; // the cell's side the wind comes from
+	auto box = [&](float x0, float x1, float y0, float y1, float zf) {
+		const float z0 = -T;
+		const float tu = (x1 - x0) / T, tz = (zf - z0) / T, t0 = y0 / T, t1 = y1 / T;
+		world().begin(Primitive::Quads);
+		world().normal(0, 0, 1); // the front
+		world().texCoord(0, t0);
+		world().vertex(x0, y0, zf);
+		world().texCoord(tu, t0);
+		world().vertex(x1, y0, zf);
+		world().texCoord(tu, t1);
+		world().vertex(x1, y1, zf);
+		world().texCoord(0, t1);
+		world().vertex(x0, y1, zf);
+		for (const float x : {x0, x1}) { // the sides
+			world().normal(x == x0 ? -1.f : 1.f, 0, 0);
+			world().texCoord(0, t0);
+			world().vertex(x, y0, z0);
+			world().texCoord(tz, t0);
+			world().vertex(x, y0, zf);
+			world().texCoord(tz, t1);
+			world().vertex(x, y1, zf);
+			world().texCoord(0, t1);
+			world().vertex(x, y1, z0);
+		}
+		world().normal(0, 1, 0); // the top: seen on the base, under the capital hidden
+		world().texCoord(0, 0);
+		world().vertex(x0, y1, zf);
+		world().texCoord(tu, 0);
+		world().vertex(x1, y1, zf);
+		world().texCoord(tu, tz);
+		world().vertex(x1, y1, z0);
+		world().texCoord(0, tz);
+		world().vertex(x0, y1, z0);
+		world().end();
+	};
+	auto span = [&](float width) { // x0, x1 of a part this wide against the cell's windward side
+		return side > 0 ? std::pair{outer - width, outer} : std::pair{outer, outer + width};
+	};
+	const auto [s0, s1] = span(WIDTH);
+	box(s0, s1, 0.f, T, -T + DEPTH);
+	const auto [b0, b1] = span(WIDTH + LIP);
+	if (floor)
+		box(b0, b1, 0.f, SLAB, -T + DEPTH + LIP);
+	if (ceiling)
+		box(b0, b1, T - SLAB, T, -T + DEPTH + LIP);
+}
+bool DungeonView::lightShaft(int i, int j) const {
+	return d.IsInBounds(i, j) && !d.isRock(i, j) && d.isRock(i, j + 1) &&
+		   d.decoration.surface[d.MapIndex(i, j)].ceiling == CEILING_SANDSTONE_CRACKED;
+}
+// A worm under the sand: a low mound of sand that heaves, dark grains rolling off it.
+void DungeonView::drawRipple(float x, float y, float z, float size, int now) const {
+	const float rx = 13.f * size, rz = 8.f * size, h = 6.f * size; // world units
+	constexpr int PUFF_MS = 900;
+	constexpr int SIDES = 16;
+	const float heave = 0.7f + 0.3f * std::sin(static_cast<float>(now) * 0.012f);
+	assets.decor.floorTex[FLOOR_SAND].Bind();
+	world().colour(0.8f, 0.68f, 0.52f); // stirred-up sand, a shade darker
+	world().begin(Primitive::TriangleFan);
+	world().normal(0, 1, 0);
+	world().texCoord(0.5f, 0.5f);
+	world().vertex(x, y + h * heave, z);
+	for (int k = 0; k <= SIDES; k++) {
+		const float a = 6.2832f * static_cast<float>(k) / SIDES;
+		world().normal(std::cos(a) * 0.5f, 0.85f, std::sin(a) * 0.5f);
+		world().texCoord(0.5f + 0.5f * std::cos(a), 0.5f + 0.5f * std::sin(a));
+		world().vertex(x + rx * std::cos(a), y - 0.5f, z + rz * std::sin(a));
+	}
+	world().end();
+	world().colour(1, 1, 1);
+	// Sand trickling off the heaving mound, puff after puff.
+	Grit::puff(x, y + h * heave, z, now % PUFF_MS, PUFF_MS, static_cast<uint32_t>(now / PUFF_MS));
+}

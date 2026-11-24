@@ -1,13 +1,13 @@
 #include "monster_draw.h"
-#include "../render/gl_includes.h"
-#include "../render/matrix_stack.h"
+#include "../render/gl/gl_includes.h"
+#include "../render/gl/matrix_stack.h"
 #include <algorithm>
 #include <cmath>
 #include "../render/ink.h"
 #include "../render/lighting.h"
 #include "particles_draw.h"
-#include "../ui/player_hud.h"
-#include "../sim/render_config.h"
+#include "../ui/hud/player_hud.h"
+#include "../sim/model/render_config.h"
 #include "../level/tuning/gameplay_monster_kinds.h"
 
 namespace {

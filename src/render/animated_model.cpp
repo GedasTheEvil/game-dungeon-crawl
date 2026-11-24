@@ -7,8 +7,8 @@
 #include "animated_model.h"
 #include "lighting.h"
 #include "textures.h"
-#include "gl_includes.h"
-#include "matrix_stack.h"
+#include "gl/gl_includes.h"
+#include "gl/matrix_stack.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
 

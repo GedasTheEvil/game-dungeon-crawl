@@ -5,7 +5,7 @@ Status: draft 2026-11-16, size M, needs nothing first. On hold: a field move alo
 ## Problem
 
 The architecture review (2026-11-16, smell 10): the player's position `mapX`/`mapY` lives in `Dungeon`
-(`sim/dungeon.h`, used about 410 times in 28 sim files), with `sunkMs`, `walkDir`, `keysHeld` and about 30
+(`sim/dungeon/dungeon.h`, used about 410 times in 28 sim files), with `sunkMs`, `walkDir`, `keysHeld` and about 30
 `Dungeon::Player*()` queries (`PlayerWading`, `PlayerInSand`, `PlayerOnLadder`, `PlayerSink`, ...). `Player` itself
 has about 20 public mutable fields (`jump`, `charge`, `crouchHeld`, `crouched`, `blindMs`, ...). Movement, crouch and
 jump rules sit half in each, and nothing owns their invariants.

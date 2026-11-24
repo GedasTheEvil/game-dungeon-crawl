@@ -9,7 +9,7 @@
 #include <cstdint>
 
 // The draft map's marks (plans map-symbols-and-zoom, map-legend-sprites): what a cell's symbol shows, one legend row
-// and one sprite each. No drawing here: the map (src/ui/map_view.cpp) draws a mark's sprite from the sheet
+// and one sprite each. No drawing here: the map (src/ui/map/map_view.cpp) draws a mark's sprite from the sheet
 // media/textures/ui/map_marks.png (tools/textures/map_marks.py). A new mark: a sprite cell in the sheet, a row in
 // MARK_DEFS, a case in thingMark or propMark (docs/ui.md, Draft map).
 

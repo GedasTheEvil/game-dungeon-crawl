@@ -8,7 +8,8 @@
 class GameState;
 
 // Saving and loading the game (plan game-state-split): the files (SaveFolder), the autosave, the quick save, the
-// latest save and the death count in the autosave. The file's parts: writeSaveGame / loadSaveGame (sim/dungeon_save.h).
+// latest save and the death count in the autosave. The file's parts: writeSaveGame / loadSaveGame
+// (sim/dungeon/dungeon_save.h).
 class SaveService {
   public:
 	explicit SaveService(GameState& game) : game(game) {}

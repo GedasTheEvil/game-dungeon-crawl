@@ -59,7 +59,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
 * `tools/blender/models/mimic.py` - ambush monster example: the shell is `items.build_chest` itself (same vertices, UVs read back from
   `treasure_chest.md3`, `treasure_chest.png` copied unchanged into the left half of the 1024 x 512 `mimic.png`; the mouth parts are baked on
   their own into the right half), so the rest pose is the item vertex for vertex: frame 0 of `mimic_idle.md3`, the mimic's normalization reference
-  (`AMBUSH_CLIPS` in `src/sim/model_info.h`), has the chest's bounding box (to the int16 step). Everything else hides inside at rest: lower fangs and gums in the walls (slide up), upper fangs lying flat in the lid
+  (`AMBUSH_CLIPS` in `src/sim/model/model_info.h`), has the chest's bounding box (to the int16 step). Everything else hides inside at rest: lower fangs and gums in the walls (slide up), upper fangs lying flat in the lid
   frame (fold down), tongue and a fleshy mouth floor under the gold heap (the heap sinks into the box). Rigid bones posed by deformation
   matrices (as in `bat.py`), feet on a `base` bone so the legs shear under the twisting box, per-frame floor fix. Clips: walk 32 (loops on the awake
   pose, the same as attack frame 0: four lid snaps, sways and twists), attack 22 (loops from the awake pose: gape, lunge
@@ -235,7 +235,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   surface), `water_pads` (lotus leaves), `water_lotus` (leaves, a blue lotus in bloom and a bud), modelled at their real
   height in the basin (`BASIN_Z`, `SURFACE_Z` from `render_config.h`), not enlarged; their bake floor is the basin's.
   Scattered in 50% of free half water cells (reeds at the bank, leaves out on the water); swayed or bobbed at draw time
-  (`waterMotion` in `src/graphics/dungeon_render_decor.cpp`). In-game check: `make test SCENARIO=tests/scenarios/solved/water_decorations.txt`.
+  (`waterMotion` in `src/graphics/dungeon/dungeon_render_decor.cpp`). In-game check: `make test SCENARIO=tests/scenarios/solved/water_decorations.txt`.
   In-game check of the statues and the sarcophagus: `make test SCENARIO=tests/scenarios/solved/statues.txt` (puts them with the
   scenario's `prop` command); of the tiers: `tests/unit/sim_test.cpp` and the golden dumps (`tests/unit/golden/`).
   `coffin` (the mummy's, not scattered: the engine puts it on mummy spawn tiles; no `PROP_SCALE`, exact tile units): empty open box,
@@ -323,7 +323,7 @@ conventions, steps). New model notes go in the script's docstring, not here.
   `<weapon>_hit`, shared by the weapons alike: `axe_hit`, `mace_hit`), the bow's draw and release, the sling's whirl and
   release, a throw, the arrow in a body and in stone (`arrow_hit`, `arrow_wall`), a stone or stick on a body or off a wall
   (`stone_hit`, `stone_wall`). Wired in `ITEMS` (`src/level/rules/items.cpp`) and `MISSILE_RULES`
-  (`src/sim/dungeon_rules.h`); a melee hit sound plays only when the swing hits a monster.
+  (`src/sim/dungeon/dungeon_rules.h`); a melee hit sound plays only when the swing hits a monster.
 * `tools/audio/jump_sound.py` - synthesizes `media/sounds/characters/archeologist_jump.wav` (boot scuff, effort "hup", cloth whoosh; 16-bit PCM).
 * `tools/audio/amulet_sound.py` - synthesizes `media/sounds/items/amulet.wav` (an amulet put on or taken off: cord rustle, beads and the pendant clinking).
 

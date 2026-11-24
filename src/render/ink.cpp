@@ -1,11 +1,11 @@
 #include "ink.h"
-#include "gl_state.h"
-#include "../sim/figures.h"
+#include "gl/gl_state.h"
+#include "../sim/model/figures.h"
 #include "motion_fx.h"
-#include "batch.h"
-#include "shader.h"
+#include "gl/batch.h"
+#include "gl/shader.h"
 
-#include "gl_includes.h"
+#include "gl/gl_includes.h"
 #include "../core/logger.h"
 
 namespace {

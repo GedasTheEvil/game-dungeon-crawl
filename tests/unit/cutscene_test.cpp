@@ -2,7 +2,7 @@
 // standing still meanwhile; a skip ends it at once; with the option off, nothing changes.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 #include "../../src/level/tuning/gameplay_world.h"
 
 namespace {

@@ -1,7 +1,7 @@
 #include "particles_draw.h"
-#include "../render/gl_includes.h"
+#include "../render/gl/gl_includes.h"
 #include "../render/lighting.h"
-#include "../render/matrix_stack.h"
+#include "../render/gl/matrix_stack.h"
 #include "../core/timer.h"
 
 void Particles::Draw(const ParticleSystem& system) {

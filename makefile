@@ -3,7 +3,7 @@ CXX=g++
 # RELEASE=1 (make release): a portable build in build/release, so it runs on an older CPU than this one's.
 ifdef RELEASE
 MARCH=-march=x86-64-v2
-# A player's build: no GL debug log (src/render/gl_context.cpp).
+# A player's build: no GL debug log (src/render/gl/gl_context.cpp).
 RELEASE_DEFINES=-DGAME_RELEASE=1
 else
 MARCH=-march=native
@@ -173,15 +173,15 @@ $(BUILD)/external/%.o: external/%.cpp
 GAME_VERSION:=$(shell git describe --always --dirty 2>/dev/null || echo unknown)
 VERSION_STAMP=$(BUILD)/version.txt
 $(shell mkdir -p $(BUILD); [ "$$(cat $(VERSION_STAMP) 2>/dev/null)" = "$(GAME_VERSION)" ] || echo "$(GAME_VERSION)" > $(VERSION_STAMP))
-$(BUILD)/src/ui/win_entry.o: $(VERSION_STAMP)
-$(BUILD)/src/ui/win_entry.o: CXXFLAGS += -DGAME_VERSION=\"$(GAME_VERSION)\"
+$(BUILD)/src/ui/menu/win_entry.o: $(VERSION_STAMP)
+$(BUILD)/src/ui/menu/win_entry.o: CXXFLAGS += -DGAME_VERSION=\"$(GAME_VERSION)\"
 # The credits screen shows .version (plan credits-second-section); the file is a prerequisite, so a bump rebuilds it.
 GAME_RELEASE:=$(shell cat .version 2>/dev/null || echo unknown)
-$(BUILD)/src/ui/menu_credits.o: .version
-$(BUILD)/src/ui/menu_credits.o: CXXFLAGS += -DGAME_RELEASE=\"$(GAME_RELEASE)\"
+$(BUILD)/src/ui/menu/menu_credits.o: .version
+$(BUILD)/src/ui/menu/menu_credits.o: CXXFLAGS += -DGAME_RELEASE=\"$(GAME_RELEASE)\"
 # The GL core path's matrices round as Mesa's: no fused multiply-add (-march=native has it, C++ contracts by default),
 # or a translation lands one ulp off and an edge pixel flips (plan gl-core-world).
-$(BUILD)/src/render/mat4.o: CXXFLAGS += -ffp-contract=off
+$(BUILD)/src/render/gl/mat4.o: CXXFLAGS += -ffp-contract=off
 
 level-tools: $(LEVEL_TOOLS)
 

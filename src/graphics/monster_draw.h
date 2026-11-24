@@ -2,7 +2,7 @@
 #define MONSTER_DRAW_H
 
 #include "character_model.h"
-#include "../sim/monster.h"
+#include "../sim/monster/monster.h"
 #include "texture_registry.h"
 
 // A monster as its last Animate left it, with the frame origin at its spawn tile: the model of its type (Assets), its

@@ -2,7 +2,7 @@
 #define ASSETS_H
 
 #include "character_model.h"
-#include "../sim/monster.h"
+#include "../sim/monster/monster.h"
 #include "item.h"
 #include "trap.h"
 #include "texture_registry.h"

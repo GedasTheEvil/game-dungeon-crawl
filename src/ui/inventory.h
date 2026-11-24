@@ -8,11 +8,11 @@
 #include "../level/rules/player_actions.h"
 #include "../state/item_commands.h"
 #include "screen_world.h"
-#include "../sim/dungeon_save.h"
+#include "../sim/dungeon/dungeon_save.h"
 #include "../level/input/bindings.h"
 #include "../level/ui/pointer.h"
 #include "../render/ui_draw.h"
-#include "confirm_box.h"
+#include "menu/confirm_box.h"
 #include "../level/ui/inventory_layout.h"
 #include "../level/shrines.h"
 #include <iosfwd>

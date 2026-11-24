@@ -6,7 +6,7 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <algorithm>
-#include "../render/gl_includes.h"
+#include "../render/gl/gl_includes.h"
 #include "gl_window.h"
 #include "../core/logger.h"
 #include "../graphics/draw.h"

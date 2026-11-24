@@ -2,8 +2,8 @@
 #define LIGHTING_H
 
 #include <cstdint>
-#include "batch.h"
-#include "default_shaders.h"
+#include "gl/batch.h"
+#include "gl/default_shaders.h"
 
 // Per-pixel point lights over a dark ambient for the gameplay scene (the world shader, GLSL 330 core: texture x vertex
 // colour x (ambient + lights); plan gl-core-world). Toon mode (F1) snaps the light to cel

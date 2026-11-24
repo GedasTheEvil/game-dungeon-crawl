@@ -2,7 +2,7 @@
 // details.
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/files/save_slots.h"
-#include "../../src/sim/dungeon_save.h"
+#include "../../src/sim/dungeon/dungeon_save.h"
 #include "sim_world.h"
 #include <filesystem>
 #include <fstream>

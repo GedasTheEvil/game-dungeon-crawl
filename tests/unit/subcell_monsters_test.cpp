@@ -2,7 +2,7 @@
 // tests/levels/subcell_monsters (its .txt draws it); the scenario: tests/scenarios/solved/subcell_monsters.txt.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/model_info.h"
+#include "../../src/sim/model/model_info.h"
 #include "../../src/level/climb_path.h"
 #include "../../src/level/tuning/gameplay_monsters.h"
 #include "../../src/level/tuning/gameplay_shared.h"

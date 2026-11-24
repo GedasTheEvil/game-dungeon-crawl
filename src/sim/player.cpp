@@ -1,13 +1,13 @@
 #include "player.h"
 #include <algorithm>
 #include <cmath>
-#include "figures.h"
+#include "model/figures.h"
 #include "../level/tuning/gameplay_monster_kinds.h"
 #include "../level/tuning/gameplay_player.h"
 #include "../level/tuning/gameplay_shared.h"
 #include "../level/tuning/gameplay_skills.h"
 #include "../level/rules/head_bump.h"
-#include "render_config.h"
+#include "model/render_config.h"
 
 int powerHitBonusPercent(int points, int rank) {
 	if (points <= 0)

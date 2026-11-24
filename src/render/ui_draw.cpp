@@ -1,8 +1,8 @@
 #include "ui_draw.h"
-#include "batch.h"
+#include "gl/batch.h"
 #include "font.h"
-#include "gl_includes.h"
-#include "matrix_stack.h"
+#include "gl/gl_includes.h"
+#include "gl/matrix_stack.h"
 #include "textures.h"
 #include <algorithm>
 #include <cmath>

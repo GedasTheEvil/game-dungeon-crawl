@@ -2,10 +2,10 @@
 // verbs, project against gluProject's numbers, Batch's quads split into triangles, and WideLines' stages (plan
 // gl-core-profile). No GL context.
 #include "../../external/doctest/doctest.h"
-#include "../../src/render/batch.h"
-#include "../../src/render/mat4.h"
-#include "../../src/render/matrix_stack.h"
-#include "../../src/render/wide_lines.h"
+#include "../../src/render/gl/batch.h"
+#include "../../src/render/gl/mat4.h"
+#include "../../src/render/gl/matrix_stack.h"
+#include "../../src/render/gl/wide_lines.h"
 #include <array>
 #include <cmath>
 #include <numbers>

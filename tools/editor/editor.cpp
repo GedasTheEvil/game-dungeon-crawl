@@ -15,8 +15,8 @@
 #include <filesystem>
 #include "../../src/core/logger.h"
 #include "../../src/game/gl_window.h"
-#include "../../src/render/gl_includes.h"
-#include "../../src/render/matrix_stack.h"
+#include "../../src/render/gl/gl_includes.h"
+#include "../../src/render/gl/matrix_stack.h"
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>

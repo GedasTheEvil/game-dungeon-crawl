@@ -1,5 +1,5 @@
 #include "textures.h"
-#include "gl_includes.h"
+#include "gl/gl_includes.h"
 #include <GL/glx.h> // after glad (textures.h)
 #include <algorithm>
 #include <cstring>

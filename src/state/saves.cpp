@@ -3,8 +3,8 @@
 #include "ui_context.h"
 #include "../core/logger.h"
 #include "../level/campaign.h"
-#include "../sim/dungeon_save.h"
-#include "../ui/player_hud.h"
+#include "../sim/dungeon/dungeon_save.h"
+#include "../ui/hud/player_hud.h"
 #include <sstream>
 
 bool SaveService::Write(const std::string& path) {

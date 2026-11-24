@@ -1,7 +1,7 @@
 #ifndef CHARACTER_MODEL_H
 #define CHARACTER_MODEL_H
 
-#include "../sim/model_info.h"
+#include "../sim/model/model_info.h"
 #include "../render/animated_model.h"
 #include "../render/textures.h"
 #include "../audio/sound.h"

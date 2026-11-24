@@ -1,13 +1,13 @@
 #include "fire.h"
 
-#include "../render/batch.h"
-#include "../render/gl_includes.h"
-#include "../render/matrix_stack.h"
+#include "../render/gl/batch.h"
+#include "../render/gl/gl_includes.h"
+#include "../render/gl/matrix_stack.h"
 #include <algorithm>
 #include <cmath>
 #include "../render/lighting.h"
 #include "../core/timer.h"
-#include "../sim/render_config.h"
+#include "../sim/model/render_config.h"
 #include "../level/decor.h"
 
 namespace {

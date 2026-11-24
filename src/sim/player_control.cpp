@@ -1,5 +1,5 @@
 #include "player_control.h"
-#include "dungeon.h"
+#include "dungeon/dungeon.h"
 #include "player.h"
 #include "../core/timer.h"
 #include "../level/tuning/gameplay_shared.h"

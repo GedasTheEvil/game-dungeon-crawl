@@ -1,8 +1,8 @@
 #include "item.h"
-#include "../render/gl_includes.h"
+#include "../render/gl/gl_includes.h"
 #include "../render/ink.h"
 #include "../render/lighting.h"
-#include "../render/matrix_stack.h"
+#include "../render/gl/matrix_stack.h"
 #include "../core/timer.h"
 #include <cmath>
 #include <algorithm>

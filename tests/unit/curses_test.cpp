@@ -3,7 +3,7 @@
 #include "sim_world.h"
 #include "../../src/level/rules/curses.h"
 #include "../../src/level/rules/monster_kinds.h"
-#include "../../src/ui/player_hud.h"
+#include "../../src/ui/hud/player_hud.h"
 #include <sstream>
 #include <string>
 

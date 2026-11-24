@@ -3,7 +3,7 @@
 #include <SDL3/SDL_error.h>
 #include <algorithm>
 #include "../core/logger.h"
-#include "../render/gl_context.h"
+#include "../render/gl/gl_context.h"
 
 bool GlWindow::open(const char* title, int width, int height, SDL_WindowFlags flags) {
 	// A GL 3.3 core context (plan gl-core-profile): no fixed-function GL to drift back in. Forward compatible, as macOS

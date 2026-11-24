@@ -3,7 +3,7 @@
 // game. Levels drawn in the levelcheck --map legend, rows top first, shapes set per cell (bit = column + 4 * row).
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 #include "../../src/level/check/level_check.h"
 #include "../../src/level/check/path_script.h"
 #include "../../src/level/tile_defs.h"

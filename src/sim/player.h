@@ -2,7 +2,7 @@
 #define PLAYER_H
 
 #include <cmath>
-#include "model_info.h"
+#include "model/model_info.h"
 #include "particles.h"
 #include "../level/rules/player_stats.h"
 #include "../core/timer.h"

@@ -1,4 +1,4 @@
-"""Generate the journal's paper and cover textures (JournalScreen, src/ui/journal_view.cpp).
+"""Generate the journal's paper and cover textures (JournalScreen, src/ui/journal/journal_view.cpp).
 
     python3 tools/textures/journal_book.py [out_dir]      (default: media/textures/ui/)
 

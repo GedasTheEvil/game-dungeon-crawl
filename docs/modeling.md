@@ -67,15 +67,15 @@ started (port 9876).
 ## Format and engine conventions
 * Models are Quake 3 MD3 (binary, int16 positions, 16-bit normals in every frame, <= 4096 verts per surface,
   exporter splits surfaces). Game space Y-up, counter-clockwise triangles, each file scaled to fill the int16 range
-  (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `Md3Mesh::Load` in `src/sim/md3_mesh.cpp`.
+  (header name holds `;unit=`, which the loader applies so all files of a model share real units). Loader: `Md3Mesh::Load` in `src/sim/model/md3_mesh.cpp`.
 * Blender space: Z-up. Facing depends on the monster's `rotA` in `KINDS` (`src/level/rules/monster_kinds.cpp`): Anubis (180) faces +Y, worm (0) faces -Y.
   Check the facing in `KINDS` first.
 * The engine normalizes a monster by its reference clip's frame 0 (the walk-slot file `<name>.md3`; `_idle` for the mimics, `AMBUSH_CLIPS`, `AMBUSH_HOP_CLIPS`): largest dimension -> 1, centred in x/z,
-  min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `LoadClips` in `src/sim/model_info.cpp`),
+  min Y on the floor (`Centrify`); the attack and die files get the same transform (`Normalize`, `LoadClips` in `src/sim/model/model_info.cpp`),
   so their frame 0 may differ. Keeping frame 0 the same pose in all three files still gives the smoothest switches.
   Single-file models (items, props) are centred on their own frame 0.
 * Animation states (`ModelState`): Idle, Move, Attack, Die, Jump, Climb, Rise, AttackRanged, Crouch, CrouchWalk, CrouchDown, one file per clip. The file list (`ClipFiles` in
-  `src/sim/model_info.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
+  `src/sim/model/model_info.h`) names each file's suffix and whether it loops; its first file is the reference: required, normalizes all
   clips and stands in for a missing optional clip. `ClipFilesOf` picks a monster's list by its `roll`, `sandBurrow`, `locomotion` and `ranged` in `KINDS`.
   `MONSTER_CLIPS`: `<name>.md3` Move, `_att` Attack, `_die` Die, optional `_idle` Idle, optional `_jump` Jump (plays once), optional `_climb` Climb.
   `PLAYER_CLIPS`: `<name>.md3` Idle, `_walk` Move, `_die`, optional `_jump`, `_climb`, `_crouch`, `_crouch_walk`, `_crouch_down`, `_drag`, `_drag_pull`, `_drag_push`, `_drag_down`.
@@ -124,7 +124,7 @@ started (port 9876).
   the carapace at 0.6) and the mummy priest (`mummy_priest.py`: ankh, finger stalls, scarab).
   Re-bake with `tools/blender/rebake.py` (Tools), not a plain `--export`: Cycles adds a little noise, and `uv_unwrap`
   may lay the UVs out anew since the last export (then the `.md3` must go with its new texture).
-* Engine side: `src/sim/md3_mesh.cpp` (MD3 loader), `src/sim/model_info.cpp` (clip files, normalization), `src/render/animated_model.cpp` (drawing), `src/render/textures.cpp` (PNG textures), model/texture paths in `src/level/rules/monster_kinds.cpp` (`KINDS`) and `src/level/rules/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
+* Engine side: `src/sim/model/md3_mesh.cpp` (MD3 loader), `src/sim/model/model_info.cpp` (clip files, normalization), `src/render/animated_model.cpp` (drawing), `src/render/textures.cpp` (PNG textures), model/texture paths in `src/level/rules/monster_kinds.cpp` (`KINDS`) and `src/level/rules/items.cpp` (`ITEMS`; the player in `game_state.cpp`).
 * Lighting: `src/render/lighting.cpp` (GLSL per-pixel point lights over a dark ambient; player, torches, braziers, oil lamps;
   toon mode (F1) snaps the light to cel bands), `src/render/ink.cpp` (toon ink outlines: depth-based post pass,
   lines on silhouettes and creases of anything that writes depth) and `src/graphics/fire.cpp` (stateless fire particles). Flame origins per prop: `BRAZIER_FIRE`,

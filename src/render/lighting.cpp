@@ -1,7 +1,7 @@
 #include "lighting.h"
-#include "shader.h"
+#include "gl/shader.h"
 
-#include "gl_includes.h"
+#include "gl/gl_includes.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -11,7 +11,7 @@
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include "ink.h"
-#include "matrix_stack.h"
+#include "gl/matrix_stack.h"
 
 namespace {
 constexpr int MAX_LIGHTS = 16;

@@ -4,7 +4,7 @@ the light slap of it landing on the other side.
     python3 tools/audio/page_sound.py [out.wav]      (default: media/sounds/ui/page_turn.wav)
 
 Everything is generated (no samples), so this script is the source of the sound. The turn takes 650 ms in the game
-(FLIP_MS, src/ui/journal_view.cpp): the landing sits near its end.
+(FLIP_MS, src/ui/journal/journal_view.cpp): the landing sits near its end.
 Output: 16-bit PCM mono 22050 Hz, which SDL_LoadWAV reads directly.
 """
 

@@ -2,7 +2,7 @@
 // in a hostile one slower, less often and softer, and it keeps out of it when it can.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 #include "../../src/level/check/level_check.h"
 #include "../../src/level/terrain.h"
 #include "../../src/level/tuning/gameplay_environment.h"

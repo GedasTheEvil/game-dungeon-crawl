@@ -1,6 +1,6 @@
 #include "inventory.h"
-#include "../render/batch.h"
-#include "../render/matrix_stack.h"
+#include "../render/gl/batch.h"
+#include "../render/gl/matrix_stack.h"
 #include "../level/rules/player_stats.h"
 #include "../level/rules/player_actions.h"
 #include "../sim/player_control.h"
@@ -9,12 +9,12 @@
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include "../level/input/keys.h"
-#include "../render/gl_includes.h"
+#include "../render/gl/gl_includes.h"
 #include "../render/lighting.h"
 #include "../level/ui/inventory_layout.h"
 #include "../render/ui_draw.h"
 #include "screen_tabs.h"
-#include "player_hud.h"
+#include "hud/player_hud.h"
 #include <array>
 #include <cmath>
 #include <cstdio>

@@ -2,8 +2,8 @@
 #include "ui_context.h"
 #include "../graphics/loading_text.h"
 #include "settings.h"
-#include "../ui/player_hud.h"
-#include "../render/gl_includes.h"
+#include "../ui/hud/player_hud.h"
+#include "../render/gl/gl_includes.h"
 #include <cassert>
 #include <cstdarg>
 #include <cstdio>

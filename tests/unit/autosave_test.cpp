@@ -5,7 +5,7 @@
 #include "../../src/level/files/leaderboard.h"
 #include "../../src/level/rules/run_stats.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 #include "../../src/level/tuning/gameplay_shared.h"
 #include <algorithm>
 #include <array>

@@ -1,11 +1,11 @@
 #include "motion_fx.h"
 #include "render_target.h"
-#include "batch.h"
-#include "gl_state.h"
-#include "matrix_stack.h"
-#include "shader.h"
+#include "gl/batch.h"
+#include "gl/gl_state.h"
+#include "gl/matrix_stack.h"
+#include "gl/shader.h"
 
-#include "gl_includes.h"
+#include "gl/gl_includes.h"
 #include <algorithm>
 
 namespace {

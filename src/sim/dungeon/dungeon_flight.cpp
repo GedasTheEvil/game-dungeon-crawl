@@ -1,0 +1,149 @@
+// Flyers on the level (monster_flight.cpp, plan bats-high-ceiling): the way to another row and what a flyer sees.
+#include "dungeon.h"
+#include "../player.h"
+#include "../../level/tuning/gameplay_monster_kinds.h"
+#include "../../level/tuning/gameplay_monsters.h"
+#include "../model/render_config.h"
+#include <algorithm>
+#include <cmath>
+#include <vector>
+
+int Dungeon::flightShaft(int col, int row, int toCol, int toRow, bool boxed) const {
+	const int left = boxed ? std::min(col, toCol) : 0, right = boxed ? std::max(col, toCol) : LEVEL_WIDTH - 1;
+	const int bottom = boxed ? std::min(row, toRow) : 0, top = boxed ? std::max(row, toRow) : LEVEL_HEIGHT - 1;
+	auto open = [&](int c, int r) {
+		return c >= left && c <= right && r >= bottom && r <= top && IsInBounds(c, r) && !isSolidTile(MapAt(c, r));
+	};
+	auto vertical = [&](int c, int r1, int r2) {
+		return open(c, r1) && open(c, r2) && !inHalfWater(MapAt(c, r1)) && !inHalfWater(MapAt(c, r2));
+	};
+	if (row == toRow || !open(col, row) || !open(toCol, toRow))
+		return -1;
+	// Steps to the goal from each cell, searched from the goal.
+	std::vector<int> dist(LEVEL_CELL_COUNT, -1);
+	std::vector<int> queue{MapIndex(toCol, toRow)};
+	dist[queue[0]] = 0;
+	for (size_t i = 0; i < queue.size(); i++) {
+		const int c = queue[i] % LEVEL_WIDTH, r = queue[i] / LEVEL_WIDTH;
+		auto visit = [&](int nc, int nr, bool ok) {
+			if (ok && dist[MapIndex(nc, nr)] < 0) {
+				dist[MapIndex(nc, nr)] = dist[queue[i]] + 1;
+				queue.push_back(MapIndex(nc, nr));
+			}
+		};
+		visit(c, r - 1, vertical(c, r, r - 1));
+		visit(c, r + 1, vertical(c, r, r + 1));
+		visit(c - 1, r, open(c, r) && open(c - 1, r));
+		visit(c + 1, r, open(c, r) && open(c + 1, r));
+	}
+	if (dist[MapIndex(col, row)] < 0)
+		return -1;
+	// Along the row to the first step up or down; up or down at once where it can.
+	for (int c = col;;) {
+		const int d = dist[MapIndex(c, row)];
+		for (int r : {row - 1, row + 1})
+			if (vertical(c, row, r) && dist[MapIndex(c, r)] == d - 1)
+				return c;
+		c += open(c - 1, row) && dist[MapIndex(c - 1, row)] == d - 1 ? -1 : 1;
+	}
+}
+FlightGoal Dungeon::flightGoal(const Monster& mon) const {
+	FlightGoal goal;
+	const auto col = static_cast<int>(std::floor(mon.CentreX()));
+	const int row = mon.Row();
+	goal.openBelow = IsInBounds(col, row - 1) && !isFloor(MapAt(col, row - 1));
+	// The player's row: their feet's cell, on the floor, in a jump or up a ladder.
+	const auto playerCol = static_cast<int>(std::floor(mapX));
+	const auto playerRow = static_cast<int>(std::floor(mapY + 0.1f));
+	if (mon.Hunts())
+		goal.sees = std::abs(playerRow - row) <= BAT_HUNT_ROWS;
+	else
+		goal.sees = std::fabs(mapX - mon.CentreX()) <= BAT_SIGHT &&
+					std::fabs(mapY - static_cast<float>(row)) <= BAT_SIGHT;
+	goal.toRow = row;
+	if (goal.sees && playerRow != row) { // in sight on another row: only with a way there
+		const int shaft = flightShaft(col, row, playerCol, playerRow, true);
+		goal.sees = shaft >= 0;
+		goal.toRow = goal.sees ? playerRow : row;
+		goal.shaftX = static_cast<float>(shaft - mon.Col());
+	}
+	if (const std::optional<ScreechRules>& screech = mon.Type()->screech; screech && sim.player->Alive())
+		goal.inCone = InScreechCone(mon, *screech);
+	if (!goal.sees && mon.Provoked()) { // hit from where it cannot go: away from the player, not back to the roost
+		goal.flee = true;
+		if (std::fabs(mapX - mon.CentreX()) < COWARD_SAFE_GAP)
+			goal.fleeDir = mapX < mon.CentreX() ? 1 : -1;
+		return goal;
+	}
+	if (!goal.sees && row != mon.SpawnRow()) { // back to the roost
+		const int shaft = flightShaft(col, row, mon.Col(), mon.SpawnRow(), false);
+		if (shaft >= 0) {
+			goal.toRow = mon.SpawnRow();
+			goal.shaftX = static_cast<float>(shaft - mon.Col());
+		}
+	}
+	return goal;
+}
+bool Dungeon::InScreechCone(const Monster& mon, const ScreechRules& rules) const {
+	constexpr float STEP = 0.1f; // tiles between the wall tests along the line
+	const float fromX = mon.CentreX(), fromY = (mon.BottomY() + mon.TopY()) / 2.f;
+	const float dx = mapX - fromX, dy = mapY + SHOT_CHEST * sim.player->Height() - fromY;
+	const float ahead = dx * static_cast<float>(mon.FlightDir());
+	const float dist = std::hypot(dx, dy);
+	const float halfAngle = rules.coneDegrees / 2.f * static_cast<float>(M_PI) / 180.f;
+	if (dist > rules.range || ahead <= 0.f || std::atan2(std::fabs(dy), ahead) > halfAngle)
+		return false;
+	const int steps = static_cast<int>(dist / STEP);
+	for (int k = 1; k < steps; k++) {
+		const float t = static_cast<float>(k) / static_cast<float>(steps);
+		const auto col = static_cast<int>(std::floor(fromX + dx * t)),
+				   row = static_cast<int>(std::floor(fromY + dy * t));
+		if (!IsInBounds(col, row) || isSolidTile(MapAt(col, row)))
+			return false;
+	}
+	return true;
+}
+// Plan subcell-monsters: the floor and the ceiling of the shaped sub-cell columns under its body, and on to the probe
+// ahead of it; an opening ahead lower than the flyer is a wall.
+bool Dungeon::flightBand(const Monster& mon, float probe, FlightGoal& goal) const {
+	constexpr float INSET = 0.01f;
+	const float height = static_cast<float>(mon.Body().heightQuarters) * SUBCELL_SIZE;
+	const float left = mon.Left() + INSET, right = mon.Right() - INSET;
+	float bottom = 0.f, top = 1.f, bodyBottom = 0.f, bodyTop = 1.f;
+	bool wall = false;
+	const auto probeK = static_cast<int>(std::floor(probe * SUBCELLS));
+	for (auto k = static_cast<int>(std::floor(std::min(left, probe) * SUBCELLS));
+		 k <= static_cast<int>(std::floor(std::max(right, probe) * SUBCELLS));
+		 k++) {
+		const int col = k >= 0 ? k / SUBCELLS : -1;
+		if (!IsInBounds(col, mon.Row()) || !hasShape(MapAt(col, mon.Row())))
+			continue;
+		const Tile& t = MapAt(col, mon.Row());
+		const float x = (static_cast<float>(k - col * SUBCELLS) + 0.5f) * SUBCELL_SIZE;
+		const float floor = floorHeight(t, x), ceiling = ceilingHeight(t, x);
+		goal.banded = true;
+		bottom = std::max(bottom, floor);
+		top = std::min(top, ceiling);
+		if (k >= static_cast<int>(std::floor(left * SUBCELLS)) && k <= static_cast<int>(std::floor(right * SUBCELLS))) {
+			bodyBottom = std::max(bodyBottom, floor);
+			bodyTop = std::min(bodyTop, ceiling);
+		}
+		if (k == probeK && ceiling - floor < height - 1e-3f)
+			wall = true;
+	}
+	auto lift = [](float tiles) { return tiles >= 1.f ? BAT_CEILING : tiles * RenderConfig::TILE_SIZE; };
+	goal.bandBottom = bottom * RenderConfig::TILE_SIZE;
+	goal.bandTop = lift(top);
+	goal.bodyBottom = bodyBottom * RenderConfig::TILE_SIZE;
+	goal.bodyTop = lift(bodyTop);
+	return wall;
+}
+void Dungeon::updateFlyer(Monster& mon) {
+	if (monstersStandDown())
+		return;
+	const float probe = mon.flightProbeX();
+	const auto col = static_cast<int>(std::floor(probe));
+	FlightGoal goal = flightGoal(mon);
+	const bool low = flightBand(mon, probe, goal);
+	mon.Fly(low || !IsInBounds(col, mon.Row()) || isSolidTile(MapAt(col, mon.Row())), mapX, mapY, goal);
+}

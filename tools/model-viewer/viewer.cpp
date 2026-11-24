@@ -26,9 +26,9 @@
 // calls (plan gl-core-world).
 
 #include "../../src/game/gl_window.h"
-#include "../../src/render/gl_includes.h"
-#include "../../src/render/mat4.h"
-#include "../../src/render/matrix_stack.h"
+#include "../../src/render/gl/gl_includes.h"
+#include "../../src/render/gl/mat4.h"
+#include "../../src/render/gl/matrix_stack.h"
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
@@ -718,7 +718,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	// Call order matches src/sim/monster.cpp, src/graphics/trap.cpp and
+	// Call order matches src/sim/monster/monster.cpp, src/graphics/trap.cpp and
 	// src/state/game_state.cpp -- not src/graphics/item.cpp, which swaps
 	// Centrify/BindTexture (harmless but not the precedent to follow).
 	ApplyLoadedModel(modelPath);

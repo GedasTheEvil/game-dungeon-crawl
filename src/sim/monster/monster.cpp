@@ -1,0 +1,444 @@
+#include "monster.h"
+#include <algorithm>
+#include <cmath>
+#include <utility>
+
+#include "../player.h"
+#include "../model/figures.h"
+#include "../model/render_config.h"
+#include "../../level/tuning/gameplay_combat.h"
+#include "../../level/tuning/gameplay_monster_kinds.h"
+#include "../../level/tuning/gameplay_monsters.h"
+#include "../../level/tuning/gameplay_shared.h"
+#include "../../level/tuning/gameplay_skills.h"
+#include "../../level/tuning/gameplay_trap_damage.h"
+#include "../../level/tuning/gameplay_traps.h"
+
+void Monster::Spawn(const MonsterType& kind, int spawnCol, int spawnRow, const MonsterLinks& world, Rng& effects) {
+	links = world;
+	type = &kind;
+	if (!blood)
+		blood = std::make_unique<ParticleSystem>();
+	blood->setBloodColor(kind.blood.r, kind.blood.g, kind.blood.b);
+	blood->Stop(); // no splash until the first hit
+	col = spawnCol;
+	this->spawnRow = spawnRow;
+	row = spawnRow;
+	vitals.hp = kind.maxHealth;
+	maxHpOverride = 0;
+	x = 0.f;
+	alerted = false;
+	provoked = false;
+	called = false;
+	callDue = false;
+	minion = false;
+	summonMs = -1;
+	// A rooted one (the plant, the egg cluster) dormant too, until it notices the player (plan missing-idle-clips).
+	state = flies() || lurking() || rooted() ? ModelState::Idle : ModelState::Move;
+	tomb = entombed() ? MUMMY_COFFIN_DEPTH : 0.f;
+	vitals.inWater = false;
+	waterKnown = false;
+	terrain = TerrainFactors{};
+	mood = TerrainMood::Neutral;
+	headInWater = false;
+	sink = 0.f;
+	swim = 0.f;
+	swimPlaced = false;
+	stepUp = 0.f;
+	stepPlaced = false;
+	facing = 0;
+	fleeDir = 0;
+	seenPlayerX = -1.f;
+	closingUntilMs = -1;
+	flight = Flight{};
+	leap = Leap{};
+	burrow = Burrow{};
+	charge = Charge{};
+	grab = Grab{};
+	roll = Roll{};
+	biteAtMs = -1;
+	glideAtMs = -1;
+	climb = Climb{};
+	rungs = false;
+	wayMs = -1;
+	vitals.trapHurt = TrapHurt{};
+	rangedReadyMs = 0;
+	throws = 0;
+	rangedReleased = true;
+	drop.reset();
+	vitals.Clear(); // the poison, the fire, the trap carry, the stun
+	dripPuddled = dripDropped = false;
+	reelReadyMs = 0;
+	playback = kind.model.SpawnPlayback(effects);
+	attackMs = kind.attackMs;
+	attackTimer.SetInterval(attackMs); // a slot can respawn another kind
+	if (!spawned) {
+		stepTimer.Reset();
+		attackTimer.Reset();
+		spawned = true;
+	}
+}
+
+void Monster::Clear() {
+	type = nullptr;
+	col = -1;
+	spawnRow = -1;
+	row = -1;
+	vitals.hp = 0;
+	drop.reset();
+}
+
+void Monster::MakeMinion(Summon how, float fromMapX) {
+	minion = true;
+	alerted = true;
+	summonMs = GameClock::now();
+	summonedBy = how;
+	wallX = fromMapX - static_cast<float>(col) - 0.5f;
+	if (how == Summon::Wall)
+		enter(ModelState::Move);
+	if (entombed() && how == Summon::Coffin) // lies in the coffin it was summoned into, climbs out (tomb, Rising)
+		wake();
+	else if (rises()) // no coffin to climb out of; a cobra summoned comes out reared up
+		enter(ModelState::Move);
+	if (flies() && how == Summon::Drop) { // falls out of the ceiling to where bats turn, flapping (emergeLift)
+		flight.lift = BAT_HIGH_LIFT;
+		enter(ModelState::Move);
+	} else if (flies())
+		flight.lift = roostLift();
+}
+
+bool Monster::Emerging() const {
+	const int emergeMs = summonedBy == Summon::Wall ? WALL_EMERGE_MS : MINION_EMERGE_MS;
+	return summonMs >= 0 && summonedBy != Summon::Coffin && GameClock::now() - summonMs < emergeMs;
+}
+
+// Out of the wall at an even pace, slowing as it steps onto its cell.
+float Monster::LocalX() const {
+	if (summonedBy != Summon::Wall || !Emerging())
+		return glidingX();
+	const float p = static_cast<float>(GameClock::now() - summonMs) / static_cast<float>(WALL_EMERGE_MS);
+	return wallX + (x - wallX) * (1.f - (1.f - p) * (1.f - p));
+}
+
+// Steps come on the game's ticks (MONSTER_STEP_PERIOD_MS, more when they run late): each glides over the last one's
+// length, so the body moves on as evenly as its legs (plan walk-clip-stride).
+void Monster::stepBy(float dx) {
+	const int now = GameClock::now();
+	glideFrom = glidingX();
+	const int since = now - glideAtMs;
+	glideMs = glideAtMs >= 0 && since < 2 * MONSTER_STEP_PERIOD_MS ? std::max(since, 1) : MONSTER_STEP_PERIOD_MS;
+	glideAtMs = now;
+	x += dx;
+}
+
+float Monster::glidingX() const {
+	const int age = GameClock::now() - glideAtMs;
+	if (glideAtMs < 0 || age >= glideMs)
+		return x;
+	return glideFrom + (x - glideFrom) * static_cast<float>(age) / static_cast<float>(glideMs);
+}
+
+// Digging out it rises from its full height under the floor, slowing at the top. Dropping it falls from the
+// ceiling, where a roosting flyer hangs out of sight, speeding up.
+float Monster::emergeLift() const {
+	if (!Emerging() || summonedBy == Summon::Wall)
+		return 0.f;
+	const float p = static_cast<float>(GameClock::now() - summonMs) / static_cast<float>(MINION_EMERGE_MS);
+	if (summonedBy == Summon::Drop)
+		return (BAT_CEILING - flight.lift) * (1.f - p * p);
+	return -type->model.referenceTop * type->scale * Figures::Scale() * (1.f - p) * (1.f - p);
+}
+
+float Monster::swimLift() const {
+	if (!vitals.inWater || !headInWater || type->wading != Wading::Swimmer || !Alive())
+		return 0.f;
+	const float drawScale = type->scale * Figures::Scale();
+	const float top = lurking() ? type->model.idleTop * drawScale - SUBMERGED_SHOW
+								: type->model.referenceTop * drawScale - 2.f * SUBMERGED_SHOW;
+	return std::max(0.f, RenderConfig::WATER_DEPTH - top);
+}
+
+void Monster::SetTerrain(Terrains here) {
+	terrain = terrainFactors(here, type->native, type->hostile);
+	mood = MoodIn(here);
+	attackMs = static_cast<int>(std::lround(static_cast<float>(type->attackMs) * terrain.interval));
+	attackTimer.SetInterval(attackMs);
+}
+
+int Monster::HitDamage(int base) const { return terrainDamage(base, terrain.damage); }
+
+float Monster::floatLift() const { return floats() && vitals.inWater ? RenderConfig::WATER_DEPTH : 0.f; }
+
+float Monster::lift() const {
+	return (flies() ? std::max(flight.lift, 0.f) : leap.lift + swim + floatLift() - sink + climbLift()) + emergeLift() +
+		   burrowLift() + stepLift();
+}
+
+float Monster::stepLift() const { return flies() ? 0.f : stepUp * RenderConfig::TILE_SIZE; }
+
+void Monster::SetStepFloor(float floor) {
+	if (!stepPlaced)
+		stepUp = floor;
+	stepPlaced = true;
+	stepUp = floor > stepUp ? std::min(floor, stepUp + MONSTER_STEP_EASE) : std::max(floor, stepUp - MONSTER_STEP_EASE);
+}
+
+bool Monster::LeavesChest() const {
+	return ambushes(type->locomotion) && !Alive() && state == ModelState::Die && type->model.Finished(state, playback);
+}
+
+std::optional<ItemKind> Monster::TakeDrop() {
+	if (!drop || Alive() || state != ModelState::Die || !type->model.Finished(state, playback))
+		return std::nullopt;
+	std::optional<ItemKind> d = drop;
+	drop.reset();
+	return d;
+}
+
+bool Monster::Rising() const {
+	return rises() && Alive() && state == ModelState::Rise && !type->model.Finished(state, playback);
+}
+
+bool Monster::sameRow(float py) const { return std::fabs(static_cast<float>(row) + climb.y - py) < 0.8f; }
+
+float Monster::HalfWidth() const {
+	return type->model.HalfWidth() * type->scale * Figures::Scale() / RenderConfig::TILE_SIZE;
+}
+
+float Monster::MeleeGap(float px, int dir) const {
+	return (NearEdge(dir) - px) * static_cast<float>(dir) - links.player->HalfWidth();
+}
+
+bool Monster::Nearby(float px, float py, float reach, int dir) const {
+	const float behind = (FarEdge(dir) - px) * static_cast<float>(dir); // < 0: the far edge is behind the player
+	return MeleeGap(px, dir) <= reach && behind >= -MELEE_REACH_BEHIND &&
+		   std::fabs(static_cast<float>(row) + climb.y - py) < 0.7f;
+}
+
+// A roosting flyer, a lurker under the water and a coiled one show their idle clip.
+float Monster::BottomY() const {
+	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || ((submerged() || coiled()) && lurking());
+	const float bottom = idle ? type->model.idleBottom * type->scale * Figures::Scale() : 0.f;
+	return static_cast<float>(row) + (lift() + bottom) / RenderConfig::TILE_SIZE;
+}
+
+float Monster::TopY() const {
+	const bool idle = (flies() && flight.phase == FlightPhase::Roost) || ((submerged() || coiled()) && lurking());
+	const float top = (idle ? type->model.idleTop : type->model.referenceTop) * type->scale * Figures::Scale();
+	return static_cast<float>(row) + (lift() + top) / RenderConfig::TILE_SIZE;
+}
+
+bool Monster::takeHit(int dmg) {
+	const int scale = static_cast<int>(type->scale);
+	if (lurking())
+		wake();
+	alerted = true;
+	if (Alive()) {
+		vitals.Lose(dmg);
+		if (dmg > 0) // an immune type's hit draws no blood (plan resistance-tiers)
+			blood->Splash(scale);
+		if (type->call && !called && Alive() && vitals.hp * 100 < MaxHealth() * type->call->belowPct)
+			called = callDue = true; // squeals; Dungeon::UpdateMonsters gathers the pack
+	}
+
+	if (Alive() || state == ModelState::Die)
+		return false;
+	grab = Grab{}; // a holder lets go
+	enter(ModelState::Die);
+	sound(CharacterSound::Die);
+
+	// Death blood effect, stronger than a hit.
+	blood->Splash(scale);
+	for (int i = 0; i < 6; i++)
+		blood->Explode();
+	return true;
+}
+
+bool Monster::TakeWeaponHit(int dmg, const DamageMix& mix, int amethystPercent, bool amethystMovesImmune) {
+	const Resistances resist = amethystResist(type->resist, amethystPercent, amethystMovesImmune);
+	const Harm harm{
+		.damage = dmg,
+		.mix = mix,
+		.source = HarmSource::Weapon,
+		.factor = Stunned() ? CHARGE_STUN_DAMAGE_FACTOR : 1
+	};
+	const bool killed = takeHit(vitals.Cost(harm, Guard{resist}));
+	if (Alive() && !vitals.inWater && mix[FIRE] > 0)
+		vitals.Ignite(vitals.FireOf(harm, resist), harm.burnMs, harm.source);
+	return killed;
+}
+
+bool Monster::TakeExactHit(const DamageMix& mix) {
+	const Harm harm{.damage = 1, .mix = mix, .source = HarmSource::Weapon};
+	const bool killed = takeHit(1);
+	if (Alive() && !vitals.inWater && mix[FIRE] > 0)
+		vitals.Ignite(vitals.FireOf(harm, type->resist), harm.burnMs, harm.source);
+	return killed;
+}
+
+bool Monster::StunHit(int ms, bool wasLurking) {
+	const int now = GameClock::now();
+	if (!Alive() || wasLurking || lurking() || Rising() || Emerging() || Hidden() || Burrowing() || jumping() ||
+		Charging() || RollingBall() || Climbing() || (type->isBoss() && now < reelReadyMs))
+		return false;
+	if (type->isBoss()) {
+		ms = ms * BOSS_STUN_PERCENT / 100;
+		reelReadyMs = now + BOSS_STUN_COOLDOWN_MS;
+	}
+	vitals.KnockOut(ms);
+	biteAtMs = -1;
+	if (Grabbing())
+		letGo(); // a held player is free
+	flight.fall = 0.f;
+	flight.tellUntilMs = -1;
+	return true;
+}
+
+void Monster::TrapHitHundredths(int hundredths) {
+	if (const int hp = vitals.TrapLoss(hundredths, type->trapPermille); hp > 0)
+		takeHit(hp); // no reward: the player must not farm kills with traps
+}
+
+void Monster::StandInFire(int perSecond) {
+	if (vitals.trapHurt.hit() <= 0)
+		return;
+	const Resistances resist = vitals.Taken(type->resist);
+	const int perHit = perSecond * TRAP_HURT_INTERVAL_MS / 1000; // hundredths of a HP, before the fire rate
+	TrapHitHundredths(static_cast<int>(static_cast<float>(perHit) * resist[FIRE] / NORMAL));
+	const double share = perSecond / 100.0 * type->trapPermille / FULL_TRAP_SHARE; // a second's fire, its share
+	if (Alive() && !vitals.inWater) // the player's fire stays theirs
+		vitals.Ignite(fireDamage(1, FIRE_JET_MIX, type->resist) * share, BURN_MS, HarmSource::Trap);
+}
+
+bool Monster::TakeHarm(int dmg, const DamageMix& mix, HarmSource source) {
+	const Harm harm{.damage = dmg, .mix = mix, .source = source};
+	const bool killed = takeHit(vitals.Cost(harm, Guard{type->resist}));
+	if (Alive() && !vitals.inWater && mix[FIRE] > 0)
+		vitals.Ignite(vitals.FireOf(harm, type->resist), harm.burnMs, harm.source);
+	return killed;
+}
+
+void Monster::StandInDrip(bool puddle, bool drop, Rng& rng) {
+	if (puddle && !dripPuddled)
+		TakePoison(PoisonTier::Weak, false, rng);
+	if (drop && !dripDropped) {
+		TrapHit(DRIP_DROP_DAMAGE);
+		TakePoison(PoisonTier::Medium, false, rng);
+	}
+	dripPuddled = puddle;
+	dripDropped = drop;
+}
+
+bool Monster::TakePoison(PoisonTier tier, bool byPlayer, Rng& rng) {
+	return Alive() &&
+		   vitals.TakePoison(tier, type->poisonResistPercent, rng, byPlayer ? HarmSource::Weapon : HarmSource::Trap);
+}
+
+bool Monster::UpdatePoison() {
+	const int hp = vitals.PoisonTick(UPDATE_TICK_MS, MaxHealth());
+	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
+		return false;
+	vitals.poison.Cure();
+	return vitals.poisonByPlayer;
+}
+
+bool Monster::TakeBleed(BleedTier tier, int basePercent, bool byPlayer, Rng& rng) {
+	if (!Alive() || type->bloodless)
+		return false;
+	const int share = byPlayer ? FULL_TRAP_SHARE : type->trapPermille;
+	const int chance = bleedChancePercent(basePercent, type->resist, share);
+	return vitals.TakeBleed(tier, chance, rng, byPlayer ? HarmSource::Weapon : HarmSource::Trap);
+}
+
+bool Monster::UpdateBleeding() {
+	const int hp = vitals.BleedTick(UPDATE_TICK_MS, MaxHealth(), vitals.inWater);
+	if (hp <= 0 || !takeHit(hp)) // neither armour nor resistance
+		return false;
+	vitals.bleeding.Stop();
+	return vitals.bleedByPlayer;
+}
+
+bool Monster::UpdateBurning() {
+	const int hp = vitals.BurnTick(UPDATE_TICK_MS);
+	if (hp <= 0 || !takeHit(hp)) // armour does not help, as on the player
+		return false;
+	vitals.burning.Douse();
+	return vitals.burnByPlayer;
+}
+
+// The blood runs twice a tick while alive (and is drawn twice), once when dead: as it always has.
+void Monster::Animate(float px, float py) {
+	if (Alive()) {
+		if (state == ModelState::Die) {
+			if (flies())
+				enter(flight.phase == FlightPhase::Roost ? ModelState::Idle : ModelState::Move);
+			else if (lurking())
+				enter(ModelState::Idle);
+			else if (!attackDirection(px, py))
+				enter(ModelState::Attack);
+			else
+				enter(ModelState::Move);
+		}
+		blood->Explode();
+		blood->Fall();
+	} else
+		enter(ModelState::Die);
+	blood->Explode();
+	blood->Fall();
+
+	if (Alive()) {
+		if (jumping())
+			facing = leap.toX > leap.fromX ? 1 : -1;
+		else if (Charging())
+			facing = charge.dir; // runs on past the player
+		else if (RollingBall())
+			facing = -roll.dir; // its back to the player, the hind legs on the ball
+		else if ((submerged() && lurking()) || (coiled() && (lurking() || Rising())))
+			facing = px < CentreX() ? -1 : 1; // lies along the row (in its coil), watching the player
+		else if (lurking() || Rising())
+			facing = 0; // a chest doesn't turn to look at the player, a mummy lies along its coffin
+		else if (fleeDir != 0)
+			facing = fleeDir; // runs from the player
+		else if ((Biting() || (Grabbing() && grab.phase == GrabPhase::Tell)) && biteDir != 0)
+			facing = biteDir; // a jump over it while it winds up lands behind its back
+		else if (!flies()) {
+			facing = attackDirection(px, py);
+			// Biting: turned to the player, the jaws at them (the box); the lotus too, its head over its pad.
+			if (facing == 0 && sameRow(py) && (!rooted() || floats()))
+				facing = px < CentreX() ? -1 : 1;
+		} else
+			facing = flight.phase == FlightPhase::Roost ? 0 : flight.dir;
+	}
+	if (ShowsClimb() && type->climbRise > 0.f)
+		showClimb();
+	else if (!Reeling()) // stunned: the clip stands still (plan skill-stun)
+		type->model.Advance(state, playback, type->riseMs, WalkClipSpeed());
+	showBurrow();
+	if (Grabbing()) // the attack clip held at the jaws or the claws wide, then shut on the player
+		playback[std::to_underlying(ModelState::Attack)] = {
+			grab.phase == GrabPhase::Tell ? Hold().tellFrame : Hold().holdFrame,
+			0
+		};
+	// A swimmer floats up as it wades in and sinks back to the floor on the bank; placed at once when it spawns.
+	const float swimTarget = swimLift();
+	if (!swimPlaced)
+		swim = swimTarget;
+	swimPlaced = true;
+	swim += (swimTarget - swim) * std::min(1.f, SWIM_LIFT_RATE * static_cast<float>(UPDATE_TICK_MS) / 1000.f);
+	if (Alive() && entombed() && !lurking()) { // climbing out; a mummy killed on the way stays where it fell
+		const float t = state == ModelState::Rise ? type->model.Progress(state, playback) : 1.f;
+		const float k = std::clamp((t - MUMMY_CLIMB_FROM) / (MUMMY_CLIMB_TO - MUMMY_CLIMB_FROM), 0.f, 1.f);
+		tomb = MUMMY_COFFIN_DEPTH * (1.f - k * k * (3.f - 2.f * k));
+	}
+}
+
+bool LoadMonsterTypes(MonsterTypes& types) {
+	bool loaded = true;
+	for (int id = 1; id <= MONSTER_TYPE_MAX; id++) {
+		const MonsterKind& kind = *monsterKind(id);
+		MonsterType& type = types[static_cast<size_t>(id)];
+		static_cast<MonsterKind&>(type) = kind;
+		loaded = LoadClips(kind.model, ClipFilesOf(kind), type.model) && loaded;
+	}
+	return loaded;
+}

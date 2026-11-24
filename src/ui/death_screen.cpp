@@ -5,7 +5,7 @@
 #include "../state/game_state.h"
 #include "../state/ui_context.h"
 #include <array>
-#include "../render/gl_includes.h"
+#include "../render/gl/gl_includes.h"
 
 namespace {
 using namespace ui;

@@ -1,6 +1,6 @@
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 
 // Monster, water and mechanism checks that were scenarios (apep, cobra, crocodile, mimic, mummy, scorpion_queen,
 // vampire, water, mechanisms), now on the sim.

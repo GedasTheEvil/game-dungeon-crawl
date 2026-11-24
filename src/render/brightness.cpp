@@ -1,10 +1,10 @@
 #include "brightness.h"
-#include "batch.h"
-#include "gl_state.h"
-#include "shader.h"
+#include "gl/batch.h"
+#include "gl/gl_state.h"
+#include "gl/shader.h"
 
 #include <array>
-#include "gl_includes.h"
+#include "gl/gl_includes.h"
 
 namespace {
 const char* const VERTEX_SRC = R"(

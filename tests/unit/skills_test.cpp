@@ -1,7 +1,7 @@
 // Heka and the skills (plan skills): a boss gives one heka, once; learning spends it; saves keep both.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 #include "../../src/level/ui/skills_layout.h"
 #include "../../src/level/rules/skills.h"
 #include "../../src/level/tuning/gameplay_environment.h"

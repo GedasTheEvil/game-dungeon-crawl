@@ -1,7 +1,7 @@
 #include "render_target.h"
 #include "textures.h"
 
-#include "gl_includes.h"
+#include "gl/gl_includes.h"
 #include "../core/logger.h"
 
 RenderTarget::~RenderTarget() {

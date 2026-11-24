@@ -1,7 +1,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/core/paths.h"
 #include "../../src/core/worker_pool.h"
-#include "../../src/sim/md3_mesh.h"
+#include "../../src/sim/model/md3_mesh.h"
 #include <algorithm>
 #include <array>
 #include <cmath>

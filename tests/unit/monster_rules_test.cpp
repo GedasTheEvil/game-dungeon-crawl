@@ -3,7 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/check/level_check.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 #include "../../src/level/tuning/gameplay_shared.h"
 #include "../../src/level/tuning/gameplay_skills.h"
 #include <set>

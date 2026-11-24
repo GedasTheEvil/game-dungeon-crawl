@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 #include "../core/timer.h"
-#include "../sim/md3_mesh.h"
-#include "../sim/model_info.h"
+#include "../sim/model/md3_mesh.h"
+#include "../sim/model/model_info.h"
 
 struct Mat4;
 namespace DefaultShader {

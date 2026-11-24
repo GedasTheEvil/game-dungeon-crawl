@@ -5,7 +5,7 @@
 
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 
 TEST_CASE("a hurt monster keeps its health through a save and load") {
 	SimWorld world; // tests/levels/hitbox_rat: a rat walks up to the player

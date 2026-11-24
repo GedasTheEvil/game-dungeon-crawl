@@ -3,7 +3,7 @@
 #include "../../external/doctest/doctest.h"
 #include "../../src/level/tile_defs.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 
 namespace {
 SimWorld& at(SimWorld& world, int level, int col, int row) {

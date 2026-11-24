@@ -4,7 +4,7 @@
 #include "../core/logger.h"
 #include "../core/timer.h"
 #include "../level/input/keys.h"
-#include "../render/gl_includes.h"
+#include "../render/gl/gl_includes.h"
 #include "../render/ui_draw.h"
 #include "../level/rules/journal.h"
 #include "../level/campaign.h"

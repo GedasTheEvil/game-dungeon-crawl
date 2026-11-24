@@ -2,7 +2,7 @@
 // moving and attacking; a flyer drops to the floor. A boss for half the time, and not again within 5 s.
 #include "../../external/doctest/doctest.h"
 #include "sim_world.h"
-#include "../../src/sim/dungeon_cheats.h"
+#include "../../src/sim/dungeon/dungeon_cheats.h"
 #include "../../src/level/tuning/gameplay_shared.h"
 #include "../../src/level/tuning/gameplay_skills.h"
 

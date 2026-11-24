@@ -3,7 +3,7 @@
 
 // The leaderboard (plan leaderboard): one record per won campaign run, in saves/leaderboard.txt, never part of a save
 // game. The file is append only, one block per record ("[run]", then key=value lines), so old records stay readable
-// when new statistics arrive. GL-free: the Hall of Records screen (ui/records_view.cpp) draws it.
+// when new statistics arrive. GL-free: the Hall of Records screen (ui/menu/records_view.cpp) draws it.
 
 #include "../rules/run_stats.h"
 #include <array>

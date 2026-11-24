@@ -6,22 +6,22 @@ parts below instead of drawing their own.
 
 | Screen | Code | Canvas |
 |---|---|---|
-| Main / in-game menu, Save, Load, Options, How to Play, Credits | `src/ui/menu.cpp` (`MainMenu`), its Options `menu_options.cpp`, How to Play `menu_help.cpp`, Save / Load slots `menu_slots.cpp`, icons `menu_icons.cpp`, shared layout `menu_internal.h` | 160 x 100 |
-| Hall of Records (menu sub-screen) | `src/ui/records_view.cpp` (`RecordsView`, data: `src/level/files/leaderboard.h`) | 160 x 100 |
+| Main / in-game menu, Save, Load, Options, How to Play, Credits | `src/ui/menu/menu.cpp` (`MainMenu`), its Options `menu_options.cpp`, How to Play `menu_help.cpp`, Save / Load slots `menu_slots.cpp`, icons `menu_icons.cpp`, shared layout `menu_internal.h` | 160 x 100 |
+| Hall of Records (menu sub-screen) | `src/ui/menu/records_view.cpp` (`RecordsView`, data: `src/level/files/leaderboard.h`) | 160 x 100 |
 | Ending choice (using the ankh asks first: take it or break it; then the win entry) | `src/ui/ending_screen.cpp` (`EndingScreen`, [ending-choice](plan/solved/ending-choice.feature.md)) | 160 x 100, over the dimmed game |
-| Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
+| Win entry (name for the leaderboard; then the epilogue in the journal, then the Hall of Records) | `src/ui/menu/win_entry.cpp` (`WinEntry`, [win-ending-flow](plan/solved/win-ending-flow.md)) | 160 x 100, over the dimmed won game |
 | Inventory | `src/ui/inventory.cpp` | 160 x 100 |
 | Riddle (also a name gate's name, `Riddle::AskName`) | `src/ui/riddle.cpp` | 160 x 100 |
-| Draft map (zoom: `src/ui/map_zoom.h`) | `src/ui/map_view.cpp` | 100 high, width follows the window |
-| Journal | `src/ui/journal_view.cpp` (the book, ribbons, page turns, input; each section's pages: `src/ui/journal_pages.cpp`; data: `src/level/rules/journal.h`) | 160 x 100 |
+| Draft map (zoom: `src/ui/map/map_zoom.h`) | `src/ui/map/map_view.cpp` | 100 high, width follows the window |
+| Journal | `src/ui/journal/journal_view.cpp` (the book, ribbons, page turns, input; each section's pages: `src/ui/journal/journal_pages.cpp`; data: `src/level/rules/journal.h`) | 160 x 100 |
 | Heka (skills) | `src/ui/skills_view.cpp` (layout: `src/level/ui/skills_layout.h`, data: `src/level/rules/skills.h`) | 160 x 100 |
-| Level gem (HUD badge) | `src/ui/level_gem.cpp` | own scale, not a screen |
-| Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/player_hud.cpp` (values: `src/ui/player_hud_view.cpp`) | 100 / `SCALE` high, width follows the window; over the game |
-| Boss bar | `src/ui/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
-| Zone banner (a campaign level starts: the hour and gate, the zone, its guardian; else the level) | `src/ui/zone_banner.cpp` (text: `levelBanner`, `src/level/campaign.h`) | 100 high, width follows the window; over the game, under the status box |
-| Status box (gameplay message) | `src/ui/status_box.cpp` | 100 high, width follows the window; over the game |
-| Interact prompt ("[E] Open") | `src/ui/interact_prompt.cpp` (layout: `InteractPrompt` in `src/level/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
-| Confirm box (Yes / No over a menu screen) | `src/ui/confirm_box.cpp` (`ConfirmBox`, [save-load-safety](plan/solved/save-load-safety.md)) | 160 x 100, over the dimmed screen that asks |
+| Level gem (HUD badge) | `src/ui/hud/level_gem.cpp` | own scale, not a screen |
+| Player HUD (health, stamina, quick slots, keys, XP) | `src/ui/hud/player_hud.cpp` (values: `src/ui/hud/player_hud_view.cpp`) | 100 / `SCALE` high, width follows the window; over the game |
+| Boss bar | `src/ui/hud/boss_bar.cpp` | 100 high, width follows the window; moves above the player HUD when they would overlap |
+| Zone banner (a campaign level starts: the hour and gate, the zone, its guardian; else the level) | `src/ui/hud/zone_banner.cpp` (text: `levelBanner`, `src/level/campaign.h`) | 100 high, width follows the window; over the game, under the status box |
+| Status box (gameplay message) | `src/ui/hud/status_box.cpp` | 100 high, width follows the window; over the game |
+| Interact prompt ("[E] Open") | `src/ui/hud/interact_prompt.cpp` (layout: `InteractPrompt` in `src/level/ui/ui_layout.h`) | the player HUD's canvas; bottom right, moves above the HUD when they would overlap |
+| Confirm box (Yes / No over a menu screen) | `src/ui/menu/confirm_box.cpp` (`ConfirmBox`, [save-load-safety](plan/solved/save-load-safety.md)) | 160 x 100, over the dimmed screen that asks |
 | Death screen | `src/ui/death_screen.cpp` (`DeathScreen`, [autosave](plan/solved/autosave.md)) | 160 x 100, over the dimmed game |
 
 Shared drawing code: `src/render/ui_draw.h` (namespace `ui`). The level editor (`tools/editor`) uses it too. The layout
@@ -266,7 +266,7 @@ askew (`media/textures/ui/expedition_page.png`, `tools/textures/expedition_page.
 left edge), their heading and lines in `SEPIA` ink standing on its rules, from the margin line.
 
 Page turn: each page is drawn into a `RenderTarget` (the page's size in window pixels), then laid on the book or bent
-by `drawPageCurl` (`src/ui/page_curl.h`): a mesh folded along the bisector of the bottom free corner and where it is
+by `drawPageCurl` (`src/ui/journal/page_curl.h`): a mesh folded along the bisector of the bottom free corner and where it is
 pulled, round a cylinder, the back showing the next page, a shadow on the page under it. A click or key swings the
 corner over in 650 ms, a drag follows the mouse (let go past the spine: over, before it: back), a hovered corner
 lifts a little. A ribbon or Up / Down to another section turns one page in its direction; the ribbons whose first

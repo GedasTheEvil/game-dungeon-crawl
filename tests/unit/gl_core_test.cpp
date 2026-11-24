@@ -20,7 +20,7 @@ void checkMatrix(const Mat4& got, const std::array<float, 16>& want) {
 	}
 }
 
-// The scene's camera (graphics/draw.cpp) at 640x360: gluPerspective(45, 16:9, 10, 300).
+// The scene's camera (game/draw.cpp) at 640x360: gluPerspective(45, 16:9, 10, 300).
 Mat4 sceneProjection() { return Mat4::perspective(45.0, 640.0 / 360.0, 10.0, 300.0); }
 
 BatchVertex at(float x, float y) {

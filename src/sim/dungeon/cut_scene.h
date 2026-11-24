@@ -1,6 +1,6 @@
 // Cut-scenes (plan cinematic-effects, plan dungeon-subsystems): the camera's way to the gates a lever or a boss's death
 // opened off the screen and back. The Dungeon starts the gates' motion and stands the world still meanwhile
-// (dungeon_cutscene.cpp).
+// (cut_scene_dungeon.cpp).
 #ifndef CUT_SCENE_H
 #define CUT_SCENE_H
 #include "../../level/view_window.h"

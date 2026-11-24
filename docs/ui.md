@@ -73,7 +73,7 @@ A screen's `Draw()`:
 5. Footer (hint + toast).
 6. `ui::endScreen()`: blend off, depth test on.
 
-The screen does not end the frame: `Draw()` (`graphics/draw.cpp`) calls the screen that is open (`GameState::ui.screen`,
+The screen does not end the frame: `Draw()` (`game/draw.cpp`) calls the screen that is open (`GameState::ui.screen`,
 one at a time) and then flushes, lets the scenario runner take its screenshot and swaps the buffers.
 
 ## The game a screen sees
@@ -213,7 +213,7 @@ text is in C++:
   (`"Click or Enter: load a slot    Esc: back"`).
 * Toast: `body` font, `{1, 0.9, 0.6}`, above the footer on a menu sub-screen (under Back, 5.6), in the hint's line on the main menu page (its panel reaches down to y 7: nothing is free; the hint is hidden meanwhile), shown 2200 ms and faded out over the last 600 ms.
 * Over the game, "Autosaved" ([autosave](plan/solved/autosave.md)) is such a toast too: `hudBody` `GOLD` with a black
-  shadow, top left on the HUD's canvas (`drawAutosaved`, `graphics/draw.cpp`).
+  shadow, top left on the HUD's canvas (`drawAutosaved`, `game/draw.cpp`).
 
 ### Interact prompt
 
@@ -287,7 +287,7 @@ window-wide one, so it stays in the same place. Its clicks are handled before th
 
 Hover text on the 160 x 100 screens ([ui-tooltip](plan/solved/ui-tooltip.feature.md)): a short total on the screen, what it
 is made of on hover. While drawing, a screen calls `ui::tooltip(anchor, text)` for its hovered element (or its
-focused one while the keyboard has the focus); the last call of a frame wins. `Draw()` (`graphics/draw.cpp`) draws it
+focused one while the keyboard has the focus); the last call of a frame wins. `Draw()` (`game/draw.cpp`) draws it
 last, over everything, in the 160 x 100 canvas (`ui::drawTooltip`), once the same anchor and text were asked for
 `TOOLTIP_DELAY_MS` (300). A click or a key hides it until another one, or none, is wanted (`ui::hideTooltip`, called
 by `input.cpp`). The look: a dark label like a panel's fill (`PANEL_TOP` to `PANEL_BOTTOM`, alpha 0.95), a 1.5 px

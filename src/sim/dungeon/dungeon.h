@@ -588,8 +588,8 @@ class Dungeon {
 	void pressDialDevice();
 	void weighHeart(); // the scales of the judgment (plan weighing-of-the-heart)
 	void updateDial(); // the chevrons' sounds, the failing seventh's message and reward
-	// Cut-scenes (cut_scene.h, dungeon_cutscene.cpp): the camera goes to the gates a lever or a boss's death opened off
-	// the screen. The world stands still meanwhile, but for the gates.
+	// Cut-scenes (cut_scene.h, cut_scene_dungeon.cpp): the camera goes to the gates a lever or a boss's death opened
+	// off the screen. The world stands still meanwhile, but for the gates.
 	CutScene cutScene;
 	// The cut-scene for the gates just opened (cells): each starts to open as the camera comes to it.
 	void startCutScene(const std::vector<int>& opened);

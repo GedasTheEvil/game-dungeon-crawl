@@ -1,4 +1,5 @@
 #include "player_hud.h"
+#include "../../graphics/status_card.h"
 #include "../../render/lighting.h"
 #include "../../core/timer.h"
 #include "../../render/font.h"
@@ -39,9 +40,8 @@ constexpr Rect XP_LINE = {4.f, 2.9f, 52.f + WIDER - 4.f, 0.7f};
 constexpr float LEVEL_X = XP_LINE.x + XP_LINE.w + 4.5f; // the character level's badge centre, right of the XP line
 constexpr float POISON_Y = PlayerHud::PANEL.y + PlayerHud::PANEL.h + 4.6f; // the poison tiles, above the panel
 constexpr float POISON_X = PlayerHud::PANEL.x + 1.f;
-constexpr float POISON_SIZE = 6.f;
+constexpr float POISON_SIZE = StatusCard::HUD_SIZE;
 constexpr float POISON_STEP = 9.f;
-constexpr float CARD_MARGIN = 0.6f; // the status card's frame outside its tile
 // The waiting heka, above the panel's right end: clear of the poison and resistance tiles.
 constexpr Rect HEKA_TILE = {PlayerHud::PANEL.x + PlayerHud::PANEL.w - 7.f, POISON_Y, 6.f, 6.f};
 // New in the journal: right of the panel, level with its top.
@@ -148,7 +148,7 @@ Rect poisonRect(int i) { return {POISON_X + POISON_STEP * static_cast<float>(i),
 // card (a margin round the tile), the icon tinted, a pip per tier or grade in the bottom strip.
 void drawStatuses(const PlayerHud::View& v, int icons, int cards) {
 	for (int i = 0; i < v.statuses.count; i++)
-		PlayerHud::drawStatusCard(v.statuses.items[static_cast<size_t>(i)], poisonRect(i), icons, cards, true);
+		StatusCard::draw(v.statuses.items[static_cast<size_t>(i)], poisonRect(i), icons, cards, true);
 }
 
 // A heka waits to be spent: a lapis tile with the heka mark and a breathing gold halo, the Heka key under it.
@@ -376,44 +376,6 @@ namespace PlayerHud {
 void tick(int hp, int maxHp) { trail.update(ratioOf(hp, maxHp), GameClock::now()); }
 
 void reset() { trail = PlayerHud::DamageTrail{}; }
-
-// The card's parts are measured on the HUD's (POISON_SIZE across) and scaled to r: the same look at any size.
-void drawStatusCard(const Status& s, const Rect& r, int icons, int cards, bool pips) {
-	const float k = r.w / POISON_SIZE;
-	beginShapes();
-	fillRect({r.x + 0.5f * k, r.y - 0.6f * k, r.w, r.h}, BLACK, BLACK, 0.45f); // drop shadow
-	atlasIcon(r.inset(-CARD_MARGIN * k), cards, static_cast<int>(s.kind), STATUS_KIND_COUNT, 1, {1, 1, 1});
-	atlasIcon(
-		{r.x + 0.6f * k, r.y + 1.3f * k, r.w - 1.2f * k, r.h - 1.6f * k},
-		icons,
-		static_cast<int>(s.icon),
-		ICON_COLUMNS,
-		ICON_ROWS,
-		{s.tint.r, s.tint.g, s.tint.b}
-	);
-	{
-		// The world's current texture coordinate (Lighting::batch) as the legacy GL atlasIcon left it, its last
-		// corner (u0, v1): the next monster's health bar outline samples its texture there (plans gl-core-ui,
-		// gl-core-world; the snapshots keep that picture).
-		const float w = 1.f / static_cast<float>(ICON_COLUMNS);
-		const float h = 1.f / static_cast<float>(ICON_ROWS);
-		const int cell = static_cast<int>(s.icon);
-		const int row = cell / ICON_COLUMNS;
-		const float v = 1.f - h * static_cast<float>(row + 1);
-		Lighting::batch().texCoord(w * static_cast<float>(cell % ICON_COLUMNS), v + h);
-	}
-	beginShapes();
-	if (!pips)
-		return;
-	for (int p = 0; p < s.pips; p++)
-		diamond(
-			r.cx() + (static_cast<float>(p) - static_cast<float>(s.pips - 1) / 2.f) * 1.4f * k,
-			r.y + 0.9f * k,
-			0.45f * k,
-			GOLD_BRIGHT,
-			1.f
-		);
-}
 
 void drawIcon(Icon icon, const Rect& r, int icons, Color tint) {
 	atlasIcon(r, icons, static_cast<int>(icon), ICON_COLUMNS, ICON_ROWS, tint);

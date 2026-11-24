@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include "window.h"
-#include "../graphics/draw.h"
+#include "draw.h"
 #include "../state/game_state.h"
 #include "../core/logger.h"
 #include "../core/paths.h"

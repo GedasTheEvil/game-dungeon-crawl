@@ -1,6 +1,7 @@
 #include "boss_bar.h"
 #include "../../render/ui_draw.h"
 #include "player_hud.h"
+#include "../../graphics/status_card.h"
 #include "../../render/font.h"
 #include "../../render/gl/gl_includes.h"
 #include <algorithm>
@@ -40,7 +41,7 @@ void draw(const char* name, float ratio, bool poisoned, const StatusList& status
 	diamond(bar.x, bar.cy(), 1.2f, GOLD, 1.f);
 	diamond(bar.x + bar.w, bar.cy(), 1.2f, GOLD, 1.f);
 	for (int i = 0; i < statuses.count; i++)
-		drawStatusCard(
+		StatusCard::draw(
 			statuses.items[static_cast<size_t>(i)],
 			{bar.x + 1.f + static_cast<float>(i) * (CARD + CARD_GAP), bar.y + bar.h + CARD_GAP, CARD, CARD},
 			look.icons,

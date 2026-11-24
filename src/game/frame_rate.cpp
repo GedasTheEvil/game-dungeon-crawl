@@ -1,7 +1,7 @@
 #include "frame_rate.h"
 #include "../core/logger.h"
 #include "../core/timer.h"
-#include "../game/window.h"
+#include "window.h"
 #include "../level/files/settings_ini.h"
 #include <algorithm>
 #include <chrono>

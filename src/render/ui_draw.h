@@ -142,7 +142,7 @@ std::vector<std::string> wrap(const Font& font, const std::string& text, float w
 // focus; drawTooltip then draws it on top of everything once the same one was asked for TOOLTIP_DELAY_MS.
 void tooltip(const Rect& anchor, const std::string& text);
 // The frame's tooltip, if its delay is up, in the 160 x 100 canvas set up by the caller; then forgets the request.
-// Called once a frame after the screen is drawn (Draw, graphics/draw.cpp).
+// Called once a frame after the screen is drawn (Draw, game/draw.cpp).
 void drawTooltip(Font& small, int now);
 // A click or a key: the tooltip hides until another one is wanted.
 void hideTooltip();

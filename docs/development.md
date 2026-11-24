@@ -193,7 +193,7 @@ and `gMv`, the HUD after it sets its canvas. With the UI and the tools ported as
   `Lighting::batch().colour(...)`.
 * `mat4.o` is built with `-ffp-contract=off` and `Mat4::rotation` takes `sinf`/`cosf` of the float angle: with both,
   every matrix the world builds has the bits GL's stack had (checked op by op), so no edge pixel moves.
-* Frame time: `FRAME_TIME=N` logs Draw's mean and fastest time every N frames to `game.log` (`graphics/frame_rate.*`).
+* Frame time: `FRAME_TIME=N` logs Draw's mean and fastest time every N frames to `game.log` (`game/frame_rate.*`).
 
 The legacy-GL ban, `tools/gl_legacy.py`: `make layers` (so every `make tidy`, `make check`, `make tidy-push`) fails
 on any fixed-function GL (immediate mode, the matrix stack and its readbacks, GLU, display lists, client arrays,

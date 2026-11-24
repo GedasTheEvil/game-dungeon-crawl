@@ -14,7 +14,7 @@
 #include "../render/animated_model.h"
 #include "../render/brightness.h"
 #include "../render/ink.h"
-#include "../graphics/frame_rate.h"
+#include "../game/frame_rate.h"
 #include "../render/lighting.h"
 #include "../render/ui_draw.h"
 #include "../graphics/particles_draw.h"

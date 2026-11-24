@@ -44,8 +44,8 @@ constexpr float GATE_APPROACH = 0.45f; // tiles from the gate at which a held ke
 constexpr int LOCKED_HINT_INTERVAL_MS = 3000; // "needs the X key" at most this often
 constexpr float KEY_SPIN_DEG_PER_MS = 0.12f;
 
-// Cut-scenes (dungeon_cutscene.cpp, plan cinematic-effects): a lever or a boss's death opens a gate off the screen, the
-// camera goes to show it. The world stands still meanwhile.
+// Cut-scenes (cut_scene_dungeon.cpp, plan cinematic-effects): a lever or a boss's death opens a gate off the screen,
+// the camera goes to show it. The world stands still meanwhile.
 constexpr int CUTSCENE_PAN_MS = 600; // the camera eases from the player to a gate, from one gate to the next, back
 constexpr int CUTSCENE_HOLD_MS = GATE_OPEN_MS + 200; // it stays on a gate while it opens
 constexpr int CUTSCENE_BARS_MS = 300; // the letterbox bars and the tint come in, and go at the end

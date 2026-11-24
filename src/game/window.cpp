@@ -9,8 +9,8 @@
 #include "../render/gl/gl_includes.h"
 #include "gl_window.h"
 #include "../core/logger.h"
-#include "../graphics/draw.h"
-#include "../graphics/frame_rate.h"
+#include "draw.h"
+#include "frame_rate.h"
 #include "../input/input_events.h"
 #include "../level/tuning/gameplay_shared.h"
 #include "../level/input/keys.h"
@@ -32,7 +32,7 @@ constexpr int MAX_CATCH_UP = 5;
 constexpr Uint64 IDLE_SLEEP_NS = SDL_NS_PER_MS;
 
 // The window's new size in pixels: the viewport and the UI layout follow it. Every screen sets its own projection
-// each frame (the scene's in graphics/draw.cpp), so only the viewport here.
+// each frame (the scene's in game/draw.cpp), so only the viewport here.
 void resized() {
 	int width = 0;
 	int height = 0;

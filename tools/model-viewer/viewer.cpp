@@ -393,7 +393,7 @@ void DrawScene() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Re-issue the 3D perspective projection every frame (mirrors
-	// src/graphics/draw.cpp's Draw(), which also sets up the perspective from
+	// src/game/draw.cpp's Draw(), which also sets up the perspective from
 	// scratch each call) since the 2D overlay pass below switches the
 	// projection matrix to an orthographic one for the HUD bar.
 	gProj.load(

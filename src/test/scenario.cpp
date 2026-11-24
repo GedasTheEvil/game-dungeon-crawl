@@ -5,7 +5,7 @@
 #include "../level/rules/player_actions.h"
 #include "../render/gl/gl_includes.h"
 #include "../level/input/keys.h"
-#include "../graphics/draw.h"
+#include "../game/draw.h"
 #include "../state/game_loop.h"
 #include "../input/input_actions.h"
 #include "../state/game_state.h"

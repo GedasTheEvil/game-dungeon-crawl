@@ -6,7 +6,7 @@
 #include "../render/ink.h"
 #include "../render/lighting.h"
 #include "particles_draw.h"
-#include "../ui/hud/player_hud.h"
+#include "status_card.h"
 #include "../sim/model/render_config.h"
 #include "../level/tuning/gameplay_monster_kinds.h"
 
@@ -31,7 +31,7 @@ void drawStatusRow(const Monster& mon, float w, const TextureRegistry& textures)
 	if (statuses.count == 0)
 		return;
 	for (int i = 0; i < statuses.count; i++)
-		PlayerHud::drawStatusCard(
+		StatusCard::draw(
 			statuses.items[static_cast<size_t>(i)],
 			{-w + STATUS_GAP / 2 + static_cast<float>(i) * (STATUS_CARD + STATUS_GAP),
 			 mon.Roosting() ? -STATUS_GAP - STATUS_CARD : HEALTH_BAR_HEIGHT + STATUS_GAP, // a roost's bar hangs low

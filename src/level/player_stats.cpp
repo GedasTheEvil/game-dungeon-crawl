@@ -329,11 +329,12 @@ void PlayerStats::EndCurses() {
 
 int PlayerStats::TrapDamage(int dmg) { return vitals.TrapLoss(dmg * 100, TrapPermille()); }
 
-void PlayerStats::Regenerate(bool safe, int tickMs) {
+void PlayerStats::Regenerate(int tickMs) {
 	const bool healing = !vitals.poison.Any() && !vitals.bleeding.Any() && !vitals.RegenBlocked() && Alive() &&
 						 vitals.hp < CurrentMaxHP();
-	// The garnets, also in a fight (not while burning or for 5 s after a loss, plan regen-after-damage): the flat HP an
-	// hour and the sky-iron ones' share of max HP (at least 1 HP a step).
+	// The garnets (the one safe rule of every regeneration, plan regen-safe-rule: not while burning, poisoned or
+	// bleeding, nor for 5 s after a loss; a chasing monster does not stop it): the flat HP an hour and the sky-iron
+	// ones' share of max HP (at least 1 HP a step).
 	const int ringHpPerHour = rings.regenHpPerHour + std::max(CurrentMaxHP(), 100) * rings.regenPercentPerHour / 100;
 	if (ringHpPerHour <= 0 || !healing)
 		ring_regen_carry = 0;
@@ -342,7 +343,7 @@ void PlayerStats::Regenerate(bool safe, int tickMs) {
 		vitals.hp = std::min(CurrentMaxHP(), vitals.hp + ring_regen_carry / RingEffect::MS_PER_HOUR);
 		ring_regen_carry %= RingEffect::MS_PER_HOUR;
 	}
-	if (amulet.regenHpPerSecond <= 0 || !safe || !healing) {
+	if (amulet.regenHpPerSecond <= 0 || !healing) {
 		regen_carry_ms = 0;
 		return;
 	}

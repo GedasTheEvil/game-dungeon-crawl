@@ -412,7 +412,8 @@ struct AmuletBonus {
 	int maxHpPercent = 0; // more max HP, a share of the base max HP
 	int poisonResistPercent = 0; // chance that a poisoned hit does not poison
 	int trapCutPercent = 0; // less spike, death trap and chest dart damage, chest traps go off less; 100: immune
-	int regenHpPerSecond = 0; // while no monster chases the player and no poison runs
+	int regenHpPerSecond =
+		0; // while no HP was lost for 5 s and no poison, bleeding or fire runs (plan regen-safe-rule)
 	int venomPercent = 0; // chance that a weapon hit poisons the monster (Monster::TakePoison)
 	PoisonTier venomTier = PoisonTier::Weak;
 	// Percent more damage of each type in a weapon hit (plan amulet-extras): only the type's share of the weapon's
@@ -428,7 +429,7 @@ struct AmuletBonus {
 // All metals of a gem share the band and gem models (ringBandModel, ringGemModel), the metal and the gem as texture and
 // tint.
 enum class RingGem : std::uint8_t {
-	Garnet, // heals slowly, also in a fight (not while burning or for 5 s after a loss)
+	Garnet, // heals slowly (the safe rule of plan regen-safe-rule: not while burning or for 5 s after a loss)
 	Lapis, // stamina comes back faster
 	Feldspar, // poison wears off faster
 	Jasper, // walk and sprint faster (not the jump)

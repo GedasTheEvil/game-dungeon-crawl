@@ -5,7 +5,7 @@ Status: draft 2026-11-24, size S, needs nothing first.
 ## Idea
 
 A new Heka skill that regenerates HP. Safe rule as every regeneration (the user, plan
-[regen-safe-rule](regen-safe-rule.feature.draft.sonet.md)): no HP lost in the last 5 s, not burning, poisoned or
+[regen-safe-rule](regen-safe-rule.feature.md)): no HP lost in the last 5 s, not burning, poisoned or
 bleeding; a monster chasing does not stop it.
 Rank I: 1 HP every 5 s. Rank II: 0.25% of max HP every second (at 100 max HP: 1 HP / 4 s; grows with max HP).
 Stacks with the regeneration amulet and the garnet rings: every source adds, none replaces another.

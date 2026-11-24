@@ -173,26 +173,26 @@ TEST_CASE("a trap amulet cuts trap damage; the hundredths carry to the next hit"
 	CHECK(stats.TrapDamage(40) == 0);
 }
 
-TEST_CASE("a regeneration amulet heals only while safe and not poisoned") {
+TEST_CASE("a regeneration amulet heals while no HP was lost for 5 s and not poisoned (plan regen-safe-rule)") {
 	PlayerStats stats = freshStats();
 	stats.LoseHP(10);
 	GameClock::advance(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
-	stats.Regenerate(true, 1000);
+	stats.Regenerate(1000);
 	CHECK(stats.CurrentHP() == 40); // no amulet
 	AmuletBonus bonus;
 	bonus.regenHpPerSecond = 2;
 	stats.Wear(bonus, true);
-	stats.Regenerate(true, 250);
+	stats.Regenerate(250);
 	CHECK(stats.CurrentHP() == 40);
-	stats.Regenerate(true, 250);
+	stats.Regenerate(250);
 	CHECK(stats.CurrentHP() == 41);
-	stats.Regenerate(false, 1000);
-	CHECK(stats.CurrentHP() == 41);
+	stats.Regenerate(1000); // a monster chasing does not matter (no argument for it)
+	CHECK(stats.CurrentHP() == 43);
 	stats.vitals.poison.Apply(PoisonTier::Weak);
-	stats.Regenerate(true, 1000);
-	CHECK(stats.CurrentHP() == 41);
+	stats.Regenerate(1000);
+	CHECK(stats.CurrentHP() == 43);
 	stats.vitals.poison.Cure();
-	stats.Regenerate(true, 10000);
+	stats.Regenerate(10000);
 	CHECK(stats.CurrentHP() == 50);
 }
 

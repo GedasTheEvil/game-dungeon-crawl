@@ -326,7 +326,7 @@ text: The shen ring: points glance off it. Stabs hurt me 8, 16, 28 or 40 percent
 
 [note.amulet-regeneration]
 title: Faience lotus
-text: A faience lotus. It opens when all is calm: while nothing chases me and no poison runs, it heals me, 1 health
+text: A faience lotus. It opens when all is calm: while nothing has hurt me for 5 seconds and no poison runs, it heals me, 1 health
 	a second, 2 with the grand one. There is no lesser or minor lotus.
 
 [note.amulet-venom]

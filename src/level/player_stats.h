@@ -211,9 +211,9 @@ class PlayerStats {
 	int TrapDamage(int dmg);
 	// The same for a damage in hundredths of a HP (a crossing's bell, a jet's tick).
 	int TrapDamageHundredths(int hundredths) { return vitals.TrapLoss(hundredths, TrapPermille()); }
-	// One update tick of the regeneration amulet: heals while `safe` (no monster can chase or attack the player) and
-	// no poison runs. The rubies heal too, also when not safe; not while poisoned either.
-	void Regenerate(bool safe, int tickMs);
+	// One update tick of every regeneration (the amulet, the garnet rings): one safe rule (plan regen-safe-rule), no
+	// poison, bleeding or fire, no HP lost in the last 5 s. A monster that chases does not stop it.
+	void Regenerate(int tickMs);
 	// Puts on the worn rings' bonus (a default RingBonus: none).
 	void WearRings(const RingBonus& bonus);
 	[[nodiscard]] const RingBonus& Rings() const { return rings; }

@@ -197,23 +197,23 @@ TEST_CASE("two worn rings survive a save and a load; a save from before the ring
 	CHECK(loaded.RingOn(Hand::Right) == ItemKind::GarnetCopper);
 }
 
-TEST_CASE("the garnet heals in a fight too, but not while poisoned") {
+TEST_CASE("the garnet heals in a fight too, but not while poisoned (plan regen-safe-rule)") {
 	PlayerStats stats;
 	stats.LoseHP(20);
 	GameClock::advance(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
 	const int hp = stats.CurrentHP();
 	stats.WearRings(ringBonus(worn(ItemKind::GarnetGold, std::nullopt)));
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
-		stats.Regenerate(false, UPDATE_TICK_MS); // not safe: a monster chases
+		stats.Regenerate(UPDATE_TICK_MS); // a monster chases: no matter
 	CHECK(stats.CurrentHP() == hp + 1);
 	stats.vitals.poison.Apply(PoisonTier::Weak);
 	for (int ms = 0; ms < 6000; ms += UPDATE_TICK_MS)
-		stats.Regenerate(false, UPDATE_TICK_MS);
+		stats.Regenerate(UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() == hp + 1);
 	stats.vitals.poison.Cure();
 	stats.WearRings(ringBonus(worn(ItemKind::GarnetGold, ItemKind::GarnetGold)));
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
-		stats.Regenerate(false, UPDATE_TICK_MS);
+		stats.Regenerate(UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() == hp + 3); // two: 1 every 1.5 s
 }
 
@@ -225,7 +225,7 @@ TEST_CASE("the sky-iron garnet heals 1% of max HP every 2 s, at least 1 (plan sk
 		GameClock::advance(REGEN_DAMAGE_PAUSE_MS); // the loss's pause over (plan regen-after-damage)
 		stats.WearRings(ringBonus(worn(ItemKind::GarnetSkyIron, second)));
 		for (int ms = 0; ms < 20000; ms += UPDATE_TICK_MS)
-			stats.Regenerate(false, UPDATE_TICK_MS);
+			stats.Regenerate(UPDATE_TICK_MS);
 		return stats.CurrentHP() - 1;
 	};
 	CHECK(healed(0, std::nullopt) == 10); // 50 max HP, under 100: 1 every 2 s
@@ -420,30 +420,30 @@ TEST_CASE("no regeneration while burning or for 5 s after any HP loss (plan rege
 	AmuletBonus amulet;
 	amulet.regenHpPerSecond = 2;
 	stats.Wear(amulet, true);
-	auto tick = [&](int ms, bool safe) {
+	auto tick = [&](int ms) {
 		for (int t = 0; t < ms; t += UPDATE_TICK_MS) {
-			stats.Regenerate(safe, UPDATE_TICK_MS);
+			stats.Regenerate(UPDATE_TICK_MS);
 			GameClock::advance(UPDATE_TICK_MS);
 		}
 	};
 	const int start = stats.CurrentHP();
-	tick(3000, false);
-	CHECK(stats.CurrentHP() == start + 2); // the rings heal in a fight
+	tick(3000);
+	CHECK(stats.CurrentHP() == start + 8); // rings 2, amulet 6: both heal in a fight (plan regen-safe-rule)
 	stats.LoseHP(1); // a hit
 	const int hit = stats.CurrentHP();
-	tick(REGEN_DAMAGE_PAUSE_MS - UPDATE_TICK_MS, true);
+	tick(REGEN_DAMAGE_PAUSE_MS - UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() == hit); // neither ring nor amulet
-	tick(2000, true);
+	tick(2000);
 	CHECK(stats.CurrentHP() > hit); // the pause is over
 	stats.vitals.burning.Ignite(1.0, 5000);
 	const int burn = stats.CurrentHP();
-	tick(4000, true);
+	tick(4000);
 	CHECK(stats.CurrentHP() == burn); // burning: none
 	stats.vitals.burning.Douse();
-	tick(3000, true);
+	tick(3000);
 	CHECK(stats.CurrentHP() > burn);
 	stats.LoseHP(0); // no damage, no pause
 	const int calm = stats.CurrentHP();
-	tick(3000, true);
+	tick(3000);
 	CHECK(stats.CurrentHP() > calm);
 }

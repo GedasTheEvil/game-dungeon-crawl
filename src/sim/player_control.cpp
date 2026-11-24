@@ -110,7 +110,7 @@ void PlayerControl::AfterUpdate() {
 		player.stats.SetStamina(player.stats.MaxStamina());
 	player.UpdatePoison(events);
 	player.UpdateBleeding(dungeon.PlayerWading(), events);
-	player.stats.Regenerate(dungeon.PlayerSafe(), UPDATE_TICK_MS);
+	player.stats.Regenerate(UPDATE_TICK_MS);
 	dungeon.AnimateMonsters();
 	player.Animate();
 }

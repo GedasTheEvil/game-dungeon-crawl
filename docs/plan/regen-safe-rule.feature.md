@@ -1,6 +1,6 @@
 # Regeneration: one safe rule for all, no damage in the last 5 s
 
-Status: draft 2026-11-24, size S, needs nothing first.
+Status: implemented 2026-11-24, waiting for the user's play-test. Was: draft 2026-11-24, size S, needs nothing first.
 
 ## Idea
 
@@ -28,6 +28,6 @@ change only touches the amulet: it now heals while chased, as long as nothing hu
 
 ## Play-test
 
-* `tests/play/regen-safe-rule.txt`: regeneration amulet and a garnet ring worn, HP 30 off, a slow monster near.
+* `bin/game --play tests/play/regen-safe-rule.txt`: regeneration amulet and a garnet ring worn, HP 30 off, level 1 (monsters near).
 * Let it chase you without being hit: HP rises.
 * Get hit: no HP for 5 s, then it rises again.

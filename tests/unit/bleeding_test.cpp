@@ -110,11 +110,11 @@ TEST_CASE("bleeding: any heal stops it, the regeneration gives no HP while it ru
 	stats.WearRings(ringBonus(WornRings{ItemKind::GarnetGold, ItemKind::GarnetGold}));
 	stats.vitals.bleeding.Apply(BleedTier::Weak);
 	for (int ms = 0; ms < 6000; ms += UPDATE_TICK_MS)
-		stats.Regenerate(true, UPDATE_TICK_MS);
+		stats.Regenerate(UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() == hp);
 	stats.vitals.bleeding.Stop();
 	for (int ms = 0; ms < 3000; ms += UPDATE_TICK_MS)
-		stats.Regenerate(true, UPDATE_TICK_MS);
+		stats.Regenerate(UPDATE_TICK_MS);
 	CHECK(stats.CurrentHP() > hp);
 }
 

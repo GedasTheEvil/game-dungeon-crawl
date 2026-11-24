@@ -1,0 +1,9 @@
+# Plan regen-safe-rule, for `bin/game --play tests/play/regen-safe-rule.txt`: regeneration amulet and a garnet ring worn,
+# 30 HP off, level 1 (monsters near). Let a monster chase you without a hit: HP rises. Get hit: none for 5 s, then it rises.
+seed 1
+level content/levels/lvl1
+give amulet 32
+give ring 0
+wear amulet_of_regeneration
+wear copper_ring_of_regeneration right
+hurt 30

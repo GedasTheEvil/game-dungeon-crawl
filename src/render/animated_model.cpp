@@ -7,6 +7,7 @@
 #include "animated_model.h"
 #include "lighting.h"
 #include "textures.h"
+#include "gl/gl_context.h"
 #include "gl/gl_includes.h"
 #include "gl/matrix_stack.h"
 #include "../core/logger.h"

@@ -41,8 +41,10 @@ bool GlWindow::open(const char* title, int width, int height, SDL_WindowFlags fl
 }
 
 void GlWindow::close() {
-	if (context != nullptr)
+	if (context != nullptr) {
+		endGlContext();
 		SDL_GL_DestroyContext(context);
+	}
 	if (window != nullptr)
 		SDL_DestroyWindow(window);
 	context = nullptr;

@@ -70,7 +70,9 @@ the Hall of Records.
 
 ## Play
 
-The game runs on Linux. Build it (see [docs/development.md](docs/development.md)), then start `./Play`.
+The game runs on Linux. Build it (see [docs/development.md](docs/development.md)), then start `./Play`. The release zip
+(`make release`) runs on any x86-64 Linux with glibc 2.31+ (Ubuntu 20.04, Linux Mint 20 or newer) and OpenGL 3.3:
+unzip, `./Install-check`, `./Play`.
 
 New to the game? The player's manual, [docs/manual/index.html](docs/manual/index.html), opens in any browser: the
 game, its controls, monsters, items, conditions and skills.

@@ -5,6 +5,12 @@ ifdef RELEASE
 MARCH=-march=x86-64-v2
 # A player's build: no GL debug log (src/render/gl/gl_context.cpp).
 RELEASE_DEFINES=-DGAME_RELEASE=1
+# Built in the Steam Runtime sniper container (plan portable-linux-release, tools/release_build.sh): glibc 2.31,
+# libstdc++ linked in, SDL3 from the zip's lib/. RELEASE_HOST=1 (tools/release.sh --host) builds on this PC instead,
+# apart in build/release-host: the two compilers' objects never mix.
+ifndef RELEASE_HOST
+RELEASE_LDFLAGS=-pthread -static-libstdc++ -static-libgcc -Wl,-rpath,'$$ORIGIN/../lib'
+endif
 else
 MARCH=-march=native
 endif
@@ -28,17 +34,21 @@ CXXFLAGS=-std=c++23 -Wall -Wextra -Wno-missing-field-initializers -pedantic -Wol
 TIDY_CPPFLAGS=-std=c++23 $(SDL_CFLAGS) $(FT_CFLAGS) $(GLAD_CFLAGS) -D_GNU_SOURCE=1
 # Game and tools link only what they use: GL and SDL for every window (no GLUT, plan gl-core-tools).
 GL_LIBS=-lGL -lm -ldl $(FT_LIBS)
+# The game loads GL through SDL (SDL_GL_GetProcAddress, src/game/gl_window.cpp): no libGL link, SDL opens the driver.
+GAME_LIBS=-lm -ldl $(FT_LIBS)
 
 # Each src/<dir>/ may hold one level of topic sub-directories (src/level/ui/): still the same library.
 SOURCES=$(sort $(wildcard src/*/*.cpp src/*/*/*.cpp))
-ifdef RELEASE
+ifdef RELEASE_HOST
+BUILD=build/release-host
+else ifdef RELEASE
 BUILD=build/release
 else
 BUILD=build
 endif
 # The linked programs (plan directory-layout); build/ keeps the objects and libraries. Run them from the repo root.
 ifdef RELEASE
-BIN=build/release/bin
+BIN=$(BUILD)/bin
 else
 BIN=bin
 endif
@@ -136,7 +146,7 @@ all: $(EXECUTABLE) $(EDITOR) $(VIEWER) $(LEVEL_TOOLS) $(UNIT) $(BALANCE) $(SNAPD
 
 $(EXECUTABLE): $(APP_OBJECTS) $(RENDER_LIB) $(SIM_LIB) $(LEVEL_LIB) $(BASE_LIB)
 	@mkdir -p $(@D)
-	$(GATE) $(CXX) $^ -o $@ $(GL_LIBS) $(SDL_LIBS)
+	$(GATE) $(CXX) $^ -o $@ $(RELEASE_LDFLAGS) $(GAME_LIBS) $(SDL_LIBS)
 
 # Each archive also depends on the makefile: a file moved into a library is older than the archive.
 $(BASE_LIB): $(BASE_LIB_OBJECTS) makefile
@@ -197,7 +207,8 @@ $(SNAPDIFF): $(SNAPDIFF_SOURCES:%.cpp=$(BUILD)/%.o) $(EXTERNAL_OBJECTS)
 	@mkdir -p $(@D)
 	$(GATE) $(CXX) $^ -o $@
 
-# The release zip (plan release-zip, tools/release.sh): the portable game build, bin, media, content and Play.
+# The release zip (plans release-zip, portable-linux-release; tools/release.sh): the game built in the sniper container,
+# its lib/ (SDL3), media, content and Play. ARGS=--allow-dirty, --host (built on this PC), --smoke (run on other distros).
 release:
 	./tools/release.sh $(ARGS)
 

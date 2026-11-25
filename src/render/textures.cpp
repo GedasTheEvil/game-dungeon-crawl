@@ -1,6 +1,6 @@
 #include "textures.h"
+#include "gl/gl_context.h"
 #include "gl/gl_includes.h"
-#include <GL/glx.h> // after glad (textures.h)
 #include <algorithm>
 #include <cstring>
 #include "../core/logger.h"
@@ -50,8 +50,6 @@ void upload(GLuint id, const DecodedImage& image, TexFilter filter) {
 	upload(id, image.pixels.get(), image.width, image.height, image.components, filter);
 }
 } // namespace
-
-bool glContextCurrent() { return glXGetCurrentContext() != nullptr; }
 
 Texture::Texture() { loaded = false; }
 

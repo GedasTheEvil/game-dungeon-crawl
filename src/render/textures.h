@@ -27,10 +27,6 @@ struct DecodedImage {
 	std::string error;
 };
 
-// True while a GL context is current: the GL objects below free themselves only then (closing the window destroys the
-// context before the game's own cleanup runs).
-[[nodiscard]] bool glContextCurrent();
-
 // Owns its GL texture: freed with the object, moved but not copied (two copies would free it twice).
 class Texture {
   private:

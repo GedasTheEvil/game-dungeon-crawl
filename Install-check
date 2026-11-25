@@ -1,65 +1,48 @@
 #! /bin/sh
 # Install-check (plan install-helper-script): finds the shared libs bin/game lacks and prints one `apt install` line.
 # Never installs anything. Ubuntu / Linux Mint (apt, amd64); other systems get the soname list only.
-# Exit 0: nothing missing, 1: something missing (or unsupported system), 2: no bin/game.
-# Test hooks: IC_OS_RELEASE (default /etc/os-release); `ldd` and `dpkg` come from PATH.
+# Also checks the glibc version (the release's floor) and that an OpenGL driver is installed (SDL loads it at run time).
+# Exit 0: nothing missing, 1: something missing (or too old / unsupported system), 2: no bin/game.
+# Test hooks: IC_OS_RELEASE (default /etc/os-release); `ldd`, `getconf` and `ldconfig` come from PATH.
 cd "$(dirname "$0")" || exit 2
 [ -e bin/game ] || { echo "Install-check: bin/game not found (run from the unzipped release)"; exit 2; }
 
-# soname -> apt package (Ubuntu 24.04+, from the ldd of the release binary and what SDL3 loads at run time)
+# The oldest glibc this release runs on (tools/release.sh writes it in the zip's copy; plan portable-linux-release).
+glibc_floor=2.31
+
+# glibc first: with an older one the loader refuses bin/game before any library counts.
+glibc=$(getconf GNU_LIBC_VERSION 2>/dev/null | sed -n 's/^glibc //p')
+if [ -n "$glibc" ] && [ "$(printf '%s\n%s\n' "$glibc_floor" "$glibc" | sort -V | head -1)" != "$glibc_floor" ]; then
+	echo "Too old system: glibc $glibc, the game needs $glibc_floor or newer (Ubuntu 20.04, Linux Mint 20, Debian 11 or newer)."
+	exit 1
+fi
+[ -n "$glibc" ] || echo "Hint: glibc version unknown (no getconf); the game needs $glibc_floor or newer."
+
+# soname -> apt package. The portable release needs only glibc and its own lib/libSDL3.so.0; the rest is for a
+# release built on the dev PC (tools/release.sh --host), which links the system's SDL3, FreeType and libstdc++.
 pkg_for() {
 	case "$1" in
 		libSDL3.so*) echo libsdl3-0 ;;
 		libfreetype.so*) echo libfreetype6 ;;
-		libpng16.so*) echo libpng16-16t64 ;;
-		libz.so*) echo zlib1g ;;
-		libbz2.so*) echo libbz2-1.0 ;;
-		libbrotlidec.so* | libbrotlicommon.so*) echo libbrotli1 ;;
-		libGL.so*) echo libgl1 ;;
-		libGLX.so*) echo libglx0 ;;
-		libGLdispatch.so*) echo libglvnd0 ;;
+		libGL.so*) echo "libgl1 libgl1-mesa-dri" ;;
 		libstdc++.so*) echo libstdc++6 ;;
 		libgcc_s.so*) echo libgcc-s1 ;;
 		libc.so* | libm.so* | libmvec.so*) echo libc6 ;;
-		libasound.so*) echo libasound2t64 ;;
-		libpulse.so* | libpulsecommon*) echo libpulse0 ;;
-		libX11.so*) echo libx11-6 ;;
-		libX11-xcb.so*) echo libx11-xcb1 ;;
-		libXext.so*) echo libxext6 ;;
-		libXcursor.so*) echo libxcursor1 ;;
-		libXi.so*) echo libxi6 ;;
-		libXfixes.so*) echo libxfixes3 ;;
-		libXrandr.so*) echo libxrandr2 ;;
-		libXrender.so*) echo libxrender1 ;;
-		libXss.so*) echo libxss1 ;;
-		libXtst.so*) echo libxtst6 ;;
-		libxcb.so*) echo libxcb1 ;;
-		libXau.so*) echo libxau6 ;;
-		libXdmcp.so*) echo libxdmcp6 ;;
-		libxkbcommon.so*) echo libxkbcommon0 ;;
-		libdecor-0.so*) echo libdecor-0-0 ;;
-		libdrm.so*) echo libdrm2 ;;
-		libgbm.so*) echo libgbm1 ;;
-		libwayland-client.so*) echo libwayland-client0 ;;
-		libwayland-cursor.so*) echo libwayland-cursor0 ;;
-		libwayland-egl.so*) echo libwayland-egl1 ;;
-		libfribidi.so*) echo libfribidi0 ;;
-		libdbus-1.so*) echo libdbus-1-3 ;;
-		libsndfile.so*) echo libsndfile1 ;;
-		libFLAC.so*) echo libflac14 ;;
-		libvorbis.so*) echo libvorbis0a ;;
-		libvorbisenc.so*) echo libvorbisenc2 ;;
-		libogg.so*) echo libogg0 ;;
-		libopus.so*) echo libopus0 ;;
-		libmpg123.so*) echo libmpg123-0t64 ;;
-		libmp3lame.so*) echo libmp3lame0 ;;
-		libsystemd.so*) echo libsystemd0 ;;
 		*) echo "" ;;
 	esac
 }
 
 # the ldd result decides, not dpkg
 missing=$(ldd bin/game 2>&1 | sed -n 's/^[[:space:]]*\([^ ]*\) => not found.*/\1/p' | sort -u)
+if [ -d lib ] && [ ! -e lib/libSDL3.so.0 ]; then
+	echo "lib/libSDL3.so.0 is missing: unzip the release again."
+	exit 1
+fi
+# SDL opens the GL driver itself (bin/game does not link it, so ldd cannot see it): GLX or EGL, the vendor's or Mesa's.
+ldconfig_cmd=$(command -v ldconfig || echo /sbin/ldconfig)
+if [ -x "$ldconfig_cmd" ] && ! "$ldconfig_cmd" -p 2>/dev/null | grep -qE 'lib(GL|EGL)\.so\.1 '; then
+	missing=$(printf '%s\n' $missing libGL.so.1 | sort -u)
+fi
 
 packages=""
 unknown=""
@@ -89,7 +72,7 @@ fi
 # runtime needs ldd cannot see: hints only, they never change the exit code
 if command -v glxinfo >/dev/null 2>&1; then
 	glxinfo 2>/dev/null | grep -q 'OpenGL core profile version string: [3-9]\.' ||
-		echo "Hint: no OpenGL 3.3 core driver reported by glxinfo (the game needs one; try: sudo apt install libgl1-mesa-dri)."
+		echo "Hint: no OpenGL 3.3 core driver reported by glxinfo (the game needs one; try: sudo apt install libgl1 libgl1-mesa-dri)."
 fi
 if [ -z "$(ls /proc/asound 2>/dev/null)" ] && ! command -v pactl >/dev/null 2>&1; then
 	echo "Hint: no audio device found; the game runs without sound."

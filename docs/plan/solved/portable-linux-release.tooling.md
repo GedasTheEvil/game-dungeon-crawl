@@ -1,6 +1,6 @@
 # Portable Linux release: runs on older distros (Mint 22, glibc 2.31+)
 
-Status: draft 2026-11-25, size L, needs nothing first.
+Status: solved 2026-11-25. Was: draft 2026-11-25, size L, needs nothing first.
 
 ## Problem
 
@@ -91,3 +91,31 @@ Version: tooling only (`.version` unchanged), unless the code needs GCC 14 fixes
 ## Check on the target
 
 * Mint 22 (the kid's PC): unzip, `./Install-check` says all good, `./Play` starts with sound and music.
+
+## Result (2026-11-25)
+
+Done as planned, with these differences and findings:
+
+* **Compiler:** GCC 14.2 in sniper builds the game as is (no code change for it). Digest-pinned image
+  (`tools/release_build.sh`, `SNIPER_IMAGE`).
+* **SDL 3.4.20, not 3.4.2.** SDL 3.4.2 found no GLX visual on Mesa 25.x under Xvfb (Mint 22, Fedora: "Couldn't find
+  matching GLX visual" for every attribute set; EGL worked; Fedora's own SDL 3.4.20 worked). 3.4.20 (same ABI) works
+  everywhere. Both tarballs gpg-checked (Sam Lantinga, Werner Lemberg) when pinned.
+* **Not the image's toolchain file:** with `/usr/share/steamrt/cmake/gcc-14.cmake` SDL's Wayland and D-Bus checks see
+  no pkg-config and drop both silently. Built with `CC=gcc-14 CXX=g++-14`; `release_build.sh` fails when X11,
+  Wayland, libdecor, KMSDRM, D-Bus, PulseAudio, PipeWire or ALSA is off.
+* **FreeType 2.14.1 static** (no zlib, png, bzip2, brotli, harfbuzz).
+* **No libGL link:** the render library asked `glXGetCurrentContext` whether GL objects may free themselves (wrong on
+  EGL / Wayland too). Now `glContextCurrent()` is a flag in `render/gl/gl_context.*` (`initGlContext` sets it,
+  `endGlContext` in `GlWindow::close` clears it).
+* Link: `-pthread` needed on glibc 2.31; SDL's pkg-config adds an RPATH to the build tree, so `SDL_LIBS` is given by
+  hand. Result: `bin/game` and `lib/libSDL3.so.0` need GLIBC_2.29 at most, no GLIBCXX, NEEDED only glibc and SDL3.
+* Build dirs: container `build/release` (dropped when the compiler changes), `--host` `build/release-host`.
+* **Smoke:** Debian 11 replaced by Ubuntu 20.04 (also glibc 2.31; Debian 11's security archive no longer serves).
+  `make release ARGS=--smoke`: Mint 22, Ubuntu 22.04, Ubuntu 20.04, Fedora 45 pass (Install-check all good, the
+  scenario PASS, screenshot renders on llvmpipe).
+* Install-check: glibc floor (`release.sh` writes the release's into the zip's copy), bundled `lib/` present, a
+  GL/EGL driver in `ldconfig -p` (else `libgl1 libgl1-mesa-dri`); the soname table shrank to SDL3, FreeType, GL,
+  libstdc++, libgcc, libc (the `--host` build's needs).
+* Not testable here: sound on a real PC (containers run `--no-sound`). The "Check on the target" below stays for the
+  user.

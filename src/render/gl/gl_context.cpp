@@ -41,6 +41,8 @@ void installDebugLog() {
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
 	LOG_INFO("graphics", "GL debug messages to the log");
 }
+
+bool contextLive = false;
 } // namespace
 
 bool initGlContext(GLADloadfunc getProcAddress) {
@@ -73,5 +75,10 @@ bool initGlContext(GLADloadfunc getProcAddress) {
 #ifndef GAME_RELEASE
 	installDebugLog();
 #endif
+	contextLive = true;
 	return true;
 }
+
+void endGlContext() { contextLive = false; }
+
+bool glContextCurrent() { return contextLive; }

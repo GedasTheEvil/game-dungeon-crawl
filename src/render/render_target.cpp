@@ -1,6 +1,7 @@
 #include "render_target.h"
 #include "textures.h"
 
+#include "gl/gl_context.h"
 #include "gl/gl_includes.h"
 #include "../core/logger.h"
 

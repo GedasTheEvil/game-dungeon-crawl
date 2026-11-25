@@ -1,6 +1,6 @@
 #!/bin/bash
-# The release zip (plan release-zip): the portable game build, media, content, Play and an empty saves/ in
-# release-<version>.zip in the repo root (version: .version, pride versioning PROUD.DEFAULT.SHAME, see
+# The release zip (plan release-zip): the portable game build, media, content, Play, the player manual (manual/)
+# and an empty saves/ in release-<version>.zip in the repo root (version: .version, pride versioning PROUD.DEFAULT.SHAME, see
 # docs/development.md); Install-check (plan install-helper-script) lists the missing libs. Usage: tools/release.sh [--allow-dirty]
 set -eu
 cd "$(dirname "$0")/.."
@@ -47,11 +47,13 @@ cp .version release/.version
 for dir in media content; do
 	cp -r "$dir" release/
 done
+cp -r docs/manual release/manual
 find release -name .directory -delete
 mkdir release/saves
 
 (cd release && zip -qr "$zip_path" .)
 unzip -l "$zip_path" | grep -q ' saves/$' || (cd release && zip -q "$zip_path" saves/)
 unzip -l "$zip_path" | grep -q ' Play$' || { echo "release: Play missing in zip" >&2; exit 1; }
+unzip -l "$zip_path" | grep -q ' manual/index.html$' || { echo "release: manual missing in zip" >&2; exit 1; }
 
 echo "$zip_path ($(du -h "$zip_path" | cut -f1))"

@@ -1,6 +1,6 @@
 # Gamepad controls on SDL3
 
-Status: draft 2026-11-18, size M, needs nothing first.
+Status: draft 2026-11-18, size M, needs nothing first. On hold: needs a physical gamepad: stick dead zone, look speed and button layout are tuned by feel, and the play-test needs a pad.
 
 ## Idea
 

@@ -19,7 +19,7 @@
                                goes straight to solved
     solve SLUG... [--playtested]
                                move solved, park the scenarios that are about it in tests/scenarios/solved/, remove
-                               its play script, print a commit message
+                               its play script, bump .version (AGENTS.md, Version), print a commit message
     reject SLUG NOTE...        a failed play-test: a "Play-test feedback" round with one "- [ ]" item per NOTE
     verdict TEXT...            the user's play-test reply, one item a line (or ";"): "ok SLUG" / "✓ SLUG" solves it
                                (play-tested), "no SLUG: note" / "✗ SLUG: note" rejects it
@@ -28,9 +28,14 @@
   Checks
     done-check SLUG            what an implemented plan must have (code and test that name it, play command,
                                checklist), and the reminders
-    lint                       file names against Status lines, sizes, needs on won't-do plans (make check)
+    lint                       file names against Status lines, sizes, needs on won't-do plans, .version's -dev
+                               (make check)
     links                      fixes markdown links to plans that moved, fails on the ones it cannot fix
                                (not in solved/ and wont-do/ plans: those are history, their links may rot)
+
+Version (AGENTS.md, Version): .version is PROUD.DEFAULT.SHAME, with "-dev" while a plan is implemented and not solved.
+Only solve bumps the number (a feature: DEFAULT + 1, SHAME 0; bugs only: SHAME + 1; tooling: none); every move sets
+or drops "-dev". A version without "-dev" that changed gets its git tag.
 
 A plan is found by its slug: SLUG[.KIND][.draft.MODEL].md in docs/plan/, solved/ or wont-do/. KIND: bug, feature,
 tooling (none: an old plan, a feature).
@@ -614,7 +619,7 @@ def flags(args, allowed, positional=False):
     return out
 
 
-def move(slug, stage, force=False, note=""):
+def move(slug, stage, force=False, note="", in_solve=False):
     index = plans()
     if slug not in index:
         print(f"no plan {slug}", file=sys.stderr)
@@ -669,7 +674,59 @@ def move(slug, stage, force=False, note=""):
                   " (add \"(play-tested by the user)\" when the user confirmed it: solve --playtested does)"))
     if where == "wont-do" and not re.search(r"won't do", status_line(new_path), re.I):
         print("Status line: add \"Won't do DATE: reason\" (docs/plans.md, Won't do)")
+    if not in_solve:
+        sync_version()
     return 1 if broken else 0
+
+
+VERSION_FILE = ROOT / ".version"
+VERSION = re.compile(r"^(\d+)\.(\d+)\.(\d+)(-dev)?$")
+
+
+def bumped(number, kinds):
+    """The number (PROUD.DEFAULT.SHAME) after solving plans of these kinds: a feature (or an old plan without a kind)
+    raises DEFAULT once and resets SHAME, else a bug raises SHAME, tooling leaves it."""
+    proud, default, shame = (int(x) for x in number.split("."))
+    if "feature" in kinds:
+        return f"{proud}.{default + 1}.0"
+    if "bug" in kinds:
+        return f"{proud}.{default}.{shame + 1}"
+    return number
+
+
+def sync_version(kinds=()):
+    """Bumps .version for the plans of `kinds` just solved, and sets "-dev" while any plan waits for its play-test.
+    Returns (old, new), both None without a .version file."""
+    if not VERSION_FILE.exists():
+        return None, None
+    old = VERSION_FILE.read_text().strip()
+    m = VERSION.match(old)
+    if not m:
+        print(f".version holds {old!r}, not PROUD.DEFAULT.SHAME[-dev]: left as it is", file=sys.stderr)
+        return old, old
+    number = bumped(old.removesuffix("-dev"), kinds)
+    waiting = any(p.stage == "implemented" for p in plans().values())
+    new = number + ("-dev" if waiting else "")
+    if new != old:
+        VERSION_FILE.write_text(new + "\n")
+        print(f".version: {old} -> {new}")
+    return old, new
+
+
+def version_errors():
+    """.version against the plans: "-dev" exactly while a plan is implemented."""
+    if not VERSION_FILE.exists():
+        return []
+    text = VERSION_FILE.read_text().strip()
+    m = VERSION.match(text)
+    if not m:
+        return [f".version holds {text!r}, not PROUD.DEFAULT.SHAME[-dev]"]
+    waiting = [p.slug for p in plans().values() if p.stage == "implemented"]
+    if waiting and not m.group(4):
+        return [f".version {text} has no -dev, but {', '.join(waiting)} wait(s) for a play-test"]
+    if not waiting and m.group(4):
+        return [f".version {text} has -dev, but no plan waits for a play-test"]
+    return []
 
 
 def scenarios_about(slug):
@@ -712,8 +769,9 @@ def solve(args):
         print(f"no plan {', '.join(unknown)}", file=sys.stderr)
         return 1
     code, parked, removed, behaviour = 0, [], [], []
+    kinds = {index[slug].kind_or_default for slug in slugs if index[slug].stage != "solved"}
     for slug in slugs:
-        code |= move(slug, "solved", note=" (play-tested by the user)" if playtested else "")
+        code |= move(slug, "solved", note=" (play-tested by the user)" if playtested else "", in_solve=True)
         about, mention = scenarios_about(slug)
         for f in about:
             dest = f"tests/scenarios/solved/{Path(f).name}"
@@ -731,12 +789,17 @@ def solve(args):
             removed.append(script.name)
     for f in behaviour:
         print(f"  {f} has expect lines: its behaviour checks belong in a unit test (docs/plans.md, Solved)")
+    old, new = sync_version(kinds)
     msg = f"Solved: {', '.join(slugs)}" + (" (play-tested by the user)" if playtested else "") + "."
     if parked:
         msg += f" Scenarios to tests/scenarios/solved/: {', '.join(parked)}."
     if removed:
         msg += f" Play scripts removed: {', '.join(removed)}."
+    if new and new != old:
+        msg += f" Version {new}."
     print(f"\nCommit message:\n  {msg}")
+    if new and new != old and not new.endswith("-dev"):
+        print(f"\nTag the commit: git tag -a {new} -m {new}; push it with master: git push origin master {new}")
     return code
 
 
@@ -895,6 +958,7 @@ def lint():
         elif re.match(r"draft\b", st, re.I):
             errors.append(f"{rel(p.path)}: implemented, but its Status starts with \"draft\" "
                           f"(\"implemented DATE, waiting for the user's play-test. Was: ...\")")
+    errors += version_errors()
     for e in errors:
         print(f"plan lint: {e}", file=sys.stderr)
     return 1 if errors else 0

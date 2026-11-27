@@ -77,12 +77,15 @@ This overrides the global "no git actions" and "no worktrees" rules for these st
 Still ask before other git actions (rewriting `master` history, config, other branches).
 
 ## Version
-`.version` is `PROUD.DEFAULT.SHAME` ([development.md](docs/development.md#build-and-run)). Bump it in the commit that
-implements the work: a feature raises DEFAULT by 1 (SHAME resets to 0); a fix of bugs only raises SHAME by 1. Several
-features and bugs in one go: DEFAULT +1 once, nothing else. Tooling only: no bump. PROUD is the user's alone: never
-change it.
-Every version change gets a git tag named as the version (`git tag -a 1.4.2 -m 1.4.2`, no `v`) on the `master` commit
-that carries it (for a worktree task: after the merge), pushed with `master` (`git push origin master 1.4.2`).
+`.version` is `PROUD.DEFAULT.SHAME` ([development.md](docs/development.md#build-and-run)), with a `-dev` suffix
+while any plan is implemented and not yet solved (waiting for the user's play-test). The number changes only when
+plans are solved: `tools/plan.py solve` / `verdict` bump it (a feature: DEFAULT +1, SHAME 0; bugs only: SHAME +1;
+several at once: DEFAULT +1 once; tooling: none), `move ... implemented` adds `-dev`, the last solve drops it.
+Never edit `.version` by hand; `plan.py lint` (make check) fails when `-dev` does not match the plans. PROUD is the
+user's alone: never change it.
+A version without `-dev` that changed gets a git tag named as it (`git tag -a 1.4.2 -m 1.4.2`, no `v`; `solve`
+prints the command) on the `master` commit that carries it (for a worktree task: after the merge), pushed with
+`master` (`git push origin master 1.4.2`). No tags for `-dev` versions.
 
 ## Old save games
 This game has no real players yet. Old saves can mostly be ignored.

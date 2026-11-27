@@ -123,7 +123,9 @@ Once the user confirms an implemented plan is solved (tested / verified): `tools
 * parks the scenarios that are about it (their first comment line names the plan) in `tests/scenarios/solved/`
   and rewrites the paths to them; a scenario that only mentions it is listed, park it by hand if it is about it;
 * removes its play script (`tests/play/` holds only plans waiting for a play-test);
-* prints the commit message.
+* bumps `.version` for the solved plans' kinds and drops its `-dev` once no plan waits ([AGENTS.md](../AGENTS.md#version));
+  `move <slug> implemented` adds the `-dev`;
+* prints the commit message, and the tag command when the version changed without `-dev`.
 
 Exception: a plan that does not change the game (build, tooling, code style, docs, checks; no gameplay, visuals,
 levels or balance) needs no user confirmation: its kind is `tooling`, and `move <slug> implemented` solves it.

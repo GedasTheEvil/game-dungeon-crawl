@@ -54,6 +54,7 @@ class Repo(unittest.TestCase):
         write(self.root, "tests/scenarios/fix_x.txt", "# Plan fix-x: the picture\nscreenshot a\n")
         write(self.root, "tests/play/fix-x.txt", "# Plan fix-x\nlevel 1\n")
         write(self.root, "content/levels/lvl1", "level\n")
+        write(self.root, ".version", "1.2.3\n")
         self.git("init", "-q")
         self.git("-c", "user.name=t", "-c", "user.email=t@t", "add", ".")
         self.git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init")
@@ -115,6 +116,32 @@ class Repo(unittest.TestCase):
         self.assertIn("`tests/scenarios/solved/fix_x.txt`", self.read("docs/notes.md"))
         self.assertIn("(../../../tests/scenarios/solved/fix_x.txt)", solved)
         self.assertNotIn("needs fix-x", self.run_tool("status"))
+
+    def test_version_dev_while_waiting_bumped_on_solve(self):
+        with open(self.root / "docs/plan/fix-x.bug.draft.opus.md", "a") as f:
+            f.write("\n## Play-test\n\n* Look at x.\n")
+        self.run_tool("move", "fix-x", "implemented")
+        self.assertEqual(self.read(".version"), "1.2.3-dev\n")  # implemented: no new number yet
+        self.run_tool("lint")
+        out = self.run_tool("verdict", "ok fix-x")
+        self.assertEqual(self.read(".version"), "1.2.4\n")  # a bug: SHAME + 1, nothing waits: no -dev
+        self.assertIn("Version 1.2.4.", out)
+        self.assertIn("git tag -a 1.2.4", out)
+        self.run_tool("lint")
+        (self.root / ".version").write_text("1.2.4-dev\n")
+        self.assertIn("no plan waits", self.run_tool("lint", code=1))
+
+    def test_version_feature_bump_keeps_dev_while_others_wait(self):
+        for slug, name in (("fix-x", "fix-x.bug.draft.opus.md"), ("feat-y", "feat-y.draft.sonet.md")):
+            with open(self.root / "docs/plan" / name, "a") as f:
+                f.write("\n## Play-test\n\n* Look.\n")
+            write(self.root, f"tests/unit/{slug}_test.cpp", f"// plan {slug}\n")
+            self.git("add", ".")
+            self.run_tool("move", slug, "implemented", "--force")
+        self.assertEqual(self.read(".version"), "1.2.3-dev\n")
+        out = self.run_tool("solve", "feat-y", "--playtested")
+        self.assertEqual(self.read(".version"), "1.3.0-dev\n")  # a feature (no kind): DEFAULT + 1; fix-x still waits
+        self.assertNotIn("git tag", out)
 
     def test_tooling_goes_straight_to_solved(self):
         self.run_tool("move", "tool-z", "implemented")

@@ -54,8 +54,9 @@ read their file arguments from the current directory.
   needs this PC's glibc and `libsdl3-0`.
 * Version: `.version` in the repo root (shipped in the release zip), [pride versioning](https://pridever.org/)
   `PROUD.DEFAULT.SHAME`: PROUD for a release we are proud of, DEFAULT for a normal one, SHAME for fixing something
-  embarrassing; a lower part resets to 0. Who bumps what: [AGENTS.md](../AGENTS.md#version) (agents bump DEFAULT
-  for a feature, SHAME for a bug fix; PROUD only the user). Each version change is tagged with the version and pushed.
+  embarrassing; a lower part resets to 0. `-dev` after it while a plan waits for its play-test. Who bumps what:
+  [AGENTS.md](../AGENTS.md#version) (`tools/plan.py solve` bumps DEFAULT for a feature, SHAME for a bug fix, when the
+  plan is solved; PROUD only the user). Each version change without `-dev` is tagged with the version and pushed.
 * `bin/game --level N|PATH|gen:SEED:D`: play a level by hand, menu skipped. `bin/game --play SCENARIO.txt`: play a
   scenario's setup (level, gear) by hand. `--no-sound` mutes either, and opens the window on X11 (a background run
   under `xvfb-run` then stays off a Wayland desktop; scenarios do the same). See [testing.md](testing.md#play-by-hand).

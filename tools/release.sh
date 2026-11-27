@@ -27,8 +27,8 @@ for arg in "$@"; do
 done
 
 version=$(cat .version)
-if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-	echo "release: .version holds '$version', not PROUD.DEFAULT.SHAME" >&2
+if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-dev)?$ ]]; then
+	echo "release: .version holds '$version', not PROUD.DEFAULT.SHAME[-dev]" >&2
 	exit 1
 fi
 if [ -n "$(git status --porcelain)" ]; then

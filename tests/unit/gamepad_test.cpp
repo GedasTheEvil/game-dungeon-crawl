@@ -156,3 +156,14 @@ TEST_CASE("gamepad: the fonts draw the PlayStation symbols after ASCII, skip oth
 	CHECK(glyphCodePoint(glyphOf('~')) == '~');
 	CHECK(glyphCodePoint(glyphOf(static_cast<unsigned char>(PadGlyph::CIRCLE))) == 0x25CB);
 }
+
+TEST_CASE("gamepad: the PlayStation symbols have their own colours, the other glyphs none") {
+	const auto tint = [](char c) { return padGlyphTint(glyphOf(static_cast<unsigned char>(c))); };
+	REQUIRE(tint(PadGlyph::CROSS) != nullptr);
+	CHECK((*tint(PadGlyph::CROSS))[2] > (*tint(PadGlyph::CROSS))[0]); // blue
+	CHECK((*tint(PadGlyph::CIRCLE))[0] > (*tint(PadGlyph::CIRCLE))[1]); // red
+	CHECK((*tint(PadGlyph::TRIANGLE))[1] > (*tint(PadGlyph::TRIANGLE))[0]); // green
+	CHECK((*tint(PadGlyph::SQUARE))[2] > (*tint(PadGlyph::SQUARE))[1]); // pink: more blue than green
+	CHECK(tint(PadGlyph::ARROW_UP) == nullptr);
+	CHECK(tint('A') == nullptr);
+}

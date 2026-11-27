@@ -391,7 +391,7 @@ void text(Font& font, float x, float y, const char* str, Color c, float alpha) {
 	glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 	font.draw(x, y, str, {alpha, alpha, alpha, 1.f});
 	glBlendFunc(GL_ONE, GL_ONE);
-	font.draw(x, y, str, {c.r * alpha, c.g * alpha, c.b * alpha, 1.f});
+	font.draw(x, y, str, {c.r * alpha, c.g * alpha, c.b * alpha, 1.f}, alpha); // the PlayStation symbols tinted
 }
 
 void textCentered(Font& font, float cx, float y, const char* str, Color c, float alpha) {

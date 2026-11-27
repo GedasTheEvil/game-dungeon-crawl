@@ -36,6 +36,20 @@ struct SheetCell {
 	return {ARROW_CELL, TURNS[static_cast<unsigned long>(glyph - ARROW_CELL)]};
 }
 
+// The PlayStation face buttons' own colours (plan sdl3-gamepad), drawn so in a text's colour pass (ui::text): the
+// cross blue, the circle red, the square pink, the triangle green. Null for any other glyph.
+constexpr std::array<std::array<float, 3>, 4> PAD_GLYPH_TINTS = {{
+	{0.45f, 0.62f, 1.f}, // cross
+	{1.f, 0.32f, 0.30f}, // circle
+	{1.f, 0.52f, 0.80f}, // square
+	{0.30f, 0.88f, 0.62f}, // triangle
+}};
+[[nodiscard]] constexpr const std::array<float, 3>* padGlyphTint(int glyph) {
+	const int at = glyph - ASCII_GLYPHS;
+	return at >= 0 && at < static_cast<int>(PAD_GLYPH_TINTS.size()) ? &PAD_GLYPH_TINTS[static_cast<unsigned long>(at)]
+																	: nullptr;
+}
+
 // A character's glyph, -1 for one the fonts do not draw (it is skipped: no ink, no advance).
 [[nodiscard]] constexpr int glyphOf(unsigned char c) {
 	if (c >= ' ' && c < 127)

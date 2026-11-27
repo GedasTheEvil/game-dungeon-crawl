@@ -43,7 +43,9 @@ What was built, and where it left the plan above:
   hysteresis.
 * Key caps: `GameState::caps` follows the last input (keyboard / Xbox / PlayStation, from `SDL_GetGamepadType`); the
   HUD and the journal hint show the pad's names. The fonts got glyphs for ✕ ○ □ △ and the d-pad arrows (control
-  characters 1-8, `render/glyphs.h`; the sheets' spare cells, the down / left / right arrows the up one turned).
+  characters 1-8, `render/glyphs.h`; the sheets' spare cells, the down / left / right arrows the up one turned). The
+  user asked for the face symbols in their own colours: ✕ blue, ○ red, □ pink, △ green (`padGlyphTint`, `ui::text`'s
+  colour pass).
 * Scenario commands `pad` and `stick` (docs/testing.md); `tests/scenarios/sdl3-gamepad*.txt`.
 * Left out: a held d-pad or stick does not repeat in the menus (one step a push); How to Play and the first hints
   still name the keyboard's keys.

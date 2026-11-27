@@ -85,9 +85,20 @@ std::shared_ptr<const FontSheet> loadSheet(const char* filename, TexFilter filte
 
 Font::Font() {}
 
-void Font::draw(float x, float y, const char* text, const std::array<float, 4>& colour) {
+namespace {
+// A glyph's colour: the text's, or a PlayStation symbol's own times tint.
+void glyphColour(Batch& batch, int glyph, const std::array<float, 4>& colour, float tint) {
+	const std::array<float, 3>* own = tint > 0.f ? padGlyphTint(glyph) : nullptr;
+	if (own != nullptr)
+		batch.colour((*own)[0] * tint, (*own)[1] * tint, (*own)[2] * tint, colour[3]);
+	else
+		batch.colour(colour[0], colour[1], colour[2], colour[3]);
+}
+} // namespace
+
+void Font::draw(float x, float y, const char* text, const std::array<float, 4>& colour, float tint) {
 	if (face) {
-		drawTrueType(x, y, text, colour);
+		drawTrueType(x, y, text, colour, tint);
 		return;
 	}
 	if (text == nullptr || *text == '\0' || !sheet)
@@ -107,6 +118,7 @@ void Font::draw(float x, float y, const char* text, const std::array<float, 4>& 
 		const int glyph = glyphOf(static_cast<unsigned char>(*c));
 		if (glyph < 0 || glyph >= GLYPHS) // no display list: glCallLists drew and moved nothing
 			continue;
+		glyphColour(batch, glyph, colour, tint);
 		const Mat4 mvp = projection * Mat4::translation(pen, y, 1.f);
 		const float left = shift[glyph];
 		const Cell& cell = cells[glyph];
@@ -195,7 +207,7 @@ PixelPoint toWindow(const Mat4& projection, const int viewport[4], float x, floa
 }
 } // namespace
 
-void Font::drawTrueType(float x, float y, const char* text, const std::array<float, 4>& colour) {
+void Font::drawTrueType(float x, float y, const char* text, const std::array<float, 4>& colour, float tint) {
 	if (text == nullptr || *text == '\0')
 		return;
 	GLint viewport[4] = {};
@@ -237,6 +249,7 @@ void Font::drawTrueType(float x, float y, const char* text, const std::array<flo
 		if (previous >= 0)
 			pen += face->Kerning(previous, glyph) * em;
 		previous = glyph;
+		glyphColour(batch, glyph, colour, tint);
 		const BakedGlyph& g = layout.glyphs[static_cast<size_t>(glyph)];
 		if (g.width > 0 && g.height > 0) {
 			const float left = std::round(toWindow(projection, viewport, pen, y).x) + static_cast<float>(g.left);

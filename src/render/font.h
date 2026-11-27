@@ -28,7 +28,7 @@ class Font {
 	std::shared_ptr<TrueTypeFace> face;
 	float em = 0;
 	std::shared_ptr<const GlyphAtlas> atlas;
-	void drawTrueType(float x, float y, const char* text, const std::array<float, 4>& colour);
+	void drawTrueType(float x, float y, const char* text, const std::array<float, 4>& colour, float tint);
 
   public:
 	// The sheet layout (tools/textures/font_sheet.py), in px of a glyph quad (a 51.2 px tenth of a 512 px sheet; a
@@ -55,8 +55,8 @@ class Font {
 	void LoadTrueType(const char filename[], float size, float spacing);
 	// The text's glyph quads from the sheet (or the TrueType atlas) in one Batch draw (plan gl-core-ui), the quad
 	// bottom of the first at x, y in gProj's canvas (the model view is not used), times `colour`; blend as the caller
-	// set it.
-	void draw(float x, float y, const char* text, const std::array<float, 4>& colour);
+	// set it. tint > 0: the PlayStation symbols in their own colours (padGlyphTint) times tint instead.
+	void draw(float x, float y, const char* text, const std::array<float, 4>& colour, float tint = 0.f);
 	[[nodiscard]] float TextWidth(const char* text) const;
 	// draw() puts the quad bottom at y: the baseline is Baseline() above it, the cap top CapHeight() above that.
 	[[nodiscard]] float Baseline() const { return quad * BASELINE_PX / QUAD_PX; }

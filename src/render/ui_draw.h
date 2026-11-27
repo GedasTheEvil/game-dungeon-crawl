@@ -126,7 +126,8 @@ void atlasIcon(const Rect& r, int textureId, int cell, int columns, int rows, Co
 
 // ---- text (blend on, see beginText) ----
 // The font sheets have no alpha, so the glyph brightness is used as coverage in two passes:
-// first cut the glyph out of what is below, then add the colour into the hole.
+// first cut the glyph out of what is below, then add the colour into the hole. The PlayStation symbols (glyphs.h) add
+// their own colours (plan sdl3-gamepad).
 void text(Font& font, float x, float y, const char* str, Color c, float alpha = 1.f);
 void textCentered(Font& font, float cx, float y, const char* str, Color c, float alpha = 1.f);
 // Labels inside a box: the cap height centred on `cy` (left-aligned from x), or on `r`'s middle (both axes).

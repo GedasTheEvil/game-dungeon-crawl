@@ -43,6 +43,12 @@ struct Settings {
 		int sensitivity = 100; // percent of MOUSE_LOOK_SENSITIVITY (plan settings-extras)
 		bool invertY = false; // the mouse moved up looks down
 	} mouse;
+	// The gamepad's sticks (plan sdl3-gamepad); its buttons are in `controls`.
+	struct Gamepad {
+		int lookSpeed = 100; // percent of PAD_LOOK_SPEED, the right stick fully over
+		int deadZone = 25; // percent of a stick's travel that does nothing
+		bool invertY = false; // the right stick pushed up looks down
+	} gamepad;
 	struct Gameplay {
 		bool hints = true; // the first hints: a status line the first time a thing is possible (plan controls-help)
 	} gameplay;
@@ -67,6 +73,10 @@ constexpr int MIN_BRIGHTNESS = 70;
 constexpr int MAX_BRIGHTNESS = 150;
 constexpr int MIN_MOUSE_SENSITIVITY = 20;
 constexpr int MAX_MOUSE_SENSITIVITY = 300;
+constexpr int MIN_PAD_LOOK_SPEED = 20;
+constexpr int MAX_PAD_LOOK_SPEED = 300;
+constexpr int MIN_PAD_DEAD_ZONE = 5;
+constexpr int MAX_PAD_DEAD_ZONE = 60;
 
 // One colour channel (0..1) of the final picture at a brightness in percent: a gamma, pow(v, 100 / percent). Above
 // 100 the dark parts lighten, below they darken; black and white stay. The brightness shader does the same

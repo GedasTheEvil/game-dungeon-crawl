@@ -49,11 +49,20 @@ constexpr std::array<OptionRow, 5> GRAPHICS_ROWS = {{
 	{OptionId::LightFlicker, OptionKind::Switch, "Light flicker", "Torches, braziers and lamps flicker"},
 	{OptionId::CutScenes, OptionKind::Switch, "Cut-scenes", "The view goes to a far gate as it opens"},
 }};
-// Plan settings-extras: the mouse rows, and the camera's recentre beside them.
-constexpr std::array<OptionRow, 3> MOUSE_ROWS = {{
+// Plan settings-extras: the mouse rows, and the camera's recentre beside them; plan sdl3-gamepad: the sticks'.
+constexpr std::array<OptionRow, 6> MOUSE_ROWS = {{
 	{OptionId::MouseSensitivity, OptionKind::Slider, "Mouse sensitivity", "How far the view turns as the mouse moves"},
 	{OptionId::InvertY, OptionKind::Switch, "Invert mouse Y", "Moving the mouse up looks down"},
-	{OptionId::CameraRecenter, OptionKind::Switch, "Camera recentre", "A look-key peek eases back when left alone"},
+	{OptionId::CameraRecenter,
+	 OptionKind::Switch,
+	 "Camera recentre",
+	 "A look-key or stick peek eases back when left alone"},
+	{OptionId::PadLookSpeed,
+	 OptionKind::Slider,
+	 "Stick look speed",
+	 "How fast the gamepad's right stick turns the view"},
+	{OptionId::PadDeadZone, OptionKind::Slider, "Stick dead zone", "How far a stick moves before it counts"},
+	{OptionId::PadInvertY, OptionKind::Switch, "Invert stick Y", "The right stick pushed up looks down"},
 }};
 constexpr std::array<OptionRow, 4> SOUND_ROWS = {{
 	{OptionId::Master, OptionKind::Slider, "Master volume", "Scales the music and the effects"},
@@ -96,6 +105,8 @@ bool& switchOf(const ScreenWorld& world, OptionId id) {
 		return s.graphics.cameraRecenter;
 	case OptionId::InvertY:
 		return s.mouse.invertY;
+	case OptionId::PadInvertY:
+		return s.gamepad.invertY;
 	case OptionId::Mute:
 		return s.sound.mute;
 	default:
@@ -110,6 +121,10 @@ int& sliderOf(const ScreenWorld& world, OptionId id) {
 		return s.display.brightness;
 	case OptionId::MouseSensitivity:
 		return s.mouse.sensitivity;
+	case OptionId::PadLookSpeed:
+		return s.gamepad.lookSpeed;
+	case OptionId::PadDeadZone:
+		return s.gamepad.deadZone;
 	case OptionId::Master:
 		return s.sound.master;
 	case OptionId::Music:
@@ -129,6 +144,10 @@ SliderRange sliderRange(OptionId id) {
 		return {MIN_BRIGHTNESS, MAX_BRIGHTNESS, 5};
 	if (id == OptionId::MouseSensitivity)
 		return {MIN_MOUSE_SENSITIVITY, MAX_MOUSE_SENSITIVITY, 10};
+	if (id == OptionId::PadLookSpeed)
+		return {MIN_PAD_LOOK_SPEED, MAX_PAD_LOOK_SPEED, 10};
+	if (id == OptionId::PadDeadZone)
+		return {MIN_PAD_DEAD_ZONE, MAX_PAD_DEAD_ZONE, 5};
 	return {0, 100, 5};
 }
 
@@ -316,7 +335,7 @@ void MainMenu::DrawControlCell(int target, const Rect& r) {
 		textCenteredIn(
 			small,
 			r,
-			key.Bound() ? keyCap(key).c_str() : "-",
+			key.Bound() ? keyCap(key, world.padFamily).c_str() : "-",
 			key.Bound() ? (isHovered ? GOLD_BRIGHT : GOLD) : LABEL_DIM
 		);
 		beginShapes();
@@ -331,7 +350,8 @@ void MainMenu::DrawControls(float left, float right) {
 		beginText();
 		text(small, first.x + 1.5f, TABLE_TOP, "Action", LABEL);
 		text(small, first.x + CELL_X + 0.5f, TABLE_TOP, "Keys", LABEL);
-		text(small, first.x + CELL_X + 2 * CELL_STEP + 0.5f, TABLE_TOP, "Mouse", LABEL);
+		text(small, first.x + CELL_X + MOUSE_SLOT * CELL_STEP + 0.5f, TABLE_TOP, "Mouse", LABEL);
+		text(small, first.x + CELL_X + PAD_SLOT * CELL_STEP + 0.5f, TABLE_TOP, "Pad", LABEL);
 		beginShapes();
 	}
 	for (int i = 0; i < BIND_ACTION_COUNT; i++) {
@@ -353,8 +373,14 @@ void MainMenu::DrawControls(float left, float right) {
 		small,
 		(left + right) / 2,
 		FIXED_KEYS_Y,
-		"Fixed:  Esc menu / back    F1 toon shading    F5 quick save    F9 quick load    mouse movement "
-		"looks around",
+		"Fixed:  Esc menu / back    F1 toon    F5 quick save    F9 quick load    mouse looks around",
+		LABEL_DIM
+	);
+	textCentered(
+		small,
+		(left + right) / 2,
+		FIXED_KEYS_Y - 2.8f,
+		"Pad:  Start menu    left stick walks, climbs    right stick looks    d-pad, A, B in the menus",
 		LABEL_DIM
 	);
 	beginShapes();
@@ -369,9 +395,11 @@ void MainMenu::DrawFooterHint() {
 		return;
 	}
 	auto action = static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS);
-	bool mouse = (capturing - BIND_BASE) % BINDING_SLOTS == MOUSE_SLOT;
-	std::string hint = std::string(mouse ? "Click a mouse button for " : "Press a key for ") + bindActionLabel(action) +
-					   "    Delete: clear    Esc: cancel";
+	const int slot = (capturing - BIND_BASE) % BINDING_SLOTS;
+	const char* ask = slot == MOUSE_SLOT ? "Click a mouse button for "
+					  : slot == PAD_SLOT ? "Press a pad button for "
+										 : "Press a key for ";
+	std::string hint = std::string(ask) + bindActionLabel(action) + "    Delete: clear    Esc: cancel";
 	DrawFooter(hint.c_str());
 }
 
@@ -477,8 +505,12 @@ void MainMenu::CaptureKey(const InputKey& key) {
 		ShowToast(keyCap(key) + " is fixed, pick another key");
 		return;
 	}
-	if (slot == MOUSE_SLOT) {
-		ShowToast("Click a mouse button, or Esc to cancel");
+	if (!fitsSlot(key, slot)) {
+		ShowToast(
+			slot == MOUSE_SLOT ? "Click a mouse button, or Esc to cancel"
+			: slot == PAD_SLOT ? "Press a pad button, or Esc to cancel"
+							   : "Press a key, or Esc to cancel"
+		);
 		return;
 	}
 	Bind(key);

@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include "bindings.h"
+
 const unsigned char KEY_ESCAPE = 27;
 const unsigned char KEY_ENTER = 13;
 const unsigned char KEY_SPACE = 32;
@@ -53,5 +55,18 @@ void processMousePassiveMotion(int a, int b);
 
 // The pointer entered or left the window.
 void processMouseEntry();
+
+// A gamepad (plan sdl3-gamepad; the SDL events in input.cpp, a scenario's `pad` and `stick` call them too). A button
+// (PadButton) went down or up: in the game its binding, on a screen the d-pad is the arrows, South Enter, East Esc;
+// Start is Esc everywhere. `caps`: the pad's family, the key caps shown from now on.
+void padPressed(int button, Caps caps);
+void padReleased(int button);
+// A stick moved to (x, y), -1..1 each, y down: the left one walks and climbs (on a screen: the arrows), the right one
+// looks (stepPadLook).
+void padStickMoved(bool right, float x, float y, Caps caps);
+// Once a tick in the game: the right stick turns the look.
+void stepPadLook();
+// The pad went away: every button and stick it held lets go.
+void padLetGo();
 
 #endif

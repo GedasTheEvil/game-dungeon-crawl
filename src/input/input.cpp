@@ -1,8 +1,12 @@
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_gamepad.h>
 #include <SDL3/SDL_keyboard.h>
 #include <array>
 #include <optional>
+#include <algorithm>
 #include <cstdlib>
+#include <utility>
+#include <vector>
 #include "../game/window.h"
 #include "input_events.h"
 #include "keymap.h"
@@ -14,6 +18,8 @@
 #include "../state/gameplay_commands.h"
 #include "../level/input/mouse_look.h"
 #include "../level/input/camera_look.h"
+#include "../level/input/pad_stick.h"
+#include "../core/logger.h"
 #include "../ui/screen_state.h"
 #include "../render/ui_draw.h"
 #include "../level/tuning/gameplay_player.h"
@@ -176,6 +182,7 @@ bool skipCutScene() {
 
 void keyPressed(unsigned char key, int x, int y) {
 	ui::hideTooltip();
+	Game().caps = Caps::Keys;
 	if (skipCutScene())
 		return;
 	if (Game().ui.screen == Screen::Riddle) {
@@ -242,6 +249,7 @@ void keyPressed(unsigned char key, int x, int y) {
 
 void specialKeyPressed(int key, int x, int y) {
 	ui::hideTooltip();
+	Game().caps = Caps::Keys;
 	(void)x;
 	(void)y;
 	if (skipCutScene())
@@ -312,8 +320,10 @@ void specialKeyReleased(int key, int x, int y) {
 }
 
 void processMouse(int button, int state, int x, int y) {
-	if (state == MOUSE_DOWN)
+	if (state == MOUSE_DOWN) {
 		ui::hideTooltip();
+		Game().caps = Caps::Keys;
+	}
 	static int skipButton = -1; // the click that skipped a cut-scene: its release does nothing either
 	if (state == MOUSE_DOWN && skipCutScene()) {
 		skipButton = button;
@@ -415,6 +425,149 @@ void processMouseActiveMotion(int a, int b) {
 void processMouseEntry() { mouseLook.Forget(); }
 
 namespace {
+PadStick leftStick;
+float rightX = 0.f; // the right stick, -1..1, y down
+float rightY = 0.f;
+std::array<bool, PadButton::COUNT> padHeld{}; // the buttons down, so a pad pulled out lets them go
+
+// The pad's caps show from now on (the HUD, the hints), and its family's in Options > Controls.
+void showPadCaps(Caps caps) {
+	Game().caps = caps;
+	Game().padFamily = caps;
+}
+
+float deadZone() { return static_cast<float>(Game().settings.gamepad.deadZone) / 100.f; }
+
+// The game takes the pad's bindings: no screen over it, no name being typed.
+bool padPlays() { return Game().ui.screen == Screen::Gameplay && !Game().ui.winEntry.Typing(); }
+
+// On a screen a pad button is a key (plan sdl3-gamepad): the d-pad the arrows, South Enter, East Esc. False: none.
+bool padAsKey(int button) {
+	switch (button) {
+	case PadButton::DPAD_UP:
+		specialKeyPressed(SpecialKey::UP, 0, 0);
+		return true;
+	case PadButton::DPAD_DOWN:
+		specialKeyPressed(SpecialKey::DOWN, 0, 0);
+		return true;
+	case PadButton::DPAD_LEFT:
+		specialKeyPressed(SpecialKey::LEFT, 0, 0);
+		return true;
+	case PadButton::DPAD_RIGHT:
+		specialKeyPressed(SpecialKey::RIGHT, 0, 0);
+		return true;
+	case PadButton::SOUTH:
+		keyPressed(KEY_ENTER, 0, 0);
+		return true;
+	case PadButton::EAST:
+		keyPressed(KEY_ESCAPE, 0, 0);
+		return true;
+	default:
+		return false;
+	}
+}
+
+constexpr std::array<BindAction, PadStick::DIRS> STICK_ACTIONS = {
+	BindAction::MoveLeft,
+	BindAction::MoveRight,
+	BindAction::ClimbUp,
+	BindAction::ClimbDown,
+};
+constexpr std::array<int, PadStick::DIRS> STICK_ARROWS = {
+	SpecialKey::LEFT,
+	SpecialKey::RIGHT,
+	SpecialKey::UP,
+	SpecialKey::DOWN,
+};
+} // namespace
+
+void padPressed(int button, Caps caps) {
+	if (button < 0 || button >= PadButton::COUNT)
+		return;
+	padHeld[static_cast<size_t>(button)] = true;
+	ui::hideTooltip();
+	MainMenu& menu = Game().ui.menu;
+	if (Game().ui.screen == Screen::Menu && menu.Capturing()) { // Options > Controls waits; Start cancels as Esc
+		if (button == PadButton::START)
+			keyPressed(KEY_ESCAPE, 0, 0);
+		else
+			menu.CaptureKey(InputKey::Pad(button));
+		showPadCaps(caps);
+		return;
+	}
+	if (skipCutScene()) {
+		showPadCaps(caps);
+		return;
+	}
+	std::optional<BindAction> action = bound(InputKey::Pad(button));
+	if (button == PadButton::START)
+		keyPressed(KEY_ESCAPE, 0, 0);
+	else if (padPlays()) {
+		if (action == BindAction::Attack)
+			newAttackPress();
+		if (action)
+			pressBinding(*action);
+	} else if (action && (*action == BindAction::Sprint ||
+						  (ScreenTabs::Has(Game().ui.screen) && screenOf(*action) != Screen::Gameplay)))
+		pressBinding(*action); // a tab screen's button switches or closes it, as its key; the sprint stays held
+	else
+		padAsKey(button);
+	showPadCaps(caps); // after the keys it sent, which show the keyboard's
+}
+
+void padReleased(int button) {
+	if (button < 0 || button >= PadButton::COUNT || !std::exchange(padHeld[static_cast<size_t>(button)], false))
+		return;
+	if (std::optional<BindAction> action = bound(InputKey::Pad(button)))
+		releaseBinding(*action);
+}
+
+void padStickMoved(bool right, float x, float y, Caps caps) {
+	const float zone = deadZone();
+	if (right) {
+		rightX = x;
+		rightY = y;
+		if (padStickReach(x, zone) != 0.f || padStickReach(y, zone) != 0.f)
+			showPadCaps(caps);
+		return;
+	}
+	const PadStick before = leftStick;
+	leftStick.Move(x, y, zone);
+	for (int i = 0; i < PadStick::DIRS; i++) {
+		const auto dir = static_cast<PadStick::Dir>(i);
+		if (before.Held(dir) == leftStick.Held(dir))
+			continue;
+		const BindAction action = STICK_ACTIONS[static_cast<size_t>(i)];
+		if (!leftStick.Held(dir)) {
+			releaseBinding(action);
+			continue;
+		}
+		if (padPlays())
+			pressBinding(action);
+		else if (Game().ui.screen != Screen::Menu || !Game().ui.menu.Capturing())
+			specialKeyPressed(STICK_ARROWS[static_cast<size_t>(i)], 0, 0);
+		showPadCaps(caps);
+	}
+}
+
+void stepPadLook() {
+	if (!padPlays() || !ScreenState::IsGameplayInteractionAllowed(Game()))
+		return;
+	const Settings::Gamepad& pad = Game().settings.gamepad;
+	const PadLookTurn turn = padLookTurn(rightX, rightY, deadZone(), pad.lookSpeed, pad.invertY, UPDATE_TICK_MS);
+	if (turn.m != 0.f || turn.n != 0.f)
+		peekCamera(turn.m, turn.n);
+}
+
+void padLetGo() {
+	for (int button = 0; button < PadButton::COUNT; button++)
+		padReleased(button);
+	padStickMoved(false, 0.f, 0.f, Game().padFamily);
+	rightX = 0.f;
+	rightY = 0.f;
+}
+
+namespace {
 // A motion of the held pointer (relative mode, Window::holdPointer), in pixels: it only turns the look. The next free
 // motion starts afresh.
 void lookBy(float dx, float dy) {
@@ -471,6 +624,81 @@ int buttonOf(Uint8 button) {
 }
 
 int pixel(float at, float density) { return static_cast<int>(at * density); }
+
+// The pads plugged in (plan sdl3-gamepad), opened as they come (SDL sends an added event for each one there at the
+// start too) and closed as they go.
+std::vector<SDL_Gamepad*> pads;
+
+Caps capsOf(SDL_JoystickID id) {
+	SDL_Gamepad* pad = SDL_GetGamepadFromID(id);
+	return Keymap::padCaps(pad != nullptr ? SDL_GetGamepadType(pad) : SDL_GAMEPAD_TYPE_STANDARD);
+}
+
+float axisValue(Sint16 value) { return std::clamp(static_cast<float>(value) / 32767.f, -1.f, 1.f); }
+
+// A trigger is a button: down once pulled past half way, up again under 40 %.
+constexpr float TRIGGER_DOWN = 0.5f;
+constexpr float TRIGGER_UP = 0.4f;
+std::array<bool, 2> triggerDown{};
+
+void padAxis(const SDL_GamepadAxisEvent& event) {
+	const Caps caps = capsOf(event.which);
+	SDL_Gamepad* pad = SDL_GetGamepadFromID(event.which);
+	if (pad == nullptr)
+		return;
+	auto axis = [pad](SDL_GamepadAxis a) { return axisValue(SDL_GetGamepadAxis(pad, a)); };
+	switch (event.axis) {
+	case SDL_GAMEPAD_AXIS_LEFTX:
+	case SDL_GAMEPAD_AXIS_LEFTY:
+		padStickMoved(false, axis(SDL_GAMEPAD_AXIS_LEFTX), axis(SDL_GAMEPAD_AXIS_LEFTY), caps);
+		break;
+	case SDL_GAMEPAD_AXIS_RIGHTX:
+	case SDL_GAMEPAD_AXIS_RIGHTY:
+		padStickMoved(true, axis(SDL_GAMEPAD_AXIS_RIGHTX), axis(SDL_GAMEPAD_AXIS_RIGHTY), caps);
+		break;
+	case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
+	case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER: {
+		const bool left = event.axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER;
+		bool& down = triggerDown[left ? 0 : 1];
+		const float pull = axisValue(event.value);
+		const int button = left ? PadButton::LEFT_TRIGGER : PadButton::RIGHT_TRIGGER;
+		if (!down && pull > TRIGGER_DOWN) {
+			down = true;
+			padPressed(button, caps);
+		} else if (down && pull < TRIGGER_UP) {
+			down = false;
+			padReleased(button);
+		}
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void padAdded(SDL_JoystickID id) {
+	if (SDL_GetGamepadFromID(id) != nullptr)
+		return;
+	if (SDL_Gamepad* pad = SDL_OpenGamepad(id)) {
+		pads.push_back(pad);
+		LOG_INFOF(
+			"input",
+			"Gamepad: %s (%s)",
+			SDL_GetGamepadName(pad),
+			SDL_GetGamepadStringForType(SDL_GetGamepadType(pad))
+		);
+	}
+}
+
+void padRemoved(SDL_JoystickID id) {
+	SDL_Gamepad* pad = SDL_GetGamepadFromID(id);
+	if (pad == nullptr)
+		return;
+	std::erase(pads, pad);
+	SDL_CloseGamepad(pad);
+	padLetGo();
+	triggerDown.fill(false);
+}
 } // namespace
 
 void handleInputEvent(const SDL_Event& event, float density) {
@@ -502,6 +730,24 @@ void handleInputEvent(const SDL_Event& event, float density) {
 		}
 		break;
 	}
+	case SDL_EVENT_GAMEPAD_ADDED:
+		padAdded(event.gdevice.which);
+		break;
+	case SDL_EVENT_GAMEPAD_REMOVED:
+		padRemoved(event.gdevice.which);
+		break;
+	case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+	case SDL_EVENT_GAMEPAD_BUTTON_UP:
+		if (const std::optional<int> button = Keymap::padButton(static_cast<SDL_GamepadButton>(event.gbutton.button))) {
+			if (event.gbutton.down)
+				padPressed(*button, capsOf(event.gbutton.which));
+			else
+				padReleased(*button);
+		}
+		break;
+	case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+		padAxis(event.gaxis);
+		break;
 	case SDL_EVENT_MOUSE_MOTION:
 		if (SDL_GetWindowRelativeMouseMode(SDL_GetWindowFromID(event.motion.windowID)))
 			lookBy(event.motion.xrel * density, event.motion.yrel * density);

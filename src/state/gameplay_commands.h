@@ -51,6 +51,8 @@ bool refusedInsane();
 void turnCamera(float deltaX, float deltaY);
 // A look key went down or up: stepCameraLook turns the camera each tick while one is held.
 void holdLook(CameraLook::Dir dir, bool down);
+// The right stick turned the camera (plan sdl3-gamepad): degrees, a peek the recentre eases back, as the look keys'.
+void peekCamera(float deltaM, float deltaN);
 // A new press of the attack key (not the key repeat): a refusal on a ladder is told again.
 void newAttackPress();
 

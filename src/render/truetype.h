@@ -4,6 +4,7 @@
 // pixel size the text is drawn at, so a glyph's texel is one screen pixel. No GL: Font uploads the bakes (font.cpp) and
 // draws from them; the layout (advances, kerning) stays in canvas units and does not depend on the window size.
 #include <array>
+#include "glyphs.h"
 #include <memory>
 #include <vector>
 
@@ -15,10 +16,11 @@ struct BakedGlyph {
 	int top = 0; // its top row above the baseline
 };
 
-// The printable ASCII glyphs of a face rasterised at one pixel size, packed into one coverage image (0..255 a texel,
-// rows top-down), with a free texel between glyphs so linear filtering never bleeds a neighbour in.
+// The glyphs (glyphs.h: printable ASCII, the pad symbols) of a face rasterised at one pixel size, packed into one
+// coverage image (0..255 a texel, rows top-down), with a free texel between glyphs so linear filtering never bleeds a
+// neighbour in.
 struct GlyphBitmaps {
-	static constexpr int GLYPHS = 95; // from ' '
+	static constexpr int GLYPHS = FONT_GLYPHS; // glyphs.h
 	int width = 0, height = 0;
 	std::vector<unsigned char> coverage;
 	std::array<BakedGlyph, GLYPHS> glyphs{};

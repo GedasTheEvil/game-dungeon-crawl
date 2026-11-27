@@ -73,6 +73,9 @@ std::vector<Key> keysOf(Settings& s) {
 		{"graphics", "camera_recenter", K::Bool, 0, 0, &s.graphics.cameraRecenter, nullptr},
 		{"mouse", "sensitivity", K::Int, MIN_MOUSE_SENSITIVITY, MAX_MOUSE_SENSITIVITY, nullptr, &s.mouse.sensitivity},
 		{"mouse", "invert_y", K::Bool, 0, 0, &s.mouse.invertY, nullptr},
+		{"gamepad", "look_speed", K::Int, MIN_PAD_LOOK_SPEED, MAX_PAD_LOOK_SPEED, nullptr, &s.gamepad.lookSpeed},
+		{"gamepad", "dead_zone", K::Int, MIN_PAD_DEAD_ZONE, MAX_PAD_DEAD_ZONE, nullptr, &s.gamepad.deadZone},
+		{"gamepad", "invert_y", K::Bool, 0, 0, &s.gamepad.invertY, nullptr},
 		{"gameplay", "hints", K::Bool, 0, 0, &s.gameplay.hints, nullptr},
 		{"sound", "master_volume", K::Int, 0, 100, nullptr, &s.sound.master},
 		{"sound", "music_volume", K::Int, 0, 100, nullptr, &s.sound.music},
@@ -83,20 +86,21 @@ std::vector<Key> keysOf(Settings& s) {
 
 // Empty when the value was taken, else the warning.
 std::string readKey(Settings& settings, const std::string& section, const std::string& name, const std::string& value) {
-	if (section == "controls") {
+	// [controls] holds an action's keys and mouse button, [gamepad] its pad button (beside the sticks' keys).
+	if (section == "controls" || section == "gamepad")
 		for (int i = 0; i < BIND_ACTION_COUNT; i++) {
 			auto action = static_cast<BindAction>(i);
 			if (name != bindActionName(action))
 				continue;
 			Binding binding = settings.controls.Of(action);
-			std::string error = parseBinding(value, binding);
+			std::string error = section == "controls" ? parseBinding(value, binding) : parsePadBinding(value, binding);
 			if (!error.empty())
 				return name + ": " + error;
 			settings.controls.Set(action, binding);
 			return "";
 		}
+	if (section == "controls")
 		return "unknown key '" + name + "' in [controls]";
-	}
 	for (const Key& key : keysOf(settings)) {
 		if (section != key.section || name != key.name)
 			continue;
@@ -189,7 +193,7 @@ Settings parseSettings(std::istream& in, std::vector<std::string>& warnings) {
 			}
 			section = lower(trim(line.substr(1, line.size() - 2)));
 			if (section != "display" && section != "graphics" && section != "gameplay" && section != "sound" &&
-				section != "mouse" && section != "controls")
+				section != "mouse" && section != "controls" && section != "gamepad")
 				warnings.push_back(where + "unknown section [" + section + "]");
 			continue;
 		}
@@ -245,6 +249,16 @@ std::string writeSettings(const Settings& settings) {
 	for (int i = 0; i < BIND_ACTION_COUNT; i++) {
 		auto action = static_cast<BindAction>(i);
 		out << bindActionName(action) << " = " << formatBinding(settings.controls.Of(action)) << "\n";
+	}
+	out << "\n; Gamepad: right stick look speed in percent (" << MIN_PAD_LOOK_SPEED << "-" << MAX_PAD_LOOK_SPEED
+		<< "), the sticks' dead zone in percent (" << MIN_PAD_DEAD_ZONE << "-" << MAX_PAD_DEAD_ZONE
+		<< "), invert_y on/off; then one pad button an action, \"none\" to clear.\n[gamepad]\n";
+	out << "look_speed = " << settings.gamepad.lookSpeed << "\n";
+	out << "dead_zone = " << settings.gamepad.deadZone << "\n";
+	out << "invert_y = " << onOff(settings.gamepad.invertY) << "\n";
+	for (int i = 0; i < BIND_ACTION_COUNT; i++) {
+		auto action = static_cast<BindAction>(i);
+		out << bindActionName(action) << " = " << formatPadBinding(settings.controls.Of(action)) << "\n";
 	}
 	return out.str();
 }

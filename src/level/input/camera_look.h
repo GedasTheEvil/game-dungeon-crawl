@@ -32,6 +32,11 @@ class CameraLook {
 			mouseSet = false;
 	}
 	void Release() { held.fill(false); }
+	// The right stick turned the camera (plan sdl3-gamepad): a peek like the look keys', eased back once let go.
+	void Peeked() {
+		idleMs = 0;
+		mouseSet = false;
+	}
 	// The mouse turned the camera: the easing stops, and stays off until a look key is pressed again.
 	void Looked() {
 		idleMs = 0;

@@ -50,7 +50,7 @@ constexpr float TAB_H = 7.f;
 constexpr float OPTIONS_LEFT = OPTIONS_PANEL.x + 5; // the tab contents, the rule under the tabs
 constexpr float OPTIONS_RIGHT = OPTIONS_PANEL.x + OPTIONS_PANEL.w - 5;
 
-// Controls tab: two columns of rows; a row is the action, its two key cells and its mouse cell.
+// Controls tab: two columns of rows; a row is the action, its two key cells, its mouse cell and its pad cell.
 constexpr float TABLE_TOP = 70.2f; // header baseline
 constexpr float TABLE_RULE = TABLE_TOP - 1.1f;
 constexpr float ROW_H = 3.5f;
@@ -58,9 +58,9 @@ constexpr int ROWS_PER_COLUMN = 12;
 constexpr float COLUMN_W = 68.f;
 constexpr float COLUMN_GAP = 2.f;
 constexpr float CELL_X = 29.f; // from the column's left edge
-constexpr float CELL_STEP = 13.f;
-constexpr float CELL_W = 12.f;
-constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be changed
+constexpr float CELL_STEP = 9.8f; // two key cells, the mouse cell and the pad cell
+constexpr float CELL_W = 9.2f;
+constexpr float FIXED_KEYS_Y = 24.6f; // the lines naming the keys and pad parts that cannot be changed
 
 // Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
 constexpr float OPTION_TOP = 71.5f;
@@ -103,7 +103,7 @@ Rect visibleArea(const RenderSettings& render);
 
 // Display holds [display] of settings.ini, Graphics [graphics] (plan ui-font-setting split them: the Text font row
 // did not fit an eleventh row).
-constexpr std::array<const char*, 5> TABS = {"Controls", "Mouse", "Display", "Graphics", "Sound"};
+constexpr std::array<const char*, 5> TABS = {"Controls", "Look", "Display", "Graphics", "Sound"};
 constexpr int CONTROLS_TAB = 0;
 constexpr int MOUSE_TAB = 1;
 constexpr int DISPLAY_TAB = 2;
@@ -130,6 +130,9 @@ enum class OptionId : std::uint8_t {
 	CameraRecenter,
 	MouseSensitivity,
 	InvertY,
+	PadLookSpeed, // plan sdl3-gamepad
+	PadDeadZone,
+	PadInvertY,
 	Master,
 	Music,
 	Effects,

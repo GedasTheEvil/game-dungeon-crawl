@@ -25,7 +25,7 @@ constexpr int GRID = 10; // the font sheet is 10 x 10 cells
 constexpr unsigned char INK_LEVEL = 60; // brighter than this counts as glyph
 constexpr float SPACE_WIDTH = 0.28f; // of the glyph size, the space cell is empty
 
-constexpr int SHEET_GLYPHS = 95;
+constexpr int SHEET_GLYPHS = SHEET_CELLS;
 
 // Left and right inked column of every glyph cell, as fractions of the cell width.
 // Returns false when the sheet cannot be read (the font stays monospaced).
@@ -104,17 +104,21 @@ void Font::draw(float x, float y, const char* text, const std::array<float, 4>& 
 	batch.colour(colour[0], colour[1], colour[2], colour[3]);
 	batch.begin(Primitive::Triangles);
 	for (const char* c = text; *c != '\0'; c++) {
-		const int glyph = static_cast<unsigned char>(*c) - 32;
+		const int glyph = glyphOf(static_cast<unsigned char>(*c));
 		if (glyph < 0 || glyph >= GLYPHS) // no display list: glCallLists drew and moved nothing
 			continue;
 		const Mat4 mvp = projection * Mat4::translation(pen, y, 1.f);
 		const float left = shift[glyph];
 		const Cell& cell = cells[glyph];
+		// The cell's corners bottom left, bottom right, top right, top left; a turned glyph (a d-pad arrow) shows
+		// at each corner the one that many places back.
+		const float uv[4][2] = {{cell.u0, cell.v0}, {cell.u1, cell.v0}, {cell.u1, cell.v1}, {cell.u0, cell.v1}};
+		auto at = [&](int corner) { return uv[(corner - cell.turns + 4) % 4]; };
 		const float corners[4][4] = {
-			{cell.u0, cell.v0, left, 0.f},
-			{cell.u1, cell.v0, left + quad, 0.f},
-			{cell.u1, cell.v1, left + quad, quad},
-			{cell.u0, cell.v1, left, quad},
+			{at(0)[0], at(0)[1], left, 0.f},
+			{at(1)[0], at(1)[1], left + quad, 0.f},
+			{at(2)[0], at(2)[1], left + quad, quad},
+			{at(3)[0], at(3)[1], left, quad},
 		};
 		// A display list's quad a, b, c, d as Mesa compiled it: a, b, d and b, c, d (not the a, b, c / a, c, d of an
 		// immediate GL_QUADS, Batch's Quads), so the text rasterises as before.
@@ -227,7 +231,7 @@ void Font::drawTrueType(float x, float y, const char* text, const std::array<flo
 	batch.colour(colour[0], colour[1], colour[2], colour[3]);
 	batch.begin(Primitive::Triangles);
 	for (const char* c = text; *c != '\0'; c++) {
-		const int glyph = static_cast<unsigned char>(*c) - 32;
+		const int glyph = glyphOf(static_cast<unsigned char>(*c));
 		if (glyph < 0 || glyph >= GLYPHS)
 			continue;
 		if (previous >= 0)
@@ -266,7 +270,7 @@ float Font::TextWidth(const char* text) const {
 	float width = 0.f;
 	int previous = -1;
 	for (const char* c = text; *c != '\0'; c++) {
-		int glyph = static_cast<unsigned char>(*c) - 32;
+		int glyph = glyphOf(static_cast<unsigned char>(*c));
 		if (glyph < 0 || glyph >= GLYPHS)
 			continue;
 		if (face && previous >= 0)
@@ -298,7 +302,7 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 	Load(filename, size, spacing, proportional, TexFilter::Flat);
 }
 void Font::Load(const char filename[], float size, float spacing, bool proportional, TexFilter filter) {
-	static_assert(GLYPHS == SHEET_GLYPHS);
+
 	face.reset();
 	atlas.reset();
 	sheet = loadSheet(filename, filter);
@@ -311,15 +315,15 @@ void Font::Load(const char filename[], float size, float spacing, bool proportio
 	// Monospaced fonts keep their historic whole-unit quads.
 	quad = proportional ? size : static_cast<float>(static_cast<int>(size));
 	for (int glyph = 0; glyph < GLYPHS; glyph++) {
-		const float cx = static_cast<float>(glyph % GRID) / 10.0f; // the cell's left edge in the sheet
-		const int row = glyph / GRID;
+		const auto [at, turns] = sheetCell(glyph);
+		const float cx = static_cast<float>(at % GRID) / 10.0f; // the cell's left edge in the sheet
+		const int row = at / GRID;
 		const float cy = static_cast<float>(row) / 10.0f; // its top edge, from the sheet's top
-		cells[glyph] = {cx, cx + 0.1f, 1.0f - cy - 0.1f, 1.0f - cy};
-		shift[glyph] = proportional ? -left[glyph] * size : 0.f;
+		cells[glyph] = {cx, cx + 0.1f, 1.0f - cy - 0.1f, 1.0f - cy, turns};
+		shift[glyph] = proportional ? -left[at] * size : 0.f;
 		advance[glyph] = size / 2 + spacing;
 		if (proportional)
-			advance[glyph] = (right[glyph] > left[glyph] ? (right[glyph] - left[glyph]) * size : SPACE_WIDTH * size) +
-							 spacing;
+			advance[glyph] = (right[at] > left[at] ? (right[at] - left[at]) * size : SPACE_WIDTH * size) + spacing;
 	}
 }
 Font::~Font() = default;

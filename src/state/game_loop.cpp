@@ -75,6 +75,7 @@ void tick() {
 
 	stepHeldWalk();
 	stepCameraLook();
+	stepPadLook();
 	Game().dungeon.Update();
 	Game().player->rotA = Game().camera.rotW;
 

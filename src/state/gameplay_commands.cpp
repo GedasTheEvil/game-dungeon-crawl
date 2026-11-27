@@ -257,4 +257,11 @@ void turnCamera(float deltaX, float deltaY) { PlayerActionController::applyCamer
 
 void holdLook(CameraLook::Dir dir, bool down) { cameraLook.Hold(dir, down); }
 
+void peekCamera(float deltaM, float deltaN) {
+	const CameraLook::Angles turned = CameraLook::Clamp({Game().camera.rotM + deltaM, Game().camera.rotN + deltaN});
+	Game().camera.rotM = turned.m;
+	Game().camera.rotN = turned.n;
+	cameraLook.Peeked();
+}
+
 void newAttackPress() { attackRefusalTold = false; }

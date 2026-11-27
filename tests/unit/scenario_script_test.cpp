@@ -40,6 +40,8 @@ const std::map<std::string, std::string> EXAMPLES = {
 	{"dump", "dump"},
 	{"expect", "expect hp >= 10"},
 	{"key", "key i"},
+	{"pad", "pad dpad_up ps"},
+	{"stick", "stick left -1 0.5"},
 	{"give", "give potion 2 3"},
 	{"chest", "chest melee 1"},
 	{"select", "select small_health"},

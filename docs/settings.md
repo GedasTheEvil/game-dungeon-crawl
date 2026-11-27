@@ -52,11 +52,19 @@ mute = off              ; silences both, the volumes kept
 [controls]
 move_left = a, left
 ...
+
+[gamepad]
+look_speed = 100        ; 20-300 percent, how fast the right stick turns the view
+dead_zone = 25          ; 5-60 percent of a stick's travel that does nothing
+invert_y = off          ; on: the right stick pushed up looks down
+jump = pad_a
+...
 ```
 
 (The `;` comments after the values above are for this page only. The parser reads comments on their own lines.)
 
-Options shows these on five tabs: Controls, Mouse (sensitivity, invert Y, camera recentre), Display (window size,
+Options shows these on five tabs: Controls, Look (mouse sensitivity, invert Y, camera recentre, the gamepad's stick
+look speed, dead zone and invert Y), Display (window size,
 fullscreen, brightness, the rest of `[display]`), Graphics (the rest of `[graphics]`) and Sound. The Brightness row has a calibration box:
 a black square with an ankh a shade above black; set the brightness so the ankh is barely visible. The Window size row
 steps through the common sizes that fit the desktop, then the desktop's own size
@@ -109,5 +117,38 @@ Key names:
   `begin`, `keypad_delete`, `shift`, `right_shift`, `ctrl`, `right_ctrl`, `alt`, `right_alt`, `f12`.
 * Mouse buttons: `mouse_left`, `mouse_middle`, `mouse_right`.
 
-In Options > Controls, click a cell, then press the key (or click the mouse button, in the mouse column). A key
-bound elsewhere moves to the new action. `Delete` clears the cell, `Esc` cancels.
+In Options > Controls, click a cell, then press the key (or click the mouse button, in the mouse column; or press the
+pad button, in the pad column). A key bound elsewhere moves to the new action. `Delete` clears the cell, `Esc` (or the
+pad's Start) cancels.
+
+## Gamepad
+
+A gamepad (Xbox, PlayStation, Steam Deck, any pad SDL knows; plan sdl3-gamepad) works when plugged in, also while
+the game runs. `[gamepad]` holds the sticks' settings and one pad button an action (the same action keys as
+`[controls]`; `none` leaves it unbound). A file without `[gamepad]` keeps the defaults below.
+
+| Key | Default |
+|---|---|
+| `jump` | `pad_a` |
+| `interact` | `pad_b` |
+| `attack` | `pad_x` (held: the power hit's charge) |
+| `drag` | `pad_y` |
+| `equip_melee` / `equip_ranged` | `pad_lb` / `pad_rb` |
+| `sprint` | `pad_lt` |
+| `stamina_skills` | `pad_rt` |
+| `quick_heal` / `quick_stamina` / `quick_antidote` | `pad_dpad_up` / `pad_dpad_right` / `pad_dpad_left` |
+| `map` | `pad_dpad_down` |
+| `inventory` | `pad_back` |
+| `journal` / `skills` | `pad_ls` / `pad_rs` (the sticks pressed) |
+| the others | `none` |
+
+Pad button names, by place (the Xbox names; on a PlayStation pad `pad_a` is the cross, `pad_b` the circle, `pad_x`
+the square, `pad_y` the triangle, `pad_lb` L1, `pad_lt` L2, `pad_back` Share): `pad_a`, `pad_b`, `pad_x`, `pad_y`,
+`pad_lb`, `pad_rb`, `pad_lt`, `pad_rt` (a trigger counts once pulled half way), `pad_ls`, `pad_rs`, `pad_back`,
+`pad_dpad_up`, `pad_dpad_down`, `pad_dpad_left`, `pad_dpad_right`.
+
+Fixed: `pad_start` (the menu / back, as `Esc`), the left stick (walks and climbs past the dead zone), the right stick
+(looks around, a peek `camera_recenter` eases back like the look keys'). On the menus and the screens the d-pad and
+the left stick move the focus (the arrows), A picks (Enter), B backs out (Esc); a button bound to a screen
+(inventory, map, journal, skills) switches or closes it there too. The HUD names the pad's buttons once a pad button
+or stick was used, the keys again after a key or a click.

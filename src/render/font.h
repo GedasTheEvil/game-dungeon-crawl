@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include "glyphs.h"
 
 enum class TexFilter : std::uint8_t; // textures.h
 
@@ -12,13 +13,14 @@ struct GlyphAtlas;
 
 class Font {
   private:
-	static constexpr int GLYPHS = 95; // printable ASCII from ' '
+	static constexpr int GLYPHS = FONT_GLYPHS; // printable ASCII from ' ', then the pad symbols (glyphs.h)
 	std::shared_ptr<const FontSheet> sheet;
 	float quad = 0; // the glyph quad's side (Load)
 	float advance[GLYPHS] = {};
 	float shift[GLYPHS] = {}; // a proportional glyph's quad starts this far left of the pen, so its ink starts there
 	struct Cell {
 		float u0, u1, v0, v1; // the glyph's cell in the sheet: left, right, bottom, top texture coordinate
+		int turns; // quarter turns counter-clockwise (glyphs.h, sheetCell)
 	};
 	Cell cells[GLYPHS] = {};
 	// A TrueType font (LoadTrueType) instead of a sheet: its face, its em in canvas units, and the atlas baked at the

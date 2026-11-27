@@ -53,7 +53,9 @@ GameState::GameState()
 			  inscriptions,
 			  [this](bool save) { ApplySettings(save); },
 			  [this] { NewGame(); },
-			  alwaysGift
+			  alwaysGift,
+			  caps,
+			  padFamily
 		  })
 	  ),
 	  ui(*uiOwned) {}

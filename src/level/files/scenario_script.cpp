@@ -259,6 +259,31 @@ bool parseKey(const Args& args, Command& cmd) {
 	return cmd.a != 0.f;
 }
 
+// pad (plan sdl3-gamepad): a button's name as in [gamepad] without "pad_" -> a; "up" (let go) -> b 1, "ps" (a
+// PlayStation pad's press: its key caps) -> b 2.
+bool parsePad(const Args& args, Command& cmd) {
+	if (args.empty() || args.size() > 2)
+		return false;
+	std::optional<InputKey> key = parseKeyName("pad_" + args[0]);
+	if (!key || key->kind != InputKey::Kind::Pad)
+		return false;
+	cmd.a = static_cast<float>(key->code);
+	if (args.size() == 2) {
+		if (args[1] != "up" && args[1] != "ps")
+			return false;
+		cmd.b = args[1] == "up" ? 1.f : 2.f;
+	}
+	return true;
+}
+
+// stick: left -> ticks 0, right -> 1; x -> a, y -> b, each -1..1 (y down).
+bool parseStick(const Args& args, Command& cmd) {
+	if (args.size() != 3 || (args[0] != "left" && args[0] != "right"))
+		return false;
+	cmd.ticks = args[0] == "right" ? 1 : 0;
+	return parseFloat(args[1], cmd.a) && parseFloat(args[2], cmd.b) && std::abs(cmd.a) <= 1.f && std::abs(cmd.b) <= 1.f;
+}
+
 // give / chest: an item type and id, a count (ticks, default 1).
 bool parseItemCount(const Args& args, Command& cmd) {
 	int type = 0;
@@ -523,6 +548,8 @@ const std::vector<CommandDef>& commandDefs() {
 		{"dump", CommandType::Dump, noArgs, ""},
 		{"expect", CommandType::Expect, parseExpect, "<field|<item><id>[.level]> <==|!=|<|<=|>|>=> <number>"},
 		{"key", CommandType::Key, parseKey, "<char|enter|esc|space|tab|backspace|special key name>"},
+		{"pad", CommandType::Pad, parsePad, "<a|b|x|y|lb|rb|lt|rt|ls|rs|back|start|dpad_up|...> [up|ps]"},
+		{"stick", CommandType::Stick, parseStick, "<left|right> <x> <y> (-1..1 each, y down)"},
 		{"give", CommandType::Give, parseItemCount, "<melee|ranged|potion|amulet> <id> [count], with a known id"},
 		{"chest", CommandType::Chest, parseItemCount, "<melee|ranged|potion|amulet> <id> [count], with a known id"},
 		{"select",

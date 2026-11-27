@@ -80,6 +80,10 @@ class GameState {
 	bool hintsAnyRun = false;
 	// Every offering brings a gift (plan offering-gift), for the play scripts: scenario `gifts on`.
 	bool alwaysGift = false;
+	// The key caps the HUD and the hints show (plan sdl3-gamepad): a gamepad's names once its button or stick was
+	// used, the keyboard's again after a key or a click.
+	Caps caps = Caps::Keys;
+	Caps padFamily = Caps::Xbox; // the last used gamepad's: Options > Controls names its buttons so
 	bool debug = false; // --debug: F3 shows the hitboxes (plan controls-help)
 	// The screens, apart so this header includes no ui/ (plan game-state-split): bound to uiOwned. Last: they hold
 	// references to the parts above (ScreenWorld).

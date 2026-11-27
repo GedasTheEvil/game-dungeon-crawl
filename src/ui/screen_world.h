@@ -1,6 +1,7 @@
 #ifndef SCREEN_WORLD_H
 #define SCREEN_WORLD_H
 
+#include "../level/input/bindings.h"
 #include <functional>
 #include <string>
 
@@ -39,6 +40,8 @@ struct ScreenWorld {
 	std::function<void(bool save)> applySettings; // GameState::ApplySettings: the graphics and sound choices
 	std::function<void()> newGame; // GameState::NewGame
 	const bool& alwaysGift; // every offering brings a gift (GameState::alwaysGift, scenario `gifts on`)
+	const Caps& caps; // the key caps' names: the keyboard's or the last used gamepad's (GameState::caps)
+	const Caps& padFamily; // the last used gamepad's family (GameState::padFamily)
 
 	// A plain status line on the level the player is on (GameState::ShowStatus).
 	void Status(const std::string& text) const;

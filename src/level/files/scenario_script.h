@@ -39,6 +39,8 @@ enum class CommandType : unsigned char {
 	Dump,
 	Expect,
 	Key,
+	Pad, // plan sdl3-gamepad
+	Stick,
 	Give,
 	Chest,
 	Select,

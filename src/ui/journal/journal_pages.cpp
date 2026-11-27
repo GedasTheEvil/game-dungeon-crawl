@@ -423,7 +423,7 @@ void JournalScreen::DrawDiary(const Rect& p, int index) {
 		y -= l.empty() ? step / 2 : step;
 	}
 	if (closesTo != nullptr && index == PageCount(Section::Diary) - 1) {
-		std::string hint = keyCapOf(world.settings.controls, BindAction::Journal) + " or Esc " + closesTo;
+		std::string hint = keyCapOf(world.settings.controls, BindAction::Journal, world.caps) + " or Esc " + closesTo;
 		textCentered(handSmall, p.cx(), p.y + COMMENT_BOTTOM - COMMENT_STEP, hint.c_str(), PENCIL, FADED);
 	}
 	beginShapes();

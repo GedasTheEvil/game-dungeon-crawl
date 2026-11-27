@@ -35,7 +35,7 @@ std::string spoken(const Binding& binding) {
 
 std::string bindingCaps(const Binding& binding) {
 	std::string out;
-	for (int slot = 0; slot < BINDING_SLOTS; slot++)
+	for (int slot = 0; slot < PAD_SLOT; slot++) // the keyboard and the mouse: How to Play names no pad buttons
 		if (const InputKey& key = binding.Slot(slot); key.Bound())
 			out += (out.empty() ? "" : " / ") + keyCap(key);
 	return out.empty() ? "-" : out;

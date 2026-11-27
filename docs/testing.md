@@ -158,6 +158,8 @@ its getter in `src/test/scenario_fields.cpp`. The unit tests fail until this pag
 | `gifts on\|off` | Every shrine offering brings a gift ([offering-gift](plan/solved/offering-gift.feature.md)); the god's weights still pick which. Off by default. |
 | `screenshot name` | Save the next frame as `NNN_name.png`. |
 | `key C` | Key press, as typed: one character or `enter`, `esc`, `space`, `tab`, `backspace` (`key i` opens the inventory), or a special key by its name in [settings.md](settings.md) (`key left`, `key f12`, `key f1`). |
+| `pad B [up\|ps]` | A gamepad button goes down (`up`: lets go), by its name in [settings.md](settings.md) without `pad_` (`pad a`, `pad lt`, `pad dpad_up`; plan sdl3-gamepad): in the game its binding, on a screen the d-pad is the arrows, `a` Enter, `b` Esc; `start` is Esc. The HUD shows the pad's key caps after it, a PlayStation pad's with `ps`. |
+| `stick left\|right X Y` | A gamepad stick moves to X, Y (-1..1 each, y down): the left one past the dead zone holds the walk and climb keys (on a screen: an arrow), the right one turns the look each tick until it is back at 0 0. |
 | `hurt N` | The player loses N HP straight away (no armour, ignores `god`), to test healing and the HUD. |
 | `stamina inf\|off` | `inf` keeps the player's stamina full (every spend is refilled at once, as `god` cancels damage); `off` ends it. Off by default; a level load keeps it, as `god` does. The HUD and the stamina potions behave as usual (the bar just stays full). `tire N` while `inf` is on drains for one tick only (it refills the next). |
 | `stamina N` | Set the stamina to N straight away (clamped to the max), for tests of the low-stamina rules. |

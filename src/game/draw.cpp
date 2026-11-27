@@ -383,7 +383,7 @@ void drawGameplay() {
 	const bool prompt = Game().player->Alive() && !Game().dungeon.Won() && !Game().dungeon.Travelling();
 	InteractPrompt::draw(
 		prompt ? Game().dungeon.InteractVerb() : Interaction::None,
-		keyCapOf(Game().settings.controls, BindAction::Interact),
+		keyCapOf(Game().settings.controls, BindAction::Interact, Game().caps),
 		Game().render.resX,
 		Game().render.resY,
 		Game().assets.fonts.hudBody,

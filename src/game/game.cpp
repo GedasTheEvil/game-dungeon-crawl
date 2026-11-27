@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 	bool isScenario = Scenario::active();
 
 	try {
-		if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+		if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
 			LOG_ERRORF("game", "SDL initialization failed: %s", SDL_GetError());
 			return -1;
 		}

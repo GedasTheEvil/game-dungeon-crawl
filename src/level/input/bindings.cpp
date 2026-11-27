@@ -48,6 +48,49 @@ const NamedKey NAMED[] = {
 	{"mouse_right", "RMB", {InputKey::Kind::Mouse, 2}},
 };
 
+// A gamepad button: its name in the file (the Xbox name, by place), its Xbox cap and its PlayStation cap.
+struct NamedPad {
+	const char* name;
+	const char* xbox;
+	const char* playstation;
+	int button;
+};
+const char PS_CROSS[] = {PadGlyph::CROSS, 0};
+const char PS_CIRCLE[] = {PadGlyph::CIRCLE, 0};
+const char PS_SQUARE[] = {PadGlyph::SQUARE, 0};
+const char PS_TRIANGLE[] = {PadGlyph::TRIANGLE, 0};
+const char DPAD_UP[] = {'D', PadGlyph::ARROW_UP, 0};
+const char DPAD_DOWN[] = {'D', PadGlyph::ARROW_DOWN, 0};
+const char DPAD_LEFT[] = {'D', PadGlyph::ARROW_LEFT, 0};
+const char DPAD_RIGHT[] = {'D', PadGlyph::ARROW_RIGHT, 0};
+const NamedPad PADS[] = {
+	{"pad_a", "A", PS_CROSS, PadButton::SOUTH},
+	{"pad_b", "B", PS_CIRCLE, PadButton::EAST},
+	{"pad_x", "X", PS_SQUARE, PadButton::WEST},
+	{"pad_y", "Y", PS_TRIANGLE, PadButton::NORTH},
+	{"pad_back", "Back", "Share", PadButton::BACK},
+	{"pad_start", "Start", "Options", PadButton::START},
+	{"pad_ls", "LS", "L3", PadButton::LEFT_STICK},
+	{"pad_rs", "RS", "R3", PadButton::RIGHT_STICK},
+	{"pad_lb", "LB", "L1", PadButton::LEFT_SHOULDER},
+	{"pad_rb", "RB", "R1", PadButton::RIGHT_SHOULDER},
+	{"pad_dpad_up", DPAD_UP, DPAD_UP, PadButton::DPAD_UP},
+	{"pad_dpad_down", DPAD_DOWN, DPAD_DOWN, PadButton::DPAD_DOWN},
+	{"pad_dpad_left", DPAD_LEFT, DPAD_LEFT, PadButton::DPAD_LEFT},
+	{"pad_dpad_right", DPAD_RIGHT, DPAD_RIGHT, PadButton::DPAD_RIGHT},
+	{"pad_lt", "LT", "L2", PadButton::LEFT_TRIGGER},
+	{"pad_rt", "RT", "R2", PadButton::RIGHT_TRIGGER},
+};
+
+const NamedPad* namedPad(const InputKey& key) {
+	if (key.kind != InputKey::Kind::Pad)
+		return nullptr;
+	for (const NamedPad& entry : PADS)
+		if (entry.button == key.code)
+			return &entry;
+	return nullptr;
+}
+
 const NamedKey* named(const InputKey& key) {
 	for (const NamedKey& entry : NAMED)
 		if (entry.key == key)
@@ -89,6 +132,7 @@ constexpr ActionInfo ACTIONS[BIND_ACTION_COUNT] = {
 
 InputKey ch(unsigned char c) { return InputKey::Char(c); }
 InputKey sp(int key) { return InputKey::Special(key); }
+InputKey pad(int button) { return InputKey::Pad(button); }
 InputKey none() { return {}; }
 
 std::string trim(const std::string& s) {
@@ -110,7 +154,7 @@ const InputKey* Binding::First() const {
 
 Bindings::Bindings() {
 	auto set = [this](BindAction action, InputKey a, InputKey b, InputKey mouse) {
-		table[std::to_underlying(action)] = {{a, b}, mouse};
+		table[std::to_underlying(action)] = {{a, b}, mouse, {}};
 	};
 	set(BindAction::MoveLeft, ch('a'), sp(SpecialKey::LEFT), none());
 	set(BindAction::MoveRight, ch('d'), sp(SpecialKey::RIGHT), none());
@@ -136,6 +180,40 @@ Bindings::Bindings() {
 	set(BindAction::Map, ch('m'), none(), none());
 	set(BindAction::Journal, ch('j'), none(), none());
 	set(BindAction::Skills, ch('k'), none(), none());
+
+	// The gamepad (plan sdl3-gamepad): the left stick walks and climbs and the right stick looks (fixed), so the d-pad
+	// is the potions and the map; the face buttons jump, attack, interact and drag; Start is the menu (fixed).
+	auto setPad = [this](BindAction action, int button) { table[std::to_underlying(action)].pad = pad(button); };
+	setPad(BindAction::Jump, PadButton::SOUTH);
+	setPad(BindAction::Interact, PadButton::EAST);
+	setPad(BindAction::Attack, PadButton::WEST);
+	setPad(BindAction::Drag, PadButton::NORTH);
+	setPad(BindAction::EquipMelee, PadButton::LEFT_SHOULDER);
+	setPad(BindAction::EquipRanged, PadButton::RIGHT_SHOULDER);
+	setPad(BindAction::Sprint, PadButton::LEFT_TRIGGER);
+	setPad(BindAction::StaminaSkills, PadButton::RIGHT_TRIGGER);
+	setPad(BindAction::QuickHeal, PadButton::DPAD_UP);
+	setPad(BindAction::QuickStamina, PadButton::DPAD_RIGHT);
+	setPad(BindAction::QuickAntidote, PadButton::DPAD_LEFT);
+	setPad(BindAction::Map, PadButton::DPAD_DOWN);
+	setPad(BindAction::Inventory, PadButton::BACK);
+	setPad(BindAction::Journal, PadButton::LEFT_STICK);
+	setPad(BindAction::Skills, PadButton::RIGHT_STICK);
+}
+
+bool fitsSlot(const InputKey& key, int slot) {
+	switch (key.kind) {
+	case InputKey::Kind::Mouse:
+		return slot == MOUSE_SLOT;
+	case InputKey::Kind::Pad:
+		return slot == PAD_SLOT;
+	case InputKey::Kind::Char:
+	case InputKey::Kind::Special:
+		return slot == 0 || slot == 1;
+	case InputKey::Kind::None:
+		break;
+	}
+	return true;
 }
 
 std::optional<BindAction> Bindings::ActionFor(const InputKey& key) const {
@@ -219,12 +297,16 @@ const char* bindActionName(BindAction action) { return ACTIONS[std::to_underlyin
 const char* bindActionLabel(BindAction action) { return ACTIONS[std::to_underlying(action)].label; }
 
 bool isReservedKey(const InputKey& key) {
+	if (key.kind == InputKey::Kind::Pad)
+		return key.code == PadButton::START;
 	if (key.kind == InputKey::Kind::Char)
 		return key.code == ESCAPE;
 	return key.kind == InputKey::Kind::Special && key.code >= SpecialKey::F1 && key.code <= SpecialKey::F11;
 }
 
 std::string keyName(const InputKey& key) {
+	if (const NamedPad* entry = namedPad(key))
+		return entry->name;
 	if (const NamedKey* entry = named(key))
 		return entry->name;
 	if (key.kind == InputKey::Kind::Char && key.code > ' ' && key.code < 127)
@@ -241,6 +323,9 @@ std::optional<InputKey> parseKeyName(const std::string& name) {
 	for (const NamedKey& entry : NAMED)
 		if (lower == entry.name)
 			return entry.key;
+	for (const NamedPad& entry : PADS)
+		if (lower == entry.name)
+			return InputKey::Pad(entry.button);
 	if (lower.size() == 1 && lower[0] > ' ' && lower[0] < 127)
 		return InputKey::Char(static_cast<unsigned char>(lower[0]));
 	int f = 0;
@@ -251,12 +336,21 @@ std::optional<InputKey> parseKeyName(const std::string& name) {
 	return std::nullopt;
 }
 
-std::string keyCapOf(const Bindings& bindings, BindAction action) {
+std::string keyCapOf(const Bindings& bindings, BindAction action, Caps caps) {
+	if (caps != Caps::Keys) {
+		const InputKey& pad = bindings.Of(action).pad;
+		return pad.Bound() ? keyCap(pad, caps) : "";
+	}
 	const InputKey* key = bindings.Of(action).First();
 	return key ? keyCap(*key) : "";
 }
 
-std::string equipKeysCap(const Bindings& controls) {
+std::string equipKeysCap(const Bindings& controls, Caps caps) {
+	if (caps != Caps::Keys) {
+		const std::string melee = keyCapOf(controls, BindAction::EquipMelee, caps);
+		const std::string ranged = keyCapOf(controls, BindAction::EquipRanged, caps);
+		return melee + (melee.empty() || ranged.empty() ? "" : " ") + ranged;
+	}
 	const InputKey* melee = controls.Of(BindAction::EquipMelee).First();
 	const InputKey* ranged = controls.Of(BindAction::EquipRanged).First();
 	if (melee != nullptr && ranged != nullptr && melee->kind == InputKey::Kind::Char &&
@@ -265,7 +359,9 @@ std::string equipKeysCap(const Bindings& controls) {
 	return keyCapOf(controls, BindAction::EquipMelee) + keyCapOf(controls, BindAction::EquipRanged);
 }
 
-std::string keyCap(const InputKey& key) {
+std::string keyCap(const InputKey& key, Caps caps) {
+	if (const NamedPad* entry = namedPad(key))
+		return caps == Caps::PlayStation ? entry->playstation : entry->xbox;
 	if (const NamedKey* entry = named(key))
 		return entry->cap;
 	if (key.kind == InputKey::Kind::Char && key.code > ' ' && key.code < 127)
@@ -277,7 +373,7 @@ std::string keyCap(const InputKey& key) {
 
 std::string formatBinding(const Binding& binding) {
 	std::string out;
-	for (int s = 0; s < BINDING_SLOTS; s++)
+	for (int s = 0; s < PAD_SLOT; s++)
 		if (const InputKey& key = binding.Slot(s); key.Bound())
 			out += (out.empty() ? "" : ", ") + keyName(key);
 	return out.empty() ? "none" : out;
@@ -285,6 +381,7 @@ std::string formatBinding(const Binding& binding) {
 
 std::string parseBinding(const std::string& value, Binding& binding) {
 	Binding parsed;
+	parsed.pad = binding.pad;
 	if (trim(value) == "none") {
 		binding = parsed;
 		return "";
@@ -301,7 +398,9 @@ std::string parseBinding(const std::string& value, Binding& binding) {
 			return "unknown key '" + name + "'";
 		if (isReservedKey(*key))
 			return "'" + name + "' cannot be bound";
-		if (parsed.Has(*key))
+		if (key->kind == InputKey::Kind::Pad)
+			return "'" + name + "' is a gamepad button: bind it in [gamepad]";
+		if (parsed.keys[0] == *key || parsed.keys[1] == *key || parsed.mouse == *key)
 			continue;
 		if (key->kind == InputKey::Kind::Mouse) {
 			if (parsed.mouse.Bound())
@@ -314,5 +413,22 @@ std::string parseBinding(const std::string& value, Binding& binding) {
 		}
 	}
 	binding = parsed;
+	return "";
+}
+
+std::string formatPadBinding(const Binding& binding) { return binding.pad.Bound() ? keyName(binding.pad) : "none"; }
+
+std::string parsePadBinding(const std::string& value, Binding& binding) {
+	const std::string name = trim(value);
+	if (name == "none") {
+		binding.pad = {};
+		return "";
+	}
+	std::optional<InputKey> key = parseKeyName(name);
+	if (!key || key->kind != InputKey::Kind::Pad)
+		return "'" + name + "' is no gamepad button";
+	if (isReservedKey(*key))
+		return "'" + name + "' cannot be bound";
+	binding.pad = *key;
 	return "";
 }

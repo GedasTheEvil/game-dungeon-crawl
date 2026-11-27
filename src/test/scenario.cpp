@@ -425,6 +425,17 @@ void runInputCommand(const Command& cmd) {
 			keyPressed(static_cast<unsigned char>(cmd.a), 0, 0);
 		report(cmd, true, std::string("screen=") + screenName());
 		return;
+	case CommandType::Pad: // plan sdl3-gamepad
+		if (cmd.b == 1.f)
+			padReleased(static_cast<int>(cmd.a));
+		else
+			padPressed(static_cast<int>(cmd.a), cmd.b == 2.f ? Caps::PlayStation : Caps::Xbox);
+		report(cmd, true, std::string("screen=") + screenName());
+		return;
+	case CommandType::Stick:
+		padStickMoved(cmd.ticks == 1, cmd.a, cmd.b, Caps::Xbox);
+		report(cmd, true, "");
+		return;
 	case CommandType::Mouse:
 	case CommandType::Press:
 	case CommandType::Release:
@@ -802,6 +813,8 @@ bool runInstant(const Command& cmd) {
 	case CommandType::Sprint:
 	case CommandType::Crouch:
 	case CommandType::Key:
+	case CommandType::Pad:
+	case CommandType::Stick:
 	case CommandType::Mouse:
 	case CommandType::Press:
 	case CommandType::Release:

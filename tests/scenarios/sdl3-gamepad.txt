@@ -1,0 +1,35 @@
+# Plan sdl3-gamepad: the left stick walks, the right stick looks, the pad's buttons act and open the screens, the
+# HUD names the pad's buttons (a PlayStation pad's: the symbols) and the keys again after a key.
+god
+level 1
+give potion 0 2
+give potion 5
+wait 5
+screenshot keys
+stick left -1 0
+wait 20
+stick left 0 0
+expect x < 25.8
+stick right 1 0
+wait 10
+stick right 0 0
+pad dpad_up ps
+pad dpad_up up
+screenshot ps_caps
+pad x
+pad x up
+screenshot xbox_caps
+pad back
+wait 2
+screenshot inventory
+pad dpad_right
+pad b
+wait 2
+pad start
+wait 2
+screenshot menu
+pad b
+wait 2
+key a
+wait 2
+screenshot keys_again

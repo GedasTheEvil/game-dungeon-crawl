@@ -92,6 +92,29 @@ std::optional<InputKey> physical(SDL_Scancode scancode, bool numLock) {
 	return std::nullopt;
 }
 
+static_assert(SDL_GAMEPAD_BUTTON_SOUTH == PadButton::SOUTH && SDL_GAMEPAD_BUTTON_NORTH == PadButton::NORTH);
+static_assert(SDL_GAMEPAD_BUTTON_BACK == PadButton::BACK && SDL_GAMEPAD_BUTTON_START == PadButton::START);
+static_assert(SDL_GAMEPAD_BUTTON_LEFT_SHOULDER == PadButton::LEFT_SHOULDER);
+static_assert(SDL_GAMEPAD_BUTTON_DPAD_RIGHT == PadButton::DPAD_RIGHT);
+
+std::optional<int> padButton(SDL_GamepadButton button) {
+	const int code = std::to_underlying(button);
+	if (code < 0 || code > PadButton::DPAD_RIGHT || button == SDL_GAMEPAD_BUTTON_GUIDE)
+		return std::nullopt;
+	return code; // PadButton keeps SDL's numbers
+}
+
+Caps padCaps(SDL_GamepadType type) {
+	switch (type) {
+	case SDL_GAMEPAD_TYPE_PS3:
+	case SDL_GAMEPAD_TYPE_PS4:
+	case SDL_GAMEPAD_TYPE_PS5:
+		return Caps::PlayStation;
+	default:
+		return Caps::Xbox;
+	}
+}
+
 unsigned char typed(SDL_Keycode key) {
 	if ((key >= ' ' && key <= '~') || key == SDLK_RETURN || key == SDLK_ESCAPE || key == SDLK_TAB ||
 		key == SDLK_BACKSPACE || key == SDLK_DELETE)

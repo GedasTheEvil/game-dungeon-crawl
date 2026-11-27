@@ -51,7 +51,7 @@ std::shared_ptr<TrueTypeFace> TrueTypeFace::Open(const char* filename) {
 	result->impl->face = face;
 	const auto em = static_cast<float>(face->units_per_EM);
 	for (int glyph = 0; glyph < GLYPHS; glyph++) {
-		const FT_UInt index = FT_Get_Char_Index(face, static_cast<FT_ULong>(glyph) + FIRST_CHAR);
+		const FT_UInt index = FT_Get_Char_Index(face, glyphCodePoint(glyph));
 		result->impl->index[static_cast<size_t>(glyph)] = index;
 		if (FT_Load_Glyph(face, index, FT_LOAD_NO_SCALE) == 0)
 			result->advance[static_cast<size_t>(glyph)] = static_cast<float>(face->glyph->metrics.horiAdvance) / em;

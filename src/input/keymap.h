@@ -1,6 +1,7 @@
 #ifndef KEYMAP_H
 #define KEYMAP_H
 
+#include <SDL3/SDL_gamepad.h>
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_scancode.h>
 #include <optional>
@@ -20,6 +21,11 @@ namespace Keymap {
 // fields (the riddle's answer, the Hall of Records name). 0: not printable ASCII and not Enter, Esc, Tab, Backspace or
 // Delete.
 [[nodiscard]] unsigned char typed(SDL_Keycode key);
+
+// A gamepad button as the game's (PadButton, plan sdl3-gamepad); none for Guide and the extra paddles.
+[[nodiscard]] std::optional<int> padButton(SDL_GamepadButton button);
+// The key caps of a pad's family: PlayStation names on a PS3 / PS4 / PS5 pad, else Xbox ones.
+[[nodiscard]] Caps padCaps(SDL_GamepadType type);
 
 } // namespace Keymap
 

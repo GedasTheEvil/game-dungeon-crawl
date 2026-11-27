@@ -1,6 +1,6 @@
 # Gamepad controls on SDL3
 
-Status: draft 2026-11-18, size M, needs nothing first. On hold: needs a physical gamepad: stick dead zone, look speed and button layout are tuned by feel, and the play-test needs a pad.
+Status: draft 2026-11-18, size M, needs nothing first.
 
 ## Idea
 
@@ -20,7 +20,11 @@ GLUT had none, so the game has no pad support yet.
 * The left stick past a dead zone is the move keys held (`setWalkHeld`); the right stick turns the look like the held
   pointer (`turnCamera`, scaled by the mouse sensitivity or its own option).
 * Menus and the UI screens: the d-pad and the stick are the arrows (`NavKey`), A activates, B is Esc.
-* HUD key caps (`keyCap`): the pad's button names when the last input came from the pad.
+* HUD key caps (`keyCap`): the pad's button names when the last input came from the pad. Names follow the pad
+  family (`SDL_GetGamepadType` / `SDL_GetGamepadButtonLabel`): A B X Y on Xbox-style pads, ✕ ○ □ △ (Share, Options,
+  L1 R1 L2 R2) on PlayStation pads. The bindings stay positional (`pad_a` is the bottom face button on every pad).
+* Test pad: a DualShock 4 (USB or Bluetooth). Without hidraw access SDL falls back to evdev; buttons and sticks
+  still work.
 
 ## Play-test
 
@@ -28,3 +32,4 @@ GLUT had none, so the game has no pad support yet.
   right stick.
 * The menu, the inventory and the journal work with the d-pad, A and B; Options > Controls binds a pad button.
 * Unplug and plug again: no crash, the pad works again.
+* On a PlayStation pad the HUD shows ✕ ○ □ △; after a key press it shows the keys again.

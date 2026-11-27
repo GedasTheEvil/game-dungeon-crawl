@@ -1,5 +1,6 @@
 #ifndef MENU_H
 #define MENU_H
+#include <array>
 #include <functional>
 #include <memory>
 #include <string>
@@ -34,7 +35,9 @@ class MainMenu {
 	static constexpr int OPTION_BASE =
 		300; // Options > Look / Display / Graphics / Sound: the row's switch, choice or slider
 	static constexpr int RESET_CONTROLS = 390; // Options > Controls: back to the default keys
+	static constexpr int RESET_PAD = 391; // Options > Gamepad: back to the default pad buttons
 	static constexpr int BIND_BASE = 400; // Options > Controls: action * BINDING_SLOTS + slot
+	static constexpr int PAD_BASE = 500; // Options > Gamepad: a pad button's label, + PadButton
 	static constexpr int RECORDS_BASE = 600; // Hall of Records: its own targets (RecordsView)
 	static constexpr int DELETE_BASE = 700; // Save / Load Game: a used slot's delete button, + slot
 
@@ -48,6 +51,10 @@ class MainMenu {
 	int optionsTab = 0;
 	int capturing = NONE; // the BIND_BASE target waiting for a key or a mouse button
 	int dragging = NONE; // the slider the mouse went down on
+	// Options > Gamepad: the pad button whose label was stepped last, and every action's pad button before its first
+	// step. Each step starts from them, so stepping past another button's action takes it only while it stays there.
+	int padStepping = NONE;
+	std::array<InputKey, BIND_ACTION_COUNT> padBefore{};
 	RecordsView records;
 	std::vector<CreditsGroup> credits; // content/credits, the second page (plan credits-second-section)
 	bool creditsText = false; // the credits page shown: the text, not the sheet
@@ -66,6 +73,12 @@ class MainMenu {
 	void DrawControls(float left, float right);
 	void DrawControlCell(int target, const ui::Rect& r);
 	void DrawRows();
+	void DrawGamepad(); // menu_gamepad.cpp (plan gamepad-options-tab)
+	void DrawPadLabel(int callout);
+	[[nodiscard]] static bool IsPadTarget(int target) { return target >= PAD_BASE && target < RECORDS_BASE; }
+	void StepPad(int button, int step); // the button to the next (1) or the previous (-1) action, or none
+	void ClearPad(int button);
+	void ResetPad();
 	void DrawFooterHint();
 	void ActivateOption(int row, int step = 1); // a switch flips, a choice steps on (1) or back (-1)
 	void StepOption(int row, int step); // Left / Right on a row: also a slider, by 5

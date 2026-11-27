@@ -49,20 +49,20 @@ constexpr std::array<OptionRow, 5> GRAPHICS_ROWS = {{
 	{OptionId::LightFlicker, OptionKind::Switch, "Light flicker", "Torches, braziers and lamps flicker"},
 	{OptionId::CutScenes, OptionKind::Switch, "Cut-scenes", "The view goes to a far gate as it opens"},
 }};
-// Plan settings-extras: the mouse rows, and the camera's recentre beside them; plan sdl3-gamepad: the sticks'.
-constexpr std::array<OptionRow, 6> MOUSE_ROWS = {{
+// Plan settings-extras: the mouse rows, and the camera's recentre beside them.
+constexpr std::array<OptionRow, 3> MOUSE_ROWS = {{
 	{OptionId::MouseSensitivity, OptionKind::Slider, "Mouse sensitivity", "How far the view turns as the mouse moves"},
 	{OptionId::InvertY, OptionKind::Switch, "Invert mouse Y", "Moving the mouse up looks down"},
 	{OptionId::CameraRecenter,
 	 OptionKind::Switch,
 	 "Camera recentre",
 	 "A look-key or stick peek eases back when left alone"},
-	{OptionId::PadLookSpeed,
-	 OptionKind::Slider,
-	 "Stick look speed",
-	 "How fast the gamepad's right stick turns the view"},
-	{OptionId::PadDeadZone, OptionKind::Slider, "Stick dead zone", "How far a stick moves before it counts"},
-	{OptionId::PadInvertY, OptionKind::Switch, "Invert stick Y", "The right stick pushed up looks down"},
+}};
+// Plan sdl3-gamepad: the sticks' rows; plan gamepad-options-tab moved them under the drawing of the pad.
+constexpr std::array<OptionRow, 3> PAD_ROWS = {{
+	{OptionId::PadLookSpeed, OptionKind::Slider, "Look speed", "How fast the right stick turns the view"},
+	{OptionId::PadDeadZone, OptionKind::Slider, "Dead zone", "How far a stick moves before it counts"},
+	{OptionId::PadInvertY, OptionKind::Switch, "Invert Y", "The right stick pushed up looks down"},
 }};
 constexpr std::array<OptionRow, 4> SOUND_ROWS = {{
 	{OptionId::Master, OptionKind::Slider, "Master volume", "Scales the music and the effects"},
@@ -80,6 +80,8 @@ OptionRows optionRows(int tab) {
 		return {GRAPHICS_ROWS.data(), static_cast<int>(GRAPHICS_ROWS.size())};
 	if (tab == MOUSE_TAB)
 		return {MOUSE_ROWS.data(), static_cast<int>(MOUSE_ROWS.size())};
+	if (tab == GAMEPAD_TAB)
+		return {PAD_ROWS.data(), static_cast<int>(PAD_ROWS.size())};
 	return {DISPLAY_ROWS.data(), 0}; // the Controls tab has its own table
 }
 
@@ -164,17 +166,36 @@ void drawCalibration(const Rect& control) {
 	drawIcon(Icon::Ankh, box.cx(), box.cy(), box.h * 0.45f, {NEAR_BLACK, NEAR_BLACK, NEAR_BLACK});
 }
 
-Rect optionBand(int row) {
+// The Gamepad tab's strip: two halves a line, the rows left to right, top to bottom; the reset button after the last.
+Rect padStripBand(int index) {
+	const float halfW = (OPTIONS_RIGHT - OPTIONS_LEFT - PAD_STRIP_GAP) / 2;
+	const float x = OPTIONS_LEFT + static_cast<float>(index % 2) * (halfW + PAD_STRIP_GAP);
+	const int line = index / 2;
+	const float y = PAD_STRIP_TOP - static_cast<float>(line + 1) * (PAD_STRIP_H + 1.f);
+	return {x, y, halfW, PAD_STRIP_H};
+}
+
+Rect optionBand(int tab, int row) {
+	if (tab == GAMEPAD_TAB)
+		return padStripBand(row);
 	float y = OPTION_TOP - static_cast<float>(row + 1) * OPTION_H;
 	return {OPTIONS_LEFT, y + 0.5f, OPTIONS_RIGHT - OPTIONS_LEFT, OPTION_H - 1.f};
 }
 
 // The switch, the choice or the slider's track (the mouse target) of a row.
-Rect optionControl(int row, OptionKind kind) {
-	Rect band = optionBand(row);
-	float w = kind == OptionKind::Switch ? SWITCH_W : kind == OptionKind::Choice ? CHOICE_W : SLIDER_W;
-	float right = band.x + band.w - 3.f - (kind == OptionKind::Slider ? SLIDER_VALUE_W : 0.f);
+Rect optionControl(int tab, int row, OptionKind kind) {
+	Rect band = optionBand(tab, row);
+	const bool strip = tab == GAMEPAD_TAB;
+	float w = kind == OptionKind::Switch   ? (strip ? PAD_SWITCH_W : SWITCH_W)
+			  : kind == OptionKind::Choice ? CHOICE_W
+										   : (strip ? PAD_SLIDER_W : SLIDER_W);
+	float right = band.x + band.w - (strip ? 1.5f : 3.f) - (kind == OptionKind::Slider ? SLIDER_VALUE_W : 0.f);
 	return {right - w, band.y + 0.5f, w, band.h - 1.f};
+}
+
+Rect padResetButton() {
+	const Rect band = padStripBand(static_cast<int>(PAD_ROWS.size()));
+	return band.inset(0.5f);
 }
 
 // Controls tab: row `index` (an action, or the reset button after the last) in its column.
@@ -212,8 +233,11 @@ void MainMenu::DrawOptions() {
 
 	if (optionsTab == CONTROLS_TAB)
 		DrawControls(OPTIONS_LEFT, OPTIONS_RIGHT);
-	else
+	else {
+		if (optionsTab == GAMEPAD_TAB)
+			DrawGamepad(); // menu_gamepad.cpp
 		DrawRows();
+	}
 }
 
 // One row a setting: its name and what it does, its switch, choice or slider on the right.
@@ -224,9 +248,10 @@ void MainMenu::DrawRows() {
 		const OptionRow& row = rows[i];
 		const int target = OPTION_BASE + i;
 		const bool isHovered = pointer.hovered == target || dragging == target;
-		Rect band = optionBand(i);
-		Rect control = optionControl(i, row.kind);
-		if (i % 2 == 0)
+		Rect band = optionBand(optionsTab, i);
+		Rect control = optionControl(optionsTab, i, row.kind);
+		const bool strip = optionsTab == GAMEPAD_TAB; // the name only, the hint a tooltip
+		if (strip || i % 2 == 0)
 			fillRect(band, {1, 1, 1}, {1, 1, 1}, 0.035f);
 
 		char value[24] = "";
@@ -286,13 +311,20 @@ void MainMenu::DrawRows() {
 		}
 
 		beginText();
+		if (strip) {
+			textMiddle(body, band.x + 2.f, band.cy(), row.name, LABEL);
+			if (isHovered)
+				tooltip(control, row.hint);
+		}
 		// The name over the hint, the pair centred on the band: from the hint's descenders (about a third of its
 		// cap height under its baseline) to the name's cap top (plan sharp-text-ttf: it sat a unit high).
 		constexpr float LINE_GAP = 2.3f; // baseline to baseline
 		const float descent = small.CapHeight() / 3.f;
 		const float hintBaseline = band.cy() - (LINE_GAP + body.CapHeight() - descent) / 2.f;
-		text(body, band.x + 3.f, hintBaseline + LINE_GAP - body.Baseline(), row.name, LABEL);
-		text(small, band.x + 3.f, hintBaseline - small.Baseline(), row.hint, LABEL_DIM);
+		if (!strip) {
+			text(body, band.x + 3.f, hintBaseline + LINE_GAP - body.Baseline(), row.name, LABEL);
+			text(small, band.x + 3.f, hintBaseline - small.Baseline(), row.hint, LABEL_DIM);
+		}
 		if (row.kind == OptionKind::Slider)
 			textMiddle(heading, control.x + control.w + 2.5f, control.cy(), value, isHovered ? GOLD_BRIGHT : GOLD);
 		else
@@ -351,7 +383,6 @@ void MainMenu::DrawControls(float left, float right) {
 		text(small, first.x + 1.5f, TABLE_TOP, "Action", LABEL);
 		text(small, first.x + CELL_X + 0.5f, TABLE_TOP, "Keys", LABEL);
 		text(small, first.x + CELL_X + MOUSE_SLOT * CELL_STEP + 0.5f, TABLE_TOP, "Mouse", LABEL);
-		text(small, first.x + CELL_X + PAD_SLOT * CELL_STEP + 0.5f, TABLE_TOP, "Pad", LABEL);
 		beginShapes();
 	}
 	for (int i = 0; i < BIND_ACTION_COUNT; i++) {
@@ -361,7 +392,7 @@ void MainMenu::DrawControls(float left, float right) {
 		beginText();
 		text(body, row.x + 1.5f, row.y + 0.5f, bindActionLabel(static_cast<BindAction>(i)), LABEL);
 		beginShapes();
-		for (int slot = 0; slot < BINDING_SLOTS; slot++)
+		for (int slot = 0; slot < CONTROLS_SLOTS; slot++)
 			DrawControlCell(BIND_BASE + i * BINDING_SLOTS + slot, controlCell(i, slot));
 	}
 
@@ -376,29 +407,21 @@ void MainMenu::DrawControls(float left, float right) {
 		"Fixed:  Esc menu / back    F1 toon    F5 quick save    F9 quick load    mouse looks around",
 		LABEL_DIM
 	);
-	textCentered(
-		small,
-		(left + right) / 2,
-		FIXED_KEYS_Y - 2.8f,
-		"Pad:  Start menu    left stick walks, climbs    right stick looks    d-pad, A, B in the menus",
-		LABEL_DIM
-	);
 	beginShapes();
 }
 
 void MainMenu::DrawFooterHint() {
 	if (capturing == NONE) {
 		DrawFooter(
-			optionsTab == CONTROLS_TAB ? "Click or Enter: change a key    Esc: back"
-									   : "Arrows: move    Left / Right: change    Esc: back"
+			optionsTab == CONTROLS_TAB	? "Click or Enter: change a key    Esc: back"
+			: optionsTab == GAMEPAD_TAB ? "Click, Left / Right: the button's action    Delete: none    Esc: back"
+										: "Arrows: move    Left / Right: change    Esc: back"
 		);
 		return;
 	}
 	auto action = static_cast<BindAction>((capturing - BIND_BASE) / BINDING_SLOTS);
 	const int slot = (capturing - BIND_BASE) % BINDING_SLOTS;
-	const char* ask = slot == MOUSE_SLOT ? "Click a mouse button for "
-					  : slot == PAD_SLOT ? "Press a pad button for "
-										 : "Press a key for ";
+	const char* ask = slot == MOUSE_SLOT ? "Click a mouse button for " : "Press a key for ";
 	std::string hint = std::string(ask) + bindActionLabel(action) + "    Delete: clear    Esc: cancel";
 	DrawFooter(hint.c_str());
 }
@@ -479,7 +502,7 @@ void MainMenu::SetSlider(int row, int x) {
 	float cx = 0.f;
 	float cy = 0.f;
 	ui::toCanvas(visibleArea(world.render), world.render.resX, world.render.resY, x, 0, cx, cy);
-	Rect track = optionControl(row, option.kind);
+	Rect track = optionControl(optionsTab, row, option.kind);
 	const float t = std::clamp((cx - track.x) / track.w, 0.f, 1.f);
 	const SliderRange range = sliderRange(option.id);
 	const float steps = static_cast<float>(range.hi - range.lo) / static_cast<float>(range.step);
@@ -506,11 +529,7 @@ void MainMenu::CaptureKey(const InputKey& key) {
 		return;
 	}
 	if (!fitsSlot(key, slot)) {
-		ShowToast(
-			slot == MOUSE_SLOT ? "Click a mouse button, or Esc to cancel"
-			: slot == PAD_SLOT ? "Press a pad button, or Esc to cancel"
-							   : "Press a key, or Esc to cancel"
-		);
+		ShowToast(slot == MOUSE_SLOT ? "Click a mouse button, or Esc to cancel" : "Press a key, or Esc to cancel");
 		return;
 	}
 	Bind(key);

@@ -18,13 +18,16 @@ wait 2
 click 50 35.7
 wait 2
 screenshot options_controls
-click 37.5 76.5
+click 30 76.5
 wait 2
 screenshot options_mouse
-click 55.5 76.5
+click 43 76.5
+wait 2
+screenshot options_gamepad
+click 55.9 76.5
 wait 2
 screenshot options_display
-click 73.4 76.5
+click 81.8 76.5
 wait 2
 screenshot options_sound
 key esc

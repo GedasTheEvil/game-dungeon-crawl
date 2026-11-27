@@ -113,6 +113,19 @@ void ellipse(float x, float y, float rx, float ry, Color c, float alpha) {
 	b.end();
 }
 
+void disc(float x, float y, float rx, float ry, Color c, float alpha) {
+	constexpr int SEGMENTS = 32;
+	Batch& b = shapes();
+	b.begin(Primitive::TriangleFan);
+	b.colour(c.r, c.g, c.b, alpha);
+	b.vertex(x, y);
+	for (int i = 0; i <= SEGMENTS; i++) {
+		float a = 2.f * static_cast<float>(M_PI) * static_cast<float>(i) / SEGMENTS;
+		b.vertex(x + rx * std::cos(a), y + ry * std::sin(a));
+	}
+	b.end();
+}
+
 void cornerStuds(const Rect& r, float alpha) {
 	diamond(r.x, r.y, 1.2f, GOLD, alpha);
 	diamond(r.x + r.w, r.y, 1.2f, GOLD, alpha);

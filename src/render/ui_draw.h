@@ -91,7 +91,8 @@ void diamond(float x, float y, float size, Color c, float alpha);
 void triangle(float x0, float y0, float x1, float y1, float x2, float y2, Color c, float alpha);
 // Band around `inner`, `grow` wide, fading from alphaIn at the rect to alphaOut at the outer edge.
 void ring(const Rect& inner, float grow, Color c, float alphaIn, float alphaOut);
-void ellipse(float x, float y, float rx, float ry, Color c, float alpha);
+void ellipse(float x, float y, float rx, float ry, Color c, float alpha); // a glow: alpha fades to 0 at the edge
+void disc(float x, float y, float rx, float ry, Color c, float alpha); // filled evenly
 // Something new to read in the journal (plan journal-new-mark): a red dot with a dark rim, centred on (x, y).
 void newMark(float x, float y, float radius);
 // Framed panel: gradient fill, bronze outer frame, thin gold inner line and gold corner studs. frameAlpha fades

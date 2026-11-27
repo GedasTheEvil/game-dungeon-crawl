@@ -172,9 +172,9 @@ with white alpha 0.035 (Options).
 
 ### Options rows and key cells
 
-Options tabs: Controls, Mouse, Display, Graphics and Sound.
+Options tabs: Controls, Look, Gamepad, Display, Graphics and Sound.
 
-* Mouse, Display, Graphics and Sound: one striped row a setting (`MOUSE_ROWS`, `DISPLAY_ROWS`, `GRAPHICS_ROWS`,
+* Look, Display, Graphics and Sound: one striped row a setting (`MOUSE_ROWS`, `DISPLAY_ROWS`, `GRAPHICS_ROWS`,
   `SOUND_ROWS` in `menu_options.cpp`, at most ten): name in `body`
   `LABEL`, what it does in `small` `LABEL_DIM`, the control on the right. A row's kind picks the control: a switch
   (On / Off tile, lapis when on), a choice (stone tile with the value, a click steps to the next; disabled when it
@@ -184,6 +184,16 @@ Options tabs: Controls, Mouse, Display, Graphics and Sound.
 * Controls: two columns of rows, an action and three cells (two keys, the mouse button); the "Reset to defaults"
   stone tile ends the right column, the fixed keys are named in a `small` line under the table. A click on a cell
   waits for the input: the cell pulses lapis with "Press" (or "Click"), the footer says what it waits for.
+* Gamepad ([gamepad-options-tab](plan/gamepad-options-tab.feature.md), `menu_gamepad.cpp`, layout
+  `src/level/ui/pad_layout.h`): a flat drawing of the pad in the middle (shapes only: a `PAD_FILL` body with a
+  `GOLD_DIM` edge, the parts dark with gold edges, the face buttons' caps by the last used pad's family). Each part
+  has a label in a column left or right (its half of the pad) and a thin `GOLD_DIM` line to it, drawn under the
+  parts; the d-pad's right and the inner face button bend down round their neighbours. A bindable button's label is
+  a key cell: its cap by the drawing, its action (`-`: none) outside; the hovered one's line and part glow
+  `GOLD_BRIGHT`. The fixed parts (the sticks' moves, Start) are dim text. Under it a strip of the stick rows, two a
+  line, the name only (the hint is a tooltip), and "Reset pad to defaults". Stepping one label works from the pad
+  bindings as they were before its first step, so passing another button's action frees that button only while
+  the label stays on it.
 
 The choices are `GameState::settings`, kept in `saves/settings.ini` ([settings.md](settings.md)).
 `GameState::ApplySettings(true)` hands them to the renderer and the mixer and writes the file.

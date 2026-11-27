@@ -1,6 +1,6 @@
 # Gamepad tab in Options: a drawing of the pad with its bindings
 
-Status: draft 2026-11-27, size M, needs nothing first.
+Status: implemented 2026-11-27, waiting for the user's play-test. Was: draft 2026-11-27, size M, needs nothing first.
 
 ## Idea
 
@@ -33,6 +33,25 @@ https://i.pinimg.com/736x/7b/84/29/7b8429bf1a5e4de6fe70ec6df30ff188.jpg).
 * "Reset pad to defaults" button on the tab (resets the pad slots only).
 * Unit test: every bindable pad button has a label place (no two overlapping); scenario screenshot of the tab with an
   Xbox and a PlayStation family.
+
+## Done
+
+* Options has six tabs: Controls (keys and mouse, the old cell widths and one fixed-keys line), Look (mouse and
+  camera recentre), Gamepad, Display, Graphics, Sound.
+* Gamepad: the drawing in shapes (`ui::disc`, new: a filled ellipse), labels and lines from `PadLayout`
+  (`src/level/ui/pad_layout.h`, GL-free, `tests/unit/pad_layout_test.cpp`), drawing and input in
+  `src/ui/menu/menu_gamepad.cpp`. The lines run under the parts; the d-pad's right and the west face button bend down
+  round their neighbours. The stick rows are a strip of two a line under it, their hints tooltips.
+* A label: click, Enter or Right steps to the next action, a right click or Left to the one before, Delete to none.
+  Choice beyond the draft: the steps on one label start from the pad bindings as they were before its first step,
+  so stepping past Interact frees B only while the label stays there (else cycling would strip every button it
+  passes). The toast names a button that is freed.
+* Controls' "Reset to defaults" now resets the keys and the mouse only; the Gamepad tab's reset the pad buttons only.
+* Scenario `tests/scenarios/gamepad-options-tab.txt` (Xbox and PlayStation caps, a step and back); it replaces
+  `sdl3-gamepad-options.txt` (the Pad column's capture is gone). Snapshot refs for the option tabs updated
+  (`ui-options_*`, `effects-options_brightness`; `ui-credits` and `ui-status_over_banner` were off before this).
+
+Play: `bin/game --level 1`, Esc, Options, Gamepad.
 
 ## Play-test
 

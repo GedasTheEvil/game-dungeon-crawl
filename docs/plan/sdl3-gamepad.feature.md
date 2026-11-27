@@ -57,6 +57,6 @@ What was built, and where it left the plan above:
 
 * Plug a pad in while the game runs: walk, climb, jump, attack (also a power hit), interact, sprint, look with the
   right stick.
-* The menu, the inventory and the journal work with the d-pad, A and B; Options > Controls binds a pad button.
+* The menu, the inventory and the journal work with the d-pad, A and B; Options > Gamepad binds a pad button (it was the Pad column of Options > Controls until [gamepad-options-tab](gamepad-options-tab.feature.md)).
 * Unplug and plug again: no crash, the pad works again.
 * With the DualShock the HUD names its buttons (L1 R1, D▲, the interact prompt ○); after a key press the keys again.

@@ -45,12 +45,13 @@ constexpr int AUTOSAVE_TARGET = SaveSlots::COUNT; // the click target after the 
 constexpr int QUICKSAVE_TARGET = AUTOSAVE_TARGET + 1; // plan quick-save: right of the autosave
 
 constexpr Rect OPTIONS_PANEL = {6, 20, 148, 64};
-constexpr float TAB_W = 26.f; // five tabs across OPTIONS_PANEL
+constexpr float TAB_W = 21.f; // six tabs across OPTIONS_PANEL
 constexpr float TAB_H = 7.f;
 constexpr float OPTIONS_LEFT = OPTIONS_PANEL.x + 5; // the tab contents, the rule under the tabs
 constexpr float OPTIONS_RIGHT = OPTIONS_PANEL.x + OPTIONS_PANEL.w - 5;
 
-// Controls tab: two columns of rows; a row is the action, its two key cells, its mouse cell and its pad cell.
+// Controls tab: two columns of rows; a row is the action, its two key cells and its mouse cell. The pad's buttons are
+// on the Gamepad tab (plan gamepad-options-tab).
 constexpr float TABLE_TOP = 70.2f; // header baseline
 constexpr float TABLE_RULE = TABLE_TOP - 1.1f;
 constexpr float ROW_H = 3.5f;
@@ -58,9 +59,10 @@ constexpr int ROWS_PER_COLUMN = 12;
 constexpr float COLUMN_W = 68.f;
 constexpr float COLUMN_GAP = 2.f;
 constexpr float CELL_X = 29.f; // from the column's left edge
-constexpr float CELL_STEP = 9.8f; // two key cells, the mouse cell and the pad cell
-constexpr float CELL_W = 9.2f;
-constexpr float FIXED_KEYS_Y = 24.6f; // the lines naming the keys and pad parts that cannot be changed
+constexpr float CELL_STEP = 13.f;
+constexpr float CELL_W = 12.f;
+constexpr int CONTROLS_SLOTS = PAD_SLOT; // the cells of a row: the keys and the mouse button
+constexpr float FIXED_KEYS_Y = 23.f; // the line naming the keys that cannot be changed
 
 // Display and Sound tabs: a row is the setting's name and hint, its switch, choice or slider on the right.
 constexpr float OPTION_TOP = 71.5f;
@@ -69,6 +71,14 @@ constexpr float SWITCH_W = 22.f;
 constexpr float CHOICE_W = 30.f;
 constexpr float SLIDER_W = 44.f;
 constexpr float SLIDER_VALUE_W = 9.f; // the number right of the slider
+
+// Gamepad tab (plan gamepad-options-tab): the drawing and its labels (level/ui/pad_layout.h), under them a strip of
+// the stick rows, two a line, each its name and control (its hint a tooltip), and the reset button.
+constexpr float PAD_STRIP_TOP = 34.f; // the first line's top
+constexpr float PAD_STRIP_H = 5.5f;
+constexpr float PAD_STRIP_GAP = 4.f; // between the two halves of a line
+constexpr float PAD_SWITCH_W = 14.f;
+constexpr float PAD_SLIDER_W = 28.f;
 
 // The credits sheet is square; it sits in its own frame, not stretched over the window.
 constexpr Rect CREDITS_SHEET = {CENTRE - 30, 22, 60, 60};
@@ -103,12 +113,13 @@ Rect visibleArea(const RenderSettings& render);
 
 // Display holds [display] of settings.ini, Graphics [graphics] (plan ui-font-setting split them: the Text font row
 // did not fit an eleventh row).
-constexpr std::array<const char*, 5> TABS = {"Controls", "Look", "Display", "Graphics", "Sound"};
+constexpr std::array<const char*, 6> TABS = {"Controls", "Look", "Gamepad", "Display", "Graphics", "Sound"};
 constexpr int CONTROLS_TAB = 0;
 constexpr int MOUSE_TAB = 1;
-constexpr int DISPLAY_TAB = 2;
-constexpr int GRAPHICS_TAB = 3;
-constexpr int SOUND_TAB = 4;
+constexpr int GAMEPAD_TAB = 2; // plan gamepad-options-tab
+constexpr int DISPLAY_TAB = 3;
+constexpr int GRAPHICS_TAB = 4;
+constexpr int SOUND_TAB = 5;
 
 enum class MouseInput : std::uint8_t { None, Left, Middle, Right };
 
@@ -153,9 +164,11 @@ struct OptionRows {
 };
 
 OptionRows optionRows(int tab);
-Rect optionControl(int row, OptionKind kind);
+Rect optionBand(int tab, int row);
+Rect optionControl(int tab, int row, OptionKind kind);
 Rect controlCell(int action, int slot);
 Rect resetButton();
+Rect padResetButton(); // Gamepad tab: the pad's buttons back to the defaults
 
 // ---- icons -----------------------------------------------------------------
 

@@ -63,8 +63,8 @@ jump = pad_a
 
 (The `;` comments after the values above are for this page only. The parser reads comments on their own lines.)
 
-Options shows these on five tabs: Controls, Look (mouse sensitivity, invert Y, camera recentre, the gamepad's stick
-look speed, dead zone and invert Y), Display (window size,
+Options shows these on six tabs: Controls (keys and mouse buttons), Look (mouse sensitivity, invert Y, camera
+recentre), Gamepad (the pad's buttons on a drawing of it, the sticks' look speed, dead zone and invert Y), Display (window size,
 fullscreen, brightness, the rest of `[display]`), Graphics (the rest of `[graphics]`) and Sound. The Brightness row has a calibration box:
 a black square with an ankh a shade above black; set the brightness so the ankh is barely visible. The Window size row
 steps through the common sizes that fit the desktop, then the desktop's own size
@@ -117,9 +117,11 @@ Key names:
   `begin`, `keypad_delete`, `shift`, `right_shift`, `ctrl`, `right_ctrl`, `alt`, `right_alt`, `f12`.
 * Mouse buttons: `mouse_left`, `mouse_middle`, `mouse_right`.
 
-In Options > Controls, click a cell, then press the key (or click the mouse button, in the mouse column; or press the
-pad button, in the pad column). A key bound elsewhere moves to the new action. `Delete` clears the cell, `Esc` (or the
-pad's Start) cancels.
+In Options > Controls, click a cell, then press the key (or click the mouse button, in the mouse column). A key bound
+elsewhere moves to the new action. `Delete` clears the cell, `Esc` (or the pad's Start) cancels. The pad's buttons are
+on Options > Gamepad ([gamepad-options-tab](plan/gamepad-options-tab.feature.md)): a click or Right on a button's
+label steps it to the next action, a right click or Left back, through none; the action's old button is freed.
+`Delete` clears it.
 
 ## Gamepad
 

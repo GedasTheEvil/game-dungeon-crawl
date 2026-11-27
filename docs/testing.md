@@ -249,7 +249,7 @@ bin/snapdiff [--threshold N] [--tolerance PCT] [--diff DIR] REF_DIR OUT_DIR
   traps run on the game clock), `monsters` (models mid-clip, hit blood, a stun's stars, a boss rising with its bar, its
   bolt, the Anubis guard out of the wall), `effects` (toon ink, sprint blur and its toon order, hurt, blind, daze,
   poison and burning, the death screen, the ankh's choice and the epilogue, brightness) and `ui` (the in-game and main
-  menus, load, options' five tabs, how to play, credits, Hall of Records, inventory tabs and the amulet turntable, HUD
+  menus, load, options' six tabs, how to play, credits, Hall of Records, inventory tabs and the amulet turntable, HUD
   states, draft map, journal and its page curl, riddle, Heka screen, the tooltip, status lines over the banner, the
   confirm box). Not covered: the Hall of Records with a run in it (a record's date is the real day).
 * `tools/snapshots.sh` runs them through `tools/run_scenarios.sh` (Xvfb, llvmpipe, `--no-sound`) and copies each

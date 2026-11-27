@@ -1,0 +1,27 @@
+# Plan gamepad-options-tab: Options > Gamepad draws the pad with each button's action on a label; an Xbox pad's caps,
+# then a PlayStation pad's; a label steps its button to the next action (Right) and back (Left); Controls has no
+# Pad column, Look only the mouse rows.
+level 1
+pad start
+pad dpad_down
+pad dpad_down
+pad dpad_down
+pad dpad_down
+stick left 0 1
+stick left 0 0
+pad a
+wait 2
+screenshot controls
+pad dpad_right
+wait 2
+screenshot look
+pad dpad_right
+wait 2
+screenshot gamepad_xbox
+pad dpad_down
+pad dpad_right
+wait 2
+screenshot stepped
+pad dpad_left ps
+wait 2
+screenshot gamepad_ps

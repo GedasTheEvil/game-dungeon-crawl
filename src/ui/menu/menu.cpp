@@ -11,6 +11,7 @@
 #include "../../level/input/keys.h"
 #include "../../core/paths.h"
 #include "menu_internal.h"
+#include "../../level/ui/pad_layout.h"
 
 namespace menu_internal {
 // ---- layout ----------------------------------------------------------------
@@ -296,17 +297,23 @@ std::vector<MainMenu::Placed> MainMenu::Targets() const {
 			targets.push_back({TAB_BASE + tab, tabRect(tab)});
 		if (optionsTab == CONTROLS_TAB) {
 			for (int action = 0; action < BIND_ACTION_COUNT; action++)
-				for (int slot = 0; slot < BINDING_SLOTS; slot++)
+				for (int slot = 0; slot < CONTROLS_SLOTS; slot++)
 					targets.push_back({BIND_BASE + action * BINDING_SLOTS + slot, controlCell(action, slot)});
 			targets.push_back({RESET_CONTROLS, resetButton()});
 		}
+		if (optionsTab == GAMEPAD_TAB) // the labels of the pad's buttons, then the stick rows and the reset
+			for (const PadLayout::Callout& c : PadLayout::callouts())
+				if (c.Bindable())
+					targets.push_back({PAD_BASE + c.button, PadLayout::labelRect(c)});
 		OptionRows rows = optionRows(optionsTab);
 		for (int i = 0; i < rows.count; i++) {
-			Rect r = optionControl(i, rows[i].kind);
+			Rect r = optionControl(optionsTab, i, rows[i].kind);
 			if (rows[i].kind == OptionKind::Slider) // the knob reaches past the ends
 				r = {r.x - 1.5f, r.y, r.w + 3.f, r.h};
 			targets.push_back({OPTION_BASE + i, r});
 		}
+		if (optionsTab == GAMEPAD_TAB)
+			targets.push_back({RESET_PAD, padResetButton()});
 		targets.push_back({BACK, BACK_BUTTON});
 		return targets;
 	}
@@ -390,6 +397,10 @@ void MainMenu::Navigate(NavKey key) {
 		pointer.Move(TAB_BASE + optionsTab);
 		return;
 	}
+	if (optionsD && sideways && IsPadTarget(target)) {
+		StepPad(target - PAD_BASE, step);
+		return;
+	}
 	if (optionsD && sideways && target >= OPTION_BASE && target < RESET_CONTROLS) {
 		StepOption(target - OPTION_BASE, step);
 		return;
@@ -438,13 +449,25 @@ void MainMenu::Activate(int target) {
 		return;
 	}
 	if (optionsD) {
-		if (target >= BIND_BASE)
+		if (IsPadTarget(target))
+			StepPad(target - PAD_BASE, 1);
+		else if (target >= BIND_BASE)
 			StartCapture(target);
 		else if (target == RESET_CONTROLS) {
-			world.settings.controls = Bindings{};
+			// The keys and the mouse buttons; the pad's stay (Options > Gamepad has its own reset).
+			Bindings defaults;
+			for (int action = 0; action < BIND_ACTION_COUNT; action++) {
+				const auto a = static_cast<BindAction>(action);
+				Binding binding = defaults.Of(a);
+				binding.pad = world.settings.controls.Of(a).pad;
+				defaults.Set(a, binding);
+			}
+			world.settings.controls = defaults;
 			world.applySettings(true);
-			ShowToast("Controls reset to the defaults");
-		} else if (target >= OPTION_BASE)
+			ShowToast("Keys reset to the defaults");
+		} else if (target == RESET_PAD)
+			ResetPad();
+		else if (target >= OPTION_BASE)
 			ActivateOption(target - OPTION_BASE);
 		else
 			optionsTab = target - TAB_BASE;
@@ -579,6 +602,14 @@ void MainMenu::MouseFunction(int button, int state, int x, int y) {
 		ScrollCredits(button == MOUSE_WHEEL_UP ? -1 : 1);
 		return;
 	}
+	// Options > Gamepad: a right click on a label steps its button back.
+	if (button == MOUSE_RIGHT_BUTTON && optionsD && IsPadTarget(target)) {
+		if (state == MOUSE_DOWN)
+			pointer.Down(target, button);
+		else if (const int fired = pointer.Up(target, button); fired != NONE)
+			StepPad(fired - PAD_BASE, -1);
+		return;
+	}
 	if (button != MOUSE_LEFT_BUTTON)
 		return;
 	if (recordsD && RecordsBarButton(state == MOUSE_DOWN, x, y)) { // drags or pages a run's details
@@ -679,6 +710,8 @@ void MainMenu::KeyPressed(unsigned char key) {
 		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Char(key), world.settings.controls)); });
 	else if ((saveD || loadD) && key == KEY_DELETE)
 		AskDelete();
+	else if (optionsD && key == KEY_DELETE && IsPadTarget(pointer.hovered))
+		ClearPad(pointer.hovered - PAD_BASE);
 	else if (recordsD)
 		records.Key(key);
 	else
@@ -690,6 +723,8 @@ void MainMenu::SpecialKeyPressed(int key) {
 		ConfirmInput([&] { confirm.Navigate(navKeyOf(InputKey::Special(key), world.settings.controls)); });
 	else if ((saveD || loadD) && key == SPECIAL_KEYPAD_DELETE)
 		AskDelete();
+	else if (optionsD && key == SPECIAL_KEYPAD_DELETE && IsPadTarget(pointer.hovered))
+		ClearPad(pointer.hovered - PAD_BASE);
 	else if (recordsD)
 		records.SpecialKey(key);
 	else
@@ -710,4 +745,5 @@ void MainMenu::ResetSubScreens() {
 	pointer.Clear();
 	capturing = NONE;
 	dragging = NONE;
+	padStepping = NONE;
 }

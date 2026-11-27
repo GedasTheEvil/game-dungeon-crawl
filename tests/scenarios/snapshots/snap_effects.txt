@@ -65,7 +65,7 @@ walk right 3
 key esc
 click 50 35.7
 wait 2
-click 55.5 76.5
+click 55.9 76.5
 wait 2
 click 82.3 59.1
 wait 2
